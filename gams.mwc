@@ -1,0 +1,9 @@
+
+workspace {
+  cmdline += -feature_file $GAMS_ROOT/default.features
+
+  gams.mpc
+  tests.mpc
+  simulation.mpc
+  docs/Documentation.mpc
+}

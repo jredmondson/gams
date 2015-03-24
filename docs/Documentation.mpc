@@ -1,0 +1,31 @@
+project (documentation_gams_java) : build_files {
+
+  requires += docs java
+
+  prebuild = javadoc -version -d java -sourcepath $(GAMS_ROOT)/port/java/src -classpath $(MADARA_ROOT)/port/java/src -subpackages com.gams
+  
+  custom_only = 1
+  
+  Build_Files {
+    Documentation.mpc
+  }
+}
+
+project (documentation_gams) : doxygen_help_gen, build_files {
+
+  requires += docs
+
+  prebuild = perl $(GAMS_ROOT)/docs/get_version.pl
+
+  custom_only = 1
+  
+  Build_Files {
+    Documentation.mpc
+    doxygen_help_gen.mpb
+  }
+
+  DoxygenTypeSupport_Files {
+    Doxyfile_GAMS.dxy >> gams
+  }
+}
+

@@ -1,0 +1,13 @@
+.vrep_port=19909;
+
+.initial_x=5;
+.initial_y=5;
+
+device.3.command="formation coverage";
+device.3.command.size=6;
+device.3.command.0=0;
+device.3.command.1="4,3.14,0";
+device.3.command.2="4,0,1,2,3";
+device.3.command.3="default";
+device.3.command.4="urec";
+device.3.command.5="region.0";

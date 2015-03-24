@@ -1,0 +1,245 @@
+How to Install GAMS on your system (must be done on each host)
+
+    0. Latest Version
+    1. Introduction
+    2. Prerequisites
+          o ACE
+                + ACE download and install (Linux)
+                + ACE download and install (Windows)
+          o Open Splice Community Edition
+                + Windows
+    3. Installing MADARA
+          o Downloading the source
+          o Set environment variables
+          o Generate the Madara project for your system
+          o Compiling the Madara library on your system
+    4. Installing GAMS
+          o Downloading the source
+          o Set environment variables
+          o Generate the Madara project for your system
+          o Compiling the Madara library on your system
+
+
+========================================================
+0. Latest Version
+
+  This file may not be up-to-date.
+
+  Please see http://code.google.com/p/gams-cmu/wiki/Installation for the
+  latest version of this document.
+
+========================================================
+1. Introduction
+
+This page shows you how to install the GAMS libraries on your system. 
+At this point we do not provide binaries for each system, so you will have
+to compile the GAMSlibrary for your particular architecture.
+
+
+========================================================
+2. Prerequisites
+
+You will need to download ACE and the associated MPC program (which is used
+to generate Visual Studio workspaces or GNU makefiles for the Madara source code).
+
+
+ACE
+--------------------------------
+ACE download and install (Linux)
+
+  * Set environment variables
+      export ACE_ROOT=/opt/ACE_wrappers
+      export TAO_ROOT=$ACE_ROOT/TAO
+      export LD_LIBRARY_PATH=$ACE_ROOT/lib:$TAO_ROOT/lib:$LD_LIBRARY_PATH 
+      export PATH=$ACE_ROOT/bin:$TAO_ROOT/bin:$PATH
+
+  * Downloading ACE+TAO+CIA
+      svn co svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE+TAO+CIAO /opt/ace
+      cd $ACE_ROOT/ace
+      echo "#include \"ace/config-linux.h\"" > config.h
+
+  * Configuring and Generating Makefiles
+      cd $ACE_ROOT/include/makeinclude
+      echo "include \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > platform_macros.GNU
+      cd $TAO_ROOT
+      $ACE_ROOT/bin/mwc.pl -type gnuace TAO_ACE.mwc
+      make
+
+--------------------------------
+ACE download and install (Windows)
+
+  * Set environment variables
+      ACE_ROOT=C:\ace\ACE_wrappers
+      TAO_ROOT=$ACE_ROOT\TAO
+      PATH=%ACE_ROOT%\lib;%TAO_ROOT%\lib;%ACE_ROOT%\bin;%TAO_ROOT%\bin;%PATH%
+
+  * Downloading ACE+TAO+CIA
+      svn co svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE+TAO+CIAO C:\ace
+
+  * Configuring and Generating VS Solutions
+      cd %ACE_ROOT%\ace
+      echo "#include \"ace/config-win32.h\"" > config.h
+      cd %TAO_ROOT%
+
+    -- if using Visual Studio 2005
+       %ACE_ROOT%/bin/mwc.pl -type vc8 TAO_ACE.mwc
+
+    -- if using Visual Studio 2008
+       %ACE_ROOT%/bin/mwc.pl -type vc9 TAO_ACE.mwc
+
+    -- if using Visual Studio 2010
+       %ACE_ROOT%/bin/mwc.pl -type vc10 TAO_ACE.mwc
+
+  * Open your Visual Studio solution (TAO_ACE.sln) and build the solution.
+
+
+Open Splice Community Edition
+--------------------------------
+
+Linux
+
+  First, go ahead and setup the environment variables in your ~/.profile file 
+  or wherever your operating system loads your environment variables from.
+
+    export OSPL_HOME=/opt/splice/HDE/x86.linux2.6
+    export OSPL_TARGET=x86.linux2.6
+    export OSPL_TMPL_PATH=$OSPL_HOME/etc/idlpp
+    export OSPL_URI=file://$OSPL_HOME/etc/config/ospl.xml
+
+    export LD_LIBRARY_PATH=$OSPL_HOME/lib:$LD_LIBRARY_PATH
+    export PATH=$OSPL_HOME/bin:$PATH
+
+  The following commands extract the Open Splice download to the /opt/splice 
+  directory. Feel free to change this to whatever location you'd like splice to reside at:
+
+    cd /opt
+    wget http://www.opensplice.org/releases/downloads/releases/OpenSpliceDDSV5.2-x86.linux2.6-gcc344-gnuc23-HDE.tar.gz
+    mkdir /opt/splice
+    cd /opt/splice
+    tar xvf OpenSpliceDDSV5.2-x86.linux2.6-gcc344-gnuc23-HDE.tar.gz
+
+Windows
+
+  * Download http://code.google.com/p/madara/downloads/detail?name=opensplice_community.zip
+  * Unzip the file to C:\
+  * Set the following environment variables
+
+     OSPL_HOME=C:\Splice\HDE\x86.win32
+     OSPL_TARGET=x86.win32
+     OSPL_TMPL_PATH=%OSPL_HOME%\etc\idlpp
+     OSPL_URI=file://%OSPL_HOME%\etc\config\ospl.xml
+     PATH=%OSPL_HOME%\bin;%OSPL_HOME%\lib;%PATH%
+
+     The zip file contains all the compiled libraries you will need on Windows
+
+
+========================================================
+3. Installing Madara
+---------------------------------------
+Downloading the source
+
+  * Download Madara to /opt/madara on a Linux box
+      svn checkout http://madara.googlecode.com/svn/trunk/ /opt/madara
+
+  * Download Madara to C:\madara on a Windows box
+      svn checkout http://madara.googlecode.com/svn/trunk/ C:\madara
+
+---------------------------------------
+Set environment variables
+
+  * First, make sure you setup ACE on your system and follow the installation
+    notes for setting environment variables for ACE.
+  * Next, set the following environment variable for Madara:
+
+    -- Linux 
+         export MADARA_ROOT=/opt/madara
+         export LD_LIBRARY_PATH=$MADARA_ROOT/lib:$LD_LIBRARY_PATH
+         export PATH=$MADARA_ROOT/bin:$PATH
+
+    -- Windows 
+         MADARA_ROOT=C:\madara
+         PATH=%MADARA_ROOT%\lib;%MADARA_ROOT%\bin;%PATH%
+
+---------------------------------------
+Generate the Madara project for your system
+
+  * Linux
+      cd $MADARA_ROOT
+      mwc.pl -type gnuace MADARA.mwc 
+
+  * Windows
+      cd $MADARA_ROOT
+      mwc.pl -type vc9 MADARA.mwc
+
+---------------------------------------
+Compiling the Madara library on your system
+
+  * Linux
+      cd $MADARA_ROOT
+      make tests=1
+
+  * Windows
+      cd $MADARA_ROOT
+      open the Madara.sln solution file
+      Compile the Visual Studio solution 
+
+
+========================================================
+3. Installing GAMS
+---------------------------------------
+Downloading the source
+
+  * Download GAMS to /opt/madara on a Linux box
+      
+      git clone https://code.google.com/p/gams-cmu /opt/gams
+
+  * Download GAMS to C:\madara on a Windows box
+      git clone https://code.google.com/p/gams-cmu/ C:\gams
+
+---------------------------------------
+Set environment variables
+
+  * First, make sure you setup ACE on your system and follow the installation
+    notes for setting environment variables for ACE. Then, follow the instructions
+    for MADARA.
+  * Next, set the following environment variable for GAMS
+
+    -- Linux 
+         export GAMS_ROOT=/opt/gams
+         export LD_LIBRARY_PATH=$GAMS_ROOT/lib:$LD_LIBRARY_PATH
+         export PATH=$GAMS_ROOT/bin:$PATH
+
+    -- Windows 
+         MADARA_ROOT=C:\gams
+         PATH=%GAMS_ROOT%\lib;%GAMS_ROOT%\bin
+
+---------------------------------------
+Generate the GAMS project for your system
+
+  * Linux
+      cd $GAMS_ROOT
+      mwc.pl -type gnuace gams.mwc 
+
+  * Windows
+      cd $GAMS_ROOT
+      mwc.pl -type vc9 gams.mwc
+
+  Note that this does not generate features like vrep or dronerk. To enable
+  these features, add -features and set the appropriate feature from the
+  default.features file. For instance:
+
+  mwc.pl -type gnuace -features vrep=1,dronerk=1 gams.mwc
+
+  This will generate makefiles that include the VREP and Drone-RK platforms.
+
+---------------------------------------
+Compiling the GAMS library on your system
+
+  * Linux
+      cd $GAMS_ROOT
+      make tests=1
+
+  * Windows
+      cd %GAMS_ROOT%
+      open the gams.sln solution file
+      Compile the Visual Studio solution 

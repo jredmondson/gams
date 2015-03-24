@@ -1,0 +1,122 @@
+project (test_mape_loop) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_mape_loop
+  
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    tests/test_mape_loop.cpp
+  }
+}
+
+
+project (test_controller) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_controller
+  
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    tests/test_controller.cpp
+  }
+}
+
+project (test_controller_run) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_controller_run
+  
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+    tests/helper
+  }
+
+  Source_Files {
+    tests/helper
+    tests/test_controller_run.cpp
+  }
+}
+
+project (test_utility) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_utility
+
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    src/tests/test_utility.cpp
+  }
+}
+
+project (test_variables) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_variables
+
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    src/tests/test_variables.cpp
+  }
+}

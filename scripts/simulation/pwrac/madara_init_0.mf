@@ -1,0 +1,9 @@
+.vrep_port=19906;
+
+.initial_x=15;
+.initial_y=15;
+
+device.0.command="cover";
+device.0.command.size=2;
+device.0.command.0="pwrac";
+device.0.command.1="search_area.2";

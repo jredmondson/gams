@@ -1,0 +1,39 @@
+feature (java) {
+
+  requires += java
+
+  includes += $(JAVA_HOME)/include
+  includes += port/java/jni
+  
+  macros += _GAMS_JAVA_
+
+  Build_Files {
+    port/java/using_android.mpb
+    port/java/using_java.mpb
+    port/java/using_openjdk.mpb
+  }
+  
+  specific (prop:windows) {
+    includes += $(JAVA_HOME)/include/win32
+  } else {
+    includes += $(JAVA_HOME)/include/darwin
+    includes += $(JAVA_HOME)/include/linux
+  }
+  
+  Source_Files {
+    Java {
+      port/java/jni
+      src/gams/platforms/java
+      src/gams/algorithms/java
+    }
+  }
+  
+  Header_Files {
+    Java {
+      port/java/jni
+      src/gams/platforms/java
+      src/gams/algorithms/java
+    }
+  }
+
+}

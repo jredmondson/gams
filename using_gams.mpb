@@ -1,0 +1,11 @@
+project {
+  includes += $(GAMS_ROOT)/src
+  libpaths += $(GAMS_ROOT)/lib
+  after += gams  
+  libs += GAMS
+
+  verbatim (gnuace, local) {
+    CPPFLAGS += -w
+  }
+  
+}

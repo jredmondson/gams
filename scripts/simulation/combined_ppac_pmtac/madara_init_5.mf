@@ -1,0 +1,9 @@
+.vrep_port=19911;
+
+.initial_x=21;
+.initial_y=21;
+
+device.5.command="cover";
+device.5.command.size=2;
+device.5.command.0="pmtac";
+device.5.command.1="search_area.2";

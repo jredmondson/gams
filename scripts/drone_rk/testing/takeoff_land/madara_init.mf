@@ -1,0 +1,4 @@
+device.0.command="move";
+device.0.command.size=0;
+//device.0.command.0="pwrac";
+//device.0.command.1="search_area.2";

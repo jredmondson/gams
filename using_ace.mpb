@@ -1,0 +1,5 @@
+project : acelib {
+  specific(prop:microsoft) {
+    DisableSpecificWarnings += 4244
+  }
+}

@@ -1,0 +1,13 @@
+project {
+  requires += docs
+  
+  prebuild += perl $(MADARA_ROOT)/docs/get_version.pl
+  
+  Define_Custom(DoxygenTypeSupport) {
+    command               = doxygen
+    inputext              = .dxy
+
+    keyword doxyflags     = commandflags
+  }
+  
+}

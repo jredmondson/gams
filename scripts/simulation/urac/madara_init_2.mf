@@ -1,0 +1,9 @@
+.vrep_port=19908;
+
+.initial_x=20;
+.initial_y=20;
+
+device.2.command="cover";
+device.2.command.size=2;
+device.2.command.0="urac";
+device.2.command.1="region.0";

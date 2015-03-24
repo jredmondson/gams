@@ -1,0 +1,5 @@
+feature (openjdk) {
+  requires += java
+
+  macros += _USING_OPENJDK_
+}

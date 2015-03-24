@@ -1,0 +1,12 @@
+.vrep_port=19909;
+
+.initial_x=18;
+.initial_y=18;
+
+device.3.command="formation";
+device.3.command.size=5;
+device.3.command.0=0;
+device.3.command.1="1.25,3.14,0";
+device.3.command.2="40.443387,-79.940270,2";
+device.3.command.3="5,0,1,2,3,4";
+device.3.command.4="rotate";

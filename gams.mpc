@@ -1,0 +1,144 @@
+project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk {
+  libout = lib
+  sharedname = GAMS
+  includes += src
+  dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
+  
+  verbatim (gnuace, local) {
+    CPPFLAGS += -w
+  }
+  
+  Documentation_Files {
+    INSTALL.txt
+    LICENSE.txt
+    README.txt
+    VERSION.txt
+  }
+  
+  Build_Files {
+    default.features
+    gams.mpc
+    gams.mwc
+    using_ace.mpb
+    using_madara.mpb
+    using_gams.mpb
+    using_dronerk.mpb
+    using_vrep.mpb
+    vrep_lib.mpb
+  }
+
+  Header_Files {
+
+    Algorithms {
+      src/gams/algorithms
+    }
+
+    Area_Coverage {
+      src/gams/algorithms/area_coverage
+    }
+
+    Controllers {
+      src/gams/controllers
+    }
+
+    Maps {
+      src/gams/maps
+    }
+
+    Platforms {
+      src/gams/platforms
+    }
+
+    Utility {
+      src/gams/utility
+    }
+
+    Variables {
+      src/gams/variables
+    }
+
+    src/gams
+  }
+
+  Source_Files {
+
+    Algorithms {
+      src/gams/algorithms
+    }
+
+    Area_Coverage {
+      src/gams/algorithms/area_coverage
+    }
+
+    Controllers {
+      src/gams/controllers
+    }
+
+    Maps {
+      src/gams/maps
+    }
+
+    Platforms {
+      src/gams/platforms
+    }
+
+    Utility {
+      src/gams/utility
+    }
+
+    Variables {
+      src/gams/variables
+    }
+
+    src/gams
+  }
+}
+
+project (gams_jar) : using_gams, using_madara, using_ace {
+  requires += java
+
+  prebuild += javac -classpath $(MADARA_ROOT)/lib/madara.jar -sourcepath port/java/src port/java/src/com/gams/tests/*.java port/java/src/com/gams/*.java port/java/src/com/gams/variables/*.java port/java/src/com/gams/utility/*.java port/java/src/com/gams/platforms/*.java port/java/src/com/gams/algorithms/*.java port/java/src/com/gams/controllers/*.java
+  postbuild += jar cf lib/gams.jar -C port/java/src .
+
+  Documentation_Files {
+    port/java/src/*.java
+    port/java/src/com/gams/*.java
+    port/java/src/com/gams/algorithms/*.java
+    port/java/src/com/gams/controllers/*.java
+    port/java/src/com/gams/platforms/*.java
+    port/java/src/com/gams/variables/*.java
+  }
+  
+  Build_Files {
+    gams.mpc
+    port/java
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+  }
+}
+
+project (gams_controller) : using_gams, using_madara, using_ace, using_dronerk, using_vrep {
+  exeout = $(GAMS_ROOT)/bin
+  exename = gams_controller
+  
+  macros +=  _USE_MATH_DEFINES
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    src/gams/programs/gams_controller.cpp
+  }
+}

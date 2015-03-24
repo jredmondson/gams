@@ -1,0 +1,9 @@
+.vrep_port=19909;
+
+.initial_x=20;
+.initial_y=20;
+
+device.3.command="cover";
+device.3.command.size=2;
+device.3.command.0="local pheremone";
+device.3.command.1="search_area.1";

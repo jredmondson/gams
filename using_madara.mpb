@@ -1,0 +1,6 @@
+project {
+  includes += $(MADARA_ROOT)/include
+  libpaths += $(MADARA_ROOT)/lib
+  after += Madara  
+  libs += MADARA
+}

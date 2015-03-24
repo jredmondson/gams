@@ -1,0 +1,5 @@
+feature (android) {
+  requires += java
+
+  macros += _GAMS_ANDROID_
+}

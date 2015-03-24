@@ -1,0 +1,17 @@
+*.so
+*.o
+Makefile
+*algorithm*.txt
+*.csv
+.depend.*
+GNUmakefile*
+lib*
+
+gams_controller
+test_controller
+test_controller_run
+test_mape_loop
+test_utility
+test_variables
+dynamic_simulation
+drone_files/
