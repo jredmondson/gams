@@ -1,0 +1,14 @@
+Visual Studio can be especially hard to debug Java build issues with. Try the following
+to get detailed Java debug information from javac:
+
+==============================
+WINDOWS
+
+javac -classpath %MADARA_ROOT%\lib\madara.jar -sourcepath port/java/src port/java/src/com/gams/tests/*.java port/java/src/com/gams/*.java port/java/src/com/gams/variables/*.java port/java/src/com/gams/utility/*.java port/java/src/com/gams/platforms/*.java port/java/src/com/gams/algorithms/*.java port/java/src/com/gams/controllers/*.java
+
+
+==============================
+LINUX
+
+javac -classpath $MADARA_ROOT\lib\madara.jar -sourcepath port/java/src port/java/src/com/gams/tests/*.java port/java/src/com/gams/*.java port/java/src/com/gams/variables/*.java port/java/src/com/gams/utility/*.java port/java/src/com/gams/platforms/*.java port/java/src/com/gams/algorithms/*.java port/java/src/com/gams/controllers/*.java
+

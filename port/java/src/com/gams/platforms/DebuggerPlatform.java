@@ -136,6 +136,15 @@ public class DebuggerPlatform extends BasePlatform
   public int sense ()
   {
     System.out.println("Platform.sense called");
+    
+    Position position = getPosition();
+    
+    knowledge.set("position", 0);
+    
+    self.device.location.set(0,position.getX());
+    self.device.location.set(1,position.getY());
+    self.device.location.set(2,position.getZ());
+    
     return Status.OK.value ();
   }
   

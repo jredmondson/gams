@@ -124,6 +124,8 @@ gams::algorithms::Formation_Coverage::analyze (void)
   {
     my_formation_->analyze ();
   }
+
+  return 0;
 }
       
 int
@@ -138,6 +140,8 @@ gams::algorithms::Formation_Coverage::execute (void)
   {
     my_formation_->execute();
   }
+
+  return 0;
 }
 
 int
@@ -153,4 +157,6 @@ gams::algorithms::Formation_Coverage::plan (void)
   {
     my_formation_->plan ();
   }
+
+  return 0;
 }
