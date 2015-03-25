@@ -43,6 +43,7 @@ public class BaseController extends GamsJNI
   {
     setCPtr(jni_BaseControllerFromKb(knowledge.getCPtr ()));
     
+    initVars(0, 1);
     initPlatform(new DebuggerPlatform ());
     initAlgorithm(new DebuggerAlgorithm ());
   }

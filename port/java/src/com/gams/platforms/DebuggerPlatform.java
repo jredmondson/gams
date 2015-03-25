@@ -7,6 +7,7 @@
 package com.gams.platforms;
 
 import com.gams.utility.Position;
+import com.madara.EvalSettings;
 
 /**
  * Interface for defining a platform to be used by GAMS. Care must be taken
@@ -138,8 +139,6 @@ public class DebuggerPlatform extends BasePlatform
     System.out.println("Platform.sense called");
     
     Position position = getPosition();
-    
-    knowledge.set("position", 0);
     
     self.device.location.set(0,position.getX());
     self.device.location.set(1,position.getY());
