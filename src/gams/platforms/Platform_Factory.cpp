@@ -45,6 +45,7 @@
  **/
 #include "Platform_Factory.h"
 #include "Printer_Platform.h"
+#include "Null_Platform.h"
 
 #ifdef _GAMS_DRONERK_
 #include "dronerk/Drone_RK.h"
@@ -92,6 +93,10 @@ gams::platforms::Factory::create (const std::string & type)
       }
       return new Printer_Platform (knowledge_, sensors_, platforms_, self_);
     }
+  }
+  else if (type == "null")
+  {
+    return new Null_Platform (knowledge_, sensors_, platforms_, self_);
   }
 #ifdef _GAMS_DRONERK_
   else if (type == "drone-rk" || type == "dronerk")

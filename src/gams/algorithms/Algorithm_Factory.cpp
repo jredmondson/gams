@@ -48,6 +48,7 @@
 #include "gams/algorithms/Land.h"
 #include "gams/algorithms/Move.h"
 #include "gams/algorithms/Printer_Algorithm.h"
+#include "gams/algorithms/Null_Algorithm.h"
 #include "gams/algorithms/Formation_Flying.h"
 #include "gams/algorithms/Formation_Coverage.h"
 #include "gams/algorithms/Takeoff.h"
@@ -216,6 +217,10 @@ gams::algorithms::Factory::create (const std::string & type,
       result = new Follow (args[0] /*follow target*/,
         args[1] /*timestep delay*/, knowledge_, platform_, sensors_, self_);
     }
+  }
+  else if (type == "null")
+  {
+    result = new Null_Algorithm (knowledge_, platform_, sensors_, self_);
   }
 
   return result;
