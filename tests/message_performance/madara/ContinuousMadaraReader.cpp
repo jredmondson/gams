@@ -15,6 +15,80 @@ using std::cerr;
 using std::cout;
 using std::endl;
 
+double num_sec = 10;
+
+Madara::Transport::QoS_Transport_Settings settings;
+
+void handle_arguments (int argc, char ** argv)
+{
+  for (int i = 1; i < argc; ++i)
+  {
+    std::string arg1 (argv[i]);
+    bool error = true;
+
+    if (arg1 == "-u" || arg1 == "--udp")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.clear();
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = Madara::Transport::UDP;
+        error = false;
+      }
+
+      ++i;
+    }
+    else if (arg1 == "-b" || arg1 == "--broadcast")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.clear();
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = Madara::Transport::BROADCAST;
+        error = false;
+      }
+
+      ++i;
+    }
+    else if (arg1 == "-m" || arg1 == "--multicast")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.clear();
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = Madara::Transport::MULTICAST;
+        error = false;
+      }
+
+      ++i;
+    }
+    else if (arg1 == "-d" || arg1 == "--duration")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream ss;
+        ss << argv[i + 1];
+        ss >> num_sec;
+        error = false;
+      }
+
+      ++i;
+    }
+
+    if(error)
+    {
+      cerr << "Test MADARA Reader: " << argv[0] << endl;
+      cerr << "  Defaults to using multicast transport on 239.255.0.1:4150" << endl;
+      cerr << endl;
+      cerr << "    [-u | --udp <address>]         Address for UDP transport" << endl;
+      cerr << "    [-b | --broadcast <address>]   Address for broadcast transport" << endl;
+      cerr << "    [-m | --multicast <address>]   Address for multicast transport (default: 239.255.0.1:4150)" << endl;
+      cerr << "    [-d | --duration <duration>]   number of seconds to run test (default: 10)" << endl;
+      exit (0);
+    }
+  }
+}
+
 class CounterFilter : public Madara::Filters::Record_Filter
 {
 public:
@@ -30,37 +104,24 @@ public:
   }
 };
 
-int main(int /*argc*/, char** /*argv*/)
+int main(int argc, char** argv)
 {
-  Madara::Transport::QoS_Transport_Settings settings;
+  handle_arguments(argc, argv);
 
-//  settings.type = Madara::Transport::BROADCAST;
-//  settings.hosts.push_back(std::string("192.168.0.255:1500"));
-  settings.type = Madara::Transport::MULTICAST;
-  settings.hosts.push_back(std::string("239.255.0.1:4150"));
+  if(settings.hosts.size() == 0)
+  {
+    const std::string default_multicast ("239.255.0.1:4150");
+    settings.hosts.push_back(default_multicast);
+    settings.type = Madara::Transport::MULTICAST;
+  }
 
   CounterFilter counter;
   settings.add_receive_filter(Madara::Knowledge_Record::ALL_TYPES, &counter);
   Madara::Knowledge_Engine::Knowledge_Base knowledge("", settings);
 
-  // get start time
-  time_t start;
-  time(&start);
-  time_t end;
-  time(&end);
+  num_sec = Madara::Utility::sleep(num_sec);
 
-  // number of seconds to test
-  const int NUM_SEC = 10;
-  uint64_t loops = 0;
-
-  while(end - start < NUM_SEC)
-  {
-    ++loops;
-    time(&end);
-  }
-
-  cerr << double(loops) / double(NUM_SEC) << " Hz loop rate" << endl;
-  cerr << double(counter.count) / double(NUM_SEC) << "Hz update rate" << endl;
+  cerr << double(counter.count) / num_sec << " Hz update rate" << endl;
 
   return 0;
 }
