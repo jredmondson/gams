@@ -2,7 +2,7 @@
  * ContinuousMadaraReader.cpp
  * Anton Dukeman
  *
- * Listens for database updates
+ * Counts database updates
  */
 
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -22,7 +22,8 @@ public:
 
   CounterFilter() : count(0) {}
 
-  Madara::Knowledge_Record filter(Madara::Knowledge_Engine::Function_Arguments& args, Madara::Knowledge_Engine::Variables & /*vars*/)
+  Madara::Knowledge_Record filter(Madara::Knowledge_Engine::Function_Arguments& args,
+    Madara::Knowledge_Engine::Variables & /*vars*/)
   {
     ++count;
     return args[1];
@@ -33,10 +34,10 @@ int main(int /*argc*/, char** /*argv*/)
 {
   Madara::Transport::QoS_Transport_Settings settings;
 
-  settings.type = Madara::Transport::BROADCAST;
-  settings.hosts.push_back(std::string("192.168.0.255:1500"));
-//  settings.type = Madara::Transport::MULTICAST;
-//  settings.hosts.push_back(std::string("239.255.0.1:4150"));
+//  settings.type = Madara::Transport::BROADCAST;
+//  settings.hosts.push_back(std::string("192.168.0.255:1500"));
+  settings.type = Madara::Transport::MULTICAST;
+  settings.hosts.push_back(std::string("239.255.0.1:4150"));
 
   CounterFilter counter;
   settings.add_receive_filter(Madara::Knowledge_Record::ALL_TYPES, &counter);

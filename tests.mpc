@@ -120,3 +120,33 @@ project (test_variables) : using_gams, using_madara, using_ace {
     src/tests/test_variables.cpp
   }
 }
+
+project (test_madara_reader) : using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_madara_reader
+
+  requires += tests
+
+  Build_Files {
+    tests.mpc
+  }
+
+  Source_Files {
+    tests/message_performance/madara/ContinuousMadaraReader.cpp
+  }
+}
+
+project (test_madara_writer) : using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_madara_writer
+
+  requires += tests
+
+  Build_Files {
+    tests.mpc
+  }
+
+  Source_Files {
+    tests/message_performance/madara/ContinuousMadaraWriter.cpp
+  }
+}
