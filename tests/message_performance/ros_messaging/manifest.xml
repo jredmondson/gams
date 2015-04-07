@@ -1,6 +1,6 @@
 <package>
-  <description brief="messaging">
-    messaging 
+  <description brief="ros_messaging">
+    ros_messaging 
   </description>
   <author>Anton Dukeman</author>
   <license>BSD</license>
