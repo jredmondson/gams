@@ -1,0 +1,9 @@
+<package>
+  <description brief="messaging">
+    messaging 
+  </description>
+  <author>Anton Dukeman</author>
+  <license>BSD</license>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+</package>
