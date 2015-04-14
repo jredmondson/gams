@@ -18,7 +18,7 @@ public class Self extends GamsJNI
   private native long jni_Self();
   private native long jni_Self(long cptr);
   private static native void jni_freeSelf(long cptr);
-  private native void jni_init(long cptr, long type, long kb, java.lang.String name);
+  private native void jni_init(long cptr, long type, long kb, long name);
   private native java.lang.String jni_toString(long cptr);
   private native long jni_getId(long cptr);
   private native long jni_getDevice(long cptr);
@@ -85,26 +85,26 @@ public class Self extends GamsJNI
   }
   
   /**
-   * Sets the name and knowledge base being referred to
+   * Initializes the id and device containers within Self
    *
-   * @param  kb      the knowledge base that contains the name
-   * @param  name    the variable name
+   * @param  kb      the knowledge base that contains the device info
+   * @param  id      the device id (0->n-1)
    */
-  public void init(KnowledgeBase kb, java.lang.String name)
+  public void init(KnowledgeBase kb, long id)
   {
-    jni_init(getCPtr(), 0, kb.getCPtr (), name);
+    jni_init(getCPtr(), 0, kb.getCPtr (), id);
     init();
   }
 
   /**
-   * Sets the name and knowledge base being referred to
+   * Initializes the id and device containers within Self
    *
-   * @param  vars    the variables facade that contains the name
-   * @param  name    the variable name
+   * @param  vars    the variables facade that contains the device info
+   * @param  id      the device id (0->n-1)
    */
-  public void init(Variables vars, java.lang.String name)
+  public void init(Variables vars, long id)
   {
-    jni_init(getCPtr(), 1, vars.getCPtr (), name);
+    jni_init(getCPtr(), 1, vars.getCPtr (), id);
     init();
   }
 
