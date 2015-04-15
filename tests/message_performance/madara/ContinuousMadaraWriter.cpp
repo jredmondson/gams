@@ -15,6 +15,7 @@ using std::cout;
 using std::endl;
 
 double num_sec = 12;
+unsigned int sleep_time = 0;
 
 Madara::Transport::QoS_Transport_Settings settings;
 
@@ -70,6 +71,18 @@ void handle_arguments (int argc, char ** argv)
 
       ++i;
     }
+    else if (arg1 == "-s" || arg1 == "--sleep")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream ss;
+        ss << argv[i + 1];
+        ss >> sleep_time;
+        error = false;
+      }
+
+      ++i;
+    }
 
     if(error)
     {
@@ -78,8 +91,9 @@ void handle_arguments (int argc, char ** argv)
       cerr << endl;
       cerr << "    [-u | --udp <address>]         Address for UDP transport" << endl;
       cerr << "    [-b | --broadcast <address>]   Address for broadcast transport" << endl;
-      cerr << "    [-m | --multicast <address>]   Address for multicast transport (default: 239.255.0.1:4150)" << endl;
+      cerr << "    [-m | --multicast <address>]   Address for multicast transport" << endl;
       cerr << "    [-d | --duration <duration>]   number of seconds to run test (default: 12)" << endl;
+      cerr << "    [-s | --sleep <duration>]      number of usec to sleep (default: 0)" << endl;
       exit (0);
     }
   }
@@ -88,14 +102,6 @@ void handle_arguments (int argc, char ** argv)
 int main(int argc, char** argv)
 {
   handle_arguments(argc, argv);
-
-  // set default transport
-  if(settings.hosts.size() == 0)
-  {
-    const std::string default_multicast ("239.255.0.1:4150");
-    settings.hosts.push_back(default_multicast);
-    settings.type = Madara::Transport::MULTICAST;
-  }
 
   Madara::Knowledge_Engine::Knowledge_Base knowledge("", settings);
 
@@ -114,6 +120,7 @@ int main(int argc, char** argv)
   {
     knowledge.set(key, val);
     ++updates;
+    usleep(sleep_time);
     time(&end);
   }
 

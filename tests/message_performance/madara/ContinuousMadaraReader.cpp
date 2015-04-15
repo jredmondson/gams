@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
   num_sec = Madara::Utility::sleep(num_sec);
 
-  cerr << double(counter.count) / num_sec << " Hz update rate" << endl;
+  cout << double(counter.count) / num_sec << " Hz update rate" << endl;
 
   return 0;
 }
