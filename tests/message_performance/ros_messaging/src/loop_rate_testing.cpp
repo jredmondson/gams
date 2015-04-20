@@ -131,7 +131,7 @@ int main(int argc, char** argv)
   {
     // subscribe to "chatter" topic, a queue of 100k messages, callback is the function named callback, use UDP, if publisher
     //    doesn't support UDP for some reason, it will fallback to TCP
-    sub = n.subscribe("chatter", queue, callback, ros::TransportHints().unreliable());
+    sub = n.subscribe("chatter", queue, callback, ros::TransportHints().udp());
   }
   else
   {

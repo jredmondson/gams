@@ -378,14 +378,14 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
     " Obtaining user-defined move method\n"));
 
   jmethodID move_call = jvm.env->GetMethodID(
-    class_, "move", "(Lcom.gams.utility.Position;D)I" );
+    class_, "move", "(Lcom/gams/utility/Position;D)I" );
   
   GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG, 
     DLINFO "gams::platforms::Java_Platform::move:" \
     " Obtaining Position class and constructor\n"));
 
-  jclass pos_class = jvm.env->FindClass ("com.gams.utility.Position");
-  jmethodID pos_const = jvm.env->GetMethodID(pos_class, "<init>", "(JJJ)V");
+  jclass pos_class = jvm.env->FindClass ("com/gams/utility/Position");
+  jmethodID pos_const = jvm.env->GetMethodID(pos_class, "<init>", "(DDD)V");
 
   if (move_call)
   {

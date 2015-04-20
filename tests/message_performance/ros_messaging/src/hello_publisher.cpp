@@ -17,6 +17,7 @@ using std::endl;
 
 size_t buffer = 1000;
 double num_sec = 15;
+size_t sleep_time = 0;
 
 void handle_arguments (int argc, char ** argv)
 {
@@ -49,12 +50,25 @@ void handle_arguments (int argc, char ** argv)
 
       ++i;
     }
+    else if (arg1 == "-s" || arg1 == "--sleep")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream ss;
+        ss << argv[i + 1];
+        ss >> sleep_time;
+        error = false;
+      }
+
+      ++i;
+    }
 
     if(error)
     {
       cerr << "Test ROS publisher: " << argv[0] << endl;
       cerr << "  [-b | --buffer size]     size of the send buffer (default, 1000)" << endl;
       cerr << "  [-t | --time duration]   test duration (default, 15)" << endl;
+      cerr << "  [-s | --sleep duration]  time to sleep in usec (default, 0)" << endl;
       exit (0);
     }
   }
@@ -95,6 +109,9 @@ int main(int argc, char** argv)
 
     // publish message
     publisher.publish(msg);
+
+    // sleep a bit
+    usleep(sleep_time);
 
     // timing and looping counter
     time(&end);
