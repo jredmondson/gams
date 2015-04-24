@@ -46,6 +46,10 @@ public class TestDebuggerLoopFilters
     
     System.out.println("Printing resulting knowledges...");
     knowledge.print();
+    
+    controller.free();
+    transportSettings.free();
+    knowledge.free();
   }
   
   

@@ -261,6 +261,7 @@ public class BaseController extends GamsJNI
   public void free()
   {
     jni_freeBaseController(getCPtr());
+    setCptr(0);
   }
 }
 
