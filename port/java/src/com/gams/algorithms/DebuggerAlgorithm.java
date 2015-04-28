@@ -6,6 +6,8 @@
  *********************************************************************/
 package com.gams.algorithms;
 
+import com.madara.containers.Integer;
+
 /**
  * Algorithm settings debugger class
  */
@@ -16,18 +18,22 @@ public class DebuggerAlgorithm extends BaseAlgorithm
    **/
   public DebuggerAlgorithm()
   {
+    executions = new com.madara.containers.Integer();
   }
 
   /**
    * Analyzes the state of the algorithm
    **/
-  public int analyze ()
+  public int analyze()
   {
-    System.out.println("Algorithm.analyze called");
+    executions.setName(knowledge, ".executions");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":Algorithm.analyze called");
     
     if(platform.getCPtr() != 0)
     {
-      System.out.println("  platform_id: " + platform.getId() +
+      System.out.println(self.id.get() + ":" + executions.get () +
+        ":  platform_id: " + platform.getId() +
       	", platform_name: " + platform.getName());
       platform.getPositionAccuracy();
       platform.getPosition();
@@ -36,28 +42,31 @@ public class DebuggerAlgorithm extends BaseAlgorithm
     }
     else
     {
-      System.out.println("  platform is null, so no operations called");
+      System.out.println(self.id.get() + ":" + executions.get () +
+        ":  platform is null, so no operations called");
     }
     
-    return Status.OK.value ();
+    return Status.OK.value();
   }
   
   /**
    * Plans the next stage of the algorithm
    **/
-  public int plan ()
+  public int plan()
   {
-    System.out.println("Algorithm.plan called");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":Algorithm.plan called");
     
-    return Status.OK.value ();
+    return Status.OK.value();
   }
   
   /**
    * Executes the next stage of the algorithm
    **/
-  public int execute ()
+  public int execute()
   {
-    System.out.println("Algorithm.execute called");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":Algorithm.execute called");
     
     if(platform.getCPtr() != 0)
     {
@@ -70,10 +79,14 @@ public class DebuggerAlgorithm extends BaseAlgorithm
     }
     else
     {
-      System.out.println("  platform is null, so no operations called");
+      System.out.println(self.id.get() + ":" + executions.get () +
+        ":  platform is null, so no operations called");
     }
+    executions.inc();
     
-    return Status.OK.value ();
+    return Status.OK.value();
   }
+  
+  private com.madara.containers.Integer executions;
 }
 

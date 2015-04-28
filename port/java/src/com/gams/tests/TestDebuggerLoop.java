@@ -29,7 +29,7 @@ public class TestDebuggerLoop
     BaseController controller = new BaseController(knowledge);
     
     System.out.println("Running controller every 1s for 10s...");
-    controller.run(1.0, 10.0);
+    controller.run(1.0, 200.0);
     
     controller.free();
     knowledge.free();
