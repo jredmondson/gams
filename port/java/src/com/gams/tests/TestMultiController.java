@@ -16,6 +16,8 @@ import java.lang.Double;
 import java.lang.Thread;
 
 import com.madara.KnowledgeBase;
+import com.madara.transport.QoSTransportSettings;
+import com.madara.transport.TransportType;
 import com.gams.controllers.BaseController;
 import com.gams.utility.Logging;
 import com.gams.platforms.DebuggerPlatform;
@@ -33,9 +35,21 @@ public class TestMultiController
     double length;
     
     public ControllerThread (int tid, int tprocesses,
-      double thertz, double tlength)
+      double thertz, double tlength, boolean networked)
     {
-      knowledge = new KnowledgeBase();
+      if (networked)
+      {
+        QoSTransportSettings settings = new QoSTransportSettings();
+        settings.setHosts(new String[]{"239.255.0.1:4150"});
+        settings.setType(TransportType.MULTICAST_TRANSPORT);
+        
+        knowledge = new KnowledgeBase("", settings);
+      }
+      else
+      {
+        knowledge = new KnowledgeBase();
+      }
+      
       controller = new BaseController(knowledge);
       
       id = tid;
@@ -69,6 +83,8 @@ public class TestMultiController
     int numControllers = 1;
     double hertz = 50;
     double length = 120;
+    boolean networked = false;
+    
     if (args.length > 0)
     {
       try
@@ -105,23 +121,42 @@ public class TestMultiController
         System.exit(1);
       }
       
+      if (args.length >= 4)
+      {
+        if (args[3].equalsIgnoreCase("yes"))
+        {
+          networked = true;
+        }
+      }
+      
     }
     else
     {
-      System.err.println("Test takes three arguments: num_controls hertz length");
+      System.err.println("Test takes four arguments: num_controls hertz length [networking?]");
       System.err.println("  num_controls specifies the number of controllers");
       System.err.println("  hertz specifies the hertz rate to run at");
       System.err.println("  length specifies the time in seconds to run");
+      System.err.println("  networking is optional. By default the controllers" +
+        " are not networked. Any variation of yes will enable networking.");
       System.exit(1);
     }
 
-    System.out.println("Creating " + numControllers + " base controllers...");
+    if (!networked)
+    {
+      System.out.println("Creating " + numControllers + " base controllers...");
+    }
+    else
+    {
+      System.out.println("Creating " + numControllers +
+        " networked base controllers...");
+    }
     
     ControllerThread [] controllers = new ControllerThread[numControllers];
     
     for (int i = 0; i < numControllers; ++i)
     {
-      controllers[i] = new ControllerThread(i, numControllers, hertz, length);
+      controllers[i] = new ControllerThread(i, numControllers,
+        hertz, length, networked);
     }
     
     System.out.println("Starting " + numControllers + " base controllers...");
