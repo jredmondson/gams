@@ -271,7 +271,7 @@ int main (int argc, char ** argv)
   controllers::Base loop (knowledge);
 
   // initialize variables and function stubs
-  loop.init_vars (0, 4);
+  loop.init_vars (1, 4);
   
   // initialize the platform and algorithm
   loop.init_algorithm (algorithm);

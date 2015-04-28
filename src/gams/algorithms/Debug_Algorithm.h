@@ -45,127 +45,90 @@
  **/
 
 /**
- * @file Printer_Platform.h
+ * @file Debug_Algorithm.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the platform debug class
+ * This file contains a debugger algorithm that prints out each
+ * step of its execution to stdout
  **/
 
-#ifndef   _GAMS_PLATFORM_PRINTER_H_
-#define   _GAMS_PLATFORM_PRINTER_H_
+#ifndef   _GAMS_ALGORITHMS_DEBUG_H_
+#define   _GAMS_ALGORITHMS_DEBUG_H_
 
-#include "gams/variables/Self.h"
+#include <string>
+
+#include "madara/knowledge_engine/containers/Integer.h"
+
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "gams/variables/Algorithm.h"
+#include "gams/variables/Self.h"
+#include "gams/algorithms/Base_Algorithm.h"
 
 namespace gams
 {
-  namespace platforms
+  namespace algorithms
   {
-    class GAMS_Export Printer_Platform : public Base
+    class GAMS_Export Debug_Algorithm : public Base
     {
     public:
       /**
        * Constructor
-       * @param  knowledge  knowledge base
-       * @param  sensors    map of sensor names to sensor information
-       * @param  platforms  map of platform names to platform information
-       * @param  self       device variables that describe self state
+       * @param  knowledge    the context containing variables and values
+       * @param  platform     the underlying platform the algorithm will use
+       * @param  sensors      map of sensor names to sensor information
+       * @param  self         self-referencing variables
+       * @param  executions_location  location of an executions variable
+       *                    within the knowledge base to use for printing,
+       *                    after the .id identifier.
        **/
-      Printer_Platform (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self);
+      Debug_Algorithm (
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        platforms::Base * platform = 0,
+        variables::Sensors * sensors = 0,
+        variables::Self * self = 0,
+        const std::string & executions_location = ".executions");
 
       /**
        * Destructor
        **/
-      ~Printer_Platform ();
+      ~Debug_Algorithm ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Printer_Platform & rhs);
-
+      void operator= (const Debug_Algorithm & rhs);
+      
       /**
-       * Analyzes platform information
+       * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int analyze (void);
-       
-      /**
-       * Get the location aproximation value of what is considered close enough
-       * @return location approximation radius
-       **/
-      virtual double get_accuracy () const;
       
       /**
-       * Gets the unique identifier of the platform. This should be an
-       * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. vrep_ant, autonomous_snake, etc.)
+       * Plans the next execution of the algorithm
+       * @return bitmask status of the platform. @see Status.
        **/
-      virtual std::string get_id () const;
+      virtual int execute (void);
 
       /**
-       * Get move speed
+       * Plans the next execution of the algorithm
+       * @return bitmask status of the platform. @see Status.
        **/
-      virtual double get_move_speed () const;
-      
-      /**
-       * Gets the name of the platform
-       **/
-      virtual std::string get_name () const;
+      virtual int plan (void);
 
-      /**
-       * Instructs the device to return home
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      virtual int home (void);
-      
-      /**
-       * Instructs the platform to land
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      virtual int land (void);
-      
-      /**
-       * Moves the platform to a position
-       * @param   position  the coordinate to move to
-       * @param   epsilon   approximation value
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      virtual int move (const utility::Position & position,
-        const double & epsilon = 0.1);
-      
-      /**
-       * Polls the sensor environment for useful information
-       * @return number of sensors updated/used
-       **/
-      virtual int sense (void);
-      
-      /**
-       * Set move speed
-       * @param speed new speed in meters/loop execution
-       **/
-      virtual void set_move_speed (const double& speed);
-
-      /**
-       * Instructs the platform to take off
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      virtual int takeoff (void);
-      
     protected:
-
-      /// current position
-      utility::GPS_Position position_;
+      /**
+       * Used to keep track of algorithm executions in a way
+       * that may be referenced from other platforms or algorithms
+       * within the knowledge base (k is for Knowledge_Base).
+       * This is different from executions_, which can only be
+       * seen by the derived classes of Base_Algorithm.
+       **/
+      Madara::Knowledge_Engine::Containers::Integer  k_executions_;
     };
   }
 }
 
-#endif // _GAMS_PLATFORM_PRINTER_H_
+#endif // _GAMS_ALGORITHMS_DEBUG_H_
