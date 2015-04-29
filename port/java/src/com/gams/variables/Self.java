@@ -88,7 +88,7 @@ public class Self extends GamsJNI
    * Initializes the id and device containers within Self
    *
    * @param  kb      the knowledge base that contains the device info
-   * @param  id      the device id (0->n-1)
+   * @param  id      the device id (0 to n - 1, inclusively)
    */
   public void init(KnowledgeBase kb, long id)
   {
@@ -100,7 +100,7 @@ public class Self extends GamsJNI
    * Initializes the id and device containers within Self
    *
    * @param  vars    the variables facade that contains the device info
-   * @param  id      the device id (0->n-1)
+   * @param  id      the device id (0 to n - 1, inclusively)
    */
   public void init(Variables vars, long id)
   {
