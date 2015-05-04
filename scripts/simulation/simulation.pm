@@ -12,17 +12,18 @@ sub run {
   my $vreproot = $ENV{"VREP_ROOT"};
   
   #launch the VREP simulator
-  if ($osname eq "MSWin32")
-  {
-    my $cmd = "$vreproot\\vrep.exe";
-    system("taskkill /im vrep.exe");
-    system("start \"vrep\" /D $vreproot /REALTIME $cmd");
-    system("timeout 10");
-  }
-  else
-  {
-    system("vrep &");
-  }
+  #if ($osname eq "MSWin32")
+  #{
+  #  my $cmd = "$vreproot\\vrep.exe";
+  #  system("taskkill /im vrep.exe");
+  #  system("start \"vrep\" /D $vreproot /REALTIME $cmd");
+  #  system("timeout 10");
+  #}
+  #else
+  #{
+  #  system("vrep &");
+  #  sleep(10);
+  #}
   
   # launch drone controllers
   my $gams_root = $ENV{"GAMS_ROOT"};
