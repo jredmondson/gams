@@ -19,6 +19,10 @@ sub run {
     system("start \"vrep\" /D $vreproot /REALTIME $cmd");
     system("timeout 10");
   }
+  else
+  {
+    system("vrep &");
+  }
   
   # launch drone controllers
   my $gams_root = $ENV{"GAMS_ROOT"};
