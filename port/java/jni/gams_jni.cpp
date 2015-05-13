@@ -2,19 +2,14 @@
 #include "gams_jni.h"
 
 static JavaVM* gams_JVM = NULL;
-static jclass gams_JNI = NULL;
-static jclass jni_string = NULL;
 
 jint JNICALL JNI_OnLoad (JavaVM* vm, void* reserved)
 {
   JNIEnv * env;
-  if (vm->GetEnv ( (void**)&env, JNI_VERSION_1_6) != JNI_OK)
+  if (vm->GetEnv ( (void**)&env, JNI_VERSION_1_8) != JNI_OK)
   {
     return JNI_ERR;
   }
-
-  gams_JNI = (jclass)env->NewGlobalRef (env->FindClass ("com/gams/GamsJNI"));
-  jni_string = (jclass)env->NewGlobalRef (env->FindClass ("java/lang/String"));
 
   gams_JVM = vm;
 
@@ -24,8 +19,7 @@ jint JNICALL JNI_OnLoad (JavaVM* vm, void* reserved)
 void JNICALL JNI_OnUnload (JavaVM* vm, void* reserved)
 {
   JNIEnv * env;
-  vm->GetEnv ( (void**)&env, JNI_VERSION_1_6);
-  env->DeleteGlobalRef (gams_JNI);
+  vm->GetEnv ( (void**)&env, JNI_VERSION_1_8);
   gams_JVM = 0;
 }
 
@@ -35,7 +29,7 @@ bool gams_jni_is_attached ()
 
   if (gams_JVM)
   {
-    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_6);
+    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_8);
   }
 
   return env != 0;
@@ -47,7 +41,7 @@ JNIEnv* gams_jni_get_env ()
 
   if (gams_JVM)
   {
-    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_6);
+    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_8);
     if (env == 0)
     {
       //Thread is not attached
@@ -66,16 +60,6 @@ JavaVM* gams_jni_jvm ()
   return gams_JVM;
 }
 
-jclass gams_jni_class ()
-{
-  return gams_JNI;
-}
-
-jclass jni_string_cls ()
-{
-  return jni_string;
-}
-
 JNIEnv* jni_attach ()
 {
   return gams_jni_get_env ();
@@ -83,5 +67,8 @@ JNIEnv* jni_attach ()
 
 void jni_detach ()
 {
-  gams_JVM->DetachCurrentThread ();
+  if (gams_JVM)
+  {
+    gams_JVM->DetachCurrentThread ();
+  }
 }
