@@ -5,7 +5,7 @@
 #include <jni.h>
 #include "gams/GAMS_Export.h"
 
-GAMS_Export jint JNI_OnLoad (JavaVM *vm, void *reserved);
+GAMS_Export jint JNICALL JNI_OnLoad (JavaVM *vm, void *reserved);
 GAMS_Export void JNICALL JNI_OnUnload (JavaVM* vm, void* reserved);
 
 GAMS_Export bool gams_jni_is_attached ();
