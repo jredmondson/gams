@@ -1,3 +1,5 @@
+For the most up-to-date information on installing GAMS, please see the wiki: https://github.com/jredmondson/gams/wiki/GAMS-Installation
+
 How to Install GAMS on your system (must be done on each host)
 
     0. Latest Version
