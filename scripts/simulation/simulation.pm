@@ -10,6 +10,8 @@ sub run {
   my ($num, $time, $period, $sim, $area, $debug, $plants, $num_coverages) = @_;
   my $osname = $^O;
   my $vreproot = $ENV{"VREP_ROOT"};
+
+  print("$^O\n");
   
   #launch the VREP simulator
   #if ($osname eq "MSWin32")
@@ -45,6 +47,10 @@ sub run {
     elsif ($osname eq "linux") # linux default
     {
       system("xterm -hold -e $cmd &");
+    }
+    elsif ($osname eq "darwin") # Mac OS X default
+    {
+      system("osascript $gams_root/scripts/simulation/mac_launch_terminal.scpt $cmd");
     }
     else
     {
