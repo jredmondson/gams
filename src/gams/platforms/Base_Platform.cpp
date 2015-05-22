@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -180,6 +180,30 @@ gams::platforms::Base::move (const utility::Position & target,
   }
 
   return result;
+}
+
+
+int
+gams::platforms::Base::rotate (const utility::Axes &)
+{
+  return 0;
+}
+
+int
+gams::platforms::Base::takeoff (void)
+{
+  return 2;
+}
+
+int
+gams::platforms::Base::land (void)
+{
+  return 2;
+}
+
+double gams::platforms::Base::get_accuracy (void) const
+{
+  return 0.0;
 }
 
 void

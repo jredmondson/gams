@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -408,6 +408,51 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
     GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
       DLINFO "gams::platforms::Java_Platform::move:" \
       " ERROR: Unable to find user-defined move method.\n"));
+  }
+
+  return result;
+}
+
+int
+gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
+{
+  gams::utility::java::Acquire_VM jvm;
+  jint result (0);
+
+  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG,
+    DLINFO "gams::platforms::Java_Platform::rotate:" \
+    " Obtaining user-defined rotate method\n"));
+
+  jmethodID move_call = jvm.env->GetMethodID (
+    class_, "move", "(Lcom/gams/utility/Position;D)I");
+
+  GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG,
+    DLINFO "gams::platforms::Java_Platform::rotate:" \
+    " Obtaining Position class and constructor\n"));
+
+  jclass pos_class = jvm.env->FindClass ("com/gams/utility/Axes");
+  jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
+
+  if (move_call)
+  {
+    GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG,
+      DLINFO "gams::platforms::Java_Platform::rotate:" \
+      " Creating new axes object.\n"));
+
+    jobject inaxes = jvm.env->NewObject (
+      pos_class, pos_const, axes.x, axes.y, axes.z);
+
+    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG,
+      DLINFO "gams::platforms::Java_Platform::rotate:" \
+      " Calling user-defined rotate method.\n"));
+
+    result = jvm.env->CallIntMethod (obj_, move_call, inaxes);
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
+      DLINFO "gams::platforms::Java_Platform::rotate:" \
+      " ERROR: Unable to find user-defined rotate method.\n"));
   }
 
   return result;

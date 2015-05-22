@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -60,6 +60,7 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Platform.h"
 #include "gams/utility/GPS_Position.h"
+#include "gams/utility/Axes.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
 namespace gams
@@ -126,7 +127,7 @@ namespace gams
        * Gets the position accuracy in meters
        * @return position accuracy
        **/
-      virtual double get_accuracy () const = 0;
+      virtual double get_accuracy (void) const;
 
       /**
        * Gets GPS position
@@ -180,7 +181,7 @@ namespace gams
        * Instructs the device to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void) = 0;
+      virtual int land (void);
 
       /**
        * Moves the platform to a position
@@ -190,7 +191,14 @@ namespace gams
        **/
       virtual int move (const utility::Position & position,
         const double & epsilon = 0.1);
-      
+
+      /**
+      * Rotates the platform an angle on a 3D axis
+      * @param   axes  the coordinates to move to
+      * @return 1 if currently rotating, 0 if arrived, negative if error
+      **/
+      virtual int rotate (const utility::Axes & axes);
+
       /**
        * Pauses movement, keeps source and dest at current values
        **/
@@ -229,7 +237,7 @@ namespace gams
        * Instructs the device to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void) = 0;
+      virtual int takeoff (void);
       
       /**
        * Gets the knowledge base

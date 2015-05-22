@@ -6,6 +6,7 @@
  *********************************************************************/
 package com.gams.platforms;
 
+import com.gams.utility.Axes;
 import com.gams.utility.Position;
 import com.madara.EvalSettings;
 
@@ -104,6 +105,21 @@ public class DebuggerPlatform extends BasePlatform
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.move called");
+    return Status.OK.value();
+  }
+   
+  /**
+   * Initializes a rotate along x, y, z axes. This should be
+   * a non-blocking call.
+   * @param   target     the new position to move to
+   * @param   proximity  the minimum distance between current position
+   *                   and target position that terminates the move.
+   * @return  status information(@see Status)
+   **/
+  public int rotate(Axes target)
+  {
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.rotate called");
     return Status.OK.value();
   }
    

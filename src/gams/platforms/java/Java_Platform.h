@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -149,7 +149,14 @@ namespace gams
        **/
       virtual int move (const utility::Position & position,
         const double & proximity = 0.1);
-      
+
+      /**
+      * Rotates the platform an angle on a 3D axis
+      * @param   axes  the coordinates to move to
+      * @return 1 if currently rotating, 0 if arrived, negative if error
+      **/
+      virtual int rotate (const utility::Axes & axes);
+
       /**
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
