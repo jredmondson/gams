@@ -382,22 +382,22 @@ void create_environment (const int& client_id,
   knowledge.set ("vrep_ready", Integer (1));
 
   // find environment parameters
+  const int floor_size = 5;
   double max_x, max_y;
   get_dimensions (max_x, max_y, knowledge);
   cout << "creating environment of size " << max_x << " x " << max_y << "...";
-  int num_x = max_x / 20 + 2;
-  int num_y = max_y / 20 + 2;
+  int num_x = max_x / floor_size + 2;
+  int num_y = max_y / floor_size + 2;
 
   // load floor models
   string model_file (getenv ("VREP_ROOT"));
-  const int floor_side = 20;
-  model_file += "/models/infrastructure/floors/20mX20m floor.ttm";
+  model_file += "/models/infrastructure/floors/5mX5m concrete floor.ttm";
   for (int i = 0; i < (num_x * num_y); ++i)
   {
     // find where it should go
     simxFloat pos[3];
-    pos[0] = (i / num_y) * floor_side;
-    pos[1] = (i % num_y) * floor_side;
+	pos[0] = (i / num_y) * floor_size;
+	pos[1] = (i % num_y) * floor_size;
     pos[2] = 0;
 
     // load object

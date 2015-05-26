@@ -39,6 +39,11 @@ public class BaseController extends GamsJNI
   private native long jni_runHz(long cptr, double loopHz, double max, double sendHz);
   private native long jni_systemAnalyze(long cptr);
 
+  private BaseAlgorithm  algorithm = null;
+  private BasePlatform   platform = null;
+  private long id = 0;
+  private long processes = 1;
+  
   public BaseController(KnowledgeBase knowledge)
   {
     setCPtr(jni_BaseControllerFromKb(knowledge.getCPtr ()));
@@ -113,6 +118,7 @@ public class BaseController extends GamsJNI
    */
   public void initAlgorithm(BaseAlgorithm algorithm)
   {
+    this.algorithm = algorithm;
     jni_initAlgorithm(getCPtr(), algorithm);
     algorithm.assume(jni_getAlgorithm(getCPtr()));
     algorithm.init(this);
@@ -125,6 +131,7 @@ public class BaseController extends GamsJNI
    */
   public void initPlatform(BasePlatform platform)
   {
+    this.platform = platform;
     jni_initPlatform(getCPtr(), platform);
     platform.assume(jni_getPlatform(getCPtr()));
     platform.init(this);
@@ -138,7 +145,21 @@ public class BaseController extends GamsJNI
    */
   public void initVars(long id, long processes)
   {
+    this.id = id;
+    this.processes = processes;
     jni_initVars(getCPtr(), id, processes);
+    
+    // if the user setup the platform, initialize with the new id
+    if(platform != null)
+    {
+      platform.init(this); 
+    }
+    
+    // if the user setup the platform, initialize with the new id
+    if(algorithm != null)
+    {
+      algorithm.init(this); 
+    }
   }
 
   /**
@@ -261,6 +282,7 @@ public class BaseController extends GamsJNI
   public void free()
   {
     jni_freeBaseController(getCPtr());
+    setCPtr(0);
   }
 }
 

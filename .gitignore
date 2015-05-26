@@ -17,3 +17,5 @@ dynamic_simulation
 drone_files/
 test_madara_writer
 test_madara_reader
+hello_publisher
+loop_rate_testing

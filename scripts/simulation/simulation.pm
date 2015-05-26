@@ -10,15 +10,22 @@ sub run {
   my ($num, $time, $period, $sim, $area, $debug, $plants, $num_coverages) = @_;
   my $osname = $^O;
   my $vreproot = $ENV{"VREP_ROOT"};
+
+  print("$^O\n");
   
   #launch the VREP simulator
-  if ($osname eq "MSWin32")
-  {
-    my $cmd = "$vreproot\\vrep.exe";
-    system("taskkill /im vrep.exe");
-    system("start \"vrep\" /D $vreproot /REALTIME $cmd");
-    system("timeout 10");
-  }
+  #if ($osname eq "MSWin32")
+  #{
+  #  my $cmd = "$vreproot\\vrep.exe";
+  #  system("taskkill /im vrep.exe");
+  #  system("start \"vrep\" /D $vreproot /REALTIME $cmd");
+  #  system("timeout 10");
+  #}
+  #else
+  #{
+  #  system("vrep &");
+  #  sleep(10);
+  #}
   
   # launch drone controllers
   my $gams_root = $ENV{"GAMS_ROOT"};
@@ -40,6 +47,10 @@ sub run {
     elsif ($osname eq "linux") # linux default
     {
       system("xterm -hold -e $cmd &");
+    }
+    elsif ($osname eq "darwin") # Mac OS X default
+    {
+      system("osascript $gams_root/scripts/simulation/mac_launch_terminal.scpt $cmd");
     }
     else
     {

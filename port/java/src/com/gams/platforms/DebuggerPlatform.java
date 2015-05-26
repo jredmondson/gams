@@ -19,60 +19,77 @@ public class DebuggerPlatform extends BasePlatform
   /**
    * Default constructor
    **/
-  public DebuggerPlatform ()
+  public DebuggerPlatform()
   {
+    executions = new com.madara.containers.Integer();
   }
    
   /**
    * Analyzes the platform.
-   * @return   status information (@see Status)
+   * @return   status information(@see Status)
    **/
-  public int analyze ()
+  public int analyze()
   {
-    System.out.println("Platform.analyze called");
-    return Status.OK.value ();
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":Platform.analyze called");
+    return Status.OK.value();
   }
   
+  /**
+   * Returns the GPS accuracy in meters
+   * @return GPS accuracy
+   **/
+  public double getGpsAccuracy()
+  {
+      System.out.println(self.id.get() + ":" + executions.get () +
+        ":  Platform.getGpsAccuracy called");
+      return 0.0;
+  }
+
   /**
    * Returns the position accuracy in meters
    * @return position accuracy
    **/
-  public double getPositionAccuracy ()
+  public double getPositionAccuracy()
   {
-    System.out.println("  Platform.getPositionAccuracy called");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.getPositionAccuracy called");
     return 0.0;
   }
 
   /**
    * Returns the current GPS position 
    **/
-  public Position getPosition ()
+  public Position getPosition()
   {
-    Position position = new Position (0.0, 0.0, 0.0);
-    System.out.println("  Platform.getPosition called");
+    Position position = new Position(0.0, 0.0, 0.0);
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.getPosition called");
     return position;
   }
   
   /**
    * Returns to the home location. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information(@see Status)
    **/
-  public int home ()
+  public int home()
   {
-    System.out.println("  Platform.home called");
-    return Status.OK.value ();
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.home called");
+    return Status.OK.value();
   }
   
   /**
    * Requests the platform to land. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information(@see Status)
    **/
-  public int land ()
+  public int land()
   {
-    System.out.println("  Platform.land called");
-    return Status.OK.value ();
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.land called");
+    return Status.OK.value();
   }
   
   /**
@@ -81,21 +98,22 @@ public class DebuggerPlatform extends BasePlatform
    * @param   target     the new position to move to
    * @param   proximity  the minimum distance between current position
    *                   and target position that terminates the move.
-   * @return  status information (@see Status)
+   * @return  status information(@see Status)
    **/
-  public int move (Position target, double proximity)
+  public int move(Position target, double proximity)
   {
-    System.out.println("  Platform.move called");
-    return Status.OK.value ();
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.move called");
+    return Status.OK.value();
   }
    
   /**
    * Get sensor radius
    * @return minimum radius of all available sensors for this platform
    */
-  public double getMinSensorRange ()
+  public double getMinSensorRange()
   {
-    System.out.println("  Platform.getMinSensorRange called");
+    System.out.println(self.id.get() + ":  Platform.getMinSensorRange called");
     return 0.0;
   }
 
@@ -103,9 +121,10 @@ public class DebuggerPlatform extends BasePlatform
    * Gets the movement speed
    * @return movement speed
    **/
-  public double getMoveSpeed ()
+  public double getMoveSpeed()
   {
-    System.out.println("  Platform.getMoveSpeed called");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.getMoveSpeed called");
     return 0.0;
   }
 
@@ -113,9 +132,9 @@ public class DebuggerPlatform extends BasePlatform
    * Gets the unique id of the platform. This should be an alphanumeric
    * id that can be part of a MADARA variable name. Specifically, this
    * is used in the variable expansion of .platform.{yourid}.*
-   * @return the id of the platform (alphanumeric only: no spaces!)
+   * @return the id of the platform(alphanumeric only: no spaces!)
    **/
-  public java.lang.String getId ()
+  public java.lang.String getId()
   {
     return "java_debugger";
   }
@@ -124,7 +143,7 @@ public class DebuggerPlatform extends BasePlatform
    * Gets the name of the platform
    * @return the name of the platform
    **/
-  public java.lang.String getName ()
+  public java.lang.String getName()
   {
     return "Java Debugger";
   }
@@ -134,9 +153,11 @@ public class DebuggerPlatform extends BasePlatform
    * a non-blocking call.
    * @return   1 if moving, 2 if arrived, 0 if an error occurred
    **/
-  public int sense ()
+  public int sense()
   {
-    System.out.println("Platform.sense called");
+    executions.setName(knowledge, ".executions");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":Platform.sense called");
     
     Position position = getPosition();
     
@@ -144,35 +165,40 @@ public class DebuggerPlatform extends BasePlatform
     self.device.location.set(1,position.getY());
     self.device.location.set(2,position.getZ());
     
-    return Status.OK.value ();
+    return Status.OK.value();
   }
   
   /**
    * Sets move speed
    * @param speed new speed in meters/second
    **/
-  public void setMoveSpeed (double speed)
+  public void setMoveSpeed(double speed)
   {
-    System.out.println("  Platform.setMoveSpeed called with " + speed);
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.setMoveSpeed called with " + speed);
   }
       
   /**
    * Takes off. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information(@see Status)
    **/
-  public int takeoff ()
+  public int takeoff()
   {
-    System.out.println("  Platform.takeoff called");
-    return Status.OK.value ();
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.takeoff called");
+    return Status.OK.value();
   }
   
   /**
    * Stops moving
    **/
-  public void stopMove ()
+  public void stopMove()
   {
-    System.out.println("  Platform.stopMove called");
+    System.out.println(self.id.get() + ":" + executions.get () +
+      ":  Platform.stopMove called");
   }
+  
+  private com.madara.containers.Integer executions;
 }
 

@@ -44,7 +44,7 @@
  *      distribution.
  **/
 #include "Platform_Factory.h"
-#include "Printer_Platform.h"
+#include "Debug_Platform.h"
 #include "Null_Platform.h"
 
 #ifdef _GAMS_DRONERK_
@@ -91,7 +91,7 @@ gams::platforms::Factory::create (const std::string & type)
         knowledge_->activate_transport ();
         knowledge_->apply_modified ();
       }
-      return new Printer_Platform (knowledge_, sensors_, platforms_, self_);
+      return new Debug_Platform (knowledge_, sensors_, platforms_, self_);
     }
   }
   else if (type == "null")

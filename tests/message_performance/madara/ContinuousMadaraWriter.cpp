@@ -15,6 +15,7 @@ using std::cout;
 using std::endl;
 
 double num_sec = 12;
+double poll_period = 0.001;
 
 Madara::Transport::QoS_Transport_Settings settings;
 
@@ -29,7 +30,6 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.clear();
         settings.hosts.push_back (argv[i + 1]);
         settings.type = Madara::Transport::UDP;
         error = false;
@@ -41,7 +41,6 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.clear();
         settings.hosts.push_back (argv[i + 1]);
         settings.type = Madara::Transport::BROADCAST;
         error = false;
@@ -53,7 +52,6 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.clear();
         settings.hosts.push_back (argv[i + 1]);
         settings.type = Madara::Transport::MULTICAST;
         error = false;
@@ -73,6 +71,18 @@ void handle_arguments (int argc, char ** argv)
 
       ++i;
     }
+    else if (arg1 == "-f" || arg1 == "--frequency")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream ss;
+        ss << argv[i + 1];
+        ss >> poll_period;
+        error = false;
+      }
+
+      ++i;
+    }
 
     if(error)
     {
@@ -81,43 +91,58 @@ void handle_arguments (int argc, char ** argv)
       cerr << endl;
       cerr << "    [-u | --udp <address>]         Address for UDP transport" << endl;
       cerr << "    [-b | --broadcast <address>]   Address for broadcast transport" << endl;
-      cerr << "    [-m | --multicast <address>]   Address for multicast transport (default: 239.255.0.1:4150)" << endl;
+      cerr << "    [-m | --multicast <address>]   Address for multicast transport" << endl;
       cerr << "    [-d | --duration <duration>]   number of seconds to run test (default: 12)" << endl;
+      cerr << "    [-p | --period <per>]          period for publish loop (default: 0.001)" << endl;
       exit (0);
     }
   }
 }
 
-
-
 int main(int argc, char** argv)
 {
   handle_arguments(argc, argv);
 
-  if(settings.hosts.size() == 0)
-  {
-    const std::string default_multicast ("239.255.0.1:4150");
-    settings.hosts.push_back(default_multicast);
-    settings.type = Madara::Transport::MULTICAST;
-  }
-
   Madara::Knowledge_Engine::Knowledge_Base knowledge("", settings);
 
   // get start time
-  time_t start;
-  time(&start);
+  time_t start_time;
+  time(&start_time);
   time_t end;
   time(&end);
 
   // number of seconds to test
-  const std::string val("hello");
+  std::string val("hello");
+  for(size_t i = 0; i < 5; ++i)
+    val = val + val;
   uint64_t updates = 0;
   const std::string key("data");
+  knowledge.set(key, val);
 
-  while(end - start < num_sec)
+  ACE_Time_Value current = ACE_OS::gettimeofday();
+
+  ACE_Time_Value publish_period;
+  publish_period.set(poll_period);
+
+  ACE_Time_Value max_runtime;
+  max_runtime.set(num_sec);
+  max_runtime = current + max_runtime;
+
+  ACE_Time_Value next_epoch = current + publish_period;
+
+  ACE_Time_Value start = ACE_OS::gettimeofday();
+
+  while(end - start_time < num_sec)
   {
     knowledge.set(key, val);
     ++updates;
+
+    ACE_Time_Value current = ACE_OS::gettimeofday ();
+    Madara::Utility::sleep (next_epoch - current);  
+      
+    // setup the next 
+    next_epoch += publish_period;
+
     time(&end);
   }
 

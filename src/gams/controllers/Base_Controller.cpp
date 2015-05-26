@@ -834,6 +834,8 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
       " factory is creating algorithm %s\n", algorithm.c_str ()));
 
     algorithm_ = factory.create (algorithm, args);
+
+    init_vars (*algorithm_);
   }
 }
 
@@ -871,6 +873,8 @@ gams::controllers::Base::init_platform (
       " factory is creating platform %s\n", platform.c_str ()));
 
     platform_ = factory.create (platform);
+    
+    init_vars (*platform_);
 
     if (algorithm_)
     {

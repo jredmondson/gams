@@ -380,23 +380,6 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1plan
  * Method:    jni_run
  * Signature: (JDD)J
  */
-jlong JNICALL Java_com_gams_controllers_BaseController_jni_1run
-  (JNIEnv *, jobject, jlong cptr, jdouble period, jdouble duration)
-{
-  jlong result (0);
-
-  controllers::Base * current = (controllers::Base *) cptr;
-  if (current)
-    result = current->run (period, duration);
-
-  return result;
-}
-
-/*
- * Class:     com_gams_controllers_BaseController
- * Method:    jni_run
- * Signature: (JDD)J
- */
 GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1run__JDD
   (JNIEnv *, jobject, jlong cptr, jdouble loop_period, jdouble duration)
 {

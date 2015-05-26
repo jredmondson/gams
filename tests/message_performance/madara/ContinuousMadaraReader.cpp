@@ -30,7 +30,6 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.clear();
         settings.hosts.push_back (argv[i + 1]);
         settings.type = Madara::Transport::UDP;
         error = false;
@@ -42,7 +41,6 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.clear();
         settings.hosts.push_back (argv[i + 1]);
         settings.type = Madara::Transport::BROADCAST;
         error = false;
@@ -54,7 +52,6 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.clear();
         settings.hosts.push_back (argv[i + 1]);
         settings.type = Madara::Transport::MULTICAST;
         error = false;
@@ -108,6 +105,7 @@ int main(int argc, char** argv)
 {
   handle_arguments(argc, argv);
 
+  // set default transport
   if(settings.hosts.size() == 0)
   {
     const std::string default_multicast ("239.255.0.1:4150");
@@ -121,7 +119,7 @@ int main(int argc, char** argv)
 
   num_sec = Madara::Utility::sleep(num_sec);
 
-  cerr << double(counter.count) / num_sec << " Hz update rate" << endl;
+  cout << double(counter.count) / num_sec << " Hz update rate" << endl;
 
   return 0;
 }

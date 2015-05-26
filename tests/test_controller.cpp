@@ -266,12 +266,14 @@ void handle_arguments (int argc, char ** argv)
 // perform main logic of program
 int main (int argc, char ** argv)
 {
+  handle_arguments (argc, argv);
+
   // create knowledge base and a control loop
   engine::Knowledge_Base knowledge;
   controllers::Base loop (knowledge);
 
   // initialize variables and function stubs
-  loop.init_vars (0, 4);
+  loop.init_vars (1, 4);
   
   // initialize the platform and algorithm
   loop.init_algorithm (algorithm);

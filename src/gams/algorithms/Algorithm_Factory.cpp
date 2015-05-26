@@ -47,7 +47,7 @@
 #include "gams/algorithms/Algorithm_Factory.h"
 #include "gams/algorithms/Land.h"
 #include "gams/algorithms/Move.h"
-#include "gams/algorithms/Printer_Algorithm.h"
+#include "gams/algorithms/Debug_Algorithm.h"
 #include "gams/algorithms/Null_Algorithm.h"
 #include "gams/algorithms/Formation_Flying.h"
 #include "gams/algorithms/Formation_Coverage.h"
@@ -92,7 +92,7 @@ gams::algorithms::Factory::create (const std::string & type,
   if (type == "debug" || type == "print" || type == "printer")
   {
     if (knowledge_ && sensors_ && self_)
-      result = new Printer_Algorithm (knowledge_, platform_, sensors_, self_);
+      result = new Debug_Algorithm (knowledge_, platform_, sensors_, self_);
   }
   else if (type == "uniform random area coverage" || type == "urac")
   {
