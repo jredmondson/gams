@@ -7,5 +7,6 @@ $scenario = "messaging";
 $num = 2;
 $time = 5;
 $period = 0.5;
+$debug = 5;
 
-profiling::run($scenario, $num, $time, $period);
+profiling::run($scenario, $num, $time, $period, $debug);

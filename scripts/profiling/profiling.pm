@@ -7,7 +7,7 @@ my $term_suffix = "";
 
 sub run {
   # get arguments
-  my ($scenario, $num, $time, $period) = @_;
+  my ($scenario, $num, $time, $period, $debug) = @_;
   my $osname = $^O;
   
   # launch drone controllers
@@ -15,16 +15,16 @@ sub run {
   print("$gams_root\n");
   for (my $i=0; $i < $num; $i++)
   {
-    my $cmd = "\"$gams_root/gams_controller -m 239.255.0.1:4150 -i $i -p null --loop-time $time --period $period --madara-file $gams_root/scripts/profiling/$scenario/madara_init_$i.mf\"";
+    my $cmd = "\"$gams_root/gams_controller -m 239.255.0.1:4150 -i $i -p null --loop-time $time --period $period --madara-file $gams_root/scripts/profiling/$scenario/madara_init_$i.mf -l $debug\"";
     if ($term_prefix)
     {
       system("$term_prefix $cmd $term_suffix");
     }
     elsif ($osname eq "MSWin32") # windows default
     {
-#      $cmd = "$gams_root\\bin\\gams_controller -i $i -n $num -p vrep --loop-time $time --period $period --madara-file $gams_root\\scripts\\simulation\\$sim\\madara_init_$i.mf $gams_root\\scripts\\simulation\\areas\\$area.mf $gams_root\\scripts\\simulation\\madara_init_common.mf -l $debug";
-#      print("start \"Device$i\" /REALTIME $cmd\n\n");
-#      system("start \"Device$i\" /REALTIME $cmd");
+      $cmd = "$gams_root\\bin\\gams_controller -m 239.255.0.1.4150 -i $i -p null --loop-time $time --period $period --madara-file $gams_root\\scripts\\profiling\\$scenario\\madara_init_$i.mf -l $debug";
+      print("start \"Device$i\" /REALTIME $cmd\n\n");
+      system("start \"Device$i\" /REALTIME $cmd");
     }
     elsif ($osname eq "linux") # linux default
     {
