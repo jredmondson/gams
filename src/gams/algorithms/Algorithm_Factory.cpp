@@ -53,6 +53,7 @@
 #include "gams/algorithms/Formation_Coverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
+#include "gams/algorithms/Message_Profiling.h"
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
@@ -217,6 +218,12 @@ gams::algorithms::Factory::create (const std::string & type,
       result = new Follow (args[0] /*follow target*/,
         args[1] /*timestep delay*/, knowledge_, platform_, sensors_, self_);
     }
+  }
+  else if (type == "message_profile")
+  {
+    if (knowledge_ && sensors_ && platform_ && self_)
+      result = new Message_Profiling(args[0].to_integer () /* send size */, 
+        knowledge_, platform_, sensors_, self_);
   }
   else if (type == "null")
   {

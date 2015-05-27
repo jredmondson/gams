@@ -50,7 +50,7 @@ sub run {
     }
     elsif ($osname eq "darwin") # Mac OS X default
     {
-      system("osascript $gams_root/scripts/simulation/mac_launch_terminal.scpt $cmd");
+      system("osascript $gams_root/scripts/common/mac_launch_terminal.scpt $cmd");
     }
     else
     {

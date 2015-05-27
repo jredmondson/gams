@@ -501,6 +501,55 @@ gams::controllers::Base::system_analyze (void)
       algorithm_ = factory.create ("follow", args);
     }
   }
+
+  else if (this->self_.device.command == "message_profile")
+  {
+//    Madara::Knowledge_Record target_id;
+//    Madara::Knowledge_Record delay;
+//
+//    if (self_.device.command == "message_profile")
+//    {
+//      self_.device.command_args.resize ();
+//
+//      if (this->self_.device.command_args.size () == 1)
+//      {
+//        target_id = self_.device.command_args[0];
+//        delay.set_value ((Madara::Knowledge_Record::Integer)5);
+//      }
+//      else if (this->self_.device.command_args.size () == 2)
+//      {
+//        target_id = self_.device.command_args[0];
+//        delay = self_.device.command_args[1];
+//      }
+//      else
+//      {
+//        error = true;
+//      }
+//    }
+
+    if (error)
+    {
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+        DLINFO "gams::controllers::Base::system_analyze:" \
+        " ERROR: message_profile requested with improper args\n"));
+    }
+    else
+    {
+      delete algorithm_;
+      algorithms::Factory factory (&knowledge_, &sensors_,
+        platform_, &self_, &devices_);
+
+      self_.device.command_args.resize ();
+      Madara::Knowledge_Vector args (1);
+      args[0] = self_.device.command_args[0];
+
+      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+        DLINFO "gams::controllers::Base::system_analyze:" \
+        " initializing message_profile algorithm\n"));
+
+      algorithm_ = factory.create ("message_profile", args);
+    }
+  }
   
   self_.device.command = "";
   swarm_.command = "";
