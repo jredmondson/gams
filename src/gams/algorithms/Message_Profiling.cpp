@@ -149,9 +149,12 @@ gams::algorithms::Message_Profiling::check_messages (
 
   if (check == "message_profiler")
   {
-    size_t counter;
+    string counter_str;
     key.clear ();
-    stringstream value (args[0].to_string(), ',');
+    stringstream value (args[0].to_string());
+    std::getline (value, counter_str, ',');
+    value.str (counter_str);
+    size_t counter;
     value >> counter;
   
     // check with current info
