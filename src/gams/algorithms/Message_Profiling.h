@@ -58,11 +58,15 @@
 #include "gams/algorithms/Base_Algorithm.h"
 
 #include <map>
+#include <vector>
+#include <string>
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/variables/Algorithm.h"
 #include "gams/variables/Self.h"
+
+#include "madara/filters/Aggregate_Filter.h"
 
 namespace gams
 {
@@ -117,16 +121,56 @@ namespace gams
 
     private:
       /**
+       * Prefix for message keys
+       */
+      const static std::string key_prefix_;
+
+      /**
+       * Filter for tracking which messages have come in and which have been 
+       * dropped
+       */
+      class Message_Filter : public Madara::Filters::Aggregate_Filter
+      {
+      public:
+        /**
+         * virtual destructor
+         */
+        virtual ~Message_Filter ();
+
+        void filter (Madara::Knowledge_Map& records, 
+          const Madara::Transport::Transport_Context& transport_context,
+          Madara::Knowledge_Engine::Variables& var);
+
+        std::string missing_messages_string () const;
+
+      private:
+        /**
+         * Message_Data struct
+         */
+        struct Message_Data
+        {
+          size_t first;
+          size_t last;
+          std::vector<bool> present;
+
+          Message_Data ();
+        };
+
+        /**
+         * Keep a Message_Data struct for each peer
+         */
+        std::map<std::string, Message_Data> msg_map_;
+      };
+
+      /**
+       * Message Filter object
+       */
+      Message_Filter filter_;
+
+      /**
        * size of message to send 
        */
       size_t send_size_;
-
-      /**
-       * Receive filter for monitoring for dropped messages
-       */
-      static Madara::Knowledge_Record check_messages (
-        Madara::Knowledge_Engine::Function_Arguments & args, 
-        Madara::Knowledge_Engine::Variables & variables);
     };
   }
 }

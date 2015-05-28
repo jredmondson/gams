@@ -55,6 +55,8 @@ using std::map;
 using std::cerr;
 using std::endl;
 
+const string gams::algorithms::Message_Profiling::key_prefix_ = "message_profiling";
+
 gams::algorithms::Message_Profiling::Message_Profiling (size_t send, 
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base * platform,
@@ -65,21 +67,27 @@ gams::algorithms::Message_Profiling::Message_Profiling (size_t send,
   status_.init_vars (*knowledge, "message_profiling");
 
   // attach filter
-  knowledge->close_transport ();
+  //knowledge->close_transport ();
 
-  Madara::Transport::QoS_Transport_Settings& settings = 
-    dynamic_cast<Madara::Transport::QoS_Transport_Settings&>(
-      knowledge->transport_settings ());
-  settings.add_receive_filter (Madara::Knowledge_Record::STRING, 
-    check_messages);
+//  knowledge->transport_settings ().save ("settings" + knowledge->get (".id").to_string ());
+//  Madara::Transport::QoS_Transport_Settings settings;
+//  settings.load ("settings" + knowledge->get (".id").to_string ());
+
+  Madara::Transport::QoS_Transport_Settings settings;
+  const std::string default_multicast ("239.255.0.1:4150");
+  settings.hosts.push_back (default_multicast);
+
   settings.set_send_bandwidth_limit (-1);
   settings.set_total_bandwidth_limit (-1);
+
+  settings.add_receive_filter (&filter_);
 
   knowledge->attach_transport (knowledge->get_id (), settings);
 }
 
 gams::algorithms::Message_Profiling::~Message_Profiling ()
 {
+  cerr << filter_.missing_messages_string () << endl;
 }
 
 void
@@ -95,26 +103,24 @@ gams::algorithms::Message_Profiling::operator= (
   }
 }
 
-
 int
 gams::algorithms::Message_Profiling::analyze (void)
 {
-  
   return 0;
 }
-      
 
 int
 gams::algorithms::Message_Profiling::execute (void)
 {
+  const static string key = key_prefix_ + "." +
+    knowledge_->get (".id").to_string () + ".data";
+
   ++executions_;
 
   if (send_size_ != 0)
   {
     // key: "message_profiler.{.id}.data"
     // value: "<counter>," + arbitrary data of size send_size_
-    string key = "message_profiler." + knowledge_->get (".id").to_string () + 
-      ".data";
     stringstream value;
     value << executions_ << ",";
     string value_str = value.str ();
@@ -135,55 +141,71 @@ gams::algorithms::Message_Profiling::plan (void)
   return 0;
 }
 
-Madara::Knowledge_Record
-gams::algorithms::Message_Profiling::check_messages (
-  Madara::Knowledge_Engine::Function_Arguments & args, 
-  Madara::Knowledge_Engine::Variables & variables)
+gams::algorithms::Message_Profiling::Message_Filter::~Message_Filter ()
 {
-  // get id from "message_profiler.{.id}.data
-  string check;
-  string id;
-  stringstream key (args[1].to_string ());
-  std::getline (key, check, '.');
-  std::getline (key, id, '.');
+}
 
-  if (check == "message_profiler")
+void
+gams::algorithms::Message_Profiling::Message_Filter::filter (
+  Madara::Knowledge_Map& records, 
+  const Madara::Transport::Transport_Context& transport_context, 
+  Madara::Knowledge_Engine::Variables& var)
+{
+  // get/construct data struct
+  Message_Data& data = msg_map_[transport_context.get_originator ()];
+
+  // loop through each update
+  for (Madara::Knowledge_Map::const_reference update : records)
   {
-    string counter_str;
-    key.clear ();
-    stringstream value (args[0].to_string());
-    std::getline (value, counter_str, ',');
-    value.str (counter_str);
-    size_t counter;
-    value >> counter;
-  
-    // check with current info
-    string key_base = ".message_profiler." + id + ".counters";
-    Madara::Knowledge_Record first = variables.get (key_base + ".first_message");
-    Madara::Knowledge_Record last = variables.get (key_base + ".last_message");
-    Madara::Knowledge_Record dropped = variables.get (
-      key_base + ".dropped_counter");
-    if (first.to_integer () == 0)
+    // we only care about specific messages
+    if (update.second.is_string_type () && update.first.find (key_prefix_) == 0)
     {
-      first = Madara::Knowledge_Record::Integer (counter);
-      last = Madara::Knowledge_Record::Integer (counter);
-      dropped = Madara::Knowledge_Record::Integer (0);
+      // get msg number
+      size_t msg_num;
+      stringstream (update.second.to_string ()) >> msg_num;
+
+      // is this the first?
+      if (data.first == -1)
+      {
+        data.first = msg_num;
+        data.last = msg_num;
+      }
+      // is this a previously missing message?
+      else if (msg_num < data.last)
+      {
+        // is this earlier than first?
+        if (msg_num < data.first)
+          data.first = msg_num;
+      }
+      else // this could only be a new message past last
+      {
+        data.last = msg_num;
+      }
+
+      if (data.present.size() <= msg_num)
+        data.present.reserve (msg_num * 2);
+      data.present [msg_num] = true;
     }
-    else
-    {
-      if (counter > last.to_integer () + 1)
-        dropped += Madara::Knowledge_Record::Integer (
-          counter - (last.to_integer () + 1));
-      last = Madara::Knowledge_Record::Integer (counter);
-    }
-  
-    // set updates
-    variables.set (key_base + ".first_message", first);
-    variables.set (key_base + ".last_message", last);
-    variables.set (key_base + ".dropped_counter", dropped);
   }
-  
-  // we don't really care what is returned, all the interesting processing has 
-  // already been done by the time we reach here
-  return args[0];
+}
+
+string
+gams::algorithms::Message_Profiling::Message_Filter::missing_messages_string ()
+  const
+{
+  stringstream ret_val;
+  for (map<string, Message_Data>::const_reference ref : msg_map_)
+  {
+    ret_val << ref.first << ": ";
+    for (size_t i = ref.second.first + 1; i < ref.second.last; ++i)
+      if(!ref.second.present[i])
+        ret_val << i << ",";
+    ret_val << endl;
+  }
+  return ret_val.str();
+}
+
+gams::algorithms::Message_Profiling::Message_Filter::Message_Data::Message_Data () :
+  first (-1), last (-1)
+{
 }
