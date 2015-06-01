@@ -57,6 +57,7 @@ using std::endl;
 
 #include "madara/knowledge_engine/Knowledge_Base.h"
 #include "gams/controllers/Base_Controller.h"
+#include "gams/utility/Logging.h"
 
 const std::string default_broadcast ("192.168.1.255:15000");
 // default transport settings
@@ -99,7 +100,8 @@ void print_usage (char* prog_name)
 " [-e |--rebroadcasts num]      number of hops for rebroadcasting messages\n" \
 " [-f |--logfile file]          log to a file\n" \
 " [-i |--id id]                 the id of this agent (should be non-negative)\n" \
-" [-l |--level level]           the logger level (0+, higher is higher detail)\n" \
+" [--madara-level level]        the MADARA logger level (0+, higher is higher detail)\n" \
+" [--gams-level level]          the GAMS logger level (0+, higher is higher detail)\n" \
 " [-L |--loop-time time]        time to execute loop\n"\
 " [-m |--multicast ip:port]     the multicast ip to send and listen to\n" \
 " [-M |--madara-file <file>]    file containing madara commands to execute\n" \
@@ -188,6 +190,7 @@ void handle_arguments (int argc, char ** argv)
 
       ++i;
     }
+
     else if (arg1 == "-i" || arg1 == "--id")
     {
       if (i + 1 < argc && argv[i +1][0] != '-')
@@ -200,12 +203,24 @@ void handle_arguments (int argc, char ** argv)
 
       ++i;
     }
-    else if (arg1 == "-l" || arg1 == "--level")
+    else if (arg1 == "--madara-level")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
         buffer >> MADARA_debug_level;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == "--gams-level")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> GAMS_debug_level;
       }
       else
         print_usage (argv[0]);
