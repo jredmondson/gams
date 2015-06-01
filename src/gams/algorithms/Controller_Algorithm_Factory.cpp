@@ -65,6 +65,8 @@
 #include "gams/algorithms/area_coverage/Prioritized_Min_Time_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Perimeter_Patrol.h"
 
+#include "gams/utility/Logging.h"
+
 #include <iostream>
 
 namespace algorithms = gams::algorithms;
@@ -120,14 +122,12 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
 
   add (aliases, new Debug_Algorithm_Factory ());
 
-
   // the follow algorithm
   aliases.resize (1);
   aliases[0] = "follow";
 
   add (aliases, new Follow_Factory ());
 
-  
   // the formation coverage algorithm
   aliases.resize (1);
   aliases[0] = "formation coverage";
@@ -206,6 +206,12 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
 
   add (aliases, new area_coverage::Uniform_Random_Area_Coverage_Factory ());
 
+  // the prioritized min time area coverage
+  aliases.resize (2);
+  aliases[0] = "prioritized min time area coverage";
+  aliases[1] = "pmtac";
+
+  add (aliases, new area_coverage::Prioritized_Min_Time_Area_Coverage_Factory ());
 }
 
 algorithms::Base_Algorithm *
@@ -217,8 +223,18 @@ algorithms::Controller_Algorithm_Factory::create (
   
   if (type != "")
   {
-    result = factory_map_[type]->create (args, knowledge_, platform_,
-      sensors_, self_, devices_);
+    Factory_Map::iterator it = factory_map_.find (type);
+    if (it != factory_map_.end ())
+    {
+      result = it->second->create (args, knowledge_, platform_,
+        sensors_, self_, devices_);
+    }
+    else
+    {
+      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+        DLINFO "gams::algorithms::Controller_Algorithm_Factory::create:" \
+        " could not find \"%s\" algorithm.\n", type.c_str ()));
+    }
   }
 
   return result;
