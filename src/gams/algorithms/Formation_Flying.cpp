@@ -73,15 +73,21 @@ gams::algorithms::Formation_Flying_Factory::create (
   variables::Devices * devices)
 {
   Base_Algorithm * result (0);
+
+  // set default parameters
+  Madara::Knowledge_Record modifier ("default");
   
-  if (knowledge && sensors && platform && self && args.size () == 5)
+  if (knowledge && sensors && platform && self && args.size () >= 4)
   {
+    if (args.size () == 5)
+      modifier = args[4];
+
     result = new Formation_Flying (
       args[0] /* target */,
       args[1] /* offset */,
       args[2] /* destination */,
       args[3] /* members */,
-      args[4] /* modifier */,
+      modifier /* for rotation */,
       knowledge, platform, sensors, self);
   }
 
@@ -322,7 +328,6 @@ gams::algorithms::Formation_Flying::plan (void)
     if (formation_ready_ == 1)
     {
       next_position_ = get_destination ();
-      cout << "next_position: " << next_position_.to_string() << endl;
       need_to_move_ = true;
     }
   }
@@ -406,6 +411,5 @@ gams::algorithms::Formation_Flying::get_destination ()
 {
   utility::GPS_Position rv;
   rv.from_container(head_destination_);
-  cout << "destination:" << rv.to_string() << endl;
   return rv;
 }
