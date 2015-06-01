@@ -54,11 +54,12 @@
 #ifndef   _GAMS_ALGORITHMS_AREA_COVERAGE_UNIFORM_RANDOM_EDGE_COVERAGE_H_
 #define   _GAMS_ALGORITHMS_AREA_COVERAGE_UNIFORM_RANDOM_EDGE_COVERAGE_H_
 
+#include "gams/algorithms/Algorithm_Factory.h"
 #include "gams/algorithms/area_coverage/Base_Area_Coverage.h"
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/utility/GPS_Position.h"
 #include "gams/utility/Region.h"
@@ -83,7 +84,7 @@ namespace gams
         Uniform_Random_Edge_Coverage (
           const Madara::Knowledge_Record& prefix,
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-          platforms::Base * platform = 0, variables::Sensors * sensors = 0,
+          platforms::Base_Platform * platform = 0, variables::Sensors * sensors = 0,
           variables::Self * self = 0);
   
         /**
@@ -106,6 +107,37 @@ namespace gams
         /// convex hull of coverage region
         utility::Region region_;
       }; // class Uniform_Random_Edge_Coverage
+
+      /**
+       * A factory class for creating uniform random edge
+       * coverage algorithms
+       **/
+      class GAMS_Export Uniform_Random_Edge_Coverage_Factory
+        : public Algorithm_Factory
+      {
+      public:
+
+        /**
+         * Creates a uniform random edge coverage algorithm
+         * @param   args      args[0] = region id
+         * @param   platform  the platform. This will be set by the
+         *                    controller in init_vars.
+         * @param   sensors   the sensor info. This will be set by the
+         *                    controller in init_vars.
+         * @param   self      self-referencing variables. This will be
+         *                    set by the controller in init_vars
+         * @param   devices   the list of devices, which is dictated by
+         *                    init_vars when a number of processes is set. This
+         *                    will be set by the controller in init_vars
+         **/
+        virtual Base_Algorithm * create (
+          const Madara::Knowledge_Vector & args,
+          Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+          platforms::Base_Platform * platform,
+          variables::Sensors * sensors,
+          variables::Self * self,
+          variables::Devices * devices);
+      };
     } // namespace area_coverage
   } // namespace algorithms
 } // namespace gams

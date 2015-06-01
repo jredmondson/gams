@@ -67,11 +67,32 @@ using std::set;
 #include "gams/utility/GPS_Position.h"
 #include "gams/utility/Position.h"
 
+gams::algorithms::Base_Algorithm *
+gams::algorithms::area_coverage::Prioritized_Min_Time_Area_Coverage_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && self && args.size () > 0)
+  {
+    result = new area_coverage::Prioritized_Min_Time_Area_Coverage (
+      args[0] /* search area id*/,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
 gams::algorithms::area_coverage::Prioritized_Min_Time_Area_Coverage::
   Prioritized_Min_Time_Area_Coverage (
   const Madara::Knowledge_Record& search_id,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform, variables::Sensors * sensors,
+  platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, const string& algo_name) :
   Min_Time_Area_Coverage (search_id, knowledge, platform, sensors, self, algo_name)
 {

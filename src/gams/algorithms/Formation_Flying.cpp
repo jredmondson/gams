@@ -62,6 +62,33 @@ using std::stringstream;
 #include "gams/utility/Position.h"
 #include "gams/utility/GPS_Position.h"
 
+
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Formation_Flying_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && platform && self && args.size () == 5)
+  {
+    result = new Formation_Flying (
+      args[0] /* target */,
+      args[1] /* offset */,
+      args[2] /* destination */,
+      args[3] /* members */,
+      args[4] /* modifier */,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
+
 /**
  * Formation flying has several parameters. The head of the formation is what 
  * the other agents key off of to determine their location. Offset is the 
@@ -77,10 +104,10 @@ gams::algorithms::Formation_Flying::Formation_Flying (
   const Madara::Knowledge_Record & members,
   const Madara::Knowledge_Record & modifier,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, platform, sensors, self), modifier_ (NONE),
+  : Base_Algorithm (knowledge, platform, sensors, self), modifier_ (NONE),
     need_to_move_ (false), phi_dir_(DBL_MAX)
 {
   status_.init_vars (*knowledge, "formation");

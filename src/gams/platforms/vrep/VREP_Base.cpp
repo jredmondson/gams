@@ -65,7 +65,7 @@ gams::platforms::VREP_Base::VREP_Base (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, sensors, self), airborne_ (false),
+  : Base_Platform (knowledge, sensors, self), airborne_ (false),
     move_speed_ (0.8)
 {
   if (sensors && knowledge)
@@ -135,7 +135,7 @@ gams::platforms::VREP_Base::operator= (const VREP_Base & rhs)
 {
   if (this != &rhs)
   {
-    this->Base::operator= (rhs);
+    this->Base_Platform::operator= (rhs);
     this->airborne_ = rhs.airborne_;
     this->client_id_ = rhs.client_id_;
     this->move_speed_ = rhs.move_speed_;
@@ -205,7 +205,7 @@ gams::platforms::VREP_Base::move (const utility::Position & position,
   const double & epsilon)
 {
   // update variables
-  Base::move (position);
+  Base_Platform::move (position);
 
   // convert form gps reference frame to vrep reference frame
   simxFloat dest_arr[3];

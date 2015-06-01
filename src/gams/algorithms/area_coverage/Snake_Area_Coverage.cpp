@@ -56,6 +56,27 @@ using std::vector;
 #include "gams/utility/Region.h"
 #include "gams/utility/Position.h"
 
+gams::algorithms::Base_Algorithm *
+gams::algorithms::area_coverage::Snake_Area_Coverage_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && self && args.size () > 0)
+  {
+    result = new area_coverage::Snake_Area_Coverage (
+      args[0] /* region id*/,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
 /**
  * Snake_Area_Coverage is a precomputed area coverage algorithm. The agent
  * traverses parallel lines in the region starting with the longest edge.
@@ -63,7 +84,7 @@ using std::vector;
 gams::algorithms::area_coverage::Snake_Area_Coverage::Snake_Area_Coverage (
   const Madara::Knowledge_Record& region_id,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
   Base_Area_Coverage (knowledge, platform, sensors, self), cur_waypoint_ (0)

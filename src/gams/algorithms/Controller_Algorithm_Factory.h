@@ -45,59 +45,74 @@
  **/
 
 /**
- * @file Algorithm_Algorithm_Factory.h
+ * @file Algorithm_Controller_Algorithm_Factory.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the algorithm factory
  **/
 
-#ifndef   _GAMS_ALGORITHMS_ALGORITHM_FACTORY_H_
-#define   _GAMS_ALGORITHMS_ALGORITHM_FACTORY_H_
+#ifndef   _GAMS_ALGORITHMS_CONTROLLER_ALGORITHM_FACTORY_H_
+#define   _GAMS_ALGORITHMS_CONTROLLER_ALGORITHM_FACTORY_H_
 
+#include "gams/GAMS_Export.h"
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/variables/Platform_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Device.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
+#include "Algorithm_Factory.h"
 
 namespace gams
 {
   namespace algorithms
   {
+    typedef std::map <std::string, Algorithm_Factory *>  Factory_Map;
+
     /**
-     * Base class for algorithm factories to create Base_Algorithms
+     * The controller's algorithm factory
      **/
-    class GAMS_Export Algorithm_Factory
+    class GAMS_Export Controller_Algorithm_Factory
     {
     public:
       /**
        * Constructor
+       * @param  knowledge  the knowledge base
+       * @param  sensors    variables for all sensors
+       * @param  platform   the current platform
+       * @param  self       self-referencing variables
+       * @param  devices    devices of the swarm
        **/
-      Algorithm_Factory ();
+      Controller_Algorithm_Factory (
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        variables::Sensors * sensors = 0,
+        platforms::Base_Platform * platform = 0,
+        variables::Self * self = 0,
+        variables::Devices * devices = 0);
 
       /**
        * Destructor
        **/
-      virtual ~Algorithm_Factory ();
-
+      ~Controller_Algorithm_Factory ();
+      
       /**
-       * Creates an algorithm
-       * @param  args   a vector of Knowledge Record arguments
-       * @param  knowledge    the knowledge base of variables and values
-       * @param  platform     the underlying platform the algorithm will use
-       * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables for this device
-       * @param  devices      list of devices in the swarm
+       * Adds an algorithm factory
+       * @param  aliases   the named aliases for the factory. All
+       *                   aliases will be converted to lower case
+       * @param  factory   the factory for creating an algorithm
        * @return  the new algorithm
        **/
-      virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-        platforms::Base_Platform * platform,
-        variables::Sensors * sensors,
-        variables::Self * self,
-        variables::Devices * devices) = 0;
+      void add (const std::vector <std::string> & aliases,
+        Algorithm_Factory * factory);
+      
+      /**
+       * Creates an algorithm
+       * @param  type   type of algorithm to create
+       * @param  args   a vector of Knowledge Record arguments
+       * @return  the new algorithm
+       **/
+      Base_Algorithm * create (const std::string & type,
+        const Madara::Knowledge_Vector & args = Madara::Knowledge_Vector ());
       
       /**
        * Sets list of devices participating in swarm
@@ -129,13 +144,18 @@ namespace gams
        **/
       void set_sensors (variables::Sensors * sensors);
       
+      /**
+       * Initializes factories for all supported GAMS algorithms
+       **/
+      void initialize_default_mappings (void);
+
     protected:
-      
-      /// knowledge base containing variables
-      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
 
       /// list of devices participating in the swarm
       variables::Devices * devices_;
+
+      /// knowledge base containing variables
+      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
 
       /// platform variables
       platforms::Base_Platform * platform_;
@@ -145,8 +165,11 @@ namespace gams
 
       /// sensor variables
       variables::Sensors * sensors_;
+
+      /// a map of all aliases to factories
+      Factory_Map  factory_map_;
     };
   }
 }
 
-#endif // _GAMS_ALGORITHMS_ALGORITHM_FACTORY_H_
+#endif // _GAMS_ALGORITHMS_CONTROLLER_ALGORITHM_FACTORY_H_

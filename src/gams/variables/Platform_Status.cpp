@@ -43,7 +43,7 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 
 #include <string>
 
@@ -51,16 +51,16 @@ using std::string;
 
 typedef  Madara::Knowledge_Record::Integer  Integer;
 
-gams::variables::Platform::Platform ()
+gams::variables::Platform_Status::Platform_Status ()
 {
 }
 
-gams::variables::Platform::~Platform ()
+gams::variables::Platform_Status::~Platform_Status ()
 {
 }
 
 void
-gams::variables::Platform::operator= (const Platform & rhs)
+gams::variables::Platform_Status::operator= (const Platform_Status & rhs)
 {
   if (this != &rhs)
   {
@@ -80,7 +80,7 @@ gams::variables::Platform::operator= (const Platform & rhs)
 }
 
 void
-gams::variables::Platform::init_vars (
+gams::variables::Platform_Status::init_vars (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge,
   const std::string & new_name)
 {
@@ -106,7 +106,7 @@ gams::variables::Platform::init_vars (
 }
 
 void
-gams::variables::Platform::init_vars (
+gams::variables::Platform_Status::init_vars (
   Madara::Knowledge_Engine::Variables & knowledge,
   const std::string & new_name)
 {
@@ -132,7 +132,7 @@ gams::variables::Platform::init_vars (
 }
 
 string
-gams::variables::Platform::make_variable_prefix () const
+gams::variables::Platform_Status::make_variable_prefix () const
 {
   std::stringstream buffer;
   buffer << ".platform.";
@@ -141,7 +141,7 @@ gams::variables::Platform::make_variable_prefix () const
 }
 
 void
-gams::variables::Platform::init_variable_values ()
+gams::variables::Platform_Status::init_variable_values ()
 {
   ok = 1;
   waiting = 0;

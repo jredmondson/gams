@@ -67,29 +67,31 @@ using std::endl;
 
 typedef  Madara::Knowledge_Record::Integer  Integer;
 
-gams::controllers::Base::Base (
+gams::controllers::Base_Controller::Base_Controller (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge)
-  : algorithm_ (0), knowledge_ (knowledge), platform_ (0)
+  : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
+  algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &devices_),
+  platform_factory_ (&knowledge, &sensors_, &platforms_, 0)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::constructor:" \
+    DLINFO "gams::controllers::Base_Controller::constructor:" \
     " default constructor called.\n"));
 }
 
-gams::controllers::Base::~Base ()
+gams::controllers::Base_Controller::~Base_Controller ()
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::destructor:" \
+    DLINFO "gams::controllers::Base_Controller::destructor:" \
     " deleting algorithm.\n"));
   delete algorithm_;
 
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::destructor:" \
+    DLINFO "gams::controllers::Base_Controller::destructor:" \
     " deleting platform.\n"));
   delete platform_;
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::destructor:" \
+    DLINFO "gams::controllers::Base_Controller::destructor:" \
     " deleting accents.\n"));
   for (algorithms::Algorithms::iterator i = accents_.begin ();
        i != accents_.end (); ++i)
@@ -98,15 +100,29 @@ gams::controllers::Base::~Base ()
   }
 }
 
+void gams::controllers::Base_Controller::add_platform_factory (
+  const std::vector <std::string> & aliases,
+  platforms::Platform_Factory * factory)
+{
+  this->platform_factory_.add (aliases, factory);
+}
+      
+void gams::controllers::Base_Controller::add_algorithm_factory (
+  const std::vector <std::string> & aliases,
+  algorithms::Algorithm_Factory * factory)
+{
+  this->algorithm_factory_.add (aliases, factory);
+}
+
 int
-gams::controllers::Base::monitor (void)
+gams::controllers::Base_Controller::monitor (void)
 {
   int result (0);
 
   if (platform_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::monitor:" \
+      DLINFO "gams::controllers::Base_Controller::monitor:" \
       " calling platform_->sense ()\n"));
 
     result = platform_->sense ();
@@ -114,7 +130,7 @@ gams::controllers::Base::monitor (void)
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::monitor:" \
+      DLINFO "gams::controllers::Base_Controller::monitor:" \
       " Platform undefined. Unable to call platform_->sense ()\n"));
   }
 
@@ -122,7 +138,7 @@ gams::controllers::Base::monitor (void)
 }
 
 int
-gams::controllers::Base::system_analyze (void)
+gams::controllers::Base_Controller::system_analyze (void)
 {
   int return_value (0);
   bool error (false);
@@ -134,391 +150,50 @@ gams::controllers::Base::system_analyze (void)
    **/
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::system_analyze:" \
+    DLINFO "gams::controllers::Base_Controller::system_analyze:" \
     " checking device and swarm commands\n"));
 
-  if (this->self_.device.command == "land" || this->swarm_.command == "land")
+  if (self_.device.command != "")
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::system_analyze:" \
-      " initializing land algorithm\n"));
+    Madara::Knowledge_Vector args;
 
-    init_algorithm ("land");
+    // check for args
+    self_.device.command_args.resize ();
+    self_.device.command_args.copy_to (args);
+
+    init_algorithm (self_.device.command.to_string (), args);
+
+    // reset the command
+    self_.device.command = "";
+    self_.device.command_args.resize (0);
   }
-
-  else if (this->self_.device.command == "takeoff" || 
-    this->swarm_.command == "takeoff")
+  else if (swarm_.command != "")
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::system_analyze:" \
-      " initializing takeoff algorithm\n"));
+    Madara::Knowledge_Vector args;
 
-    init_algorithm ("takeoff");
-  }
+    // check for args
+    swarm_.command_args.resize ();
+    swarm_.command_args.copy_to (args);
 
-  else if (this->self_.device.command == "cover" ||
-    this->swarm_.command == "cover")
-  {
-    Madara::Knowledge_Record type;
-    Madara::Knowledge_Record area;
+    init_algorithm (swarm_.command.to_string (), args);
     
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::system_analyze:" \
-      " cover algorithm requested\n"));
-
-    if (self_.device.command == "cover")
-    {
-      self_.device.command_args.resize ();
-
-      if (this->self_.device.command_args.size () == 2)
-      {
-        type = self_.device.command_args[0];
-        area = self_.device.command_args[1];
-      }
-      else
-      {
-        error = true;
-      }
-    }
-    else
-    {
-      swarm_.command_args.resize ();
-
-      // check if proper number of arguments were given
-      if (swarm_.command_args.size () == 2)
-      {
-        type = swarm_.command_args[0];
-        area = swarm_.command_args[1];
-      }
-      else
-      {
-        error = true;
-      }
-    }
-
-    if (error)
-    {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " ERROR: Area coverage requested with improper args\n"));
-    }
-    else
-    {
-      std::stringstream error_buffer;
-      if (!type.is_string_type ())
-      {
-        error_buffer << "ERROR: Area coverage type (first arg) == "
-          << type <<
-          ". Type should be a string.\n";
-
-        error = true;
-
-        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-          DLINFO "gams::controllers::Base::system_analyze:" \
-          " ERROR: %s\n",
-          error_buffer.str ().c_str ()));
-      }
-      if (!area.is_string_type ())
-      {
-        error_buffer << "ERROR: Area coverage area (second arg) == "
-          << area <<
-          ". Area should be a string.\n";
-
-        error = true;
-
-        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-          DLINFO "gams::controllers::Base::system_analyze:" \
-          " ERROR: %s\n",
-          error_buffer.str ().c_str ()));
-      }
-
-      knowledge_.print ();
-    }
-
-    // check if args were of the right type
-    if (!error)
-    {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " initializing cover algorithm\n"));
-
-      delete algorithm_;
-      algorithms::Factory factory (&knowledge_, &sensors_,
-        platform_, &self_, &devices_);
-
-      Madara::Knowledge_Vector args (1);
-      args[0] = area;
-
-      algorithm_ = factory.create (type.to_string (), args);
-    }
+    // reset the command
+    swarm_.command = "";
+    swarm_.command_args.resize (0);
   }
-  
-  else if (this->self_.device.command == "move" ||
-    this->swarm_.command == "move")
-  {
-    Madara::Knowledge_Record arg1;
-    Madara::Knowledge_Record arg2;
-    utility::Position target;
-    
-    if (self_.device.command == "move")
-    {
-      self_.device.command_args.resize ();
-
-      if (this->self_.device.command_args.size () == 2)
-      {
-        arg1 = self_.device.command_args[0];
-        arg2 = self_.device.command_args[1];
-      }
-      else if (this->self_.device.command_args.size () == 1)
-      {
-        arg1 = self_.device.command_args[0];
-      }
-      else if (this->self_.device.command_args.size () == 0)
-      {
-        arg1 = "target";
-      }
-      else
-      {
-        error = true;
-      }
-    }
-    else
-    {
-      swarm_.command_args.resize ();
-
-      // check if proper number of arguments were given
-      if (swarm_.command_args.size () == 2)
-      {
-        arg1 = swarm_.command_args[0];
-        arg2 = swarm_.command_args[1];
-      }
-      else if (swarm_.command_args.size () == 1)
-      {
-        arg1 = swarm_.command_args[0];
-      }
-      else
-      {
-        error = true;
-      }
-    }
-
-    if (error)
-    {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " ERROR: move requested with improper args\n"));
-    }
-    else
-    {
-      delete algorithm_;
-      algorithms::Factory factory (&knowledge_, &sensors_,
-        platform_, &self_, &devices_);
-
-      Madara::Knowledge_Vector args (2);
-      args[0] = arg1;
-      args[1] = arg2;
-      
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " initializing move algorithm\n"));
-
-      algorithm_ = factory.create ("move", args);
-    }
-  }
- 
-  else if (this->self_.device.command == "formation" ||
-    this->swarm_.command == "formation")
-  {
-    Madara::Knowledge_Record target_id;
-    Madara::Knowledge_Record cylindrical_offset;
-    Madara::Knowledge_Record destination;
-    Madara::Knowledge_Record members;
-    Madara::Knowledge_Record modifier;
-
-    if (self_.device.command == "formation")
-    {
-      self_.device.command_args.resize ();
-
-      if (this->self_.device.command_args.size () == 4)
-      {
-        target_id = self_.device.command_args[0];
-        cylindrical_offset = self_.device.command_args[1];
-        destination = self_.device.command_args[2];
-        members = self_.device.command_args[3];
-      }
-      else if (this->self_.device.command_args.size () == 5)
-      {
-        target_id = self_.device.command_args[0];
-        cylindrical_offset = self_.device.command_args[1];
-        destination = self_.device.command_args[2];
-        members = self_.device.command_args[3];
-        modifier = self_.device.command_args[4];
-      }
-      else
-      {
-        error = true;
-      }
-    }
-    else // swarm command
-    {
-    }
-
-    if (error)
-    {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " ERROR: formation requested with improper args\n"));
-    }
-    else
-    {
-      delete algorithm_;
-      algorithms::Factory factory (&knowledge_, &sensors_,
-        platform_, &self_, &devices_);
-
-      Madara::Knowledge_Vector args (5);
-      args[0] = target_id;
-      args[1] = cylindrical_offset;
-      args[2] = destination;
-      args[3] = members;
-      args[4] = modifier;
-      
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " initializing formation algorithm\n"));
-
-      algorithm_ = factory.create ("formation", args);
-    }
-  }
-
-  else if (this->self_.device.command == "formation coverage" ||
-    this->swarm_.command == "formation coverage")
-  {
-//    Madara::Knowledge_Record head_id;
-//    Madara::Knowledge_Record cylindrical_offset;
-//    Madara::Knowledge_Record members;
-//    Madara::Knowledge_Record modifier;
-//    Madara::Knowledge_Record coverage;
-//    Madara::Knowledge_Record cover_args;
-//
-//    if (self_.device.command == "formation coverage")
-//    {
-//      self_.device.command_args.resize ();
-//
-//      if (this->self_.device.command_args.size () == 4)
-//      {
-//        target_id = self_.device.command_args[0];
-//        cylindrical_offset = self_.device.command_args[1];
-//        destination = self_.device.command_args[2];
-//        members = self_.device.command_args[3];
-//      }
-//      else if (this->self_.device.command_args.size () == 5)
-//      {
-//        target_id = self_.device.command_args[0];
-//        cylindrical_offset = self_.device.command_args[1];
-//        destination = self_.device.command_args[2];
-//        members = self_.device.command_args[3];
-//        modifier = self_.device.command_args[4];
-//      }
-//      else
-//      {
-//        error = true;
-//      }
-//    }
-//    else // swarm command
-//    {
-//    }
-
-    if (error)
-    {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " ERROR: formation coverage requested with improper args\n"));
-    }
-    else
-    {
-      delete algorithm_;
-      algorithms::Factory factory (&knowledge_, &sensors_,
-        platform_, &self_, &devices_);
-
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " initializing formation coverage algorithm\n"));
-
-      self_.device.command_args.resize();
-      Madara::Knowledge_Vector args (self_.device.command_args.size ());
-      for (size_t i = 0; i < args.size (); ++i)
-        args[i] = self_.device.command_args[i];
-
-      algorithm_ = factory.create ("formation coverage", args);
-    }
-  }
-
-  else if (this->self_.device.command == "follow")
-  {
-    Madara::Knowledge_Record target_id;
-    Madara::Knowledge_Record delay;
-
-    if (self_.device.command == "follow")
-    {
-      self_.device.command_args.resize ();
-
-      if (this->self_.device.command_args.size () == 1)
-      {
-        target_id = self_.device.command_args[0];
-        delay.set_value ((Madara::Knowledge_Record::Integer)5);
-      }
-      else if (this->self_.device.command_args.size () == 2)
-      {
-        target_id = self_.device.command_args[0];
-        delay = self_.device.command_args[1];
-      }
-      else
-      {
-        error = true;
-      }
-    }
-
-    if (error)
-    {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " ERROR: follow requested with improper args\n"));
-    }
-    else
-    {
-      delete algorithm_;
-      algorithms::Factory factory (&knowledge_, &sensors_,
-        platform_, &self_, &devices_);
-
-      Madara::Knowledge_Vector args (2);
-      args[0] = target_id;
-      args[1] = delay;
-
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::system_analyze:" \
-        " initializing follow algorithm\n"));
-
-      algorithm_ = factory.create ("follow", args);
-    }
-  }
-  
-  self_.device.command = "";
-  swarm_.command = "";
-  self_.device.command_args.resize (0);
-  swarm_.command_args.resize (0);
 
   return return_value;
 }
 
 int
-gams::controllers::Base::analyze (void)
+gams::controllers::Base_Controller::analyze (void)
 {
   int return_value (0);
 
   if (platform_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::analyze:" \
+      DLINFO "gams::controllers::Base_Controller::analyze:" \
       " calling platform_->analyze ()\n"));
 
     return_value |= platform_->analyze ();
@@ -526,19 +201,19 @@ gams::controllers::Base::analyze (void)
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::analyze:" \
+      DLINFO "gams::controllers::Base_Controller::analyze:" \
       " Platform undefined. Unable to call platform_->analyze ()\n"));
   }
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::analyze:" \
+    DLINFO "gams::controllers::Base_Controller::analyze:" \
     " calling system_analyze ()\n"));
   return_value |= system_analyze ();
 
   if (algorithm_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::analyze:" \
+      DLINFO "gams::controllers::Base_Controller::analyze:" \
       " calling algorithm_->analyze ()\n"));
 
     return_value |= algorithm_->analyze ();
@@ -546,7 +221,7 @@ gams::controllers::Base::analyze (void)
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::analyze:" \
+      DLINFO "gams::controllers::Base_Controller::analyze:" \
       " Algorithm undefined. Unable to call algorithm_->analyze ()\n"));
   }
 
@@ -554,7 +229,7 @@ gams::controllers::Base::analyze (void)
   if (accents_.size () > 0)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::analyze:" \
+      DLINFO "gams::controllers::Base_Controller::analyze:" \
       " calling analyze on accents\n"));
     for (algorithms::Algorithms::iterator i = accents_.begin ();
       i != accents_.end (); ++i)
@@ -567,14 +242,14 @@ gams::controllers::Base::analyze (void)
 }
 
 int
-gams::controllers::Base::plan (void)
+gams::controllers::Base_Controller::plan (void)
 {
   int return_value (0);
   
   if (algorithm_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::plan:" \
+      DLINFO "gams::controllers::Base_Controller::plan:" \
       " calling algorithm_->plan ()\n"));
 
     return_value |= algorithm_->plan ();
@@ -582,14 +257,14 @@ gams::controllers::Base::plan (void)
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::plan:" \
+      DLINFO "gams::controllers::Base_Controller::plan:" \
       " Algorithm undefined. Unable to call algorithm_->plan ()\n"));
   }
 
   if (accents_.size () > 0)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::plan:" \
+      DLINFO "gams::controllers::Base_Controller::plan:" \
       " calling plan on accents\n"));
 
     for (algorithms::Algorithms::iterator i = accents_.begin ();
@@ -603,14 +278,14 @@ gams::controllers::Base::plan (void)
 }
 
 int
-gams::controllers::Base::execute (void)
+gams::controllers::Base_Controller::execute (void)
 {
   int return_value (0);
   
   if (algorithm_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::execute:" \
+      DLINFO "gams::controllers::Base_Controller::execute:" \
       " calling algorithm_->execute ()\n"));
 
     return_value |= algorithm_->execute ();
@@ -618,7 +293,7 @@ gams::controllers::Base::execute (void)
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::execute:" \
+      DLINFO "gams::controllers::Base_Controller::execute:" \
       " Algorithm undefined. Unable to call algorithm_->execute ()\n"));
   }
 
@@ -635,7 +310,7 @@ gams::controllers::Base::execute (void)
 }
 
 int
-gams::controllers::Base::run (double loop_period,
+gams::controllers::Base_Controller::run (double loop_period,
   double max_runtime, double send_period)
 {
   // return value
@@ -656,7 +331,7 @@ gams::controllers::Base::run (double loop_period,
   ACE_Time_Value last (current), last_send (current);
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::run:" \
+    DLINFO "gams::controllers::Base_Controller::run:" \
     " loop_period: %ds, max_runtime: %ds, send_period: %ds\n",
     loop_period, max_runtime, send_period));
 
@@ -677,7 +352,7 @@ gams::controllers::Base::run (double loop_period,
       return_value = 0;
       
       GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::run:" \
+        DLINFO "gams::controllers::Base_Controller::run:" \
         " calling monitor ()\n"));
 
       // lock the context from any external updates
@@ -686,19 +361,19 @@ gams::controllers::Base::run (double loop_period,
       return_value |= monitor ();
 
       GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::run:" \
+        DLINFO "gams::controllers::Base_Controller::run:" \
         " calling analyze ()\n"));
 
       return_value |= analyze ();
 
       GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::run:" \
+        DLINFO "gams::controllers::Base_Controller::run:" \
         " calling plan ()\n"));
 
       return_value |= plan ();
 
       GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::run:" \
+        DLINFO "gams::controllers::Base_Controller::run:" \
         " calling execute ()\n"));
 
       return_value |= execute ();
@@ -713,7 +388,7 @@ gams::controllers::Base::run (double loop_period,
       if (first_execute || current > send_next_epoch)
       {
         GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-          DLINFO "gams::controllers::Base::run:" \
+          DLINFO "gams::controllers::Base_Controller::run:" \
           " sending updates\n"));
 
         // send modified values through network
@@ -728,7 +403,7 @@ gams::controllers::Base::run (double loop_period,
       if (loop_period > 0.0 && current < next_epoch)
       {
         GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG, 
-          DLINFO "gams::controllers::Base::run:" \
+          DLINFO "gams::controllers::Base_Controller::run:" \
           " sleeping until next epoch\n"));
 
         Madara::Utility::sleep (next_epoch - current);  
@@ -747,28 +422,28 @@ gams::controllers::Base::run (double loop_period,
 }
 
 void
-gams::controllers::Base::init_accent (const std::string & algorithm,
+gams::controllers::Base_Controller::init_accent (const std::string & algorithm,
   const Madara::Knowledge_Vector & args)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_accent:" \
+    DLINFO "gams::controllers::Base_Controller::init_accent:" \
     " initializing accent %s\n", algorithm.c_str ()));
 
   if (algorithm == "")
   {
     GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_accent:" \
+      DLINFO "gams::controllers::Base_Controller::init_accent:" \
       " ERROR: accent name is null\n"));
   }
   else
   {
     // create new accent pointer and algorithm factory
-    algorithms::Base * new_accent (0);
-    algorithms::Factory factory (&knowledge_, &sensors_,
+    algorithms::Base_Algorithm * new_accent (0);
+    algorithms::Controller_Algorithm_Factory factory (&knowledge_, &sensors_,
       platform_, &self_, &devices_);
     
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_accent:" \
+      DLINFO "gams::controllers::Base_Controller::init_accent:" \
       " factory is creating accent %s\n", algorithm.c_str ()));
 
     new_accent = factory.create (algorithm, args);
@@ -780,16 +455,16 @@ gams::controllers::Base::init_accent (const std::string & algorithm,
     else
     {
       GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::init_accent:" \
+        DLINFO "gams::controllers::Base_Controller::init_accent:" \
         " ERROR: created accent is null.\n"));
     }
   }
 }
 
-void gams::controllers::Base::clear_accents (void)
+void gams::controllers::Base_Controller::clear_accents (void)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::clear_accents:" \
+    DLINFO "gams::controllers::Base_Controller::clear_accents:" \
     " deleting and clearing all accents\n"));
 
   for (unsigned int i = 0; i < accents_.size (); ++i)
@@ -800,13 +475,13 @@ void gams::controllers::Base::clear_accents (void)
   accents_.clear ();
 }
 void
-gams::controllers::Base::init_algorithm (
+gams::controllers::Base_Controller::init_algorithm (
 const std::string & algorithm, const Madara::Knowledge_Vector & args)
 {
   // initialize the algorithm
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_algorithm:" \
+    DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
     " initializing algorithm %s\n", algorithm.c_str ()));
 
   if (algorithm == "")
@@ -822,15 +497,15 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_platform:" \
+      DLINFO "gams::controllers::Base_Controller::init_platform:" \
       " deleting old algorithm\n"));
 
     delete algorithm_;
-    algorithms::Factory factory (&knowledge_, &sensors_,
+    algorithms::Controller_Algorithm_Factory factory (&knowledge_, &sensors_,
       platform_, &self_, &devices_);
     
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_algorithm:" \
+      DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
       " factory is creating algorithm %s\n", algorithm.c_str ()));
 
     algorithm_ = factory.create (algorithm, args);
@@ -840,14 +515,14 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 }
 
 void
-gams::controllers::Base::init_platform (
+gams::controllers::Base_Controller::init_platform (
   const std::string & platform,
   const Madara::Knowledge_Vector & args)
 {
   // initialize the platform
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_platform:" \
+    DLINFO "gams::controllers::Base_Controller::init_platform:" \
     " initializing algorithm %s\n", platform.c_str ()));
 
   if (platform == "")
@@ -862,14 +537,14 @@ gams::controllers::Base::init_platform (
   else
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_platform:" \
+      DLINFO "gams::controllers::Base_Controller::init_platform:" \
       " deleting old platform\n"));
 
     delete platform_;
-    platforms::Factory factory (&knowledge_, &sensors_, &platforms_, &self_);
+    platforms::Controller_Platform_Factory factory (&knowledge_, &sensors_, &platforms_, &self_);
 
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_platform:" \
+      DLINFO "gams::controllers::Base_Controller::init_platform:" \
       " factory is creating platform %s\n", platform.c_str ()));
 
     platform_ = factory.create (platform);
@@ -879,7 +554,7 @@ gams::controllers::Base::init_platform (
     if (algorithm_)
     {
       GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::init_platform:" \
+        DLINFO "gams::controllers::Base_Controller::init_platform:" \
         " algorithm is already initialized. Updating to new platform\n"));
 
       algorithm_->set_platform (platform_);
@@ -887,34 +562,34 @@ gams::controllers::Base::init_platform (
   }
 }
 
-void gams::controllers::Base::init_algorithm (algorithms::Base * algorithm)
+void gams::controllers::Base_Controller::init_algorithm (algorithms::Base_Algorithm * algorithm)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_algorithm:" \
+    DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
     " deleting old algorithm\n"));
 
   delete algorithm_;
   algorithm_ = algorithm;
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_algorithm:" \
+    DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
     " initializing vars in algorithm\n"));
 
   init_vars (*algorithm_);
 }
       
 
-void gams::controllers::Base::init_platform (platforms::Base * platform)
+void gams::controllers::Base_Controller::init_platform (platforms::Base_Platform * platform)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_platform:" \
+    DLINFO "gams::controllers::Base_Controller::init_platform:" \
     " deleting old platform\n"));
 
   delete platform_;
   platform_ = platform;
 
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_platform:" \
+    DLINFO "gams::controllers::Base_Controller::init_platform:" \
     " initializing vars in platform\n"));
 
   init_vars (*platform_);
@@ -922,7 +597,7 @@ void gams::controllers::Base::init_platform (platforms::Base * platform)
   if (algorithm_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_platform:" \
+      DLINFO "gams::controllers::Base_Controller::init_platform:" \
       " algorithm is already initialized. Updating to new platform\n"));
 
     algorithm_->set_platform (platform_);
@@ -931,16 +606,16 @@ void gams::controllers::Base::init_platform (platforms::Base * platform)
 
 #ifdef _GAMS_JAVA_
 
-void gams::controllers::Base::init_algorithm (jobject algorithm)
+void gams::controllers::Base_Controller::init_algorithm (jobject algorithm)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_algorithm (java):" \
+    DLINFO "gams::controllers::Base_Controller::init_algorithm (java):" \
     " deleting old algorithm\n"));
 
   delete algorithm_;
 
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_algorithm (java):" \
+    DLINFO "gams::controllers::Base_Controller::init_algorithm (java):" \
     " creating new Java algorithm\n"));
 
   algorithm_ = new gams::algorithms::Java_Algorithm (algorithm);
@@ -948,7 +623,7 @@ void gams::controllers::Base::init_algorithm (jobject algorithm)
   if (algorithm_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_algorithm (java):" \
+      DLINFO "gams::controllers::Base_Controller::init_algorithm (java):" \
       " initializing vars for algorithm\n"));
 
     init_vars (*algorithm_);
@@ -956,16 +631,16 @@ void gams::controllers::Base::init_algorithm (jobject algorithm)
 }
       
 
-void gams::controllers::Base::init_platform (jobject platform)
+void gams::controllers::Base_Controller::init_platform (jobject platform)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_platform (java):" \
+    DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
     " deleting old platform\n"));
 
   delete platform_;
 
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_platform (java):" \
+    DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
     " creating new Java platform\n"));
 
   platform_ = new gams::platforms::Java_Platform (platform);
@@ -973,7 +648,7 @@ void gams::controllers::Base::init_platform (jobject platform)
   if (platform_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base::init_platform (java):" \
+      DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
       " initializing vars for platform\n"));
 
     init_vars (*platform_);
@@ -981,7 +656,7 @@ void gams::controllers::Base::init_platform (jobject platform)
     if (algorithm_)
     {
       GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base::init_platform (java):" \
+        DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
         " Algorithm exists. Updating its platform.\n"));
 
       algorithm_->set_platform (platform_);
@@ -992,12 +667,12 @@ void gams::controllers::Base::init_platform (jobject platform)
 #endif
 
 void
-gams::controllers::Base::init_vars (
+gams::controllers::Base_Controller::init_vars (
   const Integer & id,
   const Integer & processes)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_vars:" \
+    DLINFO "gams::controllers::Base_Controller::init_vars:" \
     " %q id, %q processes\n", id, processes));
 
   // initialize the devices, swarm, and self variables
@@ -1007,10 +682,10 @@ gams::controllers::Base::init_vars (
 }
 
 void
-gams::controllers::Base::init_vars (platforms::Base & platform)
+gams::controllers::Base_Controller::init_vars (platforms::Base_Platform & platform)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_vars:" \
+    DLINFO "gams::controllers::Base_Controller::init_vars:" \
     " initializing platform's vars\n"));
 
   platform.knowledge_ = &knowledge_;
@@ -1020,10 +695,10 @@ gams::controllers::Base::init_vars (platforms::Base & platform)
 
 
 void
-gams::controllers::Base::init_vars (algorithms::Base & algorithm)
+gams::controllers::Base_Controller::init_vars (algorithms::Base_Algorithm & algorithm)
 {
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base::init_vars:" \
+    DLINFO "gams::controllers::Base_Controller::init_vars:" \
     " initializing algorithm's vars\n"));
 
   algorithm.devices_ = &devices_;
@@ -1033,14 +708,14 @@ gams::controllers::Base::init_vars (algorithms::Base & algorithm)
   algorithm.sensors_ = &sensors_;
 }
 
-gams::algorithms::Base *
-gams::controllers::Base::get_algorithm (void)
+gams::algorithms::Base_Algorithm *
+gams::controllers::Base_Controller::get_algorithm (void)
 {
   return algorithm_;
 }
       
-gams::platforms::Base *
-gams::controllers::Base::get_platform (void)
+gams::platforms::Base_Platform *
+gams::controllers::Base_Controller::get_platform (void)
 {
   return platform_;
 }

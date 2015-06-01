@@ -53,7 +53,7 @@
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
-gams::platforms::Base::Base (
+gams::platforms::Base_Platform::Base_Platform (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Self * self)
@@ -61,12 +61,12 @@ gams::platforms::Base::Base (
 {
 }
 
-gams::platforms::Base::~Base ()
+gams::platforms::Base_Platform::~Base_Platform ()
 {
 }
 
 void
-gams::platforms::Base::operator= (const Base & rhs)
+gams::platforms::Base_Platform::operator= (const Base_Platform & rhs)
 {
   if (this != &rhs)
   {
@@ -78,7 +78,7 @@ gams::platforms::Base::operator= (const Base & rhs)
 }
 
 gams::utility::Position *
-gams::platforms::Base::get_position ()
+gams::platforms::Base_Platform::get_position ()
 {
   utility::Position * position = new utility::Position ();
   position->from_container (self_->device.location);
@@ -86,7 +86,7 @@ gams::platforms::Base::get_position ()
 }
 
 double
-gams::platforms::Base::get_min_sensor_range () const
+gams::platforms::Base_Platform::get_min_sensor_range () const
 {
   double min_range = DBL_MAX;
   for (variables::Sensors::const_iterator it = sensors_->begin ();
@@ -104,19 +104,20 @@ gams::platforms::Base::get_min_sensor_range () const
 }
 
 double
-gams::platforms::Base::get_move_speed () const
+gams::platforms::Base_Platform::get_move_speed () const
 {
   return move_speed_;
 }
 
 const gams::variables::Sensor&
-gams::platforms::Base::get_sensor (const std::string& name) const
+gams::platforms::Base_Platform::get_sensor (const std::string& name) const
 {
   return *((*sensors_)[name]);
 }
 
 void
-gams::platforms::Base::get_sensor_names (variables::Sensor_Names& sensors) const
+gams::platforms::Base_Platform::get_sensor_names (
+  variables::Sensor_Names& sensors) const
 {
   variables::Sensor_Names ret_val;
   for (variables::Sensors::iterator it = sensors_->begin ();
@@ -128,7 +129,7 @@ gams::platforms::Base::get_sensor_names (variables::Sensor_Names& sensors) const
 }
 
 int
-gams::platforms::Base::home (void)
+gams::platforms::Base_Platform::home (void)
 {
   // check if home has been set
   if (self_->device.home.size () == 3)
@@ -145,7 +146,7 @@ gams::platforms::Base::home (void)
 }
 
 int
-gams::platforms::Base::move (const utility::Position & target,
+gams::platforms::Base_Platform::move (const utility::Position & target,
   const double & epsilon)
 {
   int result = 0;
@@ -184,30 +185,30 @@ gams::platforms::Base::move (const utility::Position & target,
 
 
 int
-gams::platforms::Base::rotate (const utility::Axes &)
+gams::platforms::Base_Platform::rotate (const utility::Axes &)
 {
   return 0;
 }
 
 int
-gams::platforms::Base::takeoff (void)
+gams::platforms::Base_Platform::takeoff (void)
 {
   return 2;
 }
 
 int
-gams::platforms::Base::land (void)
+gams::platforms::Base_Platform::land (void)
 {
   return 2;
 }
 
-double gams::platforms::Base::get_accuracy (void) const
+double gams::platforms::Base_Platform::get_accuracy (void) const
 {
   return 0.0;
 }
 
 void
-gams::platforms::Base::pause_move (void)
+gams::platforms::Base_Platform::pause_move (void)
 {
   if (*status_.moving)
     status_.moving = 0;
@@ -216,26 +217,26 @@ gams::platforms::Base::pause_move (void)
 }
 
 void
-gams::platforms::Base::set_knowledge (
+gams::platforms::Base_Platform::set_knowledge (
   Madara::Knowledge_Engine::Knowledge_Base * rhs)
 {
   knowledge_ = rhs;
 }
 
 void
-gams::platforms::Base::set_move_speed (const double& speed)
+gams::platforms::Base_Platform::set_move_speed (const double& speed)
 {
   move_speed_ = speed;
 }
 
 void
-gams::platforms::Base::set_sensors (variables::Sensors * sensors)
+gams::platforms::Base_Platform::set_sensors (variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }
 
 void
-gams::platforms::Base::stop_move (void)
+gams::platforms::Base_Platform::stop_move (void)
 {
   if (*status_.moving)
     status_.moving = 0;
@@ -247,25 +248,25 @@ gams::platforms::Base::stop_move (void)
 }
 
 Madara::Knowledge_Engine::Knowledge_Base *
-gams::platforms::Base::get_knowledge_base (void)
+gams::platforms::Base_Platform::get_knowledge_base (void)
 {
   return knowledge_;
 }
 
 variables::Self *
-gams::platforms::Base::get_self (void)
+gams::platforms::Base_Platform::get_self (void)
 {
   return self_;
 }
 
 variables::Sensors *
-gams::platforms::Base::get_sensors (void)
+gams::platforms::Base_Platform::get_sensors (void)
 {
   return sensors_;
 }
 
-variables::Platform *
-gams::platforms::Base::get_platform_status (void)
+variables::Platform_Status *
+gams::platforms::Base_Platform::get_platform_status (void)
 {
   return &status_;
 }

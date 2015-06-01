@@ -56,7 +56,7 @@
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -66,7 +66,7 @@ namespace gams
 {
   namespace platforms
   {
-    class Counter_Platform : public Base
+    class Counter_Platform : public Base_Platform
     {
     public:
       /**

@@ -109,11 +109,9 @@ public interface PlatformInterface
   public int move (Position target, double proximity);
    
   /**
-   * Initializes a rotation around 3D axes. This should be
-   * a non-blocking call.
+   * Initializes a rotate along x, y, z axes. This should be
+   * a non-blocking call and implements an extrinsic rotation.
    * @param   axes       parameters for rotation along x, y, z axes
-   * @param   proximity  the minimum distance between current position
-   *                   and target position that terminates the move.
    * @return  status information (@see Status)
    **/
   public int rotate (Axes axes);

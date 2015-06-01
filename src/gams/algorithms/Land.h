@@ -56,15 +56,16 @@
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/Base_Algorithm.h"
+#include "gams/algorithms/Algorithm_Factory.h"
 
 namespace gams
 {
   namespace algorithms
   {
-    class GAMS_Export Land : public Base
+    class GAMS_Export Land : public Base_Algorithm
     {
     public:
       /**
@@ -76,7 +77,7 @@ namespace gams
        **/
       Land (
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base * platform = 0,
+        platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
 
@@ -108,6 +109,35 @@ namespace gams
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int plan (void);
+    };
+
+    /**
+     * A factory class for creating Landing algorithms
+     **/
+    class GAMS_Export Land_Factory : public Algorithm_Factory
+    {
+    public:
+
+      /**
+       * Creates a Landing Algorithm.
+       * @param   args      no arguments are necessary for this algorithm
+       * @param   platform  the platform. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       * @param   devices   the list of devices, which is dictated by
+       *                    init_vars when a number of processes is set. This
+       *                    will be set by the controller in init_vars
+       **/
+      virtual Base_Algorithm * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        platforms::Base_Platform * platform,
+        variables::Sensors * sensors,
+        variables::Self * self,
+        variables::Devices * devices);
     };
   }
 }

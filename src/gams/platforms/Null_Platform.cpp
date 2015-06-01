@@ -46,13 +46,30 @@
 #include "Null_Platform.h"
 #include "gams/utility/Logging.h"
 
+gams::platforms::Base_Platform *
+gams::platforms::Null_Platform_Factory::create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self)
+{
+  Base_Platform * result (0);
+  
+  if (knowledge && sensors && platforms && self)
+  {
+    result = new Null_Platform (knowledge, sensors, platforms, self);
+  }
+
+  return result;
+}
 
 gams::platforms::Null_Platform::Null_Platform (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : Base (knowledge, sensors, self)
+  : Base_Platform (knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
@@ -70,9 +87,9 @@ gams::platforms::Null_Platform::operator= (const Null_Platform & rhs)
 {
   if (this != &rhs)
   {
-    platforms::Base * dest = dynamic_cast <platforms::Base *> (this);
-    const platforms::Base * source =
-      dynamic_cast <const platforms::Base *> (&rhs);
+    platforms::Base_Platform * dest = dynamic_cast <platforms::Base_Platform *> (this);
+    const platforms::Base_Platform * source =
+      dynamic_cast <const platforms::Base_Platform *> (&rhs);
 
     *dest = *source;
   }

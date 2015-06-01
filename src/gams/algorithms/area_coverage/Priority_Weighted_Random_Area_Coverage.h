@@ -55,6 +55,7 @@
 #ifndef _GAMS_ALGORITHMS_AREA_COVERAGE_PRIORITY_WEIGHTED_RANDOM_AREA_COVERAGE_H_
 #define _GAMS_ALGORITHMS_AREA_COVERAGE_PRIORITY_WEIGHTED_RANDOM_AREA_COVERAGE_H_
 
+#include "gams/algorithms/Algorithm_Factory.h"
 #include "gams/algorithms/area_coverage/Base_Area_Coverage.h"
 
 #include <vector>
@@ -81,7 +82,7 @@ namespace gams
         Priority_Weighted_Random_Area_Coverage (
           const Madara::Knowledge_Record& search_id, 
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-          platforms::Base * platform = 0,
+          platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0);
   
@@ -106,6 +107,37 @@ namespace gams
         /// total priority
         double total_priority_;
       }; // class Priority_Weighted_Area_Coverage
+
+      /**
+       * A factory class for creating priority-weighted random area
+       * coverage algorithms
+       **/
+      class GAMS_Export Priority_Weighted_Random_Area_Coverage_Factory
+        : public Algorithm_Factory
+      {
+      public:
+
+        /**
+         * Creates a priority-weighted random area coverage algorithm
+         * @param   args      args[0] = search area id
+         * @param   platform  the platform. This will be set by the
+         *                    controller in init_vars.
+         * @param   sensors   the sensor info. This will be set by the
+         *                    controller in init_vars.
+         * @param   self      self-referencing variables. This will be
+         *                    set by the controller in init_vars
+         * @param   devices   the list of devices, which is dictated by
+         *                    init_vars when a number of processes is set. This
+         *                    will be set by the controller in init_vars
+         **/
+        virtual Base_Algorithm * create (
+          const Madara::Knowledge_Vector & args,
+          Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+          platforms::Base_Platform * platform,
+          variables::Sensors * sensors,
+          variables::Self * self,
+          variables::Devices * devices);
+      };
     } // namespace area_coverage
   } // namespace algorithms
 } // namespace gams

@@ -68,24 +68,24 @@ namespace gams
 {
   namespace variables
   {
-    class GAMS_Export Algorithm
+    class GAMS_Export Algorithm_Status
     {
     public:
       /**
        * Constructor
        **/
-      Algorithm ();
+      Algorithm_Status ();
 
       /**
        * Destructor
        **/
-      ~Algorithm ();
+      ~Algorithm_Status ();
 
       /**
        * Assignment operator
        * @param  rhs   value to copy
        **/
-      void operator= (const Algorithm & rhs);
+      void operator= (const Algorithm_Status & rhs);
 
       /**
        * Initializes variable containers
@@ -140,7 +140,7 @@ namespace gams
     };
 
     /// a map of sensor names to the sensor information
-    typedef  std::map <std::string, Algorithm>   Algorithms;
+    typedef  std::map <std::string, Algorithm_Status>   Algorithms;
 
     /// a list of sensor names
     typedef  std::vector <std::string>        Algorithm_Names;

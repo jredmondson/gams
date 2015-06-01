@@ -63,17 +63,37 @@ using std::endl;
 
 using std::stringstream;
 
-/**
- * Sets the Madara container for the target location. Delay is the number of 
- * timesteps to remain behind the follow target.
- */
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Follow_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && self && 
+      args.size () == 2 &&
+      args[0].is_integer_type () && args[1].is_integer_type ())
+  {
+    result = new Follow (
+      args[0] /*follow target*/,
+      args[1] /*timestep delay*/,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
 gams::algorithms::Follow::Follow (
   const Madara::Knowledge_Record& id,
   const Madara::Knowledge_Record& delay,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform, variables::Sensors * sensors,
+  platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self) :
-  Base (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
+  Base_Algorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
   delay_ (delay.to_integer ())
 {
   stringstream location_string;
@@ -90,7 +110,7 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
 {
   if (this != &rhs)
   {
-    this->Base::operator= (rhs);
+    this->Base_Algorithm::operator= (rhs);
     this->target_location_ = rhs.target_location_;
     this->next_position_ = rhs.next_position_;
     this->previous_locations_ = rhs.previous_locations_;

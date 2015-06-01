@@ -59,15 +59,16 @@
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/utility/GPS_Position.h"
+#include "gams/algorithms/Algorithm_Factory.h"
 
 namespace gams
 {
   namespace algorithms
   {
-    class GAMS_Export Follow : public Base
+    class GAMS_Export Follow : public Base_Algorithm
     {
     public:
       /**
@@ -83,7 +84,7 @@ namespace gams
         const Madara::Knowledge_Record& id,
         const Madara::Knowledge_Record& delay,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base * platform = 0,
+        platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
       
@@ -128,6 +129,36 @@ namespace gams
 
       /// timesteps to delay/max size of queue
       size_t delay_;
+    };
+
+    /**
+     * A factory class for creating Follow Algorithms
+     **/
+    class GAMS_Export Follow_Factory : public Algorithm_Factory
+    {
+    public:
+
+      /**
+       * Creates a Follow Algorithm.
+       * @param   args      arg[0] = the target to follow
+       *                    arg[1] = the time step delay
+       * @param   platform  the platform. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       * @param   devices   the list of devices, which is dictated by
+       *                    init_vars when a number of processes is set. This
+       *                    will be set by the controller in init_vars
+       **/
+      virtual Base_Algorithm * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        platforms::Base_Platform * platform,
+        variables::Sensors * sensors,
+        variables::Self * self,
+        variables::Devices * devices);
     };
   }
 }

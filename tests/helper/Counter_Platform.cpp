@@ -49,7 +49,7 @@
 
 gams::platforms::Counter_Platform::Counter_Platform (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge)
-  : Base (&knowledge)
+  : Base_Platform (&knowledge)
 {
   analyze_counter_.set_name (".platform_analyzes", knowledge);
   get_gps_accuracy_counter_.set_name (".platform_get_gps_accuracies", knowledge);
@@ -71,9 +71,9 @@ gams::platforms::Counter_Platform::operator= (const Counter_Platform & rhs)
 {
   if (this != &rhs)
   {
-    platforms::Base * dest = dynamic_cast <platforms::Base *> (this);
-    const platforms::Base * source =
-      dynamic_cast <const platforms::Base *> (&rhs);
+    platforms::Base_Platform * dest = dynamic_cast <platforms::Base_Platform *> (this);
+    const platforms::Base_Platform * source =
+      dynamic_cast <const platforms::Base_Platform *> (&rhs);
 
     *dest = *source;
     this->analyze_counter_ = rhs.analyze_counter_;

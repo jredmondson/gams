@@ -51,11 +51,11 @@
 gams::algorithms::Java_Algorithm::Java_Algorithm (
   jobject obj,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * devices)
-  : Base (knowledge, platform, sensors, self, devices)
+  : Base_Algorithm (knowledge, platform, sensors, self, devices)
 {
   gams::utility::java::Acquire_VM jvm;
 
@@ -125,9 +125,9 @@ gams::algorithms::Java_Algorithm::operator= (const Java_Algorithm & rhs)
   if (this != &rhs && obj_ != rhs.obj_)
   {
     gams::utility::java::Acquire_VM jvm;
-    algorithms::Base * dest = dynamic_cast <algorithms::Base *> (this);
-    const algorithms::Base * source =
-      dynamic_cast <const algorithms::Base *> (&rhs);
+    algorithms::Base_Algorithm * dest = dynamic_cast <algorithms::Base_Algorithm *> (this);
+    const algorithms::Base_Algorithm * source =
+      dynamic_cast <const algorithms::Base_Algorithm *> (&rhs);
     
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
       DLINFO "gams::algorithms::Java_Algorithm::assignment:" \

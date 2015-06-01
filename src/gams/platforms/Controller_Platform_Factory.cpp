@@ -43,7 +43,10 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "Platform_Factory.h"
+
+#include "madara/utility/Utility.h"
+
+#include "Controller_Platform_Factory.h"
 #include "Debug_Platform.h"
 #include "Null_Platform.h"
 
@@ -58,36 +61,124 @@
 
 #include <string>
 
-gams::platforms::Platform_Factory::Platform_Factory ()
-  : knowledge_ (0), platforms_ (0), self_ (0), sensors_ (0)
+namespace platforms = gams::platforms;
+namespace variables = gams::variables;
+
+
+platforms::Controller_Platform_Factory::Controller_Platform_Factory (
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  variables::Sensors * sensors,
+  variables::Platforms * platforms,
+  variables::Self * self)
+: knowledge_ (knowledge), platforms_ (platforms), self_ (self),
+  sensors_ (sensors)
 {
+  initialize_default_mappings ();
 }
 
-gams::platforms::Platform_Factory::~Platform_Factory ()
+platforms::Controller_Platform_Factory::~Controller_Platform_Factory ()
 {
 }
 
 void
-gams::platforms::Platform_Factory::set_knowledge (
+platforms::Controller_Platform_Factory::initialize_default_mappings (void)
+{
+  std::vector <std::string> aliases;
+  
+  // the debug platform
+  aliases.resize (3);
+  aliases[0] = "debug";
+  aliases[1] = "print";
+  aliases[2] = "printer";
+
+  add (aliases, new Debug_Platform_Factory ());
+  
+  // the null platform
+  aliases.resize (1);
+  aliases[0] = "null";
+
+  add (aliases, new Null_Platform_Factory ());
+  
+  // VREP Platforms
+#ifdef _GAMS_VREP_
+  
+  // the VREP Ant platform
+  aliases.resize (2);
+  aliases[0] = "vrep-ant";
+  aliases[1] = "vrep_ant";
+
+  add (aliases, new VREP_Ant_Factory ());
+  
+  // the VREP Ant platform
+  aliases.resize (3);
+  aliases[0] = "vrep-uav";
+  aliases[1] = "vrep_uav";
+  aliases[2] = "vrep";
+
+  add (aliases, new VREP_UAV_Factory ());
+#endif
+
+
+}
+
+void
+platforms::Controller_Platform_Factory::add (
+  const std::vector <std::string> & aliases,
+  Platform_Factory * factory)
+{
+  for (size_t i = 0; i < aliases.size (); ++i)
+  {
+    std::string alias (aliases[i]);
+    Madara::Utility::lower (alias);
+
+    factory->set_knowledge (knowledge_);
+    factory->set_self (self_);
+    factory->set_sensors (sensors_);
+    factory->set_platforms (platforms_);
+
+    factory_map_[alias] = factory;
+  }
+}
+
+platforms::Base_Platform *
+platforms::Controller_Platform_Factory::create (
+  const std::string & type,
+  const Madara::Knowledge_Vector & args)
+{
+  Base_Platform * result (0);
+
+  if (type != "")
+  {
+    result = factory_map_[type]->create (
+      args, knowledge_, sensors_, platforms_, self_);
+  }
+
+  return result;
+}
+
+void
+platforms::Controller_Platform_Factory::set_knowledge (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-gams::platforms::Platform_Factory::set_platforms (variables::Platforms * platforms)
+platforms::Controller_Platform_Factory::set_platforms (
+  variables::Platforms * platforms)
 {
   platforms_ = platforms;
 }
 
 void
-gams::platforms::Platform_Factory::set_self (variables::Self * self)
+platforms::Controller_Platform_Factory::set_self (variables::Self * self)
 {
   self_ = self;
 }
 
 void
-gams::platforms::Platform_Factory::set_sensors (variables::Sensors * sensors)
+platforms::Controller_Platform_Factory::set_sensors (
+  variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }

@@ -155,7 +155,7 @@ to_legible_hertz (engine::Function_Arguments & args, engine::Variables & vars)
 
 void
 test_period (engine::Knowledge_Base & knowledge,
-  controllers::Base & loop, double period = 0.0, double duration = 10.0)
+  controllers::Base_Controller & loop, double period = 0.0, double duration = 10.0)
 {
   algorithm->reset_counters ();
   std::cerr << "Testing " << duration << "s experiment with "
@@ -170,7 +170,7 @@ test_period (engine::Knowledge_Base & knowledge,
 
 void
 test_hz (engine::Knowledge_Base & knowledge,
-  controllers::Base & loop, double hz = 0.0, double duration = 10.0)
+  controllers::Base_Controller & loop, double hz = 0.0, double duration = 10.0)
 {
   algorithm->reset_counters ();
   std::cerr << "Testing " << duration << "s experiment with "
@@ -188,7 +188,7 @@ int main (int argc, char ** argv)
 {
   // create knowledge base and a control loop
   engine::Knowledge_Base knowledge;
-  controllers::Base loop (knowledge);
+  controllers::Base_Controller loop (knowledge);
 
   platform =
     new platforms::Counter_Platform (knowledge);

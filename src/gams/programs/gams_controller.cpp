@@ -345,7 +345,7 @@ int main (int argc, char ** argv)
   
   // create knowledge base and a control loop
   Madara::Knowledge_Engine::Knowledge_Base knowledge (host, settings);
-  controllers::Base loop (knowledge);
+  controllers::Base_Controller loop (knowledge);
 
   // initialize variables and function stubs
   loop.init_vars (settings.id, num_agents);

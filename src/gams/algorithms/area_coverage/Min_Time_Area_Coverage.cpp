@@ -67,11 +67,32 @@
 using std::cerr;
 using std::endl;
 
+gams::algorithms::Base_Algorithm *
+gams::algorithms::area_coverage::Min_Time_Area_Coverage_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && self && args.size () > 0)
+  {
+    result = new area_coverage::Min_Time_Area_Coverage (
+      args[0] /* search area id*/,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
 gams::algorithms::area_coverage::Min_Time_Area_Coverage::
   Min_Time_Area_Coverage (
   const Madara::Knowledge_Record& search_id,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform, variables::Sensors * sensors,
+  platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, const std::string& algo_name) :
   Base_Area_Coverage (knowledge, platform, sensors, self),
   search_area_ (

@@ -56,7 +56,7 @@
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -70,7 +70,7 @@ namespace gams
 {
   namespace algorithms
   {
-    class GAMS_Export Java_Algorithm : public Base
+    class GAMS_Export Java_Algorithm : public Base_Algorithm
     {
     public:
       /**
@@ -85,7 +85,7 @@ namespace gams
       Java_Algorithm (
         jobject obj,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base * platform = 0,
+        platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
         variables::Devices * devices = 0);

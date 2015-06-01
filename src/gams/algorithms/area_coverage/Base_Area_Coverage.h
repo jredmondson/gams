@@ -64,7 +64,7 @@ namespace gams
   {
     namespace area_coverage
     {
-      class GAMS_Export Base_Area_Coverage : public Base
+      class GAMS_Export Base_Area_Coverage : public Base_Algorithm
       {
       public:
         /**
@@ -77,7 +77,7 @@ namespace gams
          **/
         Base_Area_Coverage (
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-          platforms::Base * platform = 0,
+          platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
           variables::Devices * devices = 0);

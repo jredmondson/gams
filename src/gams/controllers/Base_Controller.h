@@ -59,10 +59,14 @@
 #include "gams/variables/Swarm.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Algorithm.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Algorithm_Status.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/platforms/Base_Platform.h"
+#include "gams/algorithms/Controller_Algorithm_Factory.h"
+#include "gams/platforms/Controller_Platform_Factory.h"
+#include "gams/algorithms/Algorithm_Factory.h"
+#include "gams/platforms/Platform_Factory.h"
 
 #ifdef _GAMS_JAVA_
 #include <jni.h>
@@ -72,19 +76,19 @@ namespace gams
 {
   namespace controllers
   {
-    class GAMS_Export Base
+    class GAMS_Export Base_Controller
     {
     public:
       /**
        * Constructor
        * @param   knowledge   The knowledge base to reference and mutate
        **/
-      Base (Madara::Knowledge_Engine::Knowledge_Base & knowledge);
+      Base_Controller (Madara::Knowledge_Engine::Knowledge_Base & knowledge);
 
       /**
        * Destructor
        **/
-      ~Base ();
+      virtual ~Base_Controller ();
 
       /**
        * Defines the monitor function (the M of MAPE). This function should
@@ -179,6 +183,30 @@ namespace gams
       void clear_accents (void);
 
       /**
+       * Adds an aliased platform factory. This factory will be
+       * initialized with all appropriate variables in the
+       * Platform_Factory class by the Base_Controller.
+       * @param  aliases   the named aliases for the factory. All
+       *                   aliases will be converted to lower case
+       * @param  factory   the factory for creating a platform
+       **/
+      void add_platform_factory (
+        const std::vector <std::string> & aliases,
+        platforms::Platform_Factory * factory);
+      
+      /**
+       * Adds an aliased algorithm factory. This factory will be
+       * initialized with all appropriate variables in the
+       * Algorithm_Factory class by the Base_Controller.
+       * @param  aliases   the named aliases for the factory. All
+       *                   aliases will be converted to lower case
+       * @param  factory   the factory for creating an algorithm
+       **/
+      void add_algorithm_factory (
+        const std::vector <std::string> & aliases,
+        algorithms::Algorithm_Factory * factory);
+
+      /**
        * Initializes an algorithm
        * @param  algorithm   the name of the algorithm to run
        * @param  args        vector of knowledge record arguments
@@ -192,7 +220,7 @@ namespace gams
        * DELETE THIS POINTER.
        * @param  algorithm   the algorithm to use
        **/
-      void init_algorithm (algorithms::Base * algorithm);
+      void init_algorithm (algorithms::Base_Algorithm * algorithm);
 
       /**
        * Initializes the platform
@@ -208,7 +236,7 @@ namespace gams
        * DELETE THIS POINTER.
        * @param  platform   the platform to use
        **/
-      void init_platform (platforms::Base * platform);
+      void init_platform (platforms::Base_Platform * platform);
            
 #ifdef _GAMS_JAVA_
       /**
@@ -238,7 +266,7 @@ namespace gams
        * a user-defined platform.
        * @param   platform   the platform to initialize
        **/
-      void init_vars (platforms::Base & platform);
+      void init_vars (platforms::Base_Platform & platform);
       
       /**
        * Initializes containers and knowledge base in an algorithm.
@@ -246,19 +274,19 @@ namespace gams
        * a user-defined algorithm.
        * @param   algorithm   the algorithm to initialize
        **/
-      void init_vars (algorithms::Base & algorithm);
+      void init_vars (algorithms::Base_Algorithm & algorithm);
 
       /**
        * Gets the current algorithm
        * @return the algorithm
        **/
-      algorithms::Base * get_algorithm (void);
+      algorithms::Base_Algorithm * get_algorithm (void);
       
       /**
        * Gets the current platform
        * @return the platform
        **/
-      platforms::Base * get_platform (void);
+      platforms::Base_Platform * get_platform (void);
 
     protected:
 
@@ -266,7 +294,7 @@ namespace gams
       algorithms::Algorithms accents_;
 
       /// algorithm to perform
-      algorithms::Base * algorithm_;
+      algorithms::Base_Algorithm * algorithm_;
 
       /// Containers for algorithm information
       variables::Algorithms algorithms_;
@@ -278,7 +306,7 @@ namespace gams
       Madara::Knowledge_Engine::Knowledge_Base & knowledge_;
 
       /// Platform on which the controller is running
-      platforms::Base * platform_;
+      platforms::Base_Platform * platform_;
 
       /// Containers for platform information
       variables::Platforms platforms_;
@@ -291,6 +319,12 @@ namespace gams
 
       /// Containers for swarm-related variables
       variables::Swarm swarm_;
+
+      /// the factory for creating new algorithms
+      algorithms::Controller_Algorithm_Factory algorithm_factory_;
+
+      /// the factory for creating new platforms
+      platforms::Controller_Platform_Factory platform_factory_;
     };
   }
 }

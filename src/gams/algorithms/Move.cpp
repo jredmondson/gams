@@ -52,15 +52,34 @@ using std::string;
 using std::cerr;
 using std::endl;
 
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Move_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && platform && self)
+  {
+    result = new Move ("", 0, 0, knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
 gams::algorithms::Move::Move (
   const string & type,
   unsigned int max_executions,
   double max_execution_time,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, platform, sensors, self),
+  : Base_Algorithm (knowledge, platform, sensors, self),
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (max_execution_time),
   max_executions_ (max_executions), type_ (type)
 {
@@ -77,10 +96,10 @@ gams::algorithms::Move::Move (
   const string & type,
   const utility::Position & target,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, platform, sensors, self),
+  : Base_Algorithm (knowledge, platform, sensors, self),
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (-1),
   max_executions_ (0), mode_ (TARGET), target_ (target), type_ (type)
 {

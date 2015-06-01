@@ -14,7 +14,7 @@ GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getKnowled
 {
   jlong result (0);
 
-  algorithms::Base * current = (algorithms::Base *)cptr;
+  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
   if (current)
   {
     result = (jlong) current->get_knowledge_base ();
@@ -33,7 +33,7 @@ GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getSelf
 {
   jlong result (0);
 
-  algorithms::Base * current = (algorithms::Base *)cptr;
+  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
   if (current)
   {
     result = (jlong) current->get_self ();
@@ -52,7 +52,7 @@ GAMS_Export jobject JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getPlatf
 {
   jobject result (0);
 
-  algorithms::Base * current = (algorithms::Base *)cptr;
+  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
   if (current)
   {
     gams::platforms::Java_Platform * platform =
@@ -78,7 +78,7 @@ GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getAlgorit
 {
   jlong result (0);
 
-  algorithms::Base * current = (algorithms::Base *)cptr;
+  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
   if (current)
   {
     result = (jlong) current->get_algorithm_status ();

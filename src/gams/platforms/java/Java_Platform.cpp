@@ -54,7 +54,7 @@ gams::platforms::Java_Platform::Java_Platform (
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : Base (knowledge, sensors, self)
+  : Base_Platform (knowledge, sensors, self)
 {
   gams::utility::java::Acquire_VM jvm;
   
@@ -128,9 +128,9 @@ gams::platforms::Java_Platform::operator= (const Java_Platform & rhs)
   if (this != &rhs && obj_ != rhs.obj_)
   {
     gams::utility::java::Acquire_VM jvm;
-    platforms::Base * dest = dynamic_cast <platforms::Base *> (this);
-    const platforms::Base * source =
-      dynamic_cast <const platforms::Base *> (&rhs);
+    platforms::Base_Platform * dest = dynamic_cast <platforms::Base_Platform *> (this);
+    const platforms::Base_Platform * source =
+      dynamic_cast <const platforms::Base_Platform *> (&rhs);
     
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
       DLINFO "gams::platforms::Java_Platform::assignment:" \

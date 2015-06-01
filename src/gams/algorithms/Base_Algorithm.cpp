@@ -50,9 +50,9 @@
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
-gams::algorithms::Base::Base (
+gams::algorithms::Base_Algorithm::Base_Algorithm (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * devices)
@@ -61,12 +61,12 @@ gams::algorithms::Base::Base (
 {
 }
 
-gams::algorithms::Base::~Base ()
+gams::algorithms::Base_Algorithm::~Base_Algorithm ()
 {
 }
 
 void
-gams::algorithms::Base::operator= (const Base & rhs)
+gams::algorithms::Base_Algorithm::operator= (const Base_Algorithm & rhs)
 {
   if (this != &rhs)
   {
@@ -79,61 +79,61 @@ gams::algorithms::Base::operator= (const Base & rhs)
 }
 
 void
-gams::algorithms::Base::set_devices (variables::Devices * devices)
+gams::algorithms::Base_Algorithm::set_devices (variables::Devices * devices)
 {
   devices_ = devices;
 }
 
 void
-gams::algorithms::Base::set_platform (platforms::Base * platform)
+gams::algorithms::Base_Algorithm::set_platform (platforms::Base_Platform * platform)
 {
   platform_ = platform;
 }
 
 void
-gams::algorithms::Base::set_self (variables::Self * self)
+gams::algorithms::Base_Algorithm::set_self (variables::Self * self)
 {
   self_ = self;
 }
 
 void
-gams::algorithms::Base::set_sensors (variables::Sensors * sensors)
+gams::algorithms::Base_Algorithm::set_sensors (variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }
 
 variables::Devices *
-gams::algorithms::Base::get_devices (void)
+gams::algorithms::Base_Algorithm::get_devices (void)
 {
   return devices_;
 }
 
 Madara::Knowledge_Engine::Knowledge_Base *
-gams::algorithms::Base::get_knowledge_base (void)
+gams::algorithms::Base_Algorithm::get_knowledge_base (void)
 {
   return knowledge_;
 }
 
-platforms::Base *
-gams::algorithms::Base::get_platform (void)
+platforms::Base_Platform *
+gams::algorithms::Base_Algorithm::get_platform (void)
 {
   return platform_;
 }
 
 variables::Self *
-gams::algorithms::Base::get_self (void)
+gams::algorithms::Base_Algorithm::get_self (void)
 {
   return self_;
 }
 
 variables::Sensors *
-gams::algorithms::Base::get_sensors (void)
+gams::algorithms::Base_Algorithm::get_sensors (void)
 {
   return sensors_;
 }
 
-variables::Algorithm *
-gams::algorithms::Base::get_algorithm_status (void)
+variables::Algorithm_Status *
+gams::algorithms::Base_Algorithm::get_algorithm_status (void)
 {
   return &status_;
 }

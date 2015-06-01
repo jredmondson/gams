@@ -50,7 +50,7 @@
 
 gams::algorithms::Counter_Algorithm::Counter_Algorithm (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge)
-  : Base (&knowledge),
+  : Base_Algorithm (&knowledge),
   enable_analyze_counter (false),
   enable_execute_counter (false),
   enable_plan_counter (false)

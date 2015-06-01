@@ -49,13 +49,34 @@
 
 #include <iostream>
 
+
+
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Debug_Algorithm_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  std::string executions (".executions");
+
+  if (args.size () != 0)
+  {
+    executions = args[0].to_string ();
+  }
+
+  return new Debug_Algorithm (knowledge, platform, sensors, self, executions);
+}
+
 gams::algorithms::Debug_Algorithm::Debug_Algorithm (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   const std::string & executions_location)
-  : Base (knowledge, platform, sensors, self)
+  : Base_Algorithm (knowledge, platform, sensors, self)
 {
   if (knowledge)
   {

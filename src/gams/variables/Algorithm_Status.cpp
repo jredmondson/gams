@@ -43,7 +43,7 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "Algorithm.h"
+#include "Algorithm_Status.h"
 
 #include <string>
 
@@ -51,16 +51,16 @@ using std::string;
 
 typedef  Madara::Knowledge_Record::Integer  Integer;
 
-gams::variables::Algorithm::Algorithm ()
+gams::variables::Algorithm_Status::Algorithm_Status ()
 {
 }
 
-gams::variables::Algorithm::~Algorithm ()
+gams::variables::Algorithm_Status::~Algorithm_Status ()
 {
 }
 
 void
-gams::variables::Algorithm::operator= (const Algorithm & rhs)
+gams::variables::Algorithm_Status::operator= (const Algorithm_Status & rhs)
 {
   if (this != &rhs)
   {
@@ -76,7 +76,7 @@ gams::variables::Algorithm::operator= (const Algorithm & rhs)
 
 
 void
-gams::variables::Algorithm::init_vars (
+gams::variables::Algorithm_Status::init_vars (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge,
   const std::string & new_name)
 {
@@ -95,7 +95,7 @@ gams::variables::Algorithm::init_vars (
 }
 
 void
-gams::variables::Algorithm::init_vars (
+gams::variables::Algorithm_Status::init_vars (
   Madara::Knowledge_Engine::Variables & knowledge,
   const std::string & new_name)
 {
@@ -114,7 +114,7 @@ gams::variables::Algorithm::init_vars (
 }
 
 string
-gams::variables::Algorithm::make_variable_prefix () const
+gams::variables::Algorithm_Status::make_variable_prefix () const
 {
   std::stringstream buffer;
   buffer << "algorithm.";
@@ -124,7 +124,7 @@ gams::variables::Algorithm::make_variable_prefix () const
 }
 
 void
-gams::variables::Algorithm::init_variable_values ()
+gams::variables::Algorithm_Status::init_variable_values ()
 {
   ok = 1;
   paused = 0;

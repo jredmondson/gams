@@ -57,11 +57,11 @@
 
 gams::algorithms::area_coverage::Base_Area_Coverage::Base_Area_Coverage (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * devices)
-  : Base (knowledge, platform, sensors, self, devices)
+  : Base_Algorithm (knowledge, platform, sensors, self, devices)
 {
 }
 
@@ -76,7 +76,7 @@ gams::algorithms::area_coverage::Base_Area_Coverage::operator= (
   if (this != &rhs)
   {
     this->next_position_ = rhs.next_position_;
-    this->Base::operator= (rhs);
+    this->Base_Algorithm::operator= (rhs);
   }
 }
 

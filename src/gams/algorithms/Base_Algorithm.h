@@ -51,12 +51,12 @@
  * This file contains the definition of the base algorithm class
  **/
 
-#ifndef   _GAMS_ALGORITHMS_BASE_H_
-#define   _GAMS_ALGORITHMS_BASE_H_
+#ifndef   _GAMS_ALGORITHMS_BASE_ALGORITHM_H_
+#define   _GAMS_ALGORITHMS_BASE_ALGORITHM_H_
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/utility/Region.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -67,7 +67,7 @@ namespace gams
 {
   namespace controllers
   {
-    class Base;
+    class Base_Controller;
   }
 
   namespace algorithms
@@ -84,11 +84,11 @@ namespace gams
       FAILED = 8
     };
 
-    class GAMS_Export Base
+    class GAMS_Export Base_Algorithm
     {
     public:
       // allow Base controller to initialize our variables
-      friend class controllers::Base;
+      friend class controllers::Base_Controller;
 
       /**
        * Constructor
@@ -98,9 +98,9 @@ namespace gams
        * @param  self         self-referencing variables for this device
        * @param  devices      list of devices in the swarm
        **/
-      Base (
+      Base_Algorithm (
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base * platform = 0,
+        platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
         variables::Devices * devices = 0);
@@ -108,13 +108,13 @@ namespace gams
       /**
        * Destructor
        **/
-      virtual ~Base ();
+      virtual ~Base_Algorithm ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Base & rhs);
+      void operator= (const Base_Algorithm & rhs);
       
       /**
        * Analyzes environment, platform, or other information
@@ -144,7 +144,7 @@ namespace gams
        * Sets the platform
        * @param  platform     the underlying platform the algorithm will use
        **/
-      virtual void set_platform (platforms::Base * platform);
+      virtual void set_platform (platforms::Base_Platform * platform);
 
       /**
        * Sets the map of sensor names to sensor information
@@ -171,7 +171,7 @@ namespace gams
       /**
        * Gets the platform
        **/
-      platforms::Base * get_platform (void);
+      platforms::Base_Platform * get_platform (void);
 
       /**
        * Gets self-defined variables
@@ -186,7 +186,7 @@ namespace gams
       /**
        * Gets algorithm status variables
        **/
-      variables::Algorithm * get_algorithm_status (void);
+      variables::Algorithm_Status * get_algorithm_status (void);
 
     protected:
       /// the list of devices potentially participating in the algorithm
@@ -199,7 +199,7 @@ namespace gams
       Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
 
       /// provides access to the platform
-      platforms::Base * platform_;
+      platforms::Base_Platform * platform_;
 
       /// the algorithm's concept of self
       variables::Self * self_;
@@ -208,10 +208,10 @@ namespace gams
       variables::Sensors * sensors_;
 
       /// provides access to status information for this platform
-      variables::Algorithm status_;
+      variables::Algorithm_Status status_;
     };
 
-    typedef  std::vector <Base *>   Algorithms;
+    typedef  std::vector <Base_Algorithm *>   Algorithms;
   }
 }
 

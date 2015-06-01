@@ -25,7 +25,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1BaseControllerFromKb
   engine::Knowledge_Base * kb = (engine::Knowledge_Base *) cptr;
   if (kb)
   {
-    result = (jlong) new gams::controllers::Base (*kb);
+    result = (jlong) new gams::controllers::Base_Controller (*kb);
   }
 
   return result;
@@ -41,10 +41,10 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1BaseController
 {
   jlong result = 0;
 
-  controllers::Base * input = (controllers::Base *) cptr;
+  controllers::Base_Controller * input = (controllers::Base_Controller *) cptr;
   if (input)
   {
-    result = (jlong) new controllers::Base (*input);
+    result = (jlong) new controllers::Base_Controller (*input);
   }
 
   return result;
@@ -58,7 +58,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1BaseController
 void JNICALL Java_com_gams_controllers_BaseController_jni_1freeBaseController
   (JNIEnv *, jclass, jlong cptr)
 {
-  delete (controllers::Base *) cptr;
+  delete (controllers::Base_Controller *) cptr;
 }
 
 /*
@@ -71,7 +71,7 @@ jstring JNICALL Java_com_gams_controllers_BaseController_jni_1toString
 {
   jstring result;
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = env->NewStringUTF("BaseController");
 
@@ -88,7 +88,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1analyze
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->analyze ();
 
@@ -105,7 +105,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1execute
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->execute ();
 
@@ -120,7 +120,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1execute
 void JNICALL Java_com_gams_controllers_BaseController_jni_1initAccent
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
 
   if (current)
   {
@@ -157,7 +157,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAccent
 void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
 
   if (current)
   {
@@ -194,7 +194,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm
 void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
 
   if (current)
   {
@@ -231,7 +231,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform
 GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_lang_Object_2
   (JNIEnv *, jobject, jlong cptr, jobject algorithm)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
 
   if (current)
   {
@@ -247,7 +247,7 @@ GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgor
 GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_Object_2
   (JNIEnv *, jobject, jlong cptr, jobject platform)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
 
   if (current)
   {
@@ -265,7 +265,7 @@ GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1getPlatf
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
   {
     result = (jlong) current->get_platform ();
@@ -284,7 +284,7 @@ GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1getAlgor
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
   {
     result = (jlong) current->get_algorithm ();
@@ -302,7 +302,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initVars
   (JNIEnv *, jobject, jlong cptr, jlong id, jlong processes)
 {
   Integer tempId (id), tempProcesses (processes);
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     current->init_vars (tempId, tempProcesses);
 }
@@ -315,8 +315,8 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initVars
 GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initVarsAlgorithm
   (JNIEnv *, jobject, jlong cptr, jlong aptr)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
-  algorithms::Base * algorithm = (algorithms::Base *) aptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
+  algorithms::Base_Algorithm * algorithm = (algorithms::Base_Algorithm *) aptr;
 
   if (current && algorithm)
   {
@@ -332,8 +332,8 @@ GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initVarsA
 GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initVarsPlatform
   (JNIEnv *, jobject, jlong cptr, jlong pptr)
 {
-  controllers::Base * current = (controllers::Base *) cptr;
-  platforms::Base * platform = (platforms::Base *) pptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
+  platforms::Base_Platform * platform = (platforms::Base_Platform *) pptr;
 
   if (current && platform)
   {
@@ -351,7 +351,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1monitor
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->monitor ();
 
@@ -368,7 +368,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1plan
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->plan ();
 
@@ -385,7 +385,7 @@ GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1run__JDD
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->run (loop_period, duration);
 
@@ -402,7 +402,7 @@ GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1run__JDD
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->run (loop_period, duration, send_period);
 
@@ -419,7 +419,7 @@ GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1runHz
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->run_hz (loop_hz, duration, send_hz);
 
@@ -436,7 +436,7 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1systemAnalyze
 {
   jlong result (0);
 
-  controllers::Base * current = (controllers::Base *) cptr;
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
   if (current)
     result = current->system_analyze ();
 

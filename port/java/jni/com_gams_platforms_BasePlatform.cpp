@@ -13,7 +13,7 @@ jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getKnowledgeBase
 {
   jlong result (0);
 
-  platforms::Base * current = (platforms::Base *)cptr;
+  platforms::Base_Platform * current = (platforms::Base_Platform *)cptr;
   if (current)
   {
     result = (jlong) current->get_knowledge_base ();
@@ -32,7 +32,7 @@ jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getSelf
 {
   jlong result (0);
 
-  platforms::Base * current = (platforms::Base *)cptr;
+  platforms::Base_Platform * current = (platforms::Base_Platform *)cptr;
   if (current)
   {
     result = (jlong) current->get_self ();
@@ -51,7 +51,7 @@ jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getPlatformStatus
 {
   jlong result (0);
 
-  platforms::Base * current = (platforms::Base *)cptr;
+  platforms::Base_Platform * current = (platforms::Base_Platform *)cptr;
   if (current)
   {
     result = (jlong) current->get_platform_status ();

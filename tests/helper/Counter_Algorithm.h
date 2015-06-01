@@ -57,7 +57,7 @@
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/Base_Algorithm.h"
 #include "madara/knowledge_engine/containers/Integer.h"
@@ -66,7 +66,7 @@ namespace gams
 {
   namespace algorithms
   {
-    class Counter_Algorithm : public Base
+    class Counter_Algorithm : public Base_Algorithm
     {
     public:
       /**

@@ -270,7 +270,7 @@ int main (int argc, char ** argv)
 
   // create knowledge base and a control loop
   engine::Knowledge_Base knowledge;
-  controllers::Base loop (knowledge);
+  controllers::Base_Controller loop (knowledge);
 
   // initialize variables and function stubs
   loop.init_vars (1, 4);

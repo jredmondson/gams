@@ -56,16 +56,17 @@
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/utility/GPS_Position.h"
+#include "gams/algorithms/Algorithm_Factory.h"
 
 namespace gams
 {
   namespace algorithms
   {
-    class GAMS_Export Formation_Flying : public Base
+    class GAMS_Export Formation_Flying : public Base_Algorithm
     {
     public:
       /**
@@ -87,7 +88,7 @@ namespace gams
         const Madara::Knowledge_Record & members,
         const Madara::Knowledge_Record & modifier,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base * platform = 0,
+        platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
 
@@ -186,6 +187,40 @@ namespace gams
 
       /// altitude formation offsets
       double z_;
+    };
+    
+    /**
+     * A factory class for creating Formation Flying algorithms
+     **/
+    class GAMS_Export Formation_Flying_Factory : public Algorithm_Factory
+    {
+    public:
+
+      /**
+       * Creates a Formation Flying Algorithm.
+       * @param   args      args[0] = the target of the formation
+       *                    args[1] = the cylindrical offset from the target
+       *                    args[2] = the destination of the movement
+       *                    args[3] = the number of members in the formation
+       *                    args[4] = a modifier on the formation
+       *                              (NONE or ROTATE)
+       * @param   platform  the platform. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       * @param   devices   the list of devices, which is dictated by
+       *                    init_vars when a number of processes is set. This
+       *                    will be set by the controller in init_vars
+       **/
+      virtual Base_Algorithm * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        platforms::Base_Platform * platform,
+        variables::Sensors * sensors,
+        variables::Self * self,
+        variables::Devices * devices);
     };
   }
 }

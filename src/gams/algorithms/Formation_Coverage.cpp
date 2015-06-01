@@ -54,6 +54,7 @@
  **/
 
 #include "gams/algorithms/Formation_Coverage.h"
+#include "gams/algorithms/Controller_Algorithm_Factory.h"
 
 #include <sstream>
 #include <string>
@@ -66,13 +67,48 @@ using std::stringstream;
 using std::cerr;
 using std::endl;
 
-gams::algorithms::Formation_Coverage::Formation_Coverage (const Madara::Knowledge_Record & head_id,
-  const Madara::Knowledge_Record & offset, const Madara::Knowledge_Record & members, 
-  const Madara::Knowledge_Record & modifier, 
-  const Madara::Knowledge_Record & coverage, const Madara::Knowledge_Vector & cover_args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge, platforms::Base * platform,
-  variables::Sensors * sensors, variables::Self * self) :
-  Base (knowledge, platform, sensors, self), is_covering_(false)
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Formation_Coverage_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && platform && self && args.size () >= 5)
+  {
+    Madara::Knowledge_Vector cover_args;
+    for(size_t i = 5; i < args.size(); ++i)
+      cover_args.push_back (args[i]);
+
+    result = new Formation_Coverage (
+      args[0] /* head */,
+      args[1] /* offset */,
+      args[2] /* members */,
+      args[3] /* modifier */,
+      args[4] /* coverage */,
+      cover_args,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
+gams::algorithms::Formation_Coverage::Formation_Coverage (
+  const Madara::Knowledge_Record & head_id,
+  const Madara::Knowledge_Record & offset,
+  const Madara::Knowledge_Record & members,
+  const Madara::Knowledge_Record & modifier,
+  const Madara::Knowledge_Record & coverage,
+  const Madara::Knowledge_Vector & cover_args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self)
+  : Base_Algorithm (knowledge, platform, sensors, self), is_covering_(false)
 {
   cerr << "Creating Formation Coverage Algorithm" << endl;
 
@@ -82,8 +118,8 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (const Madara::Knowledg
 
   if (my_formation_->is_head ())
   {
-    Factory factory (knowledge, sensors, platform, self);
-    Base* base_algo = factory.create (coverage.to_string (), cover_args);
+    Controller_Algorithm_Factory factory (knowledge, sensors, platform, self);
+    Base_Algorithm * base_algo = factory.create (coverage.to_string (), cover_args);
     head_algo_ = dynamic_cast<area_coverage::Base_Area_Coverage*>(base_algo);
 
     cerr << "Creating Area Coverage Algorithm" << endl;

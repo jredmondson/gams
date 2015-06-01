@@ -67,24 +67,24 @@ namespace gams
 {
   namespace variables
   {
-    class GAMS_Export Platform
+    class GAMS_Export Platform_Status
     {
     public:
       /**
        * Constructor
        **/
-      Platform ();
+      Platform_Status ();
 
       /**
        * Destructor
        **/
-      ~Platform ();
+      ~Platform_Status ();
 
       /**
        * Assignment operator
        * @param  rhs   value to copy
        **/
-      void operator= (const Platform & rhs);
+      void operator= (const Platform_Status & rhs);
 
       /**
        * Initializes variable containers
@@ -158,7 +158,7 @@ namespace gams
     };
 
     /// a map of sensor names to the sensor information
-    typedef  std::map <std::string, Platform>   Platforms;
+    typedef  std::map <std::string, Platform_Status>   Platforms;
 
     /// a list of sensor names
     typedef  std::vector <std::string>        Platform_Names;

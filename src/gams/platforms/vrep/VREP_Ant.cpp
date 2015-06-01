@@ -67,6 +67,35 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
+gams::platforms::Base_Platform *
+gams::platforms::VREP_Ant_Factory::create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self)
+{
+  Base_Platform * result (0);
+  
+  if (knowledge && sensors && platforms && self)
+  {
+    if (knowledge->get_num_transports () == 0)
+    {
+      Madara::Transport::QoS_Transport_Settings settings;
+
+      settings.type = Madara::Transport::MULTICAST;
+      settings.hosts.push_back ("239.255.0.1:4150");
+
+      knowledge_->attach_transport ("", settings);
+      knowledge_->activate_transport ();
+    }
+
+    result = new VREP_Ant (knowledge, sensors, platforms, self);
+  }
+
+  return result;
+}
+
 gams::platforms::VREP_Ant::VREP_Ant (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,

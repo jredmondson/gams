@@ -46,12 +46,31 @@
 #include "gams/algorithms/Land.h"
 
 
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Land_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && platform && self)
+  {
+    result = new Land (knowledge, platform, sensors, self_);
+  }
+
+  return result;
+}
+
 gams::algorithms::Land::Land (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, platform, sensors, self)
+  : Base_Algorithm (knowledge, platform, sensors, self)
 {
   status_.init_vars (*knowledge, "land");
 }

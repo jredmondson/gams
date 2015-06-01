@@ -46,6 +46,23 @@
 #include "Debug_Platform.h"
 #include "gams/utility/Logging.h"
 
+gams::platforms::Base_Platform *
+gams::platforms::Debug_Platform_Factory::create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self)
+{
+  Base_Platform * result (0);
+  
+  if (knowledge && sensors && platforms && self)
+  {
+    result = new Debug_Platform (knowledge, sensors, platforms, self);
+  }
+
+  return result;
+}
 
 gams::platforms::Debug_Platform::Debug_Platform (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
@@ -53,7 +70,7 @@ gams::platforms::Debug_Platform::Debug_Platform (
   variables::Platforms * platforms,
   variables::Self * self,
   const std::string & executions_location)
-  : Base (knowledge, sensors, self)
+  : Base_Platform (knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
@@ -72,9 +89,9 @@ gams::platforms::Debug_Platform::operator= (const Debug_Platform & rhs)
 {
   if (this != &rhs)
   {
-    platforms::Base * dest = dynamic_cast <platforms::Base *> (this);
-    const platforms::Base * source =
-      dynamic_cast <const platforms::Base *> (&rhs);
+    platforms::Base_Platform * dest = dynamic_cast <platforms::Base_Platform *> (this);
+    const platforms::Base_Platform * source =
+      dynamic_cast <const platforms::Base_Platform *> (&rhs);
 
     *dest = *source;
 

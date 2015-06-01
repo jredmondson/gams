@@ -58,7 +58,7 @@
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/utility/GPS_Position.h"
 #include "gams/utility/Axes.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -67,7 +67,7 @@ namespace gams
 {
   namespace controllers
   {
-    class Base;
+    class Base_Controller;
   }
 
   namespace platforms
@@ -90,11 +90,11 @@ namespace gams
       MOVEMENT_AVAILABLE = 2048
     };
 
-    class GAMS_Export Base
+    class GAMS_Export Base_Platform
     {
     public:
       // allow Base controller to initialize our variables
-      friend class controllers::Base;
+      friend class controllers::Base_Controller;
 
       /**
        * Constructor
@@ -102,20 +102,20 @@ namespace gams
        * @param  sensors  map of sensor names to sensor information
        * @param  self     self referencing variables for the device
        **/
-      Base (Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+      Base_Platform (Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
 
       /**
        * Destructor
        **/
-      virtual ~Base ();
+      virtual ~Base_Platform ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Base & rhs);
+      void operator= (const Base_Platform & rhs);
 
       /**
        * Analyzes platform information
@@ -261,7 +261,7 @@ namespace gams
        * Gets platform status information
        * @return platform status info
        **/
-      variables::Platform * get_platform_status (void);
+      variables::Platform_Status * get_platform_status (void);
 
     protected:
       /// movement speed for platform in meters/second
@@ -277,7 +277,7 @@ namespace gams
       variables::Sensors * sensors_;
 
       /// provides access to status information for this platform
-      variables::Platform status_;
+      variables::Platform_Status status_;
     };
   }
 }

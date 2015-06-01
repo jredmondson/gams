@@ -150,10 +150,8 @@ public class DebuggerPlatform extends BasePlatform
    
   /**
    * Initializes a rotate along x, y, z axes. This should be
-   * a non-blocking call.
-   * @param   target     the new position to move to
-   * @param   proximity  the minimum distance between current position
-   *                   and target position that terminates the move.
+   * a non-blocking call and implements an extrinsic rotation.
+   * @param   target     the new extrinsic rotation angles
    * @return  status information(@see Status)
    **/
   public int rotate(Axes target)

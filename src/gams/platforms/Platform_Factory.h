@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Factory.h
+ * @file Platform_Factory.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Platform factory
@@ -55,7 +55,7 @@
 #define   _GAMS_PLATFORM_FACTORY_H_
 
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -64,34 +64,42 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMS_Export Factory
+    /**
+     * Base class for platform factories to create Base_Platforms
+     **/
+    class GAMS_Export Platform_Factory
     {
     public:
+
       /**
        * Constructor
        **/
-      Factory (Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self);
+      Platform_Factory ();
 
       /**
        * Destructor
        **/
-      ~Factory ();
+      virtual ~Platform_Factory ();
 
       /**
        * Creates a platform
        * @param  type   type of platform to create
+       * @param  args   a vector of Knowledge Record arguments
        * @return  the new platform
        **/
-      Base * create (const std::string & type);
+      virtual Base_Platform * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self) = 0;
       
       /**
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (Madara::Knowledge_Engine::Knowledge_Base * knowledge);
+      void set_knowledge (
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge);
       
       /**
        * Sets the map of platform names to platform information
@@ -111,7 +119,7 @@ namespace gams
        **/
       void set_sensors (variables::Sensors * sensors);
       
-    private:
+    protected:
 
       /// knowledge base containing variables
       Madara::Knowledge_Engine::Knowledge_Base * knowledge_;

@@ -59,17 +59,19 @@
 
 #include "madara/knowledge_engine/containers/Integer.h"
 
+#include "gams/GAMS_Export.h"
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm.h"
+#include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/Base_Algorithm.h"
+#include "gams/algorithms/Algorithm_Factory.h"
 
 namespace gams
 {
   namespace algorithms
   {
-    class GAMS_Export Debug_Algorithm : public Base
+    class GAMS_Export Debug_Algorithm : public Base_Algorithm
     {
     public:
       /**
@@ -84,7 +86,7 @@ namespace gams
        **/
       Debug_Algorithm (
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base * platform = 0,
+        platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
         const std::string & executions_location = ".executions");
@@ -127,6 +129,37 @@ namespace gams
        * seen by the derived classes of Base_Algorithm.
        **/
       Madara::Knowledge_Engine::Containers::Integer  k_executions_;
+    };
+
+    /**
+     * A factory class for creating Debug Algorithms
+     **/
+    class GAMS_Export Debug_Algorithm_Factory : public Algorithm_Factory
+    {
+    public:
+
+      /**
+       * Creates a Debug Algorithm.
+       * @param   args    first arg is where to store the executions tracker in
+       *                  the knowledge base. Default is ".executions" when no
+       *                  args are provided.
+       * @param   platform  the platform. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       * @param   devices   the list of devices, which is dictated by
+       *                    init_vars when a number of processes is set. This
+       *                    will be set by the controller in init_vars
+       **/
+      virtual Base_Algorithm * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        platforms::Base_Platform * platform,
+        variables::Sensors * sensors,
+        variables::Self * self,
+        variables::Devices * devices);
     };
   }
 }

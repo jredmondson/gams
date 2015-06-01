@@ -48,12 +48,31 @@
 
 #include <iostream>
 
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Null_Algorithm_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && platform && self)
+  {
+    result = new Null_Algorithm (knowledge, platform, sensors, self);
+  }
+
+  return result;
+}
+
 gams::algorithms::Null_Algorithm::Null_Algorithm (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base * platform,
+  platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, platform, sensors, self)
+  : Base_Algorithm (knowledge, platform, sensors, self)
 {
   status_.init_vars (*knowledge, "null");
 }

@@ -60,15 +60,16 @@
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
+#include "gams/platforms/Platform_Factory.h"
 #include "gams/utility/GPS_Position.h"
 
 namespace gams
 {
   namespace platforms
   {
-    class GAMS_Export Debug_Platform : public Base
+    class GAMS_Export Debug_Platform : public Base_Platform
     {
     public:
       /**
@@ -180,6 +181,33 @@ namespace gams
        * in the constructor
        **/
       Madara::Knowledge_Engine::Containers::Integer  executions_;
+    };
+
+    /**
+     * A factory class for creating debug platforms
+     **/
+    class GAMS_Export Debug_Platform_Factory : public Platform_Factory
+    {
+    public:
+
+      /**
+       * Creates a debug platform.
+       * @param   args      no arguments are necessary for this platform
+       * @param   knowledge the knowledge base. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   platforms status inform for all known devices. This
+       *                    will be set by the controller in init_vars
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       **/
+      virtual Base_Platform * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self);
     };
   }
 }

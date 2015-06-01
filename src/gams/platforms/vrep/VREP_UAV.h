@@ -54,10 +54,11 @@
 #ifndef   _GAMS_PLATFORM_VREP_UAV_H_
 #define   _GAMS_PLATFORM_VREP_UAV_H_
 
+#include "gams/platforms/Platform_Factory.h"
 #include "gams/platforms/vrep/VREP_Base.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
@@ -134,6 +135,33 @@ namespace gams
        */
       virtual void set_initial_position () const;
     }; // class VREP_UAV
+
+    /**
+     * A factory class for creating VREP UAV platforms
+     **/
+    class GAMS_Export VREP_UAV_Factory : public Platform_Factory
+    {
+    public:
+
+      /**
+       * Creates a VREP UAV platform.
+       * @param   args      no arguments are necessary for this platform
+       * @param   knowledge the knowledge base. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   platforms status inform for all known devices. This
+       *                    will be set by the controller in init_vars
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       **/
+      virtual Base_Platform * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self);
+    };
   } // namespace platform
 } // namespace gams
 

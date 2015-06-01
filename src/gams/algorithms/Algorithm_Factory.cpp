@@ -68,191 +68,42 @@
 using std::cerr;
 using std::endl;
 
-gams::algorithms::Factory::Factory (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  variables::Sensors * sensors,
-  platforms::Base * platform,
-  variables::Self * self,
-  variables::Devices * devices)
-: devices_ (devices), knowledge_ (knowledge), platform_ (platform),
-  self_ (self), sensors_ (sensors)
+gams::algorithms::Algorithm_Factory::Algorithm_Factory ()
+  : knowledge_ (0), devices_ (0), platform_ (0), self_ (0), sensors_ (0)
 {
 }
 
-gams::algorithms::Factory::~Factory ()
+gams::algorithms::Algorithm_Factory::~Algorithm_Factory ()
 {
-}
-
-gams::algorithms::Base *
-gams::algorithms::Factory::create (const std::string & type,
-        const Madara::Knowledge_Vector & args)
-{
-  gams::algorithms::Base * result = 0;
-
-  if (type == "debug" || type == "print" || type == "printer")
-  {
-    if (knowledge_ && sensors_ && self_)
-      result = new Debug_Algorithm (knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "uniform random area coverage" || type == "urac")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Uniform_Random_Area_Coverage (
-        args[0] /* region id */,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "uniform random edge coverage" || type == "urec")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Uniform_Random_Edge_Coverage (
-        args[0] /* region id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "priority weighted random area coverage" || type == "pwrac")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Priority_Weighted_Random_Area_Coverage (
-        args[0] /* search area id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "snake" || type == "sac")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_ && args.size () > 0)
-      result = new area_coverage::Snake_Area_Coverage (
-        args[0] /* region id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "local pheremone")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Local_Pheremone_Area_Coverage (
-        args[0] /* search area id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "min time" || type == "mtac")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Min_Time_Area_Coverage (
-        args[0] /* search area id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "prioritized min time" || type == "pmtac")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Prioritized_Min_Time_Area_Coverage (
-        args[0] /* search area id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "perimeter patrol" || type == "ppac")
-  {
-    if (knowledge_ && sensors_ && self_ && args.size () > 0)
-      result = new area_coverage::Perimeter_Patrol (args[0] /* search area id*/,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "formation")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_ && args.size () == 5)
-      result = new Formation_Flying (
-        args[0] /* target */, args[1] /* offset */, args[2] /* destination */,
-        args[3] /* members */, args[4] /* modifier */,
-        knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "formation coverage")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_ && args.size () >= 5)
-    {
-      Madara::Knowledge_Vector cover_args;
-      for(size_t i = 5; i < args.size(); ++i)
-        cover_args.push_back (args[i]);
-
-      result = new Formation_Coverage (
-        args[0] /* head */, args[1] /* offset */, args[2] /* members */,
-        args[3] /* modifier */, args[4] /* coverage */, cover_args,
-        knowledge_, platform_, sensors_, self_);
-    }
-  }
-  else if (type == "takeoff")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_)
-      result = new Takeoff (knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "land")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_)
-      result = new Land (knowledge_, platform_, sensors_, self_);
-  }
-  else if (type == "move")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_ && 
-      args.size () >= 1 && args[0].is_string_type ())
-    {
-      result = new Move ("", 0, 0, knowledge_, platform_, sensors_, self_);
-      // if an integer is passed as arg2, then it's the number of executions 
-//      if (arg2.is_integer_type ())
-//      {
-//        result = new Move (arg1.to_string (), arg2.to_integer (), -1,
-//          knowledge_, platform_, sensors_, self_);
-//      }
-//      else if (arg2.type () == Madara::Knowledge_Record::DOUBLE)
-//      {
-//        result = new Move (arg1.to_string (), 0, arg2.to_double (),
-//          knowledge_, platform_, sensors_, self_);
-//      }
-//      else if (arg2.type () == Madara::Knowledge_Record::UNCREATED)
-//      {
-//        utility::Position target;
-//        target.from_container (self_->device.dest);
-//
-//        result = new Move (arg1.to_string (), target,
-//          knowledge_, platform_, sensors_, self_);
-//      }
-    }
-  }
-  else if (type == "follow")
-  {
-    if (knowledge_ && sensors_ && platform_ && self_ && 
-      args.size () == 2 && args[0].is_integer_type () &&
-      args[1].is_integer_type ())
-    {
-      result = new Follow (args[0] /*follow target*/,
-        args[1] /*timestep delay*/, knowledge_, platform_, sensors_, self_);
-    }
-  }
-  else if (type == "null")
-  {
-    result = new Null_Algorithm (knowledge_, platform_, sensors_, self_);
-  }
-
-  return result;
 }
 
 void
-gams::algorithms::Factory::set_devices (variables::Devices * devices)
+gams::algorithms::Algorithm_Factory::set_devices (variables::Devices * devices)
 {
   devices_ = devices;
 }
 
 void
-gams::algorithms::Factory::set_knowledge (
+gams::algorithms::Algorithm_Factory::set_knowledge (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-gams::algorithms::Factory::set_platform (platforms::Base * platform)
+gams::algorithms::Algorithm_Factory::set_platform (platforms::Base_Platform * platform)
 {
   platform_ = platform;
 }
 
 void
-gams::algorithms::Factory::set_self (variables::Self * self)
+gams::algorithms::Algorithm_Factory::set_self (variables::Self * self)
 {
   self_ = self;
 }
 
 void
-gams::algorithms::Factory::set_sensors (variables::Sensors * sensors)
+gams::algorithms::Algorithm_Factory::set_sensors (variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }

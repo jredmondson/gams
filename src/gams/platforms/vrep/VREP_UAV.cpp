@@ -61,6 +61,41 @@ using std::endl;
 using std::cout;
 using std::string;
 
+gams::platforms::Base_Platform *
+gams::platforms::VREP_UAV_Factory::create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self)
+{
+  Base_Platform * result (0);
+  
+  if (knowledge && sensors && platforms && self)
+  {
+    if (knowledge->get_num_transports () == 0)
+    {
+      Madara::Transport::QoS_Transport_Settings settings;
+
+      settings.type = Madara::Transport::MULTICAST;
+      settings.hosts.push_back ("239.255.0.1:4150");
+
+      knowledge_->attach_transport ("", settings);
+      knowledge_->activate_transport ();
+    }
+
+    result = new VREP_UAV (knowledge, sensors, platforms, self);
+    
+    double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
+    if (move_speed > 0)
+    {
+      result->set_move_speed (move_speed);
+    }
+  }
+
+  return result;
+}
+
 gams::platforms::VREP_UAV::VREP_UAV (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
@@ -96,7 +131,7 @@ gams::platforms::VREP_UAV::move (const utility::GPS_Position & position,
    * VREP_UAV requires iterative movements for proper movement
    */
   // update variables
-  Base::move (position);
+  Base_Platform::move (position);
 
   // check if not airborne and takeoff if appropriate
   if (!airborne_)

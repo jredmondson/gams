@@ -54,9 +54,10 @@
 #ifndef   _GAMS_NULL_PLATFORM_H_
 #define   _GAMS_NULL_PLATFORM_H_
 
+#include "gams/platforms/Platform_Factory.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform.h"
+#include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
@@ -65,7 +66,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMS_Export Null_Platform : public Base
+    class GAMS_Export Null_Platform : public Base_Platform
     {
     public:
       /**
@@ -159,6 +160,33 @@ namespace gams
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int takeoff (void);
+    };
+
+    /**
+     * A factory class for creating null (no-op) platforms
+     **/
+    class GAMS_Export Null_Platform_Factory : public Platform_Factory
+    {
+    public:
+
+      /**
+       * Creates a null platform.
+       * @param   args      no arguments are necessary for this platform
+       * @param   knowledge the knowledge base. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   platforms status inform for all known devices. This
+       *                    will be set by the controller in init_vars
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       **/
+      virtual Base_Platform * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self);
     };
   }
 }
