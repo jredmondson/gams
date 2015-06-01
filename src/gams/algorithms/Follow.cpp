@@ -73,15 +73,20 @@ gams::algorithms::Follow_Factory::create (
   variables::Devices * devices)
 {
   Base_Algorithm * result (0);
-  
-  if (knowledge && sensors && self && 
-      args.size () == 2 &&
-      args[0].is_integer_type () && args[1].is_integer_type ())
+
+  // set defaults
+  Madara::Knowledge_Record target;
+  Madara::Knowledge_Record delay (Madara::Knowledge_Record::Integer (5));
+
+  if (args.size () >= 1 && knowledge && sensors && self)
   {
-    result = new Follow (
-      args[0] /*follow target*/,
-      args[1] /*timestep delay*/,
-      knowledge, platform, sensors, self);
+    target = args[0];
+
+    if (args.size () >= 2)
+      delay = args[1];
+
+    if (target.is_integer_type () && delay.is_integer_type ())
+      result = new Follow (target, delay, knowledge, platform, sensors, self);
   }
 
   return result;
