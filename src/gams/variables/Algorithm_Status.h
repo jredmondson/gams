@@ -138,9 +138,15 @@ namespace gams
        */
       void init_variable_values ();
     };
+    
+    /// deprecated typedef. Please use Algorithm_Status instead.
+    typedef Algorithm_Status Algorithm;
 
     /// a map of sensor names to the sensor information
     typedef  std::map <std::string, Algorithm_Status>   Algorithms;
+    
+    /// a typedef for convenience and legibility
+    typedef  Algorithms   Algorithm_Statuses;
 
     /// a list of sensor names
     typedef  std::vector <std::string>        Algorithm_Names;

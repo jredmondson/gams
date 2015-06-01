@@ -279,6 +279,9 @@ namespace gams
       /// provides access to status information for this platform
       variables::Platform_Status status_;
     };
+
+    // deprecated typdef. Please use Base_Platform instead.
+    typedef  Base_Platform    Base;
   }
 }
 
