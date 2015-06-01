@@ -7,6 +7,8 @@ Makefile
 GNUmakefile*
 lib*
 
+resource/vrep/starting.ttt
+
 gams_controller
 test_controller
 test_controller_run
