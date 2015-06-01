@@ -3,7 +3,6 @@
 .initial_x=10;
 .initial_y=10;
 
-device.1.command="cover";
-device.1.command.size=2;
-device.1.command.0="urec";
-device.1.command.1="region.0";
+device.1.command="urec";
+device.1.command.size=1;
+device.1.command.0="region.0";

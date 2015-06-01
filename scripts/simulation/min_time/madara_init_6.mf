@@ -3,7 +3,6 @@
 .initial_x=17;
 .initial_y=17;
 
-device.6.command="cover";
-device.6.command.size=2;
-device.6.command.0="min time";
-device.6.command.1="search_area.1";
+device.6.command="min time";
+device.6.command.size=1;
+device.6.command.0="search_area.1";

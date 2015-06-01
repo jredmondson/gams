@@ -5,7 +5,7 @@ use simulation;
 $gams_root = $ENV{GAMS_ROOT};
 $time = 3600;
 $madara_debug = 0;
-$madara_debug = 0;
+$gams_debug = 5;
 $period = 0.5;
 $num = 6;
 $sim = "combined_ppac_pmtac";

@@ -3,7 +3,6 @@
 .initial_x=10;
 .initial_y=10;
 
-device.0.command="cover";
-device.0.command.size=2;
-device.0.command.0="ppac";
-device.0.command.1="region.0";
+device.0.command="ppac";
+device.0.command.size=1;
+device.0.command.0="region.0";

@@ -3,7 +3,6 @@
 .initial_x=17;
 .initial_y=15;
 
-device.8.command="cover";
-device.8.command.size=2;
-device.8.command.0="pmtac";
-device.8.command.1="search_area.2";
+device.8.command="pmtac";
+device.8.command.size=1;
+device.8.command.0="search_area.2";

@@ -3,7 +3,6 @@
 .initial_x=25;
 .initial_y=20;
 
-device.4.command="cover";
-device.4.command.size=2;
-device.4.command.0="local pheremone";
-device.4.command.1="search_area.1";
+device.4.command="local pheremone";
+device.4.command.size=1;
+device.4.command.0="search_area.1";

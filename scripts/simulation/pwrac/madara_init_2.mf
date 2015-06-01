@@ -3,7 +3,6 @@
 .initial_x=20;
 .initial_y=20;
 
-device.2.command="cover";
-device.2.command.size=2;
-device.2.command.0="pwrac";
-device.2.command.1="search_area.2";
+device.2.command="pwrac";
+device.2.command.size=1;
+device.2.command.0="search_area.2";
