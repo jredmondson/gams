@@ -510,7 +510,16 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 
     algorithm_ = factory.create (algorithm, args);
 
-    init_vars (*algorithm_);
+    if (algorithm_ == 0)
+    {
+      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+        DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
+        " failed to create algorithm\n"));
+    }
+    else
+    {
+      init_vars (*algorithm_);
+    }
   }
 }
 
