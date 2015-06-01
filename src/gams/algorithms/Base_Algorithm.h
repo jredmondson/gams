@@ -211,7 +211,7 @@ namespace gams
       variables::Algorithm_Status status_;
     };
 
-    // deprecated typdef. Please use Base_Platform instead.
+    // deprecated typdef. Please use Base_Algorithm instead.
     typedef  Base_Algorithm    Base;
 
     typedef  std::vector <Base_Algorithm *>   Algorithms;

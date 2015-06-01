@@ -157,7 +157,7 @@ namespace gams
       void init_variable_values ();
     };
     
-    /// deprecated typedef. Please use Algorithm_Status instead.
+    /// deprecated typedef. Please use Platform_Status instead.
     typedef Platform_Status Platform;
 
     /// a map of sensor names to the sensor information
