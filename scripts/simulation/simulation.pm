@@ -7,7 +7,7 @@ my $term_suffix = "";
 
 sub run {
   # get arguments
-  my ($num, $time, $period, $sim, $area, $debug, $plants, $num_coverages) = @_;
+  my ($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants, $num_coverages) = @_;
   my $osname = $^O;
   my $vreproot = $ENV{"VREP_ROOT"};
 
@@ -33,14 +33,14 @@ sub run {
   print("$gams_root\n");
   for (my $i=0; $i < $num; $i++)
   {
-    my $cmd = "\"$gams_root/gams_controller -i $i -n $num -p vrep --loop-time $time --period $period --madara-file $gams_root/scripts/simulation/$sim/madara_init_$i.mf $gams_root/scripts/simulation/areas/$area.mf $gams_root/scripts/simulation/madara_init_common.mf -l $debug\"";
+    my $cmd = "\"$gams_root/gams_controller -i $i -n $num -p vrep --loop-time $time --period $period --madara-file $gams_root/scripts/simulation/$sim/madara_init_$i.mf $gams_root/scripts/simulation/areas/$area.mf $gams_root/scripts/simulation/madara_init_common.mf --madara-level $madara_debug --gams-level $gams_debug\"";
     if ($term_prefix)
     {
       system("$term_prefix $cmd $term_suffix");
     }
     elsif ($osname eq "MSWin32") # windows default
     {
-      $cmd = "$gams_root\\bin\\gams_controller -i $i -n $num -p vrep --loop-time $time --period $period --madara-file $gams_root\\scripts\\simulation\\$sim\\madara_init_$i.mf $gams_root\\scripts\\simulation\\areas\\$area.mf $gams_root\\scripts\\simulation\\madara_init_common.mf -l $debug";
+      $cmd = "$gams_root\\bin\\gams_controller -i $i -n $num -p vrep --loop-time $time --period $period --madara-file $gams_root\\scripts\\simulation\\$sim\\madara_init_$i.mf $gams_root\\scripts\\simulation\\areas\\$area.mf $gams_root\\scripts\\simulation\\madara_init_common.mf --madara-level $madara_debug --gams-level $gams_debug";
       print("start \"Device$i\" /REALTIME $cmd\n\n");
       system("start \"Device$i\" /REALTIME $cmd");
     }

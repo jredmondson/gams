@@ -9,5 +9,7 @@ $num = 4;
 $sim = "formation_coverage";
 $area = "small";
 $madara_debug = 0;
+$gams_debug = 0;
+$plants = "region.0";
 
-simulation::run($num, $time, $period, $sim, $area, $madara_debug);
+simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants);
