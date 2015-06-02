@@ -85,12 +85,6 @@ gams::platforms::VREP_UAV_Factory::create (
     }
 
     result = new VREP_UAV (knowledge, sensors, platforms, self);
-    
-    double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
-    if (move_speed > 0)
-    {
-      result->set_move_speed (move_speed);
-    }
   }
 
   return result;
@@ -113,18 +107,16 @@ gams::platforms::VREP_UAV::VREP_UAV (
     set_initial_position ();
     get_target_handle ();
     wait_for_go ();
+    double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
+    if (move_speed > 0)
+    {
+      set_move_speed (move_speed);
+    }
   }
 }
 
 int
 gams::platforms::VREP_UAV::move (const utility::Position & position, const double & epsilon)
-{
-  return move(utility::GPS_Position(position), epsilon);
-}
-
-int
-gams::platforms::VREP_UAV::move (const utility::GPS_Position & position,
-  const double & epsilon)
 {
   /**
    * VREP_UAV requires iterative movements for proper movement
@@ -138,9 +130,18 @@ gams::platforms::VREP_UAV::move (const utility::GPS_Position & position,
 
   // convert form gps reference frame to vrep reference frame
   simxFloat dest_arr[3];
+  const utility::GPS_Position *dest_gps_pos = dynamic_cast<const utility::GPS_Position *>(&position);
   utility::Position dest_pos;
-  gps_to_vrep (position, dest_pos);
-  position_to_array (dest_pos, dest_arr);
+  if(dest_gps_pos != NULL)
+  {
+    gps_to_vrep (*dest_gps_pos, dest_pos);
+    position_to_array (dest_pos, dest_arr);
+  }
+  else
+  {
+    dest_pos = position;
+    position_to_array (position, dest_arr);
+  }
 
   //set current position of node target
   simxFloat curr_arr[3];
