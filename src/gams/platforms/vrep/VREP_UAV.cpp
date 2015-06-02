@@ -122,10 +122,9 @@ gams::platforms::VREP_UAV::move (const utility::Position & position, const doubl
   return move(utility::GPS_Position(position), epsilon);
 }
 
-// TODO: handle epsilon
 int
 gams::platforms::VREP_UAV::move (const utility::GPS_Position & position,
-  const double & /*epsilon*/)
+  const double & epsilon)
 {
   /**
    * VREP_UAV requires iterative movements for proper movement
@@ -153,6 +152,12 @@ gams::platforms::VREP_UAV::move (const utility::GPS_Position & position,
   // get distance to target
   double distance_to_target = dest_pos.distance_to_2d (vrep_pos);
 
+  // check if quadrotor has reached target (within epsilon)
+  if(distance_to_target <= epsilon)
+  {
+    return 2;
+  }
+
   // move quadrotor target closer to the desired position
   if(distance_to_target < move_speed_) // we can get to target in one step
   {
@@ -178,10 +183,10 @@ gams::platforms::VREP_UAV::move (const utility::GPS_Position & position,
   }
 
   // send movement command
-  simxSetObjectPosition (client_id_, node_target_, sim_handle_parent, curr_arr,
+  simxSetObjectPosition (client_id_, node_target_, -1, curr_arr,
                         simx_opmode_oneshot_wait);
 
-  return 0;
+  return 1;
 }
 
 void
@@ -259,8 +264,8 @@ gams::platforms::VREP_UAV::set_initial_position () const
   }
 
   // send set object position command
-  pos[2] = self_->id.to_integer () + 2;
-  simxSetObjectPosition (client_id_, node_id_, sim_handle_parent, pos,
+  pos[2] = knowledge_->get (".initial_alt").to_double ();
+  simxSetObjectPosition (client_id_, node_id_, -1, pos,
     simx_opmode_oneshot_wait);
 }
 
