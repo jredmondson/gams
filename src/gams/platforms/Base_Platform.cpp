@@ -171,13 +171,13 @@ gams::platforms::Base_Platform::move (const utility::Position & target,
   }
   /**
    * otherwise, if we are approximately at the target location,
-   * change status and paused to 0 and return 0 (not moving)
+   * change status and paused to 0 and return 2 (arrived)
    **/
   else if (target.approximately_equal (current, epsilon))
   {
     status_.moving = 0;
     status_.paused_moving = 0;
-    result = 0;
+    result = 2;
   }
 
   return result;

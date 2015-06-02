@@ -187,7 +187,7 @@ namespace gams
        * Moves the platform to a position
        * @param   position  the coordinates to move to
        * @param   epsilon   approximation value
-       * @return 1 if moving toward position, 0 if arrived, negative if error
+       * @return 1 if moving toward position, 2 if arrived, 0 if error
        **/
       virtual int move (const utility::Position & position,
         const double & epsilon = 0.1);
@@ -195,7 +195,7 @@ namespace gams
       /**
       * Rotates the platform an angle on a 3D axis
       * @param   axes  the coordinates to move to
-      * @return 1 if currently rotating, 0 if arrived, negative if error
+      * @return 1 if currently rotating, 2 if arrived, 0 if error
       **/
       virtual int rotate (const utility::Axes & axes);
 
