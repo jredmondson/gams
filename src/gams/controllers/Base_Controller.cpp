@@ -310,6 +310,61 @@ gams::controllers::Base_Controller::execute (void)
 }
 
 int
+gams::controllers::Base_Controller::_run_once (void)
+{
+  // return value
+  int return_value (0);
+
+  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+    DLINFO "gams::controllers::Base_Controller::run:" \
+    " calling monitor ()\n"));
+
+  // lock the context from any external updates
+  knowledge_.lock ();
+
+  return_value |= monitor ();
+
+  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+    DLINFO "gams::controllers::Base_Controller::run:" \
+    " calling analyze ()\n"));
+
+  return_value |= analyze ();
+
+  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+    DLINFO "gams::controllers::Base_Controller::run:" \
+    " calling plan ()\n"));
+
+  return_value |= plan ();
+
+  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+    DLINFO "gams::controllers::Base_Controller::run:" \
+    " calling execute ()\n"));
+
+  return_value |= execute ();
+
+  // unlock the context to allow external updates
+  knowledge_.unlock ();
+
+  return return_value;
+}
+
+int
+gams::controllers::Base_Controller::run_once (void)
+{
+  // return value
+  int return_value (_run_once());
+
+  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+    DLINFO "gams::controllers::Base_Controller::run:" \
+    " sending updates\n"));
+
+  // send modified values through network
+  knowledge_.send_modifieds();
+
+  return return_value;
+}
+
+int
 gams::controllers::Base_Controller::run (double loop_period,
   double max_runtime, double send_period)
 {
@@ -349,37 +404,7 @@ gams::controllers::Base_Controller::run (double loop_period,
     while (first_execute || max_runtime < 0 || current < max_wait)
     {
       // return value should be last return value of mape loop
-      return_value = 0;
-      
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::run:" \
-        " calling monitor ()\n"));
-
-      // lock the context from any external updates
-      knowledge_.lock ();
-
-      return_value |= monitor ();
-
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::run:" \
-        " calling analyze ()\n"));
-
-      return_value |= analyze ();
-
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::run:" \
-        " calling plan ()\n"));
-
-      return_value |= plan ();
-
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::run:" \
-        " calling execute ()\n"));
-
-      return_value |= execute ();
-    
-      // unlock the context to allow external updates
-      knowledge_.unlock ();
+      return_value = _run_once();
 
       // grab current time
       current = ACE_OS::gettimeofday ();

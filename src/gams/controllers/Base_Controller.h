@@ -120,7 +120,15 @@ namespace gams
        * return a 0 unless the MAPE loop should stop.
        **/
       virtual int execute (void);
-     
+
+      /**
+       * Runs a single iteration of the MAPE loop
+       * Always sends updates after the iteration.
+       *
+       * @return  the result of the MAPE loop iteration
+       **/
+      int run_once (void);
+
       /**
        * Runs iterations of the MAPE loop with specified periods
        * @param  loop_period  time (in seconds) between executions of the loop.
@@ -325,6 +333,11 @@ namespace gams
 
       /// the factory for creating new platforms
       platforms::Controller_Platform_Factory platform_factory_;
+
+    private:
+
+      /// Code shared between run and run_once
+      int _run_once (void);
     };
   }
 }
