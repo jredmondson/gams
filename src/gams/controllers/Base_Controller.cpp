@@ -537,7 +537,8 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 
     if (algorithm_ == 0)
     {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+      // the user is going to expect this kind of error to be printed immediately
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
         DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
         " failed to create algorithm\n"));
     }
@@ -605,11 +606,20 @@ void gams::controllers::Base_Controller::init_algorithm (algorithms::Base_Algori
   delete algorithm_;
   algorithm_ = algorithm;
   
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-    " initializing vars in algorithm\n"));
+  if (algorithm_)
+  {
+    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+      DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
+      " initializing vars in algorithm\n"));
 
-  init_vars (*algorithm_);
+    init_vars (*algorithm_);
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+      DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
+      " algorithm was reset to none\n"));
+  }
 }
       
 
@@ -622,19 +632,28 @@ void gams::controllers::Base_Controller::init_platform (platforms::Base_Platform
   delete platform_;
   platform_ = platform;
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_platform:" \
-    " initializing vars in platform\n"));
-
-  init_vars (*platform_);
-
-  if (algorithm_)
+  if (platform_)
   {
     GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
       DLINFO "gams::controllers::Base_Controller::init_platform:" \
-      " algorithm is already initialized. Updating to new platform\n"));
+      " initializing vars in platform\n"));
 
-    algorithm_->set_platform (platform_);
+    init_vars (*platform_);
+
+    if (algorithm_)
+    {
+      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+        DLINFO "gams::controllers::Base_Controller::init_platform:" \
+        " algorithm is already initialized. Updating to new platform\n"));
+
+      algorithm_->set_platform (platform_);
+    }
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+      DLINFO "gams::controllers::Base_Controller::init_platform:" \
+      " platform was reset to none\n"));
   }
 }
 

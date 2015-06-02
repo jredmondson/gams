@@ -231,7 +231,8 @@ algorithms::Controller_Algorithm_Factory::create (
     }
     else
     {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
+      // the user is going to expect this kind of error to be printed immediately
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
         DLINFO "gams::algorithms::Controller_Algorithm_Factory::create:" \
         " could not find \"%s\" algorithm.\n", type.c_str ()));
     }
