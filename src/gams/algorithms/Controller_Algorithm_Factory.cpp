@@ -55,6 +55,7 @@
 #include "gams/algorithms/Formation_Coverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
+#include "gams/algorithms/Message_Profiling.h"
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
@@ -212,6 +213,12 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[1] = "pmtac";
 
   add (aliases, new area_coverage::Prioritized_Min_Time_Area_Coverage_Factory ());
+
+  // the message profiling algorithm
+  aliases.resize (1);
+  aliases[0] = "message profiling";
+
+  add (aliases, new Message_Profiling_Factory ());
 }
 
 algorithms::Base_Algorithm *

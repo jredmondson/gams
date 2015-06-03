@@ -1,0 +1,3 @@
+device.2.command="message_profile";
+device.2.command.size=1;
+device.2.command.0=10;

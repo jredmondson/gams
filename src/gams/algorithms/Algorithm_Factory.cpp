@@ -53,6 +53,7 @@
 #include "gams/algorithms/Formation_Coverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
+#include "gams/algorithms/Message_Profiling.h"
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
