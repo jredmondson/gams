@@ -65,6 +65,7 @@
 #include "gams/algorithms/area_coverage/Min_Time_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Prioritized_Min_Time_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Perimeter_Patrol.h"
+#include "gams/algorithms/area_coverage/Waypoints_Coverage.h"
 
 #include "gams/utility/Logging.h"
 
@@ -219,6 +220,12 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[0] = "message profiling";
 
   add (aliases, new Message_Profiling_Factory ());
+
+  // the waypoints coverage algorithm
+  aliases.resize (1);
+  aliases[0] = "waypoints";
+
+  add (aliases, new area_coverage::Waypoints_Coverage_Factory ());
 }
 
 algorithms::Base_Algorithm *

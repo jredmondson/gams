@@ -1,0 +1,15 @@
+.vrep_port=19906;
+
+.initial_x=10;
+.initial_y=10;
+
+device.0.command="waypoints";
+device.0.command.size=4;
+device.0.command.0[0]=40.443237;
+device.0.command.0[1]=-79.940570;
+device.0.command.1[0]=40.443387;
+device.0.command.1[1]=-79.940270;
+device.0.command.2[0]=40.443187;
+device.0.command.2[1]=-79.940098;
+device.0.command.3[0]=40.443077;
+device.0.command.3[1]=-79.940398;
