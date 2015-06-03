@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN AS-IS BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -83,21 +83,19 @@ gams::algorithms::Message_Profiling_Factory::create (
   return result;
 }
 
-gams::algorithms::Message_Profiling::Message_Profiling (size_t send, 
+gams::algorithms::Message_Profiling::Message_Profiling (
+  const Madara::Knowledge_Record& send, 
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base (knowledge, platform, sensors, self), send_size_(send)
+  : Base_Algorithm (knowledge, platform, sensors, self), 
+    send_size_ (send.to_integer ())
 {
   status_.init_vars (*knowledge, "message_profiling");
 
   // attach filter
   //knowledge->close_transport ();
-
-//  knowledge->transport_settings ().save ("settings" + knowledge->get (".id").to_string ());
-//  Madara::Transport::QoS_Transport_Settings settings;
-//  settings.load ("settings" + knowledge->get (".id").to_string ());
 
   Madara::Transport::QoS_Transport_Settings settings;
   const std::string default_multicast ("239.255.0.1:4150");
