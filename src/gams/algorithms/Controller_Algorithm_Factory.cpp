@@ -206,7 +206,7 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[0] = "uniform random edge coverage";
   aliases[1] = "urec";
 
-  add (aliases, new area_coverage::Uniform_Random_Area_Coverage_Factory ());
+  add (aliases, new area_coverage::Uniform_Random_Edge_Coverage_Factory ());
 
   // the prioritized min time area coverage
   aliases.resize (2);
