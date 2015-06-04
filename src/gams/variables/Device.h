@@ -64,7 +64,7 @@
 #include "madara/knowledge_engine/containers/Native_Double_Vector.h"
 #include "madara/knowledge_engine/containers/Vector.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
-#include "Accent.h"
+#include "Accent_Status.h"
 
 namespace gams
 {
@@ -151,7 +151,7 @@ namespace gams
       Madara::Knowledge_Engine::Containers::Double temperature;
 
       /// container for accents
-      Accents accents;
+      Accent_Statuses accents;
 
     protected:
       /**

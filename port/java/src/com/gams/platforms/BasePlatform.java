@@ -49,7 +49,7 @@ package com.gams.platforms;
 import com.gams.GamsJNI;
 import com.madara.KnowledgeBase;
 import com.gams.variables.Self;
-import com.gams.variables.Platform;
+import com.gams.variables.PlatformStatus;
 import com.gams.variables.SensorMap;
 import com.gams.controllers.BaseController;
 
@@ -73,7 +73,7 @@ public abstract class BasePlatform extends GamsJNI implements PlatformInterface
     controller.initVars (this);
     knowledge = KnowledgeBase.fromPointer(jni_getKnowledgeBase(getCPtr()),false);
     self = Self.fromPointer(jni_getSelf(getCPtr()),false);
-    status = com.gams.variables.Platform.fromPointer(jni_getPlatformStatus(getCPtr()),false);
+    status = com.gams.variables.PlatformStatus.fromPointer(jni_getPlatformStatus(getCPtr()),false);
   }
    
   /**
@@ -98,6 +98,6 @@ public abstract class BasePlatform extends GamsJNI implements PlatformInterface
   /**
    * The status of the platform
    **/
-  public Platform status;
+  public PlatformStatus status;
 }
 

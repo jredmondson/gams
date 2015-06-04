@@ -43,20 +43,20 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "Accent.h"
+#include "Accent_Status.h"
 
 #include <string>
 
-gams::variables::Accent::Accent ()
+gams::variables::Accent_Status::Accent_Status ()
 {
 }
 
-gams::variables::Accent::~Accent ()
+gams::variables::Accent_Status::~Accent_Status ()
 {
 }
 
 void
-gams::variables::Accent::operator= (const Accent & accent)
+gams::variables::Accent_Status::operator= (const Accent_Status & accent)
 {
   if (this != &accent)
   {
@@ -66,7 +66,7 @@ gams::variables::Accent::operator= (const Accent & accent)
 }
 
 void
-gams::variables::Accent::init_vars (
+gams::variables::Accent_Status::init_vars (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge,
   const std::string & prefix)
 {
@@ -82,7 +82,7 @@ gams::variables::Accent::init_vars (
 }
 
 void
-gams::variables::Accent::init_vars (
+gams::variables::Accent_Status::init_vars (
   Madara::Knowledge_Engine::Variables & knowledge,
   const std::string & prefix)
 {
@@ -97,7 +97,7 @@ gams::variables::Accent::init_vars (
   init_variable_settings ();
 }
 
-void gams::variables::init_vars (Accents & variables,
+void gams::variables::init_vars (Accent_Statuses & variables,
   Madara::Knowledge_Engine::Knowledge_Base & knowledge,
   const std::string & prefix)
 {
@@ -119,7 +119,7 @@ void gams::variables::init_vars (Accents & variables,
   }
 }
 
-void gams::variables::init_vars (Accents & variables,
+void gams::variables::init_vars (Accent_Statuses & variables,
   Madara::Knowledge_Engine::Variables & knowledge,
   const std::string & prefix)
 {
@@ -143,7 +143,7 @@ void gams::variables::init_vars (Accents & variables,
 
 
 void
-gams::variables::Accent::init_variable_settings ()
+gams::variables::Accent_Status::init_variable_settings ()
 {
   // keep certain varaible changes as local only
   Madara::Knowledge_Engine::Knowledge_Update_Settings keep_local (true);
