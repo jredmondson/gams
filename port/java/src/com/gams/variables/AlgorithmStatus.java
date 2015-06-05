@@ -51,7 +51,7 @@ import com.madara.KnowledgeBase;
 import com.madara.Variables;
 import com.madara.containers.Integer;
 
-public class Algorithm extends GamsJNI
+public class AlgorithmStatus extends GamsJNI
 {	
   private native long jni_Algorithm();
   private native long jni_Algorithm(long cptr);
@@ -71,7 +71,7 @@ public class Algorithm extends GamsJNI
   /**
    * Default constructor
    **/
-  public Algorithm()
+  public AlgorithmStatus()
   {
     setCPtr(jni_Algorithm());
     init();
@@ -81,7 +81,7 @@ public class Algorithm extends GamsJNI
    * Copy constructor
    * @param input the algorithm to copy
    **/
-  public Algorithm(Algorithm input)
+  public AlgorithmStatus(AlgorithmStatus input)
   {
     setCPtr(jni_Algorithm(input.getCPtr()));
     init();
@@ -93,9 +93,9 @@ public class Algorithm extends GamsJNI
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static Algorithm fromPointer(long cptr)
+  public static AlgorithmStatus fromPointer(long cptr)
   {
-    Algorithm ret = new Algorithm();
+    AlgorithmStatus ret = new AlgorithmStatus();
     ret.manageMemory = true;
     ret.setCPtr(cptr);
     ret.init();
@@ -109,9 +109,9 @@ public class Algorithm extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static Algorithm fromPointer(long cptr, boolean shouldManage)
+  public static AlgorithmStatus fromPointer(long cptr, boolean shouldManage)
   {
-    Algorithm ret = new Algorithm();
+    AlgorithmStatus ret = new AlgorithmStatus();
     ret.manageMemory=shouldManage;
     ret.setCPtr(cptr);
     ret.init();

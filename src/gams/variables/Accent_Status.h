@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Accent.h
+ * @file Accent_Status.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the definition of the accent-prefixed MADARA variables
@@ -69,24 +69,24 @@ namespace gams
 {
   namespace variables
   {
-    class GAMS_Export Accent
+    class GAMS_Export Accent_Status
     {
     public:
       /**
        * Constructor
        **/
-      Accent ();
+      Accent_Status ();
 
       /**
        * Destructor
        **/
-      ~Accent ();
+      ~Accent_Status ();
 
       /**
        * Assignment operator
        * @param  accent   accent to copy
        **/
-      void operator= (const Accent & accent);
+      void operator= (const Accent_Status & accent);
 
       /**
        * Initializes variable containers
@@ -120,7 +120,7 @@ namespace gams
     /**
      * An array of accents
      **/
-    typedef std::vector <Accent>   Accents;
+    typedef std::vector <Accent_Status>   Accent_Statuses;
     
     /**
       * Initializes a self containers
@@ -128,7 +128,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   prefix     the prefix of the accents (e.g. swarm/device)
       **/
-    GAMS_Export void init_vars (Accents & variables,
+    GAMS_Export void init_vars (Accent_Statuses & variables,
       Madara::Knowledge_Engine::Knowledge_Base & knowledge,
       const std::string & prefix);
     
@@ -138,7 +138,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   prefix     the prefix of the accents (e.g. swarm/device)
       **/
-    GAMS_Export void init_vars (Accents & variables,
+    GAMS_Export void init_vars (Accent_Statuses & variables,
       Madara::Knowledge_Engine::Variables & knowledge,
       const std::string & prefix);
   }

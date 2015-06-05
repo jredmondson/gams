@@ -55,6 +55,7 @@
 #include "gams/algorithms/Formation_Coverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
+#include "gams/algorithms/Message_Profiling.h"
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
@@ -64,6 +65,7 @@
 #include "gams/algorithms/area_coverage/Min_Time_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Prioritized_Min_Time_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Perimeter_Patrol.h"
+#include "gams/algorithms/area_coverage/Waypoints_Coverage.h"
 
 #include "gams/utility/Logging.h"
 
@@ -204,7 +206,7 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[0] = "uniform random edge coverage";
   aliases[1] = "urec";
 
-  add (aliases, new area_coverage::Uniform_Random_Area_Coverage_Factory ());
+  add (aliases, new area_coverage::Uniform_Random_Edge_Coverage_Factory ());
 
   // the prioritized min time area coverage
   aliases.resize (2);
@@ -212,6 +214,18 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[1] = "pmtac";
 
   add (aliases, new area_coverage::Prioritized_Min_Time_Area_Coverage_Factory ());
+
+  // the message profiling algorithm
+  aliases.resize (1);
+  aliases[0] = "message profiling";
+
+  add (aliases, new Message_Profiling_Factory ());
+
+  // the waypoints coverage algorithm
+  aliases.resize (1);
+  aliases[0] = "waypoints";
+
+  add (aliases, new area_coverage::Waypoints_Coverage_Factory ());
 }
 
 algorithms::Base_Algorithm *

@@ -49,7 +49,7 @@ package com.gams.algorithms;
 import com.madara.KnowledgeBase;
 import com.gams.platforms.PlatformInterface;
 import com.gams.variables.Self;
-import com.gams.variables.Algorithm;
+import com.gams.variables.AlgorithmStatus;
 
 /**
  * Interface for defining an algorithm to be used by GAMS. Care must be taken

@@ -50,7 +50,7 @@ import com.gams.utility.Axes;
 import com.gams.utility.Position;
 import com.madara.KnowledgeBase;
 import com.gams.variables.Self;
-import com.gams.variables.Platform;
+import com.gams.variables.PlatformStatus;
 
 /**
  * Interface for defining a platform to be used by GAMS. Care must be taken

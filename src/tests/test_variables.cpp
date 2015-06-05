@@ -56,7 +56,7 @@
 #include "gams/utility/GPS_Position.h"
 #include "gams/variables/Sensor.h"
 
-#include "gams/variables/Accent.h"
+#include "gams/variables/Accent_Status.h"
 
 #include <string>
 #include <iostream>
@@ -90,7 +90,7 @@ test_accent ()
   testing_output ("gams::variables::Accent");
 
   engine::Knowledge_Base knowledge;
-  variables::Accent cur_accent;
+  variables::Accent_Status cur_accent;
   cur_accent.init_vars (knowledge, "device");
 
   knowledge.print ("Check the following printout for device.accent vars.\n");

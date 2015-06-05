@@ -50,7 +50,7 @@ import com.gams.GamsJNI;
 import com.madara.KnowledgeBase;
 import com.gams.platforms.BasePlatform;
 import com.gams.variables.Self;
-import com.gams.variables.Algorithm;
+import com.gams.variables.AlgorithmStatus;
 import com.gams.controllers.BaseController;
 
 /**
@@ -75,7 +75,7 @@ public abstract class BaseAlgorithm extends GamsJNI implements AlgorithmInterfac
     platform = (BasePlatform)jni_getPlatformObject(getCPtr());
     knowledge = KnowledgeBase.fromPointer(jni_getKnowledgeBase(getCPtr()),false);
     self = Self.fromPointer(jni_getSelf(getCPtr()),false);
-    status = Algorithm.fromPointer(jni_getAlgorithmStatus(getCPtr()),false);
+    status = AlgorithmStatus.fromPointer(jni_getAlgorithmStatus(getCPtr()),false);
   }
   
   /**
@@ -105,6 +105,6 @@ public abstract class BaseAlgorithm extends GamsJNI implements AlgorithmInterfac
   /**
    * The status of the algorithm
    **/
-  public Algorithm status;
+  public AlgorithmStatus status;
 }
 

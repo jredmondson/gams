@@ -44,67 +44,81 @@
  *      distribution.
  **/
 
-#include "gams/algorithms/Algorithm_Factory.h"
-#include "gams/algorithms/Land.h"
-#include "gams/algorithms/Move.h"
-#include "gams/algorithms/Debug_Algorithm.h"
-#include "gams/algorithms/Null_Algorithm.h"
-#include "gams/algorithms/Formation_Flying.h"
-#include "gams/algorithms/Formation_Coverage.h"
-#include "gams/algorithms/Takeoff.h"
-#include "gams/algorithms/Follow.h"
-#include "gams/algorithms/Message_Profiling.h"
+#include "gams/algorithms/area_coverage/Waypoints_Coverage.h"
 
-#include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
-#include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
-#include "gams/algorithms/area_coverage/Priority_Weighted_Random_Area_Coverage.h"
-#include "gams/algorithms/area_coverage/Local_Pheremone_Area_Coverage.h"
-#include "gams/algorithms/area_coverage/Snake_Area_Coverage.h"
-#include "gams/algorithms/area_coverage/Min_Time_Area_Coverage.h"
-#include "gams/algorithms/area_coverage/Prioritized_Min_Time_Area_Coverage.h"
-#include "gams/algorithms/area_coverage/Perimeter_Patrol.h"
+#include <cmath>
+#include <string>
+using std::string;
+#include <vector>
+using std::vector;
 
-#include <iostream>
-
-using std::cerr;
-using std::endl;
-
-gams::algorithms::Algorithm_Factory::Algorithm_Factory ()
-  : knowledge_ (0), devices_ (0), platform_ (0), self_ (0), sensors_ (0)
+gams::algorithms::Base_Algorithm *
+gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
 {
+  Base_Algorithm * result (0);
+  
+  if (knowledge && sensors && self && args.size () >= 1)
+  {
+    result = new area_coverage::Waypoints_Coverage (args,
+      knowledge, platform, sensors, self);
+  }
+
+  return result;
 }
 
-gams::algorithms::Algorithm_Factory::~Algorithm_Factory ()
+/**
+ * Waypoints_Coverage is a precomputed area coverage algorithm. The agent
+ * traverses the waypoints until reaching the end
+ */
+gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self) :
+  Base_Area_Coverage (knowledge, platform, sensors, self), cur_waypoint_ (0)
 {
+  status_.init_vars (*knowledge, "waypoints");
+
+  // translate Knowledge_Vector to waypoints
+  for (size_t i = 0; i < args.size(); ++i)
+  {
+    vector <double> coords = args[i].to_doubles ();
+    waypoints_.push_back (utility::Position(coords[0], coords[1], 2));
+  }
+
+  next_position_ = waypoints_[cur_waypoint_];
 }
 
-void
-gams::algorithms::Algorithm_Factory::set_devices (variables::Devices * devices)
+gams::algorithms::area_coverage::Waypoints_Coverage::~Waypoints_Coverage ()
 {
-  devices_ = devices;
-}
-
-void
-gams::algorithms::Algorithm_Factory::set_knowledge (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge)
-{
-  knowledge_ = knowledge;
-}
-
-void
-gams::algorithms::Algorithm_Factory::set_platform (platforms::Base_Platform * platform)
-{
-  platform_ = platform;
-}
-
-void
-gams::algorithms::Algorithm_Factory::set_self (variables::Self * self)
-{
-  self_ = self;
 }
 
 void
-gams::algorithms::Algorithm_Factory::set_sensors (variables::Sensors * sensors)
+gams::algorithms::area_coverage::Waypoints_Coverage::operator= (
+  const Waypoints_Coverage& rhs)
 {
-  sensors_ = sensors;
+  if (this != &rhs)
+  {
+    this->waypoints_ = rhs.waypoints_;
+    this->cur_waypoint_ = rhs.cur_waypoint_;
+    this->Base_Area_Coverage::operator= (rhs);
+  }
+}
+
+/**
+ * The next destination is simply the next point in the list
+ */
+void
+gams::algorithms::area_coverage::Waypoints_Coverage::generate_new_position ()
+{
+  ++cur_waypoint_;
+  if (cur_waypoint_ < waypoints_.size ())
+    next_position_ = waypoints_[cur_waypoint_];
 }
