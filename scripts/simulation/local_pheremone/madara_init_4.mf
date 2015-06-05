@@ -2,6 +2,7 @@
 
 .initial_x=25;
 .initial_y=20;
+.initial_alt=4;
 
 device.4.command="local pheremone";
 device.4.command.size=1;

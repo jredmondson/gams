@@ -2,6 +2,7 @@
 
 .initial_x=0;
 .initial_y=0;
+.initial_alt=4;
 
 device.0.command="sac";
 device.0.command.size=1;

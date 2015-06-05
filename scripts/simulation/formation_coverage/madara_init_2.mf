@@ -2,6 +2,7 @@
 
 .initial_x=7.5;
 .initial_y=7.5;
+.initial_alt=4;
 
 device.2.command="formation coverage";
 device.2.command.size=6;

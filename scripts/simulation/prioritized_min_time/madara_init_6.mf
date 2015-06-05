@@ -2,6 +2,7 @@
 
 .initial_x=17;
 .initial_y=17;
+.initial_alt=4;
 
 device.6.command="pmtac";
 device.6.command.size=1;

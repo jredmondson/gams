@@ -2,6 +2,7 @@
 
 .initial_lat=40.443237;
 .initial_lon=-79.940570;
+.initial_alt=4;
 
 device.0.command="formation coverage";
 device.0.command.size=6;

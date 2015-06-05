@@ -2,6 +2,7 @@
 
 .initial_x=10;
 .initial_y=10;
+.initial_alt=4;
 
 device.0.command="ppac";
 device.0.command.size=1;

@@ -2,6 +2,7 @@
 
 .initial_x=16;
 .initial_y=16;
+.initial_alt=4;
 
 device.6.command="formation";
 device.6.command.size=5;
