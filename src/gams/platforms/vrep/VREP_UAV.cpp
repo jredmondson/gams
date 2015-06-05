@@ -118,6 +118,8 @@ gams::platforms::VREP_UAV::VREP_UAV (
 int
 gams::platforms::VREP_UAV::move (const utility::Position & position, const double & epsilon)
 {
+  static utility::Position target_pos (DBL_MAX);
+
   /**
    * VREP_UAV requires iterative movements for proper movement
    */
@@ -168,19 +170,29 @@ gams::platforms::VREP_UAV::move (const utility::Position & position, const doubl
   }
   else // we cannot reach target in this step
   {
+    if(target_pos.x == DBL_MAX)
+    {
+      target_pos.x = curr_arr[0];
+      target_pos.y = curr_arr[1];
+      target_pos.z = curr_arr[2];
+    }
+
     // how far do we have to go in each dimension
     double dist[3];
     for (int i = 0; i < 3; ++i)
       dist[i] = fabs (curr_arr[i] - dest_arr[i]);
 
     // update target position
+    simxFloat target[3];
+    position_to_array (target_pos, target);
     for (int i = 0; i < 3; ++i)
     {
       if(curr_arr[i] < dest_arr[i])
-        curr_arr[i] += dist[i] * move_speed_ / distance_to_target;
+        curr_arr[i] = target[i] + dist[i] * move_speed_ / distance_to_target;
       else
-        curr_arr[i] -= dist[i] * move_speed_ / distance_to_target;
+        curr_arr[i] = target[i] - dist[i] * move_speed_ / distance_to_target;
     }
+    array_to_position (curr_arr, target_pos);
   }
 
   // send movement command
