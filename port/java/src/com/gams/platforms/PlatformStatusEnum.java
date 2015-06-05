@@ -47,9 +47,9 @@
 package com.gams.platforms;
 
 /**
- * Status of the platform
+ * PlatformStatusEnum of the platform
  */
-public enum Status
+public enum PlatformStatusEnum
 {
   //These are defined in platforms/Base.h
   UNKNOWN(0),
@@ -66,13 +66,13 @@ public enum Status
 
   private int num;
 
-  private Status(int num)
+  private PlatformStatusEnum(int num)
   {
     this.num = num;
   }
 
   /**
-   * @return int value of this {@link com.gams.platforms.Status Status}
+   * @return int value of this {@link com.gams.platforms.PlatformStatusEnum PlatformStatusEnum}
    */
   public int value()
   {
@@ -80,14 +80,14 @@ public enum Status
   }
 
   /**
-   * Converts an int to a {@link com.gams.platforms.Status Status}
+   * Converts an int to a {@link com.gams.platforms.PlatformStatusEnum PlatformStatusEnum}
    *
    * @param val value to convert
-   * @return {@link com.gams.platforms.Status Status} or null if the int is invalid
+   * @return {@link com.gams.platforms.PlatformStatusEnum PlatformStatusEnum} or null if the int is invalid
    */
-  public static Status getType(int val)
+  public static PlatformStatusEnum getType(int val)
   {
-    for (Status t : values())
+    for (PlatformStatusEnum t : values())
     {
       if (t.value() == val)
         return t;

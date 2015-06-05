@@ -86,7 +86,7 @@ public class DebuggerAlgorithm extends BaseAlgorithm
         ":  platform is null, so no operations called");
     }
     
-    return Status.OK.value();
+    return AlgorithmStatusEnum.OK.value();
   }
   
   /**
@@ -97,7 +97,7 @@ public class DebuggerAlgorithm extends BaseAlgorithm
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Algorithm.plan called");
     
-    return Status.OK.value();
+    return AlgorithmStatusEnum.OK.value();
   }
   
   /**
@@ -124,7 +124,7 @@ public class DebuggerAlgorithm extends BaseAlgorithm
     }
     executions.inc();
     
-    return Status.OK.value();
+    return AlgorithmStatusEnum.OK.value();
   }
   
   private com.madara.containers.Integer executions;

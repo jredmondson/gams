@@ -111,6 +111,7 @@ namespace gams
         /**
          * Creates a pheremone area coverage Algorithm.
          * @param   args      args[0] = search area id
+         * @param   knowledge the knowledge base to use
          * @param   platform  the platform. This will be set by the
          *                    controller in init_vars.
          * @param   sensors   the sensor info. This will be set by the

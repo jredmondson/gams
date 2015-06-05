@@ -67,13 +67,13 @@ public class DebuggerPlatform extends BasePlatform
    
   /**
    * Analyzes the platform.
-   * @return   status information(@see Status)
+   * @return   status information(@see PlatformStatusEnum)
    **/
   public int analyze()
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Platform.analyze called");
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
   
   /**
@@ -112,25 +112,25 @@ public class DebuggerPlatform extends BasePlatform
   /**
    * Returns to the home location. This should be
    * a non-blocking call.
-   * @return   status information(@see Status)
+   * @return   status information(@see PlatformStatusEnum)
    **/
   public int home()
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.home called");
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
   
   /**
    * Requests the platform to land. This should be
    * a non-blocking call.
-   * @return   status information(@see Status)
+   * @return   status information(@see PlatformStatusEnum)
    **/
   public int land()
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.land called");
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
   
   /**
@@ -139,26 +139,26 @@ public class DebuggerPlatform extends BasePlatform
    * @param   target     the new position to move to
    * @param   proximity  the minimum distance between current position
    *                   and target position that terminates the move.
-   * @return  status information(@see Status)
+   * @return  status information(@see PlatformStatusEnum)
    **/
   public int move(Position target, double proximity)
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.move called");
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
    
   /**
    * Initializes a rotate along x, y, z axes. This should be
    * a non-blocking call and implements an extrinsic rotation.
    * @param   target     the new extrinsic rotation angles
-   * @return  status information(@see Status)
+   * @return  status information(@see PlatformStatusEnum)
    **/
   public int rotate(Axes target)
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.rotate called");
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
    
   /**
@@ -219,7 +219,7 @@ public class DebuggerPlatform extends BasePlatform
     self.device.location.set(1,position.getY());
     self.device.location.set(2,position.getZ());
     
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
   
   /**
@@ -235,13 +235,13 @@ public class DebuggerPlatform extends BasePlatform
   /**
    * Takes off. This should be
    * a non-blocking call.
-   * @return   status information(@see Status)
+   * @return   status information(@see PlatformStatusEnum)
    **/
   public int takeoff()
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.takeoff called");
-    return Status.OK.value();
+    return PlatformStatusEnum.OK.value();
   }
   
   /**

@@ -47,9 +47,9 @@
 package com.gams.algorithms;
 
 /**
- * Status of the algorithm
+ * AlgorithmStatusEnum of the algorithm
  */
-public enum Status
+public enum AlgorithmStatusEnum
 {
   //These are defined in platforms/Base.h
   UNKNOWN(0),
@@ -66,7 +66,7 @@ public enum Status
 
   private int num;
 
-  private Status(int num)
+  private AlgorithmStatusEnum(int num)
   {
     this.num = num;
   }
@@ -85,9 +85,9 @@ public enum Status
    * @param val value to convert
    * @return unum or null if the int is invalid
    */
-  public static Status getType(int val)
+  public static AlgorithmStatusEnum getType(int val)
   {
-    for (Status t : values())
+    for (AlgorithmStatusEnum t : values())
     {
       if (t.value() == val)
         return t;

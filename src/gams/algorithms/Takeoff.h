@@ -121,6 +121,7 @@ namespace gams
       /**
        * Creates a Null (no-op) Algorithm.
        * @param   args      this algorithm requires no arguments
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the

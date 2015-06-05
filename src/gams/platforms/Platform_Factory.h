@@ -83,8 +83,12 @@ namespace gams
 
       /**
        * Creates a platform
-       * @param  type   type of platform to create
        * @param  args   a vector of Knowledge Record arguments
+       * @param  knowledge  the knowledge base to use
+       * @param  sensors    the sensors available
+       * @param  platforms  the status of platforms
+       * @param  self       self-referencing information
+       * 
        * @return  the new platform
        **/
       virtual Base_Platform * create (

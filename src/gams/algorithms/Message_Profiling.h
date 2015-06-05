@@ -186,6 +186,7 @@ namespace gams
       /**
        * Creates a Message_Profiling Algorithm.
        * @param   args      arg[0] = the message send size
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the

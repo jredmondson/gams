@@ -143,6 +143,7 @@ namespace gams
        * @param   args    first arg is where to store the executions tracker in
        *                  the knowledge base. Default is ".executions" when no
        *                  args are provided.
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the

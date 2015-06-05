@@ -178,6 +178,7 @@ namespace gams
        * @param   args      args[0] = type of movement
        *                    args[1] = number of move executions
        *                    args[2] = time to move in seconds
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the

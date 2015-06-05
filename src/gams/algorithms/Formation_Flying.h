@@ -204,6 +204,7 @@ namespace gams
        *                    args[3] = the number of members in the formation
        *                    args[4] = a modifier on the formation
        *                              (NONE or ROTATE)
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the

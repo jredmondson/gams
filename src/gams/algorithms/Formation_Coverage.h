@@ -156,6 +156,7 @@ namespace gams
        *                    args[3] = modifier
        *                    args[4] = coverage type
        *                    args[5+] = arguments to coverage algorithm
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the

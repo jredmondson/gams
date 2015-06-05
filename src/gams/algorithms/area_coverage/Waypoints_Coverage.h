@@ -122,6 +122,7 @@ namespace gams
         /**
          * Creates a snake area coverage algorithm
          * @param   args      waypoints to traverse
+         * @param   knowledge the knowledge base to use
          * @param   platform  the platform. This will be set by the
          *                    controller in init_vars.
          * @param   sensors   the sensor info. This will be set by the

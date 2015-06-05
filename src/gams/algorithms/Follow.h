@@ -142,6 +142,7 @@ namespace gams
        * Creates a Follow Algorithm.
        * @param   args      arg[0] = the target to follow
        *                    arg[1] = the time step delay
+       * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the
