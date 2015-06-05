@@ -53,9 +53,9 @@ import com.madara.containers.Integer;
 
 public class PlatformStatus extends GamsJNI
 {	
-  private native long jni_Platform();
-  private native long jni_Platform(long cptr);
-  private static native void jni_freePlatform(long cptr);
+  private native long jni_PlatformStatus();
+  private native long jni_PlatformStatus(long cptr);
+  private static native void jni_freePlatformStatus(long cptr);
   private native java.lang.String jni_getName(long cptr);
   private native void jni_init(long cptr, long type, long kb, java.lang.String name);
   private native java.lang.String jni_toString(long cptr);
@@ -79,7 +79,7 @@ public class PlatformStatus extends GamsJNI
    **/
   public PlatformStatus()
   {
-    setCPtr(jni_Platform());
+    setCPtr(jni_PlatformStatus());
     init();
   }
 
@@ -89,7 +89,7 @@ public class PlatformStatus extends GamsJNI
    **/
   public PlatformStatus(PlatformStatus input)
   {
-    setCPtr(jni_Platform(input.getCPtr()));
+    setCPtr(jni_PlatformStatus(input.getCPtr()));
     init();
   }
 
@@ -267,7 +267,7 @@ public class PlatformStatus extends GamsJNI
   {
     if (manageMemory)
     {
-      jni_freePlatform(getCPtr());
+      jni_freePlatformStatus(getCPtr());
     }
   }
 }

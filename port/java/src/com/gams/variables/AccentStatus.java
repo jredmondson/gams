@@ -54,9 +54,9 @@ import com.madara.containers.Vector;
 
 public class AccentStatus extends GamsJNI
 {	
-  private native long jni_Accent();
-  private native long jni_Accent(long cptr);
-  private static native void jni_freeAccent(long cptr);
+  private native long jni_AccentStatus();
+  private native long jni_AccentStatus(long cptr);
+  private static native void jni_freeAccentStatus(long cptr);
   private native java.lang.String jni_getName(long cptr);
   private native void jni_init(long cptr, long type, long kb, java.lang.String name);
   private native java.lang.String jni_toString(long cptr);
@@ -68,7 +68,7 @@ public class AccentStatus extends GamsJNI
    **/
   public AccentStatus()
   {
-    setCPtr(jni_Accent());
+    setCPtr(jni_AccentStatus());
     init();
   }
 
@@ -78,7 +78,7 @@ public class AccentStatus extends GamsJNI
    **/
   public AccentStatus(AccentStatus input)
   {
-    setCPtr(jni_Accent(input.getCPtr()));
+    setCPtr(jni_AccentStatus(input.getCPtr()));
     init();
   }
 
@@ -153,7 +153,7 @@ public class AccentStatus extends GamsJNI
    */
   public void free()
   {
-    jni_freeAccent(getCPtr());
+    jni_AccentStatus(getCPtr());
   }
 }
 

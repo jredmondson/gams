@@ -53,9 +53,9 @@ import com.madara.containers.Integer;
 
 public class AlgorithmStatus extends GamsJNI
 {	
-  private native long jni_Algorithm();
-  private native long jni_Algorithm(long cptr);
-  private static native void jni_freeAlgorithm(long cptr);
+  private native long jni_AlgorithmStatus();
+  private native long jni_AlgorithmStatus(long cptr);
+  private static native void jni_freeAlgorithmStatus(long cptr);
   private native java.lang.String jni_getName(long cptr);
   private native void jni_init(long cptr, long type, long kb, java.lang.String name);
   private native java.lang.String jni_toString(long cptr);
@@ -73,7 +73,7 @@ public class AlgorithmStatus extends GamsJNI
    **/
   public AlgorithmStatus()
   {
-    setCPtr(jni_Algorithm());
+    setCPtr(jni_AlgorithmStatus());
     init();
   }
 
@@ -83,7 +83,7 @@ public class AlgorithmStatus extends GamsJNI
    **/
   public AlgorithmStatus(AlgorithmStatus input)
   {
-    setCPtr(jni_Algorithm(input.getCPtr()));
+    setCPtr(jni_AlgorithmStatus(input.getCPtr()));
     init();
   }
 
@@ -213,7 +213,7 @@ public class AlgorithmStatus extends GamsJNI
   {
     if (manageMemory)
     {
-      jni_freeAlgorithm(getCPtr());
+      jni_freeAlgorithmStatus(getCPtr());
     }
   }
 }
