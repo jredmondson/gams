@@ -33,7 +33,7 @@ sub run {
   print("$gams_root\n");
   for (my $i=0; $i < $num; $i++)
   {
-    my $cmd = "\"$gams_root/gams_controller -i $i -n $num -p vrep --loop-time $time --period $period --madara-file $gams_root/scripts/simulation/$sim/madara_init_$i.mf $gams_root/scripts/simulation/areas/$area.mf $gams_root/scripts/simulation/madara_init_common.mf --madara-level $madara_debug --gams-level $gams_debug\"";
+    my $cmd = "\"$gams_root/gams_controller -i $i -n $num -p vrep_uav --loop-time $time --period $period --madara-file $gams_root/scripts/simulation/$sim/madara_init_$i.mf $gams_root/scripts/simulation/areas/$area.mf $gams_root/scripts/simulation/madara_init_common.mf --madara-level $madara_debug --gams-level $gams_debug\"";
     if ($term_prefix)
     {
       system("$term_prefix $cmd $term_suffix");
