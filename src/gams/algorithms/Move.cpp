@@ -81,15 +81,15 @@ gams::algorithms::Move::Move (
   variables::Self * self)
   : Base_Algorithm (knowledge, platform, sensors, self),
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (max_execution_time),
-  max_executions_ (max_executions), type_ (type)
+  max_executions_ (max_executions), type_ (type), target_ (), mode_ (TARGET)
 {
   // init status vars
   status_.init_vars (*knowledge, "move");
 
-  if (max_executions > 0)
-    mode_ = EXECUTIONS;
-  else
-    mode_ = TIMED;
+//  if (max_executions > 0)
+//    mode_ = EXECUTIONS;
+//  else
+//    mode_ = TIMED;
 }
 
 gams::algorithms::Move::Move (
@@ -141,19 +141,14 @@ gams::algorithms::Move::execute (void)
   }
   else if (mode_ == TIMED)
   {
-
   }
   else if (mode_ == TARGET)
   {
+    if(executions_ == 0)
+      platform_->move(target_);
   }
 
   ++executions_;
-
-  if ((executions_ / 20) % 2 == 0)
-    platform_->takeoff ();
-  else
-    platform_->land ();
-
   return 0;
 }
 

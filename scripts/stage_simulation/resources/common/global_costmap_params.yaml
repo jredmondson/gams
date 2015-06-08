@@ -1,0 +1,9 @@
+global_costmap:
+#coordinate frame for costmap
+  global_frame: /map
+#robot base frame for tf
+  robot_base_frame: base_footprint
+#cost map update rate in Hz
+  update_frequency: 5.0
+#load map from map_server
+  static_map: true

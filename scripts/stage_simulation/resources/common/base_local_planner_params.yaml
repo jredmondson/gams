@@ -1,0 +1,21 @@
+TrajectoryPlannerROS:
+#velocity limits of robot
+  max_vel_x: 0.5
+  min_vel_x: 0.0
+  max_rotational_vel: 1.0
+  min_in_place_rotational_vel: 0.0
+
+#acceleration limits of the robot
+  acc_lim_theta: 3.2
+  acc_lim_x: 2.5
+  acc_lim_y: 2.5
+
+  holonomic_robot: false
+
+  #sim_time: 5.0
+  #sim_granularity: 0.025
+
+  xy_goal_tolerance: 0.5
+  yaw_goal_tolerance: 3.2
+
+  meter_scoring: true
