@@ -63,11 +63,20 @@ using std::endl;
 using std::cout;
 using std::cerr;
 using std::string;
+using std::map;
 
 gams::platforms::ROS_Base::ROS_Base (Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors, variables::Self * self) :
-  Base(knowledge, sensors, self), ready_(false)
+  Base_Platform (knowledge, sensors, self), ready_ (false)
 {
+  static bool init = false;
+  if (!init)
+  {
+    string node_name (knowledge->get (".ros_node").to_string ());
+    map<string, string> remap;
+    ros::init (remap, node_name);
+    init = true;
+  }
 }
 
 gams::platforms::ROS_Base::~ROS_Base ()

@@ -68,13 +68,28 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
+gams::platforms::Base_Platform *
+gams::platforms::ROS_P3DX_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  variables::Sensors * sensors, variables::Platforms * platforms,
+  variables::Self * self)
+{
+  Base_Platform * result (0);
+  if (knowledge && sensors && platforms && self)
+    result = new ROS_P3DX (knowledge, sensors, platforms, self);
+  return result;
+}
+
 gams::platforms::ROS_P3DX::ROS_P3DX (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge, variables::Sensors * sensors,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge, 
+  variables::Sensors * sensors,
   variables::Platforms * platforms, variables::Self * self) :
-  ROS_Base(knowledge, sensors, self),
-  ros_namespace_(knowledge->get (".ros_namespace").to_string ()), node_handle_ (ros_namespace_),
-  move_client_ (ros_namespace_ + std::string ("/move_base"), true), spinner_ (1),
-  init_pose_set_ (false)
+  ROS_Base (knowledge, sensors, self),
+  ros_namespace_(knowledge->get (".ros_namespace").to_string ()), 
+  node_handle_ (ros_namespace_),
+  move_client_ (ros_namespace_ + std::string ("/move_base"), true), 
+  spinner_ (1), init_pose_set_ (false)
 {
   cerr << "creating ROS_P3DX" << endl;
   if (platforms && knowledge)
@@ -143,14 +158,6 @@ gams::platforms::ROS_P3DX::move (const utility::Position & position, const doubl
   // send the goal
   ROS_INFO("Sending goal");
   move_client_.sendGoal(goal);
-
-//  ROS_INFO("waiting for result");
-//  ac.waitForResult();
-//
-//  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-//    ROS_INFO("Hooray, the base acheived the goal");
-//  else
-//    ROS_INFO("The base failed to acheived its goal");
 }
 
 void

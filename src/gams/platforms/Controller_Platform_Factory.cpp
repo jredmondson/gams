@@ -59,6 +59,10 @@
 #include "gams/platforms/vrep/VREP_Ant.h"
 #endif
 
+#ifdef _GAMS_ROS_
+#include "gams/platforms/ros/ROS_P3DX.h"
+#endif 
+
 #include <string>
 
 namespace platforms = gams::platforms;
@@ -118,7 +122,15 @@ platforms::Controller_Platform_Factory::initialize_default_mappings (void)
   add (aliases, new VREP_UAV_Factory ());
 #endif
 
+  // ROS Platforms
+#ifdef _GAMS_ROS_
+  // the ROS P3DX platform
+  aliases.resize (2);
+  aliases[0] = "ros_p3dx";
+  aliases[1] = "ros-p3dx";
 
+  add (aliases, new ROS_P3DX_Factory ());
+#endif
 }
 
 void

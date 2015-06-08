@@ -4,7 +4,6 @@ feature (ros) {
   libs += roscpp
   libs += actionlib
   
-  
   macros += _GAMS_ROS_
   
   includes += $(ROS_ROOT)/../../include
