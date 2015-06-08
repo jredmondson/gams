@@ -558,7 +558,7 @@ gams::controllers::Base_Controller::init_platform (
   
   GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
     DLINFO "gams::controllers::Base_Controller::init_platform:" \
-    " initializing algorithm %s\n", platform.c_str ()));
+    " initializing platform %s\n", platform.c_str ()));
 
   if (platform == "")
   {
