@@ -1,0 +1,22 @@
+#maximum range sensor reading that results in an obstacle being put
+#  into the costmap
+obstacle_range: 4.0 # attempt longer obstacle detection
+
+#range to which we will raytrace freespace given a sensor reading
+#  robot attempts to clear out space up to this far away
+raytrace_range: 3.0
+
+#robot size
+#footprint: [[x0, y0], [x1, y1], ... [xn, yn]]
+robot_radius: 0.2
+
+#maximum distance from obstacles at which cost should be incurred
+#robot will treat all paths that stay this far away as have equal obstacle cost
+inflation_radius: 0.4
+
+#name the observation sources
+observation_sources: laser_scan_sensor
+
+# frame of sensor, message type of sensor, topic it broadcasts on
+#    marking sets obstacles, clearing clears them
+laser_scan_sensor: {sensor_frame: base_laser_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}

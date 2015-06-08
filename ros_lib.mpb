@@ -1,0 +1,23 @@
+feature (ros) {
+  requires += ros
+  libpaths += $(ROS_ROOT)/../../lib
+  libs += roscpp
+  libs += actionlib
+  
+  
+  macros += _GAMS_ROS_
+  
+  includes += $(ROS_ROOT)/../../include
+  
+  Header_Files {
+    ROS_Platforms {
+      src/gams/platforms/ros
+    }
+  }
+
+  Source_Files {
+    ROS_Platforms {
+      src/gams/platforms/ros
+    }
+  }
+}

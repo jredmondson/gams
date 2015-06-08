@@ -1,0 +1,72 @@
+<!-- launch file for simming the nav stack -->
+<launch>
+  <!-- ensure sim time is being used -->
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(env GAMS_ROOT)/scripts/stage_simulation/resources/rooms/rooms_map.yaml">
+    <param name="frame_id" value="/map" />
+  </node>
+
+  <!-- Launch Stage -->
+  <node name="stage" pkg="stage_ros" type="stageros" args="$(env GAMS_ROOT)/scripts/stage_simulation/move/env.world" respawn="false" output="screen" />
+
+  <!-- Launch RViz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(env GAMS_ROOT)/scripts/stage_simulation/move/move.rviz"/>
+
+  <!-- Run amcl and move_base nodes for each robot -->
+  <group ns="robot_0">
+    <param name="tf_prefix" value="robot_0" />
+
+    <remap from="odom" to="odom" />
+    <remap from="cmd_vel" to="cmd_vel" />
+    <remap from="map" to="/map" />
+    <remap from="scan" to="base_scan" />
+
+    <include file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/amcl_diff.launch">
+      <arg name="scan" value="base_scan" />
+      <arg name="odom" value="/robot_0/odom" />
+      <arg name="base_link" value="/robot_0/base_footprint" />
+    </include>
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/costmap_common_params.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/costmap_common_params.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/global_costmap_params.yaml" command="load" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/base_local_planner_params.yaml" command="load" />
+
+      <param name="~/global_costmap/robot_base_frame" value="/robot_0/base_footprint" />
+      <param name="~/local_costmap/robot_base_frame" value="/robot_0/base_footprint" />
+      <param name="~/local_costmap/global_frame" value="/robot_0/odom" />
+    </node>
+  </group>
+
+  <group ns="robot_1">
+    <param name="tf_prefix" value="robot_1" />
+
+    <remap from="odom" to="odom" />
+    <remap from="cmd_vel" to="cmd_vel" />
+    <remap from="map" to="/map" />
+    <remap from="scan" to="base_scan" />
+
+    <include file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/amcl_diff.launch">
+      <arg name="scan" value="base_scan" />
+      <arg name="odom" value="/robot_1/odom" />
+      <arg name="base_link" value="/robot_1/base_footprint" />
+    </include>
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/costmap_common_params.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/costmap_common_params.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/global_costmap_params.yaml" command="load" />
+      <rosparam file="$(env GAMS_ROOT)/scripts/stage_simulation/resources/common/base_local_planner_params.yaml" command="load" />
+
+      <param name="~/global_costmap/robot_base_frame" value="/robot_1/base_footprint" />
+      <param name="~/local_costmap/robot_base_frame" value="/robot_1/base_footprint" />
+      <param name="~/local_costmap/global_frame" value="/robot_1/odom" />
+    </node>
+  </group>
+
+</launch>

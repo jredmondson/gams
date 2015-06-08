@@ -1,0 +1,12 @@
+device.0.command="move";
+device.0.command.size=2;
+device.0.command.0="";
+device.0.command.1[0]=2;
+device.0.command.1[1]=2;
+
+.initial_position[0]=-8.5;
+.initial_position[1]=14;
+.initial_position[2]=90;
+
+.ros_namespace="/robot_0";
+.ros_node="robot_0";
