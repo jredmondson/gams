@@ -104,7 +104,7 @@ gams::algorithms::Takeoff::operator= (const Takeoff & rhs)
 int
 gams::algorithms::Takeoff::analyze (void)
 {
-  return 0;
+  return OK;
 }
       
 

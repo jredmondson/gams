@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file Move.h
- * @author James Edmondson <jedmondson@gmail.com>
+ * @file Wait.h
+ * @author Anton Dukema <anton.dukeman@gmail.com>
  *
- * This file contains the definition of the snake area coverage class
+ * This file contains the definition of the Wait algorithm
  **/
 
-#ifndef   _GAMS_ALGORITHMS_MOVE_H_
-#define   _GAMS_ALGORITHMS_MOVE_H_
+#ifndef   _GAMS_ALGORITHMS_WAIT_H_
+#define   _GAMS_ALGORITHMS_WAIT_H_
 
 #include "gams/algorithms/Base_Algorithm.h"
 
@@ -64,77 +64,40 @@
 #include "gams/variables/Self.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/OS_NS_sys_time.h"
-#include "gams/utility/Position.h"
 #include "gams/algorithms/Algorithm_Factory.h"
 
 namespace gams
 {
   namespace algorithms
   {
-    class GAMS_Export Move : public Base_Algorithm
+    class GAMS_Export Wait : public Base_Algorithm
     {
     public:
       /**
        * Constructor
-       * @param  target       the target of the move
+       * @param  double       time (in seconds) to wait
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      Move (
-        const utility::Position & target,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base_Platform * platform = 0,
-        variables::Sensors * sensors = 0,
-        variables::Self * self = 0);
-
-      /**
-       * Constructor
-       * @param  type         the type of move
-       * @param  max_executions  number of loop executions to move
-       * @param  max_execution_time  wall clock time to execute move in seconds
-       * @param  knowledge    the context containing variables and values
-       * @param  platform     the underlying platform the algorithm will use
-       * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables
-       **/
-      Move (
-        const std::string & type,
-        unsigned int max_executions = 0,
-        double max_execution_time = 5.0,
+      Wait (
+        const double& w,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
       
       /**
-       * Constructor
-       * @param  type         the type of move
-       * @param  target       the target of the move
-       * @param  knowledge    the context containing variables and values
-       * @param  platform     the underlying platform the algorithm will use
-       * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables
-       **/
-      Move (
-        const std::string & type,
-        const utility::Position & target,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-        platforms::Base_Platform * platform = 0,
-        variables::Sensors * sensors = 0,
-        variables::Self * self = 0);
-
-      /**
        * Destructor
        **/
-      ~Move ();
+      ~Wait ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Move & rhs);
+      void operator= (const Wait & rhs);
       
       /**
        * Analyzes environment, platform, or other information
@@ -155,43 +118,22 @@ namespace gams
       virtual int plan (void);
       
     protected:
+      /// length of time to wait
+      const ACE_Time_Value wait_time_;
       /// the end time
-      ACE_Time_Value end_time_;  
-
-      /// maximum number of consecutive executions allowed
-      unsigned int max_execution_time_;
-
-      /// maximum number of consecutive executions allowed
-      unsigned int max_executions_;
-
-      /// mode of execution (EXECUTIONS, TIMED, TARGET)
-      enum MODE
-      {
-        EXECUTIONS = 0,
-        TIMED = 1,
-        TARGET = 2
-      };
-      MODE mode_;
-
-      /// the target of the move
-      utility::Position target_;
-
-      /// type of movement being executed
-      std::string type_;
+      const ACE_Time_Value end_time_;
     };
 
     /**
-     * A factory class for creating Move algorithms
+     * A factory class for creating Wait algorithms
      **/
-    class GAMS_Export Move_Factory : public Algorithm_Factory
+    class GAMS_Export Wait_Factory : public Algorithm_Factory
     {
     public:
 
       /**
-       * Creates a Move Algorithm.
-       * @param   args      args[0] = type of movement
-       *                    args[1] = number of move executions
-       *                    args[2] = time to move in seconds
+       * Creates a Wait Algorithm.
+       * @param   args      args[0] = time in seconds to wait
        * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
@@ -214,4 +156,4 @@ namespace gams
   }
 }
 
-#endif // _GAMS_ALGORITHMS_MOVE_H_
+#endif // _GAMS_ALGORITHMS_WAIT_H_

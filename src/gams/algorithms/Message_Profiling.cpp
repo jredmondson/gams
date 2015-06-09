@@ -130,7 +130,7 @@ gams::algorithms::Message_Profiling::operator= (
 int
 gams::algorithms::Message_Profiling::analyze (void)
 {
-  return 0;
+  return OK;
 }
 
 int

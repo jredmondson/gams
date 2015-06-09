@@ -161,7 +161,7 @@ gams::algorithms::Formation_Coverage::analyze (void)
     my_formation_->analyze ();
   }
 
-  return 0;
+  return OK;
 }
       
 int

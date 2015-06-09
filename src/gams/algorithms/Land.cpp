@@ -95,7 +95,7 @@ gams::algorithms::Land::operator= (const Land & rhs)
 int
 gams::algorithms::Land::analyze (void)
 {
-  return 0;
+  return OK;
 }
       
 

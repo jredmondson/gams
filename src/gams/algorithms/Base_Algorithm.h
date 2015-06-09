@@ -61,6 +61,8 @@
 #include "gams/utility/Region.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
+#include "gams/utility/Logging.h"
+
 #include <vector>
 
 namespace gams
@@ -77,11 +79,12 @@ namespace gams
      **/
     enum Status
     {
-      UNKNOWN = 0,
-      OK  = 1,
-      WAITING = 2,
-      DEADLOCKED = 4,
-      FAILED = 8
+      UNKNOWN         = 0x00000000,
+      OK              = 0x00000001,
+      WAITING         = 0x00000002,
+      DEADLOCKED      = 0x00000004,
+      FAILED          = 0x00000008,
+      FINISHED        = 0x00000010
     };
 
     class GAMS_Export Base_Algorithm

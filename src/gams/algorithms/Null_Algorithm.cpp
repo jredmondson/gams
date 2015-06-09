@@ -97,7 +97,7 @@ gams::algorithms::Null_Algorithm::operator= (const Null_Algorithm & rhs)
 int
 gams::algorithms::Null_Algorithm::analyze (void)
 {
-  return 0;
+  return OK;
 }
       
 

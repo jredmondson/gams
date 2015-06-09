@@ -47,7 +47,11 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
+#include <sstream>
 
+using std::vector;
+using std::stringstream;
 using std::string;
 using std::cerr;
 using std::endl;
@@ -65,10 +69,45 @@ gams::algorithms::Move_Factory::create (
   
   if (knowledge && sensors && platform && self)
   {
-    result = new Move ("", 0, 0, knowledge, platform, sensors, self);
+    if (args.size () == 1)
+    {
+      if (args[0].is_integer_type ())
+      {
+        vector<Madara::Knowledge_Record::Integer> targ (args[0].to_integers ());
+        cerr << "vector size: " << targ.size () << endl;
+        utility::Position target;
+        if (targ.size () > 0)
+        {
+          target.x = targ[0];
+          if (targ.size () > 1)
+          {
+            target.y = targ[1];
+            if (targ.size () > 2)
+              target.z = targ[2];
+          }
+        }
+        result = new Move (target, knowledge, platform, sensors, self);
+      }
+      else
+      {
+        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+          DLINFO "gams::algorithms::Move_Factory::create:" \
+          " bad arguments"));
+      }
+    }
   }
 
   return result;
+}
+
+gams::algorithms::Move::Move (const utility::Position & target, 
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge, 
+  platforms::Base_Platform * platform, variables::Sensors * sensors, 
+  variables::Self * self) :
+  Base_Algorithm (knowledge, platform, sensors, self), target_ (target), 
+  mode_ (TARGET)
+{
+  cerr << "MOVE TARGET: " << target_.to_string () << endl;
 }
 
 gams::algorithms::Move::Move (
@@ -115,38 +154,50 @@ gams::algorithms::Move::operator= (const Move & rhs)
 {
   if (this != &rhs)
   {
+    this->end_time_ = rhs.end_time_;
+    this->max_execution_time_ = rhs.max_execution_time_;
+    this->max_executions_ = rhs.max_executions_;
     this->mode_ = rhs.mode_;
     this->target_ = rhs.target_;
-    this->platform_ = rhs.platform_;
-    this->sensors_ = rhs.sensors_;
-    this->self_ = rhs.self_;
-    this->status_ = rhs.status_;
-    this->max_executions_ = rhs.max_executions_;
-    this->max_execution_time_ = rhs.max_execution_time_;
-    this->end_time_ = rhs.end_time_;
+    this->type_ = rhs.type_;
+
+    this->Base_Algorithm::operator=(rhs);
   }
 }
 
 int
 gams::algorithms::Move::analyze (void)
 {
-  return 0;
+  int ret_val (UNKNOWN);
+  if (mode_ == TARGET)
+  {
+    ret_val = OK;
+    cerr << "position: " << platform_->get_position()->to_string() << endl;
+    cerr << "target: " << target_.to_string () << endl;
+    if (platform_->get_position ()->approximately_equal (target_, 2))
+    {
+      ret_val = FINISHED;
+      cerr << "move finished" << endl;
+    }
+    else
+    {
+      cerr << "still moving" << endl;
+    }
+  }
+  return ret_val;
 }
-      
+
 int
 gams::algorithms::Move::execute (void)
 {
-  if (mode_ == EXECUTIONS)
-  {
-  }
-  else if (mode_ == TIMED)
-  {
-  }
-  else if (mode_ == TARGET)
-  {
-    if(executions_ == 0)
-      platform_->move(target_);
-  }
+//  if (mode_ == EXECUTIONS)
+//  {
+//  }
+//  else if (mode_ == TIMED)
+//  {
+//  }
+  if (mode_ == TARGET)
+    platform_->move(target_);
 
   ++executions_;
   return 0;

@@ -42,29 +42,18 @@
  * 
  *      This material has been approved for public release and unlimited
  *      distribution.
- */
+ **/
+#include "Wait.h"
 
-/**
- * @file Follow.cpp
- * @author Anton Dukeman <anton.dukeman@gmail.com>
- *
- * This file contains the definition of the Follow algorithm
- */
-
-#include "gams/algorithms/Follow.h"
-
-#include <sstream>
+#include <string>
 #include <iostream>
-#include <limits.h>
+
+using std::string;
 using std::cerr;
 using std::endl;
 
-#include "gams/utility/GPS_Position.h"
-
-using std::stringstream;
-
 gams::algorithms::Base_Algorithm *
-gams::algorithms::Follow_Factory::create (
+gams::algorithms::Wait_Factory::create (
   const Madara::Knowledge_Vector & args,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
@@ -73,100 +62,76 @@ gams::algorithms::Follow_Factory::create (
   variables::Devices * devices)
 {
   Base_Algorithm * result (0);
-
-  // set defaults
-  Madara::Knowledge_Record target;
-  Madara::Knowledge_Record delay (Madara::Knowledge_Record::Integer (5));
-
-  if (args.size () >= 1 && knowledge && sensors && self)
+  
+  if (knowledge && sensors && platform && self)
   {
-    target = args[0];
+    if (args.size () == 1 && 
+      (args[0].is_integer_type () || args[0].is_double_type ()))
+    {
+      result = new Wait (args[0].to_double (), knowledge, platform, sensors, 
+        self);
+    }
+    else
+    {
 
-    if (args.size () >= 2)
-      delay = args[1];
-
-    if (target.is_integer_type () && delay.is_integer_type ())
-      result = new Follow (target, delay, knowledge, platform, sensors, self);
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+        DLINFO "gams::algorithms::Wait_Factory::create:" \
+        " invalid arguments\n"));
+    }
   }
 
   return result;
 }
 
-gams::algorithms::Follow::Follow (
-  const Madara::Knowledge_Record& id,
-  const Madara::Knowledge_Record& delay,
+gams::algorithms::Wait::Wait (
+  const double& length,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform, variables::Sensors * sensors,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
   variables::Self * self) :
-  Base_Algorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
-  delay_ (delay.to_integer ())
+  Base_Algorithm (knowledge, platform, sensors, self),
+  wait_time_ (length), end_time_ (ACE_OS::gettimeofday () + wait_time_)
 {
-  stringstream location_string;
-  location_string << "device." << id.to_integer () << ".location";
-  target_location_.set_name (location_string.str (), *knowledge, 3);
 }
 
-gams::algorithms::Follow::~Follow ()
+gams::algorithms::Wait::~Wait ()
 {
 }
 
 void
-gams::algorithms::Follow::operator= (const Follow & rhs)
+gams::algorithms::Wait::operator= (const Wait & rhs)
 {
-  if (this != &rhs)
-  {
-    this->Base_Algorithm::operator= (rhs);
-    this->target_location_ = rhs.target_location_;
-    this->next_position_ = rhs.next_position_;
-    this->previous_locations_ = rhs.previous_locations_;
-    this->delay_ = rhs.delay_;
-  }
+  this->Base_Algorithm::operator=(rhs);
 }
 
-/**
- * The agent gets the target's location from the database and adds it to the
- * queue of positions being stored.
- */
 int
-gams::algorithms::Follow::analyze (void)
+gams::algorithms::Wait::analyze (void)
 {
-  static utility::GPS_Position prev;
-  utility::GPS_Position current;
-  current.from_container (target_location_);
+  const ACE_Time_Value now (ACE_OS::gettimeofday ());
 
-  // if target agent has moved
-  if (current.distance_to (prev) > 1.0)
+  int ret_val (OK);
+  if (now > end_time_)
   {
-    previous_locations_.push (current);
-    prev = current;
+    ret_val = FINISHED;
+    cerr << "done waiting" << endl;
+  }
+  else
+  {
+    cerr << "still waiting" << endl;
   }
 
+  return ret_val;
+}
+
+int
+gams::algorithms::Wait::execute (void)
+{
   ++executions_;
-  return OK;
-}
-      
-/**
- * Move to next location if next_position_ is valid
- */
-int
-gams::algorithms::Follow::execute (void)
-{
-  if (next_position_.latitude () != DBL_MAX)
-    platform_->move (next_position_);
-  
   return 0;
 }
 
-/**
- * Store locations in the queue up to the delay amount
- */
 int
-gams::algorithms::Follow::plan (void)
+gams::algorithms::Wait::plan (void)
 {
-  if (previous_locations_.size () == delay_)
-  {
-    next_position_ = previous_locations_.front ();
-    previous_locations_.pop ();
-  }
   return 0;
 }

@@ -56,6 +56,8 @@
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/Message_Profiling.h"
+#include "gams/algorithms/Executive.h"
+#include "gams/algorithms/Wait.h"
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
@@ -226,6 +228,18 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[0] = "waypoints";
 
   add (aliases, new area_coverage::Waypoints_Coverage_Factory ());
+
+  // the executive
+  aliases.resize (1);
+  aliases[0] = "executive";
+
+  add (aliases, new Executive_Factory ());
+
+  // the wait
+  aliases.resize (1);
+  aliases[0] = "wait";
+
+  add (aliases, new Wait_Factory ());
 }
 
 algorithms::Base_Algorithm *

@@ -242,7 +242,7 @@ gams::algorithms::Formation_Flying::operator= (
 int
 gams::algorithms::Formation_Flying::analyze (void)
 {
-  int rv = 0;
+  int ret_val (UNKNOWN);
 
   // split logic by role
   if (head_)
@@ -259,7 +259,7 @@ gams::algorithms::Formation_Flying::analyze (void)
     else if (formation_ready_ == 0)
     {
       formation_ready_ = 1;
-      rv = 1;
+      ret_val = OK;
     }
   }
   else // follower
@@ -296,7 +296,7 @@ gams::algorithms::Formation_Flying::analyze (void)
       }
     }
   }
-  return rv;
+  return ret_val;
 }
 
 /**

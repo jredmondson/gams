@@ -49,8 +49,6 @@
 
 #include <iostream>
 
-
-
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Debug_Algorithm_Factory::create (
   const Madara::Knowledge_Vector & args,
@@ -101,7 +99,6 @@ gams::algorithms::Debug_Algorithm::operator= (const Debug_Algorithm & rhs)
     this->k_executions_ = rhs.k_executions_;
   }
 }
-
 
 int
 gams::algorithms::Debug_Algorithm::analyze (void)
@@ -171,9 +168,8 @@ gams::algorithms::Debug_Algorithm::analyze (void)
     "%q:%q:     algorithm.status_.unknown == %q\n",
     *self_->id, *k_executions_, *status_.unknown));
 
-  return 0;
+  return OK;
 }
-      
 
 int
 gams::algorithms::Debug_Algorithm::execute (void)
