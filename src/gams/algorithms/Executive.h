@@ -137,7 +137,7 @@ namespace gams
       size_t plan_index_;
 
       /// plan vector
-      std::vector<const Algorithm_Init> plan_;
+      std::vector<Algorithm_Init> plan_;
 
       /// Subalgorithm constructor
       Controller_Algorithm_Factory algo_factory_;
