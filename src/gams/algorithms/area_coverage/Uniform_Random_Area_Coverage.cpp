@@ -46,6 +46,8 @@
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 
+using std::string;
+
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Uniform_Random_Area_Coverage_Factory::create (
   const Madara::Knowledge_Vector & args,
@@ -57,11 +59,62 @@ gams::algorithms::area_coverage::Uniform_Random_Area_Coverage_Factory::create (
 {
   Base_Algorithm * result (0);
   
-  if (knowledge && sensors && self && args.size () > 0)
+  if (knowledge && sensors && self && devices)
   {
-    result = new area_coverage::Uniform_Random_Area_Coverage (
-      args[0] /* region id*/,
-      knowledge, platform, sensors, self);
+    if (args.size () >= 1)
+    {
+      if (args[0].is_string_type ())
+      {
+        if (args.size () == 2)
+        {
+          if (args[1].is_double_type () || args[1].is_integer_type ())
+          {
+            result = new area_coverage::Uniform_Random_Area_Coverage (
+              args[0].to_string () /* search area id*/,
+              ACE_Time_Value (args[1].to_double ()) /* exec time */,
+              knowledge, platform, sensors, self, devices);
+          }
+          else
+          {
+            GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+              DLINFO "gams::algorithms::Uniform_Random_Area_Coverage_Factory::create:" \
+              " invalid second arg, expected double\n"));
+          }
+        }
+        else
+        {
+          result = new area_coverage::Uniform_Random_Area_Coverage (
+            args[0].to_string () /* search area id*/,
+            ACE_Time_Value (0.0) /* run forever */,
+            knowledge, platform, sensors, self, devices);
+        }
+      }
+      else
+      {
+        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+          DLINFO "gams::algorithms::Uniform_Random_Area_Coverage_Factory::create:" \
+          " invalid first arg, expected string\n"));
+      }
+    }
+    else
+    {
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+        DLINFO "gams::algorithms::Uniform_Random_Area_Coverage_Factory::create:" \
+        " expected 1 or 2 args\n"));
+    }
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::algorithms::Uniform_Random_Area_Coverage_Factory::create:" \
+      " invalid knowledge, sensors, self, or devices parameters\n"));
+  }
+
+  if (result == 0)
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::algorithms::Uniform_Random_Area_Coverage_Factory::create:" \
+      " unknown error creating algorithm\n"));
   }
 
   return result;
@@ -69,19 +122,21 @@ gams::algorithms::area_coverage::Uniform_Random_Area_Coverage_Factory::create (
 
 gams::algorithms::area_coverage::Uniform_Random_Area_Coverage::
   Uniform_Random_Area_Coverage (
-  const Madara::Knowledge_Record& search_area_id,
+  const string& search_area_id,
+  const ACE_Time_Value& e_time,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
-  variables::Self * self) :
-  Base_Area_Coverage (knowledge, platform, sensors, self)
+  variables::Self * self,
+  variables::Devices * devices) :
+  Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time)
 {
   // init status vars
   status_.init_vars (*knowledge, "urac");
 
   // get region to cover
-  utility::Search_Area search = utility::parse_search_area (
-    *knowledge, search_area_id.to_string ());
+  utility::Search_Area search = utility::parse_search_area (*knowledge, 
+    search_area_id);
   region_ = search.get_convex_hull ();
 
   // generate initial waypoint

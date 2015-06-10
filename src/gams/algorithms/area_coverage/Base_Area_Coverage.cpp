@@ -60,8 +60,10 @@ gams::algorithms::area_coverage::Base_Area_Coverage::Base_Area_Coverage (
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
-  : Base_Algorithm (knowledge, platform, sensors, self, devices)
+  variables::Devices * devices,
+  const ACE_Time_Value& e_time) :
+  Base_Algorithm (knowledge, platform, sensors, self, devices), 
+  exec_time_ (e_time), end_time_(ACE_OS::gettimeofday () + e_time)
 {
 }
 
@@ -76,6 +78,9 @@ gams::algorithms::area_coverage::Base_Area_Coverage::operator= (
   if (this != &rhs)
   {
     this->next_position_ = rhs.next_position_;
+    this->exec_time_ = rhs.exec_time_;
+    this->end_time_ = rhs.end_time_;
+
     this->Base_Algorithm::operator= (rhs);
   }
 }
@@ -89,7 +94,7 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::analyze ()
 {
   ++executions_;
-  return 0;
+  return check_if_finished (OK);
 }
 
 /**
@@ -126,4 +131,13 @@ gams::utility::GPS_Position
 gams::algorithms::area_coverage::Base_Area_Coverage::get_next_position() const
 {
   return next_position_;
+}
+
+int
+gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished (
+  int ret_val) const
+{
+  if (exec_time_ != 0 && ret_val == OK && (ACE_OS::gettimeofday () > end_time_))
+    ret_val = FINISHED;
+  return ret_val;
 }

@@ -79,10 +79,10 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
 gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   const Madara::Knowledge_Vector & args,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
-  variables::Sensors * sensors,
-  variables::Self * self) :
-  Base_Area_Coverage (knowledge, platform, sensors, self), cur_waypoint_ (0)
+  platforms::Base_Platform * platform, variables::Sensors * sensors,
+  variables::Self * self, variables::Devices * devices) :
+  Base_Area_Coverage (knowledge, platform, sensors, self, devices),
+  cur_waypoint_ (0)
 {
   status_.init_vars (*knowledge, "waypoints");
 
@@ -112,6 +112,17 @@ gams::algorithms::area_coverage::Waypoints_Coverage::operator= (
   }
 }
 
+int
+gams::algorithms::area_coverage::Waypoints_Coverage::analyze ()
+{
+  int ret_val (OK);
+
+  if (cur_waypoint_ >= waypoints_.size ())
+    ret_val = FINISHED;
+
+  return ret_val;
+}
+
 /**
  * The next destination is simply the next point in the list
  */
@@ -121,4 +132,6 @@ gams::algorithms::area_coverage::Waypoints_Coverage::generate_new_position ()
   ++cur_waypoint_;
   if (cur_waypoint_ < waypoints_.size ())
     next_position_ = waypoints_[cur_waypoint_];
+  else
+    --cur_waypoint_; // prevent overflow to become valid again
 }

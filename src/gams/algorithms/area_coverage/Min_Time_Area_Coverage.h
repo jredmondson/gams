@@ -82,17 +82,20 @@ namespace gams
         /**
          * Constructor
          * @param  search_id    the region or search area to be covered
+         * @param  e_time       amount of time to execute algorithm, 0 for infinite
          * @param  knowledge    the context containing variables and values
          * @param  platform     the underlying platform the algorithm will use
          * @param  sensors      map of sensor names to sensor information
          * @param  self         self-referencing variables
+         * @param  devices      variables relating to devices
          * @param  algo_name    name to use in Sensor for differentiation
          **/
         Min_Time_Area_Coverage (
-          const Madara::Knowledge_Record& search_id, 
+          const std::string& search_id, const ACE_Time_Value& e_time, 
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
           platforms::Base_Platform * platform = 0, variables::Sensors * sensors = 0,
-          variables::Self * self = 0, const std::string& algo_name = "mtac");
+          variables::Self * self = 0, variables::Devices * devices = 0, 
+          const std::string& algo_name = "mtac");
   
         /**
          * Assignment operator

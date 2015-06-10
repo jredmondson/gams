@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN AS-IS BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -64,6 +64,7 @@
 #include <set>
 #include <map>
 
+using std::string;
 using std::cerr;
 using std::endl;
 
@@ -78,11 +79,62 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage_Factory::create (
 {
   Base_Algorithm * result (0);
   
-  if (knowledge && sensors && self && args.size () > 0)
+  if (knowledge && sensors && self && devices)
   {
-    result = new area_coverage::Min_Time_Area_Coverage (
-      args[0] /* search area id*/,
-      knowledge, platform, sensors, self);
+    if (args.size () >= 1)
+    {
+      if (args[0].is_string_type ())
+      {
+        if (args.size () == 2)
+        {
+          if (args[1].is_double_type () || args[1].is_integer_type ())
+          {
+            result = new area_coverage::Min_Time_Area_Coverage (
+              args[0].to_string () /* search area id*/,
+              ACE_Time_Value (args[1].to_double ()) /* exec time */,
+              knowledge, platform, sensors, self, devices);
+          }
+          else
+          {
+            GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+              DLINFO "gams::algorithms::Min_Time_Area_Coverage_Factory::create:" \
+              " invalid second arg, expected double\n"));
+          }
+        }
+        else
+        {
+          result = new area_coverage::Min_Time_Area_Coverage (
+            args[0].to_string () /* search area id*/,
+            ACE_Time_Value (0.0) /* run forever */,
+            knowledge, platform, sensors, self, devices);
+        }
+      }
+      else
+      {
+        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+          DLINFO "gams::algorithms::Min_Time_Area_Coverage_Factory::create:" \
+          " invalid first arg, expected string\n"));
+      }
+    }
+    else
+    {
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+        DLINFO "gams::algorithms::Min_Time_Area_Coverage_Factory::create:" \
+        " expected 1 or 2 args\n"));
+    }
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::algorithms::Min_Time_Area_Coverage_Factory::create:" \
+      " invalid knowledge, sensors, self, or devices parameters\n"));
+  }
+
+  if (result == 0)
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::algorithms::Min_Time_Area_Coverage_Factory::create:" \
+      " unknown error creating algorithm\n"));
   }
 
   return result;
@@ -90,14 +142,14 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage_Factory::create (
 
 gams::algorithms::area_coverage::Min_Time_Area_Coverage::
   Min_Time_Area_Coverage (
-  const Madara::Knowledge_Record& search_id,
+  const string& search_id, const ACE_Time_Value& e_time, 
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
-  variables::Self * self, const std::string& algo_name) :
-  Base_Area_Coverage (knowledge, platform, sensors, self),
-  search_area_ (
-    utility::parse_search_area (*knowledge, search_id.to_string ())),
-  min_time_ (search_id.to_string () + ".min_time", knowledge)
+  variables::Self * self, variables::Devices * devices,
+  const string& algo_name) :
+  Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time),
+  search_area_ (utility::parse_search_area (*knowledge, search_id)),
+  min_time_ (search_id + "." + algo_name, knowledge)
 {
   // init status vars
   status_.init_vars (*knowledge, algo_name);
@@ -181,7 +233,7 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage::analyze ()
   min_time_.set_value (current, 0);
   position_value_map_.erase (min_time_.get_index_from_gps (current));
   
-  return 0;
+  return check_if_finished (OK);
 }
 
 void

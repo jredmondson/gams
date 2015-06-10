@@ -76,16 +76,21 @@ namespace gams
         /**
          * Constructor
          * @param  prefix       the search area prefix (e.g. search_area.0)
+         * @param  e_time       execution time for algorithm
          * @param  knowledge    the context containing variables and values
          * @param  platform     the underlying platform the algorithm will use
          * @param  sensors      map of sensor names to sensor information
          * @param  self         self-referencing variables
+         * @param  devices      variables referencing devices
          **/
         Uniform_Random_Edge_Coverage (
-          const Madara::Knowledge_Record& prefix,
+          const std::string& prefix,
+          const ACE_Time_Value& e_time,
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
-          platforms::Base_Platform * platform = 0, variables::Sensors * sensors = 0,
-          variables::Self * self = 0);
+          platforms::Base_Platform * platform = 0,
+          variables::Sensors * sensors = 0,
+          variables::Self * self = 0,
+          variables::Devices * devices = 0);
   
         /**
          * Destructor

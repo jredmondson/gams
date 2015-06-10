@@ -58,6 +58,8 @@
 
 #include "gams/utility/GPS_Position.h"
 
+#include "ace/OS_NS_sys_time.h"
+
 namespace gams
 {
   namespace algorithms
@@ -80,7 +82,8 @@ namespace gams
           platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
-          variables::Devices * devices = 0);
+          variables::Devices * devices = 0,
+          const ACE_Time_Value& exec_time_ = ACE_Time_Value(0.0));
   
         /**
          * Destructor
@@ -123,8 +126,19 @@ namespace gams
          */
         virtual void generate_new_position () = 0;
 
+        /**
+         * Check if finished based on time
+         */
+        int check_if_finished (int ret_val) const;
+
         /// next position
         utility::GPS_Position next_position_;
+
+        /// execution time
+        ACE_Time_Value exec_time_;
+
+        /// end time
+        ACE_Time_Value end_time_;
       };
     } // namespace area_coverage
   } // namespace algorithms

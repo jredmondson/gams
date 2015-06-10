@@ -75,11 +75,13 @@ namespace gams
          * @param  self         self-referencing variables
          **/
         Local_Pheremone_Area_Coverage (
-          const Madara::Knowledge_Record& search_id, 
+          const std::string& search_id, 
+          const ACE_Time_Value& e_time, 
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
           platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
-          variables::Self * self = 0);
+          variables::Self * self = 0,
+          variables::Devices * devices = 0);
   
         /**
          * Assignment operator
