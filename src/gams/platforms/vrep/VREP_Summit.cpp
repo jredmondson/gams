@@ -88,11 +88,30 @@ gams::platforms::VREP_Summit_Factory::create (
 
       knowledge_->attach_transport ("", settings);
       knowledge_->activate_transport ();
+
+      GAMS_DEBUG (gams::utility::LOG_DEBUG, (LM_DEBUG, 
+        DLINFO "gams::platforms::VREP_Summit_Factory::create:" \
+        " no transports found, attaching multicast\n"));
     }
 
-    cerr << "Creating VREP_Summit object" << endl;
+    GAMS_DEBUG (gams::utility::LOG_DEBUG, (LM_DEBUG, 
+      DLINFO "gams::platforms::VREP_Summit_Factory::create:" \
+      " creating VREP_Summit object\n"));
 
     result = new VREP_Summit (knowledge, sensors, platforms, self);
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::platforms::VREP_Summit_Factory::create:" \
+      " invalid knowledge, sensors, platforms, or self\n"));
+  }
+
+  if (result == 0)
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::platforms::VREP_Summit_Factory::create:" \
+      " error creating VREP_Summit object\n"));
   }
 
   return result;
@@ -126,13 +145,17 @@ gams::platforms::VREP_Summit::add_model_to_environment ()
   if (simxLoadModel (client_id_, modelFile.c_str (), 0, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
-    cerr << "error loading VREP_Summit model in vrep" << endl;
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::platforms::VREP_Summit::add_model_to_environment:" \
+      " error loading model in vrep\n"));
     exit (-1);
   }
 
   if (node_id_ < 0)
   {
-    cerr << "invalid handle id for VREP_Summit base" << endl;
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::platforms::VREP_Summit::add_model_to_environment:" \
+      " invalid handle id\n"));
     exit (-1);
   }
 }
@@ -140,7 +163,7 @@ gams::platforms::VREP_Summit::add_model_to_environment ()
 std::string
 gams::platforms::VREP_Summit::get_id () const
 {
-  return "vrep_ant";
+  return "vrep_summit";
 }
 
 std::string
@@ -174,6 +197,13 @@ gams::platforms::VREP_Summit::get_target_handle ()
   node_target_ = -1;
   simxGetObjectChild (client_id_, nodeBase, 0, &node_target_,
     simx_opmode_oneshot_wait);
+
+  if (node_target_ < 0)
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::platforms::VREP_Summit::get_target_handle:" \
+      " invalid target handle id\n"));
+  }
 }
 
 void
