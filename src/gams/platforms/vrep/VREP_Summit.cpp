@@ -89,12 +89,12 @@ gams::platforms::VREP_Summit_Factory::create (
       knowledge_->attach_transport ("", settings);
       knowledge_->activate_transport ();
 
-      GAMS_DEBUG (gams::utility::LOG_DEBUG, (LM_DEBUG, 
+      GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG, 
         DLINFO "gams::platforms::VREP_Summit_Factory::create:" \
         " no transports found, attaching multicast\n"));
     }
 
-    GAMS_DEBUG (gams::utility::LOG_DEBUG, (LM_DEBUG, 
+    GAMS_DEBUG (gams::utility::LOG_EVENT_TRACE, (LM_DEBUG, 
       DLINFO "gams::platforms::VREP_Summit_Factory::create:" \
       " creating VREP_Summit object\n"));
 

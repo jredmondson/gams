@@ -127,7 +127,7 @@ namespace gams
     public:
 
       /**
-       * Creates a VREP ant platform.
+       * Creates a VREP Summit platform.
        * @param   args      no arguments are necessary for this platform
        * @param   knowledge the knowledge base. This will be set by the
        *                    controller in init_vars.

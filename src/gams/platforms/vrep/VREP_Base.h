@@ -61,6 +61,8 @@
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
+#include "gams/utility/Logging.h"
+
 extern "C" {
 #include "extApi.h"
 }
