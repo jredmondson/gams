@@ -77,13 +77,15 @@ namespace gams
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
+       * @param  devices      variables referencing devices
        **/
       Executive (
         const Madara::Knowledge_Vector & args,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
-        variables::Self * self = 0);
+        variables::Self * self = 0,
+        variables::Devices * devices = 0);
 
       /**
        * Destructor

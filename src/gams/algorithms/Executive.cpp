@@ -75,8 +75,25 @@ gams::algorithms::Executive_Factory::create (
 
   Base_Algorithm * result (0);
   
-  if (knowledge && sensors && platform && self && (args.size () % 2 == 0))
-    result = new Executive (args, knowledge, platform, sensors, self);
+  if (knowledge && sensors && platform && self && devices)
+  {
+    if (args.size () % 2 == 0)
+    {
+      result = new Executive (args, knowledge, platform, sensors, self, devices);
+    }
+    else
+    {
+      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+        DLINFO "gams::algorithms::Executive_Factory::create:" \
+        " invalid number of args, must be even"));
+    }
+  }
+  else
+  {
+    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
+      DLINFO "gams::algorithms::Executive_Factory::create:" \
+      " knowledge, sensors, platform, self, or devices are invalid"));
+  }
 
   return result;
 }
@@ -84,11 +101,11 @@ gams::algorithms::Executive_Factory::create (
 gams::algorithms::Executive::Executive (
   const Madara::Knowledge_Vector & args,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
-  variables::Sensors * sensors,
-  variables::Self * self) :
-  Base_Algorithm (knowledge, platform, sensors, self), algo_ (0), 
-  plan_index_ (-1), plan_ (), algo_factory_ (knowledge, sensors, platform, self)
+  platforms::Base_Platform * platform, variables::Sensors * sensors,
+  variables::Self * self, variables::Devices * devices) :
+  Base_Algorithm (knowledge, platform, sensors, self, devices), algo_ (0), 
+  plan_index_ (-1), plan_ (),
+  algo_factory_ (knowledge, sensors, platform, self, devices)
 {
   knowledge->print ();
   plan_.reserve (args.size () / 2);

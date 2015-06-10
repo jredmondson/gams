@@ -71,9 +71,9 @@ gams::algorithms::Move_Factory::create (
   {
     if (args.size () == 1)
     {
-      if (args[0].is_integer_type ())
+      if (args[0].is_integer_type () || args[1].is_double_type ())
       {
-        vector<Madara::Knowledge_Record::Integer> targ (args[0].to_integers ());
+        vector<double> targ (args[0].to_doubles ());
         cerr << "vector size: " << targ.size () << endl;
         utility::Position target;
         if (targ.size () > 0)
@@ -86,7 +86,7 @@ gams::algorithms::Move_Factory::create (
               target.z = targ[2];
           }
         }
-        result = new Move (target, knowledge, platform, sensors, self);
+        result = new Move (target, knowledge, platform, sensors, self, devices);
       }
       else
       {
@@ -103,8 +103,8 @@ gams::algorithms::Move_Factory::create (
 gams::algorithms::Move::Move (const utility::Position & target, 
   Madara::Knowledge_Engine::Knowledge_Base * knowledge, 
   platforms::Base_Platform * platform, variables::Sensors * sensors, 
-  variables::Self * self) :
-  Base_Algorithm (knowledge, platform, sensors, self), target_ (target), 
+  variables::Self * self, variables::Devices * devices) :
+  Base_Algorithm (knowledge, platform, sensors, self, devices), target_ (target), 
   mode_ (TARGET)
 {
   cerr << "MOVE TARGET: " << target_.to_string () << endl;
