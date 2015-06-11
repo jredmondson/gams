@@ -58,6 +58,7 @@
 #include "gams/platforms/vrep/VREP_UAV.h"
 #include "gams/platforms/vrep/VREP_Ant.h"
 #include "gams/platforms/vrep/VREP_Summit.h"
+#include "gams/platforms/vrep/VREP_Boat.h"
 #endif
 
 #ifdef _GAMS_ROS_
@@ -127,6 +128,13 @@ platforms::Controller_Platform_Factory::initialize_default_mappings (void)
   aliases[1] = "vrep_summit";
 
   add (aliases, new VREP_Summit_Factory ());
+  
+ // the VREP Boat platform
+  aliases.resize (2);
+  aliases[0] = "vrep-boat";
+  aliases[1] = "vrep_boat";
+
+  add (aliases, new VREP_Boat_Factory ());
 #endif
 
   // ROS Platforms

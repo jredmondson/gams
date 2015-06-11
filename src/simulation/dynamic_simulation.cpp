@@ -138,6 +138,9 @@ string madara_commands = "";
 // number of coverages
 unsigned int num_coverages = 1;
 
+// ground surface to use
+unsigned int surface = 0;
+
 /**
  * Print out program usage
  **/
@@ -163,7 +166,9 @@ void print_usage (string prog_name)
   cerr << "   [-p | --plants]" << endl;
   cerr << "       place plants as position markers" << endl;
   cerr << "   [--south-west <coords>]" << endl;
-  cerr << "       southeast corner coordinates, ex. \"40,-72\"" << endl;
+  cerr << "       southwest corner coordinates, ex. \"40,-72\"" << endl;
+  cerr << "   [-s | --surface <concrete, water> ] " << endl;
+  cerr << "       ground surface to be used" << endl;
   cerr << "   [-v | --vrep <ip_address> <port>]" << endl;
   cerr << "       vrep connection information" << endl;
 
@@ -248,6 +253,24 @@ void handle_arguments (int argc, char** argv)
       else
         print_usage (argv[0]);
       ++i;
+    }
+    else if (arg1 == "-s" || arg1 == "--surface")
+    {
+      if (i + 1 < argc)
+      {
+        std::string arg ( argv[i + 1] );
+	if (arg == "concrete")
+          surface = 0;
+        else if( arg == "water" )
+          surface = 1; 
+        else
+         print_usage (argv[0]);
+      }
+     else
+      print_usage (argv[0]);
+     ++i;
+
+
     }
     else if (arg1 == "-v" || arg1 == "--vrep")
     {
@@ -381,40 +404,105 @@ void create_environment (const int& client_id,
   // inform clients they can interact with scene now
   knowledge.set ("vrep_ready", Integer (1));
 
-  // find environment parameters
-  const int floor_size = 5;
-  double max_x, max_y;
-  get_dimensions (max_x, max_y, knowledge);
-  cout << "creating environment of size " << max_x << " x " << max_y << "...";
-  int num_x = max_x / floor_size + 2;
-  int num_y = max_y / floor_size + 2;
+ //Add concrete
+ if( surface == 0) 
+ {
+   // find environment parameters
+   const int floor_size = 5;	
+   double max_x, max_y;
+   get_dimensions (max_x, max_y, knowledge);
+   cout << "creating environment of size " << max_x << " x " << max_y << "...";
+   int num_x = max_x / floor_size + 2;
+   int num_y = max_y / floor_size + 2;
+  
+   // load floor models
+   string model_file (getenv ("VREP_ROOT"));
+   model_file += "/models/infrastructure/floors/5mX5m concrete floor.ttm";
+   for (int i = 0; i < (num_x * num_y); ++i)
+   {
+     // find where it should go
+     simxFloat pos[3];
+ 	pos[0] = (i / num_y) * floor_size;
+	pos[1] = (i % num_y) * floor_size;
+     pos[2] = 0;
 
-  // load floor models
-  string model_file (getenv ("VREP_ROOT"));
-  model_file += "/models/infrastructure/floors/5mX5m concrete floor.ttm";
-  for (int i = 0; i < (num_x * num_y); ++i)
+     // load object
+     int node_id;
+     if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
+       simx_opmode_oneshot_wait) != simx_error_noerror)
+     {
+       cerr << "failure loading floor model" << endl;
+       exit (0);
+     }
+
+     // move object
+     simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
+       simx_opmode_oneshot_wait);
+   }
+  }
+  //Add water
+  else
   {
+   
+    //Water tile size is 10x10 
+    const int water_size = 10;	
+    double max_x, max_y;
+    get_dimensions (max_x, max_y, knowledge);
+    cout << "creating environment of size " << max_x << " x " << max_y << "...";
+    int num_x = max_x / water_size + 2;
+    int num_y = max_y / water_size + 2;
+
+
+    string water_file (getenv ("GAMS_ROOT"));
+    water_file += "/resources/vrep/water_functional.ttm";
     // find where it should go
     simxFloat pos[3];
-	pos[0] = (i / num_y) * floor_size;
-	pos[1] = (i % num_y) * floor_size;
+	pos[0] = max_x/2;
+	pos[1] = max_y/2;
     pos[2] = 0;
 
     // load object
     int node_id;
-    if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
+    if (simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
       simx_opmode_oneshot_wait) != simx_error_noerror)
     {
       cerr << "failure loading floor model" << endl;
       exit (0);
     }
-
+    //Set functional element visibility off
+    simxSetModelProperty(client_id, node_id, sim_modelproperty_not_visible,
+      simx_opmode_oneshot_wait);
+     	
     // move object
     simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
       simx_opmode_oneshot_wait);
+    // load water scene objects
+    string model_file (getenv ("VREP_ROOT"));
+    model_file += "/models/nature/water surface.ttm";
+    for (int i = 0; i < (num_x * num_y); ++i)
+    {
+      // find where it should go
+      simxFloat pos[3];
+ 	pos[0] = (i / num_y) * water_size;
+ 	pos[1] = (i % num_y) * water_size;
+      pos[2] = 0;
+
+      // load object
+     int node_id;
+     if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
+       simx_opmode_oneshot_wait) != simx_error_noerror)
+     {
+       cerr << "failure loading water model" << endl;
+       exit (0);
+     }
+
+     // move object
+     simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
+       simx_opmode_oneshot_wait);
+   }
   }
   cout << "done" << endl;
-
+  
   // load plants as position markers
   if (plants)
   {
