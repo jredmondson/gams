@@ -2,8 +2,16 @@
 workspace {
   cmdline += -feature_file $GAMS_ROOT/default.features
 
-  specific(make,gnuace) {
+  specific(make) {
     cmdline += -value_template ccflags+=-std=c++11
+    cmdline += -value_template compile_flags+=-Wextra
+    cmdline += -value_template compile_flags+=-pedantic
+  }
+
+  specific(gnuace) {
+    cmdline += -value_template compile_flags+=-std=c++11
+    cmdline += -value_template compile_flags+=-Wextra
+    cmdline += -value_template compile_flags+=-pedantic
   }
 
   gams.mpc
