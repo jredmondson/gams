@@ -64,7 +64,7 @@ gams::algorithms::Message_Profiling_Factory::create (
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Devices * /*devices*/)
 {
   Base_Algorithm * result (0);
 
@@ -173,7 +173,7 @@ void
 gams::algorithms::Message_Profiling::Message_Filter::filter (
   Madara::Knowledge_Map& records, 
   const Madara::Transport::Transport_Context& transport_context, 
-  Madara::Knowledge_Engine::Variables& var)
+  Madara::Knowledge_Engine::Variables& /*var*/)
 {
   // get/construct data struct
   Message_Data& data = msg_map_[transport_context.get_originator ()];
@@ -189,7 +189,7 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
       stringstream (update.second.to_string ()) >> msg_num;
 
       // is this the first?
-      if (data.first == -1)
+      if (data.first == size_t (-1))
       {
         data.first = msg_num;
         data.last = msg_num;

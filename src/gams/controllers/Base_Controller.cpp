@@ -552,7 +552,7 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 void
 gams::controllers::Base_Controller::init_platform (
   const std::string & platform,
-  const Madara::Knowledge_Vector & args)
+  const Madara::Knowledge_Vector & /*args*/)
 {
   // initialize the platform
   

@@ -70,7 +70,7 @@ gams::algorithms::Follow_Factory::create (
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Devices * /*devices*/)
 {
   Base_Algorithm * result (0);
 

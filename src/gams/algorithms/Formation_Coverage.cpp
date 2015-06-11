@@ -74,7 +74,7 @@ gams::algorithms::Formation_Coverage_Factory::create (
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Devices * /*devices*/)
 {
   Base_Algorithm * result (0);
   
@@ -140,6 +140,14 @@ gams::algorithms::Formation_Coverage::~Formation_Coverage ()
 void
 gams::algorithms::Formation_Coverage::operator= (const Formation_Coverage & rhs)
 {
+  if (this != &rhs)
+  {
+    //area_coverage::Base_Area_Coverage* head_algo_;
+    //bool is_covering_;
+    //Formation_Flying* my_formation_;
+    //Madara::Knowledge_Engine::Containers::Native_Double_Array head_destination_;
+    this->Base_Algorithm::operator= (rhs);
+  }
 }
       
 int

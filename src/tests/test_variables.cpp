@@ -222,7 +222,7 @@ test_Sensor ()
 }
 
 int
-main (int argc, char ** argv)
+main (int /*argc*/, char ** /*argv*/)
 {
   test_accent ();
   test_Sensor ();

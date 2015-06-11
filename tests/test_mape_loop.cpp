@@ -65,7 +65,7 @@ typedef Record::Integer Integer;
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record monitor (engine::Function_Arguments & args, engine::Variables & vars)
+Record monitor (engine::Function_Arguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".monitor");
 
@@ -77,7 +77,7 @@ Record monitor (engine::Function_Arguments & args, engine::Variables & vars)
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record analyze (engine::Function_Arguments & args, engine::Variables & vars)
+Record analyze (engine::Function_Arguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".analyze");
 
@@ -89,7 +89,7 @@ Record analyze (engine::Function_Arguments & args, engine::Variables & vars)
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record plan (engine::Function_Arguments & args, engine::Variables & vars)
+Record plan (engine::Function_Arguments & /*args*/, engine::Variables & vars)
 {
   Record value = vars.inc (".plan");
 
@@ -101,7 +101,7 @@ Record plan (engine::Function_Arguments & args, engine::Variables & vars)
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record execute (engine::Function_Arguments & args, engine::Variables & vars)
+Record execute (engine::Function_Arguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".execute");
 
@@ -109,7 +109,7 @@ Record execute (engine::Function_Arguments & args, engine::Variables & vars)
 }
 
 // perform main logic of program
-int main (int argc, char ** argv)
+int main (int /*argc*/, char ** /*argv*/)
 {
   // create knowledge base and a control loop
   engine::Knowledge_Base knowledge;

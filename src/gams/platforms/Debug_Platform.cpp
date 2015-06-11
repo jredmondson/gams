@@ -48,11 +48,11 @@
 
 gams::platforms::Base_Platform *
 gams::platforms::Debug_Platform_Factory::create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self)
+  const Madara::Knowledge_Vector & /*args*/,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  variables::Sensors * sensors,
+  variables::Platforms * platforms,
+  variables::Self * self)
 {
   Base_Platform * result (0);
   

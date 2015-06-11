@@ -89,7 +89,7 @@ std::map <double, Integer> normal_loops;
 std::map <double, std::string> normal_status;
 
 Record
-to_legible_hertz (engine::Function_Arguments & args, engine::Variables & vars)
+to_legible_hertz (engine::Function_Arguments & args, engine::Variables & /*vars*/)
 {
   Record result;
 
@@ -184,7 +184,7 @@ test_hz (engine::Knowledge_Base & knowledge,
 }
 
 // perform main logic of program
-int main (int argc, char ** argv)
+int main (int /*argc*/, char ** /*argv*/)
 {
   // create knowledge base and a control loop
   engine::Knowledge_Base knowledge;

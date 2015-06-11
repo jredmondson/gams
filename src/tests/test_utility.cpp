@@ -305,7 +305,7 @@ test_Search_Area ()
 }
 
 int
-main (int argc, char ** argv)
+main (int /*argc*/, char ** /*argv*/)
 {
   test_Position ();
   test_GPS_Position ();

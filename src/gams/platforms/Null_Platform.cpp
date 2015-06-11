@@ -48,11 +48,11 @@
 
 gams::platforms::Base_Platform *
 gams::platforms::Null_Platform_Factory::create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self)
+  const Madara::Knowledge_Vector & /*args*/,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  variables::Sensors * sensors,
+  variables::Platforms * platforms,
+  variables::Self * self)
 {
   Base_Platform * result (0);
   
@@ -138,7 +138,7 @@ gams::platforms::Null_Platform::land (void)
 }
 
 int
-gams::platforms::Null_Platform::move (const utility::Position & position,
+gams::platforms::Null_Platform::move (const utility::Position & /*position*/,
   const double & /*epsilon*/)
 {
   return 0;
