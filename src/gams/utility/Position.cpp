@@ -228,19 +228,19 @@ gams::utility::Position::is_between_2d (const Position & end,
   if (this->slope_2d(end, slope_1)) // if not vertical line
   {
     // if vertical line or slopes are different
-    if (!this->slope_2d(check, slope_2) || (abs(slope_1 - slope_2) > 0.0001))
+    if (!this->slope_2d (check, slope_2) || (std::abs (slope_1 - slope_2) > 0.0001))
       return false;
     if (slope_1 == 0 || slope_2 == 0) // ensure y are the same
     {
-      if (abs(check.y - end.y) > 0.0001)
+      if (std::abs (check.y - end.y) > 0.0001)
         return false;
-      return abs(check.x - end.x) < 0.0001;
+      return std::abs (check.x - end.x) < 0.0001;
     }
   }
   else // vertical line
   {
     // if not vertical line or x are not the same
-    if (this->slope_2d(check, slope_2) || (abs (check.x - this->x) > 0.0001))
+    if (this->slope_2d (check, slope_2) || (std::abs (check.x - this->x) > 0.0001))
       return false;
   }
 
