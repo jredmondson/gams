@@ -57,11 +57,27 @@
 #include "gams/GAMS_Export.h"
 #include <iostream>
 #include <vector>
-#include <typeinfo>
+#include <string>
 #include <stdexcept>
 #include <cmath>
 #include <cfloat>
 #include <climits>
+#include <gams/utility/Coordinates.h>
+
+/**
+ * Following statement or block is executed only if the frame `coord` belongs
+ * to is of type `type` (i.e., can be dynamic_cast to it). The casted frame
+ * is provided as a const reference in `frame_ref`, in scope only within the
+ * following statement/block.
+ *
+ * Warning: this uses a for loop as implementation, so using break or continue
+ * inside will produce unexpected results.
+ **/
+#define GAMS_WITH_FRAME_TYPE(coord, type, frame_ref) \
+  for(const type *__with_frame_type_temp_ptr__ = \
+            dynamic_cast<const type *>(&coord.get_frame()), \
+        &frame_ref = *__with_frame_type_temp_ptr__; \
+        __with_frame_type_temp_ptr__; __with_frame_type_temp_ptr__ = NULL)
 
 #define INVAL_COORD DBL_MAX
 
@@ -69,204 +85,75 @@ namespace gams
 {
   namespace utility
   {
-    class Base_Frame;
-
+    /**
+     * Thrown when a reference frame function is called with a coordinate
+     * type (e.g., Location, Rotation) that frame does not support.
+     **/
     template<typename CoordType>
-    class GAMS_Export Frame_Bound
+    class bad_coord_type : public std::runtime_error
     {
     public:
-      static Base_Frame *default_frame;
+      bad_coord_type(const Base_Frame &frame, const std::string &fn_name);
+      ~bad_coord_type() throw() {}
 
-      Frame_Bound() : frame(default_frame) {}
+      std::string coord_type_name;
+      std::string fn_name;
+      const Base_Frame &frame;
 
-      Frame_Bound(const Base_Frame &frame) : frame(&frame) {}
-
-      Frame_Bound(const Base_Frame *frame) : frame(frame) {}
-
-      Frame_Bound(const Frame_Bound &orig) : frame(orig.frame) {}
-
-    protected:
-      const Base_Frame *frame;
-
-    public:
-      const Base_Frame &get_frame() const { return *frame; }
-      CoordType transform_to(const Base_Frame &new_frame) const;
-      double distance_to(const Frame_Bound<CoordType> &target) const;
-
-      friend class Base_Frame;
+      typedef CoordType Coord_Type;
     };
 
-    class GAMS_Export Location_Base
+    /**
+     * Thrown when an an attempt is made to transform between frames
+     * that do not belong to the same frame tree.
+     **/
+    class unrelated_frames : public std::runtime_error
     {
     public:
-      Location_Base(double x, double y, double z = 0.0)
-        : x(x), y(y), z(z) {}
+      unrelated_frames(const Base_Frame &from_frame,
+        const Base_Frame &to_frame) :
+        std::runtime_error("No transform path found between frames."),
+        from_frame(from_frame), to_frame(to_frame) {}
+      ~unrelated_frames() throw() {}
 
-      Location_Base()
-        : x(INVAL_COORD), y(INVAL_COORD), z(INVAL_COORD) {}
-
-      Location_Base(const Location_Base &orig)
-        : x(orig.x), y(orig.y), z(orig.z) {}
-
-      bool isInvalid() {
-        return x == INVAL_COORD || y == INVAL_COORD || z == INVAL_COORD;
-      }
-
-      double x, y, z;
+      const Base_Frame &from_frame;
+      const Base_Frame &to_frame;
     };
 
-    class GAMS_Export Location : public Location_Base, public Frame_Bound<Location>
+    /**
+     * Thrown when an attempt is made to transform between two frame types,
+     * and there's not transform defined.
+     *
+     * Note that between two frame types A and B, there are four different
+     * kinds of transforms, which must be defined individually:
+     *    1) From A as parent to B as its child
+     *    2) From A as child to B as its parent
+     *    3) From B as parent to A as its child
+     *    4) From B as child to A as its parent
+     **/
+    class undefined_transform : public std::runtime_error
     {
     public:
-      Location(double x, double y, double z = 0.0)
-        : Location_Base(x, y, z), Frame_Bound() {}
+      undefined_transform(const Base_Frame &parent_frame,
+        const Base_Frame &child_frame, bool is_child_to_parent);
+      ~undefined_transform() throw() {}
 
-      Location(const Base_Frame &frame, double x, double y, double z = 0.0)
-        : Location_Base(x, y, z), Frame_Bound(frame) {}
-
-      Location() : Location_Base(), Frame_Bound() {}
-
-      Location(const Location &orig)
-        : Location_Base(orig), Frame_Bound(orig) {}
-
-      typedef Location_Base Base_Type;
+      const Base_Frame &parent_frame;
+      const Base_Frame &child_frame;
+      bool is_child_to_parent;
     };
 
-    class GAMS_Export Rotation_Base
-    {
-    public:
-      Rotation_Base(double alpha, double beta, double gamma)
-        : alpha(alpha), beta(beta), gamma(gamma) {}
-
-      Rotation_Base()
-        : alpha(INVAL_COORD), beta(INVAL_COORD), gamma(INVAL_COORD) {}
-
-      Rotation_Base(const Rotation_Base &orig)
-        : alpha(orig.alpha), beta(orig.beta), gamma(orig.gamma) {}
-
-      bool isInvalid() {
-        return alpha == INVAL_COORD || beta == INVAL_COORD || gamma == INVAL_COORD;
-      }
-
-      double alpha, beta, gamma;
-    };
-
-    class GAMS_Export Rotation : public Rotation_Base, public Frame_Bound<Rotation>
-    {
-    public:
-      Rotation(double alpha, double beta, double gamma)
-        : Rotation_Base(alpha, beta, gamma), Frame_Bound() {}
-
-      Rotation(const Base_Frame &frame, double alpha, double beta, double gamma)
-        : Rotation_Base(alpha, beta, gamma), Frame_Bound(frame) {}
-
-      Rotation() : Rotation_Base(), Frame_Bound() {}
-
-      Rotation(const Rotation & orig)
-        : Rotation_Base(orig), Frame_Bound(orig) {}
-
-      typedef Rotation_Base Base_Type;
-    };
-
-    class GAMS_Export Pose_Base : public Location_Base, public Rotation_Base
-    {
-    public:
-      Pose_Base(double x, double y, double z, double alpha, double beta, double gamma)
-        : Location_Base(x, y, z), Rotation_Base(alpha, beta, gamma) {}
-
-      Pose_Base(const Location_Base &loc)
-        : Location_Base(loc), Rotation_Base(0, 0, 0) {}
-
-      Pose_Base(const Location_Base &loc, const Rotation_Base &rot)
-        : Location_Base(loc), Rotation_Base(rot) {}
-
-      Pose_Base() : Location_Base(), Rotation_Base() {}
-
-      bool isInvalid() {
-        return Location_Base::isInvalid() || Rotation_Base::isInvalid();
-      }
-    };
-
-    class GAMS_Export Pose : public Pose_Base, public Frame_Bound<Pose>
-    {
-    public:
-      Pose(double x, double y, double z, double alpha, double beta, double gamma)
-        : Pose_Base(x, y, z, alpha, beta, gamma), Frame_Bound() {}
-
-      Pose(double x, double y, double z = 0.0)
-        : Pose_Base(x, y, z, 0, 0, 0), Frame_Bound() {}
-
-      Pose(const Base_Frame &frame, double x, double y, double z, double alpha, double beta, double gamma)
-        : Pose_Base(x, y, z, alpha, beta, gamma), Frame_Bound(frame) {}
-
-      Pose(const Base_Frame &frame, double x, double y, double z = 0.0)
-        : Pose_Base(x, y, z, 0, 0, 0), Frame_Bound(frame) {}
-
-      Pose() : Pose_Base(), Frame_Bound() {}
-
-      Pose(const Location &loc)
-        : Pose_Base(loc), Frame_Bound(loc.get_frame()) {}
-
-      Pose(const Base_Frame &frame, const Location_Base &loc, const Rotation_Base &rot)
-        : Pose_Base(loc, rot), Frame_Bound(frame) {}
-
-      /// Precondition: loc.frame == rot.frame
-      Pose(const Location &loc, const Rotation &rot)
-        : Pose_Base(loc, rot), Frame_Bound(loc.get_frame()) {}
-
-      operator Location() const
-      {
-        return Location(*frame, x, y, z);
-      }
-
-      operator Rotation() const
-      {
-        return Rotation(*frame, alpha, beta, gamma);
-      }
-
-      bool isInvalid() {
-        return Location_Base::isInvalid() || Rotation_Base::isInvalid();
-      }
-
-      typedef Pose_Base Base_Type;
-    };
-
-    template <typename CoordType>
-    class GAMS_Export Frame_Ops
-    {
-    protected:
-      virtual CoordType transform_to_origin(const typename CoordType::Base_Type &in) const
-      {
-        throw std::runtime_error("Unsupported coordinate type for transform_to_origin");
-      }
-
-      virtual CoordType transform_from_origin(const typename CoordType::Base_Type &in) const
-      {
-        throw std::runtime_error("Unsupported coordinate type for transform_from_origin");
-      }
-
-      virtual double calc_distance(const typename CoordType::Base_Type &loc1, const typename CoordType::Base_Type &loc2) const
-      {
-        throw std::runtime_error("Unsupported coordinate type for calc_distance");
-      }
-    };
-
+    /**
+     * Base class for Reference Frames.
+     * Inherit from this class if implementing a new reference frame.
+     * Otherwise, do not use directly.
+     **/
     class GAMS_Export Base_Frame
-      : public Frame_Ops<Location>,
-        public Frame_Ops<Rotation>
     {
-    protected:
-      using Frame_Ops<Location>::transform_to_origin;
-      using Frame_Ops<Location>::transform_from_origin;
-      using Frame_Ops<Location>::calc_distance;
-
-      using Frame_Ops<Rotation>::transform_to_origin;
-      using Frame_Ops<Rotation>::transform_from_origin;
-      using Frame_Ops<Rotation>::calc_distance;
-
     public:
       Base_Frame() : origin(Pose(*this, 0, 0, 0, 0, 0, 0)) {}
       Base_Frame(const Pose &origin) : origin(origin) {}
+      virtual ~Base_Frame() {}
 
       Pose origin;
 
@@ -275,104 +162,130 @@ namespace gams
         return this == &other;
       }
 
-    private:
-      // TODO implement O(height) algo instead of O(height ^ 2)
-      static const Base_Frame *find_common_frame(const Base_Frame *from,
-        const Base_Frame *to, std::vector<const Base_Frame *> *to_stack)
-      {
-        const Base_Frame *cur_to = to;
-        for(;;)
-        {
-          const Base_Frame *cur_from = from;
-          for(;;)
-          {
-            if(cur_to == cur_from)
-            {
-              return cur_to;
-            }
-            const Base_Frame *next_cur_from = cur_from->origin.frame;
-            if(cur_from == next_cur_from)
-              break;
-            cur_from = next_cur_from;
-          }
-          if(to_stack)
-            to_stack->push_back(cur_to);
-          const Base_Frame *next_cur_to = cur_to->origin.frame;
-          if(cur_to == next_cur_to)
-            break;
-          cur_to = next_cur_to;
-        }
-        return NULL;
-      }
-
-    public:
+      /**
+       * Transform coordinate `in` from its current from, to the specified frame
+       **/
       template<typename CoordType>
-      static CoordType transform(const CoordType &in, const Base_Frame &to_frame)
+      static void transform(CoordType &in, const Base_Frame &to_frame)
       {
         if (to_frame == *in.frame)
-          return in;
+          return;
         else if (to_frame == *in.frame->origin.frame)
-          return in.frame->transform_to_origin(in);
-        else if (*to_frame.origin.frame == *in.frame)
-          return to_frame.transform_from_origin(in);
-        else
         {
-          std::vector<const Base_Frame *> to_stack;
-          const Base_Frame *transform_via = find_common_frame(in.frame, &to_frame, &to_stack);
-          if(transform_via == NULL)
-            throw std::runtime_error("No transform path found");
-          else
-          {
-            CoordType ret = in;
-            const Base_Frame *cur_frame = in.frame;
-            while(cur_frame != transform_via)
-            {
-              ret = cur_frame->transform_to_origin(ret);
-              cur_frame = ret.frame;
-            }
-            while(cur_frame != &to_frame && !to_stack.empty())
-            {
-              ret = to_stack.back()->transform_from_origin(ret);
-              to_stack.pop_back();
-              cur_frame = ret.frame;
-            }
-            return ret;
-          }
+          in.frame->transform_to_origin(in);
+          in.set_frame(in.frame->origin.get_frame());
         }
+        else if (*to_frame.origin.frame == *in.frame)
+        {
+          to_frame.transform_from_origin(in);
+          in.set_frame(to_frame);
+        }
+        else
+          transform_other(in, to_frame);
       }
 
+      /**
+       * Calculate distances between coordinates. If they have different
+       * frames, transform coord2 to coord1's frame first.
+       **/
       template<typename CoordType>
       static double distance(const CoordType &coord1, const CoordType &coord2)
       {
-        if (&coord1.frame == &coord2.frame)
+        if (coord1.get_frame() == coord2.get_frame())
         {
-          return calc_distance_within_frame(coord1, coord2, *coord1.frame);
+          return calc_distance_within_frame(coord1, coord2, coord1.get_frame());
         }
         else
         {
-          CoordType coord2_conv = transform(coord2, *coord1.frame);
-          return calc_distance_within_frame(coord1, coord2_conv, *coord1.frame);
+          CoordType coord2_conv(coord2);
+          transform(coord2_conv, *coord1.frame);
+          return calc_distance_within_frame(coord1, coord2_conv, coord1.get_frame());
         }
       }
-    protected:
+
+      /**
+       * Normalizes any angular values in coord according to the conventions
+       * of the frame it belongs to. This is called automatically by any methods
+       * that require normalized angles.
+       *
+       * If adding a new composite coordinate type, specialize this template
+       * function accordingly.
+       **/
       template<typename CoordType>
-      static double calc_distance_within_frame(const CoordType &coord1,
-                        const CoordType &coord2, const Base_Frame &frame)
+      void normalize(CoordType &coord) const
+      {
+        do_normalize(static_cast<typename CoordType::Base_Type &>(coord));
+      }
+
+      virtual std::string get_name() const = 0;
+
+    private:
+      /**
+       * For coordinate types which can be expressed in terms of existing
+       * coordinate types, specialize this function to express this fact
+       **/
+      template<typename CoordType>
+      static double calc_distance_within_frame( const CoordType &coord1,
+          const CoordType &coord2, const Base_Frame &frame)
       {
         return frame.calc_distance(coord1, coord2);
       }
 
-      virtual Pose transform_to_origin(const Pose_Base &in) const
+      virtual void transform_to_origin(Location_Base &in) const
       {
-        return Pose(transform_to_origin(static_cast<const Location_Base &>(in)),
-                    transform_to_origin(static_cast<const Rotation_Base &>(in)));
+        throw bad_coord_type<Location>(*this, "transform_to_origin");
       }
 
-      virtual Pose transform_from_origin(const Pose_Base &in) const
+      virtual void transform_from_origin(Location_Base &in) const
       {
-        return Pose(transform_from_origin(static_cast<const Location_Base &>(in)),
-                    transform_from_origin(static_cast<const Rotation_Base &>(in)));
+        throw bad_coord_type<Location>(*this, "transform_from_origin");
       }
+
+      virtual void do_normalize(Location_Base &in) const
+      {
+      }
+
+      virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const
+      {
+        throw bad_coord_type<Location>(*this, "calc_distance");
+      }
+
+      virtual void transform_to_origin(Rotation_Base &in) const
+      {
+        throw bad_coord_type<Rotation>(*this, "transform_to_origin");
+      }
+
+      virtual void transform_from_origin(Rotation_Base &in) const
+      {
+        throw bad_coord_type<Rotation>(*this, "transform_from_origin");
+      }
+
+      virtual double calc_distance(const Rotation_Base &rot1, const Rotation_Base &rot2) const
+      {
+        throw bad_coord_type<Rotation>(*this, "calc_distance");
+      }
+
+      virtual void do_normalize(Rotation_Base &in) const
+      {
+      }
+
+      virtual void transform_to_origin(Pose_Base &in) const
+      {
+        transform_to_origin(static_cast<Location_Base &>(in));
+        transform_to_origin(static_cast<Rotation_Base &>(in));
+      }
+
+      virtual void transform_from_origin(Pose_Base &in) const
+      {
+        transform_from_origin(static_cast<Location_Base &>(in));
+        transform_from_origin(static_cast<Rotation_Base &>(in));
+      }
+
+      static const Base_Frame *find_common_frame(const Base_Frame *from,
+        const Base_Frame *to, std::vector<const Base_Frame *> *to_stack);
+
+      template<typename CoordType>
+      inline static void transform_other(CoordType &in, const Base_Frame &to_frame);
     };
 
     template<>
@@ -383,10 +296,25 @@ namespace gams
                                  static_cast<const Location_Base&>(pose2));
     }
 
+    template<>
+    inline void Base_Frame::normalize<>(Pose &pose) const
+    {
+      pose.frame->do_normalize(static_cast<Location_Base&>(pose));
+      pose.frame->do_normalize(static_cast<Rotation_Base&>(pose));
+    }
+
     template<typename CoordType>
     inline CoordType Frame_Bound<CoordType>::transform_to(const Base_Frame &new_frame) const
     {
-      return Base_Frame::transform(static_cast<const CoordType &>(*this), new_frame);
+      CoordType ret(static_cast<const CoordType &>(*this));
+      Base_Frame::transform(ret, new_frame);
+      return ret;
+    }
+
+    template<typename CoordType>
+    inline void Frame_Bound<CoordType>::transform_this_to(const Base_Frame &new_frame)
+    {
+      Base_Frame::transform(static_cast<CoordType &>(*this), new_frame);
     }
 
     template<typename CoordType>
@@ -396,89 +324,69 @@ namespace gams
                                   static_cast<const CoordType &>(target));
     }
 
-    /**
-     * Locations represented as meters distance, in x, y, and z, from an origin point
-     * Rotations represented as Euler angles, in the origin frame, applied in this order:
-     *    alpha degrees around X-axis
-     *    beta  degrees around Y-axis
-     *    gamma degrees around Z-axis
-     **/
-    class GAMS_Export Cartesian_Frame : public Base_Frame
+    template<typename CoordType>
+    inline void Frame_Bound<CoordType>::normalize()
     {
-    public:
-      Cartesian_Frame() : Base_Frame() {}
-      Cartesian_Frame(const Pose &origin) : Base_Frame(origin) {}
+      this->frame->normalize(static_cast<CoordType &>(*this));
+    }
 
-    protected:
-      virtual Location transform_to_origin(const Location_Base &in) const
-      {
-        const std::type_info &origin_type(typeid(origin.get_frame()));
-        if(origin_type == typeid(Cartesian_Frame))
-        {
-          std::cerr << "Conversion to origin: " << in.x << " to " << in.x + origin.x << std::endl;
-          return Location(origin.get_frame(), in.x + origin.x, in.y + origin.y, in.z + origin.z);
-        }
-        else
-        {
-          throw std::runtime_error("Unsupported conversion to origin");
-        }
-      }
-
-      virtual Location transform_from_origin(const Location_Base &in) const
-      {
-        const std::type_info &origin_type(typeid(origin.get_frame()));
-        if(origin_type == typeid(Cartesian_Frame))
-        {
-          std::cerr << "Conversion from origin: " << in.x << " to " << in.x - origin.x << std::endl;
-          return Location(*this, in.x - origin.x, in.y - origin.y, in.z - origin.z);
-        }
-        else
-        {
-          throw std::runtime_error("Unsupported conversion from origin");
-        }
-      }
-
-      virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const
-      {
-        double x_dist = loc2.x - loc1.x;
-        double y_dist = loc2.y - loc1.y;
-        double z_dist = loc2.z - loc1.z;
-
-        return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
-      }
-
-      virtual Rotation transform_to_origin(const Rotation_Base &in) const
-      {
-        return Rotation(origin.get_frame(), in.alpha, in.beta, in.gamma);
-      }
-
-      virtual Rotation transform_from_origin(const Rotation_Base &in) const
-      {
-        return Rotation(*this, in.alpha, in.beta, in.gamma);
-      }
-
-      virtual double calc_distance(const Rotation_Base &loc1, const Rotation_Base &loc2) const
-      {
-        return 0;
-      }
-    };
-
-    /**
-     * Locations represented as GPS coordinates, and an altitude,
-     * assuming a spherical Earth:
-     *    x is Latitude
-     *    y is Longitude
-     *    z is Altitude
-     * Rotations represented as Euler angles, applied in this order:
-     *    alpha degrees around axis pointing towards north pole at current location
-     *    beta degrees around axis pointing west at current location
-     *    gamma degrees around axis pointing upwards (i.e, normal vector) at current location
-     *
-     *    Note that rotations other than gamma are undefined at north and south poles.
-     **/
-    class GAMS_Export GPS_Frame : public Base_Frame
+    template<typename CoordType>
+    inline void Base_Frame::transform_other(CoordType &in, const Base_Frame &to_frame)
     {
-    };
+      std::vector<const Base_Frame *> to_stack;
+      const Base_Frame *transform_via = find_common_frame(in.frame, &to_frame, &to_stack);
+      if(transform_via == NULL)
+        throw unrelated_frames(in.get_frame(), to_frame);
+      else
+      {
+        const Base_Frame *cur_frame = in.frame;
+        while(cur_frame != transform_via)
+        {
+          cur_frame->transform_to_origin(in);
+          in.set_frame(cur_frame->origin.get_frame());
+          cur_frame = in.frame;
+        }
+        while(cur_frame != &to_frame && !to_stack.empty())
+        {
+          to_stack.back()->transform_from_origin(in);
+          in.set_frame(*to_stack.back());
+          to_stack.pop_back();
+          cur_frame = in.frame;
+        }
+      }
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, const Location &loc)
+    {
+      o << loc.get_frame().get_name() << "(" << loc.x << "," << loc.y << "," << loc.z << ")";
+      return o;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, const Rotation &rot)
+    {
+      o << rot.get_frame().get_name() << "Rotation(" << rot.rx << "," << rot.ry << "," << rot.rz << ")";
+      return o;
+    }
+
+    template<typename CoordType>
+    inline bad_coord_type<CoordType>
+          ::bad_coord_type(const Base_Frame &frame, const std::string &fn_name)
+      : std::runtime_error("Coordinate type " + CoordType::get_name() +
+            " not supported by frame type " + frame.get_name() +
+            " for operation " + fn_name + "."),
+        coord_type_name(CoordType::get_name()),
+        fn_name(fn_name), frame(frame) {}
+
+    inline undefined_transform::undefined_transform(
+            const Base_Frame &parent_frame, const Base_Frame &child_frame,
+            bool is_child_to_parent)
+      : std::runtime_error(is_child_to_parent ?
+            ("No defined transform from embedded " + child_frame.get_name() +
+              " frame to parent " + parent_frame.get_name() + " frame.")
+          : ("No defined transform from parent " + parent_frame.get_name() +
+              " frame to embedded " + child_frame.get_name() + " frame.")),
+        parent_frame(parent_frame), child_frame(child_frame),
+          is_child_to_parent(is_child_to_parent) {}
   }
 }
 
