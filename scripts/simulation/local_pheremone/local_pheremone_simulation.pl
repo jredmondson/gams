@@ -10,6 +10,6 @@ $period = 1;
 $num = 10;
 $sim = "local_pheremone";
 $area = "small";
-$plants = "search_area.1";
+$border = "search_area.1";
 
-simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants);
+simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border);

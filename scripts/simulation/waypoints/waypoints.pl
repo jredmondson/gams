@@ -10,6 +10,5 @@ $period = 0.5;
 $num = 1;
 $sim = "waypoints";
 $area = "small";
-$plants = "region.0";
 
-simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants);
+simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug);

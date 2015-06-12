@@ -10,7 +10,7 @@ $period = 1;
 $num = 6;
 $sim = "min_time";
 $area = "small";
-$plants = "search_area.1";
+$border = "search_area.1";
 $num_coverages = 10;
 
-simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants, $num_coverages);
+simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border, $num_coverages);
