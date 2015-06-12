@@ -33,7 +33,11 @@ sub run {
   print("$gams_root\n");
   for (my $i=0; $i < $num; $i++)
   {
-    my $cmd = "\"$gams_root/gams_controller -i $i -n $num --loop-time $time --period $period --madara-file $gams_root/scripts/simulation/$sim/madara_init_$i.mf $gams_root/scripts/simulation/areas/$area.mf $gams_root/scripts/simulation/madara_init_common.mf --madara-level $madara_debug --gams-level $gams_debug\"";
+    my $cmd = "\"$gams_root/gams_controller -i $i -n $num --loop-time $time --period $period";
+    $cmd = "$cmd --madara-file $gams_root/scripts/simulation/madara_init_common.mf";
+    $cmd = "$cmd $gams_root/scripts/simulation/areas/$area.mf";
+    $cmd = "$cmd $gams_root/scripts/simulation/$sim/madara_init_$i.mf";
+    $cmd = "$cmd --madara-level $madara_debug --gams-level $gams_debug\"";
     if ($term_prefix)
     {
       system("$term_prefix $cmd $term_suffix");
@@ -60,8 +64,7 @@ sub run {
   }
  
   # launch simulation controller
-  #my $cmd = "$gams_root/bin/dynamic_simulation -n $num -s water --madara-file $gams_root/scripts/simulation/areas/$area.mf";
-  my $cmd = "$gams_root/bin/dynamic_simulation -n $num --madara-file $gams_root/scripts/simulation/areas/$area.mf";
+  my $cmd = "$gams_root/bin/dynamic_simulation -n $num -s $surface --madara-file $gams_root/scripts/simulation/areas/$area.mf";
   if ($border)
   {
     $cmd = "$cmd -b $border";
