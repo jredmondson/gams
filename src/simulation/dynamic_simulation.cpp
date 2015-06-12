@@ -125,8 +125,8 @@ string search_area_id = "search_area.1";
 // Agent information
 unsigned int num_agents = 0;
 
-// place plants or not
-bool plants = false;
+// place border or not
+bool border = false;
 vector<string> regions;
 
 // use gps coords
@@ -163,8 +163,8 @@ void print_usage (string prog_name)
   cerr << "       number of agents that will be launched" << endl;
   cerr << "   [--north-east <coords>]" << endl;
   cerr << "       northeast corner coordinates, ex. \"40,-72\"" << endl;
-  cerr << "   [-p | --plants]" << endl;
-  cerr << "       place plants as position markers" << endl;
+  cerr << "   [-b | --border]" << endl;
+  cerr << "       place border model as region outline markers" << endl;
   cerr << "   [--south-west <coords>]" << endl;
   cerr << "       southwest corner coordinates, ex. \"40,-72\"" << endl;
   cerr << "   [-s | --surface <concrete, water> ] " << endl;
@@ -232,11 +232,11 @@ void handle_arguments (int argc, char** argv)
         print_usage (argv[0]);
       ++i;
     }
-    else if (arg1 == "-p" || arg1 == "--plants")
+    else if (arg1 == "-b" || arg1 == "--border")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        plants = true;
+        border = true;
         char temp[50];
         char arg[500];
         strcpy (arg, argv[i + 1]);
@@ -324,14 +324,14 @@ void get_dimensions (double &max_x, double &max_y,
 }
 
 /**
- * Put plants around a region
- * @param region region object to put plants around
+ * Put border around a region
+ * @param region region object to put border around
  */
-void put_plants (Madara::Knowledge_Engine::Knowledge_Base& knowledge, 
+void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge, 
    const Region& reg, const int& client_id)
 {
-  string model_file = getenv ("VREP_ROOT");
-  model_file += "/models/furniture/plants/indoorPlant.ttm";
+  string model_file = getenv ("GAMS_ROOT");
+  model_file += "/resources/vrep/border.ttm";
 
   for (size_t j = 0; j < reg.vertices.size (); ++j)
   {
@@ -369,7 +369,7 @@ void put_plants (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
       simxFloat pos[3];
       pos[0] = plant_y;
       pos[1] = plant_x;
-      pos[2] = 0.4;
+      pos[2] = 0.0;
   
       // load object
       int node_id;
@@ -389,7 +389,7 @@ void put_plants (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
 
 /**
  * Create environment in vrep
- * Add floors and plants as visible markers
+ * Add floors and border as visible markers
  * @param client_id id for vrep connection
  */
 void create_environment (const int& client_id,
@@ -502,11 +502,11 @@ void create_environment (const int& client_id,
    }
   }
   cout << "done" << endl;
-  
-  // load plants as position markers
-  if (plants)
+
+  // load border as position markers
+  if (border)
   {
-    cout << "placing plants as markers...";
+    cout << "placing border models as markers...";
 
     // paint each vertex
     for (size_t i = 0; i < regions.size (); ++i)
@@ -515,7 +515,7 @@ void create_environment (const int& client_id,
       {
         gams::utility::Region reg =
           gams::utility::parse_region (knowledge, regions[i]);
-        put_plants (knowledge, reg, client_id);
+        put_border (knowledge, reg, client_id);
       }
       else // search_area
       {
@@ -523,7 +523,7 @@ void create_environment (const int& client_id,
           gams::utility::parse_search_area (knowledge, regions[i]);
         vector<Prioritized_Region> search_regions = search.get_regions ();
         for (size_t j = 0; j < search_regions.size (); ++j)
-          put_plants (knowledge, search_regions[j], client_id);
+          put_border (knowledge, search_regions[j], client_id);
       }
     }
 

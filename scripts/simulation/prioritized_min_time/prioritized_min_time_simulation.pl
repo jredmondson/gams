@@ -10,6 +10,6 @@ $period = 1;
 $num = 10;
 $sim = "prioritized_min_time";
 $area = "small";
-$plants = "search_area.2";
+$border = "search_area.2";
 
-simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants);
+simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border);

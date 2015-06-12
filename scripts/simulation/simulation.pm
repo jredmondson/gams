@@ -7,7 +7,7 @@ my $term_suffix = "";
 
 sub run {
   # get arguments
-  my ($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $plants, $num_coverages) = @_;
+  my ($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border, $num_coverages) = @_;
   my $osname = $^O;
   my $vreproot = $ENV{"VREP_ROOT"};
 
@@ -61,9 +61,9 @@ sub run {
  
   # launch simulation controller
   my $cmd = "$gams_root/bin/dynamic_simulation -n $num -s water --madara-file $gams_root/scripts/simulation/areas/$area.mf";
-  if ($plants)
+  if ($border)
   {
-    $cmd = "$cmd -p $plants";
+    $cmd = "$cmd -b $border";
   }
   if ($num_coverages)
   {
