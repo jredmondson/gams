@@ -1,3 +1,5 @@
 .vrep_host="127.0.0.1";
 
 .vrep_uav_move_speed=0.7;
+
+.platform="vrep-uav";

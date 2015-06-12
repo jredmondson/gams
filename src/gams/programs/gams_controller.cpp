@@ -71,6 +71,8 @@ namespace controllers = gams::controllers;
 typedef Madara::Knowledge_Record   Record;
 typedef Record::Integer Integer;
 
+const std::string KNOWLEDGE_BASE_PLATFORM_KEY (".platform");
+bool plat_set = false;
 std::string platform ("debug");
 std::string algorithm ("debug");
 std::vector <std::string> accents;
@@ -290,7 +292,10 @@ void handle_arguments (int argc, char ** argv)
     else if (arg1 == "-p" || arg1 == "--platform")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
         platform = argv[i + 1];
+        plat_set = true;
+      }
       else
         print_usage (argv[0]);
 
@@ -373,6 +378,9 @@ int main (int argc, char ** argv)
   }
 
   // initialize the platform and algorithm
+  // default to platform in knowledge base if platform not set in command line
+  if (!plat_set && knowledge.exists (KNOWLEDGE_BASE_PLATFORM_KEY))
+    platform = knowledge.get (KNOWLEDGE_BASE_PLATFORM_KEY).to_string ();
   loop.init_platform (platform);
   loop.init_algorithm (algorithm);
 
