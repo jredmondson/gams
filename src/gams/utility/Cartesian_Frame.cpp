@@ -53,84 +53,86 @@ namespace gams
   {
     void Cartesian_Frame::transform_to_origin(Location_Base &in) const
     {
-      GAMS_WITH_FRAME_TYPE(origin, Cartesian_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
       {
-        in.x += origin.x;
-        in.y += origin.y;
-        in.z += origin.z;
+        in.x(in.x() + origin().x());
+        in.y(in.y() + origin().y());
+        in.z(in.z() + origin().z());
         return;
       }
-      GAMS_WITH_FRAME_TYPE(origin, GPS_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), GPS_Frame, frame)
       {
-        in.z += origin.z;
+        in.z(in.z() + origin().z());
 
         // convert the latitude/y coordinates
-        in.y = (in.y * 360.0) / frame.get_circ() + origin.y;
+        in.y((in.y() * 360.0) / frame.circ() + origin().y());
 
         // assume the meters/degree longitude is constant throughout environment
         // convert the longitude/x coordinates
-        double r_prime = frame.get_radius() * cos (DEG_TO_RAD (in.y));
+        double r_prime = frame.radius() * cos (DEG_TO_RAD (in.y()));
         double circumference = 2 * r_prime * M_PI;
-        in.x = (in.x * 360.0) / circumference + origin.x;
+        in.x((in.x() * 360.0) / circumference + origin().x());
 
         frame.normalize(in);
         return;
       }
-      throw undefined_transform(*this, origin.get_frame(), true);
+      throw undefined_transform(*this, origin().frame(), true);
     }
 
     void Cartesian_Frame::transform_from_origin(Location_Base &in) const
     {
-      GAMS_WITH_FRAME_TYPE(origin, Cartesian_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
       {
-        in.x -= origin.x;
-        in.y -= origin.y;
-        in.z -= origin.z;
+        in.x(in.x() - origin().x());
+        in.y(in.y() - origin().y());
+        in.z(in.z() - origin().z());
         return;
       }
-      GAMS_WITH_FRAME_TYPE(origin, GPS_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), GPS_Frame, frame)
       {
         frame.normalize(in);
 
         // convert the latitude/y coordinates
-        in.y = ((in.y - origin.y) * frame.get_circ()) / 360.0;
+        in.y(((in.y() - origin().y()) * frame.circ()) / 360.0);
 
         // assume the meters/degree longitude is constant throughout environment
         // convert the longitude/x coordinates
-        double r_prime = frame.get_radius() * cos (DEG_TO_RAD (in.y));
+        double r_prime = frame.radius() * cos (DEG_TO_RAD (in.y()));
         double circumference = 2 * r_prime * M_PI;
-        in.x = ((in.x - origin.x) * circumference) / 360.0;
+        in.x(((in.x() - origin().x()) * circumference) / 360.0);
         return;
       }
-      throw undefined_transform(*this, origin.get_frame(), false);
+      throw undefined_transform(*this, origin().frame(), false);
     }
 
+    /*
     void Cartesian_Frame::transform_to_origin(Rotation_Base &in) const
     {
-      GAMS_WITH_FRAME_TYPE(origin, Cartesian_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
       {
         Quaternion in_quat(in);
-        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin));
+        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
         in_quat *= origin_quat;
         in_quat.to_rotation_vector(in);
         return;
       }
-      throw undefined_transform(*this, origin.get_frame(), true);
+      throw undefined_transform(*this, origin().frame(), true);
     }
 
     void Cartesian_Frame::transform_from_origin(Rotation_Base &in) const
     {
-      GAMS_WITH_FRAME_TYPE(origin, Cartesian_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
       {
         Quaternion in_quat(in);
-        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin));
+        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
         origin_quat.conjugate();
         in_quat *= origin_quat;
         in_quat.to_rotation_vector(in);
         return;
       }
-      throw undefined_transform(*this, origin.get_frame(), false);
+      throw undefined_transform(*this, origin().frame(), false);
     }
+    */
 
     Cartesian_Frame cartesian_default_frame;
 

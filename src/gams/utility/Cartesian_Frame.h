@@ -67,14 +67,15 @@ namespace gams
      *    beta  degrees around Y-axis
      *    gamma degrees around Z-axis
      **/
-    class GAMS_Export Cartesian_Frame : public Base_Frame
+    class GAMS_Export Cartesian_Frame : public Basic_Rotational_Frame
     {
     public:
-      Cartesian_Frame() : Base_Frame() {}
-      Cartesian_Frame(const Pose &origin) : Base_Frame(origin) {}
+      Cartesian_Frame() : Basic_Rotational_Frame() {}
+      explicit Cartesian_Frame(const Pose &origin) : Basic_Rotational_Frame(origin) {}
+      explicit Cartesian_Frame(Pose *origin) : Basic_Rotational_Frame(origin) {}
 
+    private:
       virtual std::string get_name() const { return "Cartesian"; }
-    protected:
 
       virtual void transform_to_origin(Location_Base &in) const;
 
@@ -82,22 +83,11 @@ namespace gams
 
       virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const
       {
-        double x_dist = loc2.x - loc1.x;
-        double y_dist = loc2.y - loc1.y;
-        double z_dist = loc2.z - loc1.z;
+        double x_dist = loc2.x() - loc1.x();
+        double y_dist = loc2.y() - loc1.y();
+        double z_dist = loc2.z() - loc1.z();
 
         return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
-      }
-
-      virtual void transform_to_origin(Rotation_Base &in) const;
-
-      virtual void transform_from_origin(Rotation_Base &in) const;
-
-      virtual double calc_distance(const Rotation_Base &loc1, const Rotation_Base &loc2) const
-      {
-        Quaternion quat1(loc1);
-        Quaternion quat2(loc2);
-        return RAD_TO_DEG(quat1.angle_to(quat2));
       }
     };
   }

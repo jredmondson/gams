@@ -75,7 +75,7 @@
  **/
 #define GAMS_WITH_FRAME_TYPE(coord, type, frame_ref) \
   for(const type *__with_frame_type_temp_ptr__ = \
-            dynamic_cast<const type *>(&coord.get_frame()), \
+            dynamic_cast<const type *>(&coord.frame()), \
         &frame_ref = *__with_frame_type_temp_ptr__; \
         __with_frame_type_temp_ptr__; __with_frame_type_temp_ptr__ = NULL)
 
@@ -151,15 +151,73 @@ namespace gams
     class GAMS_Export Base_Frame
     {
     public:
-      Base_Frame() : origin(Pose(*this, 0, 0, 0, 0, 0, 0)) {}
-      Base_Frame(const Pose &origin) : origin(origin) {}
-      virtual ~Base_Frame() {}
+      /**
+       * Default constructor. No parent frame.
+       **/
+      Base_Frame()
+        : _origin(new Pose(*this, 0, 0, 0, 0, 0, 0)),
+          _destruct_origin(true) {}
 
-      Pose origin;
+      /**
+       * Creates a copy of the origin Pose passed in.
+       **/
+      explicit Base_Frame(const Pose &origin)
+        : _origin(new Pose(origin)),
+          _destruct_origin(true) {}
+
+      /**
+       * Uses an existing Pose as origin, and maintains
+       * a pointer to it. Changes to it affect this frame
+       **/
+      explicit Base_Frame(Pose *origin)
+        : _origin(origin),
+          _destruct_origin(false) {}
+
+      virtual ~Base_Frame()
+      {
+        if(_destruct_origin)
+        {
+          delete _origin;
+        }
+      }
+
+    private:
+      Pose *_origin;
+      bool _destruct_origin;
+
+    public:
+      const Pose &origin() const { return *_origin; }
+
+      const Pose &origin(const Pose &new_origin)
+      {
+        if(_destruct_origin)
+          delete _origin;
+        _origin = NULL;
+        _destruct_origin = true;
+        return *(_origin = new Pose(new_origin));
+      }
+
+      /**
+       * Bind this frame's origin to a Pose. Changes to that
+       * Pose will affect this frame.
+       **/
+      void bind_origin(Pose *new_origin)
+      {
+        if(_destruct_origin)
+          delete _origin;
+        _origin = NULL;
+        _destruct_origin = false;
+        _origin = new_origin;
+      }
 
       bool operator==(const Base_Frame &other) const
       {
         return this == &other;
+      }
+
+      bool operator!=(const Base_Frame &other) const
+      {
+        return !(*this == other);
       }
 
       /**
@@ -168,17 +226,17 @@ namespace gams
       template<typename CoordType>
       static void transform(CoordType &in, const Base_Frame &to_frame)
       {
-        if (to_frame == *in.frame)
+        if (to_frame == in.frame())
           return;
-        else if (to_frame == *in.frame->origin.frame)
+        else if (to_frame == in.frame().origin().frame())
         {
-          in.frame->transform_to_origin(in);
-          in.set_frame(in.frame->origin.get_frame());
+          in.frame().transform_to_origin(in);
+          in.frame(in.frame().origin().frame());
         }
-        else if (*to_frame.origin.frame == *in.frame)
+        else if (to_frame.origin().frame() == in.frame())
         {
           to_frame.transform_from_origin(in);
-          in.set_frame(to_frame);
+          in.frame(to_frame);
         }
         else
           transform_other(in, to_frame);
@@ -191,15 +249,15 @@ namespace gams
       template<typename CoordType>
       static double distance(const CoordType &coord1, const CoordType &coord2)
       {
-        if (coord1.get_frame() == coord2.get_frame())
+        if (coord1.frame() == coord2.frame())
         {
-          return calc_distance_within_frame(coord1, coord2, coord1.get_frame());
+          return calc_distance_within_frame(coord1, coord2, coord1.frame());
         }
         else
         {
           CoordType coord2_conv(coord2);
-          transform(coord2_conv, *coord1.frame);
-          return calc_distance_within_frame(coord1, coord2_conv, coord1.get_frame());
+          transform(coord2_conv, coord1.frame());
+          return calc_distance_within_frame(coord1, coord2_conv, coord1.frame());
         }
       }
 
@@ -217,9 +275,11 @@ namespace gams
         do_normalize(static_cast<typename CoordType::Base_Type &>(coord));
       }
 
-      virtual std::string get_name() const = 0;
+      std::string name() const { return get_name(); };
 
     private:
+      virtual std::string get_name() const = 0;
+
       /**
        * For coordinate types which can be expressed in terms of existing
        * coordinate types, specialize this function to express this fact
@@ -288,6 +348,30 @@ namespace gams
       inline static void transform_other(CoordType &in, const Base_Frame &to_frame);
     };
 
+    class Basic_Rotational_Frame : public Base_Frame
+    {
+    protected:
+      Basic_Rotational_Frame() : Base_Frame() {}
+
+      explicit Basic_Rotational_Frame(const Pose &origin)
+        : Base_Frame(origin) {}
+
+      explicit Basic_Rotational_Frame(Pose *origin)
+        : Base_Frame(origin) {}
+
+    private:
+      virtual void transform_to_origin(Rotation_Base &in) const;
+
+      virtual void transform_from_origin(Rotation_Base &in) const;
+
+      virtual double calc_distance(const Rotation_Base &loc1, const Rotation_Base &loc2) const
+      {
+        Quaternion quat1(loc1);
+        Quaternion quat2(loc2);
+        return RAD_TO_DEG(quat1.angle_to(quat2));
+      }
+    };
+
     template<>
     inline double Base_Frame::calc_distance_within_frame<>(const Pose &pose1,
                       const Pose &pose2, const Base_Frame &frame)
@@ -299,8 +383,8 @@ namespace gams
     template<>
     inline void Base_Frame::normalize<>(Pose &pose) const
     {
-      pose.frame->do_normalize(static_cast<Location_Base&>(pose));
-      pose.frame->do_normalize(static_cast<Rotation_Base&>(pose));
+      pose.frame().do_normalize(static_cast<Location_Base&>(pose));
+      pose.frame().do_normalize(static_cast<Rotation_Base&>(pose));
     }
 
     template<typename CoordType>
@@ -318,7 +402,7 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline double Frame_Bound<CoordType>::distance_to(const Frame_Bound<CoordType> &target) const
+    inline double Frame_Bound<CoordType>::distance_to(const CoordType &target) const
     {
       return Base_Frame::distance(static_cast<const CoordType &>(*this),
                                   static_cast<const CoordType &>(target));
@@ -327,64 +411,69 @@ namespace gams
     template<typename CoordType>
     inline void Frame_Bound<CoordType>::normalize()
     {
-      this->frame->normalize(static_cast<CoordType &>(*this));
+      frame().normalize(static_cast<CoordType &>(*this));
     }
 
     template<typename CoordType>
     inline void Base_Frame::transform_other(CoordType &in, const Base_Frame &to_frame)
     {
       std::vector<const Base_Frame *> to_stack;
-      const Base_Frame *transform_via = find_common_frame(in.frame, &to_frame, &to_stack);
+      const Base_Frame *transform_via = find_common_frame(&in.frame(), &to_frame, &to_stack);
       if(transform_via == NULL)
-        throw unrelated_frames(in.get_frame(), to_frame);
+        throw unrelated_frames(in.frame(), to_frame);
       else
       {
-        const Base_Frame *cur_frame = in.frame;
-        while(cur_frame != transform_via)
+        while(in.frame() != *transform_via)
         {
-          cur_frame->transform_to_origin(in);
-          in.set_frame(cur_frame->origin.get_frame());
-          cur_frame = in.frame;
+          in.frame().transform_to_origin(in);
+          in.frame(in.frame().origin().frame());
         }
-        while(cur_frame != &to_frame && !to_stack.empty())
+        while(in.frame() != to_frame && !to_stack.empty())
         {
           to_stack.back()->transform_from_origin(in);
-          in.set_frame(*to_stack.back());
+          in.frame(*to_stack.back());
           to_stack.pop_back();
-          cur_frame = in.frame;
         }
       }
     }
 
     inline std::ostream &operator<<(std::ostream &o, const Location &loc)
     {
-      o << loc.get_frame().get_name() << "(" << loc.x << "," << loc.y << "," << loc.z << ")";
+      o << loc.frame().name() << "(" << loc.x() << "," << loc.y() << "," << loc.z() << ")";
       return o;
     }
 
     inline std::ostream &operator<<(std::ostream &o, const Rotation &rot)
     {
-      o << rot.get_frame().get_name() << "Rotation(" << rot.rx << "," << rot.ry << "," << rot.rz << ")";
+      o << rot.frame().name() << "Rotation(" << rot.rx() << "," << rot.ry() << "," << rot.rz() << ")";
+      return o;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, const Pose &pose)
+    {
+      o << pose.frame().name() << "Pose(" <<
+         "(" << pose.x() << "," << pose.y() << "," << pose.z() << ")," <<
+         "(" << pose.rx() << "," << pose.ry() << "," << pose.rz() << "))";
       return o;
     }
 
     template<typename CoordType>
     inline bad_coord_type<CoordType>
           ::bad_coord_type(const Base_Frame &frame, const std::string &fn_name)
-      : std::runtime_error("Coordinate type " + CoordType::get_name() +
-            " not supported by frame type " + frame.get_name() +
+      : std::runtime_error("Coordinate type " + CoordType::name() +
+            " not supported by frame type " + frame.name() +
             " for operation " + fn_name + "."),
-        coord_type_name(CoordType::get_name()),
+        coord_type_name(CoordType::name()),
         fn_name(fn_name), frame(frame) {}
 
     inline undefined_transform::undefined_transform(
             const Base_Frame &parent_frame, const Base_Frame &child_frame,
             bool is_child_to_parent)
       : std::runtime_error(is_child_to_parent ?
-            ("No defined transform from embedded " + child_frame.get_name() +
-              " frame to parent " + parent_frame.get_name() + " frame.")
-          : ("No defined transform from parent " + parent_frame.get_name() +
-              " frame to embedded " + child_frame.get_name() + " frame.")),
+            ("No defined transform from embedded " + child_frame.name() +
+              " frame to parent " + parent_frame.name() + " frame.")
+          : ("No defined transform from parent " + parent_frame.name() +
+              " frame to embedded " + child_frame.name() + " frame.")),
         parent_frame(parent_frame), child_frame(child_frame),
           is_child_to_parent(is_child_to_parent) {}
   }

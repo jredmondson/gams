@@ -56,12 +56,15 @@
 
 #include "gams/GAMS_Export.h"
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
 #include <typeinfo>
 #include <stdexcept>
 #include <cmath>
 #include <cfloat>
 #include <climits>
+#include <cstdio>
 
 #define DEG_TO_RAD(x) (((x) * M_PI) / 180.0)
 #define RAD_TO_DEG(x) (((x) * 180) / M_PI)
@@ -87,59 +90,161 @@ namespace gams
      *   -- Inherit from a base class which does not inherit Frame_Bound
      *   -- That base class must:
      *      -- Have a typedef Base_Type which refers to itself
-     *      -- Have this function: static std::string get_name()
+     *      -- Have this function: static std::string name()
      **/
     template<typename CoordType>
     class GAMS_Export Frame_Bound
     {
     public:
 
-      Frame_Bound() : frame(__INTERNAL__::default_frame) {}
+      Frame_Bound() : _frame(__INTERNAL__::default_frame) {}
 
-      Frame_Bound(const Base_Frame &frame) : frame(&frame) {}
+      explicit Frame_Bound(const Base_Frame &frame) : _frame(&frame) {}
 
-      Frame_Bound(const Base_Frame *frame) : frame(frame) {}
+      explicit Frame_Bound(const Base_Frame *frame) : _frame(frame) {}
 
-      Frame_Bound(const Frame_Bound &orig) : frame(orig.frame) {}
+      Frame_Bound(const Frame_Bound &orig) : _frame(&orig.frame()) {}
 
-    protected:
-      const Base_Frame *frame;
+    private:
+      const Base_Frame *_frame;
+
+      CoordType &as_coord_type()
+      {
+        return static_cast<CoordType &>(*this);
+      }
+
+      const CoordType &as_coord_type() const
+      {
+        return static_cast<const CoordType &>(*this);
+      }
+
+      template<typename Type>
+      Type &as_type()
+      {
+          return static_cast<Type &>(as_coord_type());
+      }
+
+      template<typename Type>
+      const Type &as_type() const
+      {
+          return static_cast<const Type &>(as_coord_type());
+      }
 
     public:
-      const Base_Frame &get_frame() const { return *frame; }
-      void set_frame(const Base_Frame &new_frame) { frame = &new_frame; }
+      const Base_Frame &frame() const { return *_frame; }
+      const Base_Frame &frame(const Base_Frame &new_frame) {
+        return *(_frame = &new_frame);
+      }
 
       // Defined in Base_Frame.h
       CoordType transform_to(const Base_Frame &new_frame) const;
       void transform_this_to(const Base_Frame &new_frame);
-      double distance_to(const Frame_Bound<CoordType> &target) const;
+      double distance_to(const CoordType &target) const;
       void normalize();
 
-      bool operator==(const Frame_Bound<CoordType> &other) const
+      bool operator==(const CoordType &other) const
       {
-        if(*frame == *other.frame)
+        if(frame() == other.frame())
         {
-          return static_cast<const typename CoordType::Base_Type &>(
-                   static_cast<const CoordType &>(*this)) ==
-                 static_cast<const typename CoordType::Base_Type &>(
-                   static_cast<const CoordType &>(other));
+          return as_type<typename CoordType::Base_Type>() == other;
         }
         else
         {
-          CoordType tmp(*frame, static_cast<const CoordType &>(other));
-          return static_cast<const typename CoordType::Base_Type &>(
-                   static_cast<const CoordType &>(*this)) ==
-                 static_cast<const typename CoordType::Base_Type &>(
-                   static_cast<const CoordType &>(tmp));
+          CoordType tmp(frame(), static_cast<const CoordType &>(other));
+          return as_type<typename CoordType::Base_Type>() == tmp;
         }
       }
 
-      bool operator!=(const Frame_Bound<CoordType> &other) const
+      bool operator!=(const CoordType &other) const
       {
         return !(*this == other);
       }
 
-      friend class Base_Frame;
+      bool approximately_equal(const CoordType &other, double epsilon) const
+      {
+        return distance_to(other) <= epsilon;
+      }
+
+      /**
+       * Less than used for ordering in stl containers
+       * @param rhs   comparing position
+       * @return true if *this is less than rhs
+       **/
+      bool operator<(const Frame_Bound<CoordType> &rhs) const
+      {
+        const CoordType &s = as_coord_type();
+        const CoordType &o = rhs.as_coord_type();
+
+        if(s.x() < o.x())
+          return true;
+        if(s.y() < o.y())
+          return true;
+        return s.z() < o.z();
+      }
+
+      std::string to_string(const std::string &delim = ",") const
+      {
+        std::stringstream buffer;
+        const CoordType &s = as_coord_type();
+        for(int i = 0; i < s.cardinality(); ++i)
+        {
+          if(i > 0)
+            buffer << delim;
+          buffer << s.get(i);
+        }
+        return buffer.str();
+      }
+
+    private:
+      static std::istream &skip_nonnum(std::istream &s)
+      {
+        int next;
+        while((next = s.peek()) != EOF)
+        {
+          if(next == '.' || next == '-' || (next >= '0' && next <= '9'))
+            break;
+          s.get();
+        }
+        return s;
+      }
+    public:
+
+      /**
+       * Sets coordinates from a string encoding a sequence of doubles,
+       * separated by any set of characters other than 0-9, '.', and '-'
+       **/
+      void from_string(const std::string &in)
+      {
+        std::stringstream buffer(in);
+        CoordType &s = as_coord_type();
+        for(int i = 0; i < s.cardinality(); ++i)
+        {
+          double val;
+          buffer >> skip_nonnum;
+          buffer >> val;
+          s.set(i, val);
+        }
+      }
+
+      template<typename ContainType>
+      void to_container(ContainType &container) const
+      {
+        const CoordType &s = as_coord_type();
+        for(int i = 0; i < s.cardinality(); i++)
+        {
+          container.set(i, s.get(i));
+        }
+      }
+
+      template<typename ContainType>
+      void from_container(ContainType &container)
+      {
+        CoordType &s = as_coord_type();
+        for(int i = 0; i < s.cardinality(); i++)
+        {
+          s.set(i, container[i]);
+        }
+      }
     };
 
     /**
@@ -150,32 +255,99 @@ namespace gams
     {
     public:
       Location_Base(double x, double y, double z = 0.0)
-        : x(x), y(y), z(z) {}
+        : _x(x), _y(y), _z(z) {}
 
       Location_Base()
-        : x(INVAL_COORD), y(INVAL_COORD), z(INVAL_COORD) {}
+        : _x(INVAL_COORD), _y(INVAL_COORD), _z(INVAL_COORD) {}
 
       Location_Base(const Location_Base &orig)
-        : x(orig.x), y(orig.y), z(orig.z) { }
+        : _x(orig._x), _y(orig._y), _z(orig._z) { }
 
       bool isInvalid()
       {
-        return x == INVAL_COORD || y == INVAL_COORD || z == INVAL_COORD;
+        return _x == INVAL_COORD || _y == INVAL_COORD || _z == INVAL_COORD;
       }
 
       bool operator==(const Location_Base &other) const
       {
-        return x == other.x && y == other.y && z == other.z;
+        return _x == other._x && _y == other._y && _z == other._z;
       }
 
-      double x, y, z;
-
-      static std::string get_name()
+      static std::string name()
       {
         return "Location";
       }
 
+      double x() const { return _x; }
+      double y() const { return _y; }
+      double z() const { return _z; }
+
+      double x(double new_x) { return _x = new_x; }
+      double y(double new_y) { return _y = new_y; }
+      double z(double new_z) { return _z = new_z; }
+
+      /**
+       * Alternative names for x, y, and z, suitable for
+       * non-Cartesian coordinate systems. Use:
+       *
+       * lng/lat/alt for GPS-style systems
+       * rho/phi/r for Cylindrical systems
+       * theta/phi/r for Spherical systems
+       **/
+      double lng() const { return _x; }
+      double lat() const { return _y; }
+      double alt() const { return _z; }
+
+      double lng(double new_x) { return _x = new_x; }
+      double lat(double new_y) { return _y = new_y; }
+      double alt(double new_z) { return _z = new_z; }
+
+      double rho() const { return _x; }
+      double theta() const { return _x; }
+      double phi() const { return _y; }
+      double r() const { return _z; }
+
+      double rho(double new_x) { return _x = new_x; }
+      double theta(double new_x) { return _x = new_x; }
+      double phi(double new_y) { return _y = new_y; }
+      double r(double new_z) { return _z = new_z; }
+
+      int cardinality() const
+      {
+        return 3;
+      }
+
+      /**
+       * Retrives i'th coordinate, 0-indexed, in order x, y, z
+       **/
+      double get(int i) const
+      {
+        if(i == 0)
+          return x();
+        else if(i == 1)
+          return y();
+        else if(i == 2)
+          return z();
+        throw std::range_error("Index out of bounds for Location");
+      }
+
+      /**
+       * Sets i'th coordinate, 0-indexed, in order x, y, z
+       **/
+      double set(int i, double val)
+      {
+        if(i == 0)
+          return x(val);
+        else if(i == 1)
+          return y(val);
+        else if(i == 2)
+          return z(val);
+        throw std::range_error("Index out of bounds for Location");
+      }
+
       typedef Location_Base Base_Type;
+    private:
+      double _x, _y, _z;
     };
 
     /**
@@ -198,14 +370,16 @@ namespace gams
         : Location_Base(orig), Frame_Bound(orig) {}
 
       Location(const Base_Frame &new_frame, const Location &orig)
-        : Location_Base(orig), Frame_Bound(orig.get_frame())
+        : Location_Base(orig), Frame_Bound(orig.frame())
       {
         transform_this_to(new_frame);
-        set_frame(new_frame);
+        frame(new_frame);
       }
 
       using Frame_Bound<Location>::operator==;
     };
+
+    class Quaternion;
 
     /**
      * Container for Rotation information, not bound to a frame.
@@ -219,44 +393,79 @@ namespace gams
       static const int Z_axis = 2;
 
       Rotation_Base(double rx, double ry, double rz)
-        : rx(rx), ry(ry), rz(rz) {}
+        : _rx(rx), _ry(ry), _rz(rz) {}
 
-      /**
-       * (x, y, z) must be a unit vector in the direction of rotation axis.
-       * angle is the angle of rotation about that axis
-       **/
       Rotation_Base(double x, double y, double z, double angle)
-        : rx(x * angle), ry(y * angle), rz(z * angle) {}
+        : _rx(x * angle), _ry(y * angle), _rz(z * angle) {}
 
-      /**
-       * For easy specification of a simple rotation around a single axis,
-       * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
-       * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
-       * around that axis as the angle
-       **/
       Rotation_Base(int axis_index, double angle)
-        : rx(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
-          ry(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
-          rz(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
+        : _rx(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
+          _ry(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
+          _rz(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
 
       Rotation_Base()
-        : rx(INVAL_COORD), ry(INVAL_COORD), rz(INVAL_COORD) {}
+        : _rx(INVAL_COORD), _ry(INVAL_COORD), _rz(INVAL_COORD) {}
 
       Rotation_Base(const Rotation_Base &orig)
-        : rx(orig.rx), ry(orig.ry), rz(orig.rz) {}
+        : _rx(orig._rx), _ry(orig._ry), _rz(orig._rz) {}
+
+      explicit Rotation_Base(const Quaternion &quat);
 
       bool isInvalid() {
-        return rx == INVAL_COORD || ry == INVAL_COORD || rz == INVAL_COORD;
+        return _rx == INVAL_COORD || _ry == INVAL_COORD || _rz == INVAL_COORD;
       }
 
-      double rx, ry, rz;
-
-      static std::string get_name()
+      static std::string name()
       {
         return "Rotation";
       }
 
+      double rx() const { return _rx; }
+      double ry() const { return _ry; }
+      double rz() const { return _rz; }
+
+      double rx(double new_rx) { return _rx = new_rx; }
+      double ry(double new_ry) { return _ry = new_ry; }
+      double rz(double new_rz) { return _rz = new_rz; }
+
       typedef Rotation_Base Base_Type;
+
+      int cardinality() const
+      {
+        return 3;
+      }
+
+      /**
+       * Retrives i'th coordinate, 0-indexed, in order rx, ry, rz
+       **/
+      double get(int i) const
+      {
+        if(i == 0)
+          return rx();
+        else if(i == 1)
+          return ry();
+        else if(i == 2)
+          return rz();
+        throw std::range_error("Index out of bounds for Rotation");
+      }
+
+      /**
+       * Sets i'th coordinate, 0-indexed, in order rx, ry, rz
+       **/
+      double set(int i, double val)
+      {
+        if(i == 0)
+          return rx(val);
+        else if(i == 1)
+          return ry(val);
+        else if(i == 2)
+          return rz(val);
+        throw std::range_error("Index out of bounds for Rotation");
+      }
+
+      friend class Quaternion;
+    private:
+      double _rx, _ry, _rz;
     };
 
     /**
@@ -301,8 +510,11 @@ namespace gams
 
       Rotation() : Rotation_Base(), Frame_Bound() {}
 
-      Rotation(const Rotation & orig)
+      Rotation(const Rotation &orig)
         : Rotation_Base(orig), Frame_Bound(orig) {}
+
+      explicit Rotation(const Quaternion &quat)
+        : Rotation_Base(quat) {}
     };
 
     /**
@@ -313,14 +525,14 @@ namespace gams
     {
     public:
       Quaternion(double x, double y, double z, double w)
-        : x(x), y(y), z(z), w(w) {}
+        : _x(x), _y(y), _z(z), _w(w) {}
 
       Quaternion(double rx, double ry, double rz)
       {
         from_rotation_vector(rx, ry, rz);
       }
 
-      Quaternion(const Rotation_Base &rot)
+      explicit Quaternion(const Rotation_Base &rot)
       {
         from_rotation_vector(rot);
       }
@@ -330,30 +542,30 @@ namespace gams
         double magnitude = sqrt(rx * rx + ry * ry + rz * rz);
         if(magnitude == 0)
         {
-          w = 1;
-          x = y = z = 0;
+          _w = 1;
+          _x = _y = _z = 0;
         }
         else
         {
           double half_mag = magnitude / 2;
           double cos_half_mag = cos(half_mag);
           double sin_half_mag = sin(half_mag);
-          w = cos_half_mag;
-          x = (rx / magnitude) * sin_half_mag;
-          y = (ry / magnitude) * sin_half_mag;
-          z = (rz / magnitude) * sin_half_mag;
+          _w = cos_half_mag;
+          _x = (rx / magnitude) * sin_half_mag;
+          _y = (ry / magnitude) * sin_half_mag;
+          _z = (rz / magnitude) * sin_half_mag;
         }
       }
 
       void from_rotation_vector(const Rotation_Base &rot)
       {
-        from_rotation_vector(rot.rx, rot.ry, rot.rz);
+        from_rotation_vector(rot.rx(), rot.ry(), rot.rz());
       }
 
-      void to_rotation_vector(double &rx, double &ry, double &rz)
+      void to_rotation_vector(double &rx, double &ry, double &rz) const
       {
-        double norm = sqrt(x * x + y * y + z * z);
-        double angle = 2 * atan2(norm, w);
+        double norm = sqrt(_x * _x + _y * _y + _z * _z);
+        double angle = 2 * atan2(norm, _w);
         double sin_half_angle = sin(angle / 2);
         if(angle == 0)
         {
@@ -361,32 +573,32 @@ namespace gams
         }
         else
         {
-          rx = (x / sin_half_angle) * angle;
-          ry = (y / sin_half_angle) * angle;
-          rz = (z / sin_half_angle) * angle;
+          rx = (_x / sin_half_angle) * angle;
+          ry = (_y / sin_half_angle) * angle;
+          rz = (_z / sin_half_angle) * angle;
         }
       }
 
-      void to_rotation_vector(Rotation_Base &rot)
+      void to_rotation_vector(Rotation_Base &rot) const
       {
-        to_rotation_vector(rot.rx, rot.ry, rot.rz);
+        to_rotation_vector(rot._rx, rot._ry, rot._rz);
       }
 
       Quaternion &operator*=(const Quaternion &o)
       {
-        double A = (w + x) * (o.w + o.x),
-               B = (z - y) * (o.y - o.z),
-               C = (w - x) * (o.y + o.z), 
-               D = (y + z) * (o.w - o.x),
-               E = (x + z) * (o.x + o.y),
-               F = (x - z) * (o.x - o.y),
-               G = (w + y) * (o.w - o.z),
-               H = (w - y) * (o.w + o.z);
+        double A = (_w + _x) * (o._w + o._x),
+               B = (_z - _y) * (o._y - o._z),
+               C = (_w - _x) * (o._y + o._z), 
+               D = (_y + _z) * (o._w - o._x),
+               E = (_x + _z) * (o._x + o._y),
+               F = (_x - _z) * (o._x - o._y),
+               G = (_w + _y) * (o._w - o._z),
+               H = (_w - _y) * (o._w + o._z);
 
-        w = B + (-E - F + G + H) / 2;
-        x = A - ( E + F + G + H) / 2; 
-        y = C + ( E - F + G - H) / 2; 
-        z = D + ( E - F - G + H) / 2;
+        _w = B + (-E - F + G + H) / 2;
+        _x = A - ( E + F + G + H) / 2;
+        _y = C + ( E - F + G - H) / 2;
+        _z = D + ( E - F - G + H) / 2;
 
         return *this;
       }
@@ -400,21 +612,21 @@ namespace gams
 
       Quaternion &conjugate()
       {
-        x = -x;
-        y = -y;
-        z = -z;
+        _x = -_x;
+        _y = -_y;
+        _z = -_z;
         return *this;
       }
 
       Quaternion operator-() const
       {
-        Quaternion ret(-x, -y, -z, w);
+        Quaternion ret(-_x, -_y, -_z, _w);
         return ret;
       }
 
       double inner_product(const Quaternion &o) const
       {
-        return w * o.w + x * o.x + y * o.y + z * o.z;
+        return _w * o._w + _x * o._x + _y * o._y + _z * o._z;
       }
 
       double angle_to(const Quaternion &o) const
@@ -423,12 +635,28 @@ namespace gams
         return acos(2 * prod * prod - 1);
       }
 
-      double x, y, z, w;
+      double x() const { return _x; }
+      double y() const { return _y; }
+      double z() const { return _z; }
+      double w() const { return _w; }
+
+      double x(double new_x) { return _x = new_x; }
+      double y(double new_y) { return _y = new_y; }
+      double z(double new_z) { return _z = new_z; }
+      double w(double new_w) { return _w = new_w; }
+
+    private:
+      double _x, _y, _z, _w;
     };
+
+    inline Rotation_Base::Rotation_Base(const Quaternion &quat)
+    {
+      quat.to_rotation_vector(_rx, _ry, _rz);
+    }
 
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)
     {
-      o << quat.w << "+" << quat.x << "i+" << quat.y << "j+" << quat.z << "z";
+      o << quat.w() << "+" << quat.x() << "i+" << quat.y() << "j+" << quat.z() << "z";
       return o;
     }
 
@@ -457,9 +685,36 @@ namespace gams
         return Location_Base::isInvalid() || Rotation_Base::isInvalid();
       }
 
-      static std::string get_name()
+      static std::string name()
       {
         return "Pose";
+      }
+
+      int cardinality() const
+      {
+        return 6;
+      }
+
+      /**
+       * Retrives i'th coordinate, 0-indexed, in order x, y, z, rx, ry, rz
+       **/
+      double get(int i) const
+      {
+        if(i <= 2)
+          return static_cast<const Location_Base &>(*this).get(i);
+        else
+          return static_cast<const Rotation_Base &>(*this).get(i - 3);
+      }
+
+      /**
+       * Sets i'th coordinate, 0-indexed, in order x, y, z, rx, ry, rz
+       **/
+      double set(int i, double val)
+      {
+        if(i <= 2)
+          return static_cast<Location_Base &>(*this).set(i, val);
+        else
+          return static_cast<Rotation_Base &>(*this).set(i - 3, val);
       }
 
       typedef Pose_Base Base_Type;
@@ -487,89 +742,32 @@ namespace gams
       Pose() : Pose_Base(), Frame_Bound() {}
 
       Pose(const Location &loc)
-        : Pose_Base(loc), Frame_Bound(loc.get_frame()) {}
+        : Pose_Base(loc), Frame_Bound(loc.frame()) {}
 
       Pose(const Rotation &rot)
-        : Pose_Base(rot), Frame_Bound(rot.get_frame()) {}
+        : Pose_Base(rot), Frame_Bound(rot.frame()) {}
 
       Pose(const Base_Frame &frame, const Location_Base &loc, const Rotation_Base &rot)
         : Pose_Base(loc, rot), Frame_Bound(frame) {}
 
       /// Precondition: loc.frame == rot.frame
       Pose(const Location &loc, const Rotation &rot)
-        : Pose_Base(loc, rot), Frame_Bound(loc.get_frame()) {}
+        : Pose_Base(loc, rot), Frame_Bound(loc.frame()) {}
 
       operator Location() const
       {
-        return Location(*frame, x, y, z);
+        return Location(frame(), x(), y(), z());
       }
 
       operator Rotation() const
       {
-        return Rotation(*frame, rx, ry, rz);
+        return Rotation(frame(), rx(), ry(), rz());
       }
 
       bool isInvalid() {
         return Location_Base::isInvalid() || Rotation_Base::isInvalid();
       }
     };
-
-    template<typename CoordType>
-    class GAMS_Export Derivative
-    {
-    public:
-      Derivative() : d() {}
-
-      template<typename T1>
-      Derivative(const T1 &p1) : d(p1) {}
-
-      template<typename T1, typename T2>
-      Derivative(const T1 &p1,
-                 const T2 &p2)
-        : d(p1, p2) {}
-
-      template<typename T1, typename T2, typename T3>
-      Derivative(const T1 &p1, const T2 &p2,
-                 const T3 &p3)
-        : d(p1, p2, p3) {}
-
-      template<typename T1, typename T2, typename T3, typename T4>
-      Derivative(const T1 &p1, const T2 &p2, const T3 &p3,
-                 const T4 &p4)
-        : d(p1, p2, p3, p4) {}
-
-      template<typename T1, typename T2, typename T3, typename T4, typename T5>
-      Derivative(const T1 &p1, const T2 &p2, const T3 &p3,
-                 const T4 &p4, const T5 &p5)
-        : d(p1, p2, p3, p4, p5) {}
-
-      template<typename T1, typename T2, typename T3, typename T4,
-               typename T5, typename T6>
-      Derivative(const T1 &p1, const T2 &p2, const T3 &p3,
-                 const T4 &p4, const T5 &p5, const T6 &p6)
-        : d(p1, p2, p3, p4, p5, p6) {}
-
-      template<typename T1, typename T2, typename T3, typename T4,
-               typename T5, typename T6, typename T7>
-      Derivative(const T1 &p1, const T2 &p2, const T3 &p3,
-                 const T4 &p4, const T5 &p5, const T6 &p6,
-                 const T7 &p7)
-        : d(p1, p2, p3, p4, p5, p6, p7) {}
-
-      CoordType d;
-
-      static std::string get_name()
-      {
-        return "d" + CoordType::get_name();
-      }
-
-      typedef CoordType Base_Type;
-    };
-
-    typedef Derivative<Location> Velocity;
-    typedef Derivative<Rotation> AngularVelocity;
-    typedef Derivative<Velocity> Acceleration;
-    typedef Derivative<AngularVelocity> AngularAcceleration;
   }
 }
 

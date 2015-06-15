@@ -72,19 +72,46 @@ namespace gams
           {
             return cur_to;
           }
-          const Base_Frame *next_cur_from = cur_from->origin.frame;
+          const Base_Frame *next_cur_from = &cur_from->origin().frame();
           if(cur_from == next_cur_from)
             break;
           cur_from = next_cur_from;
         }
         if(to_stack)
           to_stack->push_back(cur_to);
-        const Base_Frame *next_cur_to = cur_to->origin.frame;
+        const Base_Frame *next_cur_to = &cur_to->origin().frame();
         if(cur_to == next_cur_to)
           break;
         cur_to = next_cur_to;
       }
       return NULL;
+    }
+
+    void Basic_Rotational_Frame::transform_to_origin(Rotation_Base &in) const
+    {
+      GAMS_WITH_FRAME_TYPE(origin(), Basic_Rotational_Frame, frame)
+      {
+        Quaternion in_quat(in);
+        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
+        in_quat *= origin_quat;
+        in_quat.to_rotation_vector(in);
+        return;
+      }
+      throw undefined_transform(*this, origin().frame(), true);
+    }
+
+    void Basic_Rotational_Frame::transform_from_origin(Rotation_Base &in) const
+    {
+      GAMS_WITH_FRAME_TYPE(origin(), Basic_Rotational_Frame, frame)
+      {
+        Quaternion in_quat(in);
+        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
+        origin_quat.conjugate();
+        in_quat *= origin_quat;
+        in_quat.to_rotation_vector(in);
+        return;
+      }
+      throw undefined_transform(*this, origin().frame(), false);
     }
   }
 }
