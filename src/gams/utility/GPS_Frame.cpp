@@ -59,30 +59,30 @@ namespace gams
   {
     void GPS_Frame::transform_to_origin(Location_Base &in) const
     {
-      throw undefined_transform(*this, origin.get_frame(), true);
+      throw undefined_transform(*this, origin().frame(), true);
     }
 
     void GPS_Frame::transform_from_origin(Location_Base &in) const
     {
-      throw undefined_transform(*this, origin.get_frame(), false);
+      throw undefined_transform(*this, origin().frame(), false);
     }
 
     double GPS_Frame::calc_distance(const Location_Base &loc1, const Location_Base &loc2) const
     {
-      double alt = loc1.z;
-      double alt_diff = loc2.z - loc1.z;
-      if(loc2.z < alt)
-        alt = loc2.z;
+      double alt = loc1.z();
+      double alt_diff = loc2.z() - loc1.z();
+      if(loc2.z() < alt)
+        alt = loc2.z();
 
       /**
        * Calculate great circle distance using numerically stable formula from
        * http://en.wikipedia.org/w/index.php?title=Great-circle_distance&oldid=659855779
        * Second formula in "Computational formulas"
        **/
-      double lat1 = DEG_TO_RAD(loc1.y);
-      double lng1 = DEG_TO_RAD(loc1.x);
-      double lat2 = DEG_TO_RAD(loc2.y);
-      double lng2 = DEG_TO_RAD(loc2.x);
+      double lat1 = DEG_TO_RAD(loc1.y());
+      double lng1 = DEG_TO_RAD(loc1.x());
+      double lat2 = DEG_TO_RAD(loc2.y());
+      double lng2 = DEG_TO_RAD(loc2.x());
 
       double sin_lat1 = sin(lat1);
       double sin_lat2 = sin(lat2);
@@ -109,7 +109,7 @@ namespace gams
       const double epsilon = 0.000001;
       double central_angle = (fabs(top) < epsilon && fabs(bottom) < epsilon) ? 0 : atan2(top, bottom);
 
-      double great_circle_dist = (planet_radius + alt) * central_angle;
+      double great_circle_dist = (_planet_radius + alt) * central_angle;
 
       if(alt_diff == 0)
         return great_circle_dist;
@@ -119,30 +119,20 @@ namespace gams
 
     void GPS_Frame::do_normalize(Location_Base &in) const
     {
-      while(in.y > 90.000001)
+      while(in.y() > 90.000001)
       {
-        in.y -= 180;
-        in.x += 180;
+        in.y(in.y() - 180);
+        in.x(in.x() + 180);
       }
-      while(in.y < -90.000001)
+      while(in.y() < -90.000001)
       {
-        in.y += 180;
-        in.x -= 180;
+        in.y(in.y() + 180);
+        in.x(in.x() - 180);
       }
-      while(in.x > 180.000001)
-        in.x -= 180;
-      while(in.x < -180.000001)
-        in.x += 180;
-    }
-
-    void GPS_Frame::transform_to_origin(Rotation_Base &in) const
-    {
-      throw undefined_transform(*this, origin.get_frame(), true);
-    }
-
-    void GPS_Frame::transform_from_origin(Rotation_Base &in) const
-    {
-      throw undefined_transform(*this, origin.get_frame(), false);
+      while(in.x() > 180.000001)
+        in.x(in.x() - 180);
+      while(in.x() < -180.000001)
+        in.x(in.x() + 180);
     }
   }
 }

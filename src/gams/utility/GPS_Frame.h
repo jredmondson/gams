@@ -81,7 +81,7 @@ namespace gams
      * calculated using lower of two altitudes, then distance calculated as follows:
      *    distance = sqrt(circle_distance ^ 2 + altitude_difference ^ 2)
      **/
-    class GAMS_Export GPS_Frame : public Base_Frame
+    class GAMS_Export GPS_Frame : public Basic_Rotational_Frame
     {
     public:
       static const double EARTH_RADIUS = 6371000.0;
@@ -89,20 +89,27 @@ namespace gams
       static const double MARS_RADIUS  = 3389500.0;
 
       GPS_Frame(double planet_radius = EARTH_RADIUS)
-        : Base_Frame(), planet_radius(planet_radius),
-          planet_circ(2*planet_radius*M_PI) {}
+        : Basic_Rotational_Frame(), _planet_radius(planet_radius) {}
 
-      GPS_Frame(const Pose &origin, double planet_radius = EARTH_RADIUS)
-        : Base_Frame(origin), planet_radius(planet_radius),
-          planet_circ(2*planet_radius*M_PI) {}
+      explicit GPS_Frame(const Pose &origin, double planet_radius = EARTH_RADIUS)
+        : Basic_Rotational_Frame(origin), _planet_radius(planet_radius) {}
 
-      double get_radius() const { return planet_radius; }
-      double get_circ() const { return planet_circ; }
+      explicit GPS_Frame(Pose *origin, double planet_radius = EARTH_RADIUS)
+        : Basic_Rotational_Frame(origin), _planet_radius(planet_radius) {}
+
+      double radius() const { return _planet_radius; }
+      double circ() const { return 2 * _planet_radius * M_PI; }
+
+      double radius(double new_radius) { return _planet_radius = new_radius; }
+      double circ(double new_circ)
+      {
+        return _planet_radius = new_circ / (2 * M_PI);
+      }
+
+    private:
+      double _planet_radius;
 
       virtual std::string get_name() const { return "GPS"; }
-    protected:
-      double planet_radius;
-      double planet_circ;
 
       virtual void transform_to_origin(Location_Base &in) const;
 
@@ -111,15 +118,6 @@ namespace gams
       virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const;
 
       virtual void do_normalize(Location_Base &in) const;
-
-      virtual void transform_to_origin(Rotation_Base &in) const;
-
-      virtual void transform_from_origin(Rotation_Base &in) const;
-
-      virtual double calc_distance(const Rotation_Base &loc1, const Rotation_Base &loc2) const
-      {
-        return 0;
-      }
     };
   }
 }
