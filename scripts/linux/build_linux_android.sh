@@ -9,7 +9,7 @@
 #   $MADARA_ROOT  - location of local copy of MADARA git repository from
 #                   http://madara.googlecode.com/svn/trunk/
 #   $GAMS_ROOT    - location of this GAMS git repository
-#   $NDK_BIN      - This should be the path to the Java NDK binaries for the
+#   $NDK_BIN      - This should be the path to the Android NDK binaries for the
 #                   platform you are trying to deploy (e.g. the arm toolchain)
 #   $VREP_ROOT    - location of VREP installation, if applicable
 #   
@@ -47,7 +47,7 @@ echo ""
 
 # build ACE
 echo "Building ACE"
-echo "#include \"ace/config-android.h\"" > $ACE_ROOT/ace/config.h
+echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
 echo "include \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
 cd $ACE_ROOT/ace
 perl $ACE_ROOT/bin/mwc.pl -type gnuace ace.mwc
