@@ -1,0 +1,164 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Transport Type"
+        android:id="@+id/transport_label"
+        android:layout_alignTop="@+id/type_spinner"
+        android:layout_alignLeft="@+id/address_label"
+        android:layout_alignStart="@+id/address_label" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Address"
+        android:id="@+id/address_label"
+        android:layout_below="@+id/type_spinner"
+        android:layout_alignLeft="@+id/port_label"
+        android:layout_alignStart="@+id/port_label" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Message Size"
+        android:id="@+id/size_label"
+        android:layout_below="@+id/port_text_box"
+        android:layout_alignLeft="@+id/port_label"
+        android:layout_alignStart="@+id/port_label" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Rate"
+        android:id="@+id/rate_label"
+        android:layout_below="@+id/size_text_box"
+        android:layout_alignLeft="@+id/duration_label"
+        android:layout_alignStart="@+id/duration_label" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Duration"
+        android:id="@+id/duration_label"
+        android:layout_below="@+id/rate_text_box"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Agent ID"
+        android:id="@+id/id_label"
+        android:layout_below="@+id/duration_text_box"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/type_spinner"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/transport_label"
+        android:layout_toRightOf="@+id/transport_label"
+        android:spinnerMode="dropdown"
+        android:focusable="false"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:id="@+id/address_tex_box"
+        android:layout_below="@+id/type_spinner"
+        android:layout_alignLeft="@+id/type_spinner"
+        android:layout_alignStart="@+id/type_spinner"
+        android:layout_alignRight="@+id/type_spinner"
+        android:layout_alignEnd="@+id/type_spinner" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:id="@+id/size_text_box"
+        android:layout_alignTop="@+id/size_label"
+        android:layout_alignLeft="@+id/port_text_box"
+        android:layout_alignStart="@+id/port_text_box"
+        android:layout_alignRight="@+id/port_text_box"
+        android:layout_alignEnd="@+id/port_text_box" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:id="@+id/rate_text_box"
+        android:layout_alignTop="@+id/rate_label"
+        android:layout_alignLeft="@+id/size_text_box"
+        android:layout_alignStart="@+id/size_text_box"
+        android:layout_alignRight="@+id/size_text_box"
+        android:layout_alignEnd="@+id/size_text_box" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:id="@+id/duration_text_box"
+        android:layout_alignTop="@+id/duration_label"
+        android:layout_alignLeft="@+id/rate_text_box"
+        android:layout_alignStart="@+id/rate_text_box"
+        android:layout_alignRight="@+id/rate_text_box"
+        android:layout_alignEnd="@+id/rate_text_box" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:id="@+id/id_text_box"
+        android:layout_alignTop="@+id/id_label"
+        android:layout_alignLeft="@+id/duration_text_box"
+        android:layout_alignStart="@+id/duration_text_box"
+        android:layout_alignRight="@+id/duration_text_box"
+        android:layout_alignEnd="@+id/duration_text_box" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Run"
+        android:id="@+id/run_button"
+        android:layout_below="@+id/id_text_box"
+        android:layout_centerHorizontal="true"
+        android:onClick="runButtonOnClick" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Port"
+        android:id="@+id/port_label"
+        android:layout_below="@+id/address_tex_box"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/port_text_box"
+        android:layout_alignTop="@+id/port_label"
+        android:layout_alignLeft="@+id/address_tex_box"
+        android:layout_alignStart="@+id/address_tex_box"
+        android:layout_alignRight="@+id/address_tex_box"
+        android:layout_alignEnd="@+id/address_tex_box" />
+
+</RelativeLayout>
