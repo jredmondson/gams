@@ -6,7 +6,7 @@ static JavaVM* gams_JVM = NULL;
 jint JNICALL JNI_OnLoad (JavaVM* vm, void* reserved)
 {
   JNIEnv * env;
-  if (vm->GetEnv ( (void**)&env, JNI_VERSION_1_8) != JNI_OK)
+  if (vm->GetEnv ( (void**)&env, JNI_VERSION_1_6) != JNI_OK)
   {
     return JNI_ERR;
   }
@@ -19,7 +19,7 @@ jint JNICALL JNI_OnLoad (JavaVM* vm, void* reserved)
 void JNICALL JNI_OnUnload (JavaVM* vm, void* reserved)
 {
   JNIEnv * env;
-  vm->GetEnv ( (void**)&env, JNI_VERSION_1_8);
+  vm->GetEnv ( (void**)&env, JNI_VERSION_1_6);
   gams_JVM = 0;
 }
 
@@ -29,7 +29,7 @@ bool gams_jni_is_attached ()
 
   if (gams_JVM)
   {
-    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_8);
+    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_6);
   }
 
   return env != 0;
@@ -41,7 +41,7 @@ JNIEnv* gams_jni_get_env ()
 
   if (gams_JVM)
   {
-    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_8);
+    gams_JVM->GetEnv ( (void**)&env, JNI_VERSION_1_6);
     if (env == 0)
     {
       //Thread is not attached
