@@ -1,7 +1,7 @@
 #include <iostream>
-#include "Base_Frame.h"
-#include "Cartesian_Frame.h"
-#include "GPS_Frame.h"
+#include <gams/utility/Base_Frame.h>
+#include <gams/utility/Cartesian_Frame.h>
+#include <gams/utility/GPS_Frame.h>
 
 using namespace gams::utility;
 

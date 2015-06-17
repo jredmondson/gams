@@ -150,3 +150,27 @@ project (test_madara_writer) : using_madara, using_ace {
     tests/message_performance/madara/ContinuousMadaraWriter.cpp
   }
 }
+
+project (test_coordinates) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_coordinates
+
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    src/tests/test_coordinates.cpp
+  }
+}
