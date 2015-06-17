@@ -181,11 +181,6 @@ namespace gams
         }
       }
 
-    private:
-      Pose *_origin;
-      bool _destruct_origin;
-
-    public:
       const Pose &origin() const { return *_origin; }
 
       const Pose &origin(const Pose &new_origin)
@@ -219,6 +214,120 @@ namespace gams
       {
         return !(*this == other);
       }
+      /**
+       * Normalizes any angular values in coord according to the conventions
+       * of the frame it belongs to. This is called automatically by any methods
+       * that require normalized angles.
+       *
+       * If adding a new composite coordinate type, specialize this template
+       * function accordingly.
+       **/
+      template<typename CoordType>
+      void normalize(CoordType &coord) const
+      {
+        do_normalize(static_cast<typename CoordType::Base_Type &>(coord));
+      }
+
+      /**
+       * Returns a human-readable name for the coordinate system type
+       **/
+      std::string name() const { return get_name(); };
+
+    private:
+      /**
+       * Override to return a human-readable name for new coordinate systems
+       *
+       * @return the name
+       **/
+      virtual std::string get_name() const = 0;
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param in transforms parameter into origin frame from this frame.
+       **/
+      virtual void transform_to_origin(Location_Base &in) const
+      {
+        throw bad_coord_type<Location>(*this, "transform_to_origin");
+      }
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param in transforms parameter into this frame from origin frame.
+       **/
+      virtual void transform_from_origin(Location_Base &in) const
+      {
+        throw bad_coord_type<Location>(*this, "transform_from_origin");
+      }
+
+      /**
+       * Override for new coordinate systems that can require normalization of
+       * coordinates, e.g., angle-based systems. NOP by default.
+       *
+       * @param in transforms parameter into normalized form
+       **/
+      virtual void do_normalize(Location_Base &in) const
+      {
+      }
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param loc1 Distance from this location
+       * @param loc2 Distance to this location
+       * @return distance in meters from loc1 to loc2
+       **/
+      virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const
+      {
+        throw bad_coord_type<Location>(*this, "calc_distance");
+      }
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param in transforms parameter into origin frame from this frame.
+       **/
+      virtual void transform_to_origin(Rotation_Base &in) const
+      {
+        throw bad_coord_type<Rotation>(*this, "transform_to_origin");
+      }
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param in transforms parameter into this frame from origin frame.
+       **/
+      virtual void transform_from_origin(Rotation_Base &in) const
+      {
+        throw bad_coord_type<Rotation>(*this, "transform_from_origin");
+      }
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param rot1 Distance from this rotation
+       * @param rot2 Distance to this rotation
+       * @return rotatioal distance in degrees from rot1 to rot2
+       **/
+      virtual double calc_distance(const Rotation_Base &rot1, const Rotation_Base &rot2) const
+      {
+        throw bad_coord_type<Rotation>(*this, "calc_distance");
+      }
+
+      /**
+       * Override for new coordinate systems that can require normalization of
+       * coordinates, e.g., angl-based systems. NOP by default.
+       *
+       * @param in transforms parameter into normalized form
+       **/
+      virtual void do_normalize(Rotation_Base &in) const
+      {
+      }
+
+    private:
+      Pose *_origin;
+      bool _destruct_origin;
 
       /**
        * Transform coordinate `in` from its current from, to the specified frame
@@ -230,12 +339,12 @@ namespace gams
           return;
         else if (to_frame == in.frame().origin().frame())
         {
-          in.frame().transform_to_origin(in);
+          transform_to_origin_within_frame(in, in.frame());
           in.frame(in.frame().origin().frame());
         }
         else if (to_frame.origin().frame() == in.frame())
         {
-          to_frame.transform_from_origin(in);
+          transform_from_origin_within_frame(in, to_frame);
           in.frame(to_frame);
         }
         else
@@ -262,23 +371,26 @@ namespace gams
       }
 
       /**
-       * Normalizes any angular values in coord according to the conventions
-       * of the frame it belongs to. This is called automatically by any methods
-       * that require normalized angles.
-       *
-       * If adding a new composite coordinate type, specialize this template
-       * function accordingly.
+       * For coordinate types which can be expressed in terms of existing
+       * coordinate types, specialize this function to express this fact
        **/
       template<typename CoordType>
-      void normalize(CoordType &coord) const
+      static double transform_to_origin_within_frame(CoordType &in,
+          const Base_Frame &frame)
       {
-        do_normalize(static_cast<typename CoordType::Base_Type &>(coord));
+        frame.transform_to_origin(in);
       }
 
-      std::string name() const { return get_name(); };
-
-    private:
-      virtual std::string get_name() const = 0;
+      /**
+       * For coordinate types which can be expressed in terms of existing
+       * coordinate types, specialize this function to express this fact
+       **/
+      template<typename CoordType>
+      static double transform_from_origin_within_frame(CoordType &in,
+          const Base_Frame &frame)
+      {
+        frame.transform_from_origin(in);
+      }
 
       /**
        * For coordinate types which can be expressed in terms of existing
@@ -291,63 +403,22 @@ namespace gams
         return frame.calc_distance(coord1, coord2);
       }
 
-      virtual void transform_to_origin(Location_Base &in) const
-      {
-        throw bad_coord_type<Location>(*this, "transform_to_origin");
-      }
-
-      virtual void transform_from_origin(Location_Base &in) const
-      {
-        throw bad_coord_type<Location>(*this, "transform_from_origin");
-      }
-
-      virtual void do_normalize(Location_Base &in) const
-      {
-      }
-
-      virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const
-      {
-        throw bad_coord_type<Location>(*this, "calc_distance");
-      }
-
-      virtual void transform_to_origin(Rotation_Base &in) const
-      {
-        throw bad_coord_type<Rotation>(*this, "transform_to_origin");
-      }
-
-      virtual void transform_from_origin(Rotation_Base &in) const
-      {
-        throw bad_coord_type<Rotation>(*this, "transform_from_origin");
-      }
-
-      virtual double calc_distance(const Rotation_Base &rot1, const Rotation_Base &rot2) const
-      {
-        throw bad_coord_type<Rotation>(*this, "calc_distance");
-      }
-
-      virtual void do_normalize(Rotation_Base &in) const
-      {
-      }
-
-      virtual void transform_to_origin(Pose_Base &in) const
-      {
-        transform_to_origin(static_cast<Location_Base &>(in));
-        transform_to_origin(static_cast<Rotation_Base &>(in));
-      }
-
-      virtual void transform_from_origin(Pose_Base &in) const
-      {
-        transform_from_origin(static_cast<Location_Base &>(in));
-        transform_from_origin(static_cast<Rotation_Base &>(in));
-      }
-
       static const Base_Frame *find_common_frame(const Base_Frame *from,
         const Base_Frame *to, std::vector<const Base_Frame *> *to_stack);
 
       template<typename CoordType>
       inline static void transform_other(CoordType &in, const Base_Frame &to_frame);
+
+      template<typename CoordType>
+      friend class Frame_Bound;
     };
 
+    /**
+     * For internal use.
+     *
+     * Provides implementation of transforms between rotations represented using
+     * 3-value axis/angle notation. Inherit from this to use this implementation.
+     **/
     class Basic_Rotational_Frame : public Base_Frame
     {
     protected:
@@ -378,6 +449,22 @@ namespace gams
     {
       return frame.calc_distance(static_cast<const Location_Base&>(pose1),
                                  static_cast<const Location_Base&>(pose2));
+    }
+
+    template<>
+    inline double Base_Frame::transform_to_origin_within_frame<>(
+      Pose &in, const Base_Frame &frame)
+    {
+      frame.transform_to_origin(static_cast<Location_Base &>(in));
+      frame.transform_to_origin(static_cast<Rotation_Base &>(in));
+    }
+
+    template<>
+    inline double Base_Frame::transform_from_origin_within_frame<>(
+      Pose &in, const Base_Frame &frame)
+    {
+      frame.transform_from_origin(static_cast<Location_Base &>(in));
+      frame.transform_from_origin(static_cast<Rotation_Base &>(in));
     }
 
     template<>
@@ -425,12 +512,12 @@ namespace gams
       {
         while(in.frame() != *transform_via)
         {
-          in.frame().transform_to_origin(in);
+          transform_from_origin_within_frame(in, in.frame());
           in.frame(in.frame().origin().frame());
         }
         while(in.frame() != to_frame && !to_stack.empty())
         {
-          to_stack.back()->transform_from_origin(in);
+          transform_from_origin_within_frame(in, *to_stack.back());
           in.frame(*to_stack.back());
           to_stack.pop_back();
         }
