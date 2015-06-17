@@ -84,9 +84,9 @@ namespace gams
     class GAMS_Export GPS_Frame : public Basic_Rotational_Frame
     {
     public:
-      static const double EARTH_RADIUS = 6371000.0;
-      static const double MOON_RADIUS  = 1737100.0;
-      static const double MARS_RADIUS  = 3389500.0;
+      static const double EARTH_RADIUS;
+      static const double MOON_RADIUS;
+      static const double MARS_RADIUS;
 
       GPS_Frame(double planet_radius = EARTH_RADIUS)
         : Basic_Rotational_Frame(), _planet_radius(planet_radius) {}

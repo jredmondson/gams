@@ -105,40 +105,13 @@ namespace gams
       throw undefined_transform(*this, origin().frame(), false);
     }
 
-    /*
-    void Cartesian_Frame::transform_to_origin(Rotation_Base &in) const
-    {
-      GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
-      {
-        Quaternion in_quat(in);
-        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
-        in_quat *= origin_quat;
-        in_quat.to_rotation_vector(in);
-        return;
-      }
-      throw undefined_transform(*this, origin().frame(), true);
-    }
-
-    void Cartesian_Frame::transform_from_origin(Rotation_Base &in) const
-    {
-      GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
-      {
-        Quaternion in_quat(in);
-        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
-        origin_quat.conjugate();
-        in_quat *= origin_quat;
-        in_quat.to_rotation_vector(in);
-        return;
-      }
-      throw undefined_transform(*this, origin().frame(), false);
-    }
-    */
-
     Cartesian_Frame cartesian_default_frame;
 
     namespace __INTERNAL__
     {
       Base_Frame *default_frame = &cartesian_default_frame;
     }
+
+    const Base_Frame *Frame_Bound_Base::default_frame = &cartesian_default_frame;
   }
 }

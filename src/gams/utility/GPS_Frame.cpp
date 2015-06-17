@@ -57,6 +57,10 @@ namespace gams
 {
   namespace utility
   {
+    const double GPS_Frame::EARTH_RADIUS = 6371000.0;
+    const double GPS_Frame::MOON_RADIUS  = 1737100.0;
+    const double GPS_Frame::MARS_RADIUS  = 3389500.0;
+
     void GPS_Frame::transform_to_origin(Location_Base &in) const
     {
       throw undefined_transform(*this, origin().frame(), true);

@@ -77,10 +77,18 @@ namespace gams
   {
     class Base_Frame;
 
-    namespace __INTERNAL__
+    /**
+     * For internal use.
+     *
+     * Workaround to allow all specializations of Frame_Bound to share the
+     * same default frame;
+     **/
+    class GAMS_Export Frame_Bound_Base
     {
-      extern Base_Frame *default_frame;
-    }
+    private:
+      static const Base_Frame *default_frame;
+    };
+
     /**
      * New coordinate types which are frame-dependant can inherit from this
      * class. Pass the type of the child class as CoordType
@@ -93,11 +101,11 @@ namespace gams
      *      -- Have this function: static std::string name()
      **/
     template<typename CoordType>
-    class GAMS_Export Frame_Bound
+    class GAMS_Export Frame_Bound : private Frame_Bound_Base
     {
     public:
 
-      Frame_Bound() : _frame(__INTERNAL__::default_frame) {}
+      Frame_Bound() : _frame(default_frame) {}
 
       explicit Frame_Bound(const Base_Frame &frame) : _frame(&frame) {}
 
@@ -175,18 +183,23 @@ namespace gams
         const CoordType &s = as_coord_type();
         const CoordType &o = rhs.as_coord_type();
 
-        if(s.x() < o.x())
-          return true;
-        if(s.y() < o.y())
-          return true;
-        return s.z() < o.z();
+        for(int i = 0; i < s.size(); ++i)
+        {
+          double l = s.get(i);
+          double r = o.get(i);
+          if(l<r)
+            return true;
+          if(r<l)
+            return false;
+        }
+        return false;
       }
 
       std::string to_string(const std::string &delim = ",") const
       {
         std::stringstream buffer;
         const CoordType &s = as_coord_type();
-        for(int i = 0; i < s.cardinality(); ++i)
+        for(int i = 0; i < s.size(); ++i)
         {
           if(i > 0)
             buffer << delim;
@@ -199,7 +212,7 @@ namespace gams
       static std::istream &skip_nonnum(std::istream &s)
       {
         int next;
-        while((next = s.peek()) != EOF)
+        while(s && (next = s.peek()) != EOF)
         {
           if(next == '.' || next == '-' || (next >= '0' && next <= '9'))
             break;
@@ -217,7 +230,7 @@ namespace gams
       {
         std::stringstream buffer(in);
         CoordType &s = as_coord_type();
-        for(int i = 0; i < s.cardinality(); ++i)
+        for(int i = 0; i < s.size(); ++i)
         {
           double val;
           buffer >> skip_nonnum;
@@ -230,7 +243,7 @@ namespace gams
       void to_container(ContainType &container) const
       {
         const CoordType &s = as_coord_type();
-        for(int i = 0; i < s.cardinality(); i++)
+        for(int i = 0; i < s.size(); i++)
         {
           container.set(i, s.get(i));
         }
@@ -240,7 +253,7 @@ namespace gams
       void from_container(ContainType &container)
       {
         CoordType &s = as_coord_type();
-        for(int i = 0; i < s.cardinality(); i++)
+        for(int i = 0; i < s.size(); i++)
         {
           s.set(i, container[i]);
         }
@@ -312,7 +325,7 @@ namespace gams
       double phi(double new_y) { return _y = new_y; }
       double r(double new_z) { return _z = new_z; }
 
-      int cardinality() const
+      int size() const
       {
         return 3;
       }
@@ -588,7 +601,7 @@ namespace gams
       {
         double A = (_w + _x) * (o._w + o._x),
                B = (_z - _y) * (o._y - o._z),
-               C = (_w - _x) * (o._y + o._z), 
+               C = (_w - _x) * (o._y + o._z),
                D = (_y + _z) * (o._w - o._x),
                E = (_x + _z) * (o._x + o._y),
                F = (_x - _z) * (o._x - o._y),
