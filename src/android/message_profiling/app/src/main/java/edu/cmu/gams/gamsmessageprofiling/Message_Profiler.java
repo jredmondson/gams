@@ -1,26 +1,59 @@
 package edu.cmu.gams.gamsmessageprofiling;
 
+import android.util.Log;
+
+import com.gams.controllers.BaseController;
+import com.madara.KnowledgeBase;
+import com.madara.KnowledgeList;
+import com.madara.MadaraLog;
+import com.madara.transport.TransportSettings;
+import com.madara.transport.TransportType;
+
 /**
  * Created by aldukeman on 6/16/15.
  */
-public class Message_Profiler {
-    enum transport_t
-    {
-        MULTICAST,
-        BROADCAST,
-        UDP
-    }
+class Message_Profiler {
 
-    transport_t type;
-    String address;
-    int size;
-    int rate;
-    int duration;
-    int id;
+    private TransportType type;
+    private String address;
+    private int size;
+    private int rate;
+    private int duration;
+    private int id;
+
+    private static final String TAG = "Message_Profiler";
 
     public void run ()
     {
+        TransportSettings settings = new TransportSettings();
+        String[] hosts = new String[1];
+        hosts[0] = address;
+        Log.d(TAG, address);
+        settings.setHosts(hosts);
+        settings.setType(type);
 
+        Log.d(TAG, "creating knowledge base...");
+        String host = Integer.toString(id);
+        KnowledgeBase knowledge = new KnowledgeBase(host, settings);
+        //KnowledgeBase knowledge = new KnowledgeBase();
+        Log.d(TAG, "done creating knowledge base");
+
+        String prefix = "device." + id + ".command";
+        knowledge.set(".id", id);
+        knowledge.set(prefix, "message_profile");
+        knowledge.set(prefix + ".size", 1);
+        knowledge.set(prefix + ".0", 10);
+        Log.d(TAG, knowledge.get(".id").toString());
+        Log.d(TAG, knowledge.get(prefix).toString());
+        Log.d(TAG, knowledge.get(prefix + ".size").toString());
+        Log.d(TAG, knowledge.get(prefix + ".0").toString());
+
+        BaseController controller = new BaseController(knowledge);
+        controller.initVars(0, 1);
+        controller.initPlatform("null");
+        controller.run(1.0 / rate, duration);
+
+        Log.d(TAG, knowledge.get("message_profiling.0.data").toString());
     }
 
     public Message_Profiler (String t, String a, int s, int r, int d, int i)
@@ -28,13 +61,13 @@ public class Message_Profiler {
         switch(t)
         {
             case "Multicast":
-                type = transport_t.MULTICAST;
+                type = TransportType.MULTICAST_TRANSPORT;
                 break;
             case "Broadcast":
-                type = transport_t.BROADCAST;
+                type = TransportType.BROADCAST_TRANSPORT;
                 break;
             case "UDP":
-                type = transport_t.UDP;
+                type = TransportType.UDP_TRANSPORT;
                 break;
         }
 

@@ -146,6 +146,18 @@ public class BaseController extends GamsJNI
    * @param  name       name of the platform
    * @param  args       arguments to the platform initialization
    */
+  public void initPlatform(java.lang.String name)
+  {
+    KnowledgeList args = new KnowledgeList(null);
+    initPlatform(name, args);
+  }
+
+  /**
+   * Initialize a platform within the controller
+   *
+   * @param  name       name of the platform
+   * @param  args       arguments to the platform initialization
+   */
   public void initPlatform(java.lang.String name, KnowledgeList args)
   {
     jni_initPlatform(getCPtr(), name, args.toPointerArray());

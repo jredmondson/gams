@@ -51,10 +51,10 @@ public class MainActivity extends ActionBarActivity {
         size_text.setText("1000");
 
         EditText rate_text = (EditText) findViewById(R.id.rate_text_box);
-        rate_text.setText("20");
+        rate_text.setText("10");
 
         EditText duration_text = (EditText) findViewById(R.id.duration_text_box);
-        duration_text.setText("60");
+        duration_text.setText("15");
 
         EditText agent_id_text = (EditText) findViewById(R.id.id_text_box);
         agent_id_text.setText("0");
