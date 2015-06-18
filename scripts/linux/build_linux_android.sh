@@ -17,12 +17,6 @@
 TESTS=0
 VREP=0
 
-export ANDROID_ARCH=arm
-export LOCAL_CROSS_PREFIX=arm-linux-androideabi-
-export NDK=$HOME/bin/android_arm_tools
-export ARM_BIN=$NDK/bin
-export SYSROOT=$NDK
-
 echo "Arguments can be \"tests\" or \"vrep\" to enable these features"
 echo "Arg 1 is $1"
 echo "Arg 2 is $2"
