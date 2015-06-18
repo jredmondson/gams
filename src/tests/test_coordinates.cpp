@@ -129,12 +129,12 @@ int main()
   sloc0.from_string("1, 2, 3");
   LOG(sloc0);
 
-/*
   std::cout << std::endl << "Testing Poses, with rotations between Cartesian frames:" << std::endl;
   Pose pose0(rot_frame0, 0, 0);
   Pose pose1(rot_frame1, 0, 0);
   LOG(pose0);
   LOG(pose1);
-  TEST(rot1.transform_to(rot_frame0).rz, M_PI / 2);
-*/
+  TEST(pose1.transform_to(rot_frame0).rz(), M_PI / 2);
+  TEST(pose0.transform_to(gps_frame).rz(), 0);
+  TEST(pose1.transform_to(gps_frame).rz(), M_PI / 2);
 }

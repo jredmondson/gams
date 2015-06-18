@@ -62,7 +62,7 @@
 #include <cmath>
 #include <cfloat>
 #include <climits>
-#include <gams/utility/Coordinates.h>
+#include <gams/utility/Pose.h>
 
 /**
  * Following statement or block is executed only if the frame `coord` belongs
@@ -410,7 +410,7 @@ namespace gams
       inline static void transform_other(CoordType &in, const Base_Frame &to_frame);
 
       template<typename CoordType>
-      friend class Frame_Bound;
+      friend class Coordinate;
     };
 
     /**
@@ -475,7 +475,7 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline CoordType Frame_Bound<CoordType>::transform_to(const Base_Frame &new_frame) const
+    inline CoordType Coordinate<CoordType>::transform_to(const Base_Frame &new_frame) const
     {
       CoordType ret(static_cast<const CoordType &>(*this));
       Base_Frame::transform(ret, new_frame);
@@ -483,20 +483,20 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline void Frame_Bound<CoordType>::transform_this_to(const Base_Frame &new_frame)
+    inline void Coordinate<CoordType>::transform_this_to(const Base_Frame &new_frame)
     {
       Base_Frame::transform(static_cast<CoordType &>(*this), new_frame);
     }
 
     template<typename CoordType>
-    inline double Frame_Bound<CoordType>::distance_to(const CoordType &target) const
+    inline double Coordinate<CoordType>::distance_to(const CoordType &target) const
     {
       return Base_Frame::distance(static_cast<const CoordType &>(*this),
                                   static_cast<const CoordType &>(target));
     }
 
     template<typename CoordType>
-    inline void Frame_Bound<CoordType>::normalize()
+    inline void Coordinate<CoordType>::normalize()
     {
       frame().normalize(static_cast<CoordType &>(*this));
     }

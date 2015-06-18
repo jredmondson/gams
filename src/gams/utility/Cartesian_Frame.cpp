@@ -112,6 +112,6 @@ namespace gams
       Base_Frame *default_frame = &cartesian_default_frame;
     }
 
-    const Base_Frame *Frame_Bound_Base::default_frame = &cartesian_default_frame;
+    const Base_Frame *Coordinate_Base::default_frame = &cartesian_default_frame;
   }
 }
