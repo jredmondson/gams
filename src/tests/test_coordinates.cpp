@@ -1,5 +1,4 @@
 #include <iostream>
-#include <gams/utility/Base_Frame.h>
 #include <gams/utility/Cartesian_Frame.h>
 #include <gams/utility/GPS_Frame.h>
 
@@ -117,6 +116,11 @@ int main()
   TEST(rot0.transform_to(rot_frame1).rz(), - (M_PI / 2));
   TEST(rot0.distance_to(rot1), 90);
   TEST(rot1.distance_to(rot0), 90);
+
+  Location rloc0(rot_frame0, 0, 0);
+  Location rloc1(rot_frame1, 4, 0);
+  LOG(rloc1);
+  LOG(rloc1.transform_to(rot_frame0));
 
   std::cout << std::endl << "Testing rotations between Cartesian/GPS frames:" << std::endl;
   Rotation grot0(gps_frame, 0, 0, 0);

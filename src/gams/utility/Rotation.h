@@ -75,7 +75,7 @@ namespace gams
 {
   namespace utility
   {
-    class Base_Frame;
+    class Reference_Frame;
 
     class Quaternion;
 
@@ -109,7 +109,7 @@ namespace gams
 
       explicit Rotation_Base(const Quaternion &quat);
 
-      bool isInvalid() {
+      bool is_invalid() {
         return _rx == INVAL_COORD || _ry == INVAL_COORD || _rz == INVAL_COORD;
       }
 
@@ -131,7 +131,7 @@ namespace gams
       double ry(double new_ry) { return _ry = new_ry; }
       double rz(double new_rz) { return _rz = new_rz; }
 
-      typedef Rotation_Base Base_Type;
+      typedef Rotation_Base Reference_Type;
 
       int cardinality() const
       {
@@ -191,7 +191,7 @@ namespace gams
       Rotation(double rx, double ry, double rz)
         : Rotation_Base(rx, ry, rz), Coordinate() {}
 
-      Rotation(const Base_Frame &frame, double rx, double ry, double rz)
+      Rotation(const Reference_Frame &frame, double rx, double ry, double rz)
         : Rotation_Base(rx, ry, rz), Coordinate(frame) {}
 
       /**
@@ -201,7 +201,7 @@ namespace gams
       Rotation(double x, double y, double z, double angle)
         : Rotation_Base(x, y, z, DEG_TO_RAD(angle)), Coordinate() {}
 
-      Rotation(const Base_Frame &frame, double x, double y, double z, double angle)
+      Rotation(const Reference_Frame &frame, double x, double y, double z, double angle)
         : Rotation_Base(x, y, z, DEG_TO_RAD(angle)), Coordinate(frame) {}
 
       /**
@@ -213,7 +213,7 @@ namespace gams
       Rotation(int axis_index, double angle)
         : Rotation_Base(axis_index, angle), Coordinate() {}
 
-      Rotation(const Base_Frame &frame, int axis_index, double angle)
+      Rotation(const Reference_Frame &frame, int axis_index, double angle)
         : Rotation_Base(axis_index, angle), Coordinate(frame) {}
 
       Rotation() : Rotation_Base(), Coordinate() {}
@@ -373,6 +373,6 @@ namespace gams
 }
 
 // Include if not already included
-#include <gams/utility/Base_Frame.h>
+#include <gams/utility/Reference_Frame.h>
 
 #endif

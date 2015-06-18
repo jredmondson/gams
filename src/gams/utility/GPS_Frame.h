@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_GPS_FRAME_H_
 #define _GAMS_UTILITY_GPS_FRAME_H_
 
-#include "Base_Frame.h"
+#include "Reference_Frame.h"
 
 namespace gams
 {
@@ -81,7 +81,7 @@ namespace gams
      * calculated using lower of two altitudes, then distance calculated as follows:
      *    distance = sqrt(circle_distance ^ 2 + altitude_difference ^ 2)
      **/
-    class GAMS_Export GPS_Frame : public Basic_Rotational_Frame
+    class GAMS_Export GPS_Frame : public Axis_Angle_Frame
     {
     public:
       static const double EARTH_RADIUS;
@@ -89,13 +89,13 @@ namespace gams
       static const double MARS_RADIUS;
 
       GPS_Frame(double planet_radius = EARTH_RADIUS)
-        : Basic_Rotational_Frame(), _planet_radius(planet_radius) {}
+        : Axis_Angle_Frame(), _planet_radius(planet_radius) {}
 
       explicit GPS_Frame(const Pose &origin, double planet_radius = EARTH_RADIUS)
-        : Basic_Rotational_Frame(origin), _planet_radius(planet_radius) {}
+        : Axis_Angle_Frame(origin), _planet_radius(planet_radius) {}
 
       explicit GPS_Frame(Pose *origin, double planet_radius = EARTH_RADIUS)
-        : Basic_Rotational_Frame(origin), _planet_radius(planet_radius) {}
+        : Axis_Angle_Frame(origin), _planet_radius(planet_radius) {}
 
       double radius() const { return _planet_radius; }
       double circ() const { return 2 * _planet_radius * M_PI; }

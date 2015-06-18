@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file Base_Frame.h
+ * @file Reference_Frame.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the base reference Frame class
  **/
 
-#ifndef _GAMS_UTILITY_BASE_FRAME_H_
-#define _GAMS_UTILITY_BASE_FRAME_H_
+#ifndef _GAMS_UTILITY_REFERENCE_FRAME_H_
+#define _GAMS_UTILITY_REFERENCE_FRAME_H_
 
 #include "gams/GAMS_Export.h"
 #include <iostream>
@@ -93,12 +93,12 @@ namespace gams
     class bad_coord_type : public std::runtime_error
     {
     public:
-      bad_coord_type(const Base_Frame &frame, const std::string &fn_name);
+      bad_coord_type(const Reference_Frame &frame, const std::string &fn_name);
       ~bad_coord_type() throw() {}
 
       std::string coord_type_name;
       std::string fn_name;
-      const Base_Frame &frame;
+      const Reference_Frame &frame;
 
       typedef CoordType Coord_Type;
     };
@@ -110,14 +110,14 @@ namespace gams
     class unrelated_frames : public std::runtime_error
     {
     public:
-      unrelated_frames(const Base_Frame &from_frame,
-        const Base_Frame &to_frame) :
+      unrelated_frames(const Reference_Frame &from_frame,
+        const Reference_Frame &to_frame) :
         std::runtime_error("No transform path found between frames."),
         from_frame(from_frame), to_frame(to_frame) {}
       ~unrelated_frames() throw() {}
 
-      const Base_Frame &from_frame;
-      const Base_Frame &to_frame;
+      const Reference_Frame &from_frame;
+      const Reference_Frame &to_frame;
     };
 
     /**
@@ -134,12 +134,12 @@ namespace gams
     class undefined_transform : public std::runtime_error
     {
     public:
-      undefined_transform(const Base_Frame &parent_frame,
-        const Base_Frame &child_frame, bool is_child_to_parent);
+      undefined_transform(const Reference_Frame &parent_frame,
+        const Reference_Frame &child_frame, bool is_child_to_parent);
       ~undefined_transform() throw() {}
 
-      const Base_Frame &parent_frame;
-      const Base_Frame &child_frame;
+      const Reference_Frame &parent_frame;
+      const Reference_Frame &child_frame;
       bool is_child_to_parent;
     };
 
@@ -148,20 +148,20 @@ namespace gams
      * Inherit from this class if implementing a new reference frame.
      * Otherwise, do not use directly.
      **/
-    class GAMS_Export Base_Frame
+    class GAMS_Export Reference_Frame
     {
     public:
       /**
        * Default constructor. No parent frame.
        **/
-      Base_Frame()
+      Reference_Frame()
         : _origin(new Pose(*this, 0, 0, 0, 0, 0, 0)),
           _destruct_origin(true) {}
 
       /**
        * Creates a copy of the origin Pose passed in.
        **/
-      explicit Base_Frame(const Pose &origin)
+      explicit Reference_Frame(const Pose &origin)
         : _origin(new Pose(origin)),
           _destruct_origin(true) {}
 
@@ -169,11 +169,11 @@ namespace gams
        * Uses an existing Pose as origin, and maintains
        * a pointer to it. Changes to it affect this frame
        **/
-      explicit Base_Frame(Pose *origin)
+      explicit Reference_Frame(Pose *origin)
         : _origin(origin),
           _destruct_origin(false) {}
 
-      virtual ~Base_Frame()
+      virtual ~Reference_Frame()
       {
         if(_destruct_origin)
         {
@@ -205,12 +205,12 @@ namespace gams
         _origin = new_origin;
       }
 
-      bool operator==(const Base_Frame &other) const
+      bool operator==(const Reference_Frame &other) const
       {
         return this == &other;
       }
 
-      bool operator!=(const Base_Frame &other) const
+      bool operator!=(const Reference_Frame &other) const
       {
         return !(*this == other);
       }
@@ -333,7 +333,7 @@ namespace gams
        * Transform coordinate `in` from its current from, to the specified frame
        **/
       template<typename CoordType>
-      static void transform(CoordType &in, const Base_Frame &to_frame)
+      static void transform(CoordType &in, const Reference_Frame &to_frame)
       {
         if (to_frame == in.frame())
           return;
@@ -376,7 +376,7 @@ namespace gams
        **/
       template<typename CoordType>
       static double transform_to_origin_within_frame(CoordType &in,
-          const Base_Frame &frame)
+          const Reference_Frame &frame)
       {
         frame.transform_to_origin(in);
       }
@@ -387,7 +387,7 @@ namespace gams
        **/
       template<typename CoordType>
       static double transform_from_origin_within_frame(CoordType &in,
-          const Base_Frame &frame)
+          const Reference_Frame &frame)
       {
         frame.transform_from_origin(in);
       }
@@ -398,16 +398,16 @@ namespace gams
        **/
       template<typename CoordType>
       static double calc_distance_within_frame( const CoordType &coord1,
-          const CoordType &coord2, const Base_Frame &frame)
+          const CoordType &coord2, const Reference_Frame &frame)
       {
         return frame.calc_distance(coord1, coord2);
       }
 
-      static const Base_Frame *find_common_frame(const Base_Frame *from,
-        const Base_Frame *to, std::vector<const Base_Frame *> *to_stack);
+      static const Reference_Frame *find_common_frame(const Reference_Frame *from,
+        const Reference_Frame *to, std::vector<const Reference_Frame *> *to_stack);
 
       template<typename CoordType>
-      inline static void transform_other(CoordType &in, const Base_Frame &to_frame);
+      inline static void transform_other(CoordType &in, const Reference_Frame &to_frame);
 
       template<typename CoordType>
       friend class Coordinate;
@@ -419,16 +419,16 @@ namespace gams
      * Provides implementation of transforms between rotations represented using
      * 3-value axis/angle notation. Inherit from this to use this implementation.
      **/
-    class Basic_Rotational_Frame : public Base_Frame
+    class Axis_Angle_Frame : public Reference_Frame
     {
     protected:
-      Basic_Rotational_Frame() : Base_Frame() {}
+      Axis_Angle_Frame() : Reference_Frame() {}
 
-      explicit Basic_Rotational_Frame(const Pose &origin)
-        : Base_Frame(origin) {}
+      explicit Axis_Angle_Frame(const Pose &origin)
+        : Reference_Frame(origin) {}
 
-      explicit Basic_Rotational_Frame(Pose *origin)
-        : Base_Frame(origin) {}
+      explicit Axis_Angle_Frame(Pose *origin)
+        : Reference_Frame(origin) {}
 
     private:
       virtual void transform_to_origin(Rotation_Base &in) const;
@@ -444,54 +444,54 @@ namespace gams
     };
 
     template<>
-    inline double Base_Frame::calc_distance_within_frame<>(const Pose &pose1,
-                      const Pose &pose2, const Base_Frame &frame)
+    inline double Reference_Frame::calc_distance_within_frame<>(const Pose &pose1,
+                      const Pose &pose2, const Reference_Frame &frame)
     {
       return frame.calc_distance(static_cast<const Location_Base&>(pose1),
                                  static_cast<const Location_Base&>(pose2));
     }
 
     template<>
-    inline double Base_Frame::transform_to_origin_within_frame<>(
-      Pose &in, const Base_Frame &frame)
+    inline double Reference_Frame::transform_to_origin_within_frame<>(
+      Pose &in, const Reference_Frame &frame)
     {
       frame.transform_to_origin(static_cast<Location_Base &>(in));
       frame.transform_to_origin(static_cast<Rotation_Base &>(in));
     }
 
     template<>
-    inline double Base_Frame::transform_from_origin_within_frame<>(
-      Pose &in, const Base_Frame &frame)
+    inline double Reference_Frame::transform_from_origin_within_frame<>(
+      Pose &in, const Reference_Frame &frame)
     {
       frame.transform_from_origin(static_cast<Location_Base &>(in));
       frame.transform_from_origin(static_cast<Rotation_Base &>(in));
     }
 
     template<>
-    inline void Base_Frame::normalize<>(Pose &pose) const
+    inline void Reference_Frame::normalize<>(Pose &pose) const
     {
       pose.frame().do_normalize(static_cast<Location_Base&>(pose));
       pose.frame().do_normalize(static_cast<Rotation_Base&>(pose));
     }
 
     template<typename CoordType>
-    inline CoordType Coordinate<CoordType>::transform_to(const Base_Frame &new_frame) const
+    inline CoordType Coordinate<CoordType>::transform_to(const Reference_Frame &new_frame) const
     {
       CoordType ret(static_cast<const CoordType &>(*this));
-      Base_Frame::transform(ret, new_frame);
+      Reference_Frame::transform(ret, new_frame);
       return ret;
     }
 
     template<typename CoordType>
-    inline void Coordinate<CoordType>::transform_this_to(const Base_Frame &new_frame)
+    inline void Coordinate<CoordType>::transform_this_to(const Reference_Frame &new_frame)
     {
-      Base_Frame::transform(static_cast<CoordType &>(*this), new_frame);
+      Reference_Frame::transform(static_cast<CoordType &>(*this), new_frame);
     }
 
     template<typename CoordType>
     inline double Coordinate<CoordType>::distance_to(const CoordType &target) const
     {
-      return Base_Frame::distance(static_cast<const CoordType &>(*this),
+      return Reference_Frame::distance(static_cast<const CoordType &>(*this),
                                   static_cast<const CoordType &>(target));
     }
 
@@ -502,10 +502,10 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline void Base_Frame::transform_other(CoordType &in, const Base_Frame &to_frame)
+    inline void Reference_Frame::transform_other(CoordType &in, const Reference_Frame &to_frame)
     {
-      std::vector<const Base_Frame *> to_stack;
-      const Base_Frame *transform_via = find_common_frame(&in.frame(), &to_frame, &to_stack);
+      std::vector<const Reference_Frame *> to_stack;
+      const Reference_Frame *transform_via = find_common_frame(&in.frame(), &to_frame, &to_stack);
       if(transform_via == NULL)
         throw unrelated_frames(in.frame(), to_frame);
       else
@@ -546,7 +546,7 @@ namespace gams
 
     template<typename CoordType>
     inline bad_coord_type<CoordType>
-          ::bad_coord_type(const Base_Frame &frame, const std::string &fn_name)
+          ::bad_coord_type(const Reference_Frame &frame, const std::string &fn_name)
       : std::runtime_error("Coordinate type " + CoordType::name() +
             " not supported by frame type " + frame.name() +
             " for operation " + fn_name + "."),
@@ -554,7 +554,7 @@ namespace gams
         fn_name(fn_name), frame(frame) {}
 
     inline undefined_transform::undefined_transform(
-            const Base_Frame &parent_frame, const Base_Frame &child_frame,
+            const Reference_Frame &parent_frame, const Reference_Frame &child_frame,
             bool is_child_to_parent)
       : std::runtime_error(is_child_to_parent ?
             ("No defined transform from embedded " + child_frame.name() +

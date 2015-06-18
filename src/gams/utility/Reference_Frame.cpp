@@ -45,41 +45,41 @@
  **/
 
 /**
- * @file Base_Frame.cpp
+ * @file Reference_Frame.cpp
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the base reference Frame class
  **/
 
-#include <gams/utility/Base_Frame.h>
+#include <gams/utility/Reference_Frame.h>
 
 namespace gams
 {
   namespace utility
   {
     // TODO implement O(height) algo instead of O(height ^ 2)
-    const Base_Frame *Base_Frame::find_common_frame(
-      const Base_Frame *from, const Base_Frame *to,
-      std::vector<const Base_Frame *> *to_stack)
+    const Reference_Frame *Reference_Frame::find_common_frame(
+      const Reference_Frame *from, const Reference_Frame *to,
+      std::vector<const Reference_Frame *> *to_stack)
     {
-      const Base_Frame *cur_to = to;
+      const Reference_Frame *cur_to = to;
       for(;;)
       {
-        const Base_Frame *cur_from = from;
+        const Reference_Frame *cur_from = from;
         for(;;)
         {
           if(cur_to == cur_from)
           {
             return cur_to;
           }
-          const Base_Frame *next_cur_from = &cur_from->origin().frame();
+          const Reference_Frame *next_cur_from = &cur_from->origin().frame();
           if(cur_from == next_cur_from)
             break;
           cur_from = next_cur_from;
         }
         if(to_stack)
           to_stack->push_back(cur_to);
-        const Base_Frame *next_cur_to = &cur_to->origin().frame();
+        const Reference_Frame *next_cur_to = &cur_to->origin().frame();
         if(cur_to == next_cur_to)
           break;
         cur_to = next_cur_to;
@@ -87,9 +87,9 @@ namespace gams
       return NULL;
     }
 
-    void Basic_Rotational_Frame::transform_to_origin(Rotation_Base &in) const
+    void Axis_Angle_Frame::transform_to_origin(Rotation_Base &in) const
     {
-      GAMS_WITH_FRAME_TYPE(origin(), Basic_Rotational_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
       {
         Quaternion in_quat(in);
         Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
@@ -100,9 +100,9 @@ namespace gams
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void Basic_Rotational_Frame::transform_from_origin(Rotation_Base &in) const
+    void Axis_Angle_Frame::transform_from_origin(Rotation_Base &in) const
     {
-      GAMS_WITH_FRAME_TYPE(origin(), Basic_Rotational_Frame, frame)
+      GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
       {
         Quaternion in_quat(in);
         Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));

@@ -109,9 +109,9 @@ namespace gams
 
     namespace __INTERNAL__
     {
-      Base_Frame *default_frame = &cartesian_default_frame;
+      Reference_Frame *default_frame = &cartesian_default_frame;
     }
 
-    const Base_Frame *Coordinate_Base::default_frame = &cartesian_default_frame;
+    const Reference_Frame *Coordinate_Base::default_frame = &cartesian_default_frame;
   }
 }
