@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_CARTESIAN_FRAME_H_
 #define _GAMS_UTILITY_CARTESIAN_FRAME_H_
 
-#include "Base_Frame.h"
+#include "Reference_Frame.h"
 
 namespace gams
 {
@@ -67,12 +67,12 @@ namespace gams
      *    beta  degrees around Y-axis
      *    gamma degrees around Z-axis
      **/
-    class GAMS_Export Cartesian_Frame : public Basic_Rotational_Frame
+    class GAMS_Export Cartesian_Frame : public Axis_Angle_Frame
     {
     public:
-      Cartesian_Frame() : Basic_Rotational_Frame() {}
-      explicit Cartesian_Frame(const Pose &origin) : Basic_Rotational_Frame(origin) {}
-      explicit Cartesian_Frame(Pose *origin) : Basic_Rotational_Frame(origin) {}
+      Cartesian_Frame() : Axis_Angle_Frame() {}
+      explicit Cartesian_Frame(const Pose &origin) : Axis_Angle_Frame(origin) {}
+      explicit Cartesian_Frame(Pose *origin) : Axis_Angle_Frame(origin) {}
 
     private:
       virtual std::string get_name() const { return "Cartesian"; }

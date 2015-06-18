@@ -73,7 +73,7 @@ namespace gams
 {
   namespace utility
   {
-    class Base_Frame;
+    class Reference_Frame;
 
     /**
      * Container for Pose information, not bound to a frame.
@@ -96,8 +96,8 @@ namespace gams
 
       Pose_Base() : Location_Base(), Rotation_Base() {}
 
-      bool isInvalid() {
-        return Location_Base::isInvalid() || Rotation_Base::isInvalid();
+      bool is_invalid() {
+        return Location_Base::is_invalid() || Rotation_Base::is_invalid();
       }
 
       bool operator==(const Pose_Base &other) const
@@ -138,7 +138,7 @@ namespace gams
           return as_rotation().set(i - 3, val);
       }
 
-      typedef Pose_Base Base_Type;
+      typedef Pose_Base Reference_Type;
     private:
       Location_Base &as_location()
       {
@@ -174,10 +174,10 @@ namespace gams
       Pose(double x, double y, double z = 0.0)
         : Pose_Base(x, y, z, 0, 0, 0), Coordinate() {}
 
-      Pose(const Base_Frame &frame, double x, double y, double z, double rx, double ry, double rz)
+      Pose(const Reference_Frame &frame, double x, double y, double z, double rx, double ry, double rz)
         : Pose_Base(x, y, z, rx, ry, rz), Coordinate(frame) {}
 
-      Pose(const Base_Frame &frame, double x, double y, double z = 0.0)
+      Pose(const Reference_Frame &frame, double x, double y, double z = 0.0)
         : Pose_Base(x, y, z, 0, 0, 0), Coordinate(frame) {}
 
       Pose() : Pose_Base(), Coordinate() {}
@@ -188,7 +188,7 @@ namespace gams
       Pose(const Rotation &rot)
         : Pose_Base(rot), Coordinate(rot.frame()) {}
 
-      Pose(const Base_Frame &frame, const Location_Base &loc, const Rotation_Base &rot)
+      Pose(const Reference_Frame &frame, const Location_Base &loc, const Rotation_Base &rot)
         : Pose_Base(loc, rot), Coordinate(frame) {}
 
       /// Precondition: loc.frame == rot.frame
@@ -205,16 +205,9 @@ namespace gams
         return Rotation(frame(), rx(), ry(), rz());
       }
 
-      bool isInvalid() {
-        return Location_Base::isInvalid() || Rotation_Base::isInvalid();
-      }
-
       using Coordinate<Pose>::operator==;
     };
   }
 }
-
-// Include if not already included
-#include <gams/utility/Base_Frame.h>
 
 #endif

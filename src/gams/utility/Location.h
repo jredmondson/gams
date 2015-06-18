@@ -72,7 +72,7 @@ namespace gams
 {
   namespace utility
   {
-    class Base_Frame;
+    class Reference_Frame;
 
     /**
      * Container for Location information, not bound to a frame.
@@ -90,7 +90,7 @@ namespace gams
       Location_Base(const Location_Base &orig)
         : _x(orig._x), _y(orig._y), _z(orig._z) { }
 
-      bool isInvalid()
+      bool is_invalid()
       {
         return _x == INVAL_COORD || _y == INVAL_COORD || _z == INVAL_COORD;
       }
@@ -188,7 +188,7 @@ namespace gams
       Location(double x, double y, double z = 0.0)
         : Location_Base(x, y, z), Coordinate() {}
 
-      Location(const Base_Frame &frame, double x, double y, double z = 0.0)
+      Location(const Reference_Frame &frame, double x, double y, double z = 0.0)
         : Location_Base(x, y, z), Coordinate(frame) {}
 
       Location() : Location_Base(), Coordinate() {}
@@ -196,7 +196,7 @@ namespace gams
       Location(const Location &orig)
         : Location_Base(orig), Coordinate(orig) {}
 
-      Location(const Base_Frame &new_frame, const Location &orig)
+      Location(const Reference_Frame &new_frame, const Location &orig)
         : Location_Base(orig), Coordinate(orig.frame())
       {
         transform_this_to(new_frame);

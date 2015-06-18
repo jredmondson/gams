@@ -72,7 +72,7 @@ namespace gams
 {
   namespace utility
   {
-    class Base_Frame;
+    class Reference_Frame;
 
     /**
      * For internal use.
@@ -83,7 +83,7 @@ namespace gams
     class GAMS_Export Coordinate_Base
     {
     private:
-      static const Base_Frame *default_frame;
+      static const Reference_Frame *default_frame;
     };
 
     /**
@@ -104,14 +104,14 @@ namespace gams
 
       Coordinate() : _frame(default_frame) {}
 
-      explicit Coordinate(const Base_Frame &frame) : _frame(&frame) {}
+      explicit Coordinate(const Reference_Frame &frame) : _frame(&frame) {}
 
-      explicit Coordinate(const Base_Frame *frame) : _frame(frame) {}
+      explicit Coordinate(const Reference_Frame *frame) : _frame(frame) {}
 
       Coordinate(const Coordinate &orig) : _frame(&orig.frame()) {}
 
     private:
-      const Base_Frame *_frame;
+      const Reference_Frame *_frame;
 
       CoordType &as_coord_type()
       {
@@ -136,14 +136,14 @@ namespace gams
       }
 
     public:
-      const Base_Frame &frame() const { return *_frame; }
-      const Base_Frame &frame(const Base_Frame &new_frame) {
+      const Reference_Frame &frame() const { return *_frame; }
+      const Reference_Frame &frame(const Reference_Frame &new_frame) {
         return *(_frame = &new_frame);
       }
 
-      // Defined in Base_Frame.h
-      CoordType transform_to(const Base_Frame &new_frame) const;
-      void transform_this_to(const Base_Frame &new_frame);
+      // Defined in Reference_Frame.h
+      CoordType transform_to(const Reference_Frame &new_frame) const;
+      void transform_this_to(const Reference_Frame &new_frame);
       double distance_to(const CoordType &target) const;
       void normalize();
 
@@ -260,6 +260,6 @@ namespace gams
 }
 
 // Include if not already included
-#include <gams/utility/Base_Frame.h>
+#include <gams/utility/Reference_Frame.h>
 
 #endif
