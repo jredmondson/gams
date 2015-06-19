@@ -45,8 +45,6 @@ fi
 
 echo ""
 
-CORES=1
-
 # build ACE
 echo "Building ACE"
 echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
@@ -66,6 +64,8 @@ mwc.pl -type gnuace -features java=1,android=1,tests=0 MADARA.mwc
 make realclean -j $CORES
 find . -name "*.class" -delete
 make java=1 android=1 tests=0 -j $CORES
+find . -name "*.class" -delete
+make java=1 android=1 tests=0
 
 # build GAMS
 echo "Building GAMS"
@@ -74,3 +74,5 @@ make realclean -j $CORES
 find . -name "*.class" -type f -delete
 mwc.pl -type gnuace -features java=1,android=1,vrep=0,tests=0 gams.mwc
 make java=1 android=1 -j $CORES
+find . -name "*.class" -delete
+make java=1 android=1
