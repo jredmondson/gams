@@ -45,26 +45,31 @@ fi
 
 echo ""
 
+CORES=1
+
 # build ACE
 echo "Building ACE"
 echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
-echo "include \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+echo -e "versioned_so=0\nCROSS_COMPILE=\$(ARM_BIN)/\$(LOCAL_CROSS_PREFIX)\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
 cd $ACE_ROOT/ace
-perl $ACE_ROOT/bin/mwc.pl -type gnuace ace.mwc
+mwc.pl -type gnuace ace.mwc
 make realclean -j $CORES
 make -j $CORES
 
 # build MADARA
 echo "Building MADARA"
 cd $MADARA_ROOT
-perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=1,android=1,tests=$TESTS MADARA.mwc
 make realclean -j $CORES
-make java=1 android=1 tests=$TESTS -j $CORES
+find . -name "*.class" -delete
+mwc.pl -type gnuace -features java=1,android=1,tests=0 MADARA.mwc
+make realclean -j $CORES
+find . -name "*.class" -delete
+make java=1 android=1 tests=0 -j $CORES
 
 # build GAMS
 echo "Building GAMS"
 cd $GAMS_ROOT
-perl $ACE_ROOT/bin/mwc.pl -type gnuace -features vrep=$VREP,java=1,android=1,tests=$TESTS gams.mwc
 make realclean -j $CORES
-make vrep=$VREP java=1 android=1 tests=$TESTS -j $CORES
-
+find . -name "*.class" -type f -delete
+mwc.pl -type gnuace -features java=1,android=1,vrep=0,tests=0 gams.mwc
+make java=1 android=1 -j $CORES
