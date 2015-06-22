@@ -53,6 +53,7 @@
 
 #include "madara/knowledge_engine/Knowledge_Base.h"
 #include "gams/controllers/Base_Controller.h"
+#include "madara/logger/Global_Logger.h"
 
 // default transport settings
 std::string host ("");
@@ -142,7 +143,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        Madara::Knowledge_Engine::Knowledge_Base::log_to_file (argv[i + 1]);
+        Madara::Logger::global_logger->add_file (argv[i + 1]);
       }
 
       ++i;
@@ -162,7 +163,9 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         std::stringstream buffer (argv[i + 1]);
-        buffer >> MADARA_debug_level;
+        int level;
+        buffer >> level;
+        Madara::Logger::global_logger->set_level (level);
       }
 
       ++i;
@@ -234,7 +237,7 @@ void handle_arguments (int argc, char ** argv)
     }
     else
     {
-      MADARA_DEBUG (MADARA_LOG_EMERGENCY, (LM_DEBUG, 
+      Madara::Logger::global_logger->log (Madara::Logger::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" \
 "  Attempts to send a file over the network with a certain number\n" \
 "  of rebroadcasts (-e|--rebroadcasts controls the number of rebroadcasts)\n\n" \
@@ -257,7 +260,7 @@ void handle_arguments (int argc, char ** argv)
 " [-u|--udp ip:port]       a udp ip to send to (first is self to bind to)\n" \
 " [-w|--max-wait time]     maximum time to wait in seconds (double format)\n"\
 "\n",
-        argv[0]));
+        argv[0]);
       exit (0);
     }
   }

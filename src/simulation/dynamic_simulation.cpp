@@ -197,7 +197,12 @@ void handle_arguments (int argc, char** argv)
     else if (arg1 == "-l" || arg1 == "--log-level")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
-        sscanf (argv[i + 1], "%d", &MADARA_debug_level);
+      {
+        std::stringstream buffer (argv[i + 1]);
+        int level;
+        buffer >> level;
+        Madara::Logger::global_logger->set_level (level);
+      }
       else
         print_usage (argv[0]);
       ++i;

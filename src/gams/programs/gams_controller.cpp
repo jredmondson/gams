@@ -92,7 +92,7 @@ std::string file_path;
 
 void print_usage (char* prog_name)
 {
-      MADARA_DEBUG (MADARA_LOG_EMERGENCY, (LM_DEBUG, 
+  Madara::Logger::global_logger->log (Madara::Logger::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" \
 "     Loop controller setup for gams\n" \
 " [-A |--algorithm type]        algorithm to start with\n" \
@@ -117,7 +117,7 @@ void print_usage (char* prog_name)
 " [-t |--target path]           file system location to save received files (NYI)\n" \
 " [-u |--udp ip:port]           a udp ip to send to (first is self to bind to)\n" \
 "\n",
-        prog_name));
+        prog_name);
   exit (0);
 }
 
@@ -186,7 +186,9 @@ void handle_arguments (int argc, char ** argv)
     else if (arg1 == "-f" || arg1 == "--logfile")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
-        Madara::Knowledge_Engine::Knowledge_Base::log_to_file (argv[i + 1]);
+      {
+        Madara::Logger::global_logger->add_file (argv[i + 1]);
+      }
       else
         print_usage (argv[0]);
 
@@ -210,7 +212,9 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
-        buffer >> MADARA_debug_level;
+        int level;
+        buffer >> level;
+        Madara::Logger::global_logger->set_level (level);
       }
       else
         print_usage (argv[0]);
