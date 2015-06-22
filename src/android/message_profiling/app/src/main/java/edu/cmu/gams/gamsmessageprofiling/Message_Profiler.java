@@ -5,6 +5,7 @@ import android.util.Log;
 import com.gams.controllers.BaseController;
 import com.madara.KnowledgeBase;
 import com.madara.KnowledgeList;
+import com.madara.KnowledgeRecord;
 import com.madara.MadaraLog;
 import com.madara.transport.TransportSettings;
 import com.madara.transport.TransportType;
@@ -39,21 +40,15 @@ class Message_Profiler {
         Log.d(TAG, "done creating knowledge base");
 
         String prefix = "device." + id + ".command";
-        knowledge.set(".id", id);
-        knowledge.set(prefix, "message_profile");
-        knowledge.set(prefix + ".size", 1);
-        knowledge.set(prefix + ".0", 10);
-        Log.d(TAG, knowledge.get(".id").toString());
-        Log.d(TAG, knowledge.get(prefix).toString());
-        Log.d(TAG, knowledge.get(prefix + ".size").toString());
-        Log.d(TAG, knowledge.get(prefix + ".0").toString());
 
         BaseController controller = new BaseController(knowledge);
         controller.initVars(0, 1);
-        controller.initPlatform("null");
+        controller.initPlatform("null", new KnowledgeList(new long[0]));
+        knowledge.set(".id", id);
+        knowledge.set(prefix, "message profiling");
+        knowledge.set(prefix + ".size", 1);
+        knowledge.set(prefix + ".0", 10);
         controller.run(1.0 / rate, duration);
-
-        Log.d(TAG, knowledge.get("message_profiling.0.data").toString());
     }
 
     public Message_Profiler (String t, String a, int s, int r, int d, int i)
