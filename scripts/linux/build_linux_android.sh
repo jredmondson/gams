@@ -12,7 +12,9 @@
 #   $NDK_BIN      - This should be the path to the Android NDK binaries for the
 #                   platform you are trying to deploy (e.g. the arm toolchain)
 #   $VREP_ROOT    - location of VREP installation, if applicable
-#   
+#   $ARM_BIN      - Set this to the directory of the compiler
+#   $LOCAL_CROSS_PREFIX
+#                 - Set this to the toolchain prefix
 
 TESTS=0
 VREP=0
@@ -36,6 +38,8 @@ echo "ACE will be built from $ACE_ROOT"
 echo "GAMS will be built from $GAMS_ROOT"
 echo "JAVA_HOME is referencing $JAVA_HOME"
 echo "NDK_BIN is referencing $NDK_BIN"
+echo "ARM_BIN is referencing $ARM_BIN"
+echo "LOCAL_CROSS_PREFEIX is $LOCAL_CROSS_PREFIX"
 echo "TESTS has been set to $TESTS"
 echo "VREP has been set to $VREP"
 

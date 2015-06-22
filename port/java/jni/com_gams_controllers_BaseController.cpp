@@ -152,9 +152,9 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAccent
 /*
  * Class:     com_gams_controllers_BaseController
  * Method:    jni_initAlgorithm
- * Signature: (JLjava/lang/String;Lcom/madara/KnowledgeList;)V
+ * Signature: (JLjava/lang/String;[J)V
  */
-void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm
+void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_lang_String_2_3J
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
 {
   controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
@@ -191,7 +191,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm
  * Method:    jni_initPlatform
  * Signature: (JLjava/lang/String;Lcom/madara/KnowledgeList;)V
  */
-void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform
+void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2_3J
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
 {
   controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
@@ -234,7 +234,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform
  * Method:    jni_initAlgorithm
  * Signature: (JLjava/lang/Object;)V
  */
-GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_lang_Object_2
+void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_lang_Object_2
   (JNIEnv *, jobject, jlong cptr, jobject algorithm)
 {
   controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
@@ -250,7 +250,7 @@ GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgor
  * Method:    jni_initPlatform
  * Signature: (JLjava/lang/Object;)V
  */
-GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_Object_2
+void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_Object_2
   (JNIEnv *, jobject, jlong cptr, jobject platform)
 {
   controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
