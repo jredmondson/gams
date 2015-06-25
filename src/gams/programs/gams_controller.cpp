@@ -92,7 +92,8 @@ std::string file_path;
 
 void print_usage (char* prog_name)
 {
-  Madara::madara_logger_ptr_log (Logger::global_logger.get(), Madara::Logger::LOG_ALWAYS,
+  madara_logger_ptr_log (Madara::Logger::global_logger.get(),
+    Madara::Logger::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" \
 "     Loop controller setup for gams\n" \
 " [-A |--algorithm type]        algorithm to start with\n" \
