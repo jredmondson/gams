@@ -87,12 +87,30 @@ namespace gams
       return NULL;
     }
 
-    void Axis_Angle_Frame::transform_to_origin(Rotation_Base &in) const
+    void Axis_Angle_Frame::rotate_location_vec(Location_Vector &loc,
+      const Rotation_Vector &rot, bool reverse) const
+    {
+      if(rot.is_zero())
+        return;
+
+      Quaternion locq(loc);
+      Quaternion rotq(rot);
+
+      if(reverse)
+        rotq.conjugate();
+
+      Quaternion::hamilton_product(locq, rotq, locq);
+      rotq.conjugate();
+      locq *= rotq;
+      locq.to_location_vector(loc);
+    }
+
+    void Axis_Angle_Frame::transform_to_origin(Rotation_Vector &in) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
       {
         Quaternion in_quat(in);
-        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
+        Quaternion origin_quat(origin().as_rotation_vec());
         in_quat *= origin_quat;
         in_quat.to_rotation_vector(in);
         return;
@@ -100,12 +118,12 @@ namespace gams
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void Axis_Angle_Frame::transform_from_origin(Rotation_Base &in) const
+    void Axis_Angle_Frame::transform_from_origin(Rotation_Vector &in) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
       {
         Quaternion in_quat(in);
-        Quaternion origin_quat(static_cast<const Rotation_Base &>(origin()));
+        Quaternion origin_quat(origin().as_rotation_vec());
         origin_quat.conjugate();
         in_quat *= origin_quat;
         in_quat.to_rotation_vector(in);

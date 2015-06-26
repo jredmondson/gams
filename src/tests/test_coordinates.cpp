@@ -77,6 +77,7 @@ int main()
   Cartesian_Frame cart_frame3(Pose(cart_frame2, 3, 4));
 
   Location cloc0(cart_frame0, 0, 0);
+  Location cloc2(cart_frame2, 0, 0);
   Location cloc3(cart_frame3, 0, 0);
   Location cloc3a(cart_frame0, cloc3);
 
@@ -96,7 +97,8 @@ int main()
   TEST(cloc3.distance_to(cloc0), 15);
 
   std::cout << std::endl << "Testing Cartesian/GPS conversion:" << std::endl;
-  TEST(cloc3.distance_to(gloc), 15);
+  TEST(cloc2.distance_to(gloc), 15);
+  TEST(cloc0.distance_to(gloc), 15);
   LOG(cloc3.transform_to(cloc0.frame()));
   LOG(cloc3.transform_to(gloc.frame()));
   LOG(gloc.distance_to(cloc3));
@@ -107,7 +109,7 @@ int main()
 
   std::cout << std::endl << "Testing rotations between Cartesian frames:" << std::endl;
   Cartesian_Frame rot_frame0(gloc0);
-  Cartesian_Frame rot_frame1(Rotation(rot_frame0, Rotation::Z_axis, 90));
+  Cartesian_Frame rot_frame1(Pose(rot_frame0, Location(50, 100), Rotation(Rotation::Z_axis, 90)));
 
   Rotation rot0(rot_frame0, 0, 0, 0);
   Rotation rot1(rot_frame1, 0, 0, 0);
@@ -121,6 +123,13 @@ int main()
   Location rloc1(rot_frame1, 4, 0);
   LOG(rloc1);
   LOG(rloc1.transform_to(rot_frame0));
+  Location rloc2(rot_frame0, 4, 0);
+  LOG(rloc2);
+  LOG(rloc2.transform_to(rot_frame1));
+  Location glocr(gps_frame, 1, 2);
+  LOG(glocr.transform_to(rot_frame1));
+  Location rloc3(rot_frame1, 2000, 8000);
+  LOG(rloc3.transform_to(gps_frame));
 
   std::cout << std::endl << "Testing rotations between Cartesian/GPS frames:" << std::endl;
   Rotation grot0(gps_frame, 0, 0, 0);
@@ -141,4 +150,35 @@ int main()
   TEST(pose1.transform_to(rot_frame0).rz(), M_PI / 2);
   TEST(pose0.transform_to(gps_frame).rz(), 0);
   TEST(pose1.transform_to(gps_frame).rz(), M_PI / 2);
+
+  std::cout << std::endl << "Forming a hexagon with a chain of Cartesian frames:" << std::endl;
+  Cartesian_Frame hex_frame0(gloc0);
+  Pose hex0(hex_frame0, 0, 0);
+  Cartesian_Frame hex_frame1(Pose(hex_frame0, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  Pose hex1(hex_frame1, 0, 0);
+  Cartesian_Frame hex_frame2(Pose(hex_frame1, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  Pose hex2(hex_frame2, 0, 0);
+  Cartesian_Frame hex_frame3(Pose(hex_frame2, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  Pose hex3(hex_frame3, 0, 0);
+  Cartesian_Frame hex_frame4(Pose(hex_frame3, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  Pose hex4(hex_frame4, 0, 0);
+  Cartesian_Frame hex_frame5(Pose(hex_frame4, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  Pose hex5(hex_frame5, 0, 0);
+  Cartesian_Frame hex_frame6(Pose(hex_frame5, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  Pose hex6(hex_frame6, 0, 0);
+  TEST(hex6.distance_to(hex0), 0);
+  TEST(hex0.distance_to(hex6), 0);
+  TEST(hex0.distance_to(hex1), 10);
+  TEST(hex0.distance_to(hex2), 17.32);
+  TEST(hex0.distance_to(hex3), 20);
+  TEST(hex0.angle_to(hex1), 60);
+  TEST(hex0.angle_to(hex2), 120);
+  TEST(hex0.angle_to(hex3), 180);
+  TEST(hex0.angle_to(hex4), 120);
+  TEST(hex0.angle_to(hex5), 60);
+  TEST(hex0.angle_to(hex6), 0);
+  LOG(Rotation(hex0));
+  LOG(Rotation(hex6));
+  LOG(Rotation(hex6.transform_to(hex_frame0)));
+  TEST(hex0.angle_to(hex0), 0);
 }

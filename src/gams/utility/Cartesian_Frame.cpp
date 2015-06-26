@@ -51,10 +51,12 @@ namespace gams
 {
   namespace utility
   {
-    void Cartesian_Frame::transform_to_origin(Location_Base &in) const
+    void Cartesian_Frame::transform_to_origin(Location_Vector &in) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
       {
+        rotate_location_vec(in, origin());
+
         in.x(in.x() + origin().x());
         in.y(in.y() + origin().y());
         in.z(in.z() + origin().z());
@@ -62,6 +64,8 @@ namespace gams
       }
       GAMS_WITH_FRAME_TYPE(origin(), GPS_Frame, frame)
       {
+        rotate_location_vec(in, origin());
+
         in.z(in.z() + origin().z());
 
         // convert the latitude/y coordinates
@@ -79,10 +83,12 @@ namespace gams
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void Cartesian_Frame::transform_from_origin(Location_Base &in) const
+    void Cartesian_Frame::transform_from_origin(Location_Vector &in) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), Cartesian_Frame, frame)
       {
+        rotate_location_vec(in, origin(), true);
+
         in.x(in.x() - origin().x());
         in.y(in.y() - origin().y());
         in.z(in.z() - origin().z());
@@ -90,15 +96,20 @@ namespace gams
       }
       GAMS_WITH_FRAME_TYPE(origin(), GPS_Frame, frame)
       {
+        if(!origin().is_rotation_zero())
+          throw undefined_transform(*this, origin().frame(), false, true);
         frame.normalize(in);
 
+        in.z(in.z() - origin().z());
+
         // convert the latitude/y coordinates
-        in.y(((in.y() - origin().y()) * frame.circ()) / 360.0);
+        double new_y = ((in.y() - origin().y()) * frame.circ()) / 360.0;
 
         // assume the meters/degree longitude is constant throughout environment
         // convert the longitude/x coordinates
         double r_prime = frame.radius() * cos (DEG_TO_RAD (in.y()));
         double circumference = 2 * r_prime * M_PI;
+        in.y(new_y);
         in.x(((in.x() - origin().x()) * circumference) / 360.0);
         return;
       }
