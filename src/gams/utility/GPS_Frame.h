@@ -111,13 +111,13 @@ namespace gams
 
       virtual std::string get_name() const { return "GPS"; }
 
-      virtual void transform_to_origin(Location_Base &in) const;
+      virtual void transform_to_origin(Location_Vector &in) const;
 
-      virtual void transform_from_origin(Location_Base &in) const;
+      virtual void transform_from_origin(Location_Vector &in) const;
 
-      virtual double calc_distance(const Location_Base &loc1, const Location_Base &loc2) const;
+      virtual double calc_distance(const Location_Vector &loc1, const Location_Vector &loc2) const;
 
-      virtual void do_normalize(Location_Base &in) const;
+      virtual void do_normalize(Location_Vector &in) const;
     };
   }
 }

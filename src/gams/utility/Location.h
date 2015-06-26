@@ -76,28 +76,33 @@ namespace gams
 
     /**
      * Container for Location information, not bound to a frame.
-     * Do not use unless implementing new frames or coordinate types.
      **/
-    class GAMS_Export Location_Base
+    class GAMS_Export Location_Vector
     {
-    public:
-      Location_Base(double x, double y, double z = 0.0)
+    protected:
+      Location_Vector(double x, double y, double z = 0.0)
         : _x(x), _y(y), _z(z) {}
 
-      Location_Base()
+      Location_Vector()
         : _x(INVAL_COORD), _y(INVAL_COORD), _z(INVAL_COORD) {}
 
-      Location_Base(const Location_Base &orig)
+      Location_Vector(const Location_Vector &orig)
         : _x(orig._x), _y(orig._y), _z(orig._z) { }
 
-      bool is_invalid()
+    public:
+      bool is_invalid() const
       {
         return _x == INVAL_COORD || _y == INVAL_COORD || _z == INVAL_COORD;
       }
 
-      bool operator==(const Location_Base &other) const
+      bool operator==(const Location_Vector &other) const
       {
         return _x == other._x && _y == other._y && _z == other._z;
+      }
+
+      bool is_zero() const
+      {
+        return _x == 0 && _y == 0 && _z == 0;
       }
 
       static std::string name()
@@ -172,32 +177,50 @@ namespace gams
         throw std::range_error("Index out of bounds for Location");
       }
 
-      typedef Location_Base Base_Type;
+      typedef Location_Vector Base_Type;
+
+      Base_Type &as_vec()
+      {
+        return static_cast<Base_Type &>(*this);
+      }
+
+      const Base_Type &as_vec() const
+      {
+        return static_cast<const Base_Type &>(*this);
+      }
+
+      friend class Quaternion;
     private:
       double _x, _y, _z;
     };
+
+    inline std::ostream &operator<<(std::ostream &o, const Location_Vector &loc)
+    {
+      o << "(" << loc.x() << "," << loc.y() << "," << loc.z() << ")";
+      return o;
+    }
 
     /**
      * Represents a Location within a reference frame.
      * This location always has x, y, and z coordinates, but interpretation
      * of those coordinates can vary according to the reference frame.
      **/
-    class GAMS_Export Location : public Location_Base, public Coordinate<Location>
+    class GAMS_Export Location : public Location_Vector, public Coordinate<Location>
     {
     public:
       Location(double x, double y, double z = 0.0)
-        : Location_Base(x, y, z), Coordinate() {}
+        : Location_Vector(x, y, z), Coordinate() {}
 
       Location(const Reference_Frame &frame, double x, double y, double z = 0.0)
-        : Location_Base(x, y, z), Coordinate(frame) {}
+        : Location_Vector(x, y, z), Coordinate(frame) {}
 
-      Location() : Location_Base(), Coordinate() {}
+      Location() : Location_Vector(), Coordinate() {}
 
       Location(const Location &orig)
-        : Location_Base(orig), Coordinate(orig) {}
+        : Location_Vector(orig), Coordinate(orig) {}
 
       Location(const Reference_Frame &new_frame, const Location &orig)
-        : Location_Base(orig), Coordinate(orig.frame())
+        : Location_Vector(orig), Coordinate(orig.frame())
       {
         transform_this_to(new_frame);
         frame(new_frame);

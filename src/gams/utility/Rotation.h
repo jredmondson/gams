@@ -81,39 +81,44 @@ namespace gams
 
     /**
      * Container for Rotation information, not bound to a frame.
-     * Do not use unless implementing new frames or coordinate types.
      **/
-    class GAMS_Export Rotation_Base
+    class GAMS_Export Rotation_Vector
     {
     public:
       static const int X_axis = 0;
       static const int Y_axis = 1;
       static const int Z_axis = 2;
 
-      Rotation_Base(double rx, double ry, double rz)
+      Rotation_Vector(double rx, double ry, double rz)
         : _rx(rx), _ry(ry), _rz(rz) {}
 
-      Rotation_Base(double x, double y, double z, double angle)
+      Rotation_Vector(double x, double y, double z, double angle)
         : _rx(x * angle), _ry(y * angle), _rz(z * angle) {}
 
-      Rotation_Base(int axis_index, double angle)
+      Rotation_Vector(int axis_index, double angle)
         : _rx(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
           _ry(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
           _rz(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
 
-      Rotation_Base()
+      Rotation_Vector()
         : _rx(INVAL_COORD), _ry(INVAL_COORD), _rz(INVAL_COORD) {}
 
-      Rotation_Base(const Rotation_Base &orig)
+      Rotation_Vector(const Rotation_Vector &orig)
         : _rx(orig._rx), _ry(orig._ry), _rz(orig._rz) {}
 
-      explicit Rotation_Base(const Quaternion &quat);
+      explicit Rotation_Vector(const Quaternion &quat);
 
-      bool is_invalid() {
+      bool is_invalid() const
+      {
         return _rx == INVAL_COORD || _ry == INVAL_COORD || _rz == INVAL_COORD;
       }
 
-      bool operator==(const Rotation_Base &other) const
+      bool is_zero() const
+      {
+        return _rx == 0 && _ry == 0 && _rz == 0;
+      }
+
+      bool operator==(const Rotation_Vector &other) const
       {
         return _rx == other._rx && _ry == other._ry && _rz == other._rz;
       }
@@ -131,7 +136,17 @@ namespace gams
       double ry(double new_ry) { return _ry = new_ry; }
       double rz(double new_rz) { return _rz = new_rz; }
 
-      typedef Rotation_Base Reference_Type;
+      typedef Rotation_Vector Base_Type;
+
+      Base_Type &as_vec()
+      {
+        return static_cast<Base_Type &>(*this);
+      }
+
+      const Base_Type &as_vec() const
+      {
+        return static_cast<const Base_Type &>(*this);
+      }
 
       int cardinality() const
       {
@@ -171,6 +186,12 @@ namespace gams
       double _rx, _ry, _rz;
     };
 
+    inline std::ostream &operator<<(std::ostream &o, const Rotation_Vector &rot)
+    {
+      o << "(" << rot.rx() << "," << rot.ry() << "," << rot.rz() << ")";
+      return o;
+    }
+
     /**
      * Represents a rotation or orientation within a reference frame.
      *
@@ -179,7 +200,7 @@ namespace gams
      * direction of the rotation axis, rotations curve in the direction your
      * fingers are pointing.
      **/
-    class GAMS_Export Rotation : public Rotation_Base, public Coordinate<Rotation>
+    class GAMS_Export Rotation : public Rotation_Vector, public Coordinate<Rotation>
     {
     public:
       /**
@@ -189,20 +210,20 @@ namespace gams
        * in radians.
        **/
       Rotation(double rx, double ry, double rz)
-        : Rotation_Base(rx, ry, rz), Coordinate() {}
+        : Rotation_Vector(rx, ry, rz), Coordinate() {}
 
       Rotation(const Reference_Frame &frame, double rx, double ry, double rz)
-        : Rotation_Base(rx, ry, rz), Coordinate(frame) {}
+        : Rotation_Vector(rx, ry, rz), Coordinate(frame) {}
 
       /**
        * (x, y, z) must be a unit vector in the direction of rotation axis.
        * angle is the angle of rotation, in degrees, about that axis
        **/
       Rotation(double x, double y, double z, double angle)
-        : Rotation_Base(x, y, z, DEG_TO_RAD(angle)), Coordinate() {}
+        : Rotation_Vector(x, y, z, DEG_TO_RAD(angle)), Coordinate() {}
 
       Rotation(const Reference_Frame &frame, double x, double y, double z, double angle)
-        : Rotation_Base(x, y, z, DEG_TO_RAD(angle)), Coordinate(frame) {}
+        : Rotation_Vector(x, y, z, DEG_TO_RAD(angle)), Coordinate(frame) {}
 
       /**
        * For easy specification of a simple rotation around a single axis,
@@ -211,18 +232,23 @@ namespace gams
        * around that axis as the angle, in degrees
        **/
       Rotation(int axis_index, double angle)
-        : Rotation_Base(axis_index, angle), Coordinate() {}
+        : Rotation_Vector(axis_index, angle), Coordinate() {}
 
       Rotation(const Reference_Frame &frame, int axis_index, double angle)
-        : Rotation_Base(axis_index, angle), Coordinate(frame) {}
+        : Rotation_Vector(axis_index, angle), Coordinate(frame) {}
 
-      Rotation() : Rotation_Base(), Coordinate() {}
+      Rotation() : Rotation_Vector(), Coordinate() {}
 
       Rotation(const Rotation &orig)
-        : Rotation_Base(orig), Coordinate(orig) {}
+        : Rotation_Vector(orig), Coordinate(orig) {}
 
       explicit Rotation(const Quaternion &quat)
-        : Rotation_Base(quat) {}
+        : Rotation_Vector(quat) {}
+
+      double angle_to(const Rotation &target) const
+      {
+        distance_to(target);
+      }
 
       using Coordinate<Rotation>::operator==;
     };
@@ -242,9 +268,39 @@ namespace gams
         from_rotation_vector(rx, ry, rz);
       }
 
-      explicit Quaternion(const Rotation_Base &rot)
+      explicit Quaternion(const Rotation_Vector &rot)
       {
         from_rotation_vector(rot);
+      }
+
+      explicit Quaternion(const Location_Vector &loc)
+      {
+        from_location_vector(loc);
+      }
+
+      void from_location_vector(double x, double y, double z)
+      {
+        _x = x;
+        _y = y;
+        _z = z;
+        _w = 0;
+      }
+
+      void from_location_vector(const Location_Vector &loc)
+      {
+        from_location_vector(loc.x(), loc.y(), loc.z());
+      }
+
+      void to_location_vector(double &x, double &y, double &z) const
+      {
+        x = _x;
+        y = _y;
+        z = _z;
+      }
+
+      void to_location_vector(Location_Vector &loc) const
+      {
+        to_location_vector(loc._x, loc._y, loc._z);
       }
 
       void from_rotation_vector(double rx, double ry, double rz)
@@ -267,7 +323,7 @@ namespace gams
         }
       }
 
-      void from_rotation_vector(const Rotation_Base &rot)
+      void from_rotation_vector(const Rotation_Vector &rot)
       {
         from_rotation_vector(rot.rx(), rot.ry(), rot.rz());
       }
@@ -277,7 +333,7 @@ namespace gams
         double norm = sqrt(_x * _x + _y * _y + _z * _z);
         double angle = 2 * atan2(norm, _w);
         double sin_half_angle = sin(angle / 2);
-        if(angle == 0)
+        if(sin_half_angle < 1e-10)
         {
           rx = ry = rz = 0;
         }
@@ -289,26 +345,31 @@ namespace gams
         }
       }
 
-      void to_rotation_vector(Rotation_Base &rot) const
+      void to_rotation_vector(Rotation_Vector &rot) const
       {
         to_rotation_vector(rot._rx, rot._ry, rot._rz);
       }
 
-      Quaternion &operator*=(const Quaternion &o)
+      static void hamilton_product(Quaternion &into, const Quaternion &lhs, const Quaternion &rhs)
       {
-        double A = (_w + _x) * (o._w + o._x),
-               B = (_z - _y) * (o._y - o._z),
-               C = (_w - _x) * (o._y + o._z),
-               D = (_y + _z) * (o._w - o._x),
-               E = (_x + _z) * (o._x + o._y),
-               F = (_x - _z) * (o._x - o._y),
-               G = (_w + _y) * (o._w - o._z),
-               H = (_w - _y) * (o._w + o._z);
+        double A = (lhs._w + lhs._x) * (rhs._w + rhs._x),
+               B = (lhs._z - lhs._y) * (rhs._y - rhs._z),
+               C = (lhs._w - lhs._x) * (rhs._y + rhs._z),
+               D = (lhs._y + lhs._z) * (rhs._w - rhs._x),
+               E = (lhs._x + lhs._z) * (rhs._x + rhs._y),
+               F = (lhs._x - lhs._z) * (rhs._x - rhs._y),
+               G = (lhs._w + lhs._y) * (rhs._w - rhs._z),
+               H = (lhs._w - lhs._y) * (rhs._w + rhs._z);
 
-        _w = B + (-E - F + G + H) / 2;
-        _x = A - ( E + F + G + H) / 2;
-        _y = C + ( E - F + G - H) / 2;
-        _z = D + ( E - F - G + H) / 2;
+        into._w = B + (-E - F + G + H) / 2;
+        into._x = A - ( E + F + G + H) / 2;
+        into._y = C + ( E - F + G - H) / 2;
+        into._z = D + ( E - F - G + H) / 2;
+      }
+
+      Quaternion &operator*=(const Quaternion &rhs)
+      {
+        hamilton_product(*this, *this, rhs);
 
         return *this;
       }
@@ -359,7 +420,7 @@ namespace gams
       double _x, _y, _z, _w;
     };
 
-    inline Rotation_Base::Rotation_Base(const Quaternion &quat)
+    inline Rotation_Vector::Rotation_Vector(const Quaternion &quat)
     {
       quat.to_rotation_vector(_rx, _ry, _rz);
     }

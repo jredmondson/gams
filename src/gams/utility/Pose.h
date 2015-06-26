@@ -77,33 +77,49 @@ namespace gams
 
     /**
      * Container for Pose information, not bound to a frame.
-     * Do not use unless implementing new frames or coordinate types.
      **/
-    class GAMS_Export Pose_Base : public Location_Base, public Rotation_Base
+    class GAMS_Export Pose_Vector : public Location_Vector, public Rotation_Vector
     {
+    protected:
+      Pose_Vector(double x, double y, double z, double rx, double ry, double rz)
+        : Location_Vector(x, y, z), Rotation_Vector(rx, ry, rz) {}
+
+      Pose_Vector(const Location_Vector &loc)
+        : Location_Vector(loc), Rotation_Vector(0, 0, 0) {}
+
+      Pose_Vector(const Rotation_Vector &rot)
+        : Location_Vector(0, 0, 0), Rotation_Vector(rot) {}
+
+      Pose_Vector(const Location_Vector &loc, const Rotation_Vector &rot)
+        : Location_Vector(loc), Rotation_Vector(rot) {}
+
+      Pose_Vector() : Location_Vector(), Rotation_Vector() {}
+
     public:
-      Pose_Base(double x, double y, double z, double rx, double ry, double rz)
-        : Location_Base(x, y, z), Rotation_Base(rx, ry, rz) {}
-
-      Pose_Base(const Location_Base &loc)
-        : Location_Base(loc), Rotation_Base(0, 0, 0) {}
-
-      Pose_Base(const Rotation_Base &rot)
-        : Location_Base(0, 0, 0), Rotation_Base(rot) {}
-
-      Pose_Base(const Location_Base &loc, const Rotation_Base &rot)
-        : Location_Base(loc), Rotation_Base(rot) {}
-
-      Pose_Base() : Location_Base(), Rotation_Base() {}
-
-      bool is_invalid() {
-        return Location_Base::is_invalid() || Rotation_Base::is_invalid();
+      bool is_invalid() const
+      {
+        return Location_Vector::is_invalid() || Rotation_Vector::is_invalid();
       }
 
-      bool operator==(const Pose_Base &other) const
+      bool is_location_zero() const
       {
-        return as_location() == other.as_location() &&
-               as_rotation() == other.as_rotation();
+        return as_location_vec().is_zero();
+      }
+
+      bool is_rotation_zero() const
+      {
+        return as_rotation_vec().is_zero();
+      }
+
+      bool is_zero() const
+      {
+        return is_location_zero() && is_rotation_zero();
+      }
+
+      bool operator==(const Pose_Vector &other) const
+      {
+        return as_location_vec() == other.as_location_vec() &&
+               as_rotation_vec() == other.as_rotation_vec();
       }
 
       static std::string name()
@@ -122,9 +138,9 @@ namespace gams
       double get(int i) const
       {
         if(i <= 2)
-          return as_location().get(i);
+          return as_location_vec().get(i);
         else
-          return as_rotation().get(i - 3);
+          return as_rotation_vec().get(i - 3);
       }
 
       /**
@@ -133,67 +149,96 @@ namespace gams
       double set(int i, double val)
       {
         if(i <= 2)
-          return as_location().set(i, val);
+          return as_location_vec().set(i, val);
         else
-          return as_rotation().set(i - 3, val);
+          return as_rotation_vec().set(i - 3, val);
       }
 
-      typedef Pose_Base Reference_Type;
-    private:
-      Location_Base &as_location()
+      typedef Pose_Vector Base_Type;
+
+      Base_Type &as_vec()
       {
-        return static_cast<Location_Base &>(*this);
+        return static_cast<Base_Type &>(*this);
       }
 
-      const Location_Base &as_location() const
+      const Base_Type &as_vec() const
       {
-        return static_cast<const Location_Base &>(*this);
+        return static_cast<const Base_Type &>(*this);
       }
 
-      Rotation_Base &as_rotation()
+      Location_Vector &as_location_vec()
       {
-        return static_cast<Rotation_Base &>(*this);
+        return static_cast<Location_Vector &>(*this);
       }
 
-      const Rotation_Base &as_rotation() const
+      const Location_Vector &as_location_vec() const
       {
-        return static_cast<const Rotation_Base &>(*this);
+        return static_cast<const Location_Vector &>(*this);
+      }
+
+      Rotation_Vector &as_rotation_vec()
+      {
+        return static_cast<Rotation_Vector &>(*this);
+      }
+
+      const Rotation_Vector &as_rotation_vec() const
+      {
+        return static_cast<const Rotation_Vector &>(*this);
       }
     };
+
+    inline std::ostream &operator<<(std::ostream &o, const Pose_Vector &pose)
+    {
+      o << "(" << pose.as_location_vec() << "," << pose.as_rotation_vec() << ")";
+      return o;
+    }
 
     /**
      * Represents a combination of Location and Rotation within a single
      * reference frame.
      **/
-    class GAMS_Export Pose : public Pose_Base, public Coordinate<Pose>
+    class GAMS_Export Pose : public Pose_Vector, public Coordinate<Pose>
     {
     public:
       Pose(double x, double y, double z, double rx, double ry, double rz)
-        : Pose_Base(x, y, z, rx, ry, rz), Coordinate() {}
+        : Pose_Vector(x, y, z, rx, ry, rz), Coordinate() {}
 
       Pose(double x, double y, double z = 0.0)
-        : Pose_Base(x, y, z, 0, 0, 0), Coordinate() {}
+        : Pose_Vector(x, y, z, 0, 0, 0), Coordinate() {}
 
       Pose(const Reference_Frame &frame, double x, double y, double z, double rx, double ry, double rz)
-        : Pose_Base(x, y, z, rx, ry, rz), Coordinate(frame) {}
+        : Pose_Vector(x, y, z, rx, ry, rz), Coordinate(frame) {}
 
       Pose(const Reference_Frame &frame, double x, double y, double z = 0.0)
-        : Pose_Base(x, y, z, 0, 0, 0), Coordinate(frame) {}
+        : Pose_Vector(x, y, z, 0, 0, 0), Coordinate(frame) {}
 
-      Pose() : Pose_Base(), Coordinate() {}
+      Pose() : Pose_Vector(), Coordinate() {}
 
       Pose(const Location &loc)
-        : Pose_Base(loc), Coordinate(loc.frame()) {}
+        : Pose_Vector(loc), Coordinate(loc.frame()) {}
 
       Pose(const Rotation &rot)
-        : Pose_Base(rot), Coordinate(rot.frame()) {}
+        : Pose_Vector(rot), Coordinate(rot.frame()) {}
 
-      Pose(const Reference_Frame &frame, const Location_Base &loc, const Rotation_Base &rot)
-        : Pose_Base(loc, rot), Coordinate(frame) {}
+      Pose(const Reference_Frame &frame, const Location_Vector &loc, const Rotation_Vector &rot)
+        : Pose_Vector(loc, rot), Coordinate(frame) {}
 
       /// Precondition: loc.frame == rot.frame
       Pose(const Location &loc, const Rotation &rot)
-        : Pose_Base(loc, rot), Coordinate(loc.frame()) {}
+        : Pose_Vector(loc, rot), Coordinate(loc.frame()) {}
+
+      double angle_to(const Pose &target) const
+      {
+        Rotation me(*this);
+        Rotation other(target);
+        return me.distance_to(other);
+      }
+
+      double angle_to(const Rotation &target) const
+      {
+        Rotation me(*this);
+        return me.distance_to(target);
+      }
 
       operator Location() const
       {
