@@ -151,11 +151,13 @@ namespace gams
          */
         struct Message_Data
         {
-          size_t first;
-          size_t last;
+          Madara::Knowledge_Engine::Containers::Integer first;
+          Madara::Knowledge_Engine::Containers::Integer last;
+          Madara::Knowledge_Engine::Containers::Double percent_missing;
           std::vector<bool> present;
 
           Message_Data ();
+          Message_Data (std::string id, Madara::Knowledge_Engine::Variables& var);
         };
 
         /**
@@ -173,7 +175,6 @@ namespace gams
        * size of message to send 
        */
       size_t send_size_;
-
     };
 
     /**
