@@ -187,7 +187,10 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
   // get/construct data struct
   string origin = transport_context.get_originator ();
   if (msg_map_.find (origin) == msg_map_.end ())
+  {
     msg_map_[origin] = Message_Data(origin, var);
+    cerr << "creating Message_Data for " << origin << endl;
+  }
   Message_Data& data = msg_map_[origin];
 
   // loop through each update
@@ -258,7 +261,7 @@ gams::algorithms::Message_Profiling::Message_Filter::Message_Data::Message_Data
 gams::algorithms::Message_Profiling::Message_Filter::Message_Data::Message_Data 
   (string id, Madara::Knowledge_Engine::Variables& var)
 {
-  string prefix (string (".") + key_prefix_ + ".");
+  string prefix (string (".") + key_prefix_ + "." + id + ".");
   first.set_name (prefix + "first", var);
   first = -1;
   last.set_name (prefix + "last", var);
