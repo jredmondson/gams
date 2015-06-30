@@ -5,7 +5,10 @@ Makefile
 *.csv
 .depend.*
 GNUmakefile*
+Makefile*
 lib*
+*.class
+*.d
 
 resource/vrep/starting.ttt
 
