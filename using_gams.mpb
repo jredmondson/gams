@@ -7,5 +7,19 @@ project {
   verbatim (gnuace, local) {
     CPPFLAGS += -w
   }
-  
+
+  verbatim (gnuace, bottom) {
+    DEPFILES=$(patsubst %.cpp,%.d,$(filter %.cpp,$(FILES)))
+
+    %.d : %.cpp
+    "	$(CXX) $(CPPFLAGS) -MM -MG -MT .obj/$(@:.d=.o) -o $@ $<"
+
+    cleandep :
+    "	rm $(DEPFILES)"
+
+    clean : cleandep
+
+    -include $(DEPFILES)
+  }
+
 }
