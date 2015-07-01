@@ -2,6 +2,8 @@
 .vrep_sw_position="40.442832,-79.941113";
 .vrep_ne_position="40.444179,-79.938951";
 
+.surface="concrete";
+
 // cmu football field
 region.0.type=0;
 region.0.size=4;
