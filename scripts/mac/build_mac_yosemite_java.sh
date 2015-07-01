@@ -45,6 +45,7 @@ echo "Building ACE"
 echo "#include \"ace/config-macosx-yosemite.h\"" > $ACE_ROOT/ace/config.h
 echo "include \$(ACE_ROOT)/include/makeinclude/platform_macosx_yosemite.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
 cd $ACE_ROOT/ace
+make realclean -j $CORES
 perl $ACE_ROOT/bin/mwc.pl -type make ACE.mwc
 make realclean -j $CORES
 make -j $CORES
@@ -52,13 +53,21 @@ make -j $CORES
 # build MADARA
 echo "Building MADARA"
 cd $MADARA_ROOT
-perl $ACE_ROOT/bin/mwc.pl -type make -features tests=$TESTS MADARA.mwc
 make realclean -j $CORES
-make tests=$TESTS -j $CORES
+find . -name "*.class" -delete
+perl $ACE_ROOT/bin/mwc.pl -type make -features java=1,tests=$TESTS MADARA.mwc
+make realclean -j $CORES
+make java=1 tests=$TESTS -j $CORES
+find . -name "*.class" -delete
+make java=1 tests=$TESTS
 
 # build GAMS
 echo "Building GAMS"
 cd $GAMS_ROOT
-perl $ACE_ROOT/bin/mwc.pl -type make -features vrep=$VREP,tests=$TESTS gams.mwc
 make realclean -j $CORES
-make vrep=$VREP tests=$TESTS -j $CORES && ln -s $GAMS_ROOT/bin/gams_controller $GAMS_ROOT/gams_controller && ln -s $GAMS_ROOT/bin/dynamic_simulation $GAMS_ROOT/dynamic_simulation
+find . -name "*.class" -delete
+perl $ACE_ROOT/bin/mwc.pl -type make -features java=1,vrep=$VREP,tests=$TESTS gams.mwc
+make realclean -j $CORES
+make java=1 vrep=$VREP tests=$TESTS -j $CORES && ln -s $GAMS_ROOT/bin/gams_controller $GAMS_ROOT/gams_controller && ln -s $GAMS_ROOT/bin/dynamic_simulation $GAMS_ROOT/dynamic_simulation
+find . -name "*.class" -delete
+make java=1 vrep=$VREP tests=$TESTS
