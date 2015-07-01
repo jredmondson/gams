@@ -82,7 +82,7 @@ namespace gams
      **/
     class GAMS_Export Coordinate_Base
     {
-    private:
+    protected:
       static const Reference_Frame *default_frame;
     };
 
