@@ -43,6 +43,7 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
+#include "gams/loggers/Global_Logger.h"
 #include "Move.h"
 
 #include <string>
@@ -90,9 +91,10 @@ gams::algorithms::Move_Factory::create (
       }
       else
       {
-        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-          DLINFO "gams::algorithms::Move_Factory::create:" \
-          " bad arguments"));
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+           "gams::algorithms::Move_Factory::create:" \
+          " bad arguments");
       }
     }
   }

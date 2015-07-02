@@ -43,6 +43,7 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
+#include "gams/loggers/Global_Logger.h"
 #include "Wait.h"
 
 #include <string>
@@ -74,9 +75,10 @@ gams::algorithms::Wait_Factory::create (
     else
     {
 
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::algorithms::Wait_Factory::create:" \
-        " invalid arguments\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::algorithms::Wait_Factory::create:" \
+        " invalid arguments\n");
     }
   }
 

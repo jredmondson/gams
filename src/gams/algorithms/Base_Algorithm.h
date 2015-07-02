@@ -61,7 +61,7 @@
 #include "gams/utility/Region.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 #include <vector>
 

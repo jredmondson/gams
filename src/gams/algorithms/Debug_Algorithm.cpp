@@ -45,7 +45,7 @@
  **/
 
 #include "Debug_Algorithm.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 #include <iostream>
 
@@ -103,70 +103,73 @@ gams::algorithms::Debug_Algorithm::operator= (const Debug_Algorithm & rhs)
 int
 gams::algorithms::Debug_Algorithm::analyze (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: algorithm.analyze ()\n",
-    *self_->id, *k_executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": algorithm.analyze ()\n",
+    *self_->id, *k_executions_);
   
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.platform_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.platform_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.platform_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.platform_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.sensors_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.sensors_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.sensors_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.sensors_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.self_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.self_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.self_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.self_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   status_.waiting = 1;
   status_.ok = 1;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.ok == %q\n",
-    *self_->id, *k_executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.paused == %q\n",
-    *self_->id, *k_executions_, *status_.paused));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.waiting == %q\n",
-    *self_->id, *k_executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.deadlocked == %q\n",
-    *self_->id, *k_executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.failed == %q\n",
-    *self_->id, *k_executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.unknown == %q\n",
-    *self_->id, *k_executions_, *status_.unknown));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.paused == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.unknown == %" PRId64 "\n"
+    ,
+    *self_->id, *k_executions_, *status_.ok,
+    *self_->id, *k_executions_, *status_.paused,
+    *self_->id, *k_executions_, *status_.waiting,
+    *self_->id, *k_executions_, *status_.deadlocked,
+    *self_->id, *k_executions_, *status_.failed,
+    *self_->id, *k_executions_, *status_.unknown);
 
   return OK;
 }
@@ -174,69 +177,72 @@ gams::algorithms::Debug_Algorithm::analyze (void)
 int
 gams::algorithms::Debug_Algorithm::execute (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: algorithm.execute ()\n",
-    *self_->id, *k_executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": algorithm.execute ()\n",
+    *self_->id, *k_executions_);
   
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.platform_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.platform_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.platform_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.platform_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.sensors_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.sensors_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.sensors_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.sensors_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.self_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.self_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.self_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.self_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   status_.waiting = 0;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.ok == %q\n",
-    *self_->id, *k_executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.paused == %q\n",
-    *self_->id, *k_executions_, *status_.paused));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.waiting == %q\n",
-    *self_->id, *k_executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.deadlocked == %q\n",
-    *self_->id, *k_executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.failed == %q\n",
-    *self_->id, *k_executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.unknown == %q\n",
-    *self_->id, *k_executions_, *status_.unknown));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.paused == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.unknown == %" PRId64 "\n",
+    *self_->id, *k_executions_, *status_.ok,
+    *self_->id, *k_executions_, *status_.paused,
+    *self_->id, *k_executions_, *status_.waiting,
+    *self_->id, *k_executions_, *status_.deadlocked,
+    *self_->id, *k_executions_, *status_.failed,
+    *self_->id, *k_executions_, *status_.unknown);
 
   if (platform_)
   {
@@ -245,8 +251,10 @@ gams::algorithms::Debug_Algorithm::execute (void)
   }
   else
   {
-    std::cerr << *self_->id << ":" << *k_executions_ << ": " <<
-    "  ERROR: platform_ is null. Cannot call move ()." << std::endl;
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "%" PRId64 ":%" PRId64 ":  ERROR: platform_ is null. Cannot call move ().\n",
+      *self_->id, *k_executions_);
   }
 
   ++k_executions_;
@@ -258,67 +266,70 @@ gams::algorithms::Debug_Algorithm::execute (void)
 int
 gams::algorithms::Debug_Algorithm::plan (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: algorithm.plan ()\n",
-    *self_->id, *k_executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": algorithm.plan ()\n",
+    *self_->id, *k_executions_);
   
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.platform_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.platform_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.platform_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.platform_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.sensors_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.sensors_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.sensors_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.sensors_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   algorithm.self_ is set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   algorithm.self_ is set\n",
+      *self_->id, *k_executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: algorithm.self_ is not set\n",
-      *self_->id, *k_executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: algorithm.self_ is not set\n",
+      *self_->id, *k_executions_);
   }
 
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.ok == %q\n",
-    *self_->id, *k_executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.paused == %q\n",
-    *self_->id, *k_executions_, *status_.paused));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.waiting == %q\n",
-    *self_->id, *k_executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.deadlocked == %q\n",
-    *self_->id, *k_executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.failed == %q\n",
-    *self_->id, *k_executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     algorithm.status_.unknown == %q\n",
-    *self_->id, *k_executions_, *status_.unknown));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.ok == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.paused == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.waiting == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.unknown == %" PRId64 "\n",
+    *self_->id, *k_executions_, *status_.ok,
+    *self_->id, *k_executions_, *status_.paused,
+    *self_->id, *k_executions_, *status_.waiting,
+    *self_->id, *k_executions_, *status_.deadlocked,
+    *self_->id, *k_executions_, *status_.failed,
+    *self_->id, *k_executions_, *status_.unknown);
 
   return 0;
 }

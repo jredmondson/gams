@@ -1,7 +1,7 @@
 #include "com_gams_utility_Logging.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
-namespace utility = gams::utility;
+namespace loggers = gams::loggers;
 
 /*
  * Class:     com_gams_utility_Logging
@@ -11,7 +11,7 @@ namespace utility = gams::utility;
 void JNICALL Java_com_gams_utility_Logging_jni_1set_1level
   (JNIEnv *, jclass, jint level)
 {
-  utility::set_log_level (level);
+  loggers::global_logger->set_level (level);
 }
 
 /*
@@ -22,5 +22,5 @@ void JNICALL Java_com_gams_utility_Logging_jni_1set_1level
 jint JNICALL Java_com_gams_utility_Logging_jni_1get_1level
   (JNIEnv *, jclass)
 {
-  return utility::get_log_level ();
+  return loggers::global_logger->get_level ();
 }

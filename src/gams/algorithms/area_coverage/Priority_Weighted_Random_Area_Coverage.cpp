@@ -90,9 +90,10 @@ gams::algorithms::area_coverage::Priority_Weighted_Random_Area_Coverage_Factory:
           }
           else
           {
-            GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-              DLINFO "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
-              " invalid second arg, expected double\n"));
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_ERROR,
+               "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
+              " invalid second arg, expected double\n");
           }
         }
         else
@@ -105,30 +106,34 @@ gams::algorithms::area_coverage::Priority_Weighted_Random_Area_Coverage_Factory:
       }
       else
       {
-        GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-          DLINFO "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
-          " invalid first arg, expected string\n"));
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+           "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
+          " invalid first arg, expected string\n");
       }
     }
     else
     {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
-        " expected 1 or 2 args\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
+        " expected 1 or 2 args\n");
     }
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
+      " invalid knowledge, sensors, self, or devices parameters\n");
   }
 
   if (result == 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
-      " unknown error creating algorithm\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::algorithms::Priority_Weighted_Random_Area_Coverage_Factory::create:" \
+      " unknown error creating algorithm\n");
   }
 
   return result;

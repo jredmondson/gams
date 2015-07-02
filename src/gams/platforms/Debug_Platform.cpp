@@ -44,7 +44,7 @@
  *      distribution.
  **/
 #include "Debug_Platform.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 gams::platforms::Base_Platform *
 gams::platforms::Debug_Platform_Factory::create (
@@ -103,34 +103,39 @@ gams::platforms::Debug_Platform::operator= (const Debug_Platform & rhs)
 int
 gams::platforms::Debug_Platform::analyze (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: platform.analyze ()\n",
-    *self_->id, *executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": platform.analyze ()\n",
+    *self_->id, *executions_);
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.sensors_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.sensors_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
+      *self_->id, *executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.self_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.self_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
+      *self_->id, *executions_);
   }
 
   status_.moving = 0;
@@ -138,40 +143,31 @@ gams::platforms::Debug_Platform::analyze (void)
   status_.movement_available = 1;
   status_.sensors_available = 1;
   status_.waiting = 1;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.ok == %q\n",
-    *self_->id, *executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.waiting == %q\n",
-    *self_->id, *executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.deadlocked == %q\n",
-    *self_->id, *executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.failed == %q\n",
-    *self_->id, *executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.moving == %q\n",
-    *self_->id, *executions_, *status_.moving));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_sensing == %q\n",
-    *self_->id, *executions_, *status_.reduced_sensing));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_movement == %q\n",
-    *self_->id, *executions_, *status_.reduced_movement));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.communication_available == %q\n",
-    *self_->id, *executions_, *status_.communication_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.sensors_available == %q\n",
-    *self_->id, *executions_, *status_.sensors_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.movement_available == %q\n",
-    *self_->id, *executions_, *status_.movement_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.gps_spoofed == %q\n",
-    *self_->id, *executions_, *status_.gps_spoofed));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.moving == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_sensing == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_movement == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.communication_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.sensors_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.movement_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.gps_spoofed == %" PRId64 "\n",
+    *self_->id, *executions_, *status_.ok,
+    *self_->id, *executions_, *status_.waiting,
+    *self_->id, *executions_, *status_.deadlocked,
+    *self_->id, *executions_, *status_.failed,
+    *self_->id, *executions_, *status_.moving,
+    *self_->id, *executions_, *status_.reduced_sensing,
+    *self_->id, *executions_, *status_.reduced_movement,
+    *self_->id, *executions_, *status_.communication_available,
+    *self_->id, *executions_, *status_.sensors_available,
+    *self_->id, *executions_, *status_.movement_available,
+    *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
 }
@@ -203,71 +199,67 @@ gams::platforms::Debug_Platform::get_move_speed () const
 int
 gams::platforms::Debug_Platform::home (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: platform.home ()\n",
-    *self_->id, *executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": platform.home ()\n",
+    *self_->id, *executions_);
   
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.sensors_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.sensors_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
+      *self_->id, *executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.self_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.self_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
+      *self_->id, *executions_);
   }
   status_.waiting = 0;
   status_.moving = 1;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.ok == %q\n",
-    *self_->id, *executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.waiting == %q\n",
-    *self_->id, *executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.deadlocked == %q\n",
-    *self_->id, *executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.failed == %q\n",
-    *self_->id, *executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.moving == %q\n",
-    *self_->id, *executions_, *status_.moving));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_sensing == %q\n",
-    *self_->id, *executions_, *status_.reduced_sensing));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_movement == %q\n",
-    *self_->id, *executions_, *status_.reduced_movement));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.communication_available == %q\n",
-    *self_->id, *executions_, *status_.communication_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.sensors_available == %q\n",
-    *self_->id, *executions_, *status_.sensors_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.movement_available == %q\n",
-    *self_->id, *executions_, *status_.movement_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.gps_spoofed == %q\n",
-    *self_->id, *executions_, *status_.gps_spoofed));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.moving == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_sensing == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_movement == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.communication_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.sensors_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.movement_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.gps_spoofed == %" PRId64 "\n",
+    *self_->id, *executions_, *status_.ok,
+    *self_->id, *executions_, *status_.waiting,
+    *self_->id, *executions_, *status_.deadlocked,
+    *self_->id, *executions_, *status_.failed,
+    *self_->id, *executions_, *status_.moving,
+    *self_->id, *executions_, *status_.reduced_sensing,
+    *self_->id, *executions_, *status_.reduced_movement,
+    *self_->id, *executions_, *status_.communication_available,
+    *self_->id, *executions_, *status_.sensors_available,
+    *self_->id, *executions_, *status_.movement_available,
+    *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
 }
@@ -275,72 +267,68 @@ gams::platforms::Debug_Platform::home (void)
 int
 gams::platforms::Debug_Platform::land (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: platform.land ()\n",
-    *self_->id, *executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": platform.land ()\n",
+    *self_->id, *executions_);
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.sensors_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.sensors_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
+      *self_->id, *executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.self_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.self_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
+      *self_->id, *executions_);
   }
 
   status_.waiting = 0;
   status_.moving = 1;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.ok == %q\n",
-    *self_->id, *executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.waiting == %q\n",
-    *self_->id, *executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.deadlocked == %q\n",
-    *self_->id, *executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.failed == %q\n",
-    *self_->id, *executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.moving == %q\n",
-    *self_->id, *executions_, *status_.moving));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_sensing == %q\n",
-    *self_->id, *executions_, *status_.reduced_sensing));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_movement == %q\n",
-    *self_->id, *executions_, *status_.reduced_movement));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.communication_available == %q\n",
-    *self_->id, *executions_, *status_.communication_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.sensors_available == %q\n",
-    *self_->id, *executions_, *status_.sensors_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.movement_available == %q\n",
-    *self_->id, *executions_, *status_.movement_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.gps_spoofed == %q\n",
-    *self_->id, *executions_, *status_.gps_spoofed));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.moving == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_sensing == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_movement == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.communication_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.sensors_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.movement_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.gps_spoofed == %" PRId64 "\n",
+    *self_->id, *executions_, *status_.ok,
+    *self_->id, *executions_, *status_.waiting,
+    *self_->id, *executions_, *status_.deadlocked,
+    *self_->id, *executions_, *status_.failed,
+    *self_->id, *executions_, *status_.moving,
+    *self_->id, *executions_, *status_.reduced_sensing,
+    *self_->id, *executions_, *status_.reduced_movement,
+    *self_->id, *executions_, *status_.communication_available,
+    *self_->id, *executions_, *status_.sensors_available,
+    *self_->id, *executions_, *status_.movement_available,
+    *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
 }
@@ -349,72 +337,68 @@ int
 gams::platforms::Debug_Platform::move (const utility::Position & position,
   const double & /*epsilon*/)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: platform.move (%s)\n",
-    *self_->id, *executions_, position.to_string (", ").c_str ()));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": platform.move (%s)\n",
+    *self_->id, *executions_, position.to_string (", ").c_str ());
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.sensors_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.sensors_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
+      *self_->id, *executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.self_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.self_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
+      *self_->id, *executions_);
   }
 
   status_.waiting = 0;
   status_.moving = 1;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.ok == %q\n",
-    *self_->id, *executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.waiting == %q\n",
-    *self_->id, *executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.deadlocked == %q\n",
-    *self_->id, *executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.failed == %q\n",
-    *self_->id, *executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.moving == %q\n",
-    *self_->id, *executions_, *status_.moving));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_sensing == %q\n",
-    *self_->id, *executions_, *status_.reduced_sensing));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_movement == %q\n",
-    *self_->id, *executions_, *status_.reduced_movement));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.communication_available == %q\n",
-    *self_->id, *executions_, *status_.communication_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.sensors_available == %q\n",
-    *self_->id, *executions_, *status_.sensors_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.movement_available == %q\n",
-    *self_->id, *executions_, *status_.movement_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.gps_spoofed == %q\n",
-    *self_->id, *executions_, *status_.gps_spoofed));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.moving == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_sensing == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_movement == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.communication_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.sensors_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.movement_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.gps_spoofed == %" PRId64 "\n",
+    *self_->id, *executions_, *status_.ok,
+    *self_->id, *executions_, *status_.waiting,
+    *self_->id, *executions_, *status_.deadlocked,
+    *self_->id, *executions_, *status_.failed,
+    *self_->id, *executions_, *status_.moving,
+    *self_->id, *executions_, *status_.reduced_sensing,
+    *self_->id, *executions_, *status_.reduced_movement,
+    *self_->id, *executions_, *status_.communication_available,
+    *self_->id, *executions_, *status_.sensors_available,
+    *self_->id, *executions_, *status_.movement_available,
+    *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
 }
@@ -422,69 +406,65 @@ gams::platforms::Debug_Platform::move (const utility::Position & position,
 int
 gams::platforms::Debug_Platform::sense (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: platform.sense ()\n",
-    *self_->id, *executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": platform.sense ()\n",
+    *self_->id, *executions_);
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.sensors_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.sensors_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
+      *self_->id, *executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.self_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.self_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
+      *self_->id, *executions_);
   }
 
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.ok == %q\n",
-    *self_->id, *executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.waiting == %q\n",
-    *self_->id, *executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.deadlocked == %q\n",
-    *self_->id, *executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.failed == %q\n",
-    *self_->id, *executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.moving == %q\n",
-    *self_->id, *executions_, *status_.moving));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_sensing == %q\n",
-    *self_->id, *executions_, *status_.reduced_sensing));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_movement == %q\n",
-    *self_->id, *executions_, *status_.reduced_movement));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.communication_available == %q\n",
-    *self_->id, *executions_, *status_.communication_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.sensors_available == %q\n",
-    *self_->id, *executions_, *status_.sensors_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.movement_available == %q\n",
-    *self_->id, *executions_, *status_.movement_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.gps_spoofed == %q\n",
-    *self_->id, *executions_, *status_.gps_spoofed));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.moving == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_sensing == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_movement == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.communication_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.sensors_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.movement_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.gps_spoofed == %" PRId64 "\n",
+    *self_->id, *executions_, *status_.ok,
+    *self_->id, *executions_, *status_.waiting,
+    *self_->id, *executions_, *status_.deadlocked,
+    *self_->id, *executions_, *status_.failed,
+    *self_->id, *executions_, *status_.moving,
+    *self_->id, *executions_, *status_.reduced_sensing,
+    *self_->id, *executions_, *status_.reduced_movement,
+    *self_->id, *executions_, *status_.communication_available,
+    *self_->id, *executions_, *status_.sensors_available,
+    *self_->id, *executions_, *status_.movement_available,
+    *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
 }
@@ -497,72 +477,68 @@ gams::platforms::Debug_Platform::set_move_speed (const double& /*speed*/)
 int
 gams::platforms::Debug_Platform::takeoff (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q: platform.takeoff ()\n",
-    *self_->id, *executions_));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ": platform.takeoff ()\n",
+    *self_->id, *executions_);
 
   if (sensors_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.sensors_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.sensors_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
+      *self_->id, *executions_);
   }
 
   if (self_)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   platform.self_ is set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
+      *self_->id, *executions_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-      "%q:%q:   ERROR: platform.self_ is not set\n",
-      *self_->id, *executions_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ALWAYS,
+      "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
+      *self_->id, *executions_);
   }
 
   status_.waiting = 0;
   status_.moving = 1;
-  
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.ok == %q\n",
-    *self_->id, *executions_, *status_.ok));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.waiting == %q\n",
-    *self_->id, *executions_, *status_.waiting));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.deadlocked == %q\n",
-    *self_->id, *executions_, *status_.deadlocked));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.failed == %q\n",
-    *self_->id, *executions_, *status_.failed));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.moving == %q\n",
-    *self_->id, *executions_, *status_.moving));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_sensing == %q\n",
-    *self_->id, *executions_, *status_.reduced_sensing));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.reduced_movement == %q\n",
-    *self_->id, *executions_, *status_.reduced_movement));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.communication_available == %q\n",
-    *self_->id, *executions_, *status_.communication_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.sensors_available == %q\n",
-    *self_->id, *executions_, *status_.sensors_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.movement_available == %q\n",
-    *self_->id, *executions_, *status_.movement_available));
-  GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG,
-    "%q:%q:     platform.status_.gps_spoofed == %q\n",
-    *self_->id, *executions_, *status_.gps_spoofed));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+    "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.failed == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.moving == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_sensing == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.reduced_movement == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.communication_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.sensors_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.movement_available == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     platform.status_.gps_spoofed == %" PRId64 "\n",
+    *self_->id, *executions_, *status_.ok,
+    *self_->id, *executions_, *status_.waiting,
+    *self_->id, *executions_, *status_.deadlocked,
+    *self_->id, *executions_, *status_.failed,
+    *self_->id, *executions_, *status_.moving,
+    *self_->id, *executions_, *status_.reduced_sensing,
+    *self_->id, *executions_, *status_.reduced_movement,
+    *self_->id, *executions_, *status_.communication_available,
+    *self_->id, *executions_, *status_.sensors_available,
+    *self_->id, *executions_, *status_.movement_available,
+    *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
 }
