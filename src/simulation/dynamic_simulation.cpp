@@ -90,6 +90,10 @@ using std::vector;
 using std::set;
 #include <ctime>
 using std::time_t;
+#include <map>
+using std::map;
+#include <functional>
+using std::function;
 
 #define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
 
@@ -138,9 +142,6 @@ string madara_commands = "";
 // number of coverages
 unsigned int num_coverages = 1;
 
-// ground surface to use
-unsigned int surface = 0;
-
 /**
  * Print out program usage
  **/
@@ -167,8 +168,6 @@ void print_usage (string prog_name)
   cerr << "       place border model as region outline markers" << endl;
   cerr << "   [--south-west <coords>]" << endl;
   cerr << "       southwest corner coordinates, ex. \"40,-72\"" << endl;
-  cerr << "   [-s | --surface <concrete, water> ] " << endl;
-  cerr << "       ground surface to be used" << endl;
   cerr << "   [-v | --vrep <ip_address> <port>]" << endl;
   cerr << "       vrep connection information" << endl;
 
@@ -257,24 +256,6 @@ void handle_arguments (int argc, char** argv)
         sscanf (argv[i + 1], "%lf,%lf", &sw_lat, &sw_long);
       else
         print_usage (argv[0]);
-      ++i;
-    }
-    else if (arg1 == "-s" || arg1 == "--surface")
-    {
-      if (i + 1 < argc)
-      {
-        std::string arg ( argv[i + 1] );
-        if (arg == "concrete")
-          surface = 0;
-        else if( arg == "water" )
-          surface = 1; 
-        else
-         print_usage (argv[0]);
-      }
-      else
-      {
-        print_usage (argv[0]);
-      }
       ++i;
     }
     else if (arg1 == "-v" || arg1 == "--vrep")
@@ -392,6 +373,62 @@ void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
   }
 }
 
+void
+water_fix (const int& client_id,
+  Madara::Knowledge_Engine::Knowledge_Base& knowledge)
+{
+  // functional water tile
+  string water_file (getenv ("GAMS_ROOT"));
+  water_file += "/resources/vrep/water_functional.ttm";
+
+  // load object
+  int node_id;
+  if (simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
+    simx_opmode_oneshot_wait) != simx_error_noerror)
+  {
+    cerr << "failure loading floor model" << endl;
+    exit (-1);
+  }
+
+  // set functional element visibility off
+  simxSetModelProperty(client_id, node_id, sim_modelproperty_not_visible,
+    simx_opmode_oneshot_wait);
+
+  // functional water tile location
+  double max_x, max_y;
+  get_dimensions (max_x, max_y, knowledge);
+  simxFloat pos[3];
+  pos[0] = max_x / 2;
+  pos[1] = max_y / 2;
+  pos[2] = 0;
+
+  // move object
+  simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
+    simx_opmode_oneshot_wait);
+}
+
+// surface types
+enum surface_enum
+{
+  CONCRETE,
+  WATER,
+  INVALID
+};
+
+// surface type information
+struct surface_type
+{
+  string file;
+  double size;
+  function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> type_fix;
+
+  surface_type () : file (""), size (0), type_fix (0) {}
+
+  surface_type (string f, double s, 
+    function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> t) :
+    file (f), size (s), type_fix (t) {}
+};
+
 /**
  * Create environment in vrep
  * Add floors and border as visible markers
@@ -400,7 +437,27 @@ void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
 void create_environment (const int& client_id,
   Madara::Knowledge_Engine::Knowledge_Base& knowledge)
 {
-  // close scene
+  // store the map types
+  map<surface_enum, surface_type> surfaces_map;
+  surfaces_map[CONCRETE] = surface_type (
+    string (getenv ("GAMS_ROOT")) + "/resources/vrep/20mX20m floor.ttm", 20, 0);
+  surfaces_map[WATER] = surface_type (
+    string (getenv ("VREP_ROOT")) + "/models/nature/water surface.ttm", 10, &water_fix);
+
+  // determine what type of surface to use
+  string type = knowledge.get (".surface").to_string ();
+  surface_enum surf_type (INVALID);
+  if (type == "concrete")
+    surf_type = CONCRETE;
+  else if (type == "water")
+    surf_type = WATER;
+  else
+  {
+    cerr << "invalid surface...exiting" << endl;
+    exit (-1);
+  }
+
+  // close and reopen scene
   simxCloseScene (client_id, simx_opmode_oneshot_wait);
   string scene (getenv ("GAMS_ROOT"));
   scene += "/resources/vrep/starting.ttt";
@@ -409,103 +466,43 @@ void create_environment (const int& client_id,
   // inform clients they can interact with scene now
   knowledge.set ("vrep_ready", Integer (1));
 
-  //Add concrete
-  if( surface == 0) 
-  {
-    // find environment parameters
-    const int floor_size = 5;  
-    double max_x, max_y;
-    get_dimensions (max_x, max_y, knowledge);
-    cout << "creating environment of size " << max_x << " x " << max_y << "...";
-    int num_x = max_x / floor_size + 2;
-    int num_y = max_y / floor_size + 2;
+  // find environment parameters
+  surface_type surface_info = surfaces_map[surf_type];
+  const double floor_size = surface_info.size;
+  double max_x, max_y;
+  get_dimensions (max_x, max_y, knowledge);
+  cout << "creating environment of size " << max_x << " x " << max_y << "...";
+  int num_x = max_x / floor_size + 2;
+  int num_y = max_y / floor_size + 2;
   
-    // load floor models
-    string model_file (getenv ("VREP_ROOT"));
-    model_file += "/models/infrastructure/floors/5mX5m concrete floor.ttm";
-    for (int i = 0; i < (num_x * num_y); ++i)
-    {
-      // find where it should go
-      simxFloat pos[3];
-      pos[0] = (i / num_y) * floor_size;
-      pos[1] = (i % num_y) * floor_size;
-      pos[2] = 0;
-
-      // load object
-      int node_id;
-      if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
-        simx_opmode_oneshot_wait) != simx_error_noerror)
-      {
-        cerr << "failure loading floor model" << endl;
-        exit (0);
-      }
-
-      // move object
-      simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
-        simx_opmode_oneshot_wait);
-    }
-  }
-  //Add water
-  else
+  // load floor models
+  string model_file (surface_info.file);
+  for (int i = 0; i < (num_x * num_y); ++i)
   {
-    //Water tile size is 10x10 
-    const int water_size = 10;  
-    double max_x, max_y;
-    get_dimensions (max_x, max_y, knowledge);
-    cout << "creating environment of size " << max_x << " x " << max_y << "...";
-    int num_x = max_x / water_size + 2;
-    int num_y = max_y / water_size + 2;
-
-    string water_file (getenv ("GAMS_ROOT"));
-    water_file += "/resources/vrep/water_functional.ttm";
-
     // find where it should go
     simxFloat pos[3];
-    pos[0] = max_x/2;
-    pos[1] = max_y/2;
+    pos[0] = (i / num_y) * floor_size;
+    pos[1] = (i % num_y) * floor_size;
     pos[2] = 0;
 
     // load object
     int node_id;
-    if (simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
+    if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
       simx_opmode_oneshot_wait) != simx_error_noerror)
     {
-      cerr << "failure loading floor model" << endl;
+      cerr << "failure loading surface model" << endl;
       exit (0);
     }
-    //Set functional element visibility off
-    simxSetModelProperty(client_id, node_id, sim_modelproperty_not_visible,
-      simx_opmode_oneshot_wait);
-       
+
     // move object
     simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
       simx_opmode_oneshot_wait);
-
-    // load water scene objects
-    string model_file (getenv ("VREP_ROOT"));
-    model_file += "/models/nature/water surface.ttm";
-    for (int i = 0; i < (num_x * num_y); ++i)
-    {
-      // find where it should go
-      simxFloat pos[3];
-      pos[0] = (i / num_y) * water_size;
-      pos[1] = (i % num_y) * water_size;
-      pos[2] = 0;
-
-      // load object
-      int node_id;
-      if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
-        simx_opmode_oneshot_wait) != simx_error_noerror)
-      {
-        cerr << "failure loading water model" << endl;
-        exit (0);
-      }
-
-      // move object
-      simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
-        simx_opmode_oneshot_wait);
-    }
   }
+
+  // other stuff for each type
+  if (surface_info.type_fix != 0)
+    surface_info.type_fix (client_id, knowledge);
+
   cout << "done" << endl;
 
   // load border as position markers
