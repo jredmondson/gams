@@ -6,7 +6,7 @@
 #   $ACE_ROOT     - location of local copy of ACE subversion repository from
 #                   svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE
 #   $MADARA_ROOT  - location of local copy of MADARA git repository from
-#                   http://madara.googlecode.com/svn/trunk/
+#                   git://git.code.sf.net/p/madara/code
 #   $GAMS_ROOT    - location of this GAMS git repository
 #   $VREP_ROOT    - location of VREP installation, if applicable
 #
