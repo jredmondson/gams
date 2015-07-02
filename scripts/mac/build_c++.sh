@@ -3,9 +3,13 @@
 
 if [ $# -gt 0 ]; then
   if [ "$1" = "lion" ]; then
+    echo "Using MAC_VERSION=\"lion\""
   elif [ "$1" = "mountainlion" ]; then
+    echo "Using MAC_VERSION=\"mountainlion\""
   elif [ "$1" = "mavericks" ]; then
+    echo "Using MAC_VERSION=\"mavericks\""
   elif [ "$1" = "yosemite" ]; then
+    echo "Using MAC_VERSION=\"yosemite\""
   else
     echo "Invalid argument"
     echo "  Usage: $0 <mac_version>"

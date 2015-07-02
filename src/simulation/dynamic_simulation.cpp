@@ -374,6 +374,13 @@ void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
 }
 
 void
+empty_fix (const int& /*client_id*/,
+  Madara::Knowledge_Engine::Knowledge_Base& /*knowledge*/)
+{
+  // we don't want to do anything here
+}
+
+void
 water_fix (const int& client_id,
   Madara::Knowledge_Engine::Knowledge_Base& knowledge)
 {
@@ -422,7 +429,7 @@ struct surface_type
   double size;
   function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> type_fix;
 
-  surface_type () : file (""), size (0), type_fix (0) {}
+  surface_type () : file (""), size (0), type_fix (empty_fix) {}
 
   surface_type (string f, double s, 
     function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> t) :
@@ -440,9 +447,9 @@ void create_environment (const int& client_id,
   // store the map types
   map<surface_enum, surface_type> surfaces_map;
   surfaces_map[CONCRETE] = surface_type (
-    string (getenv ("GAMS_ROOT")) + "/resources/vrep/20mX20m floor.ttm", 20, 0);
+    string (getenv ("GAMS_ROOT")) + "/resources/vrep/20mX20m floor.ttm", 20, empty_fix);
   surfaces_map[WATER] = surface_type (
-    string (getenv ("VREP_ROOT")) + "/models/nature/water surface.ttm", 10, &water_fix);
+    string (getenv ("VREP_ROOT")) + "/models/nature/water surface.ttm", 10, water_fix);
 
   // determine what type of surface to use
   string type = knowledge.get (".surface").to_string ();
@@ -500,8 +507,7 @@ void create_environment (const int& client_id,
   }
 
   // other stuff for each type
-  if (surface_info.type_fix != 0)
-    surface_info.type_fix (client_id, knowledge);
+  surface_info.type_fix (client_id, knowledge);
 
   cout << "done" << endl;
 

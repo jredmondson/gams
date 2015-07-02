@@ -75,18 +75,18 @@ if [ $MAC_VERSION -eq 0 ]; then
 fi
 
 # auto-detect JDK
-if [ $JAVA -eq 1]; then
+if [ $JAVA -eq 1 ]; then
   echo "Auto-detecting JDK"
-  if [ $JAVA_HOME = ""]; then
-    JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
-  fi
-  if [ $JAVA_HOME = ""]; then
-    JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
-  fi
-  if [ $JAVA_HOME = ""]; then
+  if [ $JAVA_HOME = "" ]; then
     JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
   fi
-  if [ $JAVA_HOME = ""]; then
+  if [ $JAVA_HOME = "" ]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
+  fi
+  if [ $JAVA_HOME = "" ]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
+  fi
+  if [ $JAVA_HOME = "" ]; then
     echo "Failed to auto-detect JDK"
     exit
   fi
