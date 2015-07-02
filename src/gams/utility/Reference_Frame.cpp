@@ -43,120 +43,93 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "Null_Platform.h"
-#include "gams/loggers/Global_Logger.h"
 
-gams::platforms::Base_Platform *
-gams::platforms::Null_Platform_Factory::create (
-  const Madara::Knowledge_Vector & /*args*/,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  variables::Sensors * sensors,
-  variables::Platforms * platforms,
-  variables::Self * self)
+/**
+ * @file Reference_Frame.cpp
+ * @author James Edmondson <jedmondson@gmail.com>
+ *
+ * This file contains the base reference Frame class
+ **/
+
+#include <gams/utility/Reference_Frame.h>
+
+namespace gams
 {
-  Base_Platform * result (0);
-  
-  if (knowledge && sensors && platforms && self)
+  namespace utility
   {
-    result = new Null_Platform (knowledge, sensors, platforms, self);
+    // TODO implement O(height) algo instead of O(height ^ 2)
+    const Reference_Frame *Reference_Frame::find_common_frame(
+      const Reference_Frame *from, const Reference_Frame *to,
+      std::vector<const Reference_Frame *> *to_stack)
+    {
+      const Reference_Frame *cur_to = to;
+      for(;;)
+      {
+        const Reference_Frame *cur_from = from;
+        for(;;)
+        {
+          if(cur_to == cur_from)
+          {
+            return cur_to;
+          }
+          const Reference_Frame *next_cur_from = &cur_from->origin().frame();
+          if(cur_from == next_cur_from)
+            break;
+          cur_from = next_cur_from;
+        }
+        if(to_stack)
+          to_stack->push_back(cur_to);
+        const Reference_Frame *next_cur_to = &cur_to->origin().frame();
+        if(cur_to == next_cur_to)
+          break;
+        cur_to = next_cur_to;
+      }
+      return NULL;
+    }
+
+    void Axis_Angle_Frame::rotate_location_vec(Location_Vector &loc,
+      const Rotation_Vector &rot, bool reverse) const
+    {
+      if(rot.is_zero())
+        return;
+
+      Quaternion locq(loc);
+      Quaternion rotq(rot);
+
+      if(reverse)
+        rotq.conjugate();
+
+      Quaternion::hamilton_product(locq, rotq, locq);
+      rotq.conjugate();
+      locq *= rotq;
+      locq.to_location_vector(loc);
+    }
+
+    void Axis_Angle_Frame::transform_to_origin(Rotation_Vector &in) const
+    {
+      GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
+      {
+        Quaternion in_quat(in);
+        Quaternion origin_quat(origin().as_rotation_vec());
+        in_quat *= origin_quat;
+        in_quat.to_rotation_vector(in);
+        return;
+      }
+      throw undefined_transform(*this, origin().frame(), true);
+    }
+
+    void Axis_Angle_Frame::transform_from_origin(Rotation_Vector &in) const
+    {
+      GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
+      {
+        Quaternion in_quat(in);
+        Quaternion origin_quat(origin().as_rotation_vec());
+        origin_quat.conjugate();
+        in_quat *= origin_quat;
+        in_quat.to_rotation_vector(in);
+        return;
+      }
+      throw undefined_transform(*this, origin().frame(), false);
+    }
   }
-
-  return result;
-}
-
-gams::platforms::Null_Platform::Null_Platform (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  variables::Sensors * sensors,
-  variables::Platforms * platforms,
-  variables::Self * self)
-  : Base_Platform (knowledge, sensors, self)
-{
-  if (platforms && knowledge)
-  {
-    (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
-    status_ = (*platforms)[get_id ()];
-  }
-}
-
-gams::platforms::Null_Platform::~Null_Platform ()
-{
-}
-
-void
-gams::platforms::Null_Platform::operator= (const Null_Platform & rhs)
-{
-  if (this != &rhs)
-  {
-    platforms::Base_Platform * dest = dynamic_cast <platforms::Base_Platform *> (this);
-    const platforms::Base_Platform * source =
-      dynamic_cast <const platforms::Base_Platform *> (&rhs);
-
-    *dest = *source;
-  }
-}
- 
-int
-gams::platforms::Null_Platform::analyze (void)
-{ 
-  return 0;
-}
-
-std::string
-gams::platforms::Null_Platform::get_id () const
-{
-  return "null";
-}
-
-std::string
-gams::platforms::Null_Platform::get_name () const
-{
-  return "Null";
-}
-
-double
-gams::platforms::Null_Platform::get_accuracy () const
-{
-  return 0.0;
-}
-
-double
-gams::platforms::Null_Platform::get_move_speed () const
-{
-  return 0.0;
-}
-
-int
-gams::platforms::Null_Platform::home (void)
-{
-  return 0;
-}
-
-int
-gams::platforms::Null_Platform::land (void)
-{
-  return 0;
-}
-
-int
-gams::platforms::Null_Platform::move (const utility::Position & /*position*/,
-  const double & /*epsilon*/)
-{
-  return 0;
-}
-
-int
-gams::platforms::Null_Platform::sense (void)
-{
-  return 0;
-}
-
-void
-gams::platforms::Null_Platform::set_move_speed (const double& /*speed*/)
-{
-}
-
-int
-gams::platforms::Null_Platform::takeoff (void)
-{
-  return 0;
 }

@@ -1,5 +1,10 @@
 feature (android) {
   requires += java
 
-  macros += _GAMS_ANDROID_
+  macros += _GAMS_ANDROID_  __STDC_FORMAT_MACROS
+
+  libpaths += $(SYSROOT)/usr/lib
+  includes += $(SYSROOT)/usr/include
+
+  libs += log
 }

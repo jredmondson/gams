@@ -83,29 +83,33 @@ gams::platforms::VREP_UAV_Factory::create (
       knowledge_->attach_transport ("", settings);
       knowledge_->activate_transport ();
 
-      GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::platforms::VREP_UAV_Factory::create:" \
-        " no transports found, attaching multicast\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+         "gams::platforms::VREP_UAV_Factory::create:" \
+        " no transports found, attaching multicast\n");
     }
 
-    GAMS_DEBUG (gams::utility::LOG_EVENT_TRACE, (LM_DEBUG, 
-      DLINFO "gams::platforms::VREP_UAV_Factory::create:" \
-      " creating VREP_UAV object\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::platforms::VREP_UAV_Factory::create:" \
+      " creating VREP_UAV object\n");
 
     result = new VREP_UAV (knowledge, sensors, platforms, self);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::platforms::VREP_UAV_Factory::create:" \
-      " invalid knowledge, sensors, platforms, or self\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::platforms::VREP_UAV_Factory::create:" \
+      " invalid knowledge, sensors, platforms, or self\n");
   }
 
   if (result == 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::platforms::VREP_UAV_Factory::create:" \
-      " error creating VREP_UAV object\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::platforms::VREP_UAV_Factory::create:" \
+      " error creating VREP_UAV object\n");
   }
 
   return result;
@@ -231,17 +235,19 @@ gams::platforms::VREP_UAV::add_model_to_environment ()
   if (simxLoadModel (client_id_, modelFile.c_str (), 0, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::platforms::VREP_UAV::add_model_to_environment:" \
-      " error loading model in vrep\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::platforms::VREP_UAV::add_model_to_environment:" \
+      " error loading model in vrep\n");
     exit (-1);
   }
 
   if (node_id_ < 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::platforms::VREP_UAV::add_model_to_environment:" \
-      " invalid handle id\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::platforms::VREP_UAV::add_model_to_environment:" \
+      " invalid handle id\n");
     exit (-1);
   }
 }
@@ -284,9 +290,10 @@ gams::platforms::VREP_UAV::get_target_handle ()
 
   if (node_target_ < 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::platforms::VREP_UAV::get_target_handle:" \
-      " invalid target handle id\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::platforms::VREP_UAV::get_target_handle:" \
+      " invalid target handle id\n");
   }
 }
 

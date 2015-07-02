@@ -3,18 +3,32 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
   sharedname = GAMS
   includes += src
   dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
-  
+
   verbatim (gnuace, local) {
     CPPFLAGS += -w
   }
-  
+
+  verbatim (gnuace, bottom) {
+    DEPFILES=$(patsubst %.cpp,%.d,$(filter %.cpp,$(FILES)))
+
+    %.d : %.cpp
+    "	$(CXX) $(CPPFLAGS) -MM -MG -MT .shobj/$(@:.d=.o) -o $@ $<"
+
+    cleandep :
+    "	rm $(DEPFILES)"
+
+    clean : cleandep
+
+    -include $(DEPFILES)
+  }
+
   Documentation_Files {
     INSTALL.txt
     LICENSE.txt
     README.txt
     VERSION.txt
   }
-  
+
   Build_Files {
     default.features
     gams.mpc
@@ -41,6 +55,10 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
 
     Controllers {
       src/gams/controllers
+    }
+    
+    Loggers {
+      src/gams/loggers
     }
 
     Maps {
@@ -74,6 +92,10 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
 
     Controllers {
       src/gams/controllers
+    }
+    
+    Loggers {
+      src/gams/loggers
     }
 
     Maps {

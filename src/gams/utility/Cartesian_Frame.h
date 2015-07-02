@@ -43,120 +43,59 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "Null_Platform.h"
-#include "gams/loggers/Global_Logger.h"
 
-gams::platforms::Base_Platform *
-gams::platforms::Null_Platform_Factory::create (
-  const Madara::Knowledge_Vector & /*args*/,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  variables::Sensors * sensors,
-  variables::Platforms * platforms,
-  variables::Self * self)
+/**
+ * @file Cartesian_Frame.h
+ * @author James Edmondson <jedmondson@gmail.com>
+ *
+ * This file contains the base reference Frame class
+ **/
+
+#ifndef _GAMS_UTILITY_CARTESIAN_FRAME_H_
+#define _GAMS_UTILITY_CARTESIAN_FRAME_H_
+
+#include "Reference_Frame.h"
+
+namespace gams
 {
-  Base_Platform * result (0);
-  
-  if (knowledge && sensors && platforms && self)
+  namespace utility
   {
-    result = new Null_Platform (knowledge, sensors, platforms, self);
+    /**
+     * Locations represented as meters distance, in x, y, and z, from an origin point
+     * Rotations represented as Euler angles, in the origin frame, applied in this order:
+     *    alpha degrees around X-axis
+     *    beta  degrees around Y-axis
+     *    gamma degrees around Z-axis
+     *
+     * All conversions to/from child and parent Cartesian_Frames are supported.
+     * Conversions to/from a parent GPS_Frame are supported, except converting
+     * GPS_Frame to a child Cartesian_Frame that is rotated w.r.t. the GPS_Frame.
+     * converting from GPS_Frame to a rotated child Cartesian is supported.
+     **/
+    class GAMS_Export Cartesian_Frame : public Axis_Angle_Frame
+    {
+    public:
+      Cartesian_Frame() : Axis_Angle_Frame() {}
+      explicit Cartesian_Frame(const Pose &origin) : Axis_Angle_Frame(origin) {}
+      explicit Cartesian_Frame(Pose *origin) : Axis_Angle_Frame(origin) {}
+
+    private:
+      virtual std::string get_name() const { return "Cartesian"; }
+
+      virtual void transform_to_origin(Location_Vector &in) const;
+
+      virtual void transform_from_origin(Location_Vector &in) const;
+
+      virtual double calc_distance(const Location_Vector &loc1, const Location_Vector &loc2) const
+      {
+        double x_dist = loc2.x() - loc1.x();
+        double y_dist = loc2.y() - loc1.y();
+        double z_dist = loc2.z() - loc1.z();
+
+        return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
+      }
+    };
   }
-
-  return result;
 }
 
-gams::platforms::Null_Platform::Null_Platform (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  variables::Sensors * sensors,
-  variables::Platforms * platforms,
-  variables::Self * self)
-  : Base_Platform (knowledge, sensors, self)
-{
-  if (platforms && knowledge)
-  {
-    (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
-    status_ = (*platforms)[get_id ()];
-  }
-}
-
-gams::platforms::Null_Platform::~Null_Platform ()
-{
-}
-
-void
-gams::platforms::Null_Platform::operator= (const Null_Platform & rhs)
-{
-  if (this != &rhs)
-  {
-    platforms::Base_Platform * dest = dynamic_cast <platforms::Base_Platform *> (this);
-    const platforms::Base_Platform * source =
-      dynamic_cast <const platforms::Base_Platform *> (&rhs);
-
-    *dest = *source;
-  }
-}
- 
-int
-gams::platforms::Null_Platform::analyze (void)
-{ 
-  return 0;
-}
-
-std::string
-gams::platforms::Null_Platform::get_id () const
-{
-  return "null";
-}
-
-std::string
-gams::platforms::Null_Platform::get_name () const
-{
-  return "Null";
-}
-
-double
-gams::platforms::Null_Platform::get_accuracy () const
-{
-  return 0.0;
-}
-
-double
-gams::platforms::Null_Platform::get_move_speed () const
-{
-  return 0.0;
-}
-
-int
-gams::platforms::Null_Platform::home (void)
-{
-  return 0;
-}
-
-int
-gams::platforms::Null_Platform::land (void)
-{
-  return 0;
-}
-
-int
-gams::platforms::Null_Platform::move (const utility::Position & /*position*/,
-  const double & /*epsilon*/)
-{
-  return 0;
-}
-
-int
-gams::platforms::Null_Platform::sense (void)
-{
-  return 0;
-}
-
-void
-gams::platforms::Null_Platform::set_move_speed (const double& /*speed*/)
-{
-}
-
-int
-gams::platforms::Null_Platform::takeoff (void)
-{
-  return 0;
-}
+#endif

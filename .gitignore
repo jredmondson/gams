@@ -1,11 +1,17 @@
+.DS_Store
+
 *.so
 *.o
+*.d
 Makefile
 *algorithm*.txt
 *.csv
 .depend.*
 GNUmakefile*
+Makefile*
 lib*
+*.class
+*.d
 
 resource/vrep/starting.ttt
 

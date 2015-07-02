@@ -44,7 +44,7 @@
  *      distribution.
  **/
 #include "Counter_Platform.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 
 gams::platforms::Counter_Platform::Counter_Platform (

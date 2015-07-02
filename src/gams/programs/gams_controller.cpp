@@ -57,7 +57,8 @@ using std::endl;
 
 #include "madara/knowledge_engine/Knowledge_Base.h"
 #include "gams/controllers/Base_Controller.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/Global_Logger.h"
 
 const std::string default_broadcast ("192.168.1.255:15000");
 // default transport settings
@@ -90,9 +91,10 @@ Integer num_agents (-1);
 // file path to save received files to
 std::string file_path;
 
-void print_usage (char* prog_name)
+void print_usage (char * prog_name)
 {
-  Madara::Logger::global_logger->log (Madara::Logger::LOG_ALWAYS,
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" \
 "     Loop controller setup for gams\n" \
 " [-A |--algorithm type]        algorithm to start with\n" \
@@ -226,7 +228,9 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
-        buffer >> GAMS_debug_level;
+        int level;
+        buffer >> level;
+        gams::loggers::global_logger->set_level (level);
       }
       else
         print_usage (argv[0]);

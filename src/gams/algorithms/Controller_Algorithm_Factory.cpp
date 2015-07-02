@@ -46,6 +46,8 @@
 
 #include "madara/utility/Utility.h"
 
+#include "gams/loggers/Global_Logger.h"
+
 #include "gams/algorithms/Controller_Algorithm_Factory.h"
 #include "gams/algorithms/Land.h"
 #include "gams/algorithms/Move.h"
@@ -69,7 +71,7 @@
 #include "gams/algorithms/area_coverage/Perimeter_Patrol.h"
 #include "gams/algorithms/area_coverage/Waypoints_Coverage.h"
 
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 #include <iostream>
 
@@ -260,9 +262,10 @@ algorithms::Controller_Algorithm_Factory::create (
     else
     {
       // the user is going to expect this kind of error to be printed immediately
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::algorithms::Controller_Algorithm_Factory::create:" \
-        " could not find \"%s\" algorithm.\n", type.c_str ()));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ALWAYS,
+        "gams::algorithms::Controller_Algorithm_Factory::create:" \
+        " could not find \"%s\" algorithm.\n", type.c_str ());
     }
   }
 
