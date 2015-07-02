@@ -3,26 +3,26 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following acknowledgments and disclaimers.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  *    appear in their names without prior written permission of
  *    permission@sei.cmu.edu.
- * 
+ *
  * 5. Redistributions of any form whatsoever must retain the following
  *    acknowledgment:
- * 
+ *
  *      This material is based upon work funded and supported by the Department
  *      of Defense under Contract No. FA8721-05-C-0003 with Carnegie Mellon
  *      University for the operation of the Software Engineering Institute, a
@@ -30,7 +30,7 @@
  *      findings and conclusions or recommendations expressed in this material
  *      are those of the author(s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
- * 
+ *
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
@@ -39,7 +39,7 @@
  *      OBTAINED FROM USE OF THE MATERIAL. CARNEGIE MELLON UNIVERSITY DOES
  *      NOT MAKE ANY WARRANTY OF ANY KIND WITH RESPECT TO FREEDOM FROM PATENT,
  *      TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
@@ -54,7 +54,7 @@
 #include "madara/utility/Utility.h"
 #include "gams/platforms/Platform_Factory.h"
 #include "gams/algorithms/Algorithm_Factory.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 // Java-specific header includes
 #ifdef _GAMS_JAVA_
@@ -73,28 +73,32 @@ gams::controllers::Base_Controller::Base_Controller (
   algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &devices_),
   platform_factory_ (&knowledge, &sensors_, &platforms_, 0)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::constructor:" \
-    " default constructor called.\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::constructor:" \
+    " default constructor called.\n");
 }
 
 gams::controllers::Base_Controller::~Base_Controller ()
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::destructor:" \
-    " deleting algorithm.\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::destructor:" \
+    " deleting algorithm.\n");
   delete algorithm_;
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::destructor:" \
-    " deleting platform.\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::destructor:" \
+    " deleting platform.\n");
   delete platform_;
-  
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::destructor:" \
-    " deleting accents.\n"));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::destructor:" \
+    " deleting accents.\n");
   for (algorithms::Algorithms::iterator i = accents_.begin ();
-       i != accents_.end (); ++i)
+    i != accents_.end (); ++i)
   {
     delete *i;
   }
@@ -106,7 +110,7 @@ void gams::controllers::Base_Controller::add_platform_factory (
 {
   this->platform_factory_.add (aliases, factory);
 }
-      
+
 void gams::controllers::Base_Controller::add_algorithm_factory (
   const std::vector <std::string> & aliases,
   algorithms::Algorithm_Factory * factory)
@@ -121,17 +125,19 @@ gams::controllers::Base_Controller::monitor (void)
 
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::monitor:" \
-      " calling platform_->sense ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::monitor:" \
+      " calling platform_->sense ()\n");
 
     result = platform_->sense ();
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::monitor:" \
-      " Platform undefined. Unable to call platform_->sense ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::Base_Controller::monitor:" \
+      " Platform undefined. Unable to call platform_->sense ()\n");
   }
 
   return result;
@@ -148,10 +154,11 @@ gams::controllers::Base_Controller::system_analyze (void)
    * @see gams::variables::Device::init_vars
    * @see gams::variables::Swarm::init_vars
    **/
-  
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::system_analyze:" \
-    " checking device and swarm commands\n"));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::system_analyze:" \
+    " checking device and swarm commands\n");
 
   if (self_.device.command != "")
   {
@@ -176,7 +183,7 @@ gams::controllers::Base_Controller::system_analyze (void)
     swarm_.command_args.copy_to (args);
 
     init_algorithm (swarm_.command.to_string (), args);
-    
+
     // reset the command
     swarm_.command = "";
     swarm_.command_args.resize (0);
@@ -192,45 +199,51 @@ gams::controllers::Base_Controller::analyze (void)
 
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::analyze:" \
-      " calling platform_->analyze ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::analyze:" \
+      " calling platform_->analyze ()\n");
 
     return_value |= platform_->analyze ();
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::analyze:" \
-      " Platform undefined. Unable to call platform_->analyze ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::analyze:" \
+      " Platform undefined. Unable to call platform_->analyze ()\n");
   }
-  
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::analyze:" \
-    " calling system_analyze ()\n"));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::analyze:" \
+    " calling system_analyze ()\n");
   return_value |= system_analyze ();
 
   if (algorithm_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::analyze:" \
-      " calling algorithm_->analyze ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::analyze:" \
+      " calling algorithm_->analyze ()\n");
 
     return_value |= algorithm_->analyze ();
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::analyze:" \
-      " Algorithm undefined. Unable to call algorithm_->analyze ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::analyze:" \
+      " Algorithm undefined. Unable to call algorithm_->analyze ()\n");
   }
 
 
   if (accents_.size () > 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::analyze:" \
-      " calling analyze on accents\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::analyze:" \
+      " calling analyze on accents\n");
     for (algorithms::Algorithms::iterator i = accents_.begin ();
       i != accents_.end (); ++i)
     {
@@ -245,27 +258,30 @@ int
 gams::controllers::Base_Controller::plan (void)
 {
   int return_value (0);
-  
+
   if (algorithm_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::plan:" \
-      " calling algorithm_->plan ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::plan:" \
+      " calling algorithm_->plan ()\n");
 
     return_value |= algorithm_->plan ();
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::plan:" \
-      " Algorithm undefined. Unable to call algorithm_->plan ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::plan:" \
+      " Algorithm undefined. Unable to call algorithm_->plan ()\n");
   }
 
   if (accents_.size () > 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::plan:" \
-      " calling plan on accents\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::plan:" \
+      " calling plan on accents\n");
 
     for (algorithms::Algorithms::iterator i = accents_.begin ();
       i != accents_.end (); ++i)
@@ -281,20 +297,22 @@ int
 gams::controllers::Base_Controller::execute (void)
 {
   int return_value (0);
-  
+
   if (algorithm_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::execute:" \
-      " calling algorithm_->execute ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::execute:" \
+      " calling algorithm_->execute ()\n");
 
     return_value |= algorithm_->execute ();
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::execute:" \
-      " Algorithm undefined. Unable to call algorithm_->execute ()\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::Base_Controller::execute:" \
+      " Algorithm undefined. Unable to call algorithm_->execute ()\n");
   }
 
   if (accents_.size () > 0)
@@ -315,30 +333,34 @@ gams::controllers::Base_Controller::_run_once (void)
   // return value
   int return_value (0);
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::run:" \
-    " calling monitor ()\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " calling monitor ()\n");
 
   // lock the context from any external updates
   knowledge_.lock ();
 
   return_value |= monitor ();
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::run:" \
-    " calling analyze ()\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " calling analyze ()\n");
 
   return_value |= analyze ();
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::run:" \
-    " calling plan ()\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " calling plan ()\n");
 
   return_value |= plan ();
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::run:" \
-    " calling execute ()\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " calling execute ()\n");
 
   return_value |= execute ();
 
@@ -352,21 +374,22 @@ int
 gams::controllers::Base_Controller::run_once (void)
 {
   // return value
-  int return_value (_run_once());
+  int return_value (_run_once ());
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::run:" \
-    " sending updates\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " sending updates\n");
 
   // send modified values through network
-  knowledge_.send_modifieds();
+  knowledge_.send_modifieds ();
 
   return return_value;
 }
 
 int
 gams::controllers::Base_Controller::run (double loop_period,
-  double max_runtime, double send_period)
+double max_runtime, double send_period)
 {
   // return value
   int return_value (0);
@@ -379,22 +402,23 @@ gams::controllers::Base_Controller::run (double loop_period,
   }
 
   // loop every period until a max run time has been reached
-  ACE_Time_Value current = ACE_OS::gettimeofday ();  
+  ACE_Time_Value current = ACE_OS::gettimeofday ();
   ACE_Time_Value max_wait, sleep_time, next_epoch;
   ACE_Time_Value send_sleep_time, send_next_epoch;
   ACE_Time_Value poll_frequency, send_poll_frequency;
   ACE_Time_Value last (current), last_send (current);
-  
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::run:" \
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
     " loop_period: %ds, max_runtime: %ds, send_period: %ds\n",
-    loop_period, max_runtime, send_period));
+    loop_period, max_runtime, send_period);
 
   if (loop_period >= 0.0)
   {
     max_wait.set (max_runtime);
     max_wait = current + max_wait;
-    
+
     poll_frequency.set (loop_period);
     send_poll_frequency.set (send_period);
     next_epoch = current + poll_frequency;
@@ -404,20 +428,21 @@ gams::controllers::Base_Controller::run (double loop_period,
     while (first_execute || max_runtime < 0 || current < max_wait)
     {
       // return value should be last return value of mape loop
-      return_value = _run_once();
+      return_value = _run_once ();
 
       // grab current time
       current = ACE_OS::gettimeofday ();
-      
+
       // run will always try to send at least once
       if (first_execute || current > send_next_epoch)
       {
-        GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-          DLINFO "gams::controllers::Base_Controller::run:" \
-          " sending updates\n"));
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::Base_Controller::run:" \
+          " sending updates\n");
 
         // send modified values through network
-        knowledge_.send_modifieds();
+        knowledge_.send_modifieds ();
 
         // setup the next send epoch
         while (send_next_epoch < current)
@@ -427,13 +452,14 @@ gams::controllers::Base_Controller::run (double loop_period,
       // check to see if we need to sleep for next loop epoch
       if (loop_period > 0.0 && current < next_epoch)
       {
-        GAMS_DEBUG (gams::utility::LOG_MINOR_EVENT, (LM_DEBUG, 
-          DLINFO "gams::controllers::Base_Controller::run:" \
-          " sleeping until next epoch\n"));
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::controllers::Base_Controller::run:" \
+          " sleeping until next epoch\n");
 
-        Madara::Utility::sleep (next_epoch - current);  
+        Madara::Utility::sleep (next_epoch - current);
       }
-      
+
       // setup the next 
       next_epoch += poll_frequency;
 
@@ -448,17 +474,19 @@ gams::controllers::Base_Controller::run (double loop_period,
 
 void
 gams::controllers::Base_Controller::init_accent (const std::string & algorithm,
-  const Madara::Knowledge_Vector & args)
+const Madara::Knowledge_Vector & args)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_accent:" \
-    " initializing accent %s\n", algorithm.c_str ()));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_accent:" \
+    " initializing accent %s\n", algorithm.c_str ());
 
   if (algorithm == "")
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_accent:" \
-      " ERROR: accent name is null\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::controllers::Base_Controller::init_accent:" \
+      " ERROR: accent name is null\n");
   }
   else
   {
@@ -466,10 +494,11 @@ gams::controllers::Base_Controller::init_accent (const std::string & algorithm,
     algorithms::Base_Algorithm * new_accent (0);
     algorithms::Controller_Algorithm_Factory factory (&knowledge_, &sensors_,
       platform_, &self_, &devices_);
-    
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_accent:" \
-      " factory is creating accent %s\n", algorithm.c_str ()));
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_accent:" \
+      " factory is creating accent %s\n", algorithm.c_str ());
 
     new_accent = factory.create (algorithm, args);
 
@@ -479,18 +508,20 @@ gams::controllers::Base_Controller::init_accent (const std::string & algorithm,
     }
     else
     {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::init_accent:" \
-        " ERROR: created accent is null.\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::controllers::Base_Controller::init_accent:" \
+        " ERROR: created accent is null.\n");
     }
   }
 }
 
 void gams::controllers::Base_Controller::clear_accents (void)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::clear_accents:" \
-    " deleting and clearing all accents\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::clear_accents:" \
+    " deleting and clearing all accents\n");
 
   for (unsigned int i = 0; i < accents_.size (); ++i)
   {
@@ -504,43 +535,48 @@ gams::controllers::Base_Controller::init_algorithm (
 const std::string & algorithm, const Madara::Knowledge_Vector & args)
 {
   // initialize the algorithm
-  
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-    " initializing algorithm %s\n", algorithm.c_str ()));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_algorithm:" \
+    " initializing algorithm %s\n", algorithm.c_str ());
 
   if (algorithm == "")
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "Algorithm is empty.\n\n" \
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "Algorithm is empty.\n\n" \
       "SUPPORTED ALGORITHMS:\n" \
       "  bridge | bridging\n" \
       "  random area coverage\n" \
       "  priotized area coverage\n"
-      ));
+      );
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_platform:" \
-      " deleting old algorithm\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_platform:" \
+      " deleting old algorithm\n");
 
     delete algorithm_;
     algorithms::Controller_Algorithm_Factory factory (&knowledge_, &sensors_,
       platform_, &self_, &devices_);
-    
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-      " factory is creating algorithm %s\n", algorithm.c_str ()));
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_algorithm:" \
+      " factory is creating algorithm %s\n", algorithm.c_str ());
 
     algorithm_ = factory.create (algorithm, args);
 
     if (algorithm_ == 0)
     {
       // the user is going to expect this kind of error to be printed immediately
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-        " failed to create algorithm\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_algorithm:" \
+        " failed to create algorithm\n");
     }
     else
     {
@@ -551,46 +587,51 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 
 void
 gams::controllers::Base_Controller::init_platform (
-  const std::string & platform,
-  const Madara::Knowledge_Vector & /*args*/)
+const std::string & platform,
+const Madara::Knowledge_Vector & /*args*/)
 {
   // initialize the platform
-  
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_platform:" \
-    " initializing platform %s\n", platform.c_str ()));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_platform:" \
+    " initializing platform %s\n", platform.c_str ());
 
   if (platform == "")
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "Platform is empty.\n\n" \
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "Platform is empty.\n\n" \
       "SUPPORTED PLATFORMS:\n" \
       "  drone-rk\n" \
       "  vrep\n" \
-      ));
+      );
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_platform:" \
-      " deleting old platform\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_platform:" \
+      " deleting old platform\n");
 
     delete platform_;
     platforms::Controller_Platform_Factory factory (&knowledge_, &sensors_, &platforms_, &self_);
 
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_platform:" \
-      " factory is creating platform %s\n", platform.c_str ()));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_platform:" \
+      " factory is creating platform %s\n", platform.c_str ());
 
     platform_ = factory.create (platform);
-    
+
     init_vars (*platform_);
 
     if (algorithm_)
     {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::init_platform:" \
-        " algorithm is already initialized. Updating to new platform\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_platform:" \
+        " algorithm is already initialized. Updating to new platform\n");
 
       algorithm_->set_platform (platform_);
     }
@@ -599,61 +640,68 @@ gams::controllers::Base_Controller::init_platform (
 
 void gams::controllers::Base_Controller::init_algorithm (algorithms::Base_Algorithm * algorithm)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-    " deleting old algorithm\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_algorithm:" \
+    " deleting old algorithm\n");
 
   delete algorithm_;
   algorithm_ = algorithm;
-  
+
   if (algorithm_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-      " initializing vars in algorithm\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_algorithm:" \
+      " initializing vars in algorithm\n");
 
     init_vars (*algorithm_);
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_algorithm:" \
-      " algorithm was reset to none\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_algorithm:" \
+      " algorithm was reset to none\n");
   }
 }
-      
+
 
 void gams::controllers::Base_Controller::init_platform (platforms::Base_Platform * platform)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_platform:" \
-    " deleting old platform\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_platform:" \
+    " deleting old platform\n");
 
   delete platform_;
   platform_ = platform;
 
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_platform:" \
-      " initializing vars in platform\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_platform:" \
+      " initializing vars in platform\n");
 
     init_vars (*platform_);
 
     if (algorithm_)
     {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::init_platform:" \
-        " algorithm is already initialized. Updating to new platform\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_platform:" \
+        " algorithm is already initialized. Updating to new platform\n");
 
       algorithm_->set_platform (platform_);
     }
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_platform:" \
-      " platform was reset to none\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_platform:" \
+      " platform was reset to none\n");
   }
 }
 
@@ -661,56 +709,63 @@ void gams::controllers::Base_Controller::init_platform (platforms::Base_Platform
 
 void gams::controllers::Base_Controller::init_algorithm (jobject algorithm)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_algorithm (java):" \
-    " deleting old algorithm\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_algorithm (java):" \
+    " deleting old algorithm\n");
 
   delete algorithm_;
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_algorithm (java):" \
-    " creating new Java algorithm\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_algorithm (java):" \
+    " creating new Java algorithm\n");
 
   algorithm_ = new gams::algorithms::Java_Algorithm (algorithm);
 
   if (algorithm_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_algorithm (java):" \
-      " initializing vars for algorithm\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_algorithm (java):" \
+      " initializing vars for algorithm\n");
 
     init_vars (*algorithm_);
   }
 }
-      
+
 
 void gams::controllers::Base_Controller::init_platform (jobject platform)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
-    " deleting old platform\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_platform (java):" \
+    " deleting old platform\n");
 
   delete platform_;
 
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
-    " creating new Java platform\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_platform (java):" \
+    " creating new Java platform\n");
 
   platform_ = new gams::platforms::Java_Platform (platform);
 
   if (platform_)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
-      " initializing vars for platform\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_platform (java):" \
+      " initializing vars for platform\n");
 
     init_vars (*platform_);
 
     if (algorithm_)
     {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::controllers::Base_Controller::init_platform (java):" \
-        " Algorithm exists. Updating its platform.\n"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_platform (java):" \
+        " Algorithm exists. Updating its platform.\n");
 
       algorithm_->set_platform (platform_);
     }
@@ -721,12 +776,13 @@ void gams::controllers::Base_Controller::init_platform (jobject platform)
 
 void
 gams::controllers::Base_Controller::init_vars (
-  const Integer & id,
-  const Integer & processes)
+const Integer & id,
+const Integer & processes)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_vars:" \
-    " %q id, %q processes\n", id, processes));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_vars:" \
+    " %" PRId64 " id, %" PRId64 " processes\n", id, processes);
 
   // initialize the devices, swarm, and self variables
   variables::init_vars (devices_, knowledge_, processes);
@@ -737,9 +793,10 @@ gams::controllers::Base_Controller::init_vars (
 void
 gams::controllers::Base_Controller::init_vars (platforms::Base_Platform & platform)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_vars:" \
-    " initializing platform's vars\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_vars:" \
+    " initializing platform's vars\n");
 
   platform.knowledge_ = &knowledge_;
   platform.self_ = &self_;
@@ -750,9 +807,10 @@ gams::controllers::Base_Controller::init_vars (platforms::Base_Platform & platfo
 void
 gams::controllers::Base_Controller::init_vars (algorithms::Base_Algorithm & algorithm)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::controllers::Base_Controller::init_vars:" \
-    " initializing algorithm's vars\n"));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::init_vars:" \
+    " initializing algorithm's vars\n");
 
   algorithm.devices_ = &devices_;
   algorithm.knowledge_ = &knowledge_;
@@ -766,7 +824,7 @@ gams::controllers::Base_Controller::get_algorithm (void)
 {
   return algorithm_;
 }
-      
+
 gams::platforms::Base_Platform *
 gams::controllers::Base_Controller::get_platform (void)
 {
