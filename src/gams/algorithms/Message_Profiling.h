@@ -128,6 +128,11 @@ namespace gams
       const static std::string key_prefix_;
 
       /**
+       * Container for storing data to be sent to other controllers
+       */
+      Madara::Knowledge_Engine::Containers::String message_;
+
+      /**
        * Filter for tracking which messages have come in and which have been 
        * dropped
        */

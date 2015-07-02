@@ -116,6 +116,11 @@ gams::algorithms::Message_Profiling::Message_Profiling (
   settings.add_receive_filter (&filter_);
 
   knowledge->attach_transport (knowledge->get_id (), settings);
+
+  const static string key = key_prefix_ + "." +
+    knowledge_->get (".id").to_string () + ".data";
+
+  message_.set_name (key, *knowledge);
 }
 
 gams::algorithms::Message_Profiling::~Message_Profiling ()
@@ -145,9 +150,6 @@ gams::algorithms::Message_Profiling::analyze (void)
 int
 gams::algorithms::Message_Profiling::execute (void)
 {
-  const static string key = key_prefix_ + "." +
-    knowledge_->get (".id").to_string () + ".data";
-
   ++executions_;
 
   if (send_size_ != 0)
@@ -161,7 +163,7 @@ gams::algorithms::Message_Profiling::execute (void)
       value_str = value_str + string (send_size_ - value_str.length () - 1, 'a');
   
     // actually set knowledge
-    knowledge_->set (key, value_str);
+    message_ = value_str;
   }
 
   return 0;
