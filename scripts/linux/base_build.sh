@@ -11,9 +11,6 @@
 #   $VREP_ROOT    - location of VREP installation, if applicable
 #
 # For android
-#   $NDK_BIN      - This should be the path to the Android NDK binaries for the
-#                   platform you are trying to deploy (e.g. the arm toolchain)
-#   $VREP_ROOT    - location of VREP installation, if applicable
 #   $LOCAL_CROSS_PREFIX
 #                 - Set this to the toolchain prefix
 #
@@ -39,6 +36,16 @@ do
   elif [ "$var" = "android" ]; then
     ANDROID=1
     JAVA=1
+  else
+    echo "Invalid argument: $var"
+    echo "  Usage: $0 <args>"
+    echo "  args can be zero or more of the following, space delimited"
+    echo "  tests           build test executables"
+    echo "  vrep            build with vrep support"
+    echo "  java            build java jar"
+    echo "  android         build android libs, turns on java"
+    echo "  ros             build ROS platform classes"
+    exit
   fi
 done
 
@@ -69,7 +76,7 @@ echo ""
 
 # build ACE, all build information (compiler and options) will be set here
 echo "Building ACE"
-if [ $android = 1 ]; then
+if [ $ANDROID -eq 1 ]; then
   # use the android specific files, we use custom config file for android due to build bug in ACE
   echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
 

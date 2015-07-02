@@ -14,12 +14,10 @@
 TESTS=0
 VREP=0
 JAVA=0
-ROS=0
 ANDROID=0
+MAC_VERSION=0
 
-# assume we are on most recent version of OS
-MAC_VERSION="yosemite"
-
+# parse command line args
 for var in "$@"
 do
   if [ "$var" = "tests" ]; then
@@ -28,8 +26,6 @@ do
     VREP=1
   elif [ "$var" = "java" ]; then
     JAVA=1
-  elif [ "$var" = "ros" ]; then
-    ROS=1
   elif [ "$var" = "android" ]; then
     ANDROID=1
     JAVA=1
@@ -41,11 +37,65 @@ do
     MAC_VERSION="mavericks"
   elif [ "$var" = "yosemite" ]; then
     MAC_VERSION="yosemite"
+  else
+    echo "Invalid argument: $var"
+    echo "  Usage: $0 <args>"
+    echo "  args can be zero or more of the following, space delimited"
+    echo "  tests           build test executables"
+    echo "  vrep            build with vrep support"
+    echo "  java            build java jar"
+    echo "  android         build android libs, turns on java"
+    echo "  <mac_version>   select version of mac to build for, if missing then auto-detect"
+    echo "                  lion"
+    echo "                  mountainlion"
+    echo "                  mavericks"
+    echo "                  yosemite"
+    exit
   fi
 done
 
+# auto-detect Mac version string
+if [ $MAC_VERSION -eq 0 ]; then
+  VER_STRING=`sw_vers -productVersion`
+  if [ ${VER_STRING:0:4} = "10.7" ]; then
+    echo "Auto-detected OS X Lion"
+    MAC_VERSION="lion"
+  elif [ ${VER_STRING:0:4} = "10.8" ]; then
+    echo "Auto-detected OS X Mountain Lion"
+    MAC_VERSION="mountainlion"
+  elif [ ${VER_STRING:0:4} = "10.9" ]; then
+    echo "Auto-detected OS X Mavericks"
+    MAC_VERSION="mavericks"
+  elif [ ${VER_STRING:0:5} = "10.10" ]; then
+    echo "Auto-detected OS X Yosemite"
+    MAC_VERSION="yosemite"
+  else
+    echo "Could not auto-detect Mac version"
+    exit
+  fi
+fi
+
+# auto-detect JDK
+if [ $JAVA -eq 1]; then
+  echo "Auto-detecting JDK"
+  if [ $JAVA_HOME = ""]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
+  fi
+  if [ $JAVA_HOME = ""]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
+  fi
+  if [ $JAVA_HOME = ""]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+  fi
+  if [ $JAVA_HOME = ""]; then
+    echo "Failed to auto-detect JDK"
+    exit
+  fi
+fi
+
 # echo build information
 echo "Using $CORES build jobs"
+echo "MAC_VERSION is $MAC_VERSION"
 echo "MADARA will be built from $MADARA_ROOT"
 echo "ACE will be built from $ACE_ROOT"
 echo "GAMS will be built from $GAMS_ROOT"
@@ -55,6 +105,7 @@ echo "ROS has been set to $ROS"
 echo "ANDROID has been set to $ANDROID"
 echo "JAVA has been set to $JAVA"
 
+# output other env vars
 if [ $JAVA -eq 1 ]; then
   echo "JAVA_HOME is referencing $JAVA_HOME"
 fi
@@ -67,11 +118,12 @@ if [ $ANDROID -eq 1 ]; then
   echo "CROSS_COMPILE is set to $LOCAL_CROSS_PREFIX"
 fi
 
+# spacing
 echo ""
 
 # build ACE
 echo "Building ACE"
-if [ $android = 1 ]; then
+if [ $ANDROID -eq 1 ]; then
   # use the android specific files, we use custom config file for android due to build bug in ACE
   echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
 
