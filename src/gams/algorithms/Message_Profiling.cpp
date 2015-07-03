@@ -179,8 +179,10 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
   Message_Data& data = msg_map_[transport_context.get_originator ()];
 
   // loop through each update
-  for (Madara::Knowledge_Map::const_reference update : records)
+  for (Madara::Knowledge_Map::const_iterator iter = records.begin();
+	      iter != records.end(); ++iter)
   {
+    Madara::Knowledge_Map::const_reference update = *iter;
     // we only care about specific messages
     if (update.second.is_string_type () && update.first.find (key_prefix_) == 0)
     {
@@ -218,8 +220,10 @@ gams::algorithms::Message_Profiling::Message_Filter::missing_messages_string ()
   const
 {
   stringstream ret_val;
-  for (map<string, Message_Data>::const_reference ref : msg_map_)
+  for (map<string, Message_Data>::const_iterator iter = msg_map_.begin();
+	      iter != msg_map_.end(); ++iter)
   {
+    map<string, Message_Data>::const_reference ref = *iter;
     ret_val << ref.first << ": ";
     for (size_t i = ref.second.first + 1; i < ref.second.last; ++i)
       if(!ref.second.present[i])
