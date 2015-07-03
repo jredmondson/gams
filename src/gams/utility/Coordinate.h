@@ -260,6 +260,6 @@ namespace gams
 }
 
 // Include if not already included
-#include <gams/utility/Reference_Frame.h>
+#include <gams/utility/Pose.h>
 
 #endif

@@ -257,7 +257,15 @@ namespace gams
 
       using Coordinate<Rotation>::operator==;
     };
+  }
+}
 
+#include <gams/utility/Location.h>
+
+namespace gams
+{
+  namespace utility
+  {
     /**
      * Used internally to implement angle operations.
      * Not reference-frame aware.
@@ -439,6 +447,6 @@ namespace gams
 }
 
 // Include if not already included
-#include <gams/utility/Reference_Frame.h>
+#include <gams/utility/Pose.h>
 
 #endif

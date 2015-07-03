@@ -229,4 +229,7 @@ namespace gams
   }
 }
 
+// Include if not already included
+#include <gams/utility/Pose.h>
+
 #endif
