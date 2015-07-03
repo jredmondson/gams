@@ -80,9 +80,9 @@ namespace gams
      * Workaround to allow all specializations of Coordinate to share the
      * same default frame;
      **/
-    class GAMS_Export Coordinate_Base
+    class Coordinate_Base
     {
-    private:
+    protected:
       static const Reference_Frame *default_frame;
     };
 
@@ -98,7 +98,7 @@ namespace gams
      *      -- Have this function: static std::string name()
      **/
     template<typename CoordType>
-    class GAMS_Export Coordinate : private Coordinate_Base
+    class Coordinate : private Coordinate_Base
     {
     public:
 

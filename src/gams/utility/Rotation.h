@@ -148,7 +148,7 @@ namespace gams
         return static_cast<const Base_Type &>(*this);
       }
 
-      int cardinality() const
+      int size() const
       {
         return 3;
       }
@@ -245,9 +245,15 @@ namespace gams
       explicit Rotation(const Quaternion &quat)
         : Rotation_Vector(quat) {}
 
+      Rotation(const Reference_Frame &new_frame, const Rotation &orig)
+        : Rotation_Vector(orig), Coordinate(orig.frame())
+      {
+        transform_this_to(new_frame);
+      }
+
       double angle_to(const Rotation &target) const
       {
-        distance_to(target);
+        return distance_to(target);
       }
 
       using Coordinate<Rotation>::operator==;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 #include <gams/utility/Cartesian_Frame.h>
 #include <gams/utility/GPS_Frame.h>
 
@@ -7,14 +8,19 @@ using namespace gams::utility;
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.0001;
 
+double round_nearest(double in)
+{
+  return floor(in + 0.5);
+}
+
 #define LOG(expr) \
   std::cout << #expr << " == " << (expr) << std::endl
 
 #define TEST(expr, expect) \
   do {\
     double bv = (expr); \
-    double v = round((bv) * 1024)/1024; \
-    double e = round((expect) * 1024)/1024; \
+    double v = round_nearest((bv) * 1024)/1024; \
+    double e = round_nearest((expect) * 1024)/1024; \
     bool ok = \
       e >= 0 ? (v >= e * (1 - TEST_epsilon) && v <= e * (1 + TEST_epsilon)) \
              : (v >= e * (1 + TEST_epsilon) && v <= e * (1 - TEST_epsilon)); \
@@ -28,7 +34,7 @@ const double TEST_epsilon = 0.0001;
     } \
   } while(0)
 
-int main()
+int main(int argc, char *argv[])
 {
   std::cout.precision(4);
   std::cout << std::fixed;
@@ -181,4 +187,5 @@ int main()
   LOG(Rotation(hex6));
   LOG(Rotation(hex6.transform_to(hex_frame0)));
   TEST(hex0.angle_to(hex0), 0);
+  return 0;
 }

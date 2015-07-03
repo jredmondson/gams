@@ -408,7 +408,7 @@ namespace gams
        * coordinate types, specialize this function to express this fact
        **/
       template<typename CoordType>
-      static double transform_to_origin_within_frame(CoordType &in,
+      static void transform_to_origin_within_frame(CoordType &in,
           const Reference_Frame &frame)
       {
         frame.transform_to_origin(in);
@@ -419,7 +419,7 @@ namespace gams
        * coordinate types, specialize this function to express this fact
        **/
       template<typename CoordType>
-      static double transform_from_origin_within_frame(CoordType &in,
+      static void transform_from_origin_within_frame(CoordType &in,
           const Reference_Frame &frame)
       {
         frame.transform_from_origin(in);
@@ -488,7 +488,7 @@ namespace gams
     }
 
     template<>
-    inline double Reference_Frame::transform_to_origin_within_frame<>(
+    inline void Reference_Frame::transform_to_origin_within_frame<>(
       Pose &in, const Reference_Frame &frame)
     {
       frame.transform_to_origin(static_cast<Location_Vector &>(in));
@@ -496,7 +496,7 @@ namespace gams
     }
 
     template<>
-    inline double Reference_Frame::transform_from_origin_within_frame<>(
+    inline void Reference_Frame::transform_from_origin_within_frame<>(
       Pose &in, const Reference_Frame &frame)
     {
       frame.transform_from_origin(static_cast<Location_Vector &>(in));

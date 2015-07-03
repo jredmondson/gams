@@ -127,7 +127,7 @@ namespace gams
         return "Pose";
       }
 
-      int cardinality() const
+      int size() const
       {
         return 6;
       }
@@ -226,6 +226,12 @@ namespace gams
       /// Precondition: loc.frame == rot.frame
       Pose(const Location &loc, const Rotation &rot)
         : Pose_Vector(loc, rot), Coordinate(loc.frame()) {}
+
+      Pose(const Reference_Frame &new_frame, const Rotation &orig)
+        : Pose_Vector(orig), Coordinate(orig.frame())
+      {
+        transform_this_to(new_frame);
+      }
 
       double angle_to(const Pose &target) const
       {

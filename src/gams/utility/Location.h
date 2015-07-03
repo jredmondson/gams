@@ -223,7 +223,6 @@ namespace gams
         : Location_Vector(orig), Coordinate(orig.frame())
       {
         transform_this_to(new_frame);
-        frame(new_frame);
       }
 
       using Coordinate<Location>::operator==;
