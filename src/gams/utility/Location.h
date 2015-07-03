@@ -54,7 +54,6 @@
 #ifndef _GAMS_UTILITY_LOCATION_H_
 #define _GAMS_UTILITY_LOCATION_H_
 
-#include "gams/GAMS_Export.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -77,7 +76,7 @@ namespace gams
     /**
      * Container for Location information, not bound to a frame.
      **/
-    class GAMS_Export Location_Vector
+    class Location_Vector
     {
     protected:
       Location_Vector(double x, double y, double z = 0.0)
@@ -205,7 +204,7 @@ namespace gams
      * This location always has x, y, and z coordinates, but interpretation
      * of those coordinates can vary according to the reference frame.
      **/
-    class GAMS_Export Location : public Location_Vector, public Coordinate<Location>
+    class Location : public Location_Vector, public Coordinate<Location>
     {
     public:
       Location(double x, double y, double z = 0.0)

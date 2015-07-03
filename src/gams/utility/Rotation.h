@@ -54,7 +54,6 @@
 #ifndef _GAMS_UTILITY_ROTATION_H_
 #define _GAMS_UTILITY_ROTATION_H_
 
-#include "gams/GAMS_Export.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -82,7 +81,7 @@ namespace gams
     /**
      * Container for Rotation information, not bound to a frame.
      **/
-    class GAMS_Export Rotation_Vector
+    class Rotation_Vector
     {
     public:
       static const int X_axis = 0;
@@ -200,7 +199,7 @@ namespace gams
      * direction of the rotation axis, rotations curve in the direction your
      * fingers are pointing.
      **/
-    class GAMS_Export Rotation : public Rotation_Vector, public Coordinate<Rotation>
+    class Rotation : public Rotation_Vector, public Coordinate<Rotation>
     {
     public:
       /**
@@ -263,7 +262,7 @@ namespace gams
      * Used internally to implement angle operations.
      * Not reference-frame aware.
      **/
-    class GAMS_Export Quaternion
+    class Quaternion
     {
     public:
       Quaternion(double x, double y, double z, double w)

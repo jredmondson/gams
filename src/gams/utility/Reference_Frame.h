@@ -452,7 +452,7 @@ namespace gams
      * Provides implementation of transforms between rotations represented using
      * 3-value axis/angle notation. Inherit from this to use this implementation.
      **/
-    class Axis_Angle_Frame : public Reference_Frame
+    class GAMS_Export Axis_Angle_Frame : public Reference_Frame
     {
     protected:
       Axis_Angle_Frame() : Reference_Frame() {}

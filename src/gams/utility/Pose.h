@@ -54,7 +54,6 @@
 #ifndef _GAMS_UTILITY_POSE_H_
 #define _GAMS_UTILITY_POSE_H_
 
-#include "gams/GAMS_Export.h"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -78,7 +77,7 @@ namespace gams
     /**
      * Container for Pose information, not bound to a frame.
      **/
-    class GAMS_Export Pose_Vector : public Location_Vector, public Rotation_Vector
+    class Pose_Vector : public Location_Vector, public Rotation_Vector
     {
     protected:
       Pose_Vector(double x, double y, double z, double rx, double ry, double rz)
@@ -197,7 +196,7 @@ namespace gams
      * Represents a combination of Location and Rotation within a single
      * reference frame.
      **/
-    class GAMS_Export Pose : public Pose_Vector, public Coordinate<Pose>
+    class Pose : public Pose_Vector, public Coordinate<Pose>
     {
     public:
       Pose(double x, double y, double z, double rx, double ry, double rz)

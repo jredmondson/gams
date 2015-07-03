@@ -83,7 +83,7 @@ namespace gams
     class Coordinate_Base
     {
     protected:
-      static const Reference_Frame *default_frame;
+      GAMS_Export static const Reference_Frame *default_frame;
     };
 
     /**
