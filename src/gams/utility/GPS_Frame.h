@@ -66,60 +66,112 @@ namespace gams
      *    x is Latitude
      *    y is Longitude
      *    z is Altitude (above assumed perfectly spherical surface)
-     * Rotations represented as Euler angles, applied in this order:
-     *    alpha degrees around axis pointing towards north pole at current location
-     *      At north pole: points towards 0 Longitude; at south pole, towards 180 Longitude
-     *    beta degrees around axis pointing west at current location
-     *      At north and south poles: axis points towards 90W Longitude
-     *    gamma degrees around axis pointing upwards (i.e, normal vector) at current location
+     * Rotations represented in Axis Angle notation
+     *    Axis rx points towards north pole
+     *    Axis ry points west at current location
+     *    Axis rz points upwards (i.e, normal vector)
      *
-     * Note that under this scheme, change in x and/or y position, while maintaining the
-     *   same rotation angles, implies a rotation relative to the planet.
+     * Note that under this scheme, change in x and/or y position, while
+     *   maintaining the same rotation angles, implies a rotation relative
+     *   to the planet.
      *
-     * Distances at same altitude calculated as distance along great circle of sphere of
-     * radius planet_radius plus altitude. If altitude differs, great circle distance first
-     * calculated using lower of two altitudes, then distance calculated as follows:
+     * Distances at same altitude calculated as distance along great circle of
+     * sphere of radius planet_radius plus altitude. If altitude differs,
+     * great circle distance first calculated using lower of two altitudes,
+     * then distance calculated as follows:
      *    distance = sqrt(circle_distance ^ 2 + altitude_difference ^ 2)
+     *
+     * This frame can have cartesian frames embedded within it, but cannot
+     * be embedded within any other frames at this time.
      **/
     class GAMS_Export GPS_Frame : public Axis_Angle_Frame
     {
     public:
-      static const double EARTH_RADIUS;
-      static const double MOON_RADIUS;
-      static const double MARS_RADIUS;
+      static const double EARTH_RADIUS; /// Mean radius of the Earth
+      static const double MOON_RADIUS; /// Mean radius of the Moon
+      static const double MARS_RADIUS; /// Mean radius of Mars
 
-      GPS_Frame(double planet_radius = EARTH_RADIUS)
-        : Axis_Angle_Frame(), _planet_radius(planet_radius) {}
+      /**
+       * Construct the GPS_Frame, by default, for Earth
+       *
+       * @param planet_radius the radius of the planet this frame will
+       *    represent. By default, EARTH_RADIUS.
+       **/
+      GPS_Frame(double planet_radius = EARTH_RADIUS);
 
-      explicit GPS_Frame(const Pose &origin, double planet_radius = EARTH_RADIUS)
-        : Axis_Angle_Frame(origin), _planet_radius(planet_radius) {}
+      /**
+       * Construct the GPS_Frame, by default, for Earth, embedded within
+       * another frame. Note: does not support embedding within other frames.
+       *
+       * @param origin the origin of this frame within another frame
+       * @param planet_radius the radius of the planet this frame will
+       *    represent. By default, EARTH_RADIUS.
+       **/
+      explicit GPS_Frame(
+            const Pose &origin, double planet_radius = EARTH_RADIUS);
 
-      explicit GPS_Frame(Pose *origin, double planet_radius = EARTH_RADIUS)
-        : Axis_Angle_Frame(origin), _planet_radius(planet_radius) {}
+      /**
+       * Construct the GPS_Frame, by default, for Earth, embedded within
+       * another frame, bound to a Pose object.
+       *
+       * @param origin the Pose object to bind to as origin of this frame
+       * @param planet_radius the radius of the planet this frame will
+       *    represent. By default, EARTH_RADIUS.
+       **/
+      explicit GPS_Frame(Pose *origin, double planet_radius = EARTH_RADIUS);
 
-      double radius() const { return _planet_radius; }
-      double circ() const { return 2 * _planet_radius * M_PI; }
+      /**
+       * Get the radius of the planet this frame represents
+       *
+       * @return radius in meters
+       **/
+      double radius() const;
 
-      double radius(double new_radius) { return _planet_radius = new_radius; }
-      double circ(double new_circ)
-      {
-        return _planet_radius = new_circ / (2 * M_PI);
-      }
+      /**
+       * Get the circumference of the planet this frame represents
+       *
+       * @return new circumference in meters
+       **/
+      double circ() const;
+
+      /**
+       * Set the radius of the planet this frame represents
+       *
+       * @param new_radius the new radius, in meters
+       * @return radius in meters
+       **/
+      double radius(double new_radius);
+
+      /**
+       * Set the circumference of the planet this frame represents
+       *
+       * @param new_circ the new circumference, in meters
+       * @return new circumference in meters
+       **/
+      double circ(double new_circ);
 
     private:
       double _planet_radius;
 
-      virtual std::string get_name() const { return "GPS"; }
+      /**
+       * Returns the name of this type of reference frame.
+       *
+       * @return the string "GPS"
+       **/
+      virtual std::string get_name() const;
 
       virtual void transform_to_origin(Location_Vector &in) const;
 
       virtual void transform_from_origin(Location_Vector &in) const;
 
-      virtual double calc_distance(const Location_Vector &loc1, const Location_Vector &loc2) const;
+      virtual double calc_distance(
+          const Location_Vector &loc1, const Location_Vector &loc2) const;
 
       virtual void do_normalize(Location_Vector &in) const;
     };
   }
 }
+
+#include "GPS_Frame.inl"
 
 #endif

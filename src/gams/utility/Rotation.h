@@ -89,37 +89,37 @@ namespace gams
       static const int Z_axis = 2;
 
       Rotation_Vector(double rx, double ry, double rz)
-        : _rx(rx), _ry(ry), _rz(rz) {}
+        : rx_(rx), ry_(ry), rz_(rz) {}
 
       Rotation_Vector(double x, double y, double z, double angle)
-        : _rx(x * angle), _ry(y * angle), _rz(z * angle) {}
+        : rx_(x * angle), ry_(y * angle), rz_(z * angle) {}
 
       Rotation_Vector(int axis_index, double angle)
-        : _rx(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
-          _ry(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
-          _rz(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
+        : rx_(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
+          ry_(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
+          rz_(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
 
       Rotation_Vector()
-        : _rx(INVAL_COORD), _ry(INVAL_COORD), _rz(INVAL_COORD) {}
+        : rx_(INVAL_COORD), ry_(INVAL_COORD), rz_(INVAL_COORD) {}
 
       Rotation_Vector(const Rotation_Vector &orig)
-        : _rx(orig._rx), _ry(orig._ry), _rz(orig._rz) {}
+        : rx_(orig.rx_), ry_(orig.ry_), rz_(orig.rz_) {}
 
       explicit Rotation_Vector(const Quaternion &quat);
 
       bool is_invalid() const
       {
-        return _rx == INVAL_COORD || _ry == INVAL_COORD || _rz == INVAL_COORD;
+        return rx_ == INVAL_COORD || ry_ == INVAL_COORD || rz_ == INVAL_COORD;
       }
 
       bool is_zero() const
       {
-        return _rx == 0 && _ry == 0 && _rz == 0;
+        return rx_ == 0 && ry_ == 0 && rz_ == 0;
       }
 
       bool operator==(const Rotation_Vector &other) const
       {
-        return _rx == other._rx && _ry == other._ry && _rz == other._rz;
+        return rx_ == other.rx_ && ry_ == other.ry_ && rz_ == other.rz_;
       }
 
       static std::string name()
@@ -127,13 +127,13 @@ namespace gams
         return "Rotation";
       }
 
-      double rx() const { return _rx; }
-      double ry() const { return _ry; }
-      double rz() const { return _rz; }
+      double rx() const { return rx_; }
+      double ry() const { return ry_; }
+      double rz() const { return rz_; }
 
-      double rx(double new_rx) { return _rx = new_rx; }
-      double ry(double new_ry) { return _ry = new_ry; }
-      double rz(double new_rz) { return _rz = new_rz; }
+      double rx(double new_rx) { return rx_ = new_rx; }
+      double ry(double new_ry) { return ry_ = new_ry; }
+      double rz(double new_rz) { return rz_ = new_rz; }
 
       typedef Rotation_Vector Base_Type;
 
@@ -182,7 +182,7 @@ namespace gams
 
       friend class Quaternion;
     private:
-      double _rx, _ry, _rz;
+      double rx_, ry_, rz_;
     };
 
     inline std::ostream &operator<<(std::ostream &o, const Rotation_Vector &rot)
@@ -274,7 +274,7 @@ namespace gams
     {
     public:
       Quaternion(double x, double y, double z, double w)
-        : _x(x), _y(y), _z(z), _w(w) {}
+        : x_(x), y_(y), z_(z), w_(w) {}
 
       Quaternion(double rx, double ry, double rz)
       {
@@ -293,10 +293,10 @@ namespace gams
 
       void from_location_vector(double x, double y, double z)
       {
-        _x = x;
-        _y = y;
-        _z = z;
-        _w = 0;
+        x_ = x;
+        y_ = y;
+        z_ = z;
+        w_ = 0;
       }
 
       void from_location_vector(const Location_Vector &loc)
@@ -306,14 +306,14 @@ namespace gams
 
       void to_location_vector(double &x, double &y, double &z) const
       {
-        x = _x;
-        y = _y;
-        z = _z;
+        x = x_;
+        y = y_;
+        z = z_;
       }
 
       void to_location_vector(Location_Vector &loc) const
       {
-        to_location_vector(loc._x, loc._y, loc._z);
+        to_location_vector(loc.x_, loc.y_, loc.z_);
       }
 
       void from_rotation_vector(double rx, double ry, double rz)
@@ -321,18 +321,18 @@ namespace gams
         double magnitude = sqrt(rx * rx + ry * ry + rz * rz);
         if(magnitude == 0)
         {
-          _w = 1;
-          _x = _y = _z = 0;
+          w_ = 1;
+          x_ = y_ = z_ = 0;
         }
         else
         {
           double half_mag = magnitude / 2;
           double cos_half_mag = cos(half_mag);
           double sin_half_mag = sin(half_mag);
-          _w = cos_half_mag;
-          _x = (rx / magnitude) * sin_half_mag;
-          _y = (ry / magnitude) * sin_half_mag;
-          _z = (rz / magnitude) * sin_half_mag;
+          w_ = cos_half_mag;
+          x_ = (rx / magnitude) * sin_half_mag;
+          y_ = (ry / magnitude) * sin_half_mag;
+          z_ = (rz / magnitude) * sin_half_mag;
         }
       }
 
@@ -343,8 +343,8 @@ namespace gams
 
       void to_rotation_vector(double &rx, double &ry, double &rz) const
       {
-        double norm = sqrt(_x * _x + _y * _y + _z * _z);
-        double angle = 2 * atan2(norm, _w);
+        double norm = sqrt(x_ * x_ + y_ * y_ + z_ * z_);
+        double angle = 2 * atan2(norm, w_);
         double sin_half_angle = sin(angle / 2);
         if(sin_half_angle < 1e-10)
         {
@@ -352,32 +352,32 @@ namespace gams
         }
         else
         {
-          rx = (_x / sin_half_angle) * angle;
-          ry = (_y / sin_half_angle) * angle;
-          rz = (_z / sin_half_angle) * angle;
+          rx = (x_ / sin_half_angle) * angle;
+          ry = (y_ / sin_half_angle) * angle;
+          rz = (z_ / sin_half_angle) * angle;
         }
       }
 
       void to_rotation_vector(Rotation_Vector &rot) const
       {
-        to_rotation_vector(rot._rx, rot._ry, rot._rz);
+        to_rotation_vector(rot.rx_, rot.ry_, rot.rz_);
       }
 
       static void hamilton_product(Quaternion &into, const Quaternion &lhs, const Quaternion &rhs)
       {
-        double A = (lhs._w + lhs._x) * (rhs._w + rhs._x),
-               B = (lhs._z - lhs._y) * (rhs._y - rhs._z),
-               C = (lhs._w - lhs._x) * (rhs._y + rhs._z),
-               D = (lhs._y + lhs._z) * (rhs._w - rhs._x),
-               E = (lhs._x + lhs._z) * (rhs._x + rhs._y),
-               F = (lhs._x - lhs._z) * (rhs._x - rhs._y),
-               G = (lhs._w + lhs._y) * (rhs._w - rhs._z),
-               H = (lhs._w - lhs._y) * (rhs._w + rhs._z);
+        double A = (lhs.w_ + lhs.x_) * (rhs.w_ + rhs.x_),
+               B = (lhs.z_ - lhs.y_) * (rhs.y_ - rhs.z_),
+               C = (lhs.w_ - lhs.x_) * (rhs.y_ + rhs.z_),
+               D = (lhs.y_ + lhs.z_) * (rhs.w_ - rhs.x_),
+               E = (lhs.x_ + lhs.z_) * (rhs.x_ + rhs.y_),
+               F = (lhs.x_ - lhs.z_) * (rhs.x_ - rhs.y_),
+               G = (lhs.w_ + lhs.y_) * (rhs.w_ - rhs.z_),
+               H = (lhs.w_ - lhs.y_) * (rhs.w_ + rhs.z_);
 
-        into._w = B + (-E - F + G + H) / 2;
-        into._x = A - ( E + F + G + H) / 2;
-        into._y = C + ( E - F + G - H) / 2;
-        into._z = D + ( E - F - G + H) / 2;
+        into.w_ = B + (-E - F + G + H) / 2;
+        into.x_ = A - ( E + F + G + H) / 2;
+        into.y_ = C + ( E - F + G - H) / 2;
+        into.z_ = D + ( E - F - G + H) / 2;
       }
 
       Quaternion &operator*=(const Quaternion &rhs)
@@ -396,21 +396,21 @@ namespace gams
 
       Quaternion &conjugate()
       {
-        _x = -_x;
-        _y = -_y;
-        _z = -_z;
+        x_ = -x_;
+        y_ = -y_;
+        z_ = -z_;
         return *this;
       }
 
       Quaternion operator-() const
       {
-        Quaternion ret(-_x, -_y, -_z, _w);
+        Quaternion ret(-x_, -y_, -z_, w_);
         return ret;
       }
 
       double inner_product(const Quaternion &o) const
       {
-        return _w * o._w + _x * o._x + _y * o._y + _z * o._z;
+        return w_ * o.w_ + x_ * o.x_ + y_ * o.y_ + z_ * o.z_;
       }
 
       double angle_to(const Quaternion &o) const
@@ -419,23 +419,23 @@ namespace gams
         return acos(2 * prod * prod - 1);
       }
 
-      double x() const { return _x; }
-      double y() const { return _y; }
-      double z() const { return _z; }
-      double w() const { return _w; }
+      double x() const { return x_; }
+      double y() const { return y_; }
+      double z() const { return z_; }
+      double w() const { return w_; }
 
-      double x(double new_x) { return _x = new_x; }
-      double y(double new_y) { return _y = new_y; }
-      double z(double new_z) { return _z = new_z; }
-      double w(double new_w) { return _w = new_w; }
+      double x(double new_x) { return x_ = new_x; }
+      double y(double new_y) { return y_ = new_y; }
+      double z(double new_z) { return z_ = new_z; }
+      double w(double new_w) { return w_ = new_w; }
 
     private:
-      double _x, _y, _z, _w;
+      double x_, y_, z_, w_;
     };
 
     inline Rotation_Vector::Rotation_Vector(const Quaternion &quat)
     {
-      quat.to_rotation_vector(_rx, _ry, _rz);
+      quat.to_rotation_vector(rx_, ry_, rz_);
     }
 
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)

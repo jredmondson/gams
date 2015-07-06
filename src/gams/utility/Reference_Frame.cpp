@@ -87,6 +87,56 @@ namespace gams
       return NULL;
     }
 
+    void Reference_Frame::transform_to_origin(Location_Vector &in) const
+    {
+      (void)in; // silence unused variable warning
+      throw bad_coord_type<Location>(*this, "transform_to_origin");
+    }
+
+    void Reference_Frame::transform_from_origin(Location_Vector &in) const
+    {
+      (void)in; // silence unused variable warning
+      throw bad_coord_type<Location>(*this, "transform_from_origin");
+    }
+
+    void Reference_Frame::do_normalize(Location_Vector &in) const
+    {
+      (void)in; // silence unused variable warning
+    }
+
+    double Reference_Frame::calc_distance(
+                const Location_Vector &loc1, const Location_Vector &loc2) const
+    {
+      (void)loc1; // silence unused variable warning
+      (void)loc2;
+      throw bad_coord_type<Location>(*this, "calc_distance");
+    }
+
+    void Reference_Frame::transform_to_origin(Rotation_Vector &in) const
+    {
+      (void)in; // silence unused variable warning
+      throw bad_coord_type<Rotation>(*this, "transform_to_origin");
+    }
+
+    void Reference_Frame::transform_from_origin(Rotation_Vector &in) const
+    {
+      (void)in; // silence unused variable warning
+      throw bad_coord_type<Rotation>(*this, "transform_from_origin");
+    }
+
+    double Reference_Frame::calc_distance(
+                const Rotation_Vector &rot1, const Rotation_Vector &rot2) const
+    {
+      (void)rot1; // silence unused variable warning
+      (void)rot2;
+      throw bad_coord_type<Rotation>(*this, "calc_distance");
+    }
+
+    void Reference_Frame::do_normalize(Rotation_Vector &in) const
+    {
+      (void)in; // silence unused variable warning
+    }
+
     void Axis_Angle_Frame::rotate_location_vec(Location_Vector &loc,
       const Rotation_Vector &rot, bool reverse) const
     {
@@ -131,5 +181,14 @@ namespace gams
       }
       throw undefined_transform(*this, origin().frame(), false);
     }
+
+    inline double Axis_Angle_Frame::calc_distance(
+                const Rotation_Vector &loc1, const Rotation_Vector &loc2) const
+    {
+      Quaternion quat1(loc1);
+      Quaternion quat2(loc2);
+      return RAD_TO_DEG(quat1.angle_to(quat2));
+    }
+
   }
 }

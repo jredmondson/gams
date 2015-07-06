@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Location.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains the Location class
  **/
 
 #ifndef _GAMS_UTILITY_LOCATION_H_
@@ -75,159 +75,323 @@ namespace gams
 
     /**
      * Container for Location information, not bound to a frame.
+     * Stores a 3-tuple, for x, y, and z.
+     *
+     * Provides accessor methods to support non-cartesian coordinate systems:
+     *
+     * lng/lat/alt for GPS-style systems
+     * rho/phi/r for Cylindrical systems
+     * theta/phi/r for Spherical systems
+     *
+     * Each of the above are bound to x/y/z respectively.
      **/
     class Location_Vector
     {
-    protected:
-      Location_Vector(double x, double y, double z = 0.0)
-        : _x(x), _y(y), _z(z) {}
-
-      Location_Vector()
-        : _x(INVAL_COORD), _y(INVAL_COORD), _z(INVAL_COORD) {}
-
-      Location_Vector(const Location_Vector &orig)
-        : _x(orig._x), _y(orig._y), _z(orig._z) { }
-
     public:
-      bool is_invalid() const
-      {
-        return _x == INVAL_COORD || _y == INVAL_COORD || _z == INVAL_COORD;
-      }
-
-      bool operator==(const Location_Vector &other) const
-      {
-        return _x == other._x && _y == other._y && _z == other._z;
-      }
-
-      bool is_zero() const
-      {
-        return _x == 0 && _y == 0 && _z == 0;
-      }
-
-      static std::string name()
-      {
-        return "Location";
-      }
-
-      double x() const { return _x; }
-      double y() const { return _y; }
-      double z() const { return _z; }
-
-      double x(double new_x) { return _x = new_x; }
-      double y(double new_y) { return _y = new_y; }
-      double z(double new_z) { return _z = new_z; }
+      /**
+       * Primary constructor
+       *
+       * @param x the x coordinate of the new Location
+       * @param y the y coordinate of the new Location
+       * @param z the z coordinate of the new Location; defaults to zero
+       **/
+      Location_Vector(double x, double y, double z = 0.0);
 
       /**
-       * Alternative names for x, y, and z, suitable for
-       * non-Cartesian coordinate systems. Use:
-       *
-       * lng/lat/alt for GPS-style systems
-       * rho/phi/r for Cylindrical systems
-       * theta/phi/r for Spherical systems
+       * Default constructor. Initializes an invalid Location (INVAL_COORD).
        **/
-      double lng() const { return _x; }
-      double lat() const { return _y; }
-      double alt() const { return _z; }
+      Location_Vector();
 
-      double lng(double new_x) { return _x = new_x; }
-      double lat(double new_y) { return _y = new_y; }
-      double alt(double new_z) { return _z = new_z; }
+      /**
+       * Copy constructor.
+       **/
+      Location_Vector(const Location_Vector &orig);
 
-      double rho() const { return _x; }
-      double theta() const { return _x; }
-      double phi() const { return _y; }
-      double r() const { return _z; }
+      /**
+       * Tests if this Location is valid
+       *
+       * @return true if no values in this Location are INVAL_COORD
+       **/
+      bool is_invalid() const;
 
-      double rho(double new_x) { return _x = new_x; }
-      double theta(double new_x) { return _x = new_x; }
-      double phi(double new_y) { return _y = new_y; }
-      double r(double new_z) { return _z = new_z; }
+      /**
+       * Tests if all values in this Location are the same
+       * as the ones in the rhs.
+       *
+       * @param rhs the other Location to check against
+       **/
+      bool operator==(const Location_Vector &rhs) const;
 
-      int size() const
-      {
-        return 3;
-      }
+      /**
+       * Tests if all values in this Location are zero
+       *
+       * @return true of all values are zero
+       **/
+      bool is_zero() const;
+
+      /**
+       * Returns the name of this coordinate type
+       *
+       * @return "Location"
+       **/
+      static std::string name();
+
+      /**
+       * Getter for x
+       *
+       * @return x value
+       **/
+      double x() const;
+
+      /**
+       * Getter for y
+       *
+       * @return y value
+       **/
+      double y() const;
+
+      /**
+       * Getter for z
+       *
+       * @return z value
+       **/
+      double z() const;
+
+      /**
+       * Setter for x
+       *
+       * @param new_x the new x value
+       * @return new x value
+       **/
+      double x(double new_x);
+
+      /**
+       * Setter for y
+       *
+       * @param new_y the new y value
+       * @return new y value
+       **/
+      double y(double new_y);
+
+      /**
+       * Setter for z
+       *
+       * @param new_z the new z value
+       * @return new z value
+       **/
+      double z(double new_z);
+
+      /**
+       * Getter for longitude, a synonym for x
+       *
+       * @return longitude value
+       **/
+      double lng() const;
+
+      /**
+       * Getter for latitude, a synonym for y
+       *
+       * @return latitude value
+       **/
+      double lat() const;
+
+      /**
+       * Getter for altitude, a synonym for z
+       *
+       * @return altitude value
+       **/
+      double alt() const;
+
+      /**
+       * Setter for longitude, a synonym for x
+       *
+       * @param new_lng new longitude value
+       * @return new longitude value
+       **/
+      double lng(double new_lng);
+
+      /**
+       * Setter for latitude, a synonym for y
+       *
+       * @param new_lat new latitude value
+       * @return new latitude value
+       **/
+      double lat(double new_lat);
+
+      /**
+       * Setter for altitude, a synonym for z
+       *
+       * @param new_alt new altitude value
+       * @return new altitude value
+       **/
+      double alt(double new_alt);
+
+      /**
+       * Getter for rho, a synonym for x for Cylindrical systems
+       *
+       * @return rho value
+       **/
+      double rho() const;
+
+      /**
+       * Getter for theta, a synonym for x for Spherical systems
+       *
+       * @return theta value
+       **/
+      double theta() const;
+
+      /**
+       * Getter for phi, a synonym for y for Cylindrical and Spherical systems
+       *
+       * @return phi value
+       **/
+      double phi() const;
+
+      /**
+       * Getter for r, a synonym for z for Cylindrical and Spherical systems
+       *
+       * @return r value
+       **/
+      double r() const;
+
+      /**
+       * Setter for rho, a synonym for x for Cylindrical systems
+       *
+       * @param new_rho new rho value
+       * @return new rho value
+       **/
+      double rho(double new_rho);
+
+      /**
+       * Setter for theta, a synonym for x for Spherical systems
+       *
+       * @param new_theta new theta value
+       * @return new theta value
+       **/
+      double theta(double new_theta);
+
+      /**
+       * Setter for phi, a synonym for y for Cylindrical and Spherical systems
+       *
+       * @param new_phi new phi value
+       * @return new phi value
+       **/
+      double phi(double new_phi);
+
+      /**
+       * Setter for r, a synonym for z for Cylindrical and Spherical systems
+       *
+       * @param new_r new new value
+       * @return new r value
+       **/
+      double r(double new_r);
+
+      /**
+       * Number of elements in this tuple
+       *
+       * @return the integer 3
+       **/
+      static int size();
 
       /**
        * Retrives i'th coordinate, 0-indexed, in order x, y, z
+       *
+       * @param i the index
+       * @return the i'th value
        **/
-      double get(int i) const
-      {
-        if(i == 0)
-          return x();
-        else if(i == 1)
-          return y();
-        else if(i == 2)
-          return z();
-        throw std::range_error("Index out of bounds for Location");
-      }
+      double get(int i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order x, y, z
+       *
+       * @param i the index to set
+       * @param val the value to set to
        **/
-      double set(int i, double val)
-      {
-        if(i == 0)
-          return x(val);
-        else if(i == 1)
-          return y(val);
-        else if(i == 2)
-          return z(val);
-        throw std::range_error("Index out of bounds for Location");
-      }
+      double set(int i, double val);
 
       typedef Location_Vector Base_Type;
 
-      Base_Type &as_vec()
-      {
-        return static_cast<Base_Type &>(*this);
-      }
+      /**
+       * Returns reference to this as the above Base_Type; useful
+       * for derived types
+       *
+       * @return reference to this as Base_Type
+       **/
+      Base_Type &as_vec();
 
-      const Base_Type &as_vec() const
-      {
-        return static_cast<const Base_Type &>(*this);
-      }
+      /**
+       * Returns const reference to this as the above Base_Type; useful
+       * for derived types
+       *
+       * @return const reference to this as Base_Type
+       **/
+      const Base_Type &as_vec() const;
 
       friend class Quaternion;
-    private:
-      double _x, _y, _z;
-    };
 
-    inline std::ostream &operator<<(std::ostream &o, const Location_Vector &loc)
-    {
-      o << "(" << loc.x() << "," << loc.y() << "," << loc.z() << ")";
-      return o;
-    }
+    private:
+      double x_, y_, z_;
+    };
 
     /**
      * Represents a Location within a reference frame.
      * This location always has x, y, and z coordinates, but interpretation
      * of those coordinates can vary according to the reference frame.
+     *
+     * Provides accessor methods to support non-cartesian coordinate systems:
+     *
+     * lng/lat/alt for GPS-style systems
+     * rho/phi/r for Cylindrical systems
+     * theta/phi/r for Spherical systems
+     *
+     * Each of the above are bound to x/y/z respectively.
      **/
     class Location : public Location_Vector, public Coordinate<Location>
     {
     public:
-      Location(double x, double y, double z = 0.0)
-        : Location_Vector(x, y, z), Coordinate() {}
+      /**
+       * Primary constructor, using default reference frame.
+       *
+       * @param x the x coordinate of the new Location
+       * @param y the y coordinate of the new Location
+       * @param z the z coordinate of the new Location; defaults to zero
+       **/
+      Location(double x, double y, double z = 0.0);
 
-      Location(const Reference_Frame &frame, double x, double y, double z = 0.0)
-        : Location_Vector(x, y, z), Coordinate(frame) {}
+      /**
+       * Primary constructor
+       *
+       * @param frame the reference frame to bind to. This object must not
+       *    outlive this Reference_Frame object.
+       * @param x the x coordinate of the new Location
+       * @param y the y coordinate of the new Location
+       * @param z the z coordinate of the new Location; defaults to zero
+       **/
+      Location(const Reference_Frame &frame, double x, double y, double z=0.0);
 
-      Location() : Location_Vector(), Coordinate() {}
+      /**
+       * Default constructor. Initializes an invalid Location (INVAL_COORD).
+       **/
+      Location();
 
-      Location(const Location &orig)
-        : Location_Vector(orig), Coordinate(orig) {}
+      /**
+       * Copy constructor.
+       **/
+      Location(const Location &orig);
 
-      Location(const Reference_Frame &new_frame, const Location &orig)
-        : Location_Vector(orig), Coordinate(orig.frame())
-      {
-        transform_this_to(new_frame);
-      }
+      /**
+       * Copy constructor, but transform into the new frame as well.
+       *
+       * @param new_frame the new frame to transform to
+       **/
+      Location(const Reference_Frame &new_frame, const Location &orig);
 
       using Coordinate<Location>::operator==;
     };
   }
 }
+
+#include "Location.inl"
 
 // Include if not already included
 #include <gams/utility/Pose.h>

@@ -61,41 +61,51 @@ namespace gams
   namespace utility
   {
     /**
-     * Locations represented as meters distance, in x, y, and z, from an origin point
-     * Rotations represented as Euler angles, in the origin frame, applied in this order:
-     *    alpha degrees around X-axis
-     *    beta  degrees around Y-axis
-     *    gamma degrees around Z-axis
+     * Locations represented as meters distance, in x, y, and z, from an origin
+     * Rotations represented in Axis Angle notation
      *
      * All conversions to/from child and parent Cartesian_Frames are supported.
      * Conversions to/from a parent GPS_Frame are supported, except converting
-     * GPS_Frame to a child Cartesian_Frame that is rotated w.r.t. the GPS_Frame.
-     * converting from GPS_Frame to a rotated child Cartesian is supported.
+     * GPS_Frame to a child Cartesian_Frame that is rotated w.r.t. the GPS_Frame
+     * Converting to GPS_Frame from a rotated child Cartesian is supported.
      **/
     class GAMS_Export Cartesian_Frame : public Axis_Angle_Frame
     {
     public:
-      Cartesian_Frame() : Axis_Angle_Frame() {}
-      explicit Cartesian_Frame(const Pose &origin) : Axis_Angle_Frame(origin) {}
-      explicit Cartesian_Frame(Pose *origin) : Axis_Angle_Frame(origin) {}
+      /**
+       * Default constructor. No parent frame.
+       **/
+      Cartesian_Frame();
+
+      /**
+       * Creates a copy of the origin Pose passed in.
+       **/
+      explicit Cartesian_Frame(const Pose &origin);
+
+      /**
+       * Uses an existing Pose as origin, and maintains
+       * a pointer to it. Changes to it affect this frame
+       **/
+      explicit Cartesian_Frame(Pose *origin);
 
     private:
-      virtual std::string get_name() const { return "Cartesian"; }
+      /**
+       * Returns the name of this type of reference frame.
+       *
+       * @return the string "Cartesian"
+       **/
+      virtual std::string get_name() const;
 
       virtual void transform_to_origin(Location_Vector &in) const;
 
       virtual void transform_from_origin(Location_Vector &in) const;
 
-      virtual double calc_distance(const Location_Vector &loc1, const Location_Vector &loc2) const
-      {
-        double x_dist = loc2.x() - loc1.x();
-        double y_dist = loc2.y() - loc1.y();
-        double z_dist = loc2.z() - loc1.z();
-
-        return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
-      }
+      virtual double calc_distance(
+          const Location_Vector &loc1, const Location_Vector &loc2) const;
     };
   }
 }
+
+#include "Cartesian_Frame.inl"
 
 #endif

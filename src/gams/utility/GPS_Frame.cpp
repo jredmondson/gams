@@ -63,15 +63,18 @@ namespace gams
 
     void GPS_Frame::transform_to_origin(Location_Vector &in) const
     {
+      (void)in;
       throw undefined_transform(*this, origin().frame(), true);
     }
 
     void GPS_Frame::transform_from_origin(Location_Vector &in) const
     {
+      (void)in;
       throw undefined_transform(*this, origin().frame(), false);
     }
 
-    double GPS_Frame::calc_distance(const Location_Vector &loc1, const Location_Vector &loc2) const
+    double GPS_Frame::calc_distance(
+          const Location_Vector &loc1, const Location_Vector &loc2) const
     {
       double alt = loc1.z();
       double alt_diff = loc2.z() - loc1.z();
@@ -101,7 +104,8 @@ namespace gams
       double cos_delta_lng = cos(delta_lng);
 
       double top_first = cos_lat2 * sin_delta_lng;
-      double top_second = cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_delta_lng;
+      double top_second =
+          cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_delta_lng;
 
       double top = sqrt(top_first * top_first + top_second * top_second);
 
@@ -111,14 +115,16 @@ namespace gams
        * atan2(0, 0) is undefined, but for our purposes, we can treat it as 0
        **/
       const double epsilon = 0.000001;
-      double central_angle = (fabs(top) < epsilon && fabs(bottom) < epsilon) ? 0 : atan2(top, bottom);
+      double central_angle =
+          (fabs(top) < epsilon && fabs(bottom) < epsilon)
+               ? 0 : atan2(top, bottom);
 
       double great_circle_dist = (_planet_radius + alt) * central_angle;
 
       if(alt_diff == 0)
         return great_circle_dist;
       else
-        return sqrt(great_circle_dist * great_circle_dist + alt_diff * alt_diff);
+        return sqrt(great_circle_dist * great_circle_dist + alt_diff*alt_diff);
     }
 
     void GPS_Frame::do_normalize(Location_Vector &in) const
