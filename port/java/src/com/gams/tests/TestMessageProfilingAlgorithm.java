@@ -42,72 +42,76 @@
  * This material has been approved for public release and unlimited
  * distribution.
  * 
- * @author James Edmondson <jedmondson@gmail.com>
+ * @author Anton Dukeman <anton.dukeman@gmail.com>
  *********************************************************************/
-package com.gams.algorithms;
 
-import com.gams.GamsJNI;
+package com.gams.tests;
+ 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.madara.KnowledgeBase;
-import com.gams.platforms.BasePlatform;
-import com.gams.variables.Self;
-import com.gams.variables.AlgorithmStatus;
-import com.gams.controllers.BaseController;
+import com.madara.transport.QoSTransportSettings;
+import com.madara.transport.filters.Packet;
+import com.madara.transport.TransportContext;
+import com.madara.Variables;
 
-/**
- * Base class that should be extended when creating a Java algorithm for
- * usage in the GAMS controller
- */
-public abstract class BaseAlgorithm extends GamsJNI implements AlgorithmInterface
+public class TestMessageProfilingAlgorithm
 {
-  private native long jni_getKnowledgeBase(long cptr);
-  private native long jni_getSelf(long cptr);
-  private native Object jni_getPlatformObject(long cptr);
-  private native long jni_getAlgorithmStatus(long cptr);
+  public String host;
+  public long duration;
+  public double rate;
 
-  protected long executions;
+  public TestMessageProfilingAlgorithm ()
+  {
+    host = "";
+    duration = 10;
+    rate = 2;
+  }
 
-  /**
-   * Initialize the platform with controller variables. Use this
-   * method to synchronize user-defined algorithms with the controller.
-   * @param  controller   controller which will be using the algorithm
-   **/
-  public void init (BaseController controller)
+  public void test ()
   {
-    controller.initVars (this);
-    platform = (BasePlatform)jni_getPlatformObject(getCPtr());
-    knowledge = KnowledgeBase.fromPointer(jni_getKnowledgeBase(getCPtr()),false);
-    self = Self.fromPointer(jni_getSelf(getCPtr()),false);
-    status = AlgorithmStatus.fromPointer(jni_getAlgorithmStatus(getCPtr()),false);
-    executions = 0;
+    TransportSettings settings = new TransportSettings ();
+    KnowledgeBase knowledge = new KnowledgeBase (host, settings);
+    BaseController controller = new BaseController (knowledge);
+    controller.initPlatform ("null", new KnowledgeList (new long[0]));
+    controller.initAlgorithm (new MessageProfiling (controller));
+    com.madara.logger.GlobalLogger.setLevel(6);
+    controller.run (1.0 / rate, duration);
+    com.madara.logger.GlobalLogger.setLevel(0);
   }
-  
-  /**
-   * Facade for the protected setCPtr method in GamsJNI
-   * @param cptr the C pointer for the underlying class
-   **/
-  public void assume (long cptr)
+
+  public static void parseArgs (String[] args, TestMessagingThroughput obj)
   {
-    setCPtr(cptr);
+    for (int i = 0; i < args.length; ++i)
+    {
+      if (args[i] == "-h" || args[i] == "--host")
+      {
+        obj.host = args[i + 1];
+      }
+      else if (args[i] == "-d" || args[i] == "--duration")
+      {
+        obj.duration = Long.parseLong (args[i + 1]);
+      }
+      else if (args[i] == "-r" || args[i] == "--rate")
+      {
+        obj.rate = Double.parseDouble (args[i + 1]);
+      }
+      else
+      {
+        System.err.println ("Invalid argument: " + args[i]);
+        System.exit (-1);
+      }
+      ++i;
+    }
   }
-  
-  /**
-   * The controller's current knowledge base
-   **/
-  public KnowledgeBase knowledge;
-  
-  /**
-   * The platform currently in use by the controller
-   **/
-  public BasePlatform platform;
-  
-  /**
-   * Self-identifying variables like id and device properties
-   **/
-  public Self self;
-  
-  /**
-   * The status of the algorithm
-   **/
-  public AlgorithmStatus status;
+
+  public static void main (String[] args)
+  {
+    TestMessageProfilingAlgorithm obj = new TestMessageProfilingAlgorithm ();
+    parseArgs (args, obj);
+    obj.test ();
+  }
 }
-

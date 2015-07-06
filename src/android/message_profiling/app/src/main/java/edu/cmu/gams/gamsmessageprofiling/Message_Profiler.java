@@ -1,6 +1,9 @@
 package edu.cmu.gams.gamsmessageprofiling;
 
+import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.os.Bundle;
 
 import com.gams.controllers.BaseController;
 import com.madara.KnowledgeBase;
@@ -24,33 +27,6 @@ class Message_Profiler {
 
     private static final String TAG = "Message_Profiler";
 
-    public void run ()
-    {
-        TransportSettings settings = new TransportSettings();
-        String[] hosts = new String[1];
-        hosts[0] = address;
-        Log.d(TAG, address);
-        settings.setHosts(hosts);
-        settings.setType(type);
-
-        Log.d(TAG, "creating knowledge base...");
-        String host = Integer.toString(id);
-        KnowledgeBase knowledge = new KnowledgeBase(host, settings);
-        //KnowledgeBase knowledge = new KnowledgeBase();
-        Log.d(TAG, "done creating knowledge base");
-
-        String prefix = "device." + id + ".command";
-
-        BaseController controller = new BaseController(knowledge);
-        controller.initVars(0, 1);
-        controller.initPlatform("null", new KnowledgeList(new long[0]));
-        knowledge.set(".id", id);
-        knowledge.set(prefix, "message profiling");
-        knowledge.set(prefix + ".size", 1);
-        knowledge.set(prefix + ".0", 10);
-        controller.run(1.0 / rate, duration);
-    }
-
     public Message_Profiler (String t, String a, int s, int r, int d, int i)
     {
         switch(t)
@@ -71,5 +47,52 @@ class Message_Profiler {
         rate = r;
         duration = d;
         id = i;
+    }
+
+    public void run ()
+    {
+        TransportSettings settings = new TransportSettings();
+        /*String[] hosts = new String[1];
+        hosts[0] = address;
+        settings.setHosts(hosts);
+        settings.setType(type);
+
+        //KnowledgeBase knowledge = new KnowledgeBase();
+        */
+        String host = Integer.toString(id);
+        KnowledgeBase knowledge = new KnowledgeBase(host, settings);
+
+        String prefix = "device." + id + ".command";
+
+        BaseController controller = new BaseController(knowledge);
+        controller.initVars(id, 2);
+        controller.initPlatform("null", new KnowledgeList(new long[0]));
+        controller.initAlgorithm(new com.gams.algorithms.MessageProfiling(controller));
+        com.madara.logger.GlobalLogger.setLevel(6);
+        controller.run(1.0 / rate, duration);
+        com.madara.logger.GlobalLogger.setLevel(0);
+
+        Log.d(TAG, knowledge.toString());
+
+        /*try {
+            com.madara.logger.GlobalLogger.setLevel(6);
+            String[] args = new String[6];
+            args[0] = "--type";
+            if (id == 0)
+                args[1] = "reader";
+            else if (id == 1)
+                args[1] = "writer";
+            args[1] = "both";
+            args[2] = "--duration";
+            args[3] = "10";
+            args[4] = "--host";
+            args[5] = Integer.toString(id);
+            com.gams.tests.TestMessagingThroughput.main (args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            com.madara.logger.GlobalLogger.setLevel(0);
+        }*/
     }
 }
