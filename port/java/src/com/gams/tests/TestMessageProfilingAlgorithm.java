@@ -52,8 +52,12 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gams.controllers.BaseController;
+import com.gams.algorithms.MessageProfiling;
+
 import com.madara.KnowledgeBase;
-import com.madara.transport.QoSTransportSettings;
+import com.madara.KnowledgeList;
+import com.madara.transport.TransportSettings;
 import com.madara.transport.filters.Packet;
 import com.madara.transport.TransportContext;
 import com.madara.Variables;
@@ -83,7 +87,7 @@ public class TestMessageProfilingAlgorithm
     com.madara.logger.GlobalLogger.setLevel(0);
   }
 
-  public static void parseArgs (String[] args, TestMessagingThroughput obj)
+  public static void parseArgs (String[] args, TestMessageProfilingAlgorithm obj)
   {
     for (int i = 0; i < args.length; ++i)
     {
