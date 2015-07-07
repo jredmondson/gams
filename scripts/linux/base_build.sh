@@ -81,7 +81,7 @@ if [ $ANDROID -eq 1 ]; then
   echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
 
   # Android does not support versioned libraries and requires cross-compiling
-  echo -e "versioned_so=0\nCROSS_COMPILE=$(LOCAL_CROSS_PREFIX)\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+  echo -e "versioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
 else
   # use linux defaults
   echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
