@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Base_Frame.h
+ * @file GPS_Frame.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the base reference Frame class

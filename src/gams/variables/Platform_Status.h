@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Platform.h
+ * @file Platform_Status.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the definition of the platform-referencing MADARA variables

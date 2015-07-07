@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file test_control_loop.cpp
+ * @file test_controller.cpp
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains a test driver for the GAMS controller loop.

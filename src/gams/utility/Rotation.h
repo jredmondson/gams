@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Rotation.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes

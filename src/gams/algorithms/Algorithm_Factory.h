@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Algorithm_Algorithm_Factory.h
+ * @file Algorithm_Factory.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the algorithm factory
