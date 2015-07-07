@@ -18,3 +18,5 @@ if [ $# -gt 0 ]; then
 fi
 
 $GAMS_ROOT/scripts/linux/base_build.sh android vrep
+
+$GAMS_ROOT/scripts/linux/copy_libs.sh
