@@ -187,6 +187,7 @@ public class MessageProfiling extends BaseAlgorithm
   public MessageProfiling ()
   {
     message = new com.madara.containers.String ();
+    filter = new MessageProfilingFilter ();
   }
 
   /**
@@ -195,7 +196,6 @@ public class MessageProfiling extends BaseAlgorithm
   public void initVars (com.madara.transport.QoSTransportSettings settings)
   {
     // attach filter
-    MessageProfilingFilter filter = new MessageProfilingFilter ();
     settings.addReceiveFilter (filter);
 
     // attach transport
