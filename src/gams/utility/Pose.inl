@@ -75,6 +75,10 @@ namespace gams
     inline constexpr Pose_Vector::Pose_Vector()
       : Location_Vector(), Rotation_Vector() {}
 
+    inline constexpr Pose_Vector::Pose_Vector(const Pose_Vector &other)
+      : Location_Vector(other.as_location_vec()),
+        Rotation_Vector(other.as_rotation_vec()) {}
+
     inline constexpr bool Pose_Vector::is_invalid() const
     {
       return Location_Vector::is_invalid() || Rotation_Vector::is_invalid();
@@ -181,6 +185,9 @@ namespace gams
 
     inline Pose::Pose() : Pose_Vector(), Coordinate() {}
 
+    inline constexpr Pose::Pose(const Pose &other)
+      : Pose_Vector(other.as_vec()), Coordinate(other.frame()) {}
+
     inline constexpr Pose::Pose(const Location &loc)
       : Pose_Vector(loc), Coordinate(loc.frame()) {}
 
@@ -197,7 +204,7 @@ namespace gams
     inline constexpr Pose::Pose(const Location &loc, const Rotation &rot)
       : Pose_Vector(loc, rot), Coordinate(loc.frame()) {}
 
-    inline Pose::Pose(const Reference_Frame &new_frame, const Rotation &orig)
+    inline Pose::Pose(const Reference_Frame &new_frame, const Pose &orig)
       : Pose_Vector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);

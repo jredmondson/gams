@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Quaternion.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains inline function definitions for Quaternion
  **/
 
 #ifndef _GAMS_UTILITY_QUATERNION_INL_
@@ -158,19 +158,19 @@ namespace gams
     inline void Quaternion::hamilton_product(
                  Quaternion &into, const Quaternion &lhs, const Quaternion &rhs)
     {
-      double A = (lhs.w_ + lhs.x_) * (rhs.w_ + rhs.x_),
-             B = (lhs.z_ - lhs.y_) * (rhs.y_ - rhs.z_),
-             C = (lhs.w_ - lhs.x_) * (rhs.y_ + rhs.z_),
-             D = (lhs.y_ + lhs.z_) * (rhs.w_ - rhs.x_),
-             E = (lhs.x_ + lhs.z_) * (rhs.x_ + rhs.y_),
-             F = (lhs.x_ - lhs.z_) * (rhs.x_ - rhs.y_),
-             G = (lhs.w_ + lhs.y_) * (rhs.w_ - rhs.z_),
-             H = (lhs.w_ - lhs.y_) * (rhs.w_ + rhs.z_);
+      double a = (lhs.w_ + lhs.x_) * (rhs.w_ + rhs.x_),
+             b = (lhs.z_ - lhs.y_) * (rhs.y_ - rhs.z_),
+             c = (lhs.w_ - lhs.x_) * (rhs.y_ + rhs.z_),
+             d = (lhs.y_ + lhs.z_) * (rhs.w_ - rhs.x_),
+             e = (lhs.x_ + lhs.z_) * (rhs.x_ + rhs.y_),
+             f = (lhs.x_ - lhs.z_) * (rhs.x_ - rhs.y_),
+             g = (lhs.w_ + lhs.y_) * (rhs.w_ - rhs.z_),
+             h = (lhs.w_ - lhs.y_) * (rhs.w_ + rhs.z_);
 
-      into.w_ = B + (-E - F + G + H) / 2;
-      into.x_ = A - ( E + F + G + H) / 2;
-      into.y_ = C + ( E - F + G - H) / 2;
-      into.z_ = D + ( E - F - G + H) / 2;
+      into.w_ = b + (-e - f + g + h) / 2;
+      into.x_ = a - ( e + f + g + h) / 2;
+      into.y_ = c + ( e - f + g - h) / 2;
+      into.z_ = d + ( e - f - g + h) / 2;
     }
 
     inline Quaternion &Quaternion::operator*=(const Quaternion &rhs)

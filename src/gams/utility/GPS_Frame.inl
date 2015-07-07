@@ -61,36 +61,36 @@ namespace gams
   namespace utility
   {
     inline GPS_Frame::GPS_Frame(double planet_radius)
-      : Axis_Angle_Frame(), _planet_radius(planet_radius) {}
+      : Axis_Angle_Frame(), planet_radius_(planet_radius) {}
 
     inline GPS_Frame::GPS_Frame(
           const Pose &origin,
           double planet_radius)
-      : Axis_Angle_Frame(origin), _planet_radius(planet_radius) {}
+      : Axis_Angle_Frame(origin), planet_radius_(planet_radius) {}
 
     inline GPS_Frame::GPS_Frame(
           Pose *origin,
           double planet_radius)
-      : Axis_Angle_Frame(origin), _planet_radius(planet_radius) {}
+      : Axis_Angle_Frame(origin), planet_radius_(planet_radius) {}
 
     inline double GPS_Frame::radius() const
     {
-      return _planet_radius;
+      return planet_radius_;
     }
 
     inline double GPS_Frame::circ() const
     {
-      return 2 * _planet_radius * M_PI;
+      return 2 * planet_radius_ * M_PI;
     }
 
     inline double GPS_Frame::radius(double new_radius)
     {
-      return _planet_radius = new_radius;
+      return planet_radius_ = new_radius;
     }
 
     inline double GPS_Frame::circ(double new_circ)
     {
-      return _planet_radius = new_circ / (2 * M_PI);
+      return planet_radius_ = new_circ / (2 * M_PI);
     }
 
     inline std::string GPS_Frame::get_name() const

@@ -56,14 +56,9 @@
 
 #include <gams/GAMS_Export.h>
 #include <gams/CPP11_compat.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include <cmath>
-#include <cfloat>
-#include <climits>
-#include <gams/utility/Pose.h>
 
 /**
  * Following statement or block is executed only if the frame `coord` belongs
@@ -75,20 +70,22 @@
  * inside will produce unexpected results.
  **/
 #define GAMS_WITH_FRAME_TYPE(coord, type, frame_ref) \
-  for(const type *_with_frame_type_temp_ptr___ = \
+  for(const type *with_frame_type_temp_ptr___ = \
             dynamic_cast<const type *>(&coord.frame()), \
-        &frame_ref = *_with_frame_type_temp_ptr___; \
-        _with_frame_type_temp_ptr___; _with_frame_type_temp_ptr___ = nullptr,\
+        &frame_ref = *with_frame_type_temp_ptr___; \
+        with_frame_type_temp_ptr___; with_frame_type_temp_ptr___ = nullptr,\
         (void)frame_ref)
 
 // note: (void)frame_ref silences warnings if frame_ref isn't used in body code
-
-#define INVAL_COORD DBL_MAX
 
 namespace gams
 {
   namespace utility
   {
+    class Reference_Frame;
+    class Location_Vector;
+    class Rotation_Vector;
+
     /**
      * Thrown when a reference frame function is called with a Coordinate
      * type (e.g., Pose, Location, Rotation) that frame does not support.
@@ -171,10 +168,16 @@ namespace gams
       bool unsupported_rotation;
     };
 
+    class Pose;
+
     /**
      * Base class for Reference Frames.
      * Inherit from this class if implementing a new reference frame.
      * Otherwise, do not use directly.
+     *
+     * If implementing a new reference frame, you will need to modify the
+     * transform_to_origin and transform_from_origin methods of the reference
+     * frames the new reference frame should be able to transform to and from.
      **/
     class GAMS_Export Reference_Frame
     {

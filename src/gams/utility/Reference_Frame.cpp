@@ -90,55 +90,43 @@ namespace gams
       return nullptr;
     }
 
-    void Reference_Frame::transform_to_origin(Location_Vector &in) const
+    void Reference_Frame::transform_to_origin(Location_Vector &/*in*/) const
     {
-      (void)in; // silence unused variable warning
       throw bad_coord_type<Location>(*this, "transform_to_origin");
     }
 
-    void Reference_Frame::transform_from_origin(Location_Vector &in) const
+    void Reference_Frame::transform_from_origin(Location_Vector &/*in*/) const
     {
-      (void)in; // silence unused variable warning
       throw bad_coord_type<Location>(*this, "transform_from_origin");
     }
 
-    void Reference_Frame::do_normalize(Location_Vector &in) const
-    {
-      (void)in; // silence unused variable warning
-    }
+    void Reference_Frame::do_normalize(Location_Vector &/*in*/) const {}
 
     double Reference_Frame::calc_distance(
-                const Location_Vector &loc1, const Location_Vector &loc2) const
+                const Location_Vector &/*loc1*/,
+                const Location_Vector &/*loc2*/) const
     {
-      (void)loc1; // silence unused variable warning
-      (void)loc2;
       throw bad_coord_type<Location>(*this, "calc_distance");
     }
 
-    void Reference_Frame::transform_to_origin(Rotation_Vector &in) const
+    void Reference_Frame::transform_to_origin(Rotation_Vector &/*in*/) const
     {
-      (void)in; // silence unused variable warning
       throw bad_coord_type<Rotation>(*this, "transform_to_origin");
     }
 
-    void Reference_Frame::transform_from_origin(Rotation_Vector &in) const
+    void Reference_Frame::transform_from_origin(Rotation_Vector &/*in*/) const
     {
-      (void)in; // silence unused variable warning
       throw bad_coord_type<Rotation>(*this, "transform_from_origin");
     }
 
     double Reference_Frame::calc_distance(
-                const Rotation_Vector &rot1, const Rotation_Vector &rot2) const
+                const Rotation_Vector &/*rot1*/,
+                const Rotation_Vector &/*rot2*/) const
     {
-      (void)rot1; // silence unused variable warning
-      (void)rot2;
       throw bad_coord_type<Rotation>(*this, "calc_distance");
     }
 
-    void Reference_Frame::do_normalize(Rotation_Vector &in) const
-    {
-      (void)in; // silence unused variable warning
-    }
+    void Reference_Frame::do_normalize(Rotation_Vector &/*in*/) const {}
 
     void Axis_Angle_Frame::rotate_location_vec(Location_Vector &loc,
       const Rotation_Vector &rot, bool reverse) const

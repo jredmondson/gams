@@ -45,28 +45,17 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Quaternion.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains the Quaternion class, useful for performing angle math
  **/
 
 #ifndef _GAMS_UTILITY_QUATERNION_H_
 #define _GAMS_UTILITY_QUATERNION_H_
 
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <typeinfo>
-#include <stdexcept>
 #include <cmath>
-#include <cfloat>
-#include <climits>
-#include <cstdio>
-
-#define DEG_TO_RAD(x) (((x) * M_PI) / 180.0)
-#define RAD_TO_DEG(x) (((x) * 180) / M_PI)
 
 namespace gams
 {
@@ -82,12 +71,29 @@ namespace gams
     class Quaternion
     {
     public:
+      /**
+       * Primary constructor. Specifies each term explicitly
+       **/
       constexpr Quaternion(double x, double y, double z, double w);
 
+      /**
+       * Constructor which converts a rotation vector, specified in individual
+       * terms, into the corresponding quaternion representation. See
+       * Rotation_Vector for details of the rotation vector representation.
+       **/
       Quaternion(double rx, double ry, double rz);
 
+      /**
+       * Constructor which converts a rotation vector into the corresponding
+       * quaternion representation. See Rotation_Vector for details of the
+       * rotation vector representation.
+       **/
       explicit Quaternion(const Rotation_Vector &rot);
 
+      /**
+       * Constructor which converts a location vector into the corresponding
+       * quaternion representation; x, y, and z are copied over. The w term is 0
+       **/
       explicit Quaternion(const Location_Vector &loc);
 
       void from_location_vector(double x, double y, double z);
@@ -106,20 +112,70 @@ namespace gams
 
       void to_rotation_vector(Rotation_Vector &rot) const;
 
+      /**
+       * Calculates the hamilton product of two quaternions, into a third.
+       * The resulting quaternion represents the composed rotation of the args.
+       * The target quaternion can be one of the two source quaternion.
+       * The two source quaternions can be the same (for squaring)
+       *
+       * @param into destination quaternion; will be overwritten
+       * @param lhs left-hand-side source quaternion (non-commutative)
+       * @param rhs right-hand-side source quaternion (non-commutative)
+       **/
       static void hamilton_product(
               Quaternion &into, const Quaternion &lhs, const Quaternion &rhs);
 
+      /**
+       * Calculate hamilton product, this * rhs, and store into this.
+       * Equivalent to hamilton_product(*this, *this, rhs)
+       *
+       * @param rhs right-hand-side to multiply with
+       * @return *this, the result
+       **/
       Quaternion &operator*=(const Quaternion &rhs);
 
+      /**
+       * Calculate hamilton product, this * rhs, and return new Quaternion
+       *
+       * @param rhs right-hand-side to multiply with
+       * @return a new Quaternion object holding the result
+       **/
       Quaternion operator*(const Quaternion &o) const;
 
+      /**
+       * Conjugate this quaternion in-place
+       *
+       * @return *this, after conjugation
+       **/
       Quaternion &conjugate();
 
+      /**
+       * Copy and conjugate this quaternion
+       *
+       * @return a new Quaternion, holding the conjugation of this
+       **/
       constexpr Quaternion operator-() const;
 
-      double inner_product(const Quaternion &o) const;
+      /**
+       * Calculates the Quaternion inner-product between this, and the
+       * right-hand-side, which is the sum of the pair-wise
+       * multiplication of each corresponding term of the Quaternions.
+       * Note that unlike hamilton_product, this is commutative.
+       *
+       * @param rhs the Quaternion to multiply with
+       * @return the scalar result.
+       **/
+      double inner_product(const Quaternion &rhs) const;
 
-      double angle_to(const Quaternion &o) const;
+      /**
+       * Calculates the angle between the rotations represented by
+       * this, and the target Quaternion. This is the smallest angle
+       * this can be rotated to arrive at target.
+       *
+       * @param target the target Quaternion
+       * @return the angle between this and the target
+       **/
+      double angle_to(const Quaternion &target) const;
 
       constexpr double x() const;
       constexpr double y() const;

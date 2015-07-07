@@ -55,16 +55,9 @@
 #define _GAMS_UTILITY_LOCATION_H_
 
 #include <iostream>
-#include <sstream>
 #include <string>
-#include <vector>
-#include <typeinfo>
-#include <stdexcept>
-#include <cmath>
-#include <cfloat>
-#include <climits>
-#include <cstdio>
 
+#include <stdexcept>
 #include <gams/utility/Coordinate.h>
 
 namespace gams

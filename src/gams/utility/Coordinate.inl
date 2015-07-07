@@ -54,6 +54,9 @@
 #ifndef _GAMS_UTILITY_COORDINATE_INL_
 #define _GAMS_UTILITY_COORDINATE_INL_
 
+#include <iostream>
+#include <sstream>
+
 namespace gams
 {
   namespace utility

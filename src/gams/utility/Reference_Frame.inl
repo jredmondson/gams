@@ -54,6 +54,8 @@
 #ifndef _GAMS_UTILITY_REFERENCE_FRAME_INL_
 #define _GAMS_UTILITY_REFERENCE_FRAME_INL_
 
+#include <gams/utility/Pose.h>
+
 namespace gams
 {
   namespace utility

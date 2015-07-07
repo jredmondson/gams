@@ -54,6 +54,8 @@
 #ifndef _GAMS_UTILITY_ROTATION_INL_
 #define _GAMS_UTILITY_ROTATION_INL_
 
+#include <stdexcept>
+
 namespace gams
 {
   namespace utility
@@ -64,7 +66,9 @@ namespace gams
 
     inline constexpr Rotation_Vector::Rotation_Vector(
             double x, double y, double z, double angle)
-      : rx_(x * angle), ry_(y * angle), rz_(z * angle) {}
+      : rx_(x * DEG_TO_RAD(angle)),
+        ry_(y * DEG_TO_RAD(angle)),
+        rz_(z * DEG_TO_RAD(angle)) {}
 
     inline constexpr Rotation_Vector::Rotation_Vector(
             int axis_index, double angle)
@@ -123,9 +127,6 @@ namespace gams
       return 3;
     }
 
-    /**
-     * Retrives i'th coordinate, 0-indexed, in order rx, ry, rz
-     **/
     inline constexpr double Rotation_Vector::get(int i) const
     {
       return i == 0 ? rx() :
@@ -134,9 +135,6 @@ namespace gams
             throw std::range_error("Index out of bounds for Rotation");
     }
 
-    /**
-     * Sets i'th coordinate, 0-indexed, in order rx, ry, rz
-     **/
     inline double Rotation_Vector::set(int i, double val)
     {
       if(i == 0)
@@ -161,23 +159,13 @@ namespace gams
             const Reference_Frame &frame, double rx, double ry, double rz)
       : Rotation_Vector(rx, ry, rz), Coordinate(frame) {}
 
-    /**
-     * (x, y, z) must be a unit vector in the direction of rotation axis.
-     * angle is the angle of rotation, in degrees, about that axis
-     **/
     inline Rotation::Rotation(double x, double y, double z, double angle)
-      : Rotation_Vector(x, y, z, DEG_TO_RAD(angle)), Coordinate() {}
+      : Rotation_Vector(x, y, z, angle), Coordinate() {}
 
     inline constexpr Rotation::Rotation(
        const Reference_Frame &frame, double x, double y, double z, double angle)
-      : Rotation_Vector(x, y, z, DEG_TO_RAD(angle)), Coordinate(frame) {}
+      : Rotation_Vector(x, y, z, angle), Coordinate(frame) {}
 
-    /**
-     * For easy specification of a simple rotation around a single axis,
-     * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
-     * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
-     * around that axis as the angle, in degrees
-     **/
     inline Rotation::Rotation(int axis_index, double angle)
       : Rotation_Vector(axis_index, angle), Coordinate() {}
 

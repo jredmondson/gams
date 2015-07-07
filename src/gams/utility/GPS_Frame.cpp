@@ -61,15 +61,13 @@ namespace gams
     const double GPS_Frame::MOON_RADIUS  = 1737100.0;
     const double GPS_Frame::MARS_RADIUS  = 3389500.0;
 
-    void GPS_Frame::transform_to_origin(Location_Vector &in) const
+    void GPS_Frame::transform_to_origin(Location_Vector &/*in*/) const
     {
-      (void)in;
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void GPS_Frame::transform_from_origin(Location_Vector &in) const
+    void GPS_Frame::transform_from_origin(Location_Vector &/*in*/) const
     {
-      (void)in;
       throw undefined_transform(*this, origin().frame(), false);
     }
 
@@ -119,7 +117,7 @@ namespace gams
           (fabs(top) < epsilon && fabs(bottom) < epsilon)
                ? 0 : atan2(top, bottom);
 
-      double great_circle_dist = (_planet_radius + alt) * central_angle;
+      double great_circle_dist = (planet_radius_ + alt) * central_angle;
 
       if(alt_diff == 0)
         return great_circle_dist;

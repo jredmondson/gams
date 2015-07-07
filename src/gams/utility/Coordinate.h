@@ -56,16 +56,8 @@
 
 #include "gams/GAMS_Export.h"
 #include <gams/CPP11_compat.h>
-#include <iostream>
-#include <sstream>
 #include <string>
-#include <vector>
-#include <typeinfo>
-#include <stdexcept>
-#include <cmath>
 #include <cfloat>
-#include <climits>
-#include <cstdio>
 
 #define INVAL_COORD DBL_MAX
 
@@ -102,20 +94,23 @@ namespace gams
      *
      * New coordinate types must:
      *   -- Inherit from Coordinate, and pass itself as template parameter
-     *   -- Inherit from a base class which does not inherit Coordinate
+     *   -- Inherit from a base class which does not inherit from Coordinate
      *   -- That base class must:
      *      -- Have a typedef Base_Type which refers to itself
      *      -- Implement operator==
      *      -- Implement the following methods:
      *   static std::string name() // return the type's name
      *   static constexpr int size() // return # of values in representation
-     *   double get(int i) const // return ith value of representation
-     *   bool operator==(const Base_Type &rhs) const
+     *   constexpr double get(int i) const // return ith value of representation
+     *   constexpr bool operator==(const Base_Type &rhs) const
+     *   Base_Type &as_vec() // return *this
+     *   constexpr const Base_Type &as_vec() const // return *this
      *
      * Additionally, new coordinate types should either:
      *   -- Specialize the Reference_Frame::*_within_frame templates; OR
      *   -- Add new overloads for transform_to_origin, transform_from_origin,
-     *      do_normalize, and calc_distance virtual methods in Reference_Frame
+     *      do_normalize, and calc_distance virtual methods in Reference_Frame,
+     *      and add transformation logic for those methods in the various frames
      **/
     template<typename CoordType>
     class Coordinate : public Coordinate_Base

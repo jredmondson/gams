@@ -151,7 +151,7 @@ namespace gams
       double circ(double new_circ);
 
     private:
-      double _planet_radius;
+      double planet_radius_;
 
       /**
        * Returns the name of this type of reference frame.
