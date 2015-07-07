@@ -11,22 +11,6 @@ sub run {
   my $osname = $^O;
   my $vreproot = $ENV{"VREP_ROOT"};
 
-  print("$^O\n");
-  
-  #launch the VREP simulator
-  #if ($osname eq "MSWin32")
-  #{
-  #  my $cmd = "$vreproot\\vrep.exe";
-  #  system("taskkill /im vrep.exe");
-  #  system("start \"vrep\" /D $vreproot /REALTIME $cmd");
-  #  system("timeout 10");
-  #}
-  #else
-  #{
-  #  system("vrep &");
-  #  sleep(10);
-  #}
-  
   # launch drone controllers
   my $gams_root = $ENV{"GAMS_ROOT"};
   #$gams_root =~ s/\\/\//g;
@@ -64,7 +48,7 @@ sub run {
   }
  
   # launch simulation controller
-  my $cmd = "$gams_root/bin/dynamic_simulation -n $num -s $surface --madara-file $gams_root/scripts/simulation/areas/$area.mf";
+  my $cmd = "$gams_root/bin/dynamic_simulation -n $num --madara-file $gams_root/scripts/simulation/areas/$area.mf";
   if ($border)
   {
     $cmd = "$cmd -b $border";

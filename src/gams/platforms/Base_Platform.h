@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Base.h
+ * @file Base_Platform.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the definition of the base platform class

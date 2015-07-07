@@ -54,6 +54,7 @@
 #include "gams/algorithms/Executive.h"
 
 #include "gams/algorithms/Controller_Algorithm_Factory.h"
+#include "gams/loggers/Global_Logger.h"
 
 #include <iostream>
 
@@ -69,9 +70,10 @@ gams::algorithms::Executive_Factory::create (
   variables::Self * self,
   variables::Devices * devices)
 {
-  GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-    DLINFO "gams::algorithms::Executive_Factory::create:" \
-    " creating Executive with %d args\n", args.size ()));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+     "gams::algorithms::Executive_Factory::create:" \
+    " creating Executive with %d args\n", args.size ());
 
   Base_Algorithm * result (0);
   
@@ -83,16 +85,18 @@ gams::algorithms::Executive_Factory::create (
     }
     else
     {
-      GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-        DLINFO "gams::algorithms::Executive_Factory::create:" \
-        " invalid number of args, must be even"));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::algorithms::Executive_Factory::create:" \
+        " invalid number of args, must be even\n");
     }
   }
   else
   {
-    GAMS_DEBUG (gams::utility::LOG_EMERGENCY, (LM_DEBUG, 
-      DLINFO "gams::algorithms::Executive_Factory::create:" \
-      " knowledge, sensors, platform, self, or devices are invalid"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::Executive_Factory::create:" \
+      " knowledge, sensors, platform, self, or devices are invalid\n");
   }
 
   return result;
@@ -122,9 +126,10 @@ gams::algorithms::Executive::Executive (
 
     plan_.push_back (init);
 
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::algorithms::Executive::Executive:" \
-      " queueing %s algorithm\n", init.algorithm.c_str ()));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::algorithms::Executive::Executive:" \
+      " queueing %s algorithm\n", init.algorithm.c_str ());
   }
 }
 
@@ -156,9 +161,11 @@ gams::algorithms::Executive::analyze (void)
 
   if (algo_ != 0)
   {
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::algorithms::Executive::analyze:" \
-      " algo != 0\n"));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::algorithms::Executive::analyze:" \
+      " algo != 0\n");
+
     ret_val = algo_->analyze ();
     if (ret_val == FINISHED)
     {
@@ -171,15 +178,17 @@ gams::algorithms::Executive::analyze (void)
   {
     ++plan_index_;
 
-    GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-      DLINFO "gams::algorithms::Executive::analyze:" \
-      " algo == 0, going to step %u\n", plan_index_));
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Executive::analyze:" \
+      " algo == 0, going to step %u\n", plan_index_);
 
     if (plan_index_ < plan_.size ())
     {
-      GAMS_DEBUG (gams::utility::LOG_MAJOR_EVENT, (LM_DEBUG, 
-        DLINFO "gams::algorithms::Executive::analyze:" \
-        " creating algorithm %s\n", plan_[plan_index_].algorithm.c_str ()));
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::algorithms::Executive::analyze:" \
+        " creating algorithm %s\n", plan_[plan_index_].algorithm.c_str ());
 
       algo_ = algo_factory_.create (plan_[plan_index_].algorithm, 
         plan_[plan_index_].args);

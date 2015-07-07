@@ -56,6 +56,10 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
     Controllers {
       src/gams/controllers
     }
+    
+    Loggers {
+      src/gams/loggers
+    }
 
     Maps {
       src/gams/maps
@@ -88,6 +92,10 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
 
     Controllers {
       src/gams/controllers
+    }
+    
+    Loggers {
+      src/gams/loggers
     }
 
     Maps {

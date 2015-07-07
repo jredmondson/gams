@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Base.h
+ * @file Base_Area_Coverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * This file contains the definition of the base area coverage class

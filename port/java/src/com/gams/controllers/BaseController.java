@@ -66,6 +66,7 @@ public class BaseController extends GamsJNI
   private native long jni_getAlgorithm(long cptr);
   private native void jni_initAccent(long cptr, java.lang.String name, long[] args);
   private native void jni_initAlgorithm(long cptr, java.lang.String name, long[] args);
+  private native void jni_initPlatform(long cptr, java.lang.String name);
   private native void jni_initPlatform(long cptr, java.lang.String name, long[] args);
   private native void jni_initAlgorithm(long cptr, Object algorithm);
   private native void jni_initPlatform(long cptr, Object platform);
@@ -138,6 +139,17 @@ public class BaseController extends GamsJNI
   public void initAlgorithm(java.lang.String name, KnowledgeList args)
   {
     jni_initAlgorithm(getCPtr(), name, args.toPointerArray());
+  }
+
+  /**
+   * Initialize a platform within the controller
+   *
+   * @param  name       name of the platform
+   * @param  args       arguments to the platform initialization
+   */
+  public void initPlatform(java.lang.String name)
+  {
+    jni_initPlatform(getCPtr(), name);
   }
 
   /**

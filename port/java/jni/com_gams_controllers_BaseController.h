@@ -91,6 +91,14 @@ GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgor
 /*
  * Class:     com_gams_controllers_BaseController
  * Method:    jni_initPlatform
+ * Signature: (JLjava/lang/String;)V
+ */
+GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2
+  (JNIEnv *, jobject, jlong, jstring);
+
+/*
+ * Class:     com_gams_controllers_BaseController
+ * Method:    jni_initPlatform
  * Signature: (JLjava/lang/String;[J)V
  */
 GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2_3J

@@ -189,6 +189,29 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
 /*
  * Class:     com_gams_controllers_BaseController
  * Method:    jni_initPlatform
+ * Signature: (JLjava/lang/String;)V
+ */
+void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2
+  (JNIEnv * env, jobject, jlong cptr, jstring plat)
+{
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
+
+  if (current)
+  {
+    // get the name in C string format
+    const char * str_name = env->GetStringUTFChars(plat, 0);
+
+    // call the initialization method
+    current->init_platform (str_name);
+    
+    // release the string
+    env->ReleaseStringUTFChars(plat, str_name);
+  }
+}
+
+/*
+ * Class:     com_gams_controllers_BaseController
+ * Method:    jni_initPlatform
  * Signature: (JLjava/lang/String;Lcom/madara/KnowledgeList;)V
  */
 void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2_3J
@@ -213,10 +236,10 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_
       if (cur_record)
         args[i] = Madara::Knowledge_Record (*cur_record);
     }
-    
+
     // call the initialization method
     current->init_platform (str_name, args);
-    
+
     // clean up the allocated elements
     env->ReleaseLongArrayElements(argslist, elements, 0);
     env->ReleaseStringUTFChars(name, str_name);

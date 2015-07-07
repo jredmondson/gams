@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Base.h
+ * @file Base_Algorithm.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the definition of the base algorithm class
@@ -61,7 +61,7 @@
 #include "gams/utility/Region.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 #include <vector>
 

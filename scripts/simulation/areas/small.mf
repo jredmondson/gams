@@ -2,6 +2,8 @@
 .vrep_sw_position="40.443077,-79.940570";
 .vrep_ne_position="40.443387,-79.940098";
 
+.surface="concrete";
+
 search_area.1.size=1;
 search_area.1.0="region.0";
 

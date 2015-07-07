@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GAMS Message Profiling</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string-array name="transport_types">
+        <item>Multicast</item>
+        <item>Broadcast</item>
+        <item>UDP</item>
+    </string-array>
+</resources>

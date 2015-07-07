@@ -1,3 +1,5 @@
+.DS_Store
+
 *.so
 *.o
 *.d
@@ -6,8 +8,10 @@ Makefile
 *.csv
 .depend.*
 GNUmakefile*
+Makefile*
 lib*
 .*.swp
+*.class
 
 resource/vrep/starting.ttt
 

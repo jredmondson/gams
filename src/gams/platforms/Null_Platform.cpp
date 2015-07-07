@@ -44,7 +44,7 @@
  *      distribution.
  **/
 #include "Null_Platform.h"
-#include "gams/utility/Logging.h"
+#include "gams/loggers/Global_Logger.h"
 
 gams::platforms::Base_Platform *
 gams::platforms::Null_Platform_Factory::create (

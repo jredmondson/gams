@@ -128,6 +128,11 @@ namespace gams
       const static std::string key_prefix_;
 
       /**
+       * Container for storing data to be sent to other controllers
+       */
+      Madara::Knowledge_Engine::Containers::String message_;
+
+      /**
        * Filter for tracking which messages have come in and which have been 
        * dropped
        */
@@ -151,11 +156,13 @@ namespace gams
          */
         struct Message_Data
         {
-          size_t first;
-          size_t last;
+          Madara::Knowledge_Engine::Containers::Integer first;
+          Madara::Knowledge_Engine::Containers::Integer last;
+          Madara::Knowledge_Engine::Containers::Double percent_missing;
           std::vector<bool> present;
 
           Message_Data ();
+          Message_Data (std::string id, Madara::Knowledge_Engine::Variables& var);
         };
 
         /**
@@ -173,7 +180,6 @@ namespace gams
        * size of message to send 
        */
       size_t send_size_;
-
     };
 
     /**

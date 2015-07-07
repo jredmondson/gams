@@ -64,6 +64,8 @@ public abstract class BaseAlgorithm extends GamsJNI implements AlgorithmInterfac
   private native Object jni_getPlatformObject(long cptr);
   private native long jni_getAlgorithmStatus(long cptr);
 
+  protected long executions;
+
   /**
    * Initialize the platform with controller variables. Use this
    * method to synchronize user-defined algorithms with the controller.
@@ -76,6 +78,7 @@ public abstract class BaseAlgorithm extends GamsJNI implements AlgorithmInterfac
     knowledge = KnowledgeBase.fromPointer(jni_getKnowledgeBase(getCPtr()),false);
     self = Self.fromPointer(jni_getSelf(getCPtr()),false);
     status = AlgorithmStatus.fromPointer(jni_getAlgorithmStatus(getCPtr()),false);
+    executions = 0;
   }
   
   /**
