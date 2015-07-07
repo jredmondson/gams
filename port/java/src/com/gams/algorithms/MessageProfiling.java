@@ -203,7 +203,8 @@ public class MessageProfiling extends BaseAlgorithm
     settings.setType (com.madara.transport.TransportType.MULTICAST_TRANSPORT);
   
     // attach transport
-    knowledge.attachTransport (knowledge.getID (), settings);
+    //knowledge.attachTransport (knowledge.getID (), settings);
+    knowledge.attachTransport ("0", settings);
   
     // create message container
     final String key = new String (keyPrefix + "." +

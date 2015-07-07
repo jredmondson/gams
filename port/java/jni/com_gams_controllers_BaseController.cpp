@@ -189,6 +189,29 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
 /*
  * Class:     com_gams_controllers_BaseController
  * Method:    jni_initPlatform
+ * Signature: (JLjava/lang/String;)V
+ */
+void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2
+  (JNIEnv * env, jobject, jlong cptr, jstring plat)
+{
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
+
+  if (current)
+  {
+    // get the name in C string format
+    const char * str_name = env->GetStringUTFChars(plat, 0);
+
+    // call the initialization method
+    current->init_platform (str_name);
+    
+    // release the string
+    env->ReleaseStringUTFChars(plat, str_name);
+  }
+}
+
+/*
+ * Class:     com_gams_controllers_BaseController
+ * Method:    jni_initPlatform
  * Signature: (JLjava/lang/String;Lcom/madara/KnowledgeList;)V
  */
 void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2_3J
@@ -202,29 +225,23 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_
     const char * str_name = env->GetStringUTFChars(name, 0);
 
     // create a knowledge vector to hold the arguments
-//    Madara::Knowledge_Vector args (0);
-//    jlong * elements;
-//    if (&argslist != 0)
-//    {
-//      args.reserve (env->GetArrayLength (argslist));
-//      elements = env->GetLongArrayElements (argslist, 0);
-//  
-//      // iterate through arguments and copy the knowledge record for each arg
-//      for (size_t i = 0; i < args.size (); ++i)
-//      {
-//        Madara::Knowledge_Record * cur_record = (Madara::Knowledge_Record *)elements[i];
-//  
-//        if (cur_record)
-//          args[i] = Madara::Knowledge_Record (*cur_record);
-//      }
-//    }
-    
+    Madara::Knowledge_Vector args (env->GetArrayLength (argslist));
+    jlong * elements = env->GetLongArrayElements (argslist, 0);
+
+    // iterate through arguments and copy the knowledge record for each arg
+    for (size_t i = 0; i < args.size (); ++i)
+    {
+      Madara::Knowledge_Record * cur_record = (Madara::Knowledge_Record *)elements[i];
+
+      if (cur_record)
+        args[i] = Madara::Knowledge_Record (*cur_record);
+    }
+
     // call the initialization method
-    current->init_platform (str_name/*, args*/);
-    
+    current->init_platform (str_name, args);
+
     // clean up the allocated elements
-//    if (argslist != 0)
-//      env->ReleaseLongArrayElements(argslist, elements, 0);
+    env->ReleaseLongArrayElements(argslist, elements, 0);
     env->ReleaseStringUTFChars(name, str_name);
   }
 }

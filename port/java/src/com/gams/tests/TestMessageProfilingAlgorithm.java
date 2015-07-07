@@ -80,7 +80,8 @@ public class TestMessageProfilingAlgorithm
     TransportSettings settings = new TransportSettings ();
     KnowledgeBase knowledge = new KnowledgeBase (host, settings);
     BaseController controller = new BaseController (knowledge);
-    controller.initPlatform ("null", new KnowledgeList (new long[0]));
+    //controller.initPlatform ("null", new KnowledgeList (new long[0]));
+    controller.initPlatform ("null");
     controller.initAlgorithm (new MessageProfiling (controller));
     com.madara.logger.GlobalLogger.setLevel(6);
     controller.run (1.0 / rate, duration);
