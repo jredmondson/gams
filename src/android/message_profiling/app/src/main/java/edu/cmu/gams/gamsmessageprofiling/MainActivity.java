@@ -31,8 +31,8 @@ public class MainActivity extends ActionBarActivity
         String type = type_spinner.getSelectedItem().toString();
 
         String address_text = ((EditText) findViewById(R.id.address_tex_box)).getText().toString();
-        //String port_text = ((EditText)findViewById(R.id.port_text_box)).getText().toString();
-        //address_text += ":" + port_text;
+        String port_text = ((EditText)findViewById(R.id.port_text_box)).getText().toString();
+        address_text += ":" + port_text;
         int size = Integer.parseInt(((EditText) findViewById(R.id.size_text_box)).getText().toString());
         int rate = Integer.parseInt(((EditText) findViewById(R.id.rate_text_box)).getText().toString());
         int dur = Integer.parseInt(((EditText) findViewById(R.id.duration_text_box)).getText().toString());
@@ -40,15 +40,18 @@ public class MainActivity extends ActionBarActivity
 
         Log.d(LOCAL_TAG, "ID: " + id);
 
-
-        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        DhcpInfo dhcp = wifi.getDhcpInfo();
-        int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-        byte[] quads = new byte[4];
-        for (int k = 0; k < 4; ++k)
-            quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
-        address_text = InetAddress.getByAddress(quads).getHostAddress() + ":15000";
+        if (type.equals ("Broadcast"))
+        {
+            WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            DhcpInfo dhcp = wifi.getDhcpInfo();
+            int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
+            byte[] quads = new byte[4];
+            for (int k = 0; k < 4; ++k)
+                quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
+            address_text = InetAddress.getByAddress(quads).getHostAddress() + ":15000";
+        }
         Log.d(LOCAL_TAG, "ADDRESS: " + address_text);
+
 
         Message_Profiler profiler = new Message_Profiler(type, address_text, size, rate, dur, id);
 

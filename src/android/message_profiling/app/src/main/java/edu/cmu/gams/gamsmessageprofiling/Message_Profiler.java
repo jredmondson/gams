@@ -5,11 +5,13 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.os.Bundle;
 
+import com.gams.algorithms.MessageProfiling;
 import com.gams.controllers.BaseController;
 import com.madara.KnowledgeBase;
 import com.madara.KnowledgeList;
 import com.madara.KnowledgeRecord;
 import com.madara.MadaraLog;
+import com.madara.transport.QoSTransportSettings;
 import com.madara.transport.TransportSettings;
 import com.madara.transport.TransportType;
 
@@ -51,23 +53,22 @@ class Message_Profiler {
 
     public void run ()
     {
-        TransportSettings settings = new TransportSettings();
-        /*String[] hosts = new String[1];
+        String host = Integer.toString(id);
+        KnowledgeBase knowledge = new KnowledgeBase(host, new TransportSettings());
+        knowledge.set (".id", id);
+
+        QoSTransportSettings settings = new QoSTransportSettings();
+        String[] hosts = new String[1];
         hosts[0] = address;
         settings.setHosts(hosts);
         settings.setType(type);
 
-        //KnowledgeBase knowledge = new KnowledgeBase();
-        */
-        String host = Integer.toString(id);
-        KnowledgeBase knowledge = new KnowledgeBase(host, settings);
-
-        String prefix = "device." + id + ".command";
-
         BaseController controller = new BaseController(knowledge);
         controller.initVars(id, 2);
-        controller.initPlatform("null", new KnowledgeList(new long[0]));
-        controller.initAlgorithm(new com.gams.algorithms.MessageProfiling(controller));
+        controller.initPlatform("null");
+        MessageProfiling algo = new MessageProfiling();
+        controller.initAlgorithm(algo);
+        algo.initVars(settings);
         com.madara.logger.GlobalLogger.setLevel(6);
         controller.run(1.0 / rate, duration);
         com.madara.logger.GlobalLogger.setLevel(0);
