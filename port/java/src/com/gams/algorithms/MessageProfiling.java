@@ -184,33 +184,26 @@ public class MessageProfiling extends BaseAlgorithm
    * Constructor
    * @param controller  Controller that will run this algorithm
    **/
-  public MessageProfiling (BaseController controller)
+  public MessageProfiling ()
   {
-    init (controller);
+    message = new com.madara.containers.String ();
+  }
 
-    // create settings
-    com.madara.transport.QoSTransportSettings settings = new com.madara.transport.QoSTransportSettings ();
-
+  /**
+   * Initialize values, must be called after initAlgorithm for controller that will run algorithm
+   */
+  public void initVars (com.madara.transport.QoSTransportSettings settings)
+  {
     // attach filter
     MessageProfilingFilter filter = new MessageProfilingFilter ();
     settings.addReceiveFilter (filter);
 
-    // select transport
-    String[] host = new String[1];
-
-    // select multicast
-    host[0] = "239.255.0.1:4150";
-    settings.setType (com.madara.transport.TransportType.MULTICAST_TRANSPORT);
-  
     // attach transport
-    //knowledge.attachTransport (knowledge.getID (), settings);
-    knowledge.attachTransport ("0", settings);
-  
+    knowledge.attachTransport (knowledge.getID (), settings);
+
     // create message container
     final String key = new String (keyPrefix + "." +
       knowledge.get (".id").toString () + ".data");
-    message = new com.madara.containers.String ();
-    com.madara.logger.GlobalLogger.log (6, "message.set_name");
     message.setName (knowledge, key);
   }
 

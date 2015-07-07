@@ -57,9 +57,10 @@ import com.gams.algorithms.MessageProfiling;
 
 import com.madara.KnowledgeBase;
 import com.madara.KnowledgeList;
-import com.madara.transport.TransportSettings;
+import com.madara.transport.QoSTransportSettings;
 import com.madara.transport.filters.Packet;
 import com.madara.transport.TransportContext;
+import com.madara.logger.GlobalLogger;
 import com.madara.Variables;
 
 public class TestMessageProfilingAlgorithm
@@ -67,46 +68,73 @@ public class TestMessageProfilingAlgorithm
   public String host;
   public long duration;
   public double rate;
+  public int id;
 
   public TestMessageProfilingAlgorithm ()
   {
     host = "";
     duration = 10;
     rate = 2;
+    id = 0;
   }
 
   public void test ()
   {
-    TransportSettings settings = new TransportSettings ();
+    // select transport
+    QoSTransportSettings settings = new QoSTransportSettings ();
+
+    // set host
+    String[] hosts = new String[1];
+    hosts[0] = "239.255.0.1:4150";
+    settings.setHosts(hosts);
+
+    // select multicast
+    settings.setType (com.madara.transport.TransportType.MULTICAST_TRANSPORT);
+ 
+    // create Knowledge Base
     KnowledgeBase knowledge = new KnowledgeBase (host, settings);
+
+    // set initial variables
+    knowledge.set (".id", id);
+
+    // create controller
     BaseController controller = new BaseController (knowledge);
-    //controller.initPlatform ("null", new KnowledgeList (new long[0]));
+
+    // init platform
     controller.initPlatform ("null");
-    controller.initAlgorithm (new MessageProfiling (controller));
-    com.madara.logger.GlobalLogger.setLevel(6);
+
+    // init algorithm
+    MessageProfiling algo = new MessageProfiling ();
+    controller.initAlgorithm (algo);
+    algo.initVars (settings);
+
+    // run controller
     controller.run (1.0 / rate, duration);
-    com.madara.logger.GlobalLogger.setLevel(0);
   }
 
   public static void parseArgs (String[] args, TestMessageProfilingAlgorithm obj)
   {
     for (int i = 0; i < args.length; ++i)
     {
-      if (args[i] == "-h" || args[i] == "--host")
+      if (args[i].equals ("-h") || args[i].equals("--host"))
       {
         obj.host = args[i + 1];
       }
-      else if (args[i] == "-d" || args[i] == "--duration")
+      else if (args[i].equals ("-d") || args[i].equals ("--duration"))
       {
         obj.duration = Long.parseLong (args[i + 1]);
       }
-      else if (args[i] == "-r" || args[i] == "--rate")
+      else if (args[i].equals ("-r") || args[i].equals ("--rate"))
       {
         obj.rate = Double.parseDouble (args[i + 1]);
       }
+      else if (args[i].equals ("-i") || args[i].equals ("--id"))
+      {
+        obj.id = Integer.parseInt (args[i + 1]);
+      }
       else
       {
-        System.err.println ("Invalid argument: " + args[i]);
+        System.err.println ("Invalid argument: \"" + args[i] + "\"");
         System.exit (-1);
       }
       ++i;
@@ -117,6 +145,8 @@ public class TestMessageProfilingAlgorithm
   {
     TestMessageProfilingAlgorithm obj = new TestMessageProfilingAlgorithm ();
     parseArgs (args, obj);
+    com.madara.logger.GlobalLogger.setLevel(6);
     obj.test ();
+    com.madara.logger.GlobalLogger.setLevel(0);
   }
 }
