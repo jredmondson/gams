@@ -68,15 +68,18 @@ namespace gams
       : frame_(&default_frame()) {}
 
     template<typename CoordType>
-    inline Coordinate<CoordType>::Coordinate(const Reference_Frame &frame)
+    inline constexpr Coordinate<CoordType>::Coordinate(
+                            const Reference_Frame &frame)
       : frame_(&frame) {}
 
     template<typename CoordType>
-    inline Coordinate<CoordType>::Coordinate(const Reference_Frame *frame)
+    inline constexpr Coordinate<CoordType>::Coordinate(
+                            const Reference_Frame *frame)
       : frame_(frame) {}
 
     template<typename CoordType>
-    inline Coordinate<CoordType>::Coordinate(const Coordinate<CoordType> &orig)
+    inline constexpr Coordinate<CoordType>::Coordinate(
+                            const Coordinate<CoordType> &orig)
       : frame_(&orig.frame()) {}
 
     template<typename CoordType>
@@ -86,7 +89,8 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline const CoordType &Coordinate<CoordType>::as_coord_type() const
+    inline constexpr const CoordType &
+            Coordinate<CoordType>::as_coord_type() const
     {
       return static_cast<const CoordType &>(*this);
     }
@@ -100,13 +104,13 @@ namespace gams
 
     template<typename CoordType>
     template<typename Type>
-    inline const Type &Coordinate<CoordType>::as_type() const
+    inline constexpr const Type &Coordinate<CoordType>::as_type() const
     {
         return static_cast<const Type &>(as_coord_type());
     }
 
     template<typename CoordType>
-    inline const Reference_Frame &Coordinate<CoordType>::frame() const
+    inline constexpr const Reference_Frame &Coordinate<CoordType>::frame() const
     {
       return *frame_;
     }

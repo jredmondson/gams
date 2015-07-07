@@ -99,7 +99,7 @@ namespace gams
     {
       if(destruct_origin_)
         delete origin_;
-      origin_ = NULL;
+      origin_ = nullptr;
       destruct_origin_ = true;
       return *(origin_ = new Pose(new_origin));
     }
@@ -112,7 +112,7 @@ namespace gams
     {
       if(destruct_origin_)
         delete origin_;
-      origin_ = NULL;
+      origin_ = nullptr;
       destruct_origin_ = false;
       origin_ = new_origin;
     }
@@ -295,7 +295,7 @@ namespace gams
       const Reference_Frame *transform_via =
                           find_common_frame(&in.frame(), &to_frame, &to_stack);
 
-      if(transform_via == NULL)
+      if(transform_via == nullptr)
         throw unrelated_frames(in.frame(), to_frame);
       else
       {
@@ -339,7 +339,7 @@ namespace gams
       const Reference_Frame *common_parent =
                      find_common_frame(&in1.frame(), &in2.frame());
 
-      if(common_parent == NULL)
+      if(common_parent == nullptr)
         throw unrelated_frames(in1.frame(), in2.frame());
       else
       {

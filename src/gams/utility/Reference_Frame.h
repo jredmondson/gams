@@ -54,7 +54,8 @@
 #ifndef _GAMS_UTILITY_REFERENCE_FRAME_H_
 #define _GAMS_UTILITY_REFERENCE_FRAME_H_
 
-#include "gams/GAMS_Export.h"
+#include <gams/GAMS_Export.h>
+#include <gams/CPP11_compat.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -77,7 +78,7 @@
   for(const type *_with_frame_type_temp_ptr___ = \
             dynamic_cast<const type *>(&coord.frame()), \
         &frame_ref = *_with_frame_type_temp_ptr___; \
-        _with_frame_type_temp_ptr___; _with_frame_type_temp_ptr___ = NULL,\
+        _with_frame_type_temp_ptr___; _with_frame_type_temp_ptr___ = nullptr,\
         (void)frame_ref)
 
 // note: (void)frame_ref silences warnings if frame_ref isn't used in body code
@@ -437,13 +438,13 @@ namespace gams
        *
        * @param from the initial frame
        * @param to the target frame
-       * @param to_stack if not NULL, the frames needed to go from base to
+       * @param to_stack if not nullptr, the frames needed to go from base to
        *  target frame will be pushed to pointed to vector
        **/
       static const Reference_Frame *find_common_frame(
           const Reference_Frame *from,
           const Reference_Frame *to,
-          std::vector<const Reference_Frame *> *to_stack = NULL);
+          std::vector<const Reference_Frame *> *to_stack = nullptr);
 
       /**
        * Transform into common parent, if coordinates are not directly related.

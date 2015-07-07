@@ -55,6 +55,7 @@
 #define _GAMS_UTILITY_COORDINATE_H_
 
 #include "gams/GAMS_Export.h"
+#include <gams/CPP11_compat.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -106,8 +107,8 @@ namespace gams
      *      -- Have a typedef Base_Type which refers to itself
      *      -- Implement operator==
      *      -- Implement the following methods:
-     *   static std::string name() const // return the type's name
-     *   static int size() const // return number of values in representation
+     *   static std::string name() // return the type's name
+     *   static constexpr int size() // return # of values in representation
      *   double get(int i) const // return ith value of representation
      *   bool operator==(const Base_Type &rhs) const
      *
@@ -131,7 +132,7 @@ namespace gams
        *
        * @param frame the reference frame this Coordinate will belong to
        **/
-      explicit Coordinate(const Reference_Frame &frame);
+      constexpr explicit Coordinate(const Reference_Frame &frame);
 
       /**
        * Construct through a pointer to a frame object. This Coordinate must not
@@ -139,7 +140,7 @@ namespace gams
        *
        * @param frame the reference frame this Coordinate will belong to
        **/
-      explicit Coordinate(const Reference_Frame *frame);
+      constexpr explicit Coordinate(const Reference_Frame *frame);
 
       /**
        * Copy constructor. This Coordinate will refer to the same frame as the
@@ -147,14 +148,14 @@ namespace gams
        *
        * @param orig the original Coordinate to copy.
        **/
-      Coordinate(const Coordinate &orig);
+      constexpr Coordinate(const Coordinate &orig);
 
       /**
        * Getter for the reference frame this Coordinate belongs to.
        *
        * @return the frame
        **/
-      const Reference_Frame &frame() const;
+      constexpr const Reference_Frame &frame() const;
 
       /**
        * Setter for the reference frame this Coordinate belongs to. Any further
@@ -321,13 +322,13 @@ namespace gams
 
       CoordType &as_coord_type();
 
-      const CoordType &as_coord_type() const;
+      constexpr const CoordType &as_coord_type() const;
 
       template<typename Type>
       Type &as_type();
 
       template<typename Type>
-      const Type &as_type() const;
+      constexpr const Type &as_type() const;
     };
   }
 }

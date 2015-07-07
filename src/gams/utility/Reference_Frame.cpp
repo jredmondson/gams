@@ -52,6 +52,9 @@
  **/
 
 #include <gams/utility/Reference_Frame.h>
+#include <gams/utility/Location.h>
+#include <gams/utility/Rotation.h>
+#include <gams/utility/Quaternion.h>
 
 namespace gams
 {
@@ -84,7 +87,7 @@ namespace gams
           break;
         cur_to = next_cur_to;
       }
-      return NULL;
+      return nullptr;
     }
 
     void Reference_Frame::transform_to_origin(Location_Vector &in) const

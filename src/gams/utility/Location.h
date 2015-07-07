@@ -95,24 +95,24 @@ namespace gams
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      Location_Vector(double x, double y, double z = 0.0);
+      constexpr Location_Vector(double x, double y, double z = 0.0);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).
        **/
-      Location_Vector();
+      constexpr Location_Vector();
 
       /**
        * Copy constructor.
        **/
-      Location_Vector(const Location_Vector &orig);
+      constexpr Location_Vector(const Location_Vector &orig);
 
       /**
        * Tests if this Location is valid
        *
        * @return true if no values in this Location are INVAL_COORD
        **/
-      bool is_invalid() const;
+      constexpr bool is_invalid() const;
 
       /**
        * Tests if all values in this Location are the same
@@ -120,14 +120,14 @@ namespace gams
        *
        * @param rhs the other Location to check against
        **/
-      bool operator==(const Location_Vector &rhs) const;
+      constexpr bool operator==(const Location_Vector &rhs) const;
 
       /**
        * Tests if all values in this Location are zero
        *
        * @return true of all values are zero
        **/
-      bool is_zero() const;
+      constexpr bool is_zero() const;
 
       /**
        * Returns the name of this coordinate type
@@ -141,21 +141,21 @@ namespace gams
        *
        * @return x value
        **/
-      double x() const;
+      constexpr double x() const;
 
       /**
        * Getter for y
        *
        * @return y value
        **/
-      double y() const;
+      constexpr double y() const;
 
       /**
        * Getter for z
        *
        * @return z value
        **/
-      double z() const;
+      constexpr double z() const;
 
       /**
        * Setter for x
@@ -186,21 +186,21 @@ namespace gams
        *
        * @return longitude value
        **/
-      double lng() const;
+      constexpr double lng() const;
 
       /**
        * Getter for latitude, a synonym for y
        *
        * @return latitude value
        **/
-      double lat() const;
+      constexpr double lat() const;
 
       /**
        * Getter for altitude, a synonym for z
        *
        * @return altitude value
        **/
-      double alt() const;
+      constexpr double alt() const;
 
       /**
        * Setter for longitude, a synonym for x
@@ -231,28 +231,28 @@ namespace gams
        *
        * @return rho value
        **/
-      double rho() const;
+      constexpr double rho() const;
 
       /**
        * Getter for theta, a synonym for x for Spherical systems
        *
        * @return theta value
        **/
-      double theta() const;
+      constexpr double theta() const;
 
       /**
        * Getter for phi, a synonym for y for Cylindrical and Spherical systems
        *
        * @return phi value
        **/
-      double phi() const;
+      constexpr double phi() const;
 
       /**
        * Getter for r, a synonym for z for Cylindrical and Spherical systems
        *
        * @return r value
        **/
-      double r() const;
+      constexpr double r() const;
 
       /**
        * Setter for rho, a synonym for x for Cylindrical systems
@@ -291,7 +291,7 @@ namespace gams
        *
        * @return the integer 3
        **/
-      static int size();
+      constexpr static int size();
 
       /**
        * Retrives i'th coordinate, 0-indexed, in order x, y, z
@@ -299,7 +299,7 @@ namespace gams
        * @param i the index
        * @return the i'th value
        **/
-      double get(int i) const;
+      constexpr double get(int i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order x, y, z
@@ -325,7 +325,7 @@ namespace gams
        *
        * @return const reference to this as Base_Type
        **/
-      const Base_Type &as_vec() const;
+      constexpr const Base_Type &as_vec() const;
 
       friend class Quaternion;
 
@@ -367,7 +367,8 @@ namespace gams
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      Location(const Reference_Frame &frame, double x, double y, double z=0.0);
+      constexpr Location(const Reference_Frame &frame,
+                         double x, double y, double z = 0.0);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).
@@ -377,7 +378,7 @@ namespace gams
       /**
        * Copy constructor.
        **/
-      Location(const Location &orig);
+      constexpr Location(const Location &orig);
 
       /**
        * Copy constructor, but transform into the new frame as well.
