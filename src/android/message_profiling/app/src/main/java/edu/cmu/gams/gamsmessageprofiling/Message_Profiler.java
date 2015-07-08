@@ -18,18 +18,19 @@ import com.madara.transport.TransportType;
 /**
  * Created by aldukeman on 6/16/15.
  */
-class Message_Profiler {
-
+class Message_Profiler extends Thread
+{
     private TransportType type;
     private String address;
-    private int size;
+    private int sendSize;
     private int rate;
     private int duration;
     private int id;
+    private int swarmSize;
 
-    private static final String TAG = "Message_Profiler";
+    private static final String LOCAL_TAG = "Message_Profiler";
 
-    public Message_Profiler (String t, String a, int s, int r, int d, int i)
+    public Message_Profiler (String t, String a, int s, int r, int d, int i, int swarm)
     {
         switch(t)
         {
@@ -45,14 +46,31 @@ class Message_Profiler {
         }
 
         address = a;
-        size = s;
+        sendSize = s;
         rate = r;
         duration = d;
         id = i;
+        swarmSize = swarm;
     }
 
     public void run ()
     {
+        // Try C++ version of algorithm
+        KnowledgeBase knowledge = new KnowledgeBase(Integer.toString(id), new TransportSettings());
+        knowledge.set(".id", id);
+        BaseController controller = new BaseController(knowledge);
+        controller.initVars(id, swarmSize);
+        controller.initPlatform("null");
+        long[] records = new long[1];
+        KnowledgeRecord s = new KnowledgeRecord(sendSize);
+        records[0] = s.getCPtr();
+        KnowledgeList args = new KnowledgeList(records);
+        controller.initAlgorithm("message profiling", args);
+        controller.run(1.0 / rate, duration);
+        Log.d (LOCAL_TAG, knowledge.toString ());
+
+        /*
+        // Try Java version of algorithm
         String host = Integer.toString(id);
         KnowledgeBase knowledge = new KnowledgeBase(host, new TransportSettings());
         knowledge.set (".id", id);
@@ -69,31 +87,23 @@ class Message_Profiler {
         MessageProfiling algo = new MessageProfiling();
         controller.initAlgorithm(algo);
         algo.initVars(settings);
-        com.madara.logger.GlobalLogger.setLevel(6);
         controller.run(1.0 / rate, duration);
-        com.madara.logger.GlobalLogger.setLevel(0);
+        com.madara.logger.GlobalLogger.log (6, knowledge.toString ());
+        */
 
-        Log.d(TAG, knowledge.toString());
 
-        /*try {
-            com.madara.logger.GlobalLogger.setLevel(6);
-            String[] args = new String[6];
-            args[0] = "--type";
-            if (id == 0)
-                args[1] = "reader";
-            else if (id == 1)
-                args[1] = "writer";
-            args[1] = "both";
-            args[2] = "--duration";
-            args[3] = "10";
-            args[4] = "--host";
-            args[5] = Integer.toString(id);
-            com.gams.tests.TestMessagingThroughput.main (args);
+        /*
+        // Try Java test version of algorithm
+        try {
+            String[] args = new String[2];
+            args[0] = "--id";
+            args[1] = Integer.toString(id);
+            com.gams.tests.TestMessageProfilingAlgorithm.main (args);
         } catch (Exception e) {
             e.printStackTrace();
         }
         finally {
-            com.madara.logger.GlobalLogger.setLevel(0);
-        }*/
+        }
+        */
     }
 }

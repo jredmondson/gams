@@ -69,6 +69,7 @@
 #include "gams/algorithms/Algorithm_Factory.h"
 
 #include "madara/filters/Aggregate_Filter.h"
+#include "madara/transport/QoS_Transport_Settings.h"
 
 namespace gams
 {
@@ -96,6 +97,12 @@ namespace gams
        * Destructor
        **/
       ~Message_Profiling ();
+
+      /**
+       * Initialize the transport with the filter
+       */
+      void init_filtered_transport (Madara::Transport::QoS_Transport_Settings 
+        settings);
 
       /**
        * Assignment operator
@@ -130,7 +137,12 @@ namespace gams
       /**
        * Container for storing data to be sent to other controllers
        */
-      Madara::Knowledge_Engine::Containers::String message_;
+      Madara::Knowledge_Engine::Containers::String data_;
+
+      /**
+       * Container for counter
+       */
+      Madara::Knowledge_Engine::Containers::Integer count_;
 
       /**
        * Filter for tracking which messages have come in and which have been 

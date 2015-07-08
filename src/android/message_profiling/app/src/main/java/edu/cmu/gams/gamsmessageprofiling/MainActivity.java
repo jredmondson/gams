@@ -37,6 +37,7 @@ public class MainActivity extends ActionBarActivity
         int rate = Integer.parseInt(((EditText) findViewById(R.id.rate_text_box)).getText().toString());
         int dur = Integer.parseInt(((EditText) findViewById(R.id.duration_text_box)).getText().toString());
         int id = Integer.parseInt(((EditText) findViewById(R.id.id_text_box)).getText().toString());
+        int swarmSize = Integer.parseInt(((EditText) findViewById(R.id.swarm_size_text_box)).getText().toString());
 
         Log.d(LOCAL_TAG, "ID: " + id);
 
@@ -53,15 +54,24 @@ public class MainActivity extends ActionBarActivity
         Log.d(LOCAL_TAG, "ADDRESS: " + address_text);
 
 
-        Message_Profiler profiler = new Message_Profiler(type, address_text, size, rate, dur, id);
+        Message_Profiler profiler = new Message_Profiler(type, address_text, size, rate, dur, id, swarmSize);
 
         //WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         //WifiManager.MulticastLock lock = wifi.createMulticastLock("multicastLock");
         //lock.setReferenceCounted(true);
         //lock.acquire();
-        com.madara.logger.GlobalLogger.setLevel(6);
-
-        profiler.run();
+        com.madara.logger.GlobalLogger.setLevel(0);
+        profiler.start();
+        try
+        {
+            profiler.join();
+        }
+        catch (Exception e)
+        {
+        }
+        finally
+        {
+        }
         //lock.release();
         com.madara.logger.GlobalLogger.setLevel(0);
     }
@@ -96,6 +106,9 @@ public class MainActivity extends ActionBarActivity
 
         EditText agent_id_text = (EditText) findViewById(R.id.id_text_box);
         agent_id_text.setText("0");
+
+        EditText swarm_size_text = (EditText) findViewById(R.id.swarm_size_text_box);
+        swarm_size_text.setText("2");
     }
 
     @Override

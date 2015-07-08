@@ -135,9 +135,10 @@
         android:layout_height="wrap_content"
         android:text="Run"
         android:id="@+id/run_button"
-        android:layout_below="@+id/id_text_box"
+        android:onClick="runButtonOnClick"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:onClick="runButtonOnClick" />
+        android:layout_marginBottom="38dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -160,5 +161,25 @@
         android:layout_alignStart="@+id/address_tex_box"
         android:layout_alignRight="@+id/address_tex_box"
         android:layout_alignEnd="@+id/address_tex_box" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Swarm Size"
+        android:id="@+id/textView"
+        android:layout_below="@+id/id_text_box"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/swarm_size_text_box"
+        android:layout_below="@+id/id_text_box"
+        android:layout_alignLeft="@+id/id_text_box"
+        android:layout_alignStart="@+id/id_text_box" />
 
 </RelativeLayout>

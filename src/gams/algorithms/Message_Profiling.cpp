@@ -69,7 +69,7 @@ gams::algorithms::Message_Profiling_Factory::create (
   Base_Algorithm * result (0);
 
   // set defaults
-  Madara::Knowledge_Record send_size (Madara::Knowledge_Record::Integer (1000));
+  Madara::Knowledge_Record send_size (Madara::Knowledge_Record::Integer (100));
 
   if (knowledge && sensors && self)
   {
@@ -110,22 +110,30 @@ gams::algorithms::Message_Profiling::Message_Profiling (
   settings.hosts.push_back (default_multicast);
   settings.type = Madara::Transport::MULTICAST;
 
-  //settings.set_send_bandwidth_limit (-1);
-  //settings.set_total_bandwidth_limit (-1);
-
   settings.add_receive_filter (&filter_);
 
   knowledge->attach_transport (knowledge->get_id (), settings);
 
-  const static string key = key_prefix_ + "." +
-    knowledge_->get (".id").to_string () + ".data";
-
-  message_.set_name (key, *knowledge);
+  // setup containers
+  const size_t size = send.to_integer ();
+  const string key = key_prefix_ + "." +
+    knowledge_->get (".id").to_string ();
+  data_.set_name (key + ".data", *knowledge);
+  data_ = string (size, 'a'); // set value, will never change
+  count_.set_name (key + ".count", *knowledge);
 }
 
 gams::algorithms::Message_Profiling::~Message_Profiling ()
 {
   cerr << filter_.missing_messages_string () << endl;
+}
+
+void
+gams::algorithms::Message_Profiling::init_filtered_transport (
+  Madara::Transport::QoS_Transport_Settings settings)
+{
+  settings.add_receive_filter (&filter_);
+  knowledge_->attach_transport (knowledge_->get_id (), settings);
 }
 
 void
@@ -152,19 +160,8 @@ gams::algorithms::Message_Profiling::execute (void)
 {
   ++executions_;
 
-  if (send_size_ != 0)
-  {
-    // key: "message_profiler.{.id}.data"
-    // value: "<counter>," + arbitrary data of size send_size_
-    stringstream value;
-    value << executions_ << ",";
-    string value_str = value.str ();
-    if(value_str.length () + 1 < send_size_) // fill to size of send_size_
-      value_str = value_str + string (send_size_ - value_str.length () - 1, 'a');
-  
-    // actually set knowledge
-    message_ = value_str;
-  }
+  data_.modify ();
+  count_ = executions_;
 
   return 0;
 }
@@ -191,7 +188,7 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
   if (msg_map_.find (origin) == msg_map_.end ())
   {
     msg_map_[origin] = Message_Data(origin, var);
-    cerr << "creating Message_Data for " << origin << endl;
+    //cerr << "creating Message_Data for " << origin << endl;
   }
   Message_Data& data = msg_map_[origin];
 
@@ -201,11 +198,12 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
   {
     Madara::Knowledge_Map::const_reference update = *iter;
     // we only care about specific messages
-    if (update.second.is_string_type () && update.first.find (key_prefix_) == 0)
+    if (update.second.is_integer_type () && 
+        update.first.find (key_prefix_) == 0 && 
+        update.first.find ("count") != std::string::npos)
     {
       // get msg number
-      size_t msg_num;
-      stringstream (update.second.to_string ()) >> msg_num;
+      size_t msg_num = update.second.to_integer ();
 
       // is this the first?
       if (data.first == -1)
