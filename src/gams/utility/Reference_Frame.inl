@@ -60,18 +60,6 @@ namespace gams
 {
   namespace utility
   {
-    template<typename CoordType>
-    inline bad_coord_type<CoordType>::~bad_coord_type() throw() {}
-
-    inline unrelated_frames::unrelated_frames(const Reference_Frame &from_frame,
-      const Reference_Frame &to_frame) :
-      std::runtime_error("No transform path found between frames."),
-      from_frame(from_frame), to_frame(to_frame) {}
-
-    inline unrelated_frames::~unrelated_frames() throw() {}
-
-    inline undefined_transform::~undefined_transform() throw() {}
-
     inline Reference_Frame::Reference_Frame()
       : origin_(new Pose(*this, 0, 0, 0, 0, 0, 0)),
         destruct_origin_(true) {}
@@ -128,35 +116,10 @@ namespace gams
     {
       return !(*this == other);
     }
-    template<typename CoordType>
-    inline void Reference_Frame::normalize(CoordType &coord) const
-    {
-      do_normalize(static_cast<typename CoordType::Base_Type &>(coord));
-    }
 
     inline std::string Reference_Frame::name() const
     {
       return get_name();
-    }
-
-    template<typename CoordType>
-    inline const Reference_Frame &Reference_Frame::common_parent_transform(
-                                                CoordType &in1, CoordType &in2)
-    {
-      if(in1.frame() == in2.frame())
-        return in1.frame();
-      else if (in1.frame() == in2.frame().origin_frame())
-      {
-        transform_to_origin_within_frame(in2, in2.frame());
-        return in2.frame(in1.frame());
-      }
-      else if (in2.frame() == in1.frame().origin_frame())
-      {
-        transform_to_origin_within_frame(in1, in1.frame());
-        return in1.frame(in2.frame());
-      }
-      else
-        return common_parent_transform_other(in1, in2);
     }
 
     template<typename CoordType>
@@ -167,126 +130,16 @@ namespace gams
         return;
       else if (to_frame == in.frame().origin_frame())
       {
-        transform_to_origin_within_frame(in, in.frame());
+        transform_to_origin(in);
         in.frame(in.frame().origin_frame());
       }
       else if (to_frame.origin_frame() == in.frame())
       {
-        transform_from_origin_within_frame(in, to_frame);
+        transform_from_origin(in, to_frame);
         in.frame(to_frame);
       }
       else
         transform_other(in, to_frame);
-    }
-
-    template<typename CoordType>
-    inline double Reference_Frame::distance(
-                    const CoordType &coord1, const CoordType &coord2)
-    {
-      if (coord1.frame() == coord2.frame())
-      {
-        return calc_distance_within_frame(coord1, coord2, coord1.frame());
-      }
-      else
-      {
-        CoordType coord1_conv(coord1);
-        CoordType coord2_conv(coord2);
-        const Reference_Frame &pframe =
-             common_parent_transform(coord1_conv, coord2_conv);
-
-        return calc_distance_within_frame(coord1_conv, coord2_conv, pframe);
-      }
-    }
-
-    template<typename CoordType>
-    inline void Reference_Frame::transform_to_origin_within_frame(
-        CoordType &in, const Reference_Frame &frame)
-    {
-      frame.transform_to_origin(in);
-    }
-
-    template<typename CoordType>
-    inline void Reference_Frame::transform_from_origin_within_frame(
-        CoordType &in, const Reference_Frame &frame)
-    {
-      frame.transform_from_origin(in);
-    }
-
-    template<typename CoordType>
-    inline double Reference_Frame::calc_distance_within_frame(
-        const CoordType &coord1, const CoordType &coord2,
-        const Reference_Frame &frame)
-    {
-      return frame.calc_distance(coord1, coord2);
-    }
-
-    inline Axis_Angle_Frame::Axis_Angle_Frame() : Reference_Frame() {}
-
-    inline Axis_Angle_Frame::Axis_Angle_Frame(const Pose &origin)
-      : Reference_Frame(origin) {}
-
-    inline Axis_Angle_Frame::Axis_Angle_Frame(Pose *origin)
-      : Reference_Frame(origin) {}
-
-    template<>
-    inline double Reference_Frame::calc_distance_within_frame<>(
-          const Pose &pose1, const Pose &pose2, const Reference_Frame &frame)
-    {
-      return frame.calc_distance(static_cast<const Location_Vector&>(pose1),
-                                 static_cast<const Location_Vector&>(pose2));
-    }
-
-    template<>
-    inline void Reference_Frame::transform_to_origin_within_frame<>(
-      Pose &in, const Reference_Frame &frame)
-    {
-      frame.transform_to_origin(static_cast<Location_Vector &>(in));
-      frame.transform_to_origin(static_cast<Rotation_Vector &>(in));
-    }
-
-    template<>
-    inline void Reference_Frame::transform_from_origin_within_frame<>(
-      Pose &in, const Reference_Frame &frame)
-    {
-      frame.transform_from_origin(static_cast<Location_Vector &>(in));
-      frame.transform_from_origin(static_cast<Rotation_Vector &>(in));
-    }
-
-    template<>
-    inline void Reference_Frame::normalize<>(Pose &pose) const
-    {
-      pose.frame().do_normalize(static_cast<Location_Vector&>(pose));
-      pose.frame().do_normalize(static_cast<Rotation_Vector&>(pose));
-    }
-
-    template<typename CoordType>
-    inline CoordType Coordinate<CoordType>::transform_to(
-                                const Reference_Frame &new_frame) const
-    {
-      CoordType ret(static_cast<const CoordType &>(*this));
-      Reference_Frame::transform(ret, new_frame);
-      return ret;
-    }
-
-    template<typename CoordType>
-    inline void Coordinate<CoordType>::transform_this_to(
-                                            const Reference_Frame &new_frame)
-    {
-      Reference_Frame::transform(static_cast<CoordType &>(*this), new_frame);
-    }
-
-    template<typename CoordType>
-    inline double Coordinate<CoordType>::distance_to(
-                                                const CoordType &target) const
-    {
-      return Reference_Frame::distance(static_cast<const CoordType &>(*this),
-                                       static_cast<const CoordType &>(target));
-    }
-
-    template<typename CoordType>
-    inline void Coordinate<CoordType>::normalize()
-    {
-      frame().normalize(static_cast<CoordType &>(*this));
     }
 
     template<typename CoordType>
@@ -303,17 +156,236 @@ namespace gams
       {
         while(in.frame() != *transform_via)
         {
-          transform_to_origin_within_frame(in, in.frame());
+          transform_to_origin(in);
           in.frame(in.frame().origin_frame());
         }
         while(in.frame() != to_frame && !to_stack.empty())
         {
-          transform_from_origin_within_frame(in, *to_stack.back());
+          transform_from_origin(in, *to_stack.back());
           in.frame(*to_stack.back());
           to_stack.pop_back();
         }
       }
     }
+
+    template<typename CoordType>
+    inline const Reference_Frame &Reference_Frame::common_parent_transform(
+                                                CoordType &in1, CoordType &in2)
+    {
+      if(in1.frame() == in2.frame())
+        return in1.frame();
+      else if (in1.frame() == in2.frame().origin_frame())
+      {
+        transform_to_origin(in2);
+        return in2.frame(in1.frame());
+      }
+      else if (in2.frame() == in1.frame().origin_frame())
+      {
+        transform_to_origin(in1);
+        return in1.frame(in2.frame());
+      }
+      else
+        return common_parent_transform_other(in1, in2);
+    }
+
+    template<typename CoordType>
+    inline const Reference_Frame &
+            Reference_Frame::common_parent_transform_other(
+                                        CoordType &in1, CoordType &in2)
+    {
+      const Reference_Frame *common_parent =
+                     find_common_frame(&in1.frame(), &in2.frame());
+
+      if(common_parent == nullptr)
+        throw unrelated_frames(in1.frame(), in2.frame());
+      else
+      {
+        std::cout << common_parent->origin() << std::endl;
+        while(in1.frame() != *common_parent)
+        {
+          transform_to_origin(in1);
+          in1.frame(in1.frame().origin_frame());
+        }
+        while(in2.frame() != *common_parent)
+        {
+          transform_to_origin(in2);
+          in2.frame(in2.frame().origin_frame());
+        }
+      }
+      return *common_parent;
+    }
+
+    template<typename CoordType>
+    inline double Reference_Frame::distance(
+                    const CoordType &coord1, const CoordType &coord2)
+    {
+      if (coord1.frame() == coord2.frame())
+      {
+        return calc_difference(coord1, coord2);
+      }
+      else
+      {
+        CoordType coord1_conv(coord1);
+        CoordType coord2_conv(coord2);
+        const Reference_Frame &pframe =
+             common_parent_transform(coord1_conv, coord2_conv);
+
+        return calc_difference(coord1_conv, coord2_conv);
+      }
+    }
+
+
+    template<typename CoordType>
+    inline void Reference_Frame::transform_to_origin(CoordType &in)
+    {
+      static_assert(sizeof(in)<0, "must specialize Reference_Frame::transform_to_origin for this coordinate type");
+    }
+
+    template<typename CoordType>
+    inline void Reference_Frame::transform_from_origin(
+            CoordType &in, const Reference_Frame &to_frame)
+    {
+      static_assert(sizeof(in)<0, "must specialize Reference_Frame::transform_from_origin for this coordinate type");
+    }
+
+    template<typename CoordType>
+    inline double Reference_Frame::calc_difference(const CoordType &in1,
+                                                   const CoordType &in2)
+    {
+      static_assert(sizeof(in1)<0, "must specialize Reference_Frame::calc_difference for this coordinate type");
+    }
+
+    template<typename CoordType>
+    inline void Reference_Frame::normalize(CoordType &in)
+    {
+      static_assert(sizeof(in)<0, "must specialize Reference_Frame::normalize for this coordinate type");
+    }
+
+    template<>
+    inline void Reference_Frame::transform_to_origin<>(Location &in)
+    {
+      in.frame().transform_location_to_origin(in.x_, in.y_, in.z_);
+    }
+
+    template<>
+    inline void Reference_Frame::transform_to_origin<>(Rotation &in)
+    {
+      in.frame().transform_rotation_to_origin(in.rx_, in.ry_, in.rz_);
+    }
+
+    template<>
+    inline void Reference_Frame::transform_to_origin<>(Pose &in)
+    {
+      in.frame().transform_location_to_origin(in.x_, in.y_, in.z_);
+      in.frame().transform_rotation_to_origin(in.rx_, in.ry_, in.rz_);
+    }
+
+    template<>
+    inline void Reference_Frame::transform_from_origin<>(
+        Location &in, const Reference_Frame &to_frame)
+    {
+      to_frame.transform_location_from_origin(in.x_, in.y_, in.z_);
+    }
+
+    template<>
+    inline void Reference_Frame::transform_from_origin<>(
+        Rotation &in, const Reference_Frame &to_frame)
+    {
+      to_frame.transform_rotation_from_origin(in.rx_, in.ry_, in.rz_);
+    }
+
+    template<>
+    inline void Reference_Frame::transform_from_origin<>(
+      Pose &in, const Reference_Frame &to_frame)
+    {
+      to_frame.transform_location_from_origin(in.x_, in.y_, in.z_);
+      to_frame.transform_rotation_from_origin(in.rx_, in.ry_, in.rz_);
+    }
+
+    template<>
+    inline double Reference_Frame::calc_difference<>(
+        const Location &loc1, const Location &loc2)
+    {
+      return loc1.frame().calc_distance(loc1.x_, loc1.y_, loc1.z_,
+                                        loc2.x_, loc2.y_, loc2.z_);
+    }
+
+    template<>
+    inline double Reference_Frame::calc_difference<>(
+        const Rotation &rot1, const Rotation &rot2)
+    {
+      return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
+                                     rot2.rx_, rot2.ry_, rot2.rz_);
+    }
+
+    template<>
+    inline double Reference_Frame::calc_difference<>(
+          const Pose &pose1, const Pose &pose2)
+    {
+      return pose1.frame().calc_distance(pose1.x_, pose1.y_, pose1.z_,
+                                         pose2.x_, pose2.y_, pose2.z_);
+    }
+
+    inline void Reference_Frame::normalize_location(
+                                      double &x, double &y, double &z) const
+    {
+      do_normalize_location(x, y, z);
+    }
+
+    inline void Reference_Frame::normalize_rotation(
+                                      double &rx, double &ry, double &rz) const
+    {
+      do_normalize_rotation(rx, ry, rz);
+    }
+
+    template<>
+    inline void Reference_Frame::normalize<>(Location &loc)
+    {
+      loc.frame().normalize_location(loc.x_, loc.y_, loc.z_);
+    }
+
+    template<>
+    inline void Reference_Frame::normalize<>(Rotation &rot)
+    {
+      rot.frame().normalize_rotation(rot.rx_, rot.ry_, rot.rz_);
+    }
+
+    template<>
+    inline void Reference_Frame::normalize<>(Pose &pose)
+    {
+      pose.frame().normalize_location(pose.x_, pose.y_, pose.z_);
+      pose.frame().normalize_rotation(pose.rx_, pose.ry_, pose.rz_);
+    }
+
+    template<typename CoordType>
+    inline CoordType Coordinate<CoordType>::transform_to(
+                                const Reference_Frame &new_frame) const
+    {
+      CoordType ret(as_coord_type());
+      Reference_Frame::transform(ret, new_frame);
+      return ret;
+    }
+
+    template<typename CoordType>
+    inline void Coordinate<CoordType>::transform_this_to(
+                                            const Reference_Frame &new_frame)
+    {
+      Reference_Frame::transform(as_coord_type(), new_frame);
+    }
+
+    template<typename CoordType>
+    inline double Coordinate<CoordType>::distance_to(
+                                                const CoordType &target) const
+    {
+      return Reference_Frame::distance(as_coord_type(), target.as_coord_type());
+    }
+
+    template<typename CoordType>
+    inline void Coordinate<CoordType>::normalize()
+    {
+      frame().normalize(as_coord_type());
+    }
+
 
     inline std::ostream &operator<<(std::ostream &o, const Location &loc)
     {
@@ -333,32 +405,23 @@ namespace gams
       return o;
     }
 
-    template<typename CoordType>
-    inline const Reference_Frame &
-            Reference_Frame::common_parent_transform_other(
-                                        CoordType &in1, CoordType &in2)
-    {
-      const Reference_Frame *common_parent =
-                     find_common_frame(&in1.frame(), &in2.frame());
 
-      if(common_parent == nullptr)
-        throw unrelated_frames(in1.frame(), in2.frame());
-      else
-      {
-        std::cout << common_parent->origin() << std::endl;
-        while(in1.frame() != *common_parent)
-        {
-          transform_to_origin_within_frame(in1, in1.frame());
-          in1.frame(in1.frame().origin_frame());
-        }
-        while(in2.frame() != *common_parent)
-        {
-          transform_to_origin_within_frame(in2, in2.frame());
-          in2.frame(in2.frame().origin_frame());
-        }
-      }
-      return *common_parent;
-    }
+    inline Axis_Angle_Frame::Axis_Angle_Frame() : Reference_Frame() {}
+
+    inline Axis_Angle_Frame::Axis_Angle_Frame(const Pose &origin)
+      : Reference_Frame(origin) {}
+
+    inline Axis_Angle_Frame::Axis_Angle_Frame(Pose *origin)
+      : Reference_Frame(origin) {}
+
+
+    inline unrelated_frames::unrelated_frames(const Reference_Frame &from_frame,
+      const Reference_Frame &to_frame) :
+      std::runtime_error("No transform path found between frames."),
+      from_frame(from_frame), to_frame(to_frame) {}
+
+    inline unrelated_frames::~unrelated_frames() throw() {}
+
 
     template<typename CoordType>
     inline bad_coord_type<CoordType>::bad_coord_type(
@@ -368,6 +431,10 @@ namespace gams
             " for operation " + fn_name + "."),
         coord_type_name(CoordType::name()),
         fn_name(fn_name), frame(frame) {}
+
+    template<typename CoordType>
+    inline bad_coord_type<CoordType>::~bad_coord_type() throw() {}
+
 
     inline undefined_transform::undefined_transform(
             const Reference_Frame &parent_frame,
@@ -382,6 +449,8 @@ namespace gams
         parent_frame(parent_frame), child_frame(child_frame),
           is_child_to_parent(is_child_to_parent),
           unsupported_rotation(unsupported_rotation) {}
+
+    inline undefined_transform::~undefined_transform() throw() {}
   }
 }
 

@@ -61,33 +61,36 @@ namespace gams
     const double GPS_Frame::MOON_RADIUS  = 1737100.0;
     const double GPS_Frame::MARS_RADIUS  = 3389500.0;
 
-    void GPS_Frame::transform_to_origin(Location_Vector &/*in*/) const
+    void GPS_Frame::transform_location_to_origin(
+                                            double &, double &, double &) const
     {
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void GPS_Frame::transform_from_origin(Location_Vector &/*in*/) const
+    void GPS_Frame::transform_location_from_origin(
+                                            double &, double &, double &) const
     {
       throw undefined_transform(*this, origin().frame(), false);
     }
 
     double GPS_Frame::calc_distance(
-          const Location_Vector &loc1, const Location_Vector &loc2) const
+                      double x1, double y1, double z1,
+                      double x2, double y2, double z2) const
     {
-      double alt = loc1.z();
-      double alt_diff = loc2.z() - loc1.z();
-      if(loc2.z() < alt)
-        alt = loc2.z();
+      double alt = z1;
+      double alt_diff = z2 - z1;
+      if(z2 < alt)
+        alt = z2;
 
       /**
        * Calculate great circle distance using numerically stable formula from
        * http://en.wikipedia.org/w/index.php?title=Great-circle_distance&oldid=659855779
        * Second formula in "Computational formulas"
        **/
-      double lat1 = DEG_TO_RAD(loc1.y());
-      double lng1 = DEG_TO_RAD(loc1.x());
-      double lat2 = DEG_TO_RAD(loc2.y());
-      double lng2 = DEG_TO_RAD(loc2.x());
+      double lat1 = DEG_TO_RAD(y1);
+      double lng1 = DEG_TO_RAD(x1);
+      double lat2 = DEG_TO_RAD(y2);
+      double lng2 = DEG_TO_RAD(x2);
 
       double sin_lat1 = sin(lat1);
       double sin_lat2 = sin(lat2);
@@ -109,10 +112,10 @@ namespace gams
 
       double bottom = sin_lat1 * cos_lat2 + cos_lat1 * cos_lat2 * cos_delta_lng;
 
+      const double epsilon = 0.000001;
       /**
        * atan2(0, 0) is undefined, but for our purposes, we can treat it as 0
        **/
-      const double epsilon = 0.000001;
       double central_angle =
           (fabs(top) < epsilon && fabs(bottom) < epsilon)
                ? 0 : atan2(top, bottom);
@@ -125,22 +128,23 @@ namespace gams
         return sqrt(great_circle_dist * great_circle_dist + alt_diff*alt_diff);
     }
 
-    void GPS_Frame::do_normalize(Location_Vector &in) const
+    void GPS_Frame::do_normalize_location(
+                      double &x, double &y, double &z) const
     {
-      while(in.y() > 90.000001)
+      while(y > 90.000001)
       {
-        in.y(in.y() - 180);
-        in.x(in.x() + 180);
+        y -= 180;
+        x += 180;
       }
-      while(in.y() < -90.000001)
+      while(y < -90.000001)
       {
-        in.y(in.y() + 180);
-        in.x(in.x() - 180);
+        y += 180;
+        x -= 180;
       }
-      while(in.x() > 180.000001)
-        in.x(in.x() - 180);
-      while(in.x() < -180.000001)
-        in.x(in.x() + 180);
+      while(x > 180.000001)
+        x -= 180;
+      while(x < -180.000001)
+        x += 180;
     }
   }
 }

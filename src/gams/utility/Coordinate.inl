@@ -55,6 +55,7 @@
 #define _GAMS_UTILITY_COORDINATE_INL_
 
 #include <iostream>
+#include <cstdio>
 #include <sstream>
 
 namespace gams

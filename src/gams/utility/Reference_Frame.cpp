@@ -90,51 +90,56 @@ namespace gams
       return nullptr;
     }
 
-    void Reference_Frame::transform_to_origin(Location_Vector &/*in*/) const
+    void Reference_Frame::transform_location_to_origin(
+                                double &, double &, double &) const
     {
-      throw bad_coord_type<Location>(*this, "transform_to_origin");
+      throw bad_coord_type<Location>(*this, "transform_location_to_origin");
     }
 
-    void Reference_Frame::transform_from_origin(Location_Vector &/*in*/) const
+    void Reference_Frame::transform_location_from_origin(
+                                double &, double &, double &) const
     {
-      throw bad_coord_type<Location>(*this, "transform_from_origin");
+      throw bad_coord_type<Location>(*this, "transform_location_from_origin");
     }
 
-    void Reference_Frame::do_normalize(Location_Vector &/*in*/) const {}
+    void Reference_Frame::do_normalize_location(
+                double &, double &, double &) const {}
 
     double Reference_Frame::calc_distance(
-                const Location_Vector &/*loc1*/,
-                const Location_Vector &/*loc2*/) const
+                double, double, double, double, double, double) const
     {
       throw bad_coord_type<Location>(*this, "calc_distance");
     }
 
-    void Reference_Frame::transform_to_origin(Rotation_Vector &/*in*/) const
+    void Reference_Frame::transform_rotation_to_origin(
+                                double &, double &, double &) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_to_origin");
+      throw bad_coord_type<Rotation>(*this, "transform_rotation_to_origin");
     }
 
-    void Reference_Frame::transform_from_origin(Rotation_Vector &/*in*/) const
+    void Reference_Frame::transform_rotation_from_origin(
+                                double &, double &, double &) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_from_origin");
+      throw bad_coord_type<Rotation>(*this, "transform_rotation_from_origin");
     }
 
-    double Reference_Frame::calc_distance(
-                const Rotation_Vector &/*rot1*/,
-                const Rotation_Vector &/*rot2*/) const
+    double Reference_Frame::calc_angle(
+                double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Rotation>(*this, "calc_distance");
+      throw bad_coord_type<Rotation>(*this, "calc_angle");
     }
 
-    void Reference_Frame::do_normalize(Rotation_Vector &/*in*/) const {}
+    void Reference_Frame::do_normalize_rotation(
+                double &, double &, double &) const {}
 
-    void Axis_Angle_Frame::rotate_location_vec(Location_Vector &loc,
-      const Rotation_Vector &rot, bool reverse) const
+    void Axis_Angle_Frame::rotate_location_vec(
+          double &x, double &y, double &z,
+          const Rotation_Vector &rot, bool reverse) const
     {
       if(rot.is_zero())
         return;
 
-      Quaternion locq(loc);
+      Quaternion locq(x, y, z);
       Quaternion rotq(rot);
 
       if(reverse)
@@ -143,41 +148,44 @@ namespace gams
       Quaternion::hamilton_product(locq, rotq, locq);
       rotq.conjugate();
       locq *= rotq;
-      locq.to_location_vector(loc);
+      locq.to_location_vector(x, y, z);
     }
 
-    void Axis_Angle_Frame::transform_to_origin(Rotation_Vector &in) const
+    void Axis_Angle_Frame::transform_rotation_to_origin(
+                                double &rx, double &ry, double &rz) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
       {
-        Quaternion in_quat(in);
+        Quaternion in_quat(rx, ry, rz);
         Quaternion origin_quat(origin().as_rotation_vec());
         in_quat *= origin_quat;
-        in_quat.to_rotation_vector(in);
+        in_quat.to_rotation_vector(rx, ry, rz);
         return;
       }
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void Axis_Angle_Frame::transform_from_origin(Rotation_Vector &in) const
+    void Axis_Angle_Frame::transform_rotation_from_origin(
+                                double &rx, double &ry, double &rz) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), Axis_Angle_Frame, frame)
       {
-        Quaternion in_quat(in);
+        Quaternion in_quat(rx, ry, rz);
         Quaternion origin_quat(origin().as_rotation_vec());
         origin_quat.conjugate();
         in_quat *= origin_quat;
-        in_quat.to_rotation_vector(in);
+        in_quat.to_rotation_vector(rx, ry, rz);
         return;
       }
       throw undefined_transform(*this, origin().frame(), false);
     }
 
-    inline double Axis_Angle_Frame::calc_distance(
-                const Rotation_Vector &loc1, const Rotation_Vector &loc2) const
+    inline double Axis_Angle_Frame::calc_angle(
+                double rx1, double ry1, double rz1,
+                double rx2, double ry2, double rz2) const
     {
-      Quaternion quat1(loc1);
-      Quaternion quat2(loc2);
+      Quaternion quat1(rx1, ry1, rz1);
+      Quaternion quat2(ry2, ry2, rz2);
       return RAD_TO_DEG(quat1.angle_to(quat2));
     }
 

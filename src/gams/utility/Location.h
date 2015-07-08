@@ -322,6 +322,8 @@ namespace gams
 
       friend class Quaternion;
 
+      friend class Reference_Frame;
+
     private:
       double x_, y_, z_;
     };

@@ -247,6 +247,8 @@ namespace gams
       double set(int i, double val);
 
       friend class Quaternion;
+
+      friend class Reference_Frame;
     private:
       double rx_, ry_, rz_;
     };

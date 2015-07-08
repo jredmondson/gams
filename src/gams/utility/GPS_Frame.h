@@ -150,9 +150,7 @@ namespace gams
        **/
       double circ(double new_circ);
 
-    private:
-      double planet_radius_;
-
+    protected:
       /**
        * Returns the name of this type of reference frame.
        *
@@ -160,14 +158,21 @@ namespace gams
        **/
       virtual std::string get_name() const;
 
-      virtual void transform_to_origin(Location_Vector &in) const;
+      virtual void transform_location_to_origin(
+                      double &x, double &y, double &z) const;
 
-      virtual void transform_from_origin(Location_Vector &in) const;
+      virtual void transform_location_from_origin(
+                      double &x, double &y, double &z) const;
 
       virtual double calc_distance(
-          const Location_Vector &loc1, const Location_Vector &loc2) const;
+                      double x1, double y1, double z1,
+                      double x2, double y2, double z2) const;
 
-      virtual void do_normalize(Location_Vector &in) const;
+      virtual void do_normalize_location(
+                      double &x, double &y, double &z) const;
+
+    private:
+      double planet_radius_;
     };
   }
 }

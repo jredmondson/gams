@@ -265,7 +265,10 @@ namespace gams
        * @param coord the Coordinate to normalize
        **/
       template<typename CoordType>
-      void normalize(CoordType &coord) const;
+      static void normalize(CoordType &coord);
+
+      void normalize_location(double &x, double &y, double &z) const;
+      void normalize_rotation(double &rx, double &ry, double &rz) const;
 
       /**
        * Returns a human-readable name for the reference frame type
@@ -274,7 +277,7 @@ namespace gams
        **/
       std::string name() const;
 
-    private:
+    protected:
       /**
        * Override to return a human-readable name for new reference frame types
        *
@@ -287,14 +290,16 @@ namespace gams
        *
        * @param in transforms parameter into origin frame from this frame.
        **/
-      virtual void transform_to_origin(Location_Vector &in) const;
+      virtual void transform_location_to_origin(
+                      double &x, double &y, double &z) const;
 
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
        * @param in transforms parameter into this frame from origin frame.
        **/
-      virtual void transform_from_origin(Location_Vector &in) const;
+      virtual void transform_location_from_origin(
+                      double &x, double &y, double &z) const;
 
       /**
        * Override for new coordinate systems that can require normalization of
@@ -302,7 +307,8 @@ namespace gams
        *
        * @param in transforms parameter into normalized form
        **/
-      virtual void do_normalize(Location_Vector &in) const;
+      virtual void do_normalize_location(
+                      double &x, double &y, double &z) const;
 
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
@@ -312,21 +318,24 @@ namespace gams
        * @return distance in meters from loc1 to loc2
        **/
       virtual double calc_distance(
-            const Location_Vector &loc1, const Location_Vector &loc2) const;
+                      double x1, double y1, double z1,
+                      double x2, double y2, double z2) const;
 
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
        * @param in transforms parameter into origin frame from this frame.
        **/
-      virtual void transform_to_origin(Rotation_Vector &in) const;
+      virtual void transform_rotation_to_origin(
+                      double &rx, double &ry, double &rz) const;
 
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
        * @param in transforms parameter into this frame from origin frame.
        **/
-      virtual void transform_from_origin(Rotation_Vector &in) const;
+      virtual void transform_rotation_from_origin(
+                      double &rx, double &ry, double &rz) const;
 
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
@@ -335,8 +344,9 @@ namespace gams
        * @param rot2 Distance to this rotation
        * @return rotational distance in degrees from rot1 to rot2
        **/
-      virtual double calc_distance(
-          const Rotation_Vector &rot1, const Rotation_Vector &rot2) const;
+      virtual double calc_angle(
+                      double rx1, double ry1, double rz1,
+                      double rx2, double ry2, double rz2) const;
 
       /**
        * Override for new coordinate systems that can require normalization of
@@ -344,10 +354,8 @@ namespace gams
        *
        * @param in transforms parameter into normalized form
        **/
-      virtual void do_normalize(Rotation_Vector &in) const;
-
-      Pose *origin_;
-      bool destruct_origin_;
+      virtual void do_normalize_rotation(
+                      double &rx, double &ry, double &rz) const;
 
       /**
        * Transform input coordinates into their common parent. If no common
@@ -402,8 +410,7 @@ namespace gams
        * @param frame the frame to transform into. Must be origin of in.
        **/
       template<typename CoordType>
-      static void transform_to_origin_within_frame(CoordType &in,
-          const Reference_Frame &frame);
+      static void transform_to_origin(CoordType &in);
 
       /**
        * Transforms a coordinate into a frame from its origin frame.
@@ -415,8 +422,8 @@ namespace gams
        * @param frame the frame to transform into. Must be origin of in.
        **/
       template<typename CoordType>
-      static void transform_from_origin_within_frame(CoordType &in,
-          const Reference_Frame &frame);
+      static void transform_from_origin(CoordType &in,
+          const Reference_Frame &to_frame);
 
       /**
        * Calculates distance between coordinates within a specific frame
@@ -433,8 +440,8 @@ namespace gams
        * @pre coord1 and coord2 must have same frame, passed as "frame"
        **/
       template<typename CoordType>
-      static double calc_distance_within_frame( const CoordType &coord1,
-          const CoordType &coord2, const Reference_Frame &frame);
+      static double calc_difference(const CoordType &coord1,
+                                    const CoordType &coord2);
 
       /**
        * Helper function to find the common frame between two frames.
@@ -450,6 +457,19 @@ namespace gams
           std::vector<const Reference_Frame *> *to_stack = nullptr);
 
       /**
+       * Transform into another frame, if coordinates are not directly related.
+       *
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
+       * @param the coordinate to transform (in-place)
+       * @param to_frame the frame to transform into
+       *
+       * @throws unrelated_frame if no common parent.
+       **/
+      template<typename CoordType>
+      inline static void transform_other(
+          CoordType &in, const Reference_Frame &to_frame);
+
+      /**
        * Transform into common parent, if coordinates are not directly related.
        *
        * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
@@ -463,21 +483,12 @@ namespace gams
       static const Reference_Frame &common_parent_transform_other(
           CoordType &in1, CoordType &in2);
 
-      /**
-       * Transform into another frame, if coordinates are not directly related.
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
-       * @param the coordinate to transform (in-place)
-       * @param to_frame the frame to transform into
-       *
-       * @throws unrelated_frame if no common parent.
-       **/
-      template<typename CoordType>
-      inline static void transform_other(
-          CoordType &in, const Reference_Frame &to_frame);
-
       template<typename CoordType>
       friend class Coordinate;
+
+    protected:
+      Pose *origin_;
+      bool destruct_origin_;
     };
 
     /**
@@ -519,7 +530,7 @@ namespace gams
        * @param reverse if true, apply rotation in opposite direction
        **/
       void rotate_location_vec(
-          Location_Vector &loc,
+          double &x, double &y, double &z,
           const Rotation_Vector &rot,
           bool reverse = false) const;
 
@@ -529,14 +540,16 @@ namespace gams
        *
        * @param in the Rotation_Vector to transform
        **/
-      virtual void transform_to_origin(Rotation_Vector &in) const;
+      virtual void transform_rotation_to_origin(
+                      double &rx, double &ry, double &rz) const;
 
       /**
        * Transforms Rotation_Vector in-place from its origin frame
        *
        * @param in the Rotation_Vector to transform
        **/
-      virtual void transform_from_origin(Rotation_Vector &in) const;
+      virtual void transform_rotation_from_origin(
+                      double &rx, double &ry, double &rz) const;
 
       /**
        * Calculates smallest angle between two Rotation_Vectors
@@ -545,8 +558,9 @@ namespace gams
        * @param rol2 the ending rotation
        * @return the difference in degrees
        **/
-      virtual double calc_distance(
-          const Rotation_Vector &rot1, const Rotation_Vector &rot2) const;
+      virtual double calc_angle(
+                      double rx1, double ry1, double rz1,
+                      double rx2, double ry2, double rz2) const;
     };
   }
 }

@@ -74,11 +74,12 @@ namespace gams
     }
 
     inline double Cartesian_Frame::calc_distance(
-            const Location_Vector &loc1, const Location_Vector &loc2) const
+                      double x1, double y1, double z1,
+                      double x2, double y2, double z2) const
     {
-      double x_dist = loc2.x() - loc1.x();
-      double y_dist = loc2.y() - loc1.y();
-      double z_dist = loc2.z() - loc1.z();
+      double x_dist = x2 - x1;
+      double y_dist = y2 - y1;
+      double z_dist = z2 - y2;
 
       return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
     }
