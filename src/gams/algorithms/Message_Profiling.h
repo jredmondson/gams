@@ -134,6 +134,9 @@ namespace gams
        */
       const static std::string key_prefix_;
 
+      /// provides access to the knowledge base
+      Madara::Knowledge_Engine::Knowledge_Base * local_knowledge_;
+
       /**
        * Container for storing data to be sent to other controllers
        */
@@ -142,7 +145,7 @@ namespace gams
       /**
        * Container for counter
        */
-      Madara::Knowledge_Engine::Containers::Integer count_;
+      //Madara::Knowledge_Engine::Containers::Integer count_;
 
       /**
        * Filter for tracking which messages have come in and which have been 
@@ -162,25 +165,21 @@ namespace gams
 
         std::string missing_messages_string () const;
 
-      private:
         /**
          * Message_Data struct
          */
         struct Message_Data
         {
-          Madara::Knowledge_Engine::Containers::Integer first;
-          Madara::Knowledge_Engine::Containers::Integer last;
-          Madara::Knowledge_Engine::Containers::Double percent_missing;
+          size_t first;
+          size_t last;
           std::vector<bool> present;
-
-          Message_Data ();
-          Message_Data (std::string id, Madara::Knowledge_Engine::Variables& var);
         };
 
         /**
          * Keep a Message_Data struct for each peer
          */
-        std::map<std::string, Message_Data> msg_map_;
+        //std::map<std::string, Message_Data> msg_map;
+        std::map<std::string, size_t> msg_map;
       };
 
       /**

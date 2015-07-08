@@ -469,6 +469,11 @@ double max_runtime, double send_period)
     }
   }
 
+
+  // delete the algorithm
+  delete algorithm_;
+  algorithm_ = 0;
+
   return return_value;
 }
 

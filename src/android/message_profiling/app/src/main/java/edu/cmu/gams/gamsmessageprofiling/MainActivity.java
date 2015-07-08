@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -22,6 +23,8 @@ public class MainActivity extends ActionBarActivity
 
     public void runButtonOnClick (View v) throws IOException
     {
+        final Button run = (Button)findViewById(R.id.run_button);
+        run.setClickable(false);
         Runtime rt = Runtime.getRuntime();
         long maxMemory = rt.maxMemory();
         Log.d(LOCAL_TAG, "Max Memory Available: " + Long.toString(maxMemory));
@@ -53,14 +56,8 @@ public class MainActivity extends ActionBarActivity
         }
         Log.d(LOCAL_TAG, "ADDRESS: " + address_text);
 
-
-        Message_Profiler profiler = new Message_Profiler(type, address_text, size, rate, dur, id, swarmSize);
-
-        //WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        //WifiManager.MulticastLock lock = wifi.createMulticastLock("multicastLock");
-        //lock.setReferenceCounted(true);
-        //lock.acquire();
         com.madara.logger.GlobalLogger.setLevel(0);
+        Message_Profiler profiler = new Message_Profiler(type, address_text, size, rate, dur, id, swarmSize);
         profiler.start();
         try
         {
@@ -72,8 +69,9 @@ public class MainActivity extends ActionBarActivity
         finally
         {
         }
-        //lock.release();
         com.madara.logger.GlobalLogger.setLevel(0);
+
+        run.setClickable(true);
     }
 
     @Override
