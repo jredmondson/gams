@@ -363,7 +363,7 @@ namespace gams
        * @param z the z coordinate of the new Location; defaults to zero
        **/
       constexpr Location(const Reference_Frame &frame,
-                         double x, double y, double z = 0.0);
+                         double x = 0.0, double y = 0.0, double z = 0.0);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).

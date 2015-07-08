@@ -176,7 +176,20 @@ namespace gams
       bool operator==(const CoordType &rhs) const;
 
       /**
-       * Evaluate in equality with the other Coordinate. If the coordinates
+       * Evaluate equality with a vector-like object
+       *
+       * @tparam RhsType type of the right-hand-side. Must support a size()
+       *     method, and operator[] to access contents.
+       * @param rhs the right-hand-side of the equality. This object is treated
+       *     as a set of coordinates in this Coordinate's reference frame.
+       * @return true if the rhs is the same size as this object, and all terms
+       *     are equal to each other, respectively. False otherwise.
+       **/
+      template<typename RhsType>
+      bool operator==(const RhsType &rhs) const;
+
+      /**
+       * Evaluate inequality with the other Coordinate. If the coordinates
        * belong to different reference frames, the rhs will be copied, and
        * converted to the same frame as the lhs
        *
@@ -187,6 +200,19 @@ namespace gams
        * @return false if, after conversion, the two coordinates are the same
        **/
       bool operator!=(const CoordType &rhs) const;
+
+      /**
+       * Evaluate inequality with a vector-like object
+       *
+       * @tparam RhsType type of the right-hand-side. Must support a size()
+       *     method, and operator[] to access contents.
+       * @param rhs the right-hand-side of the equality. This object is treated
+       *     as a set of coordinates in this Coordinate's reference frame.
+       * @return false if the rhs is the same size as this object, and all terms
+       *     are equal to each other, respectively. True otherwise.
+       **/
+      template<typename RhsType>
+      bool operator!=(const RhsType &rhs) const;
 
       /**
        * Tests if this Coordinate is within epsilon in distance (as defined by

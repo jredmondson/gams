@@ -141,7 +141,29 @@ namespace gams
     }
 
     template<typename CoordType>
+    template<typename RhsType>
+    bool Coordinate<CoordType>::operator==(const RhsType &rhs) const
+    {
+      const CoordType &self = as_coord_type();
+      if(self.size() != rhs.size())
+        return false;
+      for(int i = 0; i < self.size(); ++i)
+      {
+        if(self.get(i) != rhs[i])
+          return false;
+      }
+      return true;
+    }
+
+    template<typename CoordType>
     inline bool Coordinate<CoordType>::operator!=(const CoordType &rhs) const
+    {
+      return !(*this == rhs);
+    }
+
+    template<typename CoordType>
+    template<typename RhsType>
+    inline bool Coordinate<CoordType>::operator!=(const RhsType &rhs) const
     {
       return !(*this == rhs);
     }
