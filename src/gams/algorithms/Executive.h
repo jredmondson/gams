@@ -122,8 +122,8 @@ namespace gams
        */
       struct Algorithm_Init
       {
-        const std::string algorithm;
-        const Madara::Knowledge_Vector args;
+        std::string algorithm;
+        Madara::Knowledge_Vector args;
 
         Algorithm_Init ();
         Algorithm_Init (const std::string& a,
