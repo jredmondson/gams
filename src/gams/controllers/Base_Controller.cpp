@@ -81,12 +81,6 @@ gams::controllers::Base_Controller::Base_Controller (
 
 gams::controllers::Base_Controller::~Base_Controller ()
 {
-  delete platform_;
-  delete algorithm_;
-}
-
-gams::controllers::Base_Controller::~Base_Controller ()
-{
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Base_Controller::destructor:" \
