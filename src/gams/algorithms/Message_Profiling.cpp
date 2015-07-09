@@ -112,20 +112,46 @@ gams::algorithms::Message_Profiling::Message_Profiling (
 
   settings.add_receive_filter (&filter_);
 
-  knowledge->attach_transport (knowledge->get_id (), settings);
+  local_knowledge_ = new Madara::Knowledge_Engine::Knowledge_Base (
+    knowledge_->get_id (), settings);
 
   // setup containers
   const size_t size = send.to_integer ();
   const string key = key_prefix_ + "." +
     knowledge_->get (".id").to_string ();
-  data_.set_name (key + ".data", *knowledge);
-  data_ = string (size, 'a'); // set value, will never change
-  count_.set_name (key + ".count", *knowledge);
+  data_.set_name (key + ".data", *local_knowledge_);
+  data_ = string (size - 1, 'a'); // set value, will never change
+  //count_.set_name (key + ".count", *knowledge);
 }
 
 gams::algorithms::Message_Profiling::~Message_Profiling ()
 {
-  cerr << filter_.missing_messages_string () << endl;
+  delete local_knowledge_;
+  local_knowledge_ = 0;
+
+//  for (map<string, Message_Filter::Message_Data>::const_reference map_item : 
+//    filter_.msg_map)
+  for (map<string, size_t>::const_reference map_item : filter_.msg_map)
+  {
+//    size_t first = map_item.second.first;
+//    size_t last = map_item.second.last;
+//    size_t expected = last - first + 1;
+//    size_t found = 0;
+//    for (size_t i = first; i <= last; ++i)
+//      if (map_item.second.present[i])
+//        ++found;
+//
+//    double percent_missing = (expected - found) / double(expected);
+
+    const string prefix = key_prefix_ + "." + map_item.first + ".";
+    //knowledge_->set(prefix + "first", 
+    //  Madara::Knowledge_Record::Integer (map_item.second.first));
+    //knowledge_->set(prefix + "last", 
+    //  Madara::Knowledge_Record::Integer (map_item.second.last));
+    //knowledge_->set(prefix + "missing", percent_missing);
+    knowledge_->set(prefix + "count", 
+      Madara::Knowledge_Record::Integer (map_item.second));
+  }
 }
 
 void
@@ -133,7 +159,7 @@ gams::algorithms::Message_Profiling::init_filtered_transport (
   Madara::Transport::QoS_Transport_Settings settings)
 {
   settings.add_receive_filter (&filter_);
-  knowledge_->attach_transport (knowledge_->get_id (), settings);
+  local_knowledge_->attach_transport (knowledge_->get_id (), settings);
 }
 
 void
@@ -161,7 +187,8 @@ gams::algorithms::Message_Profiling::execute (void)
   ++executions_;
 
   data_.modify ();
-  count_ = executions_;
+  //count_ = executions_;
+  local_knowledge_->send_modifieds ();
 
   return 0;
 }
@@ -183,91 +210,71 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
   const Madara::Transport::Transport_Context& transport_context, 
   Madara::Knowledge_Engine::Variables& var)
 {
-  // get/construct data struct
-  string origin = transport_context.get_originator ();
-  if (msg_map_.find (origin) == msg_map_.end ())
-  {
-    msg_map_[origin] = Message_Data(origin, var);
-    //cerr << "creating Message_Data for " << origin << endl;
-  }
-  Message_Data& data = msg_map_[origin];
+  const string origin = transport_context.get_originator ();
+  if (msg_map.find (origin) == msg_map.end ())
+    msg_map[origin] = 0;
+  size_t& data = msg_map[origin];
+  ++data;
 
-  // loop through each update
-  for (Madara::Knowledge_Map::const_iterator iter = records.begin();
-	      iter != records.end(); ++iter)
-  {
-    Madara::Knowledge_Map::const_reference update = *iter;
-    // we only care about specific messages
-    if (update.second.is_integer_type () && 
-        update.first.find (key_prefix_) == 0 && 
-        update.first.find ("count") != std::string::npos)
-    {
-      // get msg number
-      size_t msg_num = update.second.to_integer ();
-
-      // is this the first?
-      if (data.first == -1)
-      {
-        data.first = msg_num;
-        data.last = msg_num;
-      }
-      // is this a previously missing message?
-      else if (msg_num < data.last.to_integer ())
-      {
-        // is this earlier than first?
-        if (msg_num < data.first.to_integer ())
-          data.first = msg_num;
-      }
-      else // this could only be a new message past last
-      {
-        data.last = msg_num;
-      }
-
-      if (data.present.size() <= msg_num)
-        data.present.reserve (msg_num * 2);
-      data.present [msg_num] = true;
-
-      Madara::Knowledge_Record::Integer expected = 
-        data.first.to_integer () - data.last.to_integer () + 1;
-      data.percent_missing = data.present.size() / double (expected);
-    }
-  }
+//  // get data struct
+//  const string origin = transport_context.get_originator ();
+//  Message_Data& data = msg_map[origin];
+//
+//  // loop through each update
+//  for (Madara::Knowledge_Map::const_iterator iter = records.begin();
+//	      iter != records.end(); ++iter)
+//  {
+//    Madara::Knowledge_Map::const_reference update = *iter;
+//
+//    // we only care about specific messages
+//    if (update.second.is_integer_type () && 
+//        update.first.find (key_prefix_) == 0 && 
+//        update.first.find ("count") != std::string::npos)
+//    {
+//      // get msg number
+//      size_t msg_num = update.second.to_integer ();
+//
+//      // is this the first?
+//      if (data.first == -1)
+//      {
+//        data.first = msg_num;
+//        data.last = msg_num;
+//      }
+//      // is this a previously missing message?
+//      else if (msg_num < data.last)
+//      {
+//        // is this earlier than first?
+//        if (msg_num < data.first)
+//          data.first = msg_num;
+//      }
+//      else // this could only be a new message past last
+//      {
+//        data.last = msg_num;
+//      }
+//
+//      if (data.present.size() <= msg_num)
+//        data.present.reserve (msg_num * 2);
+//      data.present [msg_num] = true;
+//    }
+//  }
 }
 
 string
 gams::algorithms::Message_Profiling::Message_Filter::missing_messages_string ()
   const
 {
-  stringstream ret_val;
-  for (map<string, Message_Data>::const_iterator iter = msg_map_.begin();
-	      iter != msg_map_.end(); ++iter)
-  {
-    map<string, Message_Data>::const_reference ref = *iter;
-    ret_val << ref.first << ": ";
-    for (size_t i = ref.second.first.to_integer () + 1;
-        i < ref.second.last.to_integer (); ++i)
-    {
-      if(!ref.second.present[i])
-        ret_val << i << ",";
-    }
-    ret_val << endl;
-  }
-  return ret_val.str();
-}
-
-gams::algorithms::Message_Profiling::Message_Filter::Message_Data::Message_Data
-  ()
-{
-  // don't care, whatever goes here will be overwritten by the paramterized 
-  // constructor anyway
-}
-
-gams::algorithms::Message_Profiling::Message_Filter::Message_Data::Message_Data 
-  (string id, Madara::Knowledge_Engine::Variables& var)
-{
-  string prefix (string (".") + key_prefix_ + "." + id + ".");
-  first.set_name (prefix + "first", var);
-  first = -1;
-  last.set_name (prefix + "last", var);
-  percent_missing.set_name (prefix + "percent_missing", var);
+//  stringstream ret_val;
+//  for (map<string, Message_Data>::const_iterator iter = msg_map.begin();
+//	      iter != msg_map.end(); ++iter)
+//  {
+//    map<string, Message_Data>::const_reference ref = *iter;
+//    ret_val << ref.first << ": ";
+//    for (size_t i = ref.second.first + 1; i < ref.second.last; ++i)
+//    {
+//      if(!ref.second.present[i])
+//        ret_val << i << ",";
+//    }
+//    ret_val << endl;
+//  }
+//  return ret_val.str();
 }
