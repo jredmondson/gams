@@ -389,7 +389,7 @@ gams::controllers::Base_Controller::run_once (void)
 
 int
 gams::controllers::Base_Controller::run (double loop_period,
-double max_runtime, double send_period)
+  double max_runtime, double send_period)
 {
   // return value
   int return_value (0);
@@ -445,8 +445,11 @@ double max_runtime, double send_period)
         knowledge_.send_modifieds ();
 
         // setup the next send epoch
-        while (send_next_epoch < current)
-          send_next_epoch += send_poll_frequency;
+        if (send_period > 0)
+        {
+          while (send_next_epoch < current)
+            send_next_epoch += send_poll_frequency;
+        }
       }
 
       // check to see if we need to sleep for next loop epoch
@@ -468,7 +471,6 @@ double max_runtime, double send_period)
         first_execute = false;
     }
   }
-
 
   // delete the algorithm
   delete algorithm_;
