@@ -78,38 +78,39 @@ public class TestMessageProfilingAlgorithm
     id = 0;
   }
 
+  // DISABLED UNTIL TRANSPORT CHANGES ADDED TO MADARA
   public void test ()
   {
-    // select transport
-    QoSTransportSettings settings = new QoSTransportSettings ();
-
-    // set host
-    String[] hosts = new String[1];
-    hosts[0] = "239.255.0.1:4150";
-    settings.setHosts(hosts);
-
-    // select multicast
-    settings.setType (com.madara.transport.TransportType.MULTICAST_TRANSPORT);
- 
-    // create Knowledge Base
-    KnowledgeBase knowledge = new KnowledgeBase (host, settings);
-
-    // set initial variables
-    knowledge.set (".id", id);
-
-    // create controller
-    BaseController controller = new BaseController (knowledge);
-
-    // init platform
-    controller.initPlatform ("null");
-
-    // init algorithm
-    MessageProfiling algo = new MessageProfiling ();
-    controller.initAlgorithm (algo);
-    algo.initVars (settings);
-
-    // run controller
-    controller.run (1.0 / rate, duration);
+//    // select transport
+//    QoSTransportSettings settings = new QoSTransportSettings ();
+//
+//    // set host
+//    String[] hosts = new String[1];
+//    hosts[0] = "239.255.0.1:4150";
+//    settings.setHosts(hosts);
+//
+//    // select multicast
+//    settings.setType (com.madara.transport.TransportType.MULTICAST_TRANSPORT);
+// 
+//    // create Knowledge Base
+//    KnowledgeBase knowledge = new KnowledgeBase (host, settings);
+//
+//    // set initial variables
+//    knowledge.set (".id", id);
+//
+//    // create controller
+//    BaseController controller = new BaseController (knowledge);
+//
+//    // init platform
+//    controller.initPlatform ("null");
+//
+//    // init algorithm
+//    MessageProfiling algo = new MessageProfiling ();
+//    controller.initAlgorithm (algo);
+//    algo.initVars (settings);
+//
+//    // run controller
+//    controller.run (1.0 / rate, duration);
   }
 
   public static void parseArgs (String[] args, TestMessageProfilingAlgorithm obj)
