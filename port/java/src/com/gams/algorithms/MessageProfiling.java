@@ -192,20 +192,21 @@ public class MessageProfiling extends BaseAlgorithm
 
   /**
    * Initialize values, must be called after initAlgorithm for controller that will run algorithm
+   * NOTE: DISABLED UNTIL KnowledgeBase.attachTransport (String, TransportSettings) is added to MADARA
    */
-  public void initVars (com.madara.transport.QoSTransportSettings settings)
-  {
-    // attach filter
-    settings.addReceiveFilter (filter);
-
-    // attach transport
-    knowledge.attachTransport (knowledge.getID (), settings);
-
-    // create message container
-    final String key = new String (keyPrefix + "." +
-      knowledge.get (".id").toString () + ".data");
-    message.setName (knowledge, key);
-  }
+//  public void initVars (com.madara.transport.QoSTransportSettings settings)
+//  {
+//    // attach filter
+//    settings.addReceiveFilter (filter);
+//
+//    // attach transport
+//    knowledge.attachTransport (knowledge.getID (), settings);
+//
+//    // create message container
+//    final String key = new String (keyPrefix + "." +
+//      knowledge.get (".id").toString () + ".data");
+//    message.setName (knowledge, key);
+//  }
 
   /**
    * Analyzes the algorithm for new status information. This should be
