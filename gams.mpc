@@ -15,7 +15,7 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
     "	$(CXX) $(CPPFLAGS) -MM -MG -MT .shobj/$(@:.d=.o) -o $@ $<"
 
     cleandep :
-    "	rm $(DEPFILES)"
+    "	rm -f $(DEPFILES)"
 
     clean : cleandep
 
