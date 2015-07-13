@@ -60,6 +60,7 @@
 #include "gams/algorithms/Message_Profiling.h"
 #include "gams/algorithms/Executive.h"
 #include "gams/algorithms/Wait.h"
+#include "gams/algorithms/Performance_Profiling.h"
 
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
@@ -242,6 +243,12 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[0] = "wait";
 
   add (aliases, new Wait_Factory ());
+
+  // the performance profiler
+  aliases.resize (1);
+  aliases[0] = "performance profiling";
+
+  add (aliases, new Performance_Profiling_Factory ());
 }
 
 algorithms::Base_Algorithm *
