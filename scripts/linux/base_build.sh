@@ -38,13 +38,23 @@ do
     JAVA=1
   else
     echo "Invalid argument: $var"
-    echo "  Usage: $0 <args>"
     echo "  args can be zero or more of the following, space delimited"
     echo "  tests           build test executables"
     echo "  vrep            build with vrep support"
     echo "  java            build java jar"
     echo "  android         build android libs, turns on java"
     echo "  ros             build ROS platform classes"
+    echo "  help            get script usage"
+    echo ""
+    echo "The following environment variables are used"
+    echo "  CORES               - number of build jobs to launch with make, optional"
+    echo "  ACE_ROOT            - location of local copy of ACE subversion repository from"
+    echo "                        svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE"
+    echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
+    echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  GAMS_ROOT           - location of this GAMS git repository"
+    echo "  VREP_ROOT           - location of VREP installation"
+    echo "  JAVA_HOME           - location of JDK"
     exit
   fi
 done
