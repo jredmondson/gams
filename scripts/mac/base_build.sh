@@ -109,7 +109,6 @@ echo "ACE will be built from $ACE_ROOT"
 echo "GAMS will be built from $GAMS_ROOT"
 echo "TESTS has been set to $TESTS"
 echo "VREP has been set to $VREP"
-echo "ROS has been set to $ROS"
 echo "ANDROID has been set to $ANDROID"
 echo "JAVA has been set to $JAVA"
 
