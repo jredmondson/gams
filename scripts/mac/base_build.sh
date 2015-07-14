@@ -38,7 +38,6 @@ do
     MAC_VERSION="yosemite"
   else
     echo "Invalid argument: $var"
-    echo "  Usage: $0 <args>"
     echo "  args can be zero or more of the following, space delimited"
     echo "  tests           build test executables"
     echo "  vrep            build with vrep support"
@@ -49,6 +48,16 @@ do
     echo "                  mountainlion"
     echo "                  mavericks"
     echo "                  yosemite"
+    echo ""
+    echo "The following environment variables are used"
+    echo "  CORES               - number of build jobs to launch with make, optional"
+    echo "  ACE_ROOT            - location of local copy of ACE subversion repository from"
+    echo "                        svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE"
+    echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
+    echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  GAMS_ROOT           - location of this GAMS git repository"
+    echo "  VREP_ROOT           - location of VREP installation"
+    echo "  JAVA_HOME           - location of JDK, attempts autodetection if not set"
     exit
   fi
 done
@@ -144,7 +153,6 @@ cd $MADARA_ROOT
 perl $ACE_ROOT/bin/mwc.pl -type make -features android=$ANDROID,java=$JAVA,tests=$TESTS MADARA.mwc
 make realclean -j $CORES
 make android=$ANDROID java=$JAVA tests=$TESTS -j $CORES
-
 if [ $JAVA -eq 1 ]; then
   # sometimes the jar'ing will occur before all classes are actually built when performing
   # multi-job builds, fix by deleting class files and recompiling with single build job
