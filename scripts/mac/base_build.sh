@@ -15,6 +15,8 @@ VREP=0
 JAVA=0
 ANDROID=0
 MAC_VERSION=0
+STRIP=0
+STRIP_EXE=strip
 
 # parse command line args
 for var in "$@"
@@ -36,13 +38,16 @@ do
     MAC_VERSION="mavericks"
   elif [ "$var" = "yosemite" ]; then
     MAC_VERSION="yosemite"
+  elif [ "$var" = "strip" ]; then
+    STRIP=1
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
     echo "  tests           build test executables"
     echo "  vrep            build with vrep support"
     echo "  java            build java jar"
-    echo "  android         build android libs, turns on java"
+    echo "  android         build android libs, also activates java"
+    echo "  strip           strips debugging symbols from libraries"
     echo "  <mac_version>   select version of mac to build for, if missing then auto-detect"
     echo "                  lion"
     echo "                  mountainlion"
@@ -63,23 +68,25 @@ do
 done
 
 # auto-detect Mac version string
-if [ $MAC_VERSION -eq 0 ]; then
-  VER_STRING=`sw_vers -productVersion`
-  if [ ${VER_STRING:0:4} = "10.7" ]; then
-    echo "Auto-detected OS X Lion"
-    MAC_VERSION="lion"
-  elif [ ${VER_STRING:0:4} = "10.8" ]; then
-    echo "Auto-detected OS X Mountain Lion"
-    MAC_VERSION="mountainlion"
-  elif [ ${VER_STRING:0:4} = "10.9" ]; then
-    echo "Auto-detected OS X Mavericks"
-    MAC_VERSION="mavericks"
-  elif [ ${VER_STRING:0:5} = "10.10" ]; then
-    echo "Auto-detected OS X Yosemite"
-    MAC_VERSION="yosemite"
-  else
-    echo "Could not auto-detect Mac version"
-    exit
+if [ $ANDROID -eq 0 ]; then # don't care about Mac version if compiling for Android
+  if [ $MAC_VERSION -eq 0 ]; then
+    VER_STRING=`sw_vers -productVersion`
+    if [ ${VER_STRING:0:4} = "10.7" ]; then
+      echo "Auto-detected OS X Lion"
+      MAC_VERSION="lion"
+    elif [ ${VER_STRING:0:4} = "10.8" ]; then
+      echo "Auto-detected OS X Mountain Lion"
+      MAC_VERSION="mountainlion"
+    elif [ ${VER_STRING:0:4} = "10.9" ]; then
+      echo "Auto-detected OS X Mavericks"
+      MAC_VERSION="mavericks"
+    elif [ ${VER_STRING:0:5} = "10.10" ]; then
+      echo "Auto-detected OS X Yosemite"
+      MAC_VERSION="yosemite"
+    else
+      echo "Could not auto-detect Mac version"
+      exit
+    fi
   fi
 fi
 
@@ -108,19 +115,23 @@ echo "MADARA will be built from $MADARA_ROOT"
 echo "ACE will be built from $ACE_ROOT"
 echo "GAMS will be built from $GAMS_ROOT"
 echo "TESTS has been set to $TESTS"
-echo "VREP has been set to $VREP"
-echo "ANDROID has been set to $ANDROID"
-echo "JAVA has been set to $JAVA"
 
-# output other env vars
+echo "STRIP has been set to $STRIP"
+if [ $STRIP -eq 1 ]; then
+  echo "strip will use $STRIP_EXE"
+fi
+
+echo "JAVA has been set to $JAVA"
 if [ $JAVA -eq 1 ]; then
   echo "JAVA_HOME is referencing $JAVA_HOME"
 fi
 
+echo "VREP has been set to $VREP"
 if [ $VREP -eq 1 ]; then
   echo "VREP_ROOT is referencing $VREP_ROOT"
 fi
 
+echo "ANDROID has been set to $ANDROID"
 if [ $ANDROID -eq 1 ]; then
   echo "CROSS_COMPILE is set to $LOCAL_CROSS_PREFIX"
 fi
@@ -135,7 +146,7 @@ if [ $ANDROID -eq 1 ]; then
   echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
 
   # Android does not support versioned libraries and requires cross-compiling
-  echo -e "versioned_so=0\nCROSS_COMPILE=$(LOCAL_CROSS_PREFIX)\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+  echo -e "versioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(GAMS_ROOT)/scripts/mac/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
 else
   # use mac defaults
   echo "#include \"ace/config-macosx-$MAC_VERSION.h\"" > $ACE_ROOT/ace/config.h
@@ -145,6 +156,9 @@ cd $ACE_ROOT/ace
 perl $ACE_ROOT/bin/mwc.pl -type make ACE.mwc
 make realclean -j $CORES
 make -j $CORES
+if [ $STRIP -eq 1 ]; then
+  ${STRIP_EXE} $ACE_ROOT/lib/libACE.so*
+fi
 
 # build MADARA
 echo "Building MADARA"
@@ -157,6 +171,9 @@ if [ $JAVA -eq 1 ]; then
   # multi-job builds, fix by deleting class files and recompiling with single build job
   find . -name "*.class" -delete
   make android=$ANDROID java=$JAVA tests=$TESTS 
+fi
+if [ $STRIP -eq 1 ]; then
+  ${STRIP_EXE} $MADARA_ROOT/lib/libMADARA.so*
 fi
 
 # build GAMS
@@ -172,4 +189,7 @@ if [ $JAVA -eq 1 ]; then
   # multi-job builds, fix by deleting class files and recompiling with single build job
   find . -name "*.class" -delete
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID
+fi
+if [ $STRIP -eq 1 ]; then
+  ${STRIP_EXE} $GAMS_ROOT/lib/libGAMS.so*
 fi
