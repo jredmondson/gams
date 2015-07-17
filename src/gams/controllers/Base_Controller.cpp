@@ -150,7 +150,7 @@ gams::controllers::Base_Controller::system_analyze (void)
   bool error (false);
 
   /**
-   * note that certain device variables like command are kept local only.
+   * Note that certain device variables like command are kept local only.
    * @see gams::variables::Device::init_vars
    * @see gams::variables::Swarm::init_vars
    **/

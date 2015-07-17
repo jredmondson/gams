@@ -298,10 +298,10 @@ namespace gams
 
     protected:
 
-      /// accents on the primary algorithm
+      /// Accents on the primary algorithm
       algorithms::Algorithms accents_;
 
-      /// algorithm to perform
+      /// Algorithm to perform
       algorithms::Base_Algorithm * algorithm_;
 
       /// Containers for algorithm information
@@ -310,7 +310,7 @@ namespace gams
       /// Containers for device-related variables
       variables::Devices devices_;
 
-      /// knowledge base
+      /// Knowledge base
       Madara::Knowledge_Engine::Knowledge_Base & knowledge_;
 
       /// Platform on which the controller is running
@@ -328,10 +328,10 @@ namespace gams
       /// Containers for swarm-related variables
       variables::Swarm swarm_;
 
-      /// the factory for creating new algorithms
+      /// Factory for creating new algorithms
       algorithms::Controller_Algorithm_Factory algorithm_factory_;
 
-      /// the factory for creating new platforms
+      /// Factory for creating new platforms
       platforms::Controller_Platform_Factory platform_factory_;
 
     private:
