@@ -1,7 +1,7 @@
 #ifndef INCLUDED_CPP11_COMPAT_H
 #define INCLUDED_CPP11_COMPAT_H
 
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L || (MSC_VER >= 1600) 
 // If C++11 support is active
 #else
 // If C++11 support is not active
