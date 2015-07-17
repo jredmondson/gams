@@ -2,8 +2,8 @@
 
 .initial_x=22;
 .initial_y=22;
+.initial_alt=4;
 
-device.3.command="cover";
-device.3.command.size=2;
-device.3.command.0="urec";
-device.3.command.1="region.0";
+device.3.command="urec";
+device.3.command.size=1;
+device.3.command.0="region.0";

@@ -1,0 +1,9 @@
+.vrep_port=19912;
+
+.initial_x=30;
+.initial_y=20;
+.initial_alt=4;
+
+device.6.command="urec";
+device.6.command.size=1;
+device.6.command.0="region.0";
