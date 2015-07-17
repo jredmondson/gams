@@ -22,6 +22,8 @@ VREP=0
 JAVA=0
 ROS=0
 ANDROID=0
+STRIP=0
+STRIP_EXE=strip
 
 for var in "$@"
 do
@@ -36,6 +38,9 @@ do
   elif [ "$var" = "android" ]; then
     ANDROID=1
     JAVA=1
+    STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
+  elif [ "$var" = "strip" ]; then
+    STRIP=1
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
@@ -44,6 +49,7 @@ do
     echo "  java            build java jar"
     echo "  android         build android libs, turns on java"
     echo "  ros             build ROS platform classes"
+    echo "  strip           strip symbols from the libraries"
     echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
@@ -65,19 +71,23 @@ echo "MADARA will be built from $MADARA_ROOT"
 echo "ACE will be built from $ACE_ROOT"
 echo "GAMS will be built from $GAMS_ROOT"
 echo "TESTS has been set to $TESTS"
-echo "VREP has been set to $VREP"
 echo "ROS has been set to $ROS"
-echo "ANDROID has been set to $ANDROID"
-echo "JAVA has been set to $JAVA"
+echo "STRIP has been set to $STRIP"
+if [ $STRIP -eq 1 ]; then
+  echo "strip will use $STRIP_EXE"
+fi
 
+echo "JAVA has been set to $JAVA"
 if [ $JAVA -eq 1 ]; then
   echo "JAVA_HOME is referencing $JAVA_HOME"
 fi
 
+echo "VREP has been set to $VREP"
 if [ $VREP -eq 1 ]; then
   echo "VREP_ROOT is referencing $VREP_ROOT"
 fi
 
+echo "ANDROID has been set to $ANDROID"
 if [ $ANDROID -eq 1 ]; then
   echo "CROSS_COMPILE is set to $LOCAL_CROSS_PREFIX"
 fi
@@ -101,6 +111,9 @@ cd $ACE_ROOT/ace
 perl $ACE_ROOT/bin/mwc.pl -type gnuace ace.mwc
 make realclean -j $CORES
 make -j $CORES
+if [ $STRIP -eq 1 ]; then
+  $STRIP_EXE libACE.so*
+fi
 
 # build MADARA
 echo "Building MADARA"
@@ -114,6 +127,9 @@ if [ $JAVA -eq 1 ]; then
   find . -name "*.class" -delete
   make android=$ANDROID java=$JAVA tests=$TESTS 
 fi
+if [ $STRIP -eq 1 ]; then
+  $STRIP_EXE libMADARA.so*
+fi
 
 # build GAMS
 echo "Building GAMS"
@@ -126,4 +142,7 @@ if [ $JAVA -eq 1 ]; then
   # multi-job builds, fix by deleting class files and recompiling with single build job
   find . -name "*.class" -delete
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID
+fi
+if [ $STRIP -eq 1 ]; then
+  $STRIP_EXE libGAMS.so*
 fi
