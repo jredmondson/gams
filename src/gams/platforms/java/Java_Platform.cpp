@@ -417,7 +417,7 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
      "gams::platforms::Java_Platform::move:" \
     " Obtaining Position class and constructor\n");
 
-  jclass pos_class = jvm.env->FindClass ("com/gams/utility/Position");
+  jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Position");
   jmethodID pos_const = jvm.env->GetMethodID(pos_class, "<init>", "(DDD)V");
 
   if (move_call)
@@ -468,7 +468,7 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
      "gams::platforms::Java_Platform::rotate:" \
     " Obtaining Position class and constructor\n");
 
-  jclass pos_class = jvm.env->FindClass ("com/gams/utility/Axes");
+  jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
   jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
 
   if (move_call)
