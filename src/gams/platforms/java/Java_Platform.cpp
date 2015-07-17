@@ -169,27 +169,37 @@ gams::platforms::Java_Platform::analyze (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::analyze:" \
-    " Obtaining user-defined analyze method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "analyze", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::Java_Platform::analyze:" \
-      " Calling user-defined analyze method.\n");
-    result = jvm.env->CallIntMethod (obj_, call);
+      "gams::platforms::Java_Platform::analyze:" \
+      " Obtaining user-defined analyze method.\n");
+
+    jmethodID call = jvm.env->GetMethodID (class_, "analyze", "()I");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::platforms::Java_Platform::analyze:" \
+        " Calling user-defined analyze method.\n");
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::platforms::Java_Platform::analyze:" \
+        " ERROR: Unable to find user-defined analyze method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::analyze:" \
-      " ERROR: Unable to find user-defined analyze method.\n");
+      "gams::platforms::Java_Platform::analyze:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -201,28 +211,39 @@ gams::platforms::Java_Platform::get_accuracy () const
   gams::utility::java::Acquire_VM jvm;
   jdouble result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::get_gps_accuracy:" \
-    " Obtaining user-defined getGpsAccuracy method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "getGpsAccuracy", "()D" );
-
-  if (call)
+  if (jvm.env)
   {
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::Java_Platform::get_gps_accuracy:" \
-      " Calling user-defined getGpsAccuracy method.\n");
+      "gams::platforms::Java_Platform::get_accuracy:" \
+      " Obtaining user-defined getAccuracy method.\n");
 
-    result = jvm.env->CallDoubleMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID (class_, "getAccuracy", "()D");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::platforms::Java_Platform::get_accuracy:" \
+        " Calling user-defined getAccuracy method.\n");
+
+      result = jvm.env->CallDoubleMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::platforms::Java_Platform::get_accuracy:" \
+        " ERROR: Unable to find user-defined getAccuracy method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::get_gps_accuracy:" \
-      " ERROR: Unable to find user-defined getGpsAccuracy method.\n");
+      "gams::platforms::Java_Platform::get_accuracy:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -234,32 +255,41 @@ std::string gams::platforms::Java_Platform::get_id () const
   std::string id;
   jstring result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::get_id:" \
-    " Obtaining user-defined getId method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "getId", "()Ljava.lang.String;" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::get_id:" \
-      " Calling user-defined getId method.\n");
+      " Obtaining user-defined getId method.\n");
 
-    result = (jstring) jvm.env->CallObjectMethod (obj_, call);
-    const char * id_chars = jvm.env->GetStringUTFChars(result, 0);
-    id = id_chars;
+    jmethodID call = jvm.env->GetMethodID(class_, "getId", "()Ljava.lang.String;" );
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::get_id:" \
+        " Calling user-defined getId method.\n");
+
+      result = (jstring) jvm.env->CallObjectMethod (obj_, call);
+      const char * id_chars = jvm.env->GetStringUTFChars(result, 0);
+      id = id_chars;
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::get_id:" \
+        " ERROR: Unable to find user-defined getId method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::get_id:" \
-      " ERROR: Unable to find user-defined getId method.\n");
+      "gams::platforms::Java_Platform::get_id:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
-
   return id;
 }
 
@@ -269,30 +299,41 @@ std::string gams::platforms::Java_Platform::get_name () const
   std::string name;
   jstring result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::get_name:" \
-    " Obtaining user-defined getName method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "getName", "()Ljava.lang.String;" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::get_name:" \
-      " Calling user-defined getName method.\n");
+      " Obtaining user-defined getName method.\n");
 
-    result = (jstring) jvm.env->CallObjectMethod (obj_, call);
-    const char * name_chars = jvm.env->GetStringUTFChars(result, 0);
-    name = name_chars;
+    jmethodID call = jvm.env->GetMethodID(class_, "getName", "()Ljava.lang.String;" );
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::get_name:" \
+        " Calling user-defined getName method.\n");
+
+      result = (jstring) jvm.env->CallObjectMethod (obj_, call);
+      const char * name_chars = jvm.env->GetStringUTFChars(result, 0);
+      name = name_chars;
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::get_name:" \
+        " ERROR: Unable to find user-defined getName method.\n");
+    }
+
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::get_name:" \
-      " ERROR: Unable to find user-defined getName method.\n");
+      "gams::platforms::Java_Platform::get_name:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return name;
@@ -304,28 +345,38 @@ gams::platforms::Java_Platform::get_move_speed () const
   gams::utility::java::Acquire_VM jvm;
   jdouble result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::get_move_speed:" \
-    " Obtaining user-defined getMoveSpeed method\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "getMoveSpeed", "()D" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::Java_Platform::get_move_speed:" \
-      " Calling user-defined getMoveSpeed method.\n");
+      "gams::platforms::Java_Platform::get_move_speed:" \
+      " Obtaining user-defined getMoveSpeed method\n");
 
-    result = jvm.env->CallDoubleMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID (class_, "getMoveSpeed", "()D");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::platforms::Java_Platform::get_move_speed:" \
+        " Calling user-defined getMoveSpeed method.\n");
+
+      result = jvm.env->CallDoubleMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::platforms::Java_Platform::get_move_speed:" \
+        " ERROR: Unable to find user-defined getMoveSpeed method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::get_move_speed:" \
-      " ERROR: Unable to find user-defined getMoveSpeed method.\n");
+      "gams::platforms::Java_Platform::get_move_speed:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -337,30 +388,39 @@ gams::platforms::Java_Platform::home (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::home:" \
-    " Obtaining user-defined home method\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "home", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::home:" \
-      " Calling user-defined home method.\n");
+      " Obtaining user-defined home method\n");
 
-    result = jvm.env->CallIntMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID(class_, "home", "()I" );
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::home:" \
+        " Calling user-defined home method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::home:" \
+        " ERROR: Unable to find user-defined home method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::home:" \
-      " ERROR: Unable to find user-defined home method.\n");
+      "gams::platforms::Java_Platform::home:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
-
   return result;
 }
 
@@ -370,28 +430,38 @@ gams::platforms::Java_Platform::land (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::land:" \
-    " Obtaining user-defined land method\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "land", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::land:" \
-      " Calling user-defined land method.\n");
+      " Obtaining user-defined land method\n");
 
-    result = jvm.env->CallIntMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID(class_, "land", "()I" );
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::land:" \
+        " Calling user-defined land method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::land:" \
+        " ERROR: Unable to find user-defined land method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::land:" \
-      " ERROR: Unable to find user-defined land method.\n");
+      "gams::platforms::Java_Platform::land:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -404,46 +474,56 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::move:" \
-    " Obtaining user-defined move method\n");
-
-  jmethodID move_call = jvm.env->GetMethodID(
-    class_, "move", "(Lcom/gams/utility/Position;D)I" );
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::move:" \
-    " Obtaining Position class and constructor\n");
-
-  jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Position");
-  jmethodID pos_const = jvm.env->GetMethodID(pos_class, "<init>", "(DDD)V");
-
-  if (move_call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::move:" \
-      " Creating new position object.\n");
+      " Obtaining user-defined move method\n");
 
-    jobject inpos = jvm.env->NewObject (
-      pos_class, pos_const, position.x, position.y, position.z);
-    jdouble inepsilon (epsilon);
+    jmethodID move_call = jvm.env->GetMethodID(
+      class_, "move", "(Lcom/gams/utility/Position;D)I" );
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::move:" \
-      " Calling user-defined move method.\n");
+      " Obtaining Position class and constructor\n");
 
-    result = jvm.env->CallIntMethod (obj_, move_call, inpos, inepsilon);
+    jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Position");
+    jmethodID pos_const = jvm.env->GetMethodID(pos_class, "<init>", "(DDD)V");
+
+    if (move_call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+         "gams::platforms::Java_Platform::move:" \
+        " Creating new position object.\n");
+
+      jobject inpos = jvm.env->NewObject (
+        pos_class, pos_const, position.x, position.y, position.z);
+      jdouble inepsilon (epsilon);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::move:" \
+        " Calling user-defined move method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, move_call, inpos, inepsilon);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::move:" \
+        " ERROR: Unable to find user-defined move method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::move:" \
-      " ERROR: Unable to find user-defined move method.\n");
+      "gams::platforms::Java_Platform::analyze:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -455,45 +535,56 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::rotate:" \
-    " Obtaining user-defined rotate method\n");
-
-  jmethodID move_call = jvm.env->GetMethodID (
-    class_, "move", "(Lcom/gams/utility/Position;D)I");
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MINOR,
-     "gams::platforms::Java_Platform::rotate:" \
-    " Obtaining Position class and constructor\n");
-
-  jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
-  jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
-
-  if (move_call)
+  if (jvm.env)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-       "gams::platforms::Java_Platform::rotate:" \
-      " Creating new axes object.\n");
-
-    jobject inaxes = jvm.env->NewObject (
-      pos_class, pos_const, axes.x, axes.y, axes.z);
-
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::rotate:" \
-      " Calling user-defined rotate method.\n");
+      " Obtaining user-defined rotate method\n");
 
-    result = jvm.env->CallIntMethod (obj_, move_call, inaxes);
+    jmethodID move_call = jvm.env->GetMethodID (
+      class_, "move", "(Lcom/gams/utility/Position;D)I");
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+       "gams::platforms::Java_Platform::rotate:" \
+      " Obtaining Position class and constructor\n");
+
+    jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
+    jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
+
+    if (move_call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+         "gams::platforms::Java_Platform::rotate:" \
+        " Creating new axes object.\n");
+
+      jobject inaxes = jvm.env->NewObject (
+        pos_class, pos_const, axes.x, axes.y, axes.z);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::rotate:" \
+        " Calling user-defined rotate method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, move_call, inaxes);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::rotate:" \
+        " ERROR: Unable to find user-defined rotate method.\n");
+    }
+
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::rotate:" \
-      " ERROR: Unable to find user-defined rotate method.\n");
+      "gams::platforms::Java_Platform::rotate:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -505,54 +596,63 @@ gams::platforms::Java_Platform::sense (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::sense:" \
-    " Obtaining user-defined sense method\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "sense", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::sense:" \
-      " Calling user-defined sense method.\n");
+      " Obtaining user-defined sense method\n");
 
-    result = jvm.env->CallIntMethod (obj_, call);
-  }
-  else
-  {
-    std::stringstream buffer;
-    if (class_)
+    jmethodID call = jvm.env->GetMethodID(class_, "sense", "()I" );
+
+    if (call)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MINOR,
+        gams::loggers::LOG_MAJOR,
          "gams::platforms::Java_Platform::sense:" \
-        " Trying to acquire class name for error message\n");
+        " Calling user-defined sense method.\n");
 
-      jmethodID getName = jvm.env->GetMethodID(
-        class_, "getName", "()Ljava/lang/String;");
-      jstring name = (jstring) jvm.env->CallObjectMethod(class_, getName);
-      const char * name_chars = jvm.env->GetStringUTFChars(name, 0);
-
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-         "gams::platforms::Java_Platform::sense:" \
-        " ERROR: No sense() method found in %s\n", name_chars);
-
+      result = jvm.env->CallIntMethod (obj_, call);
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-         "gams::platforms::Java_Platform::sense:" \
-        " ERROR: Unable to acquire class from object.\n");
+      std::stringstream buffer;
+      if (class_)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+           "gams::platforms::Java_Platform::sense:" \
+          " Trying to acquire class name for error message\n");
+
+        jmethodID getName = jvm.env->GetMethodID(
+          class_, "getName", "()Ljava/lang/String;");
+        jstring name = (jstring) jvm.env->CallObjectMethod(class_, getName);
+        const char * name_chars = jvm.env->GetStringUTFChars(name, 0);
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+           "gams::platforms::Java_Platform::sense:" \
+          " ERROR: No sense() method found in %s\n", name_chars);
+
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+           "gams::platforms::Java_Platform::sense:" \
+          " ERROR: Unable to acquire class from object.\n");
+      }
+
+      knowledge_->print (buffer.str ());
     }
-
-    knowledge_->print (buffer.str ());
   }
-
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::platforms::Java_Platform::sense:" \
+      " ERROR: Unable to obtain JVM environment.\n");
+  }
   return result;
 }
 
@@ -561,29 +661,39 @@ gams::platforms::Java_Platform::set_move_speed (const double & speed)
 {
   gams::utility::java::Acquire_VM jvm;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::set_move_speed:" \
-    " Obtaining user-defined setMoveSpeed method\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "setMoveSpeed", "(D)V" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::set_move_speed:" \
-      " Calling user-defined setMoveSpeed method.\n");
+      " Obtaining user-defined setMoveSpeed method\n");
 
-    jdouble jspeed (speed);
-    jvm.env->CallVoidMethod (obj_, call, jspeed);
+    jmethodID call = jvm.env->GetMethodID(class_, "setMoveSpeed", "(D)V" );
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::set_move_speed:" \
+        " Calling user-defined setMoveSpeed method.\n");
+
+      jdouble jspeed (speed);
+      jvm.env->CallVoidMethod (obj_, call, jspeed);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::set_move_speed:" \
+        " ERROR: Unable to find user-defined setMoveSpeed method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::set_move_speed:" \
-      " ERROR: Unable to find user-defined setMoveSpeed method.\n");
+      "gams::platforms::Java_Platform::set_move_speed:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 }
 
@@ -593,28 +703,38 @@ gams::platforms::Java_Platform::takeoff (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::takeoff:" \
-    " Obtaining user-defined takeoff method\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "takeoff", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::Java_Platform::takeoff:" \
-      " Calling user-defined takeoff method.\n");
+      " Obtaining user-defined takeoff method\n");
 
-    result = jvm.env->CallIntMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID(class_, "takeoff", "()I" );
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+         "gams::platforms::Java_Platform::takeoff:" \
+        " Calling user-defined takeoff method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::platforms::Java_Platform::takeoff:" \
+        " ERROR: Unable to find user-defined takeoff method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::Java_Platform::takeoff:" \
-      " ERROR: Unable to find user-defined takeoff method.\n");
+      "gams::platforms::Java_Platform::takeoff:" \
+      " ERROR: Unable to obtain JVM environment.\n");
   }
 
   return result;
@@ -626,11 +746,22 @@ gams::platforms::Java_Platform::get_java_instance (void)
   gams::utility::java::Acquire_VM jvm;
   jobject result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::platforms::Java_Platform::get_java_instance:" \
-    " Creating new local ref out of saved global reference.\n");
+  if (jvm.env)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::platforms::Java_Platform::get_java_instance:" \
+      " Creating new local ref out of saved global reference.\n");
 
-  result = jvm.env->NewLocalRef (obj_);
+    result = jvm.env->NewLocalRef (obj_);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::platforms::Java_Platform::analyze:" \
+      " ERROR: Unable to obtain JVM environment.\n");
+  }
+
   return result;
 }

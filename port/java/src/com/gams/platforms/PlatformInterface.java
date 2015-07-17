@@ -67,10 +67,10 @@ public interface PlatformInterface
   public int analyze ();
   
   /**
-   * Returns the GPS accuracy in meters
-   * @return GPS accuracy
+   * Returns the accuracy in meters
+   * @return the accuracy of the platform
    **/
-  public double getGpsAccuracy ();
+  public double getAccuracy ();
     
   /**
    * Returns the position accuracy in meters

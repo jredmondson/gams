@@ -157,6 +157,13 @@ gams::algorithms::Java_Algorithm::operator= (const Java_Algorithm & rhs)
       obj_ = jvm.env->NewGlobalRef (rhs.obj_);
       class_ = (jclass) jvm.env->NewGlobalRef (rhs.class_);
     }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm::assignment:" \
+        " ERROR: unable to acquire JAVA environment.\n");
+    }
   }
 }
  
@@ -166,27 +173,37 @@ gams::algorithms::Java_Algorithm::analyze (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Java_Algorithm::analyze:" \
-    " Obtaining user-defined analyze method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "analyze", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::algorithms::Java_Algorithm::analyze:" \
-      " Calling user-defined analyze method.\n");
-    result = jvm.env->CallIntMethod (obj_, call);
+      "gams::algorithms::Java_Algorithm::analyze:" \
+      " Obtaining user-defined analyze method.\n");
+
+    jmethodID call = jvm.env->GetMethodID (class_, "analyze", "()I");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm::analyze:" \
+        " Calling user-defined analyze method.\n");
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm::analyze:" \
+        " ERROR: Unable to find user-defined analyze method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::algorithms::Java_Algorithm::analyze:" \
-      " ERROR: Unable to find user-defined analyze method.\n");
+      "gams::algorithms::Java_Algorithm::analyze:" \
+      " ERROR: unable to acquire JAVA environment.\n");
   }
 
   return result;
@@ -198,30 +215,40 @@ std::string gams::algorithms::Java_Algorithm::get_id () const
   std::string id;
   jstring result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Java_Algorithm::get_id:" \
-    " Obtaining user-defined getId method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "getId", "()Ljava.lang.String;" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::algorithms::Java_Algorithm::get_id:" \
-      " Calling user-defined getId method.\n");
+      "gams::algorithms::Java_Algorithm::get_id:" \
+      " Obtaining user-defined getId method.\n");
 
-    result = (jstring) jvm.env->CallObjectMethod (obj_, call);
-    const char * id_chars = jvm.env->GetStringUTFChars(result, 0);
-    id = id_chars;
+    jmethodID call = jvm.env->GetMethodID (class_, "getId", "()Ljava.lang.String;");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm::get_id:" \
+        " Calling user-defined getId method.\n");
+
+      result = (jstring)jvm.env->CallObjectMethod (obj_, call);
+      const char * id_chars = jvm.env->GetStringUTFChars (result, 0);
+      id = id_chars;
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm::get_id:" \
+        " ERROR: Unable to find user-defined getId method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::algorithms::Java_Algorithm::get_id:" \
-      " ERROR: Unable to find user-defined getId method.\n");
+      "gams::algorithms::Java_Algorithm::get_id:" \
+      " ERROR: unable to acquire JAVA environment.\n");
   }
 
   return id;
@@ -233,30 +260,40 @@ std::string gams::algorithms::Java_Algorithm::get_name () const
   std::string name;
   jstring result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Java_Algorithm::get_name:" \
-    " Obtaining user-defined getName method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "getName", "()Ljava.lang.String;" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::algorithms::Java_Algorithm::get_name:" \
-      " Calling user-defined getName method.\n");
+      "gams::algorithms::Java_Algorithm::get_name:" \
+      " Obtaining user-defined getName method.\n");
 
-    result = (jstring) jvm.env->CallObjectMethod (obj_, call);
-    const char * name_chars = jvm.env->GetStringUTFChars(result, 0);
-    name = name_chars;
+    jmethodID call = jvm.env->GetMethodID (class_, "getName", "()Ljava.lang.String;");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm::get_name:" \
+        " Calling user-defined getName method.\n");
+
+      result = (jstring)jvm.env->CallObjectMethod (obj_, call);
+      const char * name_chars = jvm.env->GetStringUTFChars (result, 0);
+      name = name_chars;
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm::get_name:" \
+        " ERROR: Unable to find user-defined getName method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-       "gams::algorithms::Java_Algorithm::get_name:" \
-      " ERROR: Unable to find user-defined getName method.\n");
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::Java_Algorithm::get_name:" \
+      " ERROR: unable to acquire JAVA environment.\n");
   }
 
   return name;
@@ -268,28 +305,38 @@ gams::algorithms::Java_Algorithm::execute (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Java_Algorithm::execute:" \
-    " Obtaining user-defined execute method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "execute", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::algorithms::Java_Algorithm::execute:" \
-      " Calling user-defined execute method.\n");
+      "gams::algorithms::Java_Algorithm::execute:" \
+      " Obtaining user-defined execute method.\n");
 
-    result = jvm.env->CallIntMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID (class_, "execute", "()I");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm::execute:" \
+        " Calling user-defined execute method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm::execute:" \
+        " ERROR: Unable to find user-defined execute method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::algorithms::Java_Algorithm::execute:" \
-      " ERROR: Unable to find user-defined execute method.\n");
+      "gams::algorithms::Java_Algorithm::execute:" \
+      " ERROR: unable to acquire JAVA environment.\n");
   }
 
   return result;
@@ -301,28 +348,38 @@ gams::algorithms::Java_Algorithm::plan (void)
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Java_Algorithm::plan:" \
-    " Obtaining user-defined explanecute method.\n");
-
-  jmethodID call = jvm.env->GetMethodID(class_, "plan", "()I" );
-
-  if (call)
+  if (jvm.env)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::algorithms::Java_Algorithm::plan:" \
-      " Calling user-defined plan method.\n");
+      "gams::algorithms::Java_Algorithm::plan:" \
+      " Obtaining user-defined explanecute method.\n");
 
-    result = jvm.env->CallIntMethod (obj_, call);
+    jmethodID call = jvm.env->GetMethodID (class_, "plan", "()I");
+
+    if (call)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm::plan:" \
+        " Calling user-defined plan method.\n");
+
+      result = jvm.env->CallIntMethod (obj_, call);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm::plan:" \
+        " ERROR: Unable to find user-defined plan method.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::algorithms::Java_Algorithm::plan:" \
-      " ERROR: Unable to find user-defined plan method.\n");
+      "gams::algorithms::Java_Algorithm::plan:" \
+      " ERROR: unable to acquire JAVA environment.\n");
   }
 
   return result;
@@ -334,11 +391,22 @@ gams::algorithms::Java_Algorithm::get_java_instance (void)
   gams::utility::java::Acquire_VM jvm;
   jobject result (0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Java_Algorithm::get_java_instance:" \
-    " Creating new local ref out of saved global reference.\n");
+  if (jvm.env)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Java_Algorithm::get_java_instance:" \
+      " Creating new local ref out of saved global reference.\n");
 
-  result = jvm.env->NewLocalRef (obj_);
+    result = jvm.env->NewLocalRef (obj_);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::Java_Algorithm::get_java_instance:" \
+      " ERROR: unable to acquire JAVA environment.\n");
+  }
+
   return result;
 }

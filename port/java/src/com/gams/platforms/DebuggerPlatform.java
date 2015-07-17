@@ -77,13 +77,13 @@ public class DebuggerPlatform extends BasePlatform
   }
   
   /**
-   * Returns the GPS accuracy in meters
-   * @return GPS accuracy
+   * Returns the accuracy in meters
+   * @return accuracy
    **/
-  public double getGpsAccuracy()
+  public double getAccuracy()
   {
       System.out.println(self.id.get() + ":" + executions.get () +
-        ":  Platform.getGpsAccuracy called");
+        ":  Platform.getAccuracy called");
       return 0.0;
   }
 
