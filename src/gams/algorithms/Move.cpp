@@ -126,6 +126,7 @@ gams::algorithms::Move::Move (
 {
   // init status vars
   status_.init_vars (*knowledge, "move", self->id.to_integer ());
+  status_.init_variable_values ();
 
 //  if (max_executions > 0)
 //    mode_ = EXECUTIONS;

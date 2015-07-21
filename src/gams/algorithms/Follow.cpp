@@ -101,6 +101,9 @@ gams::algorithms::Follow::Follow (
   Base_Algorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
   delay_ (delay.to_integer ())
 {
+  status_.init_vars (*knowledge, "follow", self->id.to_integer ());
+  status_.init_variable_values ();
+
   stringstream location_string;
   location_string << "device." << id.to_integer () << ".location";
   target_location_.set_name (location_string.str (), *knowledge, 3);

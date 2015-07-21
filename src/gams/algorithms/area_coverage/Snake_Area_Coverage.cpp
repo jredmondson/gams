@@ -148,6 +148,7 @@ gams::algorithms::area_coverage::Snake_Area_Coverage::Snake_Area_Coverage (
   cur_waypoint_ (0)
 {
   status_.init_vars (*knowledge, "sac", self->id.to_integer ());
+  status_.init_variable_values ();
 
   // setup
   compute_waypoints (region_id);

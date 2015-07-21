@@ -110,7 +110,8 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
   variables::Self * self)
   : Base_Algorithm (knowledge, platform, sensors, self), is_covering_(false)
 {
-  cerr << "Creating Formation Coverage Algorithm" << endl;
+  status_.init_vars (*knowledge, "formation_coverage", self->id.to_integer ());
+  status_.init_variable_values ();
 
   Madara::Knowledge_Record rec("0,0,0");
   my_formation_ = new Formation_Flying (head_id, offset, rec, members, 

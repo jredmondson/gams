@@ -105,6 +105,11 @@ namespace gams
       void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
         const std::string & new_name, int i);
 
+      /**
+       * Initialize variable values
+       */
+      void init_variable_values ();
+
       /// the device id
       int id;
 
@@ -140,11 +145,6 @@ namespace gams
        * Get prefix for variables
        */
       std::string make_variable_prefix () const;
-
-      /**
-       * Initialize variable values
-       */
-      void init_variable_values ();
     };
     
     /// deprecated typedef. Please use Algorithm_Status instead.

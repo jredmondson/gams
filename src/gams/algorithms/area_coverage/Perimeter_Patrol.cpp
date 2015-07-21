@@ -156,6 +156,7 @@ gams::algorithms::area_coverage::Perimeter_Patrol::Perimeter_Patrol (
 {
   // initialize some status variables
   status_.init_vars (*knowledge, "ppac", self->id.to_integer ());
+  status_.init_variable_values ();
 
   // get waypoints
   utility::Region reg =

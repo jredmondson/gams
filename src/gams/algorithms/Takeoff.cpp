@@ -82,6 +82,7 @@ gams::algorithms::Takeoff::Takeoff (
   : Base_Algorithm (knowledge, platform, sensors, self)
 {
   status_.init_vars (*knowledge, "takeoff", self->id.to_integer ());
+  status_.init_variable_values ();
 }
 
 gams::algorithms::Takeoff::~Takeoff ()

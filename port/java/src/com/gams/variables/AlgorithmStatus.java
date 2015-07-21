@@ -57,7 +57,7 @@ public class AlgorithmStatus extends GamsJNI
   private native long jni_AlgorithmStatus(long cptr);
   private static native void jni_freeAlgorithmStatus(long cptr);
   private native java.lang.String jni_getName(long cptr);
-  private native void jni_init(long cptr, long type, long kb, java.lang.String name);
+  private native void jni_init(long cptr, long type, long kb, java.lang.String name, int id);
   private native java.lang.String jni_toString(long cptr);
   private native long jni_getDeadlocked(long cptr);
   private native long jni_getFailed(long cptr);
@@ -65,6 +65,7 @@ public class AlgorithmStatus extends GamsJNI
   private native long jni_getPaused(long cptr);
   private native long jni_getUnknown(long cptr);
   private native long jni_getWaiting(long cptr);
+  private native long jni_getFinished(long cptr);
 
   private boolean manageMemory = true;
 
@@ -133,12 +134,13 @@ public class AlgorithmStatus extends GamsJNI
    **/
   public void init()
   {
-    deadlocked = Integer.fromPointer (jni_getDeadlocked (getCPtr ()),false);
-    failed = Integer.fromPointer (jni_getFailed (getCPtr ()),false);
-    ok = Integer.fromPointer (jni_getOk (getCPtr ()),false);
-    paused = Integer.fromPointer (jni_getPaused (getCPtr ()),false);
-    unknown = Integer.fromPointer (jni_getUnknown (getCPtr ()),false);
-    waiting = Integer.fromPointer (jni_getWaiting (getCPtr ()),false);
+    deadlocked = Integer.fromPointer (jni_getDeadlocked (getCPtr ()), false);
+    failed = Integer.fromPointer (jni_getFailed (getCPtr ()), false);
+    ok = Integer.fromPointer (jni_getOk (getCPtr ()), false);
+    paused = Integer.fromPointer (jni_getPaused (getCPtr ()), false);
+    unknown = Integer.fromPointer (jni_getUnknown (getCPtr ()), false);
+    waiting = Integer.fromPointer (jni_getWaiting (getCPtr ()), false);
+    finished = Integer.fromPointer (jni_getFinished (getCPtr ()), false);
   }
   
   /**
@@ -147,9 +149,9 @@ public class AlgorithmStatus extends GamsJNI
    * @param  kb      the knowledge base that contains the name
    * @param  name    the variable name
    */
-  public void init(KnowledgeBase kb, java.lang.String name)
+  public void init(KnowledgeBase kb, java.lang.String name, int id)
   {
-    jni_init(getCPtr(), 0, kb.getCPtr (), name);
+    jni_init(getCPtr(), 0, kb.getCPtr (), name, id);
     init();
   }
 
@@ -159,9 +161,9 @@ public class AlgorithmStatus extends GamsJNI
    * @param  vars    the variables facade that contains the name
    * @param  name    the variable name
    */
-  public void init(Variables vars, java.lang.String name)
+  public void init(Variables vars, java.lang.String name, int id)
   {
-    jni_init(getCPtr(), 1, vars.getCPtr (), name);
+    jni_init(getCPtr(), 1, vars.getCPtr (), name, id);
     init();
   }
 
@@ -194,6 +196,11 @@ public class AlgorithmStatus extends GamsJNI
    * Flag for whether the algorithm is in a waiting state or not
    */
   public com.madara.containers.Integer waiting;
+
+  /**
+   * Flag for whether the algorithm is finished
+   */
+  public com.madara.containers.Integer finished;
 
   /**
    * Converts the value to a string

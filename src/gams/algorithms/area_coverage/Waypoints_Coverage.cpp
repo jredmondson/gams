@@ -85,6 +85,7 @@ gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   cur_waypoint_ (0)
 {
   status_.init_vars (*knowledge, "waypoints", self->id.to_integer ());
+  status_.init_variable_values ();
 
   // translate Knowledge_Vector to waypoints
   for (size_t i = 0; i < args.size(); ++i)

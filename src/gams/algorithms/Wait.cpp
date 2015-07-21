@@ -95,6 +95,7 @@ gams::algorithms::Wait::Wait (
   wait_time_ (length), end_time_ (ACE_OS::gettimeofday () + wait_time_)
 {
   status_.init_vars (*knowledge, "wait", self->id.to_integer ());
+  status_.init_variable_values ();
 }
 
 gams::algorithms::Wait::~Wait ()

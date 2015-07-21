@@ -43,10 +43,10 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getName
 /*
  * Class:     com_gams_variables_AlgorithmStatus
  * Method:    jni_init
- * Signature: (JJJLjava/lang/String;)V
+ * Signature: (JJJLjava/lang/String;I)V
  */
 GAMS_Export void JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1init
-  (JNIEnv *, jobject, jlong, jlong, jlong, jstring);
+  (JNIEnv *, jobject, jlong, jlong, jlong, jstring, jint);
 
 /*
  * Class:     com_gams_variables_AlgorithmStatus
@@ -102,6 +102,14 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getUnknow
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getWaiting
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_gams_variables_AlgorithmStatus
+ * Method:    jni_getFinished
+ * Signature: (J)J
+ */
+GAMS_Export jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getFinished
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus

@@ -60,10 +60,10 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getName
 /*
  * Class:     com_gams_variables_AlgorithmStatus
  * Method:    jni_init
- * Signature: (JJJLjava/lang/String;)V
+ * Signature: (JJJLjava/lang/String;I)V
  */
 void JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1init
-  (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name)
+  (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name, jint i)
 {
   variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
 
@@ -74,12 +74,12 @@ void JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1init
     if (type == 0)
     {
       engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
-      current->init_vars (*kb, str_name);
+      current->init_vars (*kb, str_name, (int)i);
     }
     else if (type == 1)
     {
       engine::Variables * vars = (engine::Variables *) context;
-      current->init_vars (*vars, str_name);
+      current->init_vars (*vars, str_name, (int)i);
     }
 
     env->ReleaseStringUTFChars(name, str_name);
@@ -179,4 +179,17 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getWaiting
   variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
 
   return (jlong) &current->waiting;
+}
+
+/*
+ * Class:     com_gams_variables_AlgorithmStatus
+ * Method:    jni_getFinished
+ * Signature: (J)J
+ */
+jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getFinished
+  (JNIEnv *, jobject, jlong cptr)
+{
+  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+
+  return (jlong) &current->finished;
 }
