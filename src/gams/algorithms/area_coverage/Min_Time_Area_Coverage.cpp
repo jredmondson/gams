@@ -158,7 +158,7 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage::
   min_time_ (search_id + "." + algo_name, knowledge)
 {
   // init status vars
-  status_.init_vars (*knowledge, algo_name);
+  status_.init_vars (*knowledge, algo_name, self->id.to_integer ());
 
   // fill out min_time_ sensor
   /**

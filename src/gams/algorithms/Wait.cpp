@@ -94,6 +94,7 @@ gams::algorithms::Wait::Wait (
   Base_Algorithm (knowledge, platform, sensors, self),
   wait_time_ (length), end_time_ (ACE_OS::gettimeofday () + wait_time_)
 {
+  status_.init_vars (*knowledge, "wait", self->id.to_integer ());
 }
 
 gams::algorithms::Wait::~Wait ()
@@ -115,11 +116,7 @@ gams::algorithms::Wait::analyze (void)
   if (now > end_time_)
   {
     ret_val = FINISHED;
-    cerr << "done waiting" << endl;
-  }
-  else
-  {
-    cerr << "still waiting" << endl;
+    status_.finished = 1;
   }
 
   return ret_val;

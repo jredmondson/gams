@@ -72,7 +72,7 @@ gams::algorithms::Land::Land (
   variables::Self * self)
   : Base_Algorithm (knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "land");
+  status_.init_vars (*knowledge, "land", self->id.to_integer ());
 }
 
 gams::algorithms::Land::~Land ()

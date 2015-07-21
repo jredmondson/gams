@@ -116,7 +116,7 @@ gams::algorithms::Formation_Flying::Formation_Flying (
   : Base_Algorithm (knowledge, platform, sensors, self), modifier_ (NONE),
     need_to_move_ (false), phi_dir_(DBL_MAX)
 {
-  status_.init_vars (*knowledge, "formation");
+  status_.init_vars (*knowledge, "formation", self->id.to_integer ());
 
   // am i the head agent?
   head_ = (head_id.to_integer () == self->id.to_integer ());

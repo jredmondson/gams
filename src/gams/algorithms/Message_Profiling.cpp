@@ -92,7 +92,7 @@ gams::algorithms::Message_Profiling::Message_Profiling (
   : Base_Algorithm (knowledge, platform, sensors, self), 
     send_size_ (20)
 {
-  status_.init_vars (*knowledge, "message_profiling");
+  status_.init_vars (*knowledge, "message_profiling", self->id.to_integer ());
 
   // attach filter
   //knowledge->close_transport ();

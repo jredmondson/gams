@@ -125,7 +125,7 @@ gams::algorithms::Move::Move (
   max_executions_ (max_executions), type_ (type), target_ (), mode_ (TARGET)
 {
   // init status vars
-  status_.init_vars (*knowledge, "move");
+  status_.init_vars (*knowledge, "move", self->id.to_integer ());
 
 //  if (max_executions > 0)
 //    mode_ = EXECUTIONS;
@@ -144,7 +144,7 @@ gams::algorithms::Move::Move (
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (-1),
   max_executions_ (0), mode_ (TARGET), target_ (target), type_ (type)
 {
-  status_.init_vars (*knowledge, "move");
+  status_.init_vars (*knowledge, "move", self->id.to_integer ());
 }
 
 gams::algorithms::Move::~Move ()

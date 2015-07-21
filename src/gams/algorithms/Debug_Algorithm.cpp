@@ -78,7 +78,7 @@ gams::algorithms::Debug_Algorithm::Debug_Algorithm (
 {
   if (knowledge)
   {
-    status_.init_vars (*knowledge, "debug");
+    status_.init_vars (*knowledge, "debug", self->id.to_integer ());
     k_executions_.set_name (executions_location, *knowledge);
   }
 }

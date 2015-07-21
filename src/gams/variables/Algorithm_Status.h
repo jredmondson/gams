@@ -91,19 +91,24 @@ namespace gams
        * Initializes variable containers
        * @param   knowledge  the knowledge base that houses the variables
        * @param   new_name   the name of the algorithm
+       * @param   i          the device id
        **/
       void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const std::string & new_name);
+        const std::string & new_name, int i);
       
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        * @param   new_name   the name of the algorithm
+       * @param   i          the device id
        **/
       void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
-        const std::string & new_name);
+        const std::string & new_name, int i);
 
-      /// the id of this device
+      /// the device id
+      int id;
+
+      /// the name of the algorithm
       std::string name;
       
       /// the device-specific variables
@@ -126,6 +131,9 @@ namespace gams
 
       /// status flag for waiting
       Madara::Knowledge_Engine::Containers::Integer waiting;
+
+      /// status flag for finished
+      Madara::Knowledge_Engine::Containers::Integer finished;
 
     protected:
       /**

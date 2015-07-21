@@ -84,7 +84,7 @@ gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   Base_Area_Coverage (knowledge, platform, sensors, self, devices),
   cur_waypoint_ (0)
 {
-  status_.init_vars (*knowledge, "waypoints");
+  status_.init_vars (*knowledge, "waypoints", self->id.to_integer ());
 
   // translate Knowledge_Vector to waypoints
   for (size_t i = 0; i < args.size(); ++i)
@@ -118,7 +118,10 @@ gams::algorithms::area_coverage::Waypoints_Coverage::analyze ()
   int ret_val (OK);
 
   if (cur_waypoint_ >= waypoints_.size ())
+  {
     ret_val = FINISHED;
+    status_.finished = 1;
+  }
 
   return ret_val;
 }
