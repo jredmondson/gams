@@ -201,6 +201,7 @@ gams::algorithms::Executive::analyze (void)
       --plan_index_;  // to prevent plan_index_ from overflowing 
                       // and being a valid index again
       ret_val = FINISHED;
+      status_.finished = 1;
     }
   }
    

@@ -138,6 +138,9 @@ gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished (
   int ret_val) const
 {
   if (exec_time_ != 0 && ret_val == OK && (ACE_OS::gettimeofday () > end_time_))
+  {
     ret_val = FINISHED;
+    status_.finished = 1;
+  }
   return ret_val;
 }
