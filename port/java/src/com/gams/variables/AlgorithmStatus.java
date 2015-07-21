@@ -148,6 +148,7 @@ public class AlgorithmStatus extends GamsJNI
    *
    * @param  kb      the knowledge base that contains the name
    * @param  name    the variable name
+   * @param  id      id of the agent to get status for
    */
   public void init(KnowledgeBase kb, java.lang.String name, int id)
   {
@@ -160,6 +161,7 @@ public class AlgorithmStatus extends GamsJNI
    *
    * @param  vars    the variables facade that contains the name
    * @param  name    the variable name
+   * @param  id      id of the agent to get status for
    */
   public void init(Variables vars, java.lang.String name, int id)
   {
