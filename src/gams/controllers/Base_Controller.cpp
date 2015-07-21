@@ -563,7 +563,7 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::controllers::Base_Controller::init_platform:" \
+      "gams::controllers::Base_Controller::init_algorithm:" \
       " deleting old algorithm\n");
 
     delete algorithm_;
