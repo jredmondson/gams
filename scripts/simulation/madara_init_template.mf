@@ -1,0 +1,9 @@
+.vrep_port=PORT;
+
+.initial_x=POSX;
+.initial_y=POSY;
+.initial_alt=4;
+
+device.IND.command="urec";
+device.IND.command.size=1;
+device.IND.command.0="region.0";
