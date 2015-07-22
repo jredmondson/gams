@@ -61,6 +61,12 @@ using std::endl;
 using std::cout;
 using std::string;
 
+const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
+  (getenv ("GAMS_ROOT") == 0) ? 
+  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
+  );
+
 gams::platforms::Base_Platform *
 gams::platforms::VREP_UAV_Factory::create (
   const Madara::Knowledge_Vector & args,
@@ -69,9 +75,6 @@ gams::platforms::VREP_UAV_Factory::create (
   variables::Platforms * platforms,
   variables::Self * self)
 {
-  const static string DEFAULT_UAV_MODEL (string (getenv ("GAMS_ROOT")) + 
-    "/resources/vrep/Quadricopter_NoCamera.ttm");
-
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
     "entering gams::platforms::VREP_UAV_Factory::create\n");
@@ -111,7 +114,7 @@ gams::platforms::VREP_UAV_Factory::create (
     }
     else
     {
-      model_file = DEFAULT_UAV_MODEL;
+      model_file = VREP_UAV::DEFAULT_UAV_MODEL;
       is_client_side = 0;
     }
 
@@ -143,8 +146,8 @@ gams::platforms::VREP_UAV::VREP_UAV (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
-  variables::Self * self)
-  : VREP_Base (knowledge, sensors, self)
+  variables::Self * self) :
+  VREP_Base (knowledge, sensors, self)
 {
   if (knowledge && sensors && platforms && self)
   {

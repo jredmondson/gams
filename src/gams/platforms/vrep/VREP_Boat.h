@@ -78,6 +78,11 @@ namespace gams
     {
     public:
       /**
+       * Default Boat model
+       */
+      const static std::string DEFAULT_BOAT_MODEL;
+
+      /**
        * Constructor
        * @param  file         file of model to load
        * @param  client_side  0 if model is server side, 1 if client side

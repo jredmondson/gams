@@ -94,13 +94,27 @@ gams::platforms::VREP_Base::VREP_Base (
     sw_position_.latitude (lat); sw_position_.longitude (lon);
 
     // get client id
-    client_id_ = simxStart(knowledge->get(".vrep_host").to_string ().c_str (),
-      knowledge->get(".vrep_port").to_integer(), true, true, 2000, 5);
+    string vrep_host = knowledge->get (".vrep_host").to_string ();
+    int vrep_port = knowledge->get (".vrep_port").to_integer ();
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREP_Base():" \
+      " attempting to connect to VREP at %s:%d\n",
+      vrep_host.c_str (), vrep_port);
+    client_id_ = simxStart(vrep_host.c_str (), vrep_port, true, true, 2000, 5);
     if (client_id_ == -1)
     {
-      cerr << "couldn't connect to vrep" << endl;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_EMERGENCY,
+        "gams::platforms::VREP_Base():" \
+        " VREP connection failure, exit(-1)\n");
       exit (-1);
     }
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREP_Base():" \
+      " successfully connected to VREP at %s:%d\n",
+      vrep_host.c_str (), vrep_port);
     knowledge->wait ("vrep_ready == 1;");
   }
 }

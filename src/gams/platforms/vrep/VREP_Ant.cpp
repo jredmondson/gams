@@ -67,6 +67,12 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
+const string gams::platforms::VREP_Ant::DEFAULT_ANT_MODEL (
+  (getenv ("GAMS_ROOT") == 0) ? 
+  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/tracker_ant.ttm")
+  );
+
 gams::platforms::Base_Platform *
 gams::platforms::VREP_Ant_Factory::create (
         const Madara::Knowledge_Vector & args,
@@ -75,9 +81,6 @@ gams::platforms::VREP_Ant_Factory::create (
         variables::Platforms * platforms,
         variables::Self * self)
 {
-  const static string DEFAULT_ANT_MODEL (string (getenv ("GAMS_ROOT")) + 
-    "/resources/vrep/tracker_ant.ttm");
-
   Base_Platform * result (0);
   
   if (knowledge && sensors && platforms && self)
@@ -113,7 +116,7 @@ gams::platforms::VREP_Ant_Factory::create (
     }
     else
     {
-      file = DEFAULT_ANT_MODEL;
+      file = VREP_Ant::DEFAULT_ANT_MODEL;
       client_side = 0;
     }
 

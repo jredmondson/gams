@@ -67,6 +67,13 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
+const string gams::platforms::VREP_Boat::DEFAULT_BOAT_MODEL (
+  (getenv ("GAMS_ROOT") == 0) ? 
+  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/boat.ttm")
+  );
+
+
 gams::platforms::Base_Platform *
 gams::platforms::VREP_Boat_Factory::create (
   const Madara::Knowledge_Vector & args,
@@ -102,7 +109,7 @@ gams::platforms::VREP_Boat_Factory::create (
     }
     else
     {
-      file = DEFAULT_BOAT_MODEL;
+      file = VREP_Boat::DEFAULT_BOAT_MODEL;
       is_client_side = 0;
     }
 

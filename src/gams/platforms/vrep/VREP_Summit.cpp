@@ -67,6 +67,13 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
+const string gams::platforms::VREP_Summit::DEFAULT_SUMMIT_MODEL (
+  (getenv ("GAMS_ROOT") == 0) ? 
+  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/summit.ttm")
+  );
+
+
 gams::platforms::Base_Platform *
 gams::platforms::VREP_Summit_Factory::create (
   const Madara::Knowledge_Vector & args,
@@ -112,7 +119,7 @@ gams::platforms::VREP_Summit_Factory::create (
     }
     else
     {
-      model_file = DEFAULT_SUMMIT_MODEL;
+      model_file = VREP_Summit::DEFAULT_SUMMIT_MODEL;
       client_side = 0;
     }
 

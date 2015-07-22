@@ -78,6 +78,11 @@ namespace gams
     {
     public:
       /**
+       * Default Summit model
+       */
+      const static std::string DEFAULT_SUMMIT_MODEL;
+
+      /**
        * Constructor
        * @param  file         model file to load
        * @param  client_side  0 if model is server side, 1 if client side

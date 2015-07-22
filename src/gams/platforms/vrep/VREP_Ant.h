@@ -67,7 +67,6 @@ extern "C" {
 #include "extApi.h"
 }
 
-
 #ifdef _GAMS_VREP_
 
 namespace gams
@@ -77,6 +76,11 @@ namespace gams
     class GAMS_Export VREP_Ant : public VREP_Base
     {
     public:
+      /**
+       * Default Ant model
+       */
+      const static std::string DEFAULT_ANT_MODEL;
+
       /**
        * Constructor
        * @param  model_file       model file to load in VREP
