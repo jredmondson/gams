@@ -66,7 +66,6 @@ extern "C" {
 #include "extApi.h"
 }
 
-
 #ifdef _GAMS_VREP_
 
 namespace gams
@@ -78,12 +77,16 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  knowledge  knowledge base
-       * @param  sensors    map of sensor names to sensor information
-       * @param  platforms  map of platform names to platform information
-       * @param  self       device variables that describe self state
+       * @param  file         model file to load
+       * @param  client_side  0 if model is server side, 1 if client side
+       * @param  knowledge    knowledge base
+       * @param  sensors      map of sensor names to sensor information
+       * @param  platforms    map of platform names to platform information
+       * @param  self         device variables that describe self state
        **/
       VREP_UAV (
+        std::string model_file, 
+        simxUChar is_client_side, 
         Madara::Knowledge_Engine::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
@@ -114,7 +117,8 @@ namespace gams
       /**
        * Add model to environment
        */
-      virtual void add_model_to_environment ();
+      virtual void add_model_to_environment (const std::string& file, 
+        const simxUChar client_side);
 
       /**
        * Get node target handle

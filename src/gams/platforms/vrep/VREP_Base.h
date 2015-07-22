@@ -185,7 +185,8 @@ namespace gams
       /**
        * Add model to environment
        */
-      virtual void add_model_to_environment () = 0;
+      virtual void add_model_to_environment (const std::string& file, 
+        const simxUChar client_side) = 0;
 
       /**
        * Get node target handle

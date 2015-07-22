@@ -69,12 +69,15 @@ using std::string;
 
 gams::platforms::Base_Platform *
 gams::platforms::VREP_Boat_Factory::create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self)
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  variables::Sensors * sensors,
+  variables::Platforms * platforms,
+  variables::Self * self)
 {
+  const static string DEFAULT_BOAT_MODEL (string (getenv ("GAMS_ROOT")) + 
+    "/resources/vrep/boat.ttm");
+
   Base_Platform * result (0);
   
   if (knowledge && sensors && platforms && self)
@@ -90,15 +93,29 @@ gams::platforms::VREP_Boat_Factory::create (
       knowledge_->activate_transport ();
     }
 
-    cerr << "Creating VREP_Boat object" << endl;
+    string file;
+    simxUChar is_client_side;
+    if (args.size () >= 1)
+    {
+      file = args[0].to_string ();
+      is_client_side = 1;
+    }
+    else
+    {
+      file = DEFAULT_BOAT_MODEL;
+      is_client_side = 0;
+    }
 
-    result = new VREP_Boat (knowledge, sensors, platforms, self);
+    result = new VREP_Boat (file, is_client_side, knowledge, sensors, 
+      platforms, self);
   }
 
   return result;
 }
 
 gams::platforms::VREP_Boat::VREP_Boat (
+  const std::string& file, 
+  const simxUChar client_side,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -112,18 +129,17 @@ gams::platforms::VREP_Boat::VREP_Boat (
   }
 
   self_->device.desired_altitude = 0.05;
-  add_model_to_environment ();
+  add_model_to_environment (file, client_side);
   set_initial_position ();
   get_target_handle ();
   wait_for_go ();
 }
 
 void
-gams::platforms::VREP_Boat::add_model_to_environment ()
+gams::platforms::VREP_Boat::add_model_to_environment (const std::string& file,
+  const simxUChar client_side)
 {
-  string modelFile (getenv ("GAMS_ROOT"));
-  modelFile += "/resources/vrep/boat.ttm";
-  if (simxLoadModel (client_id_, modelFile.c_str (), 0, &node_id_,
+  if (simxLoadModel (client_id_, file.c_str (), client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
     cerr << "error loading VREP_Boat model in vrep" << endl;

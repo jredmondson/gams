@@ -63,14 +63,21 @@ using std::string;
 
 gams::platforms::Base_Platform *
 gams::platforms::VREP_UAV_Factory::create (
-  const Madara::Knowledge_Vector & /*args*/,
+  const Madara::Knowledge_Vector & args,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
 {
+  const static string DEFAULT_UAV_MODEL (string (getenv ("GAMS_ROOT")) + 
+    "/resources/vrep/Quadricopter_NoCamera.ttm");
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MINOR,
+    "entering gams::platforms::VREP_UAV_Factory::create\n");
+
   Base_Platform * result (0);
-  
+
   if (knowledge && sensors && platforms && self)
   {
     if (knowledge->get_num_transports () == 0)
@@ -94,7 +101,22 @@ gams::platforms::VREP_UAV_Factory::create (
        "gams::platforms::VREP_UAV_Factory::create:" \
       " creating VREP_UAV object\n");
 
-    result = new VREP_UAV (knowledge, sensors, platforms, self);
+    // specify the model file
+    string model_file;
+    simxUChar is_client_side; // file is on server
+    if (args.size () >= 1)
+    {
+      model_file = args[0].to_string ();
+      is_client_side = 1;
+    }
+    else
+    {
+      model_file = DEFAULT_UAV_MODEL;
+      is_client_side = 0;
+    }
+
+    result = new VREP_UAV (model_file, is_client_side, knowledge, sensors, 
+      platforms, self);
   }
   else
   {
@@ -116,6 +138,8 @@ gams::platforms::VREP_UAV_Factory::create (
 }
 
 gams::platforms::VREP_UAV::VREP_UAV (
+  std::string model_file, 
+  simxUChar is_client_side, 
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -128,7 +152,7 @@ gams::platforms::VREP_UAV::VREP_UAV (
     status_ = (*platforms)[get_id ()];
 
     self->device.desired_altitude = self->id.to_integer () + 1;
-    add_model_to_environment ();
+    add_model_to_environment (model_file, is_client_side);
     set_initial_position ();
     get_target_handle ();
     wait_for_go ();
@@ -228,11 +252,14 @@ gams::platforms::VREP_UAV::move (const utility::Position & position, const doubl
 }
 
 void
-gams::platforms::VREP_UAV::add_model_to_environment ()
+gams::platforms::VREP_UAV::add_model_to_environment (const string &model_file, 
+  const simxUChar is_client_side)
 {
-  string modelFile (getenv ("GAMS_ROOT"));
-  modelFile += "/resources/vrep/Quadricopter_NoCamera.ttm";
-  if (simxLoadModel (client_id_, modelFile.c_str (), 0, &node_id_,
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ERROR,
+    "gams::platforms::VREP_UAV::add_model_to_environment(" \
+    "%s, %u)\n", model_file.c_str (), is_client_side);
+  if (simxLoadModel (client_id_, model_file.c_str (), is_client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
