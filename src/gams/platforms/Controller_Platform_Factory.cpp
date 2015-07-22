@@ -172,6 +172,11 @@ platforms::Controller_Platform_Factory::create (
   const std::string & type,
   const Madara::Knowledge_Vector & args)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MINOR,
+    "gams::platforms::Controller_Platform_Factory::create(" \
+    "%s,...)\n", type.c_str ());
+
   Base_Platform * result (0);
 
   if (type != "")

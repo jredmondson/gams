@@ -1,0 +1,254 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".main"
+        android:id="@+id/main">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Transport"
+            android:id="@+id/transport_textview"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Address"
+            android:id="@+id/address_textview"
+            android:layout_below="@+id/transport_spinner"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Port"
+            android:id="@+id/port_textview"
+            android:layout_below="@+id/address_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/transport_spinner"
+            android:layout_alignTop="@+id/transport_textview"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/swarm_size_textview"
+            android:spinnerMode="dropdown"
+            android:layout_toRightOf="@+id/swarm_size_textview" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/address_text"
+            android:layout_alignTop="@+id/address_textview"
+            android:layout_alignLeft="@+id/transport_spinner"
+            android:layout_alignStart="@+id/transport_spinner"
+            android:layout_alignRight="@+id/transport_spinner"
+            android:layout_alignEnd="@+id/transport_spinner" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/port_text"
+            android:layout_alignTop="@+id/port_textview"
+            android:layout_alignLeft="@+id/address_text"
+            android:layout_alignStart="@+id/address_text"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="ID"
+            android:id="@+id/id_textview"
+            android:layout_below="@+id/port_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/id_text"
+            android:layout_below="@+id/port_text"
+            android:layout_alignLeft="@+id/port_text"
+            android:layout_alignStart="@+id/port_text"
+            android:layout_alignRight="@+id/port_text"
+            android:layout_alignEnd="@+id/port_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Swarm Size"
+            android:id="@+id/swarm_size_textview"
+            android:layout_below="@+id/id_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/swarm_size_text"
+            android:layout_alignTop="@+id/swarm_size_textview"
+            android:layout_alignRight="@+id/id_text"
+            android:layout_alignEnd="@+id/id_text"
+            android:layout_alignLeft="@+id/id_text"
+            android:layout_alignStart="@+id/id_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Algorithm"
+            android:id="@+id/algorithm_textview"
+            android:layout_below="@+id/swarm_size_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/algorithm_text"
+            android:layout_alignTop="@+id/algorithm_textview"
+            android:layout_toRightOf="@+id/swarm_size_textview"
+            android:layout_alignRight="@+id/swarm_size_text"
+            android:layout_alignEnd="@+id/swarm_size_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Arg"
+            android:id="@+id/arg_textview"
+            android:layout_below="@+id/algorithm_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/arg_text"
+            android:layout_alignTop="@+id/arg_textview"
+            android:layout_alignLeft="@+id/algorithm_text"
+            android:layout_alignStart="@+id/algorithm_text"
+            android:layout_alignRight="@+id/algorithm_text"
+            android:layout_alignEnd="@+id/algorithm_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Duration"
+            android:id="@+id/duration_textview"
+            android:layout_below="@+id/arg_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:id="@+id/duration_text"
+            android:layout_alignTop="@+id/duration_textview"
+            android:layout_toRightOf="@+id/swarm_size_textview"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Rate"
+            android:id="@+id/rate_textview"
+            android:layout_below="@+id/duration_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:id="@+id/rate_text"
+            android:layout_below="@+id/duration_text"
+            android:layout_alignLeft="@+id/duration_text"
+            android:layout_alignStart="@+id/duration_text"
+            android:layout_alignRight="@+id/duration_text"
+            android:layout_alignEnd="@+id/duration_text" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Run"
+            android:id="@+id/run_button"
+            android:onClick="runButtonOnClick"
+            android:layout_below="@+id/vrep_port_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="VREP Host"
+            android:id="@+id/vrep_host_textview"
+            android:layout_below="@+id/rate_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/vrep_host_text"
+            android:layout_alignTop="@+id/vrep_host_textview"
+            android:layout_toRightOf="@+id/swarm_size_textview"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="VREP Port"
+            android:id="@+id/vrep_port_textview"
+            android:layout_below="@+id/vrep_host_text"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/vrep_port_text"
+            android:layout_below="@+id/vrep_host_text"
+            android:layout_alignLeft="@+id/vrep_host_text"
+            android:layout_alignStart="@+id/vrep_host_text"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+</ScrollView>

@@ -67,9 +67,15 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
+const string gams::platforms::VREP_Ant::DEFAULT_ANT_MODEL (
+  (getenv ("GAMS_ROOT") == 0) ? 
+  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/tracker_ant.ttm")
+  );
+
 gams::platforms::Base_Platform *
 gams::platforms::VREP_Ant_Factory::create (
-        const Madara::Knowledge_Vector & /*args*/,
+        const Madara::Knowledge_Vector & args,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
@@ -101,7 +107,21 @@ gams::platforms::VREP_Ant_Factory::create (
        "gams::platforms::VREP_Ant_Factory::create:" \
       " creating VREP_Ant object\n");
 
-    result = new VREP_Ant (knowledge, sensors, platforms, self);
+    string file;
+    simxUChar client_side;
+    if (args.size () >= 1)
+    {
+      file = args[0].to_string ();
+      client_side = 1;
+    }
+    else
+    {
+      file = VREP_Ant::DEFAULT_ANT_MODEL;
+      client_side = 0;
+    }
+
+    result = new VREP_Ant (file, client_side, knowledge, sensors, platforms, 
+      self);
   }
   else
   {
@@ -123,6 +143,8 @@ gams::platforms::VREP_Ant_Factory::create (
 }
 
 gams::platforms::VREP_Ant::VREP_Ant (
+  std::string model_file, 
+  simxUChar is_client_side, 
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -136,18 +158,17 @@ gams::platforms::VREP_Ant::VREP_Ant (
   }
 
   self_->device.desired_altitude = 0.05;
-  add_model_to_environment ();
+  add_model_to_environment (model_file, is_client_side);
   set_initial_position ();
   get_target_handle ();
   wait_for_go ();
 }
 
 void
-gams::platforms::VREP_Ant::add_model_to_environment ()
+gams::platforms::VREP_Ant::add_model_to_environment (const std::string& file, 
+  const simxUChar client_side)
 {
-  string modelFile (getenv ("GAMS_ROOT"));
-  modelFile += "/resources/vrep/tracker_ant.ttm";
-  if (simxLoadModel (client_id_, modelFile.c_str (), 0, &node_id_,
+  if (simxLoadModel (client_id_, file.c_str (), client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
