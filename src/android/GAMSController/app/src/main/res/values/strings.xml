@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">GAMS Controller</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="transport_types">
+        <item>Multicast</item>
+        <item>Broadcast</item>
+        <item>UDP</item>
+    </string-array>
+</resources>
