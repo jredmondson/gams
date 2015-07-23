@@ -12,11 +12,10 @@ sub run {
   my $vreproot = $ENV{"VREP_ROOT"};
 
   # launch drone controllers
+  my $gams_root = $ENV{"GAMS_ROOT"};
   if ($launch_controllers == 1)
   {
-    my $gams_root = $ENV{"GAMS_ROOT"};
     #$gams_root =~ s/\\/\//g;
-    print("$gams_root\n");
     for (my $i=0; $i < $num; $i++)
     {
       my $cmd = "\"$gams_root/gams_controller -i $i -n $num --loop-time $time --period $period";
