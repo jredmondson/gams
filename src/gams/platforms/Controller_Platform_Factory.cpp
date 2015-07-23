@@ -65,6 +65,8 @@
 #include "gams/platforms/ros/ROS_P3DX.h"
 #endif 
 
+#include "gams/loggers/Global_Logger.h"
+
 #include <string>
 
 namespace platforms = gams::platforms;
@@ -181,8 +183,19 @@ platforms::Controller_Platform_Factory::create (
 
   if (type != "")
   {
-    result = factory_map_[type]->create (
-      args, knowledge_, sensors_, platforms_, self_);
+    Factory_Map::iterator it = factory_map_.find (type);
+    if (it != factory_map_.end ())
+    {
+      result = it->second->create (args, knowledge_, sensors_, platforms_, 
+        self_);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ALWAYS,
+        "gams::platforms::Controller_Platform_Factory::create:" \
+        " could not find \"%s\" platform.\n", type.c_str ());
+    }
   }
 
   return result;
