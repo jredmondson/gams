@@ -48,8 +48,11 @@
 
 #include <cmath>
 #include <string>
-using std::string;
 #include <vector>
+
+#include "gams/loggers/Global_Logger.h"
+
+using std::string;
 using std::vector;
 
 gams::algorithms::Base_Algorithm *
@@ -88,9 +91,18 @@ gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   status_.init_variable_values ();
 
   // translate Knowledge_Vector to waypoints
-  for (size_t i = 0; i < args.size(); ++i)
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::Waypoint_Coverage:" \
+    " parsing %u args\n", args.size ());
+  for (size_t i = 0; i < args.size (); ++i)
   {
     vector <double> coords = args[i].to_doubles ();
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::area_coverage::Waypoint_Coverage:" \
+      " arg %u is coords of size %u\n", i, coords.size ());
     waypoints_.push_back (utility::Position(coords[0], coords[1], 2));
   }
 
