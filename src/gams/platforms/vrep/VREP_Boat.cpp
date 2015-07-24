@@ -163,7 +163,7 @@ gams::platforms::VREP_Boat::add_model_to_environment (const std::string& file,
 std::string
 gams::platforms::VREP_Boat::get_id () const
 {
-  return "vrep_Boat";
+  return "vrep_boat";
 }
 
 std::string
