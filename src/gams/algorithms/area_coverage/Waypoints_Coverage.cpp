@@ -86,7 +86,7 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
       else
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ALWAYS,
+          gams::loggers::LOG_ERROR,
           "gams::algorithms::area_coverage::Waypoint_Coverage_Factory:" \
           " arg %u is of invalid size %u\n", i, coords.size ());
         error = true;
