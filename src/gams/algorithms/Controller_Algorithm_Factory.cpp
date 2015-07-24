@@ -257,6 +257,13 @@ algorithms::Controller_Algorithm_Factory::create (
   const Madara::Knowledge_Vector & args)
 {
   algorithms::Base_Algorithm * result = 0;
+
+  // the user is going to expect this kind of error to be printed immediately
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::Controller_Algorithm_Factory::create:" \
+    " creating \"%s\" algorithm.\n", type.c_str ());
+
   
   if (type != "")
   {
