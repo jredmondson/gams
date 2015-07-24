@@ -68,8 +68,36 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
   
   if (knowledge && sensors && self && args.size () >= 1)
   {
-    result = new area_coverage::Waypoints_Coverage (args,
-      knowledge, platform, sensors, self);
+    std::vector<utility::Position> waypoints;
+    bool error = false;
+
+    for (size_t i = 0; i < args.size (); ++i)
+    {
+      vector <double> coords = args[i].to_doubles ();
+      if (coords.size () == 2)
+      {
+        waypoints.push_back (utility::Position(coords[0], coords[1], 2));
+      }
+      else if (coords.size () == 3)
+      {
+        waypoints.push_back (utility::Position(
+          coords[0], coords[1], coords[2]));
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ALWAYS,
+          "gams::algorithms::area_coverage::Waypoint_Coverage_Factory:" \
+          " arg %u is of invalid size %u\n", i, coords.size ());
+        error = true;
+      }
+    }
+
+    if (!error)
+    {
+      result = new area_coverage::Waypoints_Coverage (waypoints, 
+        knowledge, platform, sensors, self);
+    }
   }
 
   return result;
@@ -80,42 +108,26 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
  * traverses the waypoints until reaching the end
  */
 gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
-  const Madara::Knowledge_Vector & args,
+  const std::vector<utility::Position>& waypoints,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices),
-  cur_waypoint_ (0)
+  cur_waypoint_ (0), waypoints_(waypoints)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
+    gams::loggers::LOG_DETAILED,
     "gams::algorithms::area_coverage::Waypoint_Coverage:" \
     " init_vars\n");
 
   status_.init_vars (*knowledge, "waypoints", self->id.to_integer ());
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
+    gams::loggers::LOG_DETAILED,
     "gams::algorithms::area_coverage::Waypoint_Coverage:" \
     " init_variable_values\n");
 
   status_.init_variable_values ();
-
-  // translate Knowledge_Vector to waypoints
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::algorithms::area_coverage::Waypoint_Coverage:" \
-    " parsing %u args\n", args.size ());
-  for (size_t i = 0; i < args.size (); ++i)
-  {
-    vector <double> coords = args[i].to_doubles ();
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::algorithms::area_coverage::Waypoint_Coverage:" \
-      " arg %u is coords of size %u\n", i, coords.size ());
-    waypoints_.push_back (utility::Position(coords[0], coords[1], 2));
-  }
 
   next_position_ = waypoints_[cur_waypoint_];
 }

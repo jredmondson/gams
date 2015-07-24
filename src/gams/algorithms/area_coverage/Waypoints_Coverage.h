@@ -84,7 +84,7 @@ namespace gams
          * @param  devices    variables referencing devices
          **/
         Waypoints_Coverage (
-          const Madara::Knowledge_Vector & args,
+          const std::vector<utility::Position>& waypoints,
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
           platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
