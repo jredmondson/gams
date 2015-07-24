@@ -427,13 +427,15 @@ struct surface_type
 {
   string file;
   double size;
-  function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> type_fix;
+  function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> pre_function;
+  function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> post_function;
 
-  surface_type () : file (""), size (0), type_fix (empty_fix) {}
+  surface_type () : file (""), size (0), pre_function (empty_fix), post_function (empty_fix) {}
 
   surface_type (string f, double s, 
-    function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> t) :
-    file (f), size (s), type_fix (t) {}
+    function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> pre = empty_fix, 
+    function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> post = empty_fix) :
+    file (f), size (s), pre_function (pre), post_function (post) {}
 };
 
 /**
@@ -481,6 +483,9 @@ void create_environment (const int& client_id,
   cout << "creating environment of size " << max_x << " x " << max_y << "...";
   int num_x = max_x / floor_size + 2;
   int num_y = max_y / floor_size + 2;
+
+  // pre loading fix
+  surface_info.pre_function (client_id, knowledge);
   
   // load floor models
   string model_file (surface_info.file);
@@ -506,8 +511,8 @@ void create_environment (const int& client_id,
       simx_opmode_oneshot_wait);
   }
 
-  // other stuff for each type
-  surface_info.type_fix (client_id, knowledge);
+  // post loading fix
+  surface_info.post_function (client_id, knowledge);
 
   cout << "done" << endl;
 
