@@ -110,6 +110,7 @@ gams::variables::Algorithm_Status::init_vars (
   this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
   this->failed.set_name (prefix + ".failed", knowledge);
   this->unknown.set_name (prefix + ".unknown", knowledge);
+  this->finished.set_name (prefix + ".finished", knowledge);
 }
 
 string

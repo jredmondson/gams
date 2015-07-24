@@ -59,6 +59,10 @@ gams::algorithms::Base_Algorithm::Base_Algorithm (
   : devices_ (devices), executions_ (0), knowledge_ (knowledge),
     platform_ (platform), self_ (self), sensors_ (sensors)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::Base_Algorithm:" \
+    " constructor succeeded\n");
 }
 
 gams::algorithms::Base_Algorithm::~Base_Algorithm ()

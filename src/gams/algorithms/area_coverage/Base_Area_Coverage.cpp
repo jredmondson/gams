@@ -65,6 +65,10 @@ gams::algorithms::area_coverage::Base_Area_Coverage::Base_Area_Coverage (
   Base_Algorithm (knowledge, platform, sensors, self, devices), 
   exec_time_ (e_time), end_time_(ACE_OS::gettimeofday () + e_time)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::Base_Area_Coverage:" \
+    " constructor succeeded\n");
 }
 
 gams::algorithms::area_coverage::Base_Area_Coverage::~Base_Area_Coverage ()

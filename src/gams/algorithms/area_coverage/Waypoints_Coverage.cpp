@@ -87,7 +87,18 @@ gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   Base_Area_Coverage (knowledge, platform, sensors, self, devices),
   cur_waypoint_ (0)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::Waypoint_Coverage:" \
+    " init_vars\n");
+
   status_.init_vars (*knowledge, "waypoints", self->id.to_integer ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::Waypoint_Coverage:" \
+    " init_variable_values\n");
+
   status_.init_variable_values ();
 
   // translate Knowledge_Vector to waypoints
