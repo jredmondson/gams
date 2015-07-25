@@ -75,7 +75,7 @@ namespace gams
     /**
      * Possible platform statuses, as returnable by analyze ()
      **/
-    enum Status
+    enum Platform_Analyze_Status
     {
       UNKNOWN = 0,
       OK  = 1,
@@ -88,6 +88,17 @@ namespace gams
       COMMUNICATION_AVAILABLE = 512,
       SENSORS_AVAILABLE = 1024,
       MOVEMENT_AVAILABLE = 2048
+    };
+
+    /**
+     * Platform return values
+     **/
+    enum Platform_Return_Values
+    {
+      PLATFORM_ERROR = 0,
+      PLATFORM_IN_PROGRESS = 1,
+      PLATFORM_MOVING = 1,
+      PLATFORM_ARRIVED = 2
     };
 
     class GAMS_Export Base_Platform
@@ -119,7 +130,7 @@ namespace gams
 
       /**
        * Analyzes platform information
-       * @return bitmask status of the platform. @see Status.
+       * @return bitmask status of the platform. @see Platform_Analyze_Status.
        **/
       virtual int analyze (void) = 0;
 
@@ -173,13 +184,13 @@ namespace gams
 
       /**
        * Instructs the device to return home
-       * @return 1 if moving, 2 if arrived, 0 if error
+       * @return the status of the home operation, @see Platform_Return_Values
        **/
       virtual int home (void);
 
       /**
        * Instructs the device to land
-       * @return 1 if moving, 2 if arrived, 0 if error
+       * @return the status of the land operation, @see Platform_Return_Values
        **/
       virtual int land (void);
 
@@ -187,7 +198,7 @@ namespace gams
        * Moves the platform to a position
        * @param   position  the coordinates to move to
        * @param   epsilon   approximation value
-       * @return 1 if moving toward position, 2 if arrived, 0 if error
+       * @return the status of the move operation, @see Platform_Return_Values
        **/
       virtual int move (const utility::Position & position,
         const double & epsilon = 0.1);
@@ -195,7 +206,7 @@ namespace gams
       /**
       * Rotates the platform by an angle on a 3D axis
       * @param   axes  the coordinates to move to
-      * @return 1 if currently rotating, 2 if arrived, 0 if error
+      * @return the status of the rotate, @see Platform_Return_Values
       **/
       virtual int rotate (const utility::Axes & axes);
 
@@ -235,7 +246,7 @@ namespace gams
 
       /**
        * Instructs the device to take off
-       * @return 1 if moving, 2 if arrived, 0 if error
+       * @return the status of the takeoff, @see Platform_Return_Values
        **/
       virtual int takeoff (void);
       

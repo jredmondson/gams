@@ -44,39 +44,51 @@
  * 
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
-package com.gams.algorithms;
-
-import com.madara.KnowledgeBase;
-import com.gams.platforms.PlatformInterface;
-import com.gams.variables.Self;
-import com.gams.variables.AlgorithmStatus;
+package com.gams.platforms;
 
 /**
- * Interface for defining an algorithm to be used by GAMS. Care must be taken
- * to make all methods non-blocking, to prevent locking up the underlying
- * MADARA context.
+ * An enumeration of possible return values from functions like move, home,
+ * and other methods defined in @see PlatformInterface
  */
-public interface AlgorithmInterface
+public enum PlatformReturnStatusEnum
 {
+  //These are defined in platforms/Base.h
+  PLATFORM_ERROR(0),
+  PLATFORM_IN_PROGRESS(1),
+  PLATFORM_MOVING(1),
+  PLATFORM_ARRIVED(2);
+
+  private int num;
+
+  private PlatformReturnStatusEnum(int num)
+  {
+    this.num = num;
+  }
+
   /**
-   * Analyzes the algorithm for new status information. This should be
-   * a non-blocking call.
-   * @return  status information (@see AlgorithmStatusEnum)
-   **/
-  public int analyze ();
-  
+   * @return int value of this {@link com.gams.platforms.PlatformReturnStatusEnum PlatformReturnStatusEnum}
+   */
+  public int value()
+  {
+    return num;
+  }
+
   /**
-   * Plans next steps in the algorithm. This should be
-   * a non-blocking call.
-   * @return  status information (@see AlgorithmStatusEnum)
-   **/
-  public int plan ();
-  
-  /**
-   * Executes next step in the algorithm. This should be
-   * a non-blocking call.
-   * @return  status information (@see AlgorithmStatusEnum)
-   **/
-  public int execute ();
+   * Converts an int to a {@link com.gams.platforms.PlatformReturnStatusEnum
+   * PlatformReturnStatusEnum}
+   *
+   * @param val value to convert
+   * @return {@link com.gams.platforms.PlatformReturnStatusEnum
+   *         PlatformReturnStatusEnum} or null if the int is invalid
+   */
+  public static PlatformReturnStatusEnum getType(int val)
+  {
+    for (PlatformReturnStatusEnum t : values())
+    {
+      if (t.value() == val)
+        return t;
+    }
+    return null;
+  }
 }
 

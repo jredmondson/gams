@@ -77,7 +77,7 @@ namespace gams
     /**
      * Possible algorithm statuses, as returnable by analyze ()
      **/
-    enum Status
+    enum Algorithm_Analyze_Status
     {
       UNKNOWN         = 0x00000000,
       OK              = 0x00000001,
@@ -87,6 +87,9 @@ namespace gams
       FINISHED        = 0x00000010
     };
 
+    /**
+    * The base class that algorithms in GAMS use
+    **/
     class GAMS_Export Base_Algorithm
     {
     public:
@@ -121,19 +124,19 @@ namespace gams
       
       /**
        * Analyzes environment, platform, or other information
-       * @return bitmask status of the platform. @see Status.
+       * @return bitmask status of the algorithm. @see Algorithm_Analyze_Status
        **/
       virtual int analyze () = 0;
       
       /**
        * Plans the next execution of the algorithm
-       * @return bitmask status of the platform. @see Status.
+       * @return bitmask status of the algorithm. @see Algorithm_Analyze_Status
        **/
       virtual int execute () = 0;
 
       /**
        * Plans the next execution of the algorithm
-       * @return bitmask status of the platform. @see Status.
+       * @return bitmask status of the platform. @see Algorithm_Analyze_Status
        **/
       virtual int plan () = 0;
       

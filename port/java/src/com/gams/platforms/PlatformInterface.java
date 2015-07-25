@@ -48,9 +48,6 @@ package com.gams.platforms;
 
 import com.gams.utility.Axes;
 import com.gams.utility.Position;
-import com.madara.KnowledgeBase;
-import com.gams.variables.Self;
-import com.gams.variables.PlatformStatus;
 
 /**
  * Interface for defining a platform to be used by GAMS. Care must be taken
@@ -62,7 +59,7 @@ public interface PlatformInterface
   /**
    * Analyzes the platform. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information (@see PlatformStatusEnum)
    **/
   public int analyze ();
   
@@ -87,14 +84,14 @@ public interface PlatformInterface
   /**
    * Returns to the home location. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information (@see PlatformReturnStatusEnum)
    **/
   public int home ();
   
   /**
    * Requests the platform to land. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information (@see PlatformReturnStatusEnum)
    **/
   public int land ();
   
@@ -104,7 +101,7 @@ public interface PlatformInterface
    * @param   target     the new position to move to
    * @param   proximity  the minimum distance between current position
    *                   and target position that terminates the move.
-   * @return  status information (@see Status)
+   * @return  status information (@see PlatformReturnStatusEnum)
    **/
   public int move (Position target, double proximity);
    
@@ -112,7 +109,7 @@ public interface PlatformInterface
    * Initializes a rotate along x, y, z axes. This should be
    * a non-blocking call and implements an extrinsic rotation.
    * @param   axes       parameters for rotation along x, y, z axes
-   * @return  status information (@see Status)
+   * @return  status information (@see PlatformReturnStatusEnum)
    **/
   public int rotate (Axes axes);
    
@@ -145,7 +142,7 @@ public interface PlatformInterface
   /**
    * Gets results from the platform's sensors. This should be
    * a non-blocking call.
-   * @return   1 if moving, 2 if arrived, 0 if an error occurred
+   * @return  the status of the platform, @see PlatformStatusEnum
    **/
   public int sense ();
   
@@ -158,7 +155,7 @@ public interface PlatformInterface
   /**
    * Takes off. This should be
    * a non-blocking call.
-   * @return   status information (@see Status)
+   * @return   status information (@see PlatformReturnStatusEnum)
    **/
   public int takeoff ();
   

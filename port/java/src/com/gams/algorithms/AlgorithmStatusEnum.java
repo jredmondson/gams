@@ -51,18 +51,12 @@ package com.gams.algorithms;
  */
 public enum AlgorithmStatusEnum
 {
-  //These are defined in platforms/Base.h
   UNKNOWN(0),
   OK(1),
   WAITING(2),
   DEADLOCKED(4),
   FAILED(8),
-  MOVING(16),
-  REDUCED_SENSING_AVAILABLE(128),
-  REDUCED_MOVEMENT_AVAILABLE(256),
-  COMMUNICATION_AVAILABLE(512),
-  SENSORS_AVAILABLE(1024),
-  MOVEMENT_AVAILABLE(2048);
+  FINISHED(16);
 
   private int num;
 
