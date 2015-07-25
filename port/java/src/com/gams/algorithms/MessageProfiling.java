@@ -182,7 +182,6 @@ public class MessageProfiling extends BaseAlgorithm
 
   /**
    * Constructor
-   * @param controller  Controller that will run this algorithm
    **/
   public MessageProfiling ()
   {

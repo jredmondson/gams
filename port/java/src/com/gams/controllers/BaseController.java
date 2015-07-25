@@ -145,7 +145,6 @@ public class BaseController extends GamsJNI
    * Initialize a platform within the controller
    *
    * @param  name       name of the platform
-   * @param  args       arguments to the platform initialization
    */
   public void initPlatform(java.lang.String name)
   {
