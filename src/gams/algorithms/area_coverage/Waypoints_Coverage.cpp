@@ -172,5 +172,5 @@ gams::algorithms::area_coverage::Waypoints_Coverage::generate_new_position ()
   if (cur_waypoint_ < waypoints_.size ())
     next_position_ = waypoints_[cur_waypoint_];
   else
-    --cur_waypoint_; // prevent overflow to become valid again
+    cur_waypoint_ = waypoints_.size (); // prevent overflow to become valid again
 }
