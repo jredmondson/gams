@@ -111,7 +111,8 @@ gams::algorithms::area_coverage::Base_Area_Coverage::analyze ()
 int
 gams::algorithms::area_coverage::Base_Area_Coverage::execute ()
 {
-  platform_->move(next_position_);
+  if (status_.finished != 1)
+    platform_->move(next_position_);
   return 0;
 }
 
