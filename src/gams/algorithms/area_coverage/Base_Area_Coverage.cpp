@@ -128,7 +128,7 @@ gams::algorithms::area_coverage::Base_Area_Coverage::plan ()
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::area_coverage::Base_Area_Coverage:" \
-    " distance between points is %f\n", dist);
+    " distance between points is %f (need %f accuracy)\n", dist, platform_->get_accuracy());
   
   if (platform_->get_position()->approximately_equal(next_position_, platform_->get_accuracy()))
   {

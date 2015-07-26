@@ -204,7 +204,7 @@ gams::platforms::Base_Platform::land (void)
 
 double gams::platforms::Base_Platform::get_accuracy (void) const
 {
-  return 0.0;
+  return 5.0;
 }
 
 void
