@@ -124,13 +124,8 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::plan ()
 {
   // generate new next position if necessary
-  utility::GPS_Position current;
-  current.from_container (self_->device.location);
-  if (current.approximately_equal(next_position_,
-    platform_->get_accuracy ()))
-  {
+  if (platform_->get_position()->approximately_equal(next_position_, platform_->get_accuracy()))
     generate_new_position();
-  }
 
   return 0;
 }
