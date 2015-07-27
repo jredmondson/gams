@@ -60,6 +60,8 @@
 #include "madara/utility/Utility.h"
 #include "gams/loggers/Global_Logger.h"
 
+#include "madara/knowledge_engine/containers/Integer.h"
+
 using std::string;
 using std::stringstream;
 using std::vector;
@@ -266,20 +268,61 @@ gams::utility::Region::to_string (const string & delimiter) const
 }
 
 void
-gams::utility::Region::to_container (
-  Madara::Knowledge_Engine::Containers::String_Array & target) const
+gams::utility::Region::to_container (const std::string& name, 
+  Madara::Knowledge_Engine::Knowledge_Base& kb) const
 {
+  // generate prefix
+  std::string prefix = std::string ("region.") + name;
+
+  // set type
+  Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
+  type = 0; // only type right now
+
+  // set size
+  Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
+  size = vertices.size();
+
+  // set vertices
+  Madara::Knowledge_Engine::Containers::Native_Double_Vector target;
   for (unsigned int i = 0; i < vertices.size (); ++i)
-    target.set (i, vertices[i].to_string ());
+  {
+    std::stringstream name;
+    name << prefix << "." << i;
+    target.set_name (name.str (), kb);
+    target.set (2, vertices[i].z);
+    target.set (0, vertices[i].x);
+    target.set (1, vertices[i].y);
+  }
 }
 
 void
-gams::utility::Region::from_container (
-  Madara::Knowledge_Engine::Containers::String_Array & target)
+gams::utility::Region::from_container (const std::string& name, 
+  Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
-  vertices.resize (target.size ());
-  for (unsigned int i = 0; i < target.size (); ++i)
-    vertices[i] = GPS_Position::from_string (target[i]);
+  // generate prefix
+  std::string prefix = std::string ("region.") + name;
+
+  // get type
+  Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
+  type_ = type.to_integer ();
+
+  // get size
+  Madara::Knowledge_Engine::Containers::Integer size_container (prefix + ".size", kb);
+  unsigned int size = size_container.to_integer ();
+
+  // get vertices
+  vertices.resize (size);
+  Madara::Knowledge_Engine::Containers::Native_Double_Vector vertex;
+  for (unsigned int i = 0; i < size; ++i)
+  {
+    std::stringstream name;
+    name << prefix << "." << i;
+    vertex.set_name (name.str (), kb);
+    vertices[i].x = vertex[0];
+    vertices[i].y = vertex[1];
+    vertices[i].z = vertex[2];
+  }
+
   calculate_bounding_box ();
 }
 

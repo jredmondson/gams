@@ -135,17 +135,19 @@ namespace gams
 
       /**
        * Helper function for copying values to a MADARA string array
-       * @param target     target container to copy values to
+       * @param name      name of the region
+       * @param kb        knowledge base to store region information
        **/
-      void to_container (
-        Madara::Knowledge_Engine::Containers::String_Array & target) const;
+      void to_container (const std::string& name, 
+        Madara::Knowledge_Engine::Knowledge_Base& kb) const;
       
       /**
        * Helper function for copying values from a MADARA string array
-       * @param source     source container to copy values from
+       * @param name      name of the region to get
+       * @param kb        knowledge base with region information
        **/
-      void from_container (
-        Madara::Knowledge_Engine::Containers::String_Array & source);
+      void from_container (const std::string& name, 
+        Madara::Knowledge_Engine::Knowledge_Base& kb);
 
       /// the vertices of the region
       std::vector <GPS_Position> vertices;
@@ -169,6 +171,9 @@ namespace gams
        * populate bounding box values
        **/
       void calculate_bounding_box ();
+
+      /// type for this region
+      unsigned int type_;
     }; // class Region
 
     /**

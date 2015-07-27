@@ -264,6 +264,13 @@ test_Region ()
   testing_output ("get_area", 1);
   assert (r.get_area () < 525.8 && r.get_area() > 525.7);
   assert (bound.get_area () < 681.3 && bound.get_area() > 681.2);
+
+  // check to/from container
+  Madara::Knowledge_Engine::Knowledge_Base kb;
+  r.to_container ("test", kb);
+  Region from;
+  from.from_container ("test", kb);
+  assert (from == r);
 }
 
 void
