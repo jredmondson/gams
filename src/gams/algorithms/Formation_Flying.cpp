@@ -74,6 +74,11 @@ gams::algorithms::Formation_Flying_Factory::create (
 {
   Base_Algorithm * result (0);
 
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Formation_Coverage_Factory:" \
+    " entered create with %u args\n", args.size ());
+
   // set default parameters
   Madara::Knowledge_Record modifier ("default");
   
@@ -89,6 +94,13 @@ gams::algorithms::Formation_Flying_Factory::create (
       args[3] /* members */,
       modifier /* for rotation */,
       knowledge, platform, sensors, self);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::Formation_Coverage_Factory:" \
+      " invalid knowledge, sensors, platform, self, or arg count\n");
   }
 
   return result;

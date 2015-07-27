@@ -77,12 +77,29 @@ gams::algorithms::Formation_Coverage_Factory::create (
   variables::Devices * /*devices*/)
 {
   Base_Algorithm * result (0);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Formation_Coverage_Factory:" \
+    " entered create with %u args\n", args.size ());
   
-  if (knowledge && sensors && platform && self && args.size () >= 5)
+  if (knowledge && sensors && platform && self && args.size () >= 6)
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+     gams::loggers::LOG_DETAILED,
+     "gams::algorithms::Formation_Coverage_Factory:" \
+     " coverage arg is %s\n", args[4].to_string ().c_str ());
+
     Madara::Knowledge_Vector cover_args;
     for(size_t i = 5; i < args.size(); ++i)
+    {
       cover_args.push_back (args[i]);
+      
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Coverage_Factory:" \
+        " coverage arg %u is %s\n", i - 5, args[i].to_string ().c_str ());
+    }
 
     result = new Formation_Coverage (
       args[0] /* head */,
@@ -92,6 +109,13 @@ gams::algorithms::Formation_Coverage_Factory::create (
       args[4] /* coverage */,
       cover_args,
       knowledge, platform, sensors, self);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::Formation_Coverage_Factory:" \
+      " invalid knowledge, sensors, platform, self, or arg count\n");
   }
 
   return result;
@@ -113,6 +137,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
   status_.init_vars (*knowledge, "formation_coverage", self->id.to_integer ());
   status_.init_variable_values ();
 
+  // setup formation flying with null destination
   Madara::Knowledge_Record rec("0,0,0");
   my_formation_ = new Formation_Flying (head_id, offset, rec, members, 
     modifier, knowledge, platform, sensors, self);
@@ -122,8 +147,6 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
     Controller_Algorithm_Factory factory (knowledge, sensors, platform, self);
     Base_Algorithm * base_algo = factory.create (coverage.to_string (), cover_args);
     head_algo_ = dynamic_cast<area_coverage::Base_Area_Coverage*>(base_algo);
-
-    cerr << "Creating Area Coverage Algorithm" << endl;
 
     stringstream head_destination_str;
     head_destination_str << "device." << self->id.to_integer () << ".destination";
