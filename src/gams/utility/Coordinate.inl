@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Coordinate.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains the inline functions Location, Rotation, and Pose
  **/
 
 #ifndef _GAMS_UTILITY_COORDINATE_INL_

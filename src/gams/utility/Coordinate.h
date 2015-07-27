@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Coordinate.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes
@@ -251,7 +251,7 @@ namespace gams
        * This does not modify this Coordinate's reference frame binding.
        * The new coordinate will be within this Coordinate's reference frame.
        *
-       * @param the input string, as specified above
+       * @param in  the input string, as specified above
        **/
       void from_string(const std::string &in);
 

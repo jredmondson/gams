@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Base_Frame.h
+ * @file GPS_Frame.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the base reference Frame class
@@ -158,16 +158,43 @@ namespace gams
        **/
       virtual std::string get_name() const;
 
+      /**
+      * Transforms a location to origin
+      * @param x   the x coordinate
+      * @param y   the y coordinate
+      * @param z   the z coordinate
+      **/
       virtual void transform_location_to_origin(
                       double &x, double &y, double &z) const;
 
+      /**
+      * Transforms a location from origin
+      * @param x   the x coordinate
+      * @param y   the y coordinate
+      * @param z   the z coordinate
+      **/
       virtual void transform_location_from_origin(
                       double &x, double &y, double &z) const;
 
+      /**
+      * Calculates distance from one point to another
+      * @param x1   the x coordinate of the first point
+      * @param y1   the y coordinate of the first point
+      * @param z1   the z coordinate of the first point
+      * @param x2   the x coordinate of the second point
+      * @param y2   the y coordinate of the second point
+      * @param z2   the z coordinate of the second point
+      **/
       virtual double calc_distance(
                       double x1, double y1, double z1,
                       double x2, double y2, double z2) const;
 
+      /**
+      * Normalizes a location
+      * @param x   the x coordinate
+      * @param y   the y coordinate
+      * @param z   the z coordinate
+      **/
       virtual void do_normalize_location(
                       double &x, double &y, double &z) const;
 

@@ -140,7 +140,7 @@ namespace gams
        * @param rhs right-hand-side to multiply with
        * @return a new Quaternion object holding the result
        **/
-      Quaternion operator*(const Quaternion &o) const;
+      Quaternion operator*(const Quaternion &rhs) const;
 
       /**
        * Conjugate this quaternion in-place

@@ -3,6 +3,7 @@
 #include "gams/controllers/Base_Controller.h"
 #include "gams/platforms/java/Java_Platform.h"
 #include "gams/algorithms/java/Java_Algorithm.h"
+#include "gams/loggers/Global_Logger.h"
 
 namespace containers = Madara::Knowledge_Engine::Containers;
 namespace engine = Madara::Knowledge_Engine;
@@ -112,6 +113,30 @@ jlong JNICALL Java_com_gams_controllers_BaseController_jni_1execute
   return result;
 }
 
+void JNICALL Java_com_gams_controllers_BaseController_jni_1addAlgorithmFactory
+(JNIEnv * env, jobject, jlong cptr, jstring name, jobject factory)
+{
+  controllers::Base_Controller * current = (controllers::Base_Controller *) cptr;
+
+  if (current)
+  {
+    // get the name in C string format
+    const char * str_name = env->GetStringUTFChars (name, 0);
+
+    std::vector<std::string> aliases;
+    aliases.push_back (str_name);
+
+    algorithms::Java_Algorithm_Factory * facade =
+      new algorithms::Java_Algorithm_Factory (factory);
+
+    current->add_algorithm_factory (aliases, facade);
+
+
+    // clean up the allocated elements
+    env->ReleaseStringUTFChars (name, str_name);
+  }
+}
+
 /*
  * Class:     com_gams_controllers_BaseController
  * Method:    jni_initAccent
@@ -163,25 +188,61 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
   {
     // get the name in C string format
     const char * str_name = env->GetStringUTFChars(name, 0);
+    Madara::Knowledge_Vector args;
 
-    // create a knowledge vector to hold the arguments
-    Madara::Knowledge_Vector args (env->GetArrayLength (argslist));
-    jlong * elements = env->GetLongArrayElements (argslist, 0);
-
-    // iterate through arguments and copy the knowledge record for each arg
-    for (size_t i = 0; i < args.size (); ++i)
+    if (argslist)
     {
-      Madara::Knowledge_Record * cur_record = (Madara::Knowledge_Record *)elements[i];
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_algorithm (java):" \
+        " initializing algorithm %s with %d args\n", str_name,
+        (int)env->GetArrayLength (argslist));
 
-      if (cur_record)
-        args[i] = Madara::Knowledge_Record (*cur_record);
+      args.resize (env->GetArrayLength (argslist));
+
+      // create a knowledge vector to hold the arguments
+      jlong * elements = env->GetLongArrayElements (argslist, 0);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_algorithm (java):" \
+        " iterating through %d args\n",
+        (int)env->GetArrayLength (argslist));
+
+      // iterate through arguments and copy the knowledge record for each arg
+      for (size_t i = 0; i < args.size (); ++i)
+      {
+        Madara::Knowledge_Record * cur_record = (Madara::Knowledge_Record *)elements[i];
+
+        if (cur_record)
+          args[i] = Madara::Knowledge_Record (*cur_record);
+      }
+
+      env->ReleaseLongArrayElements (argslist, elements, 0);
     }
-    
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::Base_Controller::init_algorithm (java):" \
+        " initializing algorithm %s with no args\n", str_name);
+    }
+
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_algorithm (java):" \
+      " calling C++ init algorithm\n");
+
     // call the initialization method
     current->init_algorithm (str_name, args);
-    
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::init_algorithm (java):" \
+      " Releasing args list and string name\n");
+
     // clean up the allocated elements
-    env->ReleaseLongArrayElements(argslist, elements, 0);
     env->ReleaseStringUTFChars(name, str_name);
   }
 }

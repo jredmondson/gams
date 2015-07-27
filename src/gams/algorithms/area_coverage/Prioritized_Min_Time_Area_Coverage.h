@@ -74,6 +74,7 @@ namespace gams
          * Constructor
          * @param  knowledge    the context containing variables and values
          * @param  search_id    search area identifier
+         * @param  e_time       execution time
          * @param  platform     the underlying platform the algorithm will use
          * @param  sensors      map of sensor names to sensor information
          * @param  self         self-referencing variables

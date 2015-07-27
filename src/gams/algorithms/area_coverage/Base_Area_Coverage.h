@@ -76,6 +76,7 @@ namespace gams
          * @param  sensors      map of sensor names to sensor information
          * @param  self         self-referencing variables of this device
          * @param  devices      list of devices in the swarm
+         * @param  e_time    execution time
          **/
         Base_Area_Coverage (
           Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
@@ -83,7 +84,7 @@ namespace gams
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
           variables::Devices * devices = 0,
-          const ACE_Time_Value& exec_time_ = ACE_Time_Value(0.0));
+          const ACE_Time_Value& e_time = ACE_Time_Value(0.0));
   
         /**
          * Destructor

@@ -66,7 +66,8 @@ namespace gams
   namespace algorithms
   {
     /**
-     * Base class for algorithm factories to create Base_Algorithms
+     * Base class for algorithm factories that classes derived from
+     * @see Base_Algorithm
      **/
     class GAMS_Export Algorithm_Factory
     {

@@ -60,6 +60,7 @@
 #ifdef _GAMS_JAVA_
 #include "gams/algorithms/java/Java_Algorithm.h"
 #include "gams/platforms/java/Java_Platform.h"
+#include "gams/utility/java/Acquire_VM.h"
 #endif
 
 using std::cerr;
@@ -587,7 +588,54 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
     }
     else
     {
+#ifdef _GAMS_JAVA_
+      algorithms::Java_Algorithm * jalg =
+        dynamic_cast <algorithms::Java_Algorithm *> (algorithm_);
+
+      if (jalg)
+      {
+        // Acquire the Java virtual machine
+        gams::utility::java::Acquire_VM jvm;
+
+        jclass controllerClass = gams::utility::java::find_class (
+          jvm.env, "com/gams/controllers/BaseController");
+        jobject alg = jalg->get_java_instance ();
+        jclass algClass = jvm.env->GetObjectClass (alg);
+        
+        jmethodID initCall = jvm.env->GetMethodID (algClass,
+          "init", "(Lcom/gams/controllers/BaseController;)V");
+        jmethodID controllerFromPointerCall = jvm.env->GetStaticMethodID (
+          controllerClass,
+          "fromPointer", "(JZ)Lcom/gams/controllers/BaseController;");
+
+        if (initCall && controllerFromPointerCall)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "gams::controllers::Base_Controller::init_algorithm:" \
+            " Calling BaseAlgorithm init method.\n");
+          jobject controller = jvm.env->CallStaticObjectMethod (controllerClass,
+            controllerFromPointerCall, (jlong)this, (jboolean)false);
+
+          jvm.env->CallVoidMethod (
+            alg, initCall, jlong (this));
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_ERROR,
+            "gams::controllers::Base_Controller::init_algorithm:" \
+            " ERROR. Could not locate init and fromPointer calls in "
+            "BaseController. Unable to initialize algorithm.\n");
+        }
+      }
+      else
+      {
+        init_vars (*algorithm_);
+      }
+#else
       init_vars (*algorithm_);
+#endif
     }
   }
 }

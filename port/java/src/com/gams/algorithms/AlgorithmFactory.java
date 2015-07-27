@@ -44,49 +44,22 @@
  * 
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
-
-package com.gams.tests;
- 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
+package com.gams.algorithms;
 
 import com.madara.KnowledgeBase;
-import com.gams.controllers.BaseController;
-import com.gams.utility.Logging;
 import com.madara.KnowledgeList;
 
-import com.gams.algorithms.DebugAlgorithmFactory;
-
-public class TestDebuggerLoop
-{ 
-  public static void main (String...args) throws Exception
-  {
-    Logging.setLevel(6);
-  	  
-    System.out.println("Creating knowledge base...");
-    KnowledgeBase knowledge = new KnowledgeBase();
-    System.out.println("Passing knowledge base to base controller...");
-    BaseController controller = new BaseController(knowledge);
-    
-    System.out.println("Creating debug algorithm factory...");
-    DebugAlgorithmFactory debugFactory = new DebugAlgorithmFactory();
-    
-    System.out.println("Adding debug algorithm factory as 'java-debug'...");
-    controller.addAlgorithmFactory("java-debug", debugFactory);
- 
-    KnowledgeList list = new KnowledgeList();
-    
-    System.out.println("Initializing 'java-debug' algorithm...");
-    controller.initAlgorithm("java-debug", list);
-    
-    System.out.println("Running controller every 1s for 10s...");
-    controller.run(1.0, 200.0);
-    
-    controller.free();
-    knowledge.free();
-  }
-  
-  
+/**
+ * Interface for defining an algorithm factory for creating algorithms
+ * via the command interface in GAMS
+ */
+public interface AlgorithmFactory
+{
+  /**
+   * Creates an algorithm
+   * @param   args       arguments to the algorithm creation
+   * @param   knowledge  the knowledge base being used by the controller
+   * @return  an instance of a base algorithm
+   **/
+  BaseAlgorithm create(KnowledgeList args, KnowledgeBase knowledge);
 }

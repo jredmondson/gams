@@ -83,6 +83,7 @@ namespace gams
          * @param  platform   the underlying platform the algorithm will use
          * @param  sensors    map of sensor names to sensor information
          * @param  self       self-referencing variables
+         * @param  devices    a list of devices
          **/
         Perimeter_Patrol (
           const std::string& region_id,

@@ -64,6 +64,7 @@ public class DebuggerAlgorithm extends BaseAlgorithm
   /**
    * Analyzes the state of the algorithm
    **/
+  @Override
   public int analyze()
   {
     executions.setName(knowledge, ".executions");
@@ -92,6 +93,7 @@ public class DebuggerAlgorithm extends BaseAlgorithm
   /**
    * Plans the next stage of the algorithm
    **/
+  @Override
   public int plan()
   {
     System.out.println(self.id.get() + ":" + executions.get () +
@@ -103,6 +105,7 @@ public class DebuggerAlgorithm extends BaseAlgorithm
   /**
    * Executes the next stage of the algorithm
    **/
+  @Override
   public int execute()
   {
     System.out.println(self.id.get() + ":" + executions.get () +

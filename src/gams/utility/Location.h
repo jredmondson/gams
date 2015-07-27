@@ -379,6 +379,7 @@ namespace gams
        * Copy constructor, but transform into the new frame as well.
        *
        * @param new_frame the new frame to transform to
+       * @param orig      the origin location
        **/
       Location(const Reference_Frame &new_frame, const Location &orig);
 

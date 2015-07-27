@@ -60,6 +60,7 @@
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
+#include "gams/algorithms/Algorithm_Factory.h"
 
 #ifdef _GAMS_JAVA_
 #include <jni.h>
@@ -143,6 +144,60 @@ namespace gams
 
       /// the class of the Java object obj_
       jclass class_;
+    };
+
+
+    /**
+    * A factory class for creating Java Algorithms
+    **/
+    class GAMS_Export Java_Algorithm_Factory : public Algorithm_Factory
+    {
+    public:
+
+      /**
+       * Constructor
+       * @param obj  the Java object that implements AlgorithmFactory
+       **/
+      Java_Algorithm_Factory (jobject obj);
+
+      /**
+       * Destructor
+       **/
+      virtual ~Java_Algorithm_Factory ();
+
+      /**
+      * Creates a Java Algorithm.
+      * @param   args    first arg is where to store the executions tracker in
+      *                  the knowledge base. Default is ".executions" when no
+      *                  args are provided.
+      * @param   knowledge the knowledge base to use
+      * @param   platform  the platform. This will be set by the
+      *                    controller in init_vars.
+      * @param   sensors   the sensor info. This will be set by the
+      *                    controller in init_vars.
+      * @param   self      self-referencing variables. This will be
+      *                    set by the controller in init_vars
+      * @param   devices   the list of devices, which is dictated by
+      *                    init_vars when a number of processes is set. This
+      *                    will be set by the controller in init_vars
+      **/
+      virtual Base_Algorithm * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        platforms::Base_Platform * platform,
+        variables::Sensors * sensors,
+        variables::Self * self,
+        variables::Devices * devices);
+
+      /**
+      * Returns the Java instance that implements from
+      * AlgorithmFactory.
+      **/
+      jobject get_java_instance (void);
+
+      protected:
+        /// the Java object with callable methods
+        jobject obj_;
     };
   }
 }

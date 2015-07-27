@@ -69,7 +69,6 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  send         size of data to send, 0 to not send
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information

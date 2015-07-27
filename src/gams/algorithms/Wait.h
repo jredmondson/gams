@@ -75,14 +75,14 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  double       time (in seconds) to wait
+       * @param  wait_time    time (in seconds) to wait
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
       Wait (
-        const double& w,
+        const double& wait_time,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,

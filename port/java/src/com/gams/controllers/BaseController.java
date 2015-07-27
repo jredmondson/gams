@@ -53,6 +53,7 @@ import com.gams.algorithms.BaseAlgorithm;
 import com.gams.platforms.BasePlatform;
 import com.gams.platforms.DebuggerPlatform;
 import com.gams.algorithms.DebuggerAlgorithm;
+import com.gams.algorithms.AlgorithmFactory;
 
 public class BaseController extends GamsJNI
 {	
@@ -64,6 +65,7 @@ public class BaseController extends GamsJNI
   private native long jni_execute(long cptr);
   private native long jni_getPlatform(long cptr);
   private native long jni_getAlgorithm(long cptr);
+  private native void jni_addAlgorithmFactory(long cptr, java.lang.String name, Object factory);
   private native void jni_initAccent(long cptr, java.lang.String name, long[] args);
   private native void jni_initAlgorithm(long cptr, java.lang.String name, long[] args);
   private native void jni_initPlatform(long cptr, java.lang.String name);
@@ -85,6 +87,21 @@ public class BaseController extends GamsJNI
   private long id = 0;
   private long processes = 1;
   
+  private boolean manageMemory = true;
+
+  /**
+   * Constructor from C pointers
+   * @param cptr the C-style pointer to the Base_Controller class instance
+   */
+  private BaseController(long cptr)
+  {
+    setCPtr(cptr);
+  }
+  
+  /**
+   * Constructor
+   * @param knowledge knowledge base to use
+   */
   public BaseController(KnowledgeBase knowledge)
   {
     setCPtr(jni_BaseControllerFromKb(knowledge.getCPtr ()));
@@ -94,9 +111,27 @@ public class BaseController extends GamsJNI
     initAlgorithm(new DebuggerAlgorithm ());
   }
 
+  /**
+   * Copy constructor
+   * @param input the instance to copy 
+   */
   public BaseController(BaseController input)
   {
     setCPtr(jni_BaseController(input.getCPtr()));
+  }
+
+  /**
+   * Creates a java object instance from a C/C++ pointer
+   *
+   * @param cptr C pointer to the object
+   * @param shouldManage  if true, manage the pointer
+   * @return a new java instance of the underlying pointer
+   **/
+  public static BaseController fromPointer(long cptr, boolean shouldManage)
+  {
+    BaseController ret = new BaseController(cptr);
+    ret.manageMemory=shouldManage;
+    return ret;
   }
 
   /**
@@ -141,6 +176,18 @@ public class BaseController extends GamsJNI
     jni_initAlgorithm(getCPtr(), name, args.toPointerArray());
   }
 
+  /**
+   * Adds a named algorithm factory to the controller, which allows for usage
+   * of the named factory in swarm.command and device.*.command
+   * @param name   the string name to associate with the factory
+   * @param factory the factory that creates the algorithm
+   */
+  public void addAlgorithmFactory(
+    java.lang.String name, AlgorithmFactory factory)
+  {
+    jni_addAlgorithmFactory(getCPtr(), name, factory);
+  }
+  
   /**
    * Initialize a platform within the controller
    *
@@ -332,7 +379,10 @@ public class BaseController extends GamsJNI
    */
   public void free()
   {
-    jni_freeBaseController(getCPtr());
+    if (manageMemory)
+    {
+      jni_freeBaseController(getCPtr());
+    }
     setCPtr(0);
   }
   

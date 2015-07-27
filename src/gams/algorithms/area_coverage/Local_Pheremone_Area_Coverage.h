@@ -70,9 +70,11 @@ namespace gams
          * Constructor
          * @param  knowledge    the context containing variables and values
          * @param  search_id    the identifier of the search area
+         * @param  e_time       execution time
          * @param  platform     the underlying platform the algorithm will use
          * @param  sensors      map of sensor names to sensor information
          * @param  self         self-referencing variables
+         * @param  devices      the list of all devices
          **/
         Local_Pheremone_Area_Coverage (
           const std::string& search_id, 

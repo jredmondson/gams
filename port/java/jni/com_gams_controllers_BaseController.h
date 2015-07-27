@@ -73,6 +73,14 @@ GAMS_Export jlong JNICALL Java_com_gams_controllers_BaseController_jni_1getAlgor
   (JNIEnv *, jobject, jlong);
 
 /*
+* Class:     com_gams_controllers_BaseController
+* Method:    jni_addAlgorithmFactory
+* Signature: (JLjava/lang/String;Ljava/lang/Object;)V
+*/
+GAMS_Export void JNICALL Java_com_gams_controllers_BaseController_jni_1addAlgorithmFactory
+(JNIEnv *, jobject, jlong, jstring, jobject);
+
+/*
  * Class:     com_gams_controllers_BaseController
  * Method:    jni_initAccent
  * Signature: (JLjava/lang/String;[J)V

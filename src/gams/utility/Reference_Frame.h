@@ -152,7 +152,7 @@ namespace gams
        *
        * @param parent_frame of the two involved frames, the parent frame
        * @param child_frame of the two involved frames, the child frame
-       * @param is_child_to_parant indicates direction of transformation
+       * @param is_child_to_parent indicates direction of transformation
        * @param unsupported_rotation true if the error was due to rotated
        *   reference frames not being supported for this transformation.
        *   Defaults to false;
@@ -288,7 +288,9 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param in transforms parameter into origin frame from this frame.
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
        **/
       virtual void transform_location_to_origin(
                       double &x, double &y, double &z) const;
@@ -296,7 +298,9 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param in transforms parameter into this frame from origin frame.
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
        **/
       virtual void transform_location_from_origin(
                       double &x, double &y, double &z) const;
@@ -305,7 +309,9 @@ namespace gams
        * Override for new coordinate systems that can require normalization of
        * coordinates, e.g., angle-based systems. NOP by default.
        *
-       * @param in transforms parameter into normalized form
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
        **/
       virtual void do_normalize_location(
                       double &x, double &y, double &z) const;
@@ -313,8 +319,12 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param loc1 Distance from this location
-       * @param loc2 Distance to this location
+       * @param x1   x coordinate of first position
+       * @param y1   y coordinate of first position
+       * @param z1   z coordinate of first position
+       * @param x2   x coordinate of other position
+       * @param y2   y coordinate of other position
+       * @param z2   z coordinate of other position
        * @return distance in meters from loc1 to loc2
        **/
       virtual double calc_distance(
@@ -324,7 +334,9 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param in transforms parameter into origin frame from this frame.
+       * @param rx   x axis of rotation
+       * @param ry   y axis of rotation
+       * @param rz   z axis of rotation
        **/
       virtual void transform_rotation_to_origin(
                       double &rx, double &ry, double &rz) const;
@@ -332,7 +344,9 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param in transforms parameter into this frame from origin frame.
+       * @param rx   x axis of rotation
+       * @param ry   y axis of rotation
+       * @param rz   z axis of rotation
        **/
       virtual void transform_rotation_from_origin(
                       double &rx, double &ry, double &rz) const;
@@ -340,8 +354,12 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param rot1 Distance from this rotation
-       * @param rot2 Distance to this rotation
+       * @param rx1   x axis of first rotation
+       * @param ry1   y axis of first rotation
+       * @param rz1   z axis of first rotation
+       * @param rx2   x axis of second rotation
+       * @param ry2   y axis of second rotation
+       * @param rz2   z axis of second rotation
        * @return rotational distance in degrees from rot1 to rot2
        **/
       virtual double calc_angle(
@@ -352,7 +370,9 @@ namespace gams
        * Override for new coordinate systems that can require normalization of
        * coordinates, e.g., angl-based systems. NOP by default.
        *
-       * @param in transforms parameter into normalized form
+       * @param rx   x axis of rotation
+       * @param ry   y axis of rotation
+       * @param rz   z axis of rotation
        **/
       virtual void do_normalize_rotation(
                       double &rx, double &ry, double &rz) const;
@@ -407,7 +427,6 @@ namespace gams
        *
        * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
        * @param in the Coordinate to transform. This object may be modified.
-       * @param frame the frame to transform into. Must be origin of in.
        **/
       template<typename CoordType>
       static void transform_to_origin(CoordType &in);
@@ -419,7 +438,7 @@ namespace gams
        *
        * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
        * @param in the Coordinate to transform. This object may be modified.
-       * @param frame the frame to transform into. Must be origin of in.
+       * @param to_frame the frame to transform into. Must be origin of in.
        **/
       template<typename CoordType>
       static void transform_from_origin(CoordType &in,
@@ -433,8 +452,6 @@ namespace gams
        * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
        * @param coord1 The coordinate to measure from
        * @param coord2 The coordinate to measure to
-       * @param frame the reference frame to calculate within. Must be the
-       *    frame of coord1 and coord2.
        * @return the distance, in meters, between the coordinates
        *
        * @pre coord1 and coord2 must have same frame, passed as "frame"
@@ -460,7 +477,7 @@ namespace gams
        * Transform into another frame, if coordinates are not directly related.
        *
        * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
-       * @param the coordinate to transform (in-place)
+       * @param in the coordinate to transform (in-place)
        * @param to_frame the frame to transform into
        *
        * @throws unrelated_frame if no common parent.
@@ -525,7 +542,9 @@ namespace gams
       /**
        * Rotates a Location_Vector according to a Rotation_Vector
        *
-       * @param loc the Location_Vector to rotate (in-place)
+       * @param x   the x coordinate to rotate (in-place)
+       * @param y   the y coordinate to rotate (in-place)
+       * @param z   the z coordinate to rotate (in-place)
        * @param rot the rotation to apply, axis-angle notation
        * @param reverse if true, apply rotation in opposite direction
        **/
@@ -538,7 +557,9 @@ namespace gams
       /**
        * Transforms Rotation_Vector in-place into from its frame
        *
-       * @param in the Rotation_Vector to transform
+       * @param rx  the angle on x axis
+       * @param ry  the angle on y axis
+       * @param rz  the angle on z axis
        **/
       virtual void transform_rotation_to_origin(
                       double &rx, double &ry, double &rz) const;
@@ -546,7 +567,9 @@ namespace gams
       /**
        * Transforms Rotation_Vector in-place from its origin frame
        *
-       * @param in the Rotation_Vector to transform
+       * @param rx  the angle on x axis
+       * @param ry  the angle on y axis
+       * @param rz  the angle on z axis
        **/
       virtual void transform_rotation_from_origin(
                       double &rx, double &ry, double &rz) const;
@@ -554,8 +577,12 @@ namespace gams
       /**
        * Calculates smallest angle between two Rotation_Vectors
        *
-       * @param rot1 the starting rotation
-       * @param rol2 the ending rotation
+       * @param rx1  the starting rotation on x axis
+       * @param ry1  the starting rotation on y axis
+       * @param rz1  the starting rotation on z axis
+       * @param rx2 the ending rotatation on x axis
+       * @param ry2  the ending rotation on y axis
+       * @param rz2  the ending rotation on z axis
        * @return the difference in degrees
        **/
       virtual double calc_angle(

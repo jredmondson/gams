@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Pose.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes
@@ -98,7 +98,7 @@ namespace gams
        * Construct a Pose_Vector from a Rotation_Vector. Location info will
        * be all zeros (is_location_zero() == true)
        *
-       * @param loc the Rotation_Vector to get location info from.
+       * @param rot the Rotation_Vector to get location info from.
        **/
       constexpr Pose_Vector(const Rotation_Vector &rot);
 
@@ -357,6 +357,7 @@ namespace gams
        * Copy constructor, but also transform to the new frame.
        *
        * @param new_frame the frame to transform into
+       * @param orig      the origin to use for Pose information
        **/
       Pose(const Reference_Frame &new_frame, const Pose &orig);
 

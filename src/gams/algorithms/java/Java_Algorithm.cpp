@@ -47,6 +47,138 @@
 #include "gams/utility/java/Acquire_VM.h"
 #include "gams/loggers/Global_Logger.h"
 
+gams::algorithms::Java_Algorithm_Factory::Java_Algorithm_Factory (
+  jobject obj)
+{
+  gams::utility::java::Acquire_VM jvm;
+
+  if (jvm.env)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Java_Algorithm_Factory::constructor:" \
+      " allocating global reference for object.\n");
+
+    obj_ = (jobject)jvm.env->NewGlobalRef (obj);
+
+    if (obj_ == 0)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm_Factory::constructor:" \
+        " ERROR: object is invalid.\n");
+    }
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::Java_Algorithm_Factory::constructor:" \
+      " ERROR: unable to acquire JAVA environment.\n");
+  }
+}
+
+
+gams::algorithms::Java_Algorithm_Factory::~Java_Algorithm_Factory ()
+{
+  gams::utility::java::Acquire_VM jvm;
+
+  if (jvm.env)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Java_Algorithm_Factory::destructor:" \
+      " deleting factory object.\n");
+
+    jvm.env->DeleteGlobalRef (obj_);
+  }
+}
+
+gams::algorithms::Base_Algorithm *
+gams::algorithms::Java_Algorithm_Factory::create (
+const Madara::Knowledge_Vector & args,
+Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+platforms::Base_Platform * platform,
+variables::Sensors * sensors,
+variables::Self * self,
+variables::Devices * devices)
+{
+  // Acquire the Java virtual machine
+  gams::utility::java::Acquire_VM jvm;
+
+  gams::algorithms::Base_Algorithm * result (0);
+
+  if (jvm.env)
+  {
+    // obtain class handles
+    jclass kbClass = gams::utility::java::find_class (
+      jvm.env, "com/madara/KnowledgeBase");
+    jclass listClass = gams::utility::java::find_class (
+      jvm.env, "com/madara/KnowledgeList");
+
+    // get method call ids that we will need
+    jmethodID listConstructor = jvm.env->GetMethodID (listClass,
+      "<init>", "([J)V");
+    jmethodID kbFromPointerCall = jvm.env->GetStaticMethodID (kbClass,
+      "fromPointer", "(J)Lcom/madara/KnowledgeBase;");
+    jmethodID factoryCreateCall = jvm.env->GetMethodID (kbClass,
+      "create", "(J)Lcom/gams/algorithms/BaseAlgorithm;");
+
+    if (factoryCreateCall)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm_Factory::create:"
+        " Java class has a create method.\n");
+      // create the list of args
+
+      jlongArray ret = jvm.env->NewLongArray ((jsize)args.size ());
+      jlong * tmp = new jlong[(jsize)args.size ()];
+
+      for (unsigned int x = 0; x < args.size (); x++)
+      {
+        tmp[x] = (jlong)args[x].clone ();
+      }
+
+      jvm.env->SetLongArrayRegion (ret, 0, (jsize)args.size (), tmp);
+      delete[] tmp;
+
+      // create the KnowledgeList
+      jobject list = jvm.env->NewObject (listClass, listConstructor, ret);
+
+      // create the KnowledgeBase
+      jobject jknowledge = jvm.env->CallStaticObjectMethod (kbClass,
+        kbFromPointerCall, (jlong)knowledge);
+
+      // get the factory's class
+      jclass filterClass = jvm.env->GetObjectClass (obj_);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm_Factory::create:"
+        " Calling create method on Java object.\n");
+
+      jobject obj = jvm.env->CallObjectMethod (
+        obj_, factoryCreateCall, list, jknowledge);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Java_Algorithm_Factory::create:"
+        " Creating Java algorithm instance for controller.\n");
+
+      result = new Java_Algorithm (obj, knowledge, 0, sensors, self, devices);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Java_Algorithm_Factory::create:"
+        " Java class does not have a create method.\n");
+    }
+  }
+
+  return result;
+}
 
 gams::algorithms::Java_Algorithm::Java_Algorithm (
   jobject obj,
