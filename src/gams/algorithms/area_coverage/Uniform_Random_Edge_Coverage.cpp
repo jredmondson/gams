@@ -54,11 +54,11 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Devices * /*devices*/)
 {
   Base_Algorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self)
   {
     if (args.size () >= 1)
     {
@@ -93,7 +93,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
-           "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+          "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
           " invalid first arg, expected string\n");
       }
     }
@@ -101,24 +101,41 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-         "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
         " expected 1 or 2 args\n");
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-       "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+    if (knowledge)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        " invalid knowledge parameter\n");
+    }
+    if (sensors)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        " invalid sensors parameter\n");
+    }
+    if (self)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        " invalid self parameter\n");
+    }
   }
 
   if (result == 0)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
-      " unknown error creating algorithm\n");
+      "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+      " error creating algorithm\n");
   }
 
   return result;
