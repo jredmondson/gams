@@ -74,7 +74,7 @@ namespace gams
        * @param  init_vertices  the vertices of the region
        **/
       Region (const std::vector <GPS_Position> & init_vertices =
-        std::vector<GPS_Position> ());
+        std::vector<GPS_Position> (), unsigned int t = 0);
 
       /**
        * Destructor
@@ -130,6 +130,7 @@ namespace gams
       /**
        * Helper function for converting the position to a string
        * @param delimiter characters to insert between position components
+       * @return string representation of this Region
        **/
       std::string to_string (const std::string & delimiter = ":") const;
 
@@ -157,15 +158,6 @@ namespace gams
       double min_lon_, max_lon_;
       double min_alt_, max_alt_;
       
-      /**
-       * Initialize region from knowledge base information
-       * @param knowledge   knowledge base to draw from
-       * @param prefix      complete prefix for region (e.g., "region.0")
-       * @return Region object created from knowledge base
-       **/
-      void init (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const std::string & prefix);
-
     protected:
       /**
        * populate bounding box values
@@ -175,16 +167,6 @@ namespace gams
       /// type for this region
       unsigned int type_;
     }; // class Region
-
-    /**
-     * Create region from knowledge base information
-     * @param knowledge   knowledge base to draw from
-     * @param prefix      complete prefix for region (e.g., "region.0")
-     * @return Region object created from knowledge base
-     **/
-    GAMS_Export Region parse_region (
-      Madara::Knowledge_Engine::Knowledge_Base& knowledge,
-      const std::string & prefix);
   } // namespace utility
 } // namespace gams
 

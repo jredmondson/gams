@@ -50,6 +50,8 @@
 #include "gams/utility/GPS_Position.h"
 #include "gams/utility/Position.h"
 
+#include "gams/loggers/Global_Logger.h"
+
 using std::stringstream;
 
 #define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
@@ -194,6 +196,13 @@ gams::utility::GPS_Position::distance_to (const GPS_Position & rhs) const
   // use distance formula
   const double dist =
     sqrt (pow (ns_dif, 2.0) + pow (ew_dif, 2.0) + pow (alt_dif, 2.0));
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::utility::GPS_Position::distance_to:" \
+    " distance from \"%s\" to \"%s\" is %f\n", to_string ().c_str (),
+    rhs.to_string ().c_str (), dist);
+
   return dist;
 }
 

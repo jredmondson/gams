@@ -362,8 +362,8 @@ void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
       if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
         simx_opmode_oneshot_wait) != simx_error_noerror)
       {
-        cerr << "failure loading plant model" << endl;
-        exit (0);
+        cerr << "failure loading border model" << endl;
+        exit (-1);
       }
   
       // move object
@@ -521,13 +521,13 @@ void create_environment (const int& client_id,
   {
     cout << "placing border models as markers...";
 
-    // paint each vertex
+    // paint each selected region
     for (size_t i = 0; i < regions.size (); ++i)
     {
       if (regions[i].find ("region") != std::string::npos)
       {
-        gams::utility::Region reg =
-          gams::utility::parse_region (knowledge, regions[i]);
+        gams::utility::Region reg;
+        reg.from_container (regions[i], knowledge);
         put_border (knowledge, reg, client_id);
       }
       else // search_area

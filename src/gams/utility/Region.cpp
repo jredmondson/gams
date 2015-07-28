@@ -61,6 +61,7 @@
 #include "gams/loggers/Global_Logger.h"
 
 #include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge_engine/containers/Vector.h"
 
 using std::string;
 using std::stringstream;
@@ -68,8 +69,9 @@ using std::vector;
 
 typedef  Madara::Knowledge_Record::Integer Integer;
 
-gams::utility::Region::Region (const std::vector <GPS_Position> & init_vertices) :
-  vertices (init_vertices)
+gams::utility::Region::Region (const std::vector <GPS_Position> & init_vertices, 
+  unsigned int t) :
+  vertices (init_vertices), type_ (t)
 {
   calculate_bounding_box ();
 }
@@ -180,8 +182,7 @@ gams::utility::Region::contains (const Position & p,
   const GPS_Position & ref) const
 {
   // convert to GPS_Position and then just use other contains
-  return contains (
-    utility::GPS_Position::to_gps_position (p, ref));
+  return contains (utility::GPS_Position::to_gps_position (p, ref));
 }
 
 gams::utility::Region
@@ -268,62 +269,122 @@ gams::utility::Region::to_string (const string & delimiter) const
 }
 
 void
-gams::utility::Region::to_container (const std::string& name, 
+gams::utility::Region::to_container (const std::string& prefix, 
   Madara::Knowledge_Engine::Knowledge_Base& kb) const
 {
-  // generate prefix
-  std::string prefix = std::string ("region.") + name;
-
   // set type
   Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
-  type = 0; // only type right now
+  type = type_;
 
-  // set size
-  Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
-  size = vertices.size();
-
-  // set vertices
-  Madara::Knowledge_Engine::Containers::Native_Double_Vector target;
-  for (unsigned int i = 0; i < vertices.size (); ++i)
+  switch (type.to_integer ())
   {
-    std::stringstream name;
-    name << prefix << "." << i;
-    target.set_name (name.str (), kb);
-    target.set (2, vertices[i].z);
-    target.set (0, vertices[i].x);
-    target.set (1, vertices[i].y);
+    case 0: // arbitrary convex polygon
+    {
+      // set size
+      Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
+      size = vertices.size();
+    
+      // set vertices
+      Madara::Knowledge_Engine::Containers::Native_Double_Vector target;
+      for (unsigned int i = 0; i < vertices.size (); ++i)
+      {
+        std::stringstream name;
+        name << prefix << "." << i;
+        target.set_name (name.str (), kb);
+        target.set (2, vertices[i].z);
+        target.set (0, vertices[i].x);
+        target.set (1, vertices[i].y);
+      }
+
+      break;
+    }
+    default:
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::utility::Region::to_container:" \
+        " ERROR: invalid region type %" PRId64 ".\n", type.to_integer ());
   }
 }
 
 void
-gams::utility::Region::from_container (const std::string& name, 
+gams::utility::Region::from_container (const std::string& prefix, 
   Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
-  // generate prefix
-  std::string prefix = std::string ("region.") + name;
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Region::from_container:" \
+    " prefix = %s\n", prefix.c_str ());
 
   // get type
   Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
   type_ = type.to_integer ();
 
-  // get size
-  Madara::Knowledge_Engine::Containers::Integer size_container (prefix + ".size", kb);
-  unsigned int size = size_container.to_integer ();
-
   // get vertices
-  vertices.resize (size);
-  Madara::Knowledge_Engine::Containers::Native_Double_Vector vertex;
-  for (unsigned int i = 0; i < size; ++i)
+  switch (type_)
   {
-    std::stringstream name;
-    name << prefix << "." << i;
-    vertex.set_name (name.str (), kb);
-    vertices[i].x = vertex[0];
-    vertices[i].y = vertex[1];
-    vertices[i].z = vertex[2];
-  }
+    case 0: // arbitrary convex polygon
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+         "gams::utility::Region::from_container:" \
+         " type is arbitrary convex polygon\n");
 
-  calculate_bounding_box ();
+      // get size
+      Madara::Knowledge_Engine::Containers::Vector vertices_knowledge;
+      vertices_knowledge.set_name (prefix, kb);
+      vertices_knowledge.resize();
+      unsigned int size = vertices_knowledge.size ();
+      vertices.resize (size);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::utility::Region::from_container:" \
+        " size is %u\n", size);
+
+      // get each of the vertices
+      for (Integer i = 0; i < size; ++i)
+      {
+        std::vector<double> coords (vertices_knowledge[i].to_doubles ());
+
+        if (coords.size () == 2)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::utility::Region::from_container:" \
+            " Adding coordinate (%f, %f)\n",
+            coords[0], coords[1]);
+          vertices[i] = GPS_Position(coords[0], coords[1]);
+        }
+        else if (coords.size () == 3)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::utility::Region::from_container:" \
+            " Adding coordinate (%f, %f, %f)\n",
+            coords[0], coords[1], coords[2]);
+          vertices[i] = GPS_Position(coords[0], coords[1], coords[2]);
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_ERROR,
+            "gams::utility::Region::from_container:" \
+            " ERROR: invalid coordinate type at %s.%u\n", prefix.c_str (), i);
+        }
+      }
+
+      calculate_bounding_box ();
+
+      break;
+    }
+    default:
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+         "gams::utility::Region::from_container:" \
+        " ERROR: invalid region type %" PRId64 ".\n", type_);
+    }
+  }
 }
 
 void
@@ -351,94 +412,4 @@ gams::utility::Region::calculate_bounding_box ()
     max_alt_ = (max_alt_ < vertices[i].altitude ()) ?
       vertices[i].altitude () : max_alt_;
   }
-}
-
-void
-gams::utility::Region::init (
-  Madara::Knowledge_Engine::Knowledge_Base& knowledge,
-  const string & prefix)
-{
-  // get region id
-  string region_prefix (prefix + ".");
-  string region_size = prefix + ".size";
-
-  vertices.clear ();
-
-  // building the region type identifier
-  //sprintf (expression, "region.%u.type", region_id);
-  std::stringstream region_type_str;
-  region_type_str << region_prefix;
-  region_type_str << "type";
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-     "gams::utility::Region::init:" \
-    " reading type from %s.\n", region_type_str.str ().c_str ());
-
-  Integer region_type = knowledge.get (region_type_str.str ()).to_integer ();
-  switch (region_type)
-  {
-    case 0: // arbitrary convex polygon
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
-         "gams::utility::Region::init:" \
-        " type is arbitrary convex polygon.\n");
-
-      const Integer num_vertices = knowledge.get (region_size).to_integer ();
-      for (Integer i = 0; i < num_vertices; ++i) // get the vertices
-      {
-        std::stringstream vertex_name;
-        vertex_name << region_prefix << i;
-
-        Madara::Knowledge_Record record = knowledge.get (vertex_name.str ());
-
-        std::vector <double> coords = record.to_doubles ();
-
-        if (coords.size () == 2)
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-             "gams::utility::Region::init:" \
-            " Adding coordinate (%d, %d).\n",
-            coords[0], coords[1]);
-          vertices.push_back (GPS_Position(coords[0], coords[1]));
-        }
-        else if (coords.size () == 3)
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-             "gams::utility::Region::init:" \
-            " Adding coordinate (%d, %d, %d).\n",
-            coords[0], coords[1], coords[2]);
-          vertices.push_back (GPS_Position(coords[0], coords[1], coords[2]));
-        }
-        else
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_ERROR,
-             "gams::utility::Region::init:" \
-            " ERROR: invalid coordinate type at %s.\n", vertex_name.str ().c_str ());
-        }
-      }
-      break;
-    }
-    default:
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-         "gams::utility::Region::init:" \
-        " ERROR: invalid region type %" PRId64 ".\n", region_type);
-  }
-
-  // recalculate the bounding box
-  calculate_bounding_box ();
-}
-
-gams::utility::Region gams::utility::parse_region (
-  Madara::Knowledge_Engine::Knowledge_Base& knowledge,
-  const std::string & prefix)
-{
-  Region result;
-  result.init (knowledge, prefix);
-  return result;
 }

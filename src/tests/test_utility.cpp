@@ -306,9 +306,19 @@ test_Search_Area ()
   p.latitude (40.443337);
   p.longitude (-79.940298);
   points.push_back (p);
-  Prioritized_Region pr2 (points, 1);
+  Prioritized_Region pr2 (points, 5);
   search.add_prioritized_region (pr2);
   assert (search.get_convex_hull () == convex1);
+
+  // test to/from container
+  Madara::Knowledge_Engine::Knowledge_Base kb;
+  pr.to_container ("test", kb);
+  Prioritized_Region from;
+  from.from_container ("test", kb);
+  assert (from == pr);
+  from.to_container ("test2", kb);
+  pr.from_container ("test2", kb);
+  assert (from == pr);
 }
 
 int

@@ -154,6 +154,14 @@ gams::algorithms::area_coverage::Snake_Area_Coverage::Snake_Area_Coverage (
   compute_waypoints (region_id);
 
   generate_new_position ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Snake_Area_Coverage::constructor:" \
+    " selected \"%s\"\n", next_position_.to_string ().c_str ());
+
+  cerr << "exec_time_: " << exec_time_ << endl;
+  cerr << "end_time_: " << end_time_ << endl;
 }
 
 gams::algorithms::area_coverage::Snake_Area_Coverage::~Snake_Area_Coverage ()
@@ -190,7 +198,13 @@ gams::algorithms::area_coverage::Snake_Area_Coverage::compute_waypoints (
   const string& region_id)
 {
   // get region information
-  utility::Region region  = utility::parse_region (*knowledge_, region_id);
+  utility::Region region;
+  region.from_container (region_id, *knowledge_);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Snake_Area_Coverage::compute_waypoints:" \
+    " using region \"%s\"\n", region.to_string ().c_str ());
 
   // convert to equirectangular projection coordinates
   const size_t num_edges = region.vertices.size ();
@@ -342,4 +356,13 @@ gams::algorithms::area_coverage::Snake_Area_Coverage::compute_waypoints (
       }
     } // end while still finding intercepts
   } // end for +/- delta_b
+
+  size_t idx = 0;
+  for (const utility::GPS_Position& p : waypoints_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::Snake_Area_Coverage::compute_waypoints:" \
+      " waypoint %u: \"%s\"\n", idx++, p.to_string ().c_str ());
+  }
 }

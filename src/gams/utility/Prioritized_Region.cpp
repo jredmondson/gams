@@ -55,6 +55,9 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
+
+#include "madara/knowledge_engine/containers/Integer.h"
 
 using std::string;
 using std::vector;
@@ -81,24 +84,34 @@ gams::utility::Prioritized_Region::operator= (const Prioritized_Region & rhs)
   }
 }
 
-void
-gams::utility::Prioritized_Region::init (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-  const string & prefix)
+std::string
+gams::utility::Prioritized_Region::to_string (const std::string & delimiter)
+  const
 {
-  // initialize super class variables
-  ((Region *)(this))->init (knowledge, prefix);
-
-  // get priority
-  priority = knowledge.get (prefix + ".priority").to_integer ();
+  std::stringstream ret_val;
+  ret_val << this->Region::to_string (delimiter) << std::endl;
+  ret_val << "\tpriority: " << priority << std::endl;
+  return ret_val.str ();
 }
 
-gams::utility::Prioritized_Region
-gams::utility::parse_prioritized_region (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-  const string & prefix)
+void
+gams::utility::Prioritized_Region::to_container (const std::string& name, 
+  Madara::Knowledge_Engine::Knowledge_Base& kb) const
 {
-  Prioritized_Region result;
-  result.init (knowledge, prefix);
-  return result;
+  ((Region *)(this))->to_container (name, kb);
+  Madara::Knowledge_Engine::Containers::Integer priority_container;
+  priority_container.set_name (name + ".priority", kb);
+  priority_container = priority;
+}
+
+void
+gams::utility::Prioritized_Region::from_container (const std::string& name, 
+  Madara::Knowledge_Engine::Knowledge_Base& kb)
+{
+  ((Region *)(this))->from_container (name, kb);
+  Madara::Knowledge_Engine::Containers::Integer priority_container;
+  priority_container.set_name (name + ".priority", kb);
+  if (!priority_container.exists ())
+    priority_container = 1; // default to priority = 1
+  priority = priority_container.to_integer ();
 }

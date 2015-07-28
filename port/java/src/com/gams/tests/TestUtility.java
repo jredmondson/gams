@@ -49,6 +49,7 @@ package com.gams.tests;
  
 import com.madara.KnowledgeBase;
 import com.gams.utility.Region;
+import com.gams.utility.PrioritizedRegion;
 import com.gams.utility.GpsPosition;
 
 public class TestUtility
@@ -74,10 +75,32 @@ public class TestUtility
     System.err.println(reg2.toString());
   }
 
+  public static void testPrioritizedRegion()
+  {
+    com.madara.KnowledgeBase kb = new com.madara.KnowledgeBase();
+    com.gams.utility.PrioritizedRegion reg1 = new com.gams.utility.PrioritizedRegion();
+    com.gams.utility.PrioritizedRegion reg2 = new com.gams.utility.PrioritizedRegion();
+
+    reg1.addVertex(new GpsPosition(0,0,0));
+    reg1.addVertex(new GpsPosition(0,4,0));
+    reg1.addVertex(new GpsPosition(3,0,0));
+    reg1.setPriority(5);
+
+    reg1.toContainer("test", kb);
+    reg2.fromContainer("test", kb);
+
+    System.err.println(kb.toString());
+    System.err.println("reg1: ");
+    System.err.println(reg1.toString());
+    System.err.println();
+    System.err.println("reg2: ");
+    System.err.println(reg2.toString());
+  }
+
   public static void main (String[] args)
   {
     testRegion();
+    System.err.println();
+    testPrioritizedRegion();
   }
-  
-  
 }

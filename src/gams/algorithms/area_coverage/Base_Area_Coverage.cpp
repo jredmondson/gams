@@ -100,7 +100,9 @@ gams::algorithms::area_coverage::Base_Area_Coverage::analyze ()
   ++executions_;
   int ret_val = check_if_finished (OK);
   if (ret_val == FINISHED)
+  {
     status_.finished = 1;
+  }
   return check_if_finished (OK);
 }
 
@@ -112,7 +114,20 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::execute ()
 {
   if (status_.finished != 1)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::Base_Area_Coverage::execute:" \
+      " calling platform->move(\"%s\")\n", next_position_.to_string ().c_str ());
     platform_->move(next_position_);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::Base_Area_Coverage::execute:" \
+      " algorithm is finished\n");
+  }
   return 0;
 }
 
@@ -127,14 +142,20 @@ gams::algorithms::area_coverage::Base_Area_Coverage::plan ()
   double dist = platform_->get_position()->distance_to(next_position_);
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::algorithms::area_coverage::Base_Area_Coverage:" \
+    "gams::algorithms::area_coverage::Base_Area_Coverage::plan:" \
     " distance between points is %f (need %f accuracy)\n", dist, platform_->get_accuracy());
-  
-  if (platform_->get_position()->approximately_equal(next_position_, platform_->get_accuracy()))
+
+  utility::Position* position_ptr = platform_->get_position ();
+
+  utility::Position* test = dynamic_cast<utility::GPS_Position*> (platform_->get_position());
+  if (test != 0)
+    position_ptr = test;
+
+  if (position_ptr->approximately_equal(next_position_, platform_->get_accuracy()))
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
-      "gams::algorithms::area_coverage::Base_Area_Coverage:" \
+      "gams::algorithms::area_coverage::Base_Area_Coverage::plan:" \
       " generating new position\n");
     generate_new_position();
   }
@@ -152,7 +173,29 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished (
   int ret_val) const
 {
-  if (exec_time_ != 0 && ret_val == OK && (ACE_OS::gettimeofday () > end_time_))
-    ret_val = FINISHED;
+  if (exec_time_ == ACE_Time_Value (0.0))
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished:" \
+      " exec_time == 0\n");
+    return ret_val;
+  }
+  if (ret_val != OK)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished:" \
+      " ret_val != OK\n");
+    return ret_val;
+  }
+  if (ACE_OS::gettimeofday () >= end_time_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished:" \
+      " time >= end_time\n");
+    return FINISHED;
+  }
   return ret_val;
 }

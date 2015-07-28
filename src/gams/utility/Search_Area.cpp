@@ -323,15 +323,17 @@ gams::utility::Search_Area::init (
       region << search_area_prefix << i;
 
       // get prioritized region and add to search area
-      add_prioritized_region (
-        parse_prioritized_region (knowledge,
-          knowledge.get (region.str ()).to_string ()));
+      Prioritized_Region p_region;
+      p_region.from_container (
+        knowledge.get (region.str ()).to_string (), knowledge);
+      add_prioritized_region (p_region);
     }
   }
   else // this is just a region
   {
-    add_prioritized_region (
-      parse_prioritized_region (knowledge, prefix));
+    Prioritized_Region p_region;
+    p_region.from_container (prefix, knowledge);
+    add_prioritized_region (p_region);
   }
 }
 

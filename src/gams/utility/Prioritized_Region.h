@@ -81,14 +81,29 @@ namespace gams
        * @param new_priority  associated priority
        **/
       Prioritized_Region (const Region& region, const unsigned int new_priority = 1);
+
+      /**
+       * Helper function for converting the position to a string
+       * @param delimiter characters to insert between position components
+       * @return string representation of this Prioritized_Region
+       **/
+      std::string to_string (const std::string & delimiter = ":") const;
       
-    /**
-     * Initialize prioritized region from knowledge base
-     * @param knowledge   knowledge base to draw from
-     * @param prefix      prefix for the region (e.g. "region.0")
-     **/
-      void init (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const std::string & prefix);
+      /**
+       * Helper function for copying values to a MADARA string array
+       * @param name      name of the region
+       * @param kb        knowledge base to store region information
+       **/
+      void to_container (const std::string& name, 
+        Madara::Knowledge_Engine::Knowledge_Base& kb) const;
+      
+      /**
+       * Helper function for copying values from a MADARA string array
+       * @param name      name of the region to get
+       * @param kb        knowledge base with region information
+       **/
+      void from_container (const std::string& name, 
+        Madara::Knowledge_Engine::Knowledge_Base& kb);
 
       /**
        * Assignment operator
@@ -99,16 +114,6 @@ namespace gams
       /// priority
       Madara::Knowledge_Record::Integer priority;
     }; // class Prioritized_Region
-
-    /**
-     * Create prioritized region from knowledge base information
-     * @param knowledge   knowledge base to draw from
-     * @param prefix      prefix for the region (e.g. "region.0")
-     * @return Prioritized_Region object created from knowledge base
-     **/
-    Prioritized_Region parse_prioritized_region (
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-      const std::string & prefix);
   } // namespace utility
 } // namespace gams
 
