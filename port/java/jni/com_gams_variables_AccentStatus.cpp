@@ -12,7 +12,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new variables::Accent_Status ();
 }
@@ -23,7 +23,7 @@ jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Accent_Status (
     *(variables::Accent_Status *)cptr);
@@ -35,7 +35,7 @@ jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__J
  * Signature: (J)V
  */
 void JNICALL Java_com_gams_variables_AccentStatus_jni_1freeAccentStatus
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Accent_Status *) cptr;
 }
@@ -109,7 +109,7 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1getArgs
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Accent_Status * current = (variables::Accent_Status *) cptr;
 
@@ -122,7 +122,7 @@ jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1getArgs
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1getCommand
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Accent_Status * current = (variables::Accent_Status *) cptr;
 

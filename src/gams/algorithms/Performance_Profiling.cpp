@@ -48,7 +48,7 @@
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Performance_Profiling_Factory::create (
-  const Madara::Knowledge_Vector & args,
+  const Madara::Knowledge_Vector & /*args*/,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,

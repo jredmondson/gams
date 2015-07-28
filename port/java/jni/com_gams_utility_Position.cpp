@@ -12,7 +12,7 @@ namespace utility = gams::utility;
  * Signature: ()J
  */
 jlong JNICALL Java_com_gams_utility_Position_jni_1Position__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new utility::Position ();
 }
@@ -23,7 +23,7 @@ jlong JNICALL Java_com_gams_utility_Position_jni_1Position__
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_utility_Position_jni_1Position__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new utility::Position (*(utility::Position *)cptr);
 }
@@ -34,7 +34,7 @@ jlong JNICALL Java_com_gams_utility_Position_jni_1Position__J
  * Signature: (DDD)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_utility_Position_jni_1Position__DDD
-  (JNIEnv * env, jobject, jdouble x, jdouble y, jdouble z)
+  (JNIEnv * , jobject, jdouble x, jdouble y, jdouble z)
 {
   return (jlong) new utility::Position (x, y, z);
 }
@@ -45,7 +45,7 @@ GAMS_Export jlong JNICALL Java_com_gams_utility_Position_jni_1Position__DDD
  * Signature: (J)V
  */
 void JNICALL Java_com_gams_utility_Position_jni_1freePosition
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (utility::Position *) cptr;
 }
@@ -62,7 +62,7 @@ jstring JNICALL Java_com_gams_utility_Position_jni_1toString
 
   utility::Position * current = (utility::Position *) cptr;
   if (current)
-    result = env->NewStringUTF("Position");
+    result = env->NewStringUTF(current->to_string ().c_str ());
 
   return result;
 }
@@ -73,7 +73,7 @@ jstring JNICALL Java_com_gams_utility_Position_jni_1toString
  * Signature: (J)D
  */
 jdouble JNICALL Java_com_gams_utility_Position_jni_1getX
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -86,7 +86,7 @@ jdouble JNICALL Java_com_gams_utility_Position_jni_1getX
  * Signature: (J)D
  */
 jdouble JNICALL Java_com_gams_utility_Position_jni_1getY
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -99,7 +99,7 @@ jdouble JNICALL Java_com_gams_utility_Position_jni_1getY
  * Signature: (J)D
  */
 jdouble JNICALL Java_com_gams_utility_Position_jni_1getZ
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -112,7 +112,7 @@ jdouble JNICALL Java_com_gams_utility_Position_jni_1getZ
  * Signature: (JD)V
  */
 void JNICALL Java_com_gams_utility_Position_jni_1setX
-  (JNIEnv * env, jobject, jlong cptr, jdouble input)
+  (JNIEnv * , jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -125,7 +125,7 @@ void JNICALL Java_com_gams_utility_Position_jni_1setX
  * Signature: (JD)V
  */
 void JNICALL Java_com_gams_utility_Position_jni_1setY
-  (JNIEnv * env, jobject, jlong cptr, jdouble input)
+  (JNIEnv * , jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -138,7 +138,7 @@ void JNICALL Java_com_gams_utility_Position_jni_1setY
  * Signature: (JD)V
  */
 void JNICALL Java_com_gams_utility_Position_jni_1setZ
-  (JNIEnv * env, jobject, jlong cptr, jdouble input)
+  (JNIEnv * , jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 

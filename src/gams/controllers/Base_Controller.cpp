@@ -148,7 +148,7 @@ int
 gams::controllers::Base_Controller::system_analyze (void)
 {
   int return_value (0);
-  bool error (false);
+  //bool error (false);
 
   /**
    * Note that certain device variables like command are kept local only.
@@ -425,7 +425,7 @@ gams::controllers::Base_Controller::run (double loop_period,
     next_epoch = current + poll_frequency;
     send_next_epoch = current;
 
-    unsigned int iterations = 0;
+    //unsigned int iterations = 0;
     while (first_execute || max_runtime < 0 || current < max_wait)
     {
       // return value should be last return value of mape loop
@@ -614,7 +614,7 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
             gams::loggers::LOG_MAJOR,
             "gams::controllers::Base_Controller::init_algorithm:" \
             " Calling BaseAlgorithm init method.\n");
-          jobject controller = jvm.env->CallStaticObjectMethod (controllerClass,
+          /*jobject controller =*/ jvm.env->CallStaticObjectMethod (controllerClass,
             controllerFromPointerCall, (jlong)this, (jboolean)false);
 
           jvm.env->CallVoidMethod (

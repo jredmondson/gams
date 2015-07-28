@@ -12,7 +12,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new variables::Region ();
 }
@@ -23,7 +23,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Region (*(variables::Region *)cptr);
 }
@@ -34,7 +34,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
  * Signature: (J)V
  */
 GAMS_Export void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Region *) cptr;
 }
@@ -108,7 +108,7 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_Region_jni_1toString
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1getVertices
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Region * current = (variables::Region *) cptr;
 

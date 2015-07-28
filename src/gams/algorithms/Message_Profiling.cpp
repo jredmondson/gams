@@ -207,9 +207,9 @@ gams::algorithms::Message_Profiling::Message_Filter::~Message_Filter ()
 
 void
 gams::algorithms::Message_Profiling::Message_Filter::filter (
-  Madara::Knowledge_Map& records, 
+  Madara::Knowledge_Map& /*records*/, 
   const Madara::Transport::Transport_Context& transport_context, 
-  Madara::Knowledge_Engine::Variables& var)
+  Madara::Knowledge_Engine::Variables& /*var*/)
 {
   const string origin = transport_context.get_originator ();
   if (msg_map.find (origin) == msg_map.end ())
@@ -278,4 +278,5 @@ gams::algorithms::Message_Profiling::Message_Filter::missing_messages_string ()
 //    ret_val << endl;
 //  }
 //  return ret_val.str();
+  return "";
 }
