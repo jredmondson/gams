@@ -71,7 +71,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
             result = new area_coverage::Uniform_Random_Edge_Coverage (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self);
           }
           else
           {
@@ -86,7 +86,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
           result = new area_coverage::Uniform_Random_Edge_Coverage (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self);
         }
       }
       else

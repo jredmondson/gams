@@ -144,7 +144,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
         gams::loggers::LOG_ERROR,
         "gams::algorithms::Formation_Coverage::constructor:" \
         " unable to create area_coverage algorithm \"%s\"\n",
-        coverage.to_string ());
+        coverage.to_string ().c_str ());
     }
     else
     {
@@ -152,7 +152,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Formation_Coverage::constructor:" \
         " created area_coverage algorithm \"%s\"\n",
-        coverage.to_string ());
+        coverage.to_string ().c_str ());
 
       // TODO: works for now, but change this to use self_.devices.dest
       stringstream head_destination_str;
