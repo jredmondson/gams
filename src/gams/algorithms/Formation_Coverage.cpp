@@ -213,7 +213,7 @@ gams::algorithms::Formation_Coverage::operator= (const Formation_Coverage & rhs)
     this->Base_Algorithm::operator= (rhs);
   }
 }
-      
+
 int
 gams::algorithms::Formation_Coverage::analyze (void)
 {
