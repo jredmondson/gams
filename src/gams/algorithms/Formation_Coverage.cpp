@@ -221,15 +221,28 @@ gams::algorithms::Formation_Coverage::analyze (void)
   {
     if (is_covering_)
     {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Coverage::analyze:" \
+        " head coverage analyze\n");
       head_algo_->analyze ();
     }
     else
     {
-      is_covering_ = my_formation_->analyze ();
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Coverage::analyze:" \
+        " head formation analyze\n");
+      my_formation_->analyze ();
+      is_covering_ = my_formation_->is_ready ();
     }
   }
   else // follower
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::Formation_Coverage::analyze:" \
+      " follower analyze\n");
     my_formation_->analyze ();
   }
 
@@ -242,10 +255,20 @@ gams::algorithms::Formation_Coverage::execute (void)
   if (my_formation_->is_head ())
   {
     if (is_covering_)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Coverage::execute:" \
+        " head formation execute\n");
       head_algo_->execute ();
+    }
   }
   else // follower
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::Formation_Coverage::execute:" \
+      " follower formation execute\n");
     my_formation_->execute();
   }
 
@@ -258,11 +281,21 @@ gams::algorithms::Formation_Coverage::plan (void)
   if (my_formation_->is_head ())
   {
     if (is_covering_)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Coverage::plan:" \
+        " head coverage plan\n");
       head_algo_->plan ();
+    }
     head_algo_->get_next_position ().to_container (head_destination_);
   }
   else // follower
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::Formation_Coverage::plan:" \
+      " follower formation plan\n");
     my_formation_->plan ();
   }
 

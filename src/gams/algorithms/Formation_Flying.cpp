@@ -289,8 +289,8 @@ gams::algorithms::Formation_Flying::analyze (void)
         "gams::algorithms::Formation_Flying:" \
         " head is setting formation_ready_\n");
       formation_ready_ = 1;
+      ret_val = OK;
     }
-    ret_val = OK;
   }
   else // follower
   {
@@ -467,7 +467,7 @@ gams::algorithms::Formation_Flying::is_head () const
 bool
 gams::algorithms::Formation_Flying::is_ready () const
 {
-  return formation_ready_ == 1;
+  return (formation_ready_ == 1);
 }
 
 gams::utility::GPS_Position
