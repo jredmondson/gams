@@ -13,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_com_gams_variables_Self_jni_1Self__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new variables::Self ();
 }
@@ -24,7 +24,7 @@ jlong JNICALL Java_com_gams_variables_Self_jni_1Self__
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Self_jni_1Self__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Self (*(variables::Self *)cptr);
 }
@@ -35,7 +35,7 @@ jlong JNICALL Java_com_gams_variables_Self_jni_1Self__J
  * Signature: (J)V
  */
 void JNICALL Java_com_gams_variables_Self_jni_1freeSelf
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Self *) cptr;
 }
@@ -46,7 +46,7 @@ void JNICALL Java_com_gams_variables_Self_jni_1freeSelf
  * Signature: (JJJLjava/lang/String;)V
  */
 void JNICALL Java_com_gams_variables_Self_jni_1init
-  (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jlong id)
+  (JNIEnv * , jobject, jlong cptr, jlong type, jlong context, jlong id)
 {
   variables::Self * current = (variables::Self *) cptr;
 
@@ -93,7 +93,7 @@ jstring JNICALL Java_com_gams_variables_Self_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Self_jni_1getId
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Self * current = (variables::Self *) cptr;
 
@@ -106,7 +106,7 @@ jlong JNICALL Java_com_gams_variables_Self_jni_1getId
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Self_jni_1getDevice
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Self * current = (variables::Self *) cptr;
 

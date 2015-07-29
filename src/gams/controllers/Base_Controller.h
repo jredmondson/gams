@@ -172,7 +172,7 @@ namespace gams
           send_rate = loop_rate;
         // otherwise, set rate to 1s divided by the intended hz
         else
-          send_hz = 1.0 / send_hz;
+          send_rate = 1.0 / send_hz;
 
         return run (loop_rate, max_runtime, send_rate);
       }

@@ -96,12 +96,12 @@ gams::algorithms::Java_Algorithm_Factory::~Java_Algorithm_Factory ()
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Java_Algorithm_Factory::create (
-const Madara::Knowledge_Vector & args,
-Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-platforms::Base_Platform * platform,
-variables::Sensors * sensors,
-variables::Self * self,
-variables::Devices * devices)
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  platforms::Base_Platform * /*platform*/,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
 {
   // Acquire the Java virtual machine
   gams::utility::java::Acquire_VM jvm;
@@ -151,7 +151,7 @@ variables::Devices * devices)
         kbFromPointerCall, (jlong)knowledge);
 
       // get the factory's class
-      jclass filterClass = jvm.env->GetObjectClass (obj_);
+      /*jclass filterClass = */jvm.env->GetObjectClass (obj_);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,

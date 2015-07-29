@@ -113,7 +113,7 @@ gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices),
-  cur_waypoint_ (0), waypoints_(waypoints)
+  waypoints_(waypoints), cur_waypoint_ (0)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
