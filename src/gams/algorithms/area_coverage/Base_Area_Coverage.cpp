@@ -112,7 +112,14 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::execute ()
 {
   if (status_.finished != 1)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::Base_Area_Coverage::execute:" \
+      " platform_->move(\"%s\")\n", next_position_.to_string ().c_str ());
+
     platform_->move(next_position_);
+  }
   return 0;
 }
 
@@ -123,7 +130,6 @@ gams::algorithms::area_coverage::Base_Area_Coverage::execute ()
 int
 gams::algorithms::area_coverage::Base_Area_Coverage::plan ()
 {
-  // generate new next position if necessary
   double dist = platform_->get_position()->distance_to(next_position_);
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
@@ -152,7 +158,7 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished (
   int ret_val) const
 {
-  if (exec_time_ != 0 && ret_val == OK && (ACE_OS::gettimeofday () > end_time_))
+  if (exec_time_ != ACE_Time_Value (0.0) && ret_val == OK && (ACE_OS::gettimeofday () > end_time_))
     ret_val = FINISHED;
   return ret_val;
 }

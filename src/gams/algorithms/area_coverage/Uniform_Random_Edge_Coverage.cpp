@@ -152,16 +152,39 @@ Uniform_Random_Edge_Coverage::Uniform_Random_Edge_Coverage (
   variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \
+    " entered constructor\n");
+
   // init status vars
   status_.init_vars (*knowledge, "urec", self->id.to_integer ());
   status_.init_variable_values ();
 
   // generate search region
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \
+    " parsing Search_Area \"%s\"\n", prefix.c_str ());
   utility::Search_Area search = utility::parse_search_area (*knowledge, prefix);
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \
+    " Search_Area \"%s\" is \"%s\"\n", prefix.c_str (), search.to_string ().c_str ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \
+    " getting convex hull of \"%s\"\n", prefix.c_str ());
   region_ = search.get_convex_hull ();
 
   // generate initial waypoint
   generate_new_position ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \
+    " finished constructing algorithm\n");
 }
 
 gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::~Uniform_Random_Edge_Coverage ()
