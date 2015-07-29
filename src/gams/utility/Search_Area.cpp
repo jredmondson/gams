@@ -131,38 +131,43 @@ gams::utility::Search_Area::add_prioritized_region (const Prioritized_Region& r)
   max_alt_ = (max_alt_ < r.max_alt_) ? r.max_alt_ : max_alt_;
 }
 
-// sort points by angle with point, for use in get_convex_hull
-struct sort_by_angle
-{
-  const gams::utility::GPS_Position anchor;
-
-  sort_by_angle (const gams::utility::GPS_Position& p) : anchor (p) {}
-
-  bool operator() (const gams::utility::GPS_Position& gp1,
-    const gams::utility::GPS_Position& gp2)
-  {
-    gams::utility::Position p1 = gp1.to_position (anchor);
-    gams::utility::Position p2 = gp2.to_position (anchor);
-
-    double angle1 = atan2 (p1.x, p1.y) + 2 * M_PI;
-    double angle2 = atan2 (p2.x, p2.y) + 2 * M_PI;
-    
-    if (angle1 == angle2)
-      return (anchor.distance_to(gp1) < anchor.distance_to(gp2));
-    else
-      return (angle1 < angle2);
-  }
-};
-
 gams::utility::Region
 gams::utility::Search_Area::get_convex_hull () const
 {
+  // sort points by angle with point, for use in get_convex_hull
+  struct sort_by_angle
+  {
+    const gams::utility::GPS_Position anchor;
+  
+    sort_by_angle (const gams::utility::GPS_Position& p) : anchor (p) {}
+  
+    bool operator() (const gams::utility::GPS_Position& gp1,
+      const gams::utility::GPS_Position& gp2)
+    {
+      gams::utility::Position p1 = gp1.to_position (anchor);
+      gams::utility::Position p2 = gp2.to_position (anchor);
+  
+      double angle1 = atan2 (p1.x, p1.y) + 2 * M_PI;
+      double angle2 = atan2 (p2.x, p2.y) + 2 * M_PI;
+      
+      if (angle1 == angle2)
+        return (anchor.distance_to(gp1) < anchor.distance_to(gp2));
+      else
+        return (angle1 < angle2);
+    }
+  };
+
   /**
    * Use Graham Scan algorithm
    * Time complexity is O(n * log n)
    * pseudocode at https://en.wikipedia.org/wiki/Graham_scan
    */
   // get all points, filter out duplicates
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " get all points, filter out duplicates\n");
+
   set<GPS_Position> s_points;
   for (size_t i = 0; i < regions_.size (); ++i)
     for (size_t j = 0; j < regions_[i].vertices.size (); ++j)
@@ -170,6 +175,11 @@ gams::utility::Search_Area::get_convex_hull () const
   const size_t N = s_points.size ();
 
   // create array of points
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " create points array\n");
+
   vector <GPS_Position> points (N + 1);
   vector <GPS_Position>::iterator start = points.begin ();
   ++start;
@@ -178,6 +188,10 @@ gams::utility::Search_Area::get_convex_hull () const
 //    cerr << std::setprecision(10) << points[i].latitude() << " " << points[i].longitude() << endl;
 
   // find point with lowest y/lat coord...
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " find lowest y/lat coord\n");
   size_t lowest = 1;
   double min_lat = points[1].latitude (); 
   for (size_t i = 2; i <= N; ++i)
@@ -200,6 +214,10 @@ gams::utility::Search_Area::get_convex_hull () const
   //cerr << "selected " << points[1].latitude() << " " << points[1].longitude() << " as lowest" << endl;
 
   // sort positions
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " sort points\n");
   sort (&points[2], &points[N + 1], sort_by_angle (points[1]));
 //  cerr << "sorting points" << endl;
 //  for (int i = 0; i < N+1; ++i)
@@ -209,6 +227,10 @@ gams::utility::Search_Area::get_convex_hull () const
   points[0] = points[N];
 
   // find convex hull
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " find convex hull\n");
   unsigned int M = 1;
   for (unsigned int i = 2; i <= N; ++i)
   {
@@ -229,6 +251,10 @@ gams::utility::Search_Area::get_convex_hull () const
   }
 
   // fill vector of points
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " fill vector of points\n");
   vector<GPS_Position> temp (M);
   copy (&points[1], &points[M + 1], temp.begin ());
 //  for (vector<GPS_Position>::iterator it = temp.begin(); it != temp.end(); ++it)
@@ -311,16 +337,31 @@ gams::utility::Search_Area::init (
   // get size of search_area in number of regions
   if (mutility::begins_with (prefix, "search_area"))
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::utility::Search_Area::init:" \
+      " found search area \"%s\"\n", prefix.c_str ());
+
     string search_area_prefix (prefix + ".");
     string size_key (prefix + ".size");
 
     Integer num_regions = knowledge.get (size_key).to_integer ();
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::utility::Search_Area::init:" \
+      " Search area has %u regions\n", num_regions);
   
     // parse each region
     for (unsigned int i = 0; i < num_regions; ++i)
     {
       std::stringstream region;
       region << search_area_prefix << i;
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::utility::Search_Area::init:" \
+        " parsing Prioritized_Region at \"%s\"\n", knowledge.get (region.str ()).to_string ().c_str ());
 
       // get prioritized region and add to search area
       add_prioritized_region (
@@ -330,6 +371,11 @@ gams::utility::Search_Area::init (
   }
   else // this is just a region
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::utility::Search_Area::init:" \
+      " assuming \"%s\" is a Prioritized_Region\n", prefix.c_str ());
+
     add_prioritized_region (
       parse_prioritized_region (knowledge, prefix));
   }
@@ -340,6 +386,11 @@ gams::utility::parse_search_area (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge,
   const string & prefix)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::parse_search_area:" \
+    " parsing search area \"%s\"\n", prefix.c_str ());
+
   Search_Area result;
   result.init (knowledge, prefix);
   return result;
