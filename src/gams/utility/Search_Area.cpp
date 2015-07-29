@@ -64,6 +64,7 @@
 
 #include "gams/utility/Region.h"
 #include "gams/utility/GPS_Position.h"
+#include "gams/loggers/Global_Logger.h"
 #include "madara/utility/Utility.h"
 
 using std::cerr;
