@@ -125,6 +125,12 @@ namespace gams
        * Return true if this agent is head
        */
       bool is_head () const;
+
+      /**
+       * Get ready value
+       * @return true if agents are in formation, false otherwise
+       */
+      bool is_ready () const;
       
     protected:
       /**
