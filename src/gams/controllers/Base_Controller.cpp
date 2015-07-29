@@ -412,7 +412,7 @@ gams::controllers::Base_Controller::run (double loop_period,
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Base_Controller::run:" \
-    " loop_period: %ds, max_runtime: %ds, send_period: %ds\n",
+    " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
     loop_period, max_runtime, send_period);
 
   if (loop_period >= 0.0)
