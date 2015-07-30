@@ -170,9 +170,20 @@ gams::utility::Search_Area::get_convex_hull () const
     " get all points, filter out duplicates\n");
 
   set<GPS_Position> s_points;
+  size_t idx = 0;
   for (size_t i = 0; i < regions_.size (); ++i)
+  {
     for (size_t j = 0; j < regions_[i].vertices.size (); ++j)
+    {
       s_points.insert (regions_[i].vertices[j]);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::utility::Search_Area::get_convex_hull:" \
+        " point %u is \"%f,%f,%f\"\n", idx++,
+        regions_[i].vertices[j].x, regions_[i].vertices[j].y, regions_[i].vertices[j].z);
+    }
+  }
   const size_t N = s_points.size ();
 
   // create array of points

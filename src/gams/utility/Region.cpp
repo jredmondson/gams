@@ -329,20 +329,37 @@ gams::utility::Region::init (
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-     "gams::utility::Region::init:" \
-    " reading type from %s.\n", region_type_str.str ().c_str ());
+    "gams::utility::Region::init:" \
+    " reading type from %s\n", region_type_str.str ().c_str ());
 
-  Integer region_type = knowledge.get (region_type_str.str ()).to_integer ();
+  Madara::Knowledge_Record record = knowledge.get (region_type_str.str ());
+
+  if (!record.exists ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Region::init:" \
+      " \"%s\" is not in knowledge base\n", region_type_str.str ().c_str ());
+  }
+
+  Integer region_type = record.to_integer ();
+
   switch (region_type)
   {
     case 0: // arbitrary convex polygon
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
-         "gams::utility::Region::init:" \
+        "gams::utility::Region::init:" \
         " type is arbitrary convex polygon.\n");
 
       const Integer num_vertices = knowledge.get (region_size).to_integer ();
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::utility::Region::init:" \
+        " region has %u points\n", num_vertices);
+
       for (Integer i = 0; i < num_vertices; ++i) // get the vertices
       {
         std::stringstream vertex_name;
@@ -357,7 +374,7 @@ gams::utility::Region::init (
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
              "gams::utility::Region::init:" \
-            " Adding coordinate (%d, %d).\n",
+            " Adding coordinate (%f, %f).\n",
             coords[0], coords[1]);
           vertices.push_back (GPS_Position(coords[0], coords[1]));
         }
@@ -366,7 +383,7 @@ gams::utility::Region::init (
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
              "gams::utility::Region::init:" \
-            " Adding coordinate (%d, %d, %d).\n",
+            " Adding coordinate (%f, %f, %f).\n",
             coords[0], coords[1], coords[2]);
           vertices.push_back (GPS_Position(coords[0], coords[1], coords[2]));
         }
@@ -375,7 +392,7 @@ gams::utility::Region::init (
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_ERROR,
              "gams::utility::Region::init:" \
-            " ERROR: invalid coordinate type at %s.\n", vertex_name.str ().c_str ());
+            " ERROR: invalid coordinate type at %s\n", vertex_name.str ().c_str ());
         }
       }
       break;
