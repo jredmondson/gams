@@ -21,7 +21,7 @@ jlong JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1PrioritizedRegion
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toString
+jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring ret_val;
@@ -39,10 +39,10 @@ GAMS_Export jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toStrin
 /*
  * Class:     com_gams_utility_PrioritizedRegion
  * Method:    jni_fromContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContainer
-  (JNIEnv * env, jobject, jlong cptr, jstring name, jlong kb_ptr)
+void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContainer
+  (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
   utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
@@ -50,7 +50,7 @@ GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContai
 
   if (current && str_name && kb)
   {
-    current->from_container (str_name, *kb);
+    current->from_container (*kb, str_name);
   }
 
   env->ReleaseStringUTFChars (name, str_name);
@@ -59,10 +59,10 @@ GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContai
 /*
  * Class:     com_gams_utility_PrioritizedRegion
  * Method:    jni_toContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
-  (JNIEnv * env, jobject, jlong cptr, jstring name, jlong kb_ptr)
+void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
+  (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
   utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
@@ -70,7 +70,7 @@ GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContaine
 
   if (current && str_name && kb)
   {
-    current->to_container (str_name, *kb);
+    current->to_container (*kb, str_name);
   }
 
   env->ReleaseStringUTFChars (name, str_name);

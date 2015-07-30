@@ -84,6 +84,18 @@ gams::utility::Prioritized_Region::operator= (const Prioritized_Region & rhs)
   }
 }
 
+bool
+gams::utility::Prioritized_Region::operator== (const Prioritized_Region& rhs) const
+{
+  return ((Region*)this)->operator==(rhs) && (priority == rhs.priority);
+}
+
+bool
+gams::utility::Prioritized_Region::operator!= (const Prioritized_Region& rhs) const
+{
+  return !(*this == rhs);
+}
+
 std::string
 gams::utility::Prioritized_Region::to_string (const std::string & delimiter)
   const
@@ -95,8 +107,15 @@ gams::utility::Prioritized_Region::to_string (const std::string & delimiter)
 }
 
 void
-gams::utility::Prioritized_Region::to_container (const std::string& name, 
+gams::utility::Prioritized_Region::to_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb) const
+{
+  to_container (kb, get_name ());
+}
+
+void
+gams::utility::Prioritized_Region::to_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
 {
   ((Region *)(this))->to_container (kb, name);
   Madara::Knowledge_Engine::Containers::Integer priority_container;
@@ -105,8 +124,15 @@ gams::utility::Prioritized_Region::to_container (const std::string& name,
 }
 
 void
-gams::utility::Prioritized_Region::from_container (const std::string& name, 
+gams::utility::Prioritized_Region::from_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb)
+{
+  from_container (kb, get_name ());
+}
+
+void
+gams::utility::Prioritized_Region::from_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
   ((Region *)(this))->from_container (kb, name);
   Madara::Knowledge_Engine::Containers::Integer priority_container;

@@ -27,18 +27,18 @@ GAMS_Export jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toStrin
 /*
  * Class:     com_gams_utility_PrioritizedRegion
  * Method:    jni_fromContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContainer
-  (JNIEnv *, jobject, jlong, jstring, jlong);
+JNIEXPORT void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContainer
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
  * Class:     com_gams_utility_PrioritizedRegion
  * Method:    jni_toContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
-  (JNIEnv *, jobject, jlong, jstring, jlong);
+JNIEXPORT void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
  * Class:     com_gams_utility_PrioritizedRegion

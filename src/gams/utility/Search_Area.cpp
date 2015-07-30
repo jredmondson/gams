@@ -366,8 +366,8 @@ gams::utility::Search_Area::init (
 
       // get prioritized region and add to search area
       Prioritized_Region p_region;
-      p_region.from_container (
-        knowledge.get (region.str ()).to_string (), knowledge);
+      p_region.from_container (knowledge, 
+        knowledge.get (region.str ()).to_string ());
       add_prioritized_region (p_region);
     }
   }
@@ -379,7 +379,7 @@ gams::utility::Search_Area::init (
       " assuming \"%s\" is a Prioritized_Region\n", prefix.c_str ());
 
     Prioritized_Region p_region;
-    p_region.from_container (prefix, knowledge);
+    p_region.from_container (knowledge, prefix);
     add_prioritized_region (p_region);
   }
 }

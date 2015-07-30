@@ -314,13 +314,15 @@ test_Search_Area ()
 
   // test to/from container
   Madara::Knowledge_Engine::Knowledge_Base kb;
-  pr.to_container ("test", kb);
+  pr.to_container (kb, "test");
   Prioritized_Region from;
-  from.from_container ("test", kb);
+  from.from_container (kb, "test");
   assert (from == pr);
-  from.to_container ("test2", kb);
-  pr.from_container ("test2", kb);
+  from.to_container (kb, "test2");
+  pr.from_container (kb, "test2");
   assert (from == pr);
+  Prioritized_Region nullPR;
+  assert (nullPR != from);
 }
 
 int

@@ -83,27 +83,53 @@ namespace gams
       Prioritized_Region (const Region& region, const unsigned int new_priority = 1);
 
       /**
+       * Equality operator. Uses Region::operator== and checks if priority are equal
+       * @param rhs   Prioritized_Region to compare to
+       * @return true if same vertices and same priority, false otherwise
+       **/
+      bool operator== (const Prioritized_Region& rhs) const;
+
+      /**
+       * Inequality operator. Uses operator== and inverses result
+       * @param rhs   Prioritized_Region to compare to
+       * @return false if same vertices and same priority, true otherwise
+       **/
+      bool operator!= (const Prioritized_Region& rhs) const;
+
+      /**
        * Helper function for converting the position to a string
        * @param delimiter characters to insert between position components
        * @return string representation of this Prioritized_Region
        **/
       std::string to_string (const std::string & delimiter = ":") const;
-      
+
       /**
-       * Helper function for copying values to a MADARA string array
-       * @param name      name of the region
+       * Helper function for copying values to a MADARA knowledge base
        * @param kb        knowledge base to store region information
        **/
-      void to_container (const std::string& name, 
-        Madara::Knowledge_Engine::Knowledge_Base& kb) const;
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb) const;
       
       /**
-       * Helper function for copying values from a MADARA string array
-       * @param name      name of the region to get
+       * Helper function for copying values to a MADARA knowledge base
+       * @param kb        knowledge base to store region information
+       * @param name      name of the region
+       **/
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name) const;
+
+      /**
+       * Helper function for copying values from a MADARA knowledge base
        * @param kb        knowledge base with region information
        **/
-      void from_container (const std::string& name, 
-        Madara::Knowledge_Engine::Knowledge_Base& kb);
+      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+      
+      /**
+       * Helper function for copying values from a MADARA knowledge base
+       * @param kb        knowledge base with region information
+       * @param name      name of the region to get
+       **/
+      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name);
 
       /**
        * Assignment operator
