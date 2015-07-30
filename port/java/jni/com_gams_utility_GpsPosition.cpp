@@ -12,7 +12,7 @@ namespace utility = gams::utility;
  * Signature: ()J
  */
 jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new utility::GPS_Position ();
 }
@@ -23,7 +23,7 @@ jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new utility::GPS_Position (*(utility::GPS_Position *)cptr);
 }
@@ -34,7 +34,7 @@ jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__J
  * Signature: (DDD)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__DDD
-  (JNIEnv * env, jobject, jdouble lat, jdouble lon, jdouble alt)
+  (JNIEnv * , jobject, jdouble lat, jdouble lon, jdouble alt)
 {
   return (jlong) new utility::GPS_Position (lat, lon, alt);
 }
@@ -45,7 +45,7 @@ GAMS_Export jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__DD
  * Signature: (J)V
  */
 void JNICALL Java_com_gams_utility_GpsPosition_jni_1freeGpsPosition
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (utility::Position *) cptr;
 }
@@ -60,9 +60,9 @@ jstring JNICALL Java_com_gams_utility_GpsPosition_jni_1toString
 {
   jstring result;
 
-  utility::Position * current = (utility::Position *) cptr;
+  utility::GPS_Position * current = (utility::GPS_Position *) cptr;
   if (current)
-    result = env->NewStringUTF("GpsPosition");
+    result = env->NewStringUTF(current->to_string ().c_str ());
 
   return result;
 }
@@ -73,7 +73,7 @@ jstring JNICALL Java_com_gams_utility_GpsPosition_jni_1toString
  * Signature: (J)D
  */
 jdouble JNICALL Java_com_gams_utility_GpsPosition_jni_1getLatitude
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -86,7 +86,7 @@ jdouble JNICALL Java_com_gams_utility_GpsPosition_jni_1getLatitude
  * Signature: (J)D
  */
 jdouble JNICALL Java_com_gams_utility_GpsPosition_jni_1getLongitude
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -99,7 +99,7 @@ jdouble JNICALL Java_com_gams_utility_GpsPosition_jni_1getLongitude
  * Signature: (J)D
  */
 jdouble JNICALL Java_com_gams_utility_GpsPosition_jni_1getAltitude
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -112,7 +112,7 @@ jdouble JNICALL Java_com_gams_utility_GpsPosition_jni_1getAltitude
  * Signature: (JD)V
  */
 void JNICALL Java_com_gams_utility_GpsPosition_jni_1setLatitude
-  (JNIEnv * env, jobject, jlong cptr, jdouble input)
+  (JNIEnv * , jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -125,7 +125,7 @@ void JNICALL Java_com_gams_utility_GpsPosition_jni_1setLatitude
  * Signature: (JD)V
  */
 void JNICALL Java_com_gams_utility_GpsPosition_jni_1setLongitude
-  (JNIEnv * env, jobject, jlong cptr, jdouble input)
+  (JNIEnv * , jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
@@ -138,7 +138,7 @@ void JNICALL Java_com_gams_utility_GpsPosition_jni_1setLongitude
  * Signature: (JD)V
  */
 void JNICALL Java_com_gams_utility_GpsPosition_jni_1setAltitude
-  (JNIEnv * env, jobject, jlong cptr, jdouble input)
+  (JNIEnv * , jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 

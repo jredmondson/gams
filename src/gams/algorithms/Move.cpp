@@ -106,8 +106,9 @@ gams::algorithms::Move::Move (const utility::Position & target,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge, 
   platforms::Base_Platform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Devices * devices) :
-  Base_Algorithm (knowledge, platform, sensors, self, devices), target_ (target), 
-  mode_ (TARGET)
+  Base_Algorithm (knowledge, platform, sensors, self, devices), 
+  end_time_(0.0), max_execution_time_(0), max_executions_(0), mode_(TARGET), 
+  target_ (target), type_("target")
 {
   cerr << "MOVE TARGET: " << target_.to_string () << endl;
 }
@@ -119,10 +120,10 @@ gams::algorithms::Move::Move (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
-  variables::Self * self)
-  : Base_Algorithm (knowledge, platform, sensors, self),
+  variables::Self * self) :
+  Base_Algorithm (knowledge, platform, sensors, self),
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (max_execution_time),
-  max_executions_ (max_executions), type_ (type), target_ (), mode_ (TARGET)
+  max_executions_ (max_executions), mode_ (TARGET), target_ (), type_ (type)
 {
   // init status vars
   status_.init_vars (*knowledge, "move", self->id.to_integer ());

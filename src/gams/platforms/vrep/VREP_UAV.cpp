@@ -206,6 +206,12 @@ gams::platforms::VREP_UAV::move (const utility::Position & position, const doubl
 
   // get distance to target
   double distance_to_target = dest_pos.distance_to_2d (vrep_pos);
+  
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ERROR,
+    "gams::platforms::VREP_UAV::move:" \
+    " moving to (%f,%f, distance %f m)\n",
+    dest_pos.x, dest_pos.y, distance_to_target);
 
   // check if quadrotor has reached target (within epsilon)
   if(distance_to_target <= epsilon)
@@ -250,6 +256,11 @@ gams::platforms::VREP_UAV::move (const utility::Position & position, const doubl
   // send movement command
   simxSetObjectPosition (client_id_, node_target_, -1, curr_arr,
                         simx_opmode_oneshot_wait);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ERROR,
+    "gams::platforms::VREP_UAV::move:" \
+    " setting target to \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
 
   return 1;
 }

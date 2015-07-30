@@ -12,7 +12,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new variables::Swarm ();
 }
@@ -23,7 +23,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Swarm (*(variables::Swarm *)cptr);
 }
@@ -34,7 +34,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__J
  * Signature: (J)V
  */
 GAMS_Export void JNICALL Java_com_gams_variables_Swarm_jni_1freeSwarm
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Swarm *) cptr;
 }
@@ -86,7 +86,7 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_Swarm_jni_1toString
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getCommand
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
 
@@ -99,7 +99,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getCommand
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getArgs
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
 
@@ -112,7 +112,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getArgs
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getMinAlt
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
 
@@ -125,7 +125,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getMinAlt
  * Signature: (J)J
  */
 GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getSize
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
 

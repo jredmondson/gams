@@ -14,7 +14,7 @@ namespace utility = gams::utility;
  * Signature: ()J
  */
 jlong JNICALL Java_com_gams_variables_Sensor_jni_1Sensor__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new variables::Sensor ();
 }
@@ -25,7 +25,7 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1Sensor__
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Sensor_jni_1Sensor__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Sensor (*(variables::Sensor *)cptr);
 }
@@ -36,7 +36,7 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1Sensor__J
  * Signature: (J)V
  */
 void JNICALL Java_com_gams_variables_Sensor_jni_1freeSensor
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Sensor *) cptr;
 }

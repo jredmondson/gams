@@ -9,7 +9,7 @@ namespace platforms = gams::platforms;
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getKnowledgeBase
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -28,7 +28,7 @@ jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getKnowledgeBase
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getSelf
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -47,7 +47,7 @@ jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getSelf
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_platforms_BasePlatform_jni_1getPlatformStatus
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   jlong result (0);
 

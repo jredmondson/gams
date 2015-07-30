@@ -226,7 +226,7 @@ gams::algorithms::Executive::plan (void)
   if (algo_ != 0)
     ret_val = algo_->plan ();
 
-  return 0;
+  return ret_val;
 }
 
 gams::algorithms::Executive::Algorithm_Init::Algorithm_Init () :

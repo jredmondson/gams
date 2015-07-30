@@ -12,7 +12,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1Device__
-  (JNIEnv * env, jobject)
+  (JNIEnv * , jobject)
 {
   return (jlong) new variables::Device ();
 }
@@ -23,7 +23,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1Device__
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1Device__J
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Device (*(variables::Device *)cptr);
 }
@@ -34,7 +34,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1Device__J
  * Signature: (J)V
  */
 void JNICALL Java_com_gams_variables_Device_jni_1freeDevice
-  (JNIEnv * env, jclass, jlong cptr)
+  (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Device *) cptr;
 }
@@ -45,7 +45,7 @@ void JNICALL Java_com_gams_variables_Device_jni_1freeDevice
  * Signature: (JJJLjava/lang/String;)V
  */
 void JNICALL Java_com_gams_variables_Device_jni_1init
-  (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jlong id)
+  (JNIEnv * , jobject, jlong cptr, jlong type, jlong context, jlong id)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -87,7 +87,7 @@ jstring JNICALL Java_com_gams_variables_Device_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getBatteryRemaining
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -100,7 +100,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getBatteryRemaining
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getBridgeId
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -113,7 +113,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getBridgeId
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getCommand
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -126,7 +126,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getCommand
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getArgs
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -139,7 +139,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getArgs
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getCoverageType
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -152,7 +152,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getCoverageType
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getDest
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -165,7 +165,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getDest
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getHome
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -178,7 +178,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getHome
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getIsMobile
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -191,7 +191,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getIsMobile
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getLocation
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -204,7 +204,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getLocation
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getMinAlt
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -217,7 +217,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getMinAlt
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getNextCoverageType
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -230,7 +230,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getNextCoverageType
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getSearchAreaId
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -243,7 +243,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getSearchAreaId
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getSource
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
@@ -256,7 +256,7 @@ jlong JNICALL Java_com_gams_variables_Device_jni_1getSource
  * Signature: (J)J
  */
 jlong JNICALL Java_com_gams_variables_Device_jni_1getTemperature
-  (JNIEnv * env, jobject, jlong cptr)
+  (JNIEnv * , jobject, jlong cptr)
 {
   variables::Device * current = (variables::Device *) cptr;
 
