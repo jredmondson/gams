@@ -64,6 +64,14 @@ gams::algorithms::Null_Algorithm_Factory::create (
     result = new Null_Algorithm (knowledge, platform, sensors, self);
   }
 
+  if (result == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Null_Algorithm_Factory::create:" \
+      " unknown error creating Null algorithm\n");
+  }
+
   return result;
 }
 

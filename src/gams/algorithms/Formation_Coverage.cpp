@@ -131,8 +131,9 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
-  variables::Self * self)
-  : Base_Algorithm (knowledge, platform, sensors, self), is_covering_(false)
+  variables::Self * self) : 
+  Base_Algorithm (knowledge, platform, sensors, self), is_covering_(false), 
+  my_formation_ (0), head_algo_ (0)
 {
   status_.init_vars (*knowledge, "formation_coverage", self->id.to_integer ());
   status_.init_variable_values ();
@@ -198,7 +199,9 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
 gams::algorithms::Formation_Coverage::~Formation_Coverage ()
 {
   delete my_formation_;
+  my_formation_ = 0;
   delete head_algo_;
+  head_algo_ = 0;
 }
 
 void
