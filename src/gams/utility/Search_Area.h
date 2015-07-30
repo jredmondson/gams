@@ -153,14 +153,6 @@ namespace gams
       bool contains (const GPS_Position& p) const;
       
       /**
-       * Initializes search area from knowledge base information
-       * @param knowledge   knowledge base to draw from
-       * @param prefix   prefix for the search area (e.g., "search_area.0")
-       **/
-      void init (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const std::string & prefix);
-
-      /**
        * Create string representation of Search_Area
        * @return string representation of this object
        **/
@@ -221,16 +213,6 @@ namespace gams
       /// name of this search area
       std::string name_;
     }; // class Search_Area
-
-    /**
-     * Create Search Area from knowledge base information
-     * @param knowledge   knowledge base to draw from
-     * @param prefix   prefix for the search area (e.g., "search_area.0")
-     * @return Region object created from knowledge base
-     **/
-    GAMS_Export Search_Area parse_search_area (
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-      const std::string & prefix);
   } // namespace utility
 } // namespace gams
 

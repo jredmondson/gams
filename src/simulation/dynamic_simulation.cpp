@@ -532,8 +532,8 @@ void create_environment (const int& client_id,
       }
       else // search_area
       {
-        gams::utility::Search_Area search =
-          gams::utility::parse_search_area (knowledge, regions[i]);
+        Search_Area search;
+        search.from_container (knowledge, regions[i]);
         vector<Prioritized_Region> search_regions = search.get_regions ();
         for (size_t j = 0; j < search_regions.size (); ++j)
           put_border (knowledge, search_regions[j], client_id);
@@ -673,7 +673,8 @@ int main (int argc, char ** argv)
   cout << "done" << endl;
 
   // data collection
-  Search_Area search = gams::utility::parse_search_area (knowledge, search_area_id);
+  Search_Area search;
+  search.from_container (knowledge, search_area_id);
   time_to_full_coverage (knowledge, search);
 
   // exit

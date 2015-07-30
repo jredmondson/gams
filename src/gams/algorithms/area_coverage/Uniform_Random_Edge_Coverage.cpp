@@ -166,7 +166,8 @@ Uniform_Random_Edge_Coverage::Uniform_Random_Edge_Coverage (
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \
     " parsing Search_Area \"%s\"\n", prefix.c_str ());
-  utility::Search_Area search = utility::parse_search_area (*knowledge, prefix);
+  utility::Search_Area search;
+  search.from_container (*knowledge, prefix);
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::constructor:" \

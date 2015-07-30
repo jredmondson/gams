@@ -141,8 +141,8 @@ gams::algorithms::area_coverage::Uniform_Random_Area_Coverage::
   status_.init_variable_values ();
 
   // get region to cover
-  utility::Search_Area search = utility::parse_search_area (*knowledge, 
-    search_area_id);
+  utility::Search_Area search;
+  search.from_container (*knowledge, search_area_id);
   region_ = search.get_convex_hull ();
 
   // generate initial waypoint

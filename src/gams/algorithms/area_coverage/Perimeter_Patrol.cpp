@@ -159,8 +159,9 @@ gams::algorithms::area_coverage::Perimeter_Patrol::Perimeter_Patrol (
   status_.init_variable_values ();
 
   // get waypoints
-  utility::Region reg =
-    utility::parse_search_area (*knowledge, region_id).get_convex_hull ();
+  utility::Search_Area sa;
+  sa.from_container (*knowledge, region_id);
+  utility::Region reg = sa.get_convex_hull ();
   vector<utility::GPS_Position> vertices = reg.vertices;
 
   // find closest waypoint as starting point

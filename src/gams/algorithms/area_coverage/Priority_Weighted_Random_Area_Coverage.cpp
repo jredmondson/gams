@@ -152,12 +152,14 @@ Priority_Weighted_Random_Area_Coverage (
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time),
-  search_area_ (utility::parse_search_area (*knowledge, search_id)),
   total_priority_ (0.0)
 {
   // init status vars
   status_.init_vars (*knowledge, "pwrac", self->id.to_integer ());
   status_.init_variable_values ();
+
+  // get search area
+  search_area_.from_container (*knowledge, search_id);
 
   // calculate total priority
   const vector<utility::Prioritized_Region>& regions =

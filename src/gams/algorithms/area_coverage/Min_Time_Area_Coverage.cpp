@@ -154,12 +154,14 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage::
   variables::Self * self, variables::Devices * devices,
   const string& algo_name) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time),
-  search_area_ (utility::parse_search_area (*knowledge, search_id)),
   min_time_ (search_id + "." + algo_name, knowledge)
 {
   // init status vars
   status_.init_vars (*knowledge, algo_name, self->id.to_integer ());
   status_.init_variable_values ();
+
+  // get search area
+  search_area_.from_container (*knowledge, search_id);
 
   // fill out min_time_ sensor
   /**
