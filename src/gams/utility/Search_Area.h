@@ -89,10 +89,36 @@ namespace gams
       ~Search_Area ();
 
       /**
+       * Equality operator
+       * @param rhs   Search_Area to compare against
+       * @return true if Search_Areas have same Prioritized_Region, false otherwise
+       **/
+      bool operator== (const Search_Area& rhs) const;
+
+      /**
+       * Inequality operator, uses Equality operator and inverses it
+       * @param rhs   Search_Area to compare against
+       * @return false if Search_Areas have same Prioritized_Region, true otherwise
+       **/
+      bool operator!= (const Search_Area& rhs) const;
+
+      /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
       void operator= (const Search_Area & rhs);
+
+      /**
+       * Get Search_Area name
+       * @return name of the search area
+       **/
+      std::string get_name () const;
+
+      /**
+       * Set Search_Area name
+       * @param n     new name for Search_Area
+       **/
+      void set_name (const std::string& n);
 
       /**
        * Add prioritized region to search area
@@ -140,6 +166,34 @@ namespace gams
        **/
       std::string to_string () const;
 
+      /**
+       * Helper function for copying values to a MADARA knowledge base
+       * @param kb        knowledge base to store region information
+       **/
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+
+      /**
+       * Helper function for copying values to a MADARA knowledge base
+       * @param kb        knowledge base to store region information
+       * @param name      name of the region
+       **/
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name);
+
+      /**
+       * Helper function for copying values from a MADARA knowledge base
+       * @param kb        knowledge base with region information
+       **/
+      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+      
+      /**
+       * Helper function for copying values from a MADARA knowledge base
+       * @param kb        knowledge base with region information
+       * @param name      name of the region to get
+       **/
+      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name);
+
       /// bounding box
       double min_lat_, max_lat_;
       double min_lon_, max_lon_;
@@ -156,12 +210,16 @@ namespace gams
        * @param gp1  start point
        * @param gp2  pivot point
        * @param gp3  end point
-       */
+       * @return cross product of the points
+       **/
       double cross (const GPS_Position& gp1, const GPS_Position& gp2, 
         const GPS_Position& gp3) const;
 
       /// collection of prioritized regions
       std::vector<Prioritized_Region> regions_;
+
+      /// name of this search area
+      std::string name_;
     }; // class Search_Area
 
     /**

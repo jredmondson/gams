@@ -355,6 +355,10 @@ gams::utility::Region::from_container (
   Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
   type_ = type.to_integer ();
 
+  // set name if necessary
+  if (name_ == "")
+    name_ = prefix;
+
   // get vertices
   switch (type_)
   {

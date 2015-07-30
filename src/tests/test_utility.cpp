@@ -323,6 +323,17 @@ test_Search_Area ()
   assert (from == pr);
   Prioritized_Region nullPR;
   assert (nullPR != from);
+  Search_Area cont1;
+  cont1.add_prioritized_region (pr);
+  Search_Area cont2;
+  cont1.to_container (kb, "sa_test");
+  cont2.from_container (kb, "sa_test");
+  assert (cont1 == cont2);
+  Search_Area nullSA;
+  nullSA.to_container (kb, "nullSA");
+  assert (cont1 != nullSA);
+  cont1.from_container (kb, "nullSA");
+  assert (cont1 == nullSA);
 }
 
 int

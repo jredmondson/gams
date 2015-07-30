@@ -66,6 +66,8 @@
 #include "gams/utility/GPS_Position.h"
 #include "gams/loggers/Global_Logger.h"
 #include "madara/utility/Utility.h"
+#include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge_engine/containers/String.h"
 
 using std::cerr;
 using std::copy;
@@ -102,6 +104,25 @@ gams::utility::Search_Area::~Search_Area ()
 {
 }
 
+bool
+gams::utility::Search_Area::operator== (const Search_Area& rhs) const
+{
+  if (regions_.size () != rhs.regions_.size ())
+    return false;
+
+  for (const Prioritized_Region& lpr : regions_)
+    for (const Prioritized_Region& rpr : rhs.regions_)
+      if (lpr != rpr)
+        return false;
+  return true;
+}
+
+bool
+gams::utility::Search_Area::operator!= (const Search_Area& rhs) const
+{
+  return !(*this == rhs);
+}
+
 void
 gams::utility::Search_Area::operator= (const Search_Area & rhs)
 {
@@ -114,7 +135,20 @@ gams::utility::Search_Area::operator= (const Search_Area & rhs)
     this->max_lon_ = rhs.max_lon_;
     this->min_alt_ = rhs.min_alt_;
     this->max_alt_ = rhs.max_alt_;
+    this->name_ = rhs.name_;
   }
+}
+
+std::string
+gams::utility::Search_Area::get_name () const
+{
+  return name_;
+}
+
+void
+gams::utility::Search_Area::set_name (const std::string& n)
+{
+  name_ = n;
 }
 
 void
@@ -300,6 +334,89 @@ gams::utility::Search_Area::to_string () const
   for (unsigned int i = 0; i < regions_.size (); ++i)
     buffer << "Region " << i << ": " << regions_[i].to_string () << endl;
   return buffer.str();
+}
+
+void
+gams::utility::Search_Area::to_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb)
+{
+  to_container (kb, get_name ());
+}
+
+void
+gams::utility::Search_Area::to_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix)
+{
+  // set size
+  Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
+  size = regions_.size ();
+
+  // add regions
+  size_t idx = 0;
+  for (Prioritized_Region& pr : regions_)
+  {
+    // check if PR has name
+    string pr_name = pr.get_name ();
+    if (pr_name == "")
+    {
+      // PR has no name, so assign a name
+      std::stringstream new_pr_name;
+      new_pr_name << prefix << "." << idx;
+      pr_name = new_pr_name.str ();
+      pr.set_name (pr_name);
+    }
+
+    // check if PR is in KB
+    // TODO: make this less hacky
+    if (!kb.get (pr_name + ".type").exists () ||
+        !kb.get (pr_name + ".size").exists ())
+    {
+      // PR must not be in KB, so put it in there
+      pr.to_container (kb, pr_name);
+    }
+
+    // set PR as member of search area
+    std::stringstream member_key;
+    member_key << prefix << "." << idx;
+    Madara::Knowledge_Engine::Containers::String member (member_key.str (), kb);
+    member = pr_name;
+
+    // increment index
+    ++idx;
+  }
+}
+
+void
+gams::utility::Search_Area::from_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb)
+{
+  from_container (kb, get_name ());
+}
+
+void
+gams::utility::Search_Area::from_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix)
+{
+  // get size
+  Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
+
+  // reserve space in regions_
+  regions_.clear ();
+  regions_.reserve (size.to_integer ());
+
+  // get regions
+  for (size_t idx = 0; idx < size.to_integer (); ++idx)
+  {
+    std::stringstream pr_prefix;
+    pr_prefix << prefix << "." << idx;
+
+    Prioritized_Region temp;
+    temp.from_container (kb, kb.get (pr_prefix.str ()).to_string ());
+
+    regions_.push_back (temp);
+  }
+
+  calculate_bounding_box ();
 }
 
 void

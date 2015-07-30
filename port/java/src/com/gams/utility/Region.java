@@ -264,7 +264,7 @@ public class Region extends GamsJNI
 
   /**
    * Helper function for copying values from a MADARA knowledge base
-   * @param kb      KnowledgeBase to copy region infomration to
+   * @param kb      KnowledgeBase to copy region information to
    **/
   public void fromContainer(com.madara.KnowledgeBase kb)
   {
@@ -273,7 +273,7 @@ public class Region extends GamsJNI
 
   /**
    * Helper function for copying values from a MADARA knowledge base
-   * @param kb      KnowledgeBase to copy region infomration to
+   * @param kb      KnowledgeBase to copy region information to
    * @param name    name of the region
    **/
   public void fromContainer(com.madara.KnowledgeBase kb, String name)

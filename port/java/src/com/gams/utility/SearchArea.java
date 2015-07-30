@@ -49,11 +49,15 @@ package com.gams.utility;
 import com.gams.GamsJNI;
 
 /**
- * A utility class that acts as a facade for a region
+ * A utility class that acts as a facade for a SearchArea
  **/
 public class SearchArea extends GamsJNI
 {
   private native long jni_SearchArea();
+  private native String jni_getName(long cptr);
+  private native void jni_setName(long cptr, String name);
+  private native void jni_fromContainer(long cptr, long kb, String name);
+  private native void jni_toContainer(long cptr, long kb, String name);
   private static native void jni_freeSearchArea(long cptr);
   private native java.lang.String jni_toString(long cptr);
   private native void jni_addPrioritizedRegion(long cptr, long region); 
@@ -73,6 +77,24 @@ public class SearchArea extends GamsJNI
   public SearchArea()
   {
     setCPtr(jni_SearchArea());
+  }
+
+  /**
+   * Get name of the SearchArea
+   * @return name of the SearchArea
+   **/
+  public String getName()
+  {
+    return jni_getName(getCPtr());
+  }
+
+  /**
+   * Set name of the SearchArea
+   * @param n   new name for SearchArea
+   **/
+  public void setName(String n)
+  {
+    jni_setName(getCPtr(), n);
   }
 
   /**
@@ -221,6 +243,44 @@ public class SearchArea extends GamsJNI
     ret.manageMemory=shouldManage;
     ret.setCPtr(cptr);
     return ret;
+  }
+
+  /**
+   * Helper function for copying values from a MADARA knowledge base
+   * @param kb      KnowledgeBase to copy SearchArea information to
+   **/
+  public void fromContainer(com.madara.KnowledgeBase kb)
+  {
+    fromContainer (kb, getName());
+  }
+
+  /**
+   * Helper function for copying values from a MADARA knowledge base
+   * @param kb      KnowledgeBase to copy SearchArea information to
+   * @param name    name of the SearchArea
+   **/
+  public void fromContainer(com.madara.KnowledgeBase kb, String name)
+  {
+    jni_fromContainer(getCPtr(), kb.getCPtr(), name);
+  }
+
+  /**
+   * Helper function for copying values to a MADARA knowledge base
+   * @param kb      KnowledgeBase with SearchArea information
+   **/
+  public void toContainer(com.madara.KnowledgeBase kb)
+  {
+    toContainer(kb, getName());
+  }
+
+  /**
+   * Helper function for copying values to a MADARA knowledge base
+   * @param kb      KnowledgeBase with SearchArea information
+   * @param name    name of the SearchArea
+   **/
+  public void toContainer(com.madara.KnowledgeBase kb, String name)
+  {
+    jni_toContainer(getCPtr(), kb.getCPtr(), name);
   }
 
   /**

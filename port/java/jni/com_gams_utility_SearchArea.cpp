@@ -18,6 +18,78 @@ GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1SearchArea
 
 /*
  * Class:     com_gams_utility_SearchArea
+ * Method:    jni_getName
+ * Signature: (J)Ljava/lang/String;
+ */
+jstring JNICALL Java_com_gams_utility_SearchArea_jni_1getName
+  (JNIEnv * env, jobject, jlong cptr)
+{
+  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  jstring result;
+
+  if (current)
+  {
+    result = env->NewStringUTF (current->get_name ().c_str ());
+  }
+
+  return result;
+}
+
+/*
+ * Class:     com_gams_utility_SearchArea
+ * Method:    jni_setName
+ * Signature: (JLjava/lang/String;)V
+ */
+void JNICALL Java_com_gams_utility_SearchArea_jni_1setName
+  (JNIEnv * env, jobject, jlong cptr, jstring new_name)
+{
+  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  const char * str_name = env->GetStringUTFChars (new_name, 0);
+
+  if (current && str_name)
+    current->set_name (str_name);
+
+  env->ReleaseStringUTFChars (new_name, str_name);
+}
+
+/*
+ * Class:     com_gams_utility_SearchArea
+ * Method:    jni_fromContainer
+ * Signature: (JJLjava/lang/String;)V
+ */
+void JNICALL Java_com_gams_utility_SearchArea_jni_1fromContainer
+  (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
+{
+  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  engine::Knowledge_Base* kb = (engine::Knowledge_Base*) kb_ptr;
+  const char * str_name = env->GetStringUTFChars (name, 0);
+
+  if (current && kb && str_name)
+    current->from_container (*kb, str_name);
+
+  env->ReleaseStringUTFChars (name, str_name);
+}
+
+/*
+ * Class:     com_gams_utility_SearchArea
+ * Method:    jni_toContainer
+ * Signature: (JJLjava/lang/String;)V
+ */
+void JNICALL Java_com_gams_utility_SearchArea_jni_1toContainer
+  (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
+{
+  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  engine::Knowledge_Base* kb = (engine::Knowledge_Base*) kb_ptr;
+  const char * str_name = env->GetStringUTFChars (name, 0);
+
+  if (current && kb && str_name)
+    current->to_container (*kb, str_name);
+
+  env->ReleaseStringUTFChars (name, str_name);
+}
+
+/*
+ * Class:     com_gams_utility_SearchArea
  * Method:    jni_freeSearchArea
  * Signature: (J)V
  */
