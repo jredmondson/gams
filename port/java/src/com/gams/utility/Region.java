@@ -57,8 +57,10 @@ public class Region extends GamsJNI
 {
   private native long jni_Region();
   private static native void jni_freeRegion(long cptr);
-  private native void jni_fromContainer(long cptr, String name, long kb); 
-  private native void jni_toContainer(long cptr, String name, long kb); 
+  private native String jni_getName(long cptr);
+  private native void jni_setName(long cptr, String name);
+  private native void jni_fromContainer(long cptr, long kb, String name);
+  private native void jni_toContainer(long cptr, long kb, String name);
   private native java.lang.String jni_toString(long cptr);
   private native void jni_addGpsVertex(long cptr, long coord); 
   private native long[] jni_getVertices(long cptr); 
@@ -92,7 +94,24 @@ public class Region extends GamsJNI
     return jni_toString(getCPtr());
   }
 
-  
+  /**
+   * Get name of the region
+   * @return name of the region
+   **/
+  public String getName()
+  {
+    return jni_getName(getCPtr());
+  }
+
+  /**
+   * Set name of the region
+   * @param n     new name of the region
+   **/
+  public void setName(String n)
+  {
+    jni_setName(getCPtr(), n);
+  }
+
   /**
    * Adds a GPS vertex to this region
    * @param   point     point to check
@@ -245,22 +264,40 @@ public class Region extends GamsJNI
 
   /**
    * Helper function for copying values from a MADARA knowledge base
-   * @param name    name of the region
    * @param kb      KnowledgeBase to copy region infomration to
    **/
-  public void fromContainer(String name, com.madara.KnowledgeBase kb)
+  public void fromContainer(com.madara.KnowledgeBase kb)
   {
-    jni_fromContainer(getCPtr(), name, kb.getCPtr()); 
+    fromContainer (kb, getName());
+  }
+
+  /**
+   * Helper function for copying values from a MADARA knowledge base
+   * @param kb      KnowledgeBase to copy region infomration to
+   * @param name    name of the region
+   **/
+  public void fromContainer(com.madara.KnowledgeBase kb, String name)
+  {
+    jni_fromContainer(getCPtr(), kb.getCPtr(), name);
   }
 
   /**
    * Helper function for copying values to a MADARA knowledge base
-   * @param name    name of the region
    * @param kb      KnowledgeBase with region information
    **/
-  public void toContainer(String name, com.madara.KnowledgeBase kb)
+  public void toContainer(com.madara.KnowledgeBase kb)
   {
-    jni_toContainer(getCPtr(), name, kb.getCPtr()); 
+    toContainer(kb, getName());
+  }
+
+  /**
+   * Helper function for copying values to a MADARA knowledge base
+   * @param kb      KnowledgeBase with region information
+   * @param name    name of the region
+   **/
+  public void toContainer(com.madara.KnowledgeBase kb, String name)
+  {
+    jni_toContainer(getCPtr(), kb.getCPtr(), name);
   }
 
   /**

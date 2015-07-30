@@ -267,10 +267,12 @@ test_Region ()
 
   // check to/from container
   Madara::Knowledge_Engine::Knowledge_Base kb;
-  r.to_container ("test", kb);
+  r.to_container (kb, "test");
   Region from;
-  from.from_container ("test", kb);
+  from.from_container (kb, "test");
   assert (from == r);
+  Region nullRegion;
+  assert (from != nullRegion);
 }
 
 void

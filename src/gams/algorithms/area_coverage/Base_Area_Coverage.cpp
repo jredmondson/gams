@@ -172,34 +172,8 @@ int
 gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished (
   int ret_val) const
 {
-<<<<<<< HEAD
-  if (exec_time_ == ACE_Time_Value (0.0))
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished:" \
-      " exec_time == 0\n");
-    return ret_val;
-  }
-  if (ret_val != OK)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished:" \
-      " ret_val != OK\n");
-    return ret_val;
-  }
-  if (ACE_OS::gettimeofday () >= end_time_)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::area_coverage::Base_Area_Coverage::check_if_finished:" \
-      " time >= end_time\n");
-    return FINISHED;
-  }
-=======
   if (exec_time_ != ACE_Time_Value (0.0) && ret_val == OK && (ACE_OS::gettimeofday () > end_time_))
     ret_val = FINISHED;
->>>>>>> master
+
   return ret_val;
 }

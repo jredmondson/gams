@@ -26,19 +26,35 @@ GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1freeRegion
 
 /*
  * Class:     com_gams_utility_Region
+ * Method:    jni_getName
+ * Signature: (J)Ljava/lang/String;
+ */
+GAMS_Export jstring JNICALL Java_com_gams_utility_Region_jni_1getName
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_gams_utility_Region
+ * Method:    jni_setName
+ * Signature: (JLjava/lang/String;)V
+ */
+GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1setName
+  (JNIEnv *, jobject, jlong, jstring);
+
+/*
+ * Class:     com_gams_utility_Region
  * Method:    jni_fromContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
 GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
-  (JNIEnv *, jobject, jlong, jstring, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
  * Class:     com_gams_utility_Region
  * Method:    jni_toContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
 GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1toContainer
-  (JNIEnv *, jobject, jlong, jstring, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jstring);
 
 /*
  * Class:     com_gams_utility_Region

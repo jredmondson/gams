@@ -527,7 +527,7 @@ void create_environment (const int& client_id,
       if (regions[i].find ("region") != std::string::npos)
       {
         gams::utility::Region reg;
-        reg.from_container (regions[i], knowledge);
+        reg.from_container (knowledge, regions[i]);
         put_border (knowledge, reg, client_id);
       }
       else // search_area

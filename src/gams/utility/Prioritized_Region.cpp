@@ -98,7 +98,7 @@ void
 gams::utility::Prioritized_Region::to_container (const std::string& name, 
   Madara::Knowledge_Engine::Knowledge_Base& kb) const
 {
-  ((Region *)(this))->to_container (name, kb);
+  ((Region *)(this))->to_container (kb, name);
   Madara::Knowledge_Engine::Containers::Integer priority_container;
   priority_container.set_name (name + ".priority", kb);
   priority_container = priority;
@@ -108,7 +108,7 @@ void
 gams::utility::Prioritized_Region::from_container (const std::string& name, 
   Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
-  ((Region *)(this))->from_container (name, kb);
+  ((Region *)(this))->from_container (kb, name);
   Madara::Knowledge_Engine::Containers::Integer priority_container;
   priority_container.set_name (name + ".priority", kb);
   if (!priority_container.exists ())

@@ -32,11 +32,49 @@ void JNICALL Java_com_gams_utility_Region_jni_1freeRegion
 
 /*
  * Class:     com_gams_utility_Region
+ * Method:    jni_getName
+ * Signature: (J)Ljava/lang/String;
+ */
+jstring JNICALL Java_com_gams_utility_Region_jni_1getName
+  (JNIEnv * env, jobject, jlong cptr)
+{
+  const utility::Region * current = (const utility::Region *) cptr;
+  jstring result;
+
+  if (current)
+  {
+    result = env->NewStringUTF (current->get_name ().c_str ());
+  }
+
+  return result;
+}
+
+/*
+ * Class:     com_gams_utility_Region
+ * Method:    jni_setName
+ * Signature: (JLjava/lang/String;)V
+ */
+void JNICALL Java_com_gams_utility_Region_jni_1setName
+  (JNIEnv * env, jobject, jlong cptr, jstring new_name)
+{
+  utility::Region * current = (utility::Region *) cptr;
+  const char * str_name = env->GetStringUTFChars (new_name, 0);
+
+  if (current && str_name)
+  {
+    current->set_name (str_name);
+  }
+
+  env->ReleaseStringUTFChars (new_name, str_name);
+}
+
+/*
+ * Class:     com_gams_utility_Region
  * Method:    jni_fromContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
 void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
-  (JNIEnv * env, jobject, jlong cptr, jstring name, jlong kb_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
   utility::Region * current = (utility::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
@@ -44,7 +82,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
 
   if (current && str_name && kb)
   {
-    current->from_container (str_name, *kb);
+    current->from_container (*kb, str_name);
   }
 
   env->ReleaseStringUTFChars (name, str_name);
@@ -53,10 +91,10 @@ void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
 /*
  * Class:     com_gams_utility_Region
  * Method:    jni_toContainer
- * Signature: (JLjava/lang/String;J)V
+ * Signature: (JJLjava/lang/String;)V
  */
 void JNICALL Java_com_gams_utility_Region_jni_1toContainer
-  (JNIEnv * env, jobject, jlong cptr, jstring name, jlong kb_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
   utility::Region * current = (utility::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
@@ -64,7 +102,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1toContainer
 
   if (current && str_name && kb)
   {
-    current->to_container (str_name, *kb);
+    current->to_container (*kb, str_name);
   }
 
   env->ReleaseStringUTFChars (name, str_name);

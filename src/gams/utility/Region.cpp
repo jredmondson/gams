@@ -69,9 +69,10 @@ using std::vector;
 
 typedef  Madara::Knowledge_Record::Integer Integer;
 
-gams::utility::Region::Region (const std::vector <GPS_Position> & init_vertices, 
-  unsigned int t) :
-  vertices (init_vertices), type_ (t)
+gams::utility::Region::Region (
+  const std::vector <GPS_Position> & init_vertices, unsigned int t, 
+  const std::string& name) :
+  vertices (init_vertices), name_(name), type_ (t)
 {
   calculate_bounding_box ();
 }
@@ -86,6 +87,8 @@ gams::utility::Region::operator= (const Region& rhs)
   if (this != &rhs)
   {
     this->vertices = rhs.vertices;
+    this->name_ = rhs.name_;
+    this->type_ = rhs.type_;
     calculate_bounding_box ();
   }
 }
@@ -108,6 +111,24 @@ gams::utility::Region::operator== (const Region& rhs) const
   }
 
   return true;
+}
+
+bool
+gams::utility::Region::operator!= (const Region& rhs) const
+{
+  return !(*this == rhs);
+}
+
+std::string
+gams::utility::Region::get_name () const
+{
+  return name_;
+}
+
+void
+gams::utility::Region::set_name (const std::string& n)
+{
+  name_ = n;
 }
 
 bool
@@ -269,8 +290,16 @@ gams::utility::Region::to_string (const string & delimiter) const
 }
 
 void
-gams::utility::Region::to_container (const std::string& prefix, 
+gams::utility::Region::to_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb) const
+{
+  to_container (kb, get_name ());
+}
+
+void
+gams::utility::Region::to_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix) 
+  const
 {
   // set type
   Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
@@ -307,8 +336,15 @@ gams::utility::Region::to_container (const std::string& prefix,
 }
 
 void
-gams::utility::Region::from_container (const std::string& prefix, 
+gams::utility::Region::from_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb)
+{
+  from_container (kb, get_name ());
+}
+
+void
+gams::utility::Region::from_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,

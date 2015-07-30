@@ -64,8 +64,8 @@ public class TestUtility
     reg1.addVertex(new GpsPosition(0,4,0));
     reg1.addVertex(new GpsPosition(3,0,0));
 
-    reg1.toContainer("test", kb);
-    reg2.fromContainer("test", kb);
+    reg1.toContainer(kb, "test");
+    reg2.fromContainer(kb, "test");
 
     System.err.println(kb.toString());
     System.err.println("reg1: ");
@@ -86,8 +86,8 @@ public class TestUtility
     reg1.addVertex(new GpsPosition(3,0,0));
     reg1.setPriority(5);
 
-    reg1.toContainer("test", kb);
-    reg2.fromContainer("test", kb);
+    reg1.toContainer(kb, "test");
+    reg2.fromContainer(kb, "test");
 
     System.err.println(kb.toString());
     System.err.println("reg1: ");

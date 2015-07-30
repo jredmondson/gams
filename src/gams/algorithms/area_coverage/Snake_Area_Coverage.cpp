@@ -199,7 +199,7 @@ gams::algorithms::area_coverage::Snake_Area_Coverage::compute_waypoints (
 {
   // get region information
   utility::Region region;
-  region.from_container (region_id, *knowledge_);
+  region.from_container (*knowledge_, region_id);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,

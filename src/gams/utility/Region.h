@@ -73,8 +73,9 @@ namespace gams
        * Constructor
        * @param  init_vertices  the vertices of the region
        **/
-      Region (const std::vector <GPS_Position> & init_vertices =
-        std::vector<GPS_Position> (), unsigned int t = 0);
+      Region (const std::vector <GPS_Position> & init_vertices = 
+        std::vector<GPS_Position> (), unsigned int t = 0, 
+        const std::string& name = "");
 
       /**
        * Destructor
@@ -88,10 +89,28 @@ namespace gams
       void operator= (const Region& rhs);
 
       /**
-       * Equality operator
+       * Equality operator. Only checks if the vertices are the same
        * @param rhs   Region to compare with
        */
       bool operator== (const Region& rhs) const;
+
+      /**
+       * Inequality operator. Calls operator== and inverses result
+       * @param rhs   Region to compare with
+       */
+      bool operator!= (const Region& rhs) const;
+
+      /**
+       * Get name of region
+       * @return name of the region
+       */
+      std::string get_name () const;
+
+      /**
+       * Set name of region
+       * @param n   new name of the region
+       */
+      void set_name (const std::string& n);
       
       /**
        * Determine if GPS_Position is in region
@@ -135,20 +154,32 @@ namespace gams
       std::string to_string (const std::string & delimiter = ":") const;
 
       /**
-       * Helper function for copying values to a MADARA string array
-       * @param name      name of the region
+       * Helper function for copying values to a MADARA knowledge base
        * @param kb        knowledge base to store region information
        **/
-      void to_container (const std::string& name, 
-        Madara::Knowledge_Engine::Knowledge_Base& kb) const;
-      
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb) const;
+
       /**
-       * Helper function for copying values from a MADARA string array
-       * @param name      name of the region to get
+       * Helper function for copying values to a MADARA knowledge base
+       * @param kb        knowledge base to store region information
+       * @param name      name of the region
+       **/
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name) const;
+
+      /**
+       * Helper function for copying values from a MADARA knowledge base
        * @param kb        knowledge base with region information
        **/
-      void from_container (const std::string& name, 
-        Madara::Knowledge_Engine::Knowledge_Base& kb);
+      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+      
+      /**
+       * Helper function for copying values from a MADARA knowledge base
+       * @param kb        knowledge base with region information
+       * @param name      name of the region to get
+       **/
+      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name);
 
       /// the vertices of the region
       std::vector <GPS_Position> vertices;
@@ -157,8 +188,11 @@ namespace gams
       double min_lat_, max_lat_;
       double min_lon_, max_lon_;
       double min_alt_, max_alt_;
-      
+
     protected:
+      /// name of the region
+      std::string name_;
+      
       /**
        * populate bounding box values
        **/
