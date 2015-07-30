@@ -336,6 +336,15 @@ gams::algorithms::Formation_Flying::analyze (void)
     }
     else
     {
+      if (formation_ready_ == 0)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::Formation_Flying:" \
+          " follower is rebroadcasting that it's in formation\n");
+        in_formation_ = 1;
+      }
+
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::Formation_Flying:" \
