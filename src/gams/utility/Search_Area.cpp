@@ -367,6 +367,15 @@ gams::utility::Search_Area::init (
   Madara::Knowledge_Engine::Knowledge_Base & knowledge,
   const string & prefix)
 {
+
+  std::string kb_string;
+  knowledge.to_string (kb_string);
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::init:" \
+    " KB data for agent %u\n%s\n",
+    knowledge.get(".id").to_integer (), kb_string.c_str ());
+  
   // get size of search_area in number of regions
   if (mutility::begins_with (prefix, "search_area"))
   {
