@@ -262,6 +262,13 @@ gams::algorithms::Formation_Coverage::execute (void)
         " head formation execute\n");
       head_algo_->execute ();
     }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Coverage::execute:" \
+        " head does nothing\n");
+    }
   }
   else // follower
   {

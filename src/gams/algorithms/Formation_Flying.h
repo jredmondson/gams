@@ -140,7 +140,12 @@ namespace gams
       utility::GPS_Position get_destination();
 
       /// formation wait string
-      Madara::Knowledge_Engine::Compiled_Expression compiled_formation_;
+      struct compiled
+      {
+        Madara::Knowledge_Engine::Compiled_Expression ref;
+        size_t agent;
+      };
+      std::vector<compiled> compiled_formation_;
 
       /// are we in formation?
       Madara::Knowledge_Engine::Containers::Integer formation_ready_;
