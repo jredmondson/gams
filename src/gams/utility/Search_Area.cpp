@@ -214,12 +214,33 @@ gams::utility::Search_Area::get_convex_hull () const
   swap (points[lowest], points[1]);
   //cerr << "selected " << points[1].latitude() << " " << points[1].longitude() << " as lowest" << endl;
 
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " sort %u points\n", N);
+  for (size_t i = 2; i < N + 1; ++i)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::utility::Search_Area::get_convex_hull:" \
+      " point %u: \"%f,%f,%f\"\n", i, points[i].x, points[i].y, points[i].z);
+  }
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " anchor point is \"%f,%f,%f\"\n", points[1].x, points[1].y, points[1].z);
+
   // sort positions
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::Search_Area::get_convex_hull:" \
     " sort points\n");
   sort (&points[2], &points[N + 1], sort_by_angle (points[1]));
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::Search_Area::get_convex_hull:" \
+    " done sorting\n");
 //  cerr << "sorting points" << endl;
 //  for (int i = 0; i < N+1; ++i)
 //    cerr << points[i].latitude() << " " << points[i].longitude() << endl;
