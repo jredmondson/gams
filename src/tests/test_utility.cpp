@@ -64,6 +64,8 @@
 #include "gams/utility/Prioritized_Region.h"
 #include "gams/utility/Search_Area.h"
 
+#include "gams/loggers/Global_Logger.h"
+
 using gams::utility::GPS_Position;
 using gams::utility::Position;
 using gams::utility::Prioritized_Region;
@@ -273,10 +275,6 @@ test_Region ()
   assert (from == r);
   Region nullRegion;
   assert (from != nullRegion);
-
-  string k;
-  kb.to_string (k);
-  cerr << k << endl;
 }
 
 void
@@ -348,6 +346,7 @@ test_Search_Area ()
 int
 main (int /*argc*/, char ** /*argv*/)
 {
+  gams::loggers::global_logger->set_level (-1);
   test_Position ();
   test_GPS_Position ();
   test_Region ();
