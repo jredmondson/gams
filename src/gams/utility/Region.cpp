@@ -96,6 +96,9 @@ gams::utility::Region::operator= (const Region& rhs)
 bool
 gams::utility::Region::operator== (const Region& rhs) const
 {
+  if (this == &rhs)
+    return true;
+
   if (vertices.size () != rhs.vertices.size ())
     return false;
 

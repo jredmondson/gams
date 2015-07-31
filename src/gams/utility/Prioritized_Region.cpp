@@ -89,7 +89,8 @@ gams::utility::Prioritized_Region::operator= (const Prioritized_Region & rhs)
 bool
 gams::utility::Prioritized_Region::operator== (const Prioritized_Region& rhs) const
 {
-  return ((Region*)this)->operator==(rhs) && (priority == rhs.priority);
+  return (this == &rhs) || 
+    (((Region*)this)->operator==(rhs) && (priority == rhs.priority));
 }
 
 bool

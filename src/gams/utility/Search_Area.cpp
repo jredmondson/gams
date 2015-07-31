@@ -107,6 +107,9 @@ gams::utility::Search_Area::~Search_Area ()
 bool
 gams::utility::Search_Area::operator== (const Search_Area& rhs) const
 {
+  if (this == &rhs)
+    return true;
+
   if (regions_.size () != rhs.regions_.size ())
     return false;
 
