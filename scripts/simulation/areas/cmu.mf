@@ -5,6 +5,7 @@
 .surface="concrete";
 
 // cmu football field
+region.0.object_type=1;
 region.0.type=0;
 region.0.size=4;
 region.0.0[0]=40.443501;
@@ -17,6 +18,7 @@ region.0.3[0]=40.443110;
 region.0.3[1]=-79.940941;
 
 // cmu east parking garage
+region.1.object_type=1;
 region.1.type=0;
 region.1.size=4;
 region.1.0[0]=40.444179;
