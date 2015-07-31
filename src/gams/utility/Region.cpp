@@ -368,7 +368,15 @@ gams::utility::Region::from_container (
     " name = %s\n", name.c_str ());
 
   // get type
-  Madara::Knowledge_Engine::Containers::Integer type (name + ".type", kb);
+  Madara::Knowledge_Record type = kb.get (name + ".type");
+  if (!type.exists ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Region::from_container:" \
+      " \"%s.type\" does not exist in knowledge base\n", name.c_str ());
+    return false;
+  }
   type_ = type.to_integer ();
 
   // set name if necessary
@@ -386,19 +394,28 @@ gams::utility::Region::from_container (
          " type is arbitrary convex polygon\n");
 
       // get size
-      Madara::Knowledge_Engine::Containers::Vector vertices_knowledge;
-      vertices_knowledge.set_name (name, kb);
-      vertices_knowledge.resize();
-      unsigned int size = vertices_knowledge.size ();
-      vertices.resize (size);
+      Madara::Knowledge_Record num_verts = kb.get (name + ".size");
+      if (!num_verts.exists ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::utility::Region::from_container:" \
+          " \"%s.size\" does not exist in knowledge base\n", name.c_str ());
+        return false;
+      }
+      Integer num = num_verts.to_integer ();
+      vertices.resize (num);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
         "gams::utility::Region::from_container:" \
-        " size is %u\n", size);
+        " size is %u\n", num);
 
       // get each of the vertices
-      for (Integer i = 0; i < size; ++i)
+      Madara::Knowledge_Engine::Containers::Vector vertices_knowledge;
+      vertices_knowledge.set_name (name, kb);
+      vertices_knowledge.resize();
+      for (Integer i = 0; i < num; ++i)
       {
         std::vector<double> coords (vertices_knowledge[i].to_doubles ());
 
@@ -426,6 +443,7 @@ gams::utility::Region::from_container (
             gams::loggers::LOG_ERROR,
             "gams::utility::Region::from_container:" \
             " ERROR: invalid coordinate type at %s.%u\n", name.c_str (), i);
+          return false;
         }
       }
 
