@@ -61,12 +61,13 @@
 #include "madara/knowledge_engine/containers/String_Vector.h"
 #include "gams/utility/Position.h"
 #include "gams/utility/GPS_Position.h"
+#include "gams/utility/Containerize.h"
 
 namespace gams
 {
   namespace utility
   {
-    class GAMS_Export Region
+    class GAMS_Export Region : public Containerize
     {
     public:
       /**
@@ -157,7 +158,7 @@ namespace gams
        * Helper function for copying values to a MADARA knowledge base
        * @param kb        knowledge base to store region information
        **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb) const;
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
 
       /**
        * Helper function for copying values to a MADARA knowledge base
@@ -165,20 +166,22 @@ namespace gams
        * @param name      name of the region
        **/
       void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name) const;
+        const std::string& name);
 
       /**
-       * Helper function for copying values from a MADARA knowledge base
+       * Helper function for copying values from a MADARA knowledge base, uses name_
        * @param kb        knowledge base with region information
+       * @return true if valid object found, false otherwise
        **/
-      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
       
       /**
        * Helper function for copying values from a MADARA knowledge base
        * @param kb        knowledge base with region information
        * @param name      name of the region to get
+       * @return true if valid object found, false otherwise
        **/
-      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name);
 
       /// the vertices of the region
@@ -200,6 +203,16 @@ namespace gams
 
       /// type for this region
       unsigned int type_;
+
+    private:
+      /**
+       * Check if object is of correct type
+       * @param kb        Knowledge Base with object
+       * @param name      Name of object in the KB
+       * @return true if name is a valid object in kb, false otherwise
+       */
+      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name) const;
     }; // class Region
   } // namespace utility
 } // namespace gams

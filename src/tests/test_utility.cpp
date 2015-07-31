@@ -273,6 +273,10 @@ test_Region ()
   assert (from == r);
   Region nullRegion;
   assert (from != nullRegion);
+
+  string k;
+  kb.to_string (k);
+  cerr << k << endl;
 }
 
 void
@@ -334,6 +338,11 @@ test_Search_Area ()
   assert (cont1 != nullSA);
   cont1.from_container (kb, "nullSA");
   assert (cont1 == nullSA);
+
+  // try to get region from search area
+  Region fail_region;
+  assert (!fail_region.from_container (kb, "nullSA"));
+  assert (!fail_region.from_container (kb, "sa_test"));
 }
 
 int

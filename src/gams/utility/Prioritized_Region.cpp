@@ -59,6 +59,8 @@
 
 #include "madara/knowledge_engine/containers/Integer.h"
 
+#include "gams/loggers/Global_Logger.h"
+
 using std::string;
 using std::vector;
 
@@ -123,21 +125,44 @@ gams::utility::Prioritized_Region::to_container (
   priority_container = priority;
 }
 
-void
+bool
 gams::utility::Prioritized_Region::from_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
-  from_container (kb, get_name ());
+  return from_container (kb, get_name ());
 }
 
-void
+bool
 gams::utility::Prioritized_Region::from_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
-  ((Region *)(this))->from_container (kb, name);
-  Madara::Knowledge_Engine::Containers::Integer priority_container;
-  priority_container.set_name (name + ".priority", kb);
-  if (!priority_container.exists ())
-    priority_container = 1; // default to priority = 1
-  priority = priority_container.to_integer ();
+  if (!check_valid_type (kb, name))
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Prioritized_Region::from_container:" \
+      " \"%s\" is not a valid Region\n", name.c_str ());
+    return false;
+  }
+
+  bool ret_val = Region::from_container (kb, name);
+
+  if (ret_val)
+  {
+    Madara::Knowledge_Engine::Containers::Integer priority_container;
+    priority_container.set_name (name + ".priority", kb);
+    if (!priority_container.exists ())
+      priority_container = 1; // default to priority = 1
+    priority = priority_container.to_integer ();
+  }
+  return ret_val;
+}
+
+bool
+gams::utility::Prioritized_Region::check_valid_type (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+{
+  const static Class_ID valid = 
+    (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
+  return Containerize::is_valid_type (kb, name, valid);
 }

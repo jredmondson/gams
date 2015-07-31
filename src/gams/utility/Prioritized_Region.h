@@ -121,14 +121,14 @@ namespace gams
        * Helper function for copying values from a MADARA knowledge base
        * @param kb        knowledge base with region information
        **/
-      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
       
       /**
        * Helper function for copying values from a MADARA knowledge base
        * @param kb        knowledge base with region information
        * @param name      name of the region to get
        **/
-      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name);
 
       /**
@@ -139,6 +139,15 @@ namespace gams
 
       /// priority
       Madara::Knowledge_Record::Integer priority;
+
+    private:
+      /**
+       * Check if object is of correct type
+       * @param kb        Knowledge Base with object
+       * @param prefix    Prefix of object in the KB
+       */
+      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name) const;
     }; // class Prioritized_Region
   } // namespace utility
 } // namespace gams

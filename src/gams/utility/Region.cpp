@@ -291,18 +291,22 @@ gams::utility::Region::to_string (const string & delimiter) const
 
 void
 gams::utility::Region::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb) const
+  Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
   to_container (kb, get_name ());
 }
 
 void
 gams::utility::Region::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix) 
-  const
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) 
 {
-  // set type
-  Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
+  // set object type
+  Madara::Knowledge_Engine::Containers::Integer obj_type (
+    name + object_type_suffix_, kb);
+  obj_type = REGION_TYPE_ID;
+  
+  // set type of region
+  Madara::Knowledge_Engine::Containers::Integer type (name + ".type", kb);
   type = type_;
 
   switch (type.to_integer ())
@@ -310,16 +314,16 @@ gams::utility::Region::to_container (
     case 0: // arbitrary convex polygon
     {
       // set size
-      Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
+      Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
       size = vertices.size();
     
       // set vertices
       Madara::Knowledge_Engine::Containers::Native_Double_Vector target;
       for (unsigned int i = 0; i < vertices.size (); ++i)
       {
-        std::stringstream name;
-        name << prefix << "." << i;
-        target.set_name (name.str (), kb);
+        std::stringstream vert_name;
+        vert_name << name << "." << i;
+        target.set_name (vert_name.str (), kb);
         target.set (2, vertices[i].z);
         target.set (0, vertices[i].x);
         target.set (1, vertices[i].y);
@@ -335,29 +339,38 @@ gams::utility::Region::to_container (
   }
 }
 
-void
+bool
 gams::utility::Region::from_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
-  from_container (kb, get_name ());
+  return from_container (kb, get_name ());
 }
 
-void
+bool
 gams::utility::Region::from_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix)
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
+  if (!check_valid_type (kb, name))
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Region::from_container:" \
+      " \"%s\" is not a valid Region\n", name.c_str ());
+    return false;
+  }
+
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::Region::from_container:" \
-    " prefix = %s\n", prefix.c_str ());
+    " name = %s\n", name.c_str ());
 
   // get type
-  Madara::Knowledge_Engine::Containers::Integer type (prefix + ".type", kb);
+  Madara::Knowledge_Engine::Containers::Integer type (name + ".type", kb);
   type_ = type.to_integer ();
 
   // set name if necessary
   if (name_ == "")
-    name_ = prefix;
+    name_ = name;
 
   // get vertices
   switch (type_)
@@ -371,7 +384,7 @@ gams::utility::Region::from_container (
 
       // get size
       Madara::Knowledge_Engine::Containers::Vector vertices_knowledge;
-      vertices_knowledge.set_name (prefix, kb);
+      vertices_knowledge.set_name (name, kb);
       vertices_knowledge.resize();
       unsigned int size = vertices_knowledge.size ();
       vertices.resize (size);
@@ -409,7 +422,7 @@ gams::utility::Region::from_container (
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_ERROR,
             "gams::utility::Region::from_container:" \
-            " ERROR: invalid coordinate type at %s.%u\n", prefix.c_str (), i);
+            " ERROR: invalid coordinate type at %s.%u\n", name.c_str (), i);
         }
       }
 
@@ -421,10 +434,13 @@ gams::utility::Region::from_container (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-         "gams::utility::Region::from_container:" \
+        "gams::utility::Region::from_container:" \
         " ERROR: invalid region type %" PRId64 ".\n", type_);
+      return false;
     }
   }
+
+  return true;
 }
 
 void
@@ -452,4 +468,11 @@ gams::utility::Region::calculate_bounding_box ()
     max_alt_ = (max_alt_ < vertices[i].altitude ()) ?
       vertices[i].altitude () : max_alt_;
   }
+}
+
+bool
+gams::utility::Region::check_valid_type (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+{
+  return Containerize::is_valid_type (kb, name, REGION_TYPE_ID);
 }

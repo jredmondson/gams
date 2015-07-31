@@ -345,10 +345,15 @@ gams::utility::Search_Area::to_container (
 
 void
 gams::utility::Search_Area::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix)
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
+  // set object type
+  Madara::Knowledge_Engine::Containers::Integer obj_type (
+    name + object_type_suffix_, kb);
+  obj_type = SEARCH_AREA_TYPE_ID;
+  
   // set size
-  Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
+  Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
   size = regions_.size ();
 
   // add regions
@@ -361,7 +366,7 @@ gams::utility::Search_Area::to_container (
     {
       // PR has no name, so assign a name
       std::stringstream new_pr_name;
-      new_pr_name << prefix << "." << idx;
+      new_pr_name << name << "." << idx;
       pr_name = new_pr_name.str ();
       pr.set_name (pr_name);
     }
@@ -377,7 +382,7 @@ gams::utility::Search_Area::to_container (
 
     // set PR as member of search area
     std::stringstream member_key;
-    member_key << prefix << "." << idx;
+    member_key << name << "." << idx;
     Madara::Knowledge_Engine::Containers::String member (member_key.str (), kb);
     member = pr_name;
 
@@ -386,37 +391,75 @@ gams::utility::Search_Area::to_container (
   }
 }
 
-void
+bool
 gams::utility::Search_Area::from_container (
   Madara::Knowledge_Engine::Knowledge_Base& kb)
 {
-  from_container (kb, get_name ());
+  return from_container (kb, get_name ());
 }
 
-void
+bool
 gams::utility::Search_Area::from_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& prefix)
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
-  // get size
-  Madara::Knowledge_Engine::Containers::Integer size (prefix + ".size", kb);
-
-  // reserve space in regions_
-  regions_.clear ();
-  regions_.reserve (size.to_integer ());
-
-  // get regions
-  for (size_t idx = 0; idx < size.to_integer (); ++idx)
+  if (!check_valid_type (kb, name))
   {
-    std::stringstream pr_prefix;
-    pr_prefix << prefix << "." << idx;
-
-    Prioritized_Region temp;
-    temp.from_container (kb, kb.get (pr_prefix.str ()).to_string ());
-
-    regions_.push_back (temp);
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Search_Area::from_container:" \
+      " \"%s\" is not a valid Search_Area\n", name.c_str ());
+    return false;
   }
 
-  calculate_bounding_box ();
+  switch (get_type (kb, name))
+  {
+    case REGION_TYPE_ID:
+    case PRIORITIZED_REGION_TYPE_ID:
+    {
+      Prioritized_Region reg;
+      if (reg.from_container (kb, name))
+      {
+        regions_.clear ();
+        regions_.push_back (reg);
+        calculate_bounding_box ();
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    case SEARCH_AREA_TYPE_ID:
+    {
+      // get size
+      Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
+      if (!size.exists ())
+        return false;
+    
+      // reserve space in regions_
+      regions_.clear ();
+      regions_.reserve (size.to_integer ());
+    
+      // get regions
+      bool ret_val (false);
+      for (Integer idx = 0; idx < size.to_integer (); ++idx)
+      {
+        std::stringstream pr_prefix;
+        pr_prefix << name << "." << idx;
+    
+        Prioritized_Region temp;
+        if (!temp.from_container (kb, kb.get (pr_prefix.str ()).to_string ()))
+          return false;
+    
+        regions_.push_back (temp);
+      }
+    
+      calculate_bounding_box ();
+    
+      return true;
+    }
+  }
+  return false;
 }
 
 void
@@ -445,4 +488,14 @@ gams::utility::Search_Area::cross (const GPS_Position& gp1, const GPS_Position& 
   // p3 is (0,0) as it is the reference for p1 and p2
   return (p2.y - p1.y) * (0 - p1.x) -
     (p2.x- p1.x) * (0 - p1.y);
+}
+
+bool
+gams::utility::Search_Area::check_valid_type (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+{
+  const static Class_ID valid = (Class_ID) 
+    (REGION_TYPE_ID        | PRIORITIZED_REGION_TYPE_ID | 
+     SEARCH_AREA_TYPE_ID);
+  return Containerize::is_valid_type (kb, name, valid);
 }

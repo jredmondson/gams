@@ -63,7 +63,7 @@ namespace gams
 {
   namespace utility
   {
-    class GAMS_Export Search_Area
+    class GAMS_Export Search_Area : public Containerize
     {
     public:
       /**
@@ -173,17 +173,19 @@ namespace gams
         const std::string& name);
 
       /**
-       * Helper function for copying values from a MADARA knowledge base
+       * Helper function for copying values from a MADARA knowledge base, uses name_
        * @param kb        knowledge base with region information
+       * @return true if valid object set, false otherwise
        **/
-      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
+      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
       
       /**
        * Helper function for copying values from a MADARA knowledge base
        * @param kb        knowledge base with region information
        * @param name      name of the region to get
+       * @return true if valid object set, false otherwise
        **/
-      void from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name);
 
       /// bounding box
@@ -212,6 +214,15 @@ namespace gams
 
       /// name of this search area
       std::string name_;
+
+    private:
+      /**
+       * Check if object is of correct type
+       * @param kb        Knowledge Base with object
+       * @param prefix    Prefix of object in the KB
+       */
+      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+        const std::string& name) const;
     }; // class Search_Area
   } // namespace utility
 } // namespace gams
