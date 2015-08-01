@@ -72,8 +72,9 @@ typedef  Madara::Knowledge_Record::Integer Integer;
 gams::utility::Region::Region (
   const std::vector <GPS_Position> & init_vertices, unsigned int t, 
   const std::string& name) :
-  vertices (init_vertices), name_(name), type_ (t)
+  vertices (init_vertices), type_ (t)
 {
+  set_name (name);
   calculate_bounding_box ();
 }
 
@@ -293,15 +294,44 @@ gams::utility::Region::to_string (const string & delimiter) const
 }
 
 void
-gams::utility::Region::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb)
+gams::utility::Region::calculate_bounding_box ()
 {
-  to_container (kb, get_name ());
+  min_lat_ = DBL_MAX;
+  min_lon_ = DBL_MAX;
+  min_alt_ = DBL_MAX;
+  max_lat_ = -DBL_MAX;
+  max_lon_ = -DBL_MAX;
+  max_alt_ = -DBL_MAX;
+  for (unsigned int i = 0; i < vertices.size(); ++i)
+  {
+    min_lat_ = (min_lat_ > vertices[i].latitude ()) ?
+      vertices[i].latitude () : min_lat_;
+    min_lon_ = (min_lon_ > vertices[i].longitude ()) ?
+      vertices[i].longitude () : min_lon_;
+    min_alt_ = (min_alt_ > vertices[i].altitude ()) ?
+      vertices[i].altitude () : min_alt_;
+
+    max_lat_ = (max_lat_ < vertices[i].latitude ()) ?
+      vertices[i].latitude () : max_lat_;
+    max_lon_ = (max_lon_ < vertices[i].longitude ()) ?
+      vertices[i].longitude () : max_lon_;
+    max_alt_ = (max_alt_ < vertices[i].altitude ()) ?
+      vertices[i].altitude () : max_alt_;
+  }
+}
+
+bool
+gams::utility::Region::check_valid_type (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+{
+  const static Class_ID valid = 
+    (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
+  return Containerize::is_valid_type (kb, name, valid);
 }
 
 void
-gams::utility::Region::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) 
+gams::utility::Region::to_container_impl (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
   // set object type
   Madara::Knowledge_Engine::Containers::Integer obj_type (
@@ -343,14 +373,7 @@ gams::utility::Region::to_container (
 }
 
 bool
-gams::utility::Region::from_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb)
-{
-  return from_container (kb, get_name ());
-}
-
-bool
-gams::utility::Region::from_container (
+gams::utility::Region::from_container_impl (
   Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
   if (!check_valid_type (kb, name))
@@ -462,38 +485,4 @@ gams::utility::Region::from_container (
   }
 
   return true;
-}
-
-void
-gams::utility::Region::calculate_bounding_box ()
-{
-  min_lat_ = DBL_MAX;
-  min_lon_ = DBL_MAX;
-  min_alt_ = DBL_MAX;
-  max_lat_ = -DBL_MAX;
-  max_lon_ = -DBL_MAX;
-  max_alt_ = -DBL_MAX;
-  for (unsigned int i = 0; i < vertices.size(); ++i)
-  {
-    min_lat_ = (min_lat_ > vertices[i].latitude ()) ?
-      vertices[i].latitude () : min_lat_;
-    min_lon_ = (min_lon_ > vertices[i].longitude ()) ?
-      vertices[i].longitude () : min_lon_;
-    min_alt_ = (min_alt_ > vertices[i].altitude ()) ?
-      vertices[i].altitude () : min_alt_;
-
-    max_lat_ = (max_lat_ < vertices[i].latitude ()) ?
-      vertices[i].latitude () : max_lat_;
-    max_lon_ = (max_lon_ < vertices[i].longitude ()) ?
-      vertices[i].longitude () : max_lon_;
-    max_alt_ = (max_alt_ < vertices[i].altitude ()) ?
-      vertices[i].altitude () : max_alt_;
-  }
-}
-
-bool
-gams::utility::Region::check_valid_type (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
-{
-  return Containerize::is_valid_type (kb, name, REGION_TYPE_ID);
 }

@@ -109,18 +109,6 @@ namespace gams
       void operator= (const Search_Area & rhs);
 
       /**
-       * Get Search_Area name
-       * @return name of the search area
-       **/
-      std::string get_name () const;
-
-      /**
-       * Set Search_Area name
-       * @param n     new name for Search_Area
-       **/
-      void set_name (const std::string& n);
-
-      /**
        * Add prioritized region to search area
        * @param r   prioritized region to add
        **/
@@ -158,36 +146,6 @@ namespace gams
        **/
       std::string to_string () const;
 
-      /**
-       * Helper function for copying values to a MADARA knowledge base
-       * @param kb        knowledge base to store region information
-       **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
-
-      /**
-       * Helper function for copying values to a MADARA knowledge base
-       * @param kb        knowledge base to store region information
-       * @param name      name of the region
-       **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name);
-
-      /**
-       * Helper function for copying values from a MADARA knowledge base, uses name_
-       * @param kb        knowledge base with region information
-       * @return true if valid object set, false otherwise
-       **/
-      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
-      
-      /**
-       * Helper function for copying values from a MADARA knowledge base
-       * @param kb        knowledge base with region information
-       * @param name      name of the region to get
-       * @return true if valid object set, false otherwise
-       **/
-      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name);
-
       /// bounding box
       double min_lat_, max_lat_;
       double min_lon_, max_lon_;
@@ -212,9 +170,6 @@ namespace gams
       /// collection of prioritized regions
       std::vector<Prioritized_Region> regions_;
 
-      /// name of this search area
-      std::string name_;
-
     private:
       /**
        * Check if object is of correct type
@@ -223,6 +178,24 @@ namespace gams
        */
       virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name) const;
+
+      /**
+       * Store object in knowledge base
+       * @param kb        Knowledge Base to store object in
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual void to_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name);
+
+      /**
+       * Load object from knowledge base
+       * @param kb        Knowledge Base with object
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual bool from_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name);
     }; // class Search_Area
   } // namespace utility
 } // namespace gams

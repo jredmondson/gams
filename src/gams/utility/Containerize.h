@@ -68,25 +68,78 @@ namespace gams
     {
     public:
       /**
-       * Store object in knowledge base
-       * @param kb        Knowledge Base with object
+       * Constructor
+       **/
+      Containerize ();
+
+      /**
+       * Destructor
+       **/
+      virtual ~Containerize ();
+
+      /**
+       * Get name of the object
+       * @return name of the object
+       **/
+      std::string get_name () const;
+
+      /**
+       * Set name of the object
+       * @param n   new name of the object
+       **/
+      void set_name (const std::string& n);
+
+      /**
+       * Set knowledge base to use
+       **/
+      void set_knowledge_base (Madara::Knowledge_Engine::Knowledge_Base* kb);
+
+      /**
+       * Resend the information in the container using same knowledge base as
+       * previous to_container
+       **/
+      void modify();
+
+      /**
+       * Store object in knowledge base used previously
        * @param name      location of object in Knowlege Base
        **/
-      virtual void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb, 
-        const std::string& name) = 0;
+      void to_container (const std::string& name = "");
+
+      /**
+       * Store object in knowledge base
+       * @param kb        Knowledge Base to store object in
+       * @param name      location of object in Knowlege Base
+       **/
+      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name = "");
+
+      /**
+       * Load object from knowledge base
+       * @param name      location of object in Knowlege Base
+       * @return true if object successfully loaded from knowledge base
+       **/
+      bool from_container (const std::string& name = "");
 
       /**
        * Load object from knowledge base
        * @param kb        Knowledge Base with object
        * @param name      location of object in Knowlege Base
+       * @return true if object successfully loaded from knowledge base
        **/
-      virtual bool from_container (
+      bool from_container (
         Madara::Knowledge_Engine::Knowledge_Base& kb, 
-        const std::string& name) = 0;
+        const std::string& name = "");
 
     protected:
       /// object type suffix
       const static std::string object_type_suffix_;
+
+      /// name of this object
+      std::string name_;
+
+      /// previous knowledge base used for sending objects
+      Madara::Knowledge_Engine::Knowledge_Base* prev_kb_;
 
       /**
        * These are used to check on the type of the object in from_container.
@@ -128,8 +181,27 @@ namespace gams
        * @param name      Prefix of object in the KB
        * @return true if name is a valid object type in kb
        **/
-      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      virtual bool check_valid_type (
+        Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name) const = 0;
+
+      /**
+       * Store object in knowledge base
+       * @param kb        Knowledge Base to store object in
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual void to_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name) = 0;
+
+      /**
+       * Load object from knowledge base
+       * @param kb        Knowledge Base with object
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual bool from_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name) = 0;
     };
   }
 }

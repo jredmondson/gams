@@ -81,7 +81,7 @@ namespace gams
       /**
        * Destructor
        **/
-      ~Region ();
+      virtual ~Region ();
 
       /**
        * Assignment operator
@@ -154,36 +154,6 @@ namespace gams
        **/
       std::string to_string (const std::string & delimiter = ":") const;
 
-      /**
-       * Helper function for copying values to a MADARA knowledge base
-       * @param kb        knowledge base to store region information
-       **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
-
-      /**
-       * Helper function for copying values to a MADARA knowledge base
-       * @param kb        knowledge base to store region information
-       * @param name      name of the region
-       **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name);
-
-      /**
-       * Helper function for copying values from a MADARA knowledge base, uses name_
-       * @param kb        knowledge base with region information
-       * @return true if valid object found, false otherwise
-       **/
-      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
-      
-      /**
-       * Helper function for copying values from a MADARA knowledge base
-       * @param kb        knowledge base with region information
-       * @param name      name of the region to get
-       * @return true if valid object found, false otherwise
-       **/
-      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name);
-
       /// the vertices of the region
       std::vector <GPS_Position> vertices;
 
@@ -193,9 +163,6 @@ namespace gams
       double min_alt_, max_alt_;
 
     protected:
-      /// name of the region
-      std::string name_;
-      
       /**
        * populate bounding box values
        **/
@@ -213,6 +180,24 @@ namespace gams
        */
       virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name) const;
+
+      /**
+       * Store object in knowledge base
+       * @param kb        Knowledge Base to store object in
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual void to_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name);
+
+      /**
+       * Load object from knowledge base
+       * @param kb        Knowledge Base with object
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual bool from_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name);
     }; // class Region
   } // namespace utility
 } // namespace gams

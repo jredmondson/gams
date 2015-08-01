@@ -66,13 +66,17 @@ using std::vector;
 
 gams::utility::Prioritized_Region::Prioritized_Region (
   const vector <GPS_Position> & init_points, const unsigned int p) :
-  Region (init_points), priority (p)
+  Region (init_points, 0), priority (p)
 {
 }
 
 gams::utility::Prioritized_Region::Prioritized_Region (const Region & region,
   const unsigned int p) :
   Region (region), priority (p)
+{
+}
+
+gams::utility::Prioritized_Region::~Prioritized_Region ()
 {
 }
 
@@ -109,56 +113,6 @@ gams::utility::Prioritized_Region::to_string (const std::string & delimiter)
   return ret_val.str ();
 }
 
-void
-gams::utility::Prioritized_Region::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb) const
-{
-  to_container (kb, get_name ());
-}
-
-void
-gams::utility::Prioritized_Region::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
-{
-  ((Region *)(this))->to_container (kb, name);
-  Madara::Knowledge_Engine::Containers::Integer priority_container;
-  priority_container.set_name (name + ".priority", kb);
-  priority_container = priority;
-}
-
-bool
-gams::utility::Prioritized_Region::from_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb)
-{
-  return from_container (kb, get_name ());
-}
-
-bool
-gams::utility::Prioritized_Region::from_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
-{
-  if (!check_valid_type (kb, name))
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-      "gams::utility::Prioritized_Region::from_container:" \
-      " \"%s\" is not a valid Region\n", name.c_str ());
-    return false;
-  }
-
-  bool ret_val = Region::from_container (kb, name);
-
-  if (ret_val)
-  {
-    Madara::Knowledge_Engine::Containers::Integer priority_container;
-    priority_container.set_name (name + ".priority", kb);
-    if (!priority_container.exists ())
-      priority_container = 1; // default to priority = 1
-    priority = priority_container.to_integer ();
-  }
-  return ret_val;
-}
-
 bool
 gams::utility::Prioritized_Region::check_valid_type (
   Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
@@ -166,4 +120,58 @@ gams::utility::Prioritized_Region::check_valid_type (
   const static Class_ID valid = 
     (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
   return Containerize::is_valid_type (kb, name, valid);
+}
+
+void
+gams::utility::Prioritized_Region::to_container_impl (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+{
+  Region temp (*this);
+  temp.to_container (kb, name);
+
+  Madara::Knowledge_Engine::Containers::Integer object_type;
+  object_type.set_name (name + object_type_suffix_, kb);
+  object_type = PRIORITIZED_REGION_TYPE_ID;
+
+  Madara::Knowledge_Engine::Containers::Integer priority_container;
+  priority_container.set_name (name + ".priority", kb);
+  priority_container = priority;
+}
+
+bool
+gams::utility::Prioritized_Region::from_container_impl (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+{
+  bool ret_val (false);
+  if (!check_valid_type (kb, name))
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Prioritized_Region::from_container:" \
+      " \"%s\" is not a valid Region\n", name.c_str ());
+    ret_val = false;
+  }
+  else
+  {
+    Region temp_reg;
+    if (ret_val = temp_reg.from_container (kb, name))
+    {
+      Madara::Knowledge_Engine::Containers::Integer priority_container;
+      priority_container.set_name (name + ".priority", kb);
+      if (!priority_container.exists ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::utility::Prioritized_Region::from_container:" \
+          " \"%s\" is missing priority value\n", name.c_str ());
+        ret_val = false;
+      }
+      else
+      {
+        operator= (
+          Prioritized_Region (temp_reg, priority_container.to_integer ()));
+      }
+    }
+  }
+  return ret_val;
 }

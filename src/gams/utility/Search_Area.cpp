@@ -142,18 +142,6 @@ gams::utility::Search_Area::operator= (const Search_Area & rhs)
   }
 }
 
-std::string
-gams::utility::Search_Area::get_name () const
-{
-  return name_;
-}
-
-void
-gams::utility::Search_Area::set_name (const std::string& n)
-{
-  name_ = n;
-}
-
 void
 gams::utility::Search_Area::add_prioritized_region (const Prioritized_Region& r)
 {
@@ -340,14 +328,45 @@ gams::utility::Search_Area::to_string () const
 }
 
 void
-gams::utility::Search_Area::to_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb)
+gams::utility::Search_Area::calculate_bounding_box ()
 {
-  to_container (kb, get_name ());
+  min_lat_ = min_lon_ = min_alt_ = DBL_MAX;
+  max_lat_ = max_lon_ = max_alt_ = -DBL_MAX;
+  for (unsigned int i = 0; i < regions_.size (); ++i)
+  {
+    min_lat_ = (min_lat_ > regions_[i].min_lat_) ? regions_[i].min_lat_ : min_lat_;
+    min_lon_ = (min_lon_ > regions_[i].min_lon_) ? regions_[i].min_lon_ : min_lon_;
+    min_alt_ = (min_alt_ > regions_[i].min_alt_) ? regions_[i].min_alt_ : min_alt_;
+
+    max_lat_ = (max_lat_ < regions_[i].max_lat_) ? regions_[i].max_lat_ : max_lat_;
+    max_lon_ = (max_lon_ < regions_[i].max_lon_) ? regions_[i].max_lon_ : max_lon_;
+    max_alt_ = (max_alt_ < regions_[i].max_alt_) ? regions_[i].max_alt_ : max_alt_;
+  }
+}
+
+double
+gams::utility::Search_Area::cross (const GPS_Position& gp1, const GPS_Position& gp2,
+  const GPS_Position& gp3) const
+{
+  Position p1 = gp1.to_position (gp3);
+  Position p2 = gp2.to_position (gp3);
+  // p3 is (0,0) as it is the reference for p1 and p2
+  return (p2.y - p1.y) * (0 - p1.x) -
+    (p2.x- p1.x) * (0 - p1.y);
+}
+
+bool
+gams::utility::Search_Area::check_valid_type (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+{
+  const static Class_ID valid = (Class_ID) 
+    (REGION_TYPE_ID        | PRIORITIZED_REGION_TYPE_ID | 
+     SEARCH_AREA_TYPE_ID);
+  return Containerize::is_valid_type (kb, name, valid);
 }
 
 void
-gams::utility::Search_Area::to_container (
+gams::utility::Search_Area::to_container_impl (
   Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
   // set object type
@@ -395,110 +414,78 @@ gams::utility::Search_Area::to_container (
 }
 
 bool
-gams::utility::Search_Area::from_container (
-  Madara::Knowledge_Engine::Knowledge_Base& kb)
-{
-  return from_container (kb, get_name ());
-}
-
-bool
-gams::utility::Search_Area::from_container (
+gams::utility::Search_Area::from_container_impl (
   Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
 {
+  bool ret_val (false);
   if (!check_valid_type (kb, name))
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
       "gams::utility::Search_Area::from_container:" \
       " \"%s\" is not a valid Search_Area\n", name.c_str ());
-    return false;
   }
-
-  switch (get_type (kb, name))
+  else
   {
-    case REGION_TYPE_ID:
-    case PRIORITIZED_REGION_TYPE_ID:
+    switch (get_type (kb, name))
     {
-      Prioritized_Region reg;
-      if (reg.from_container (kb, name))
+      case REGION_TYPE_ID:
+      case PRIORITIZED_REGION_TYPE_ID:
       {
-        regions_.clear ();
-        regions_.push_back (reg);
-        calculate_bounding_box ();
-        return true;
+        Prioritized_Region reg;
+        if (reg.from_container (kb, name))
+        {
+          regions_.clear ();
+          regions_.push_back (reg);
+          calculate_bounding_box ();
+          ret_val = true;
+        }
+        break;
       }
-      else
+      case SEARCH_AREA_TYPE_ID:
       {
-        return false;
+        // get size
+        Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
+        if (size.exists ())
+        {
+          // reserve space in regions_
+          regions_.clear ();
+          regions_.reserve (size.to_integer ());
+        
+          // get regions
+          ret_val = true;
+          for (Integer idx = 0; idx < size.to_integer () && ret_val; ++idx)
+          {
+            std::stringstream pr_prefix;
+            pr_prefix << name << "." << idx;
+        
+            Prioritized_Region temp;
+            if(!(ret_val = temp.from_container (
+              kb, kb.get (pr_prefix.str ()).to_string ())))
+            {
+              madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                gams::loggers::LOG_ERROR,
+                "gams::utility::Search_Area::from_container:" \
+                " \"%s\" is not valid Prioritized_Region\n",
+                pr_prefix.str ().c_str ());
+            }
+            else
+              regions_.push_back (temp);
+          }
+        
+          if (ret_val)
+            calculate_bounding_box ();
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_ERROR,
+            "gams::utility::Search_Area::from_container:" \
+            " \"%s\" does not have size value\n", name.c_str ());
+        }
+        break;
       }
     }
-    case SEARCH_AREA_TYPE_ID:
-    {
-      // get size
-      Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
-      if (!size.exists ())
-        return false;
-    
-      // reserve space in regions_
-      regions_.clear ();
-      regions_.reserve (size.to_integer ());
-    
-      // get regions
-      bool ret_val (false);
-      for (Integer idx = 0; idx < size.to_integer (); ++idx)
-      {
-        std::stringstream pr_prefix;
-        pr_prefix << name << "." << idx;
-    
-        Prioritized_Region temp;
-        if (!temp.from_container (kb, kb.get (pr_prefix.str ()).to_string ()))
-          return false;
-    
-        regions_.push_back (temp);
-      }
-    
-      calculate_bounding_box ();
-    
-      return true;
-    }
   }
-  return false;
-}
-
-void
-gams::utility::Search_Area::calculate_bounding_box ()
-{
-  min_lat_ = min_lon_ = min_alt_ = DBL_MAX;
-  max_lat_ = max_lon_ = max_alt_ = -DBL_MAX;
-  for (unsigned int i = 0; i < regions_.size (); ++i)
-  {
-    min_lat_ = (min_lat_ > regions_[i].min_lat_) ? regions_[i].min_lat_ : min_lat_;
-    min_lon_ = (min_lon_ > regions_[i].min_lon_) ? regions_[i].min_lon_ : min_lon_;
-    min_alt_ = (min_alt_ > regions_[i].min_alt_) ? regions_[i].min_alt_ : min_alt_;
-
-    max_lat_ = (max_lat_ < regions_[i].max_lat_) ? regions_[i].max_lat_ : max_lat_;
-    max_lon_ = (max_lon_ < regions_[i].max_lon_) ? regions_[i].max_lon_ : max_lon_;
-    max_alt_ = (max_alt_ < regions_[i].max_alt_) ? regions_[i].max_alt_ : max_alt_;
-  }
-}
-
-double
-gams::utility::Search_Area::cross (const GPS_Position& gp1, const GPS_Position& gp2,
-  const GPS_Position& gp3) const
-{
-  Position p1 = gp1.to_position (gp3);
-  Position p2 = gp2.to_position (gp3);
-  // p3 is (0,0) as it is the reference for p1 and p2
-  return (p2.y - p1.y) * (0 - p1.x) -
-    (p2.x- p1.x) * (0 - p1.y);
-}
-
-bool
-gams::utility::Search_Area::check_valid_type (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
-{
-  const static Class_ID valid = (Class_ID) 
-    (REGION_TYPE_ID        | PRIORITIZED_REGION_TYPE_ID | 
-     SEARCH_AREA_TYPE_ID);
-  return Containerize::is_valid_type (kb, name, valid);
+  return ret_val;;
 }

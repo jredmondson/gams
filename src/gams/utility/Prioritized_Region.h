@@ -83,6 +83,11 @@ namespace gams
       Prioritized_Region (const Region& region, const unsigned int new_priority = 1);
 
       /**
+       * Destructor
+       **/
+      virtual ~Prioritized_Region ();
+
+      /**
        * Equality operator. Uses Region::operator== and checks if priority are equal
        * @param rhs   Prioritized_Region to compare to
        * @return true if same vertices and same priority, false otherwise
@@ -104,34 +109,6 @@ namespace gams
       std::string to_string (const std::string & delimiter = ":") const;
 
       /**
-       * Helper function for copying values to a MADARA knowledge base
-       * @param kb        knowledge base to store region information
-       **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb) const;
-      
-      /**
-       * Helper function for copying values to a MADARA knowledge base
-       * @param kb        knowledge base to store region information
-       * @param name      name of the region
-       **/
-      void to_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name) const;
-
-      /**
-       * Helper function for copying values from a MADARA knowledge base
-       * @param kb        knowledge base with region information
-       **/
-      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb);
-      
-      /**
-       * Helper function for copying values from a MADARA knowledge base
-       * @param kb        knowledge base with region information
-       * @param name      name of the region to get
-       **/
-      bool from_container (Madara::Knowledge_Engine::Knowledge_Base& kb,
-        const std::string& name);
-
-      /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
@@ -148,6 +125,24 @@ namespace gams
        */
       virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name) const;
+
+      /**
+       * Store object in knowledge base
+       * @param kb        Knowledge Base to store object in
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual void to_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name);
+
+      /**
+       * Load object from knowledge base
+       * @param kb        Knowledge Base with object
+       * @param name      location of object in Knowlege Base
+       **/
+      virtual bool from_container_impl (
+        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        const std::string& name);
     }; // class Prioritized_Region
   } // namespace utility
 } // namespace gams

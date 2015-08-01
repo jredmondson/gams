@@ -53,8 +53,185 @@
 
 #include "gams/utility/Containerize.h"
 
+#include "gams/loggers/Global_Logger.h"
+
 const std::string gams::utility::Containerize::object_type_suffix_ (
   ".object_type");
+
+gams::utility::Containerize::Containerize () :
+  name_ (""), prev_kb_ (0)
+{
+}
+
+gams::utility::Containerize::~Containerize ()
+{
+}
+
+std::string
+gams::utility::Containerize::get_name () const
+{
+  return name_;
+}
+
+void
+gams::utility::Containerize::set_name (const std::string& n)
+{
+  name_ = n;
+}
+
+void
+gams::utility::Containerize::set_knowledge_base (
+  Madara::Knowledge_Engine::Knowledge_Base* kb)
+{
+  if (kb == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::set_knowledge_base:" \
+      " attempted to set knowledge_base to 0\n");
+  }
+  else
+  {
+    prev_kb_ = kb;
+  }
+}
+
+void
+gams::utility::Containerize::modify ()
+{
+  bool error = false;
+  if (prev_kb_ == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::modify:" \
+      " invalid prev_kb_ to execute modify\n");
+    error = true;
+  }
+  if (name_.empty ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::modify:" \
+      " modify cannot be called until name_ is set\n");
+    error = true;
+  }
+  
+  if (!error)
+  {
+    to_container (*prev_kb_, name_);
+  }
+} 
+
+void
+gams::utility::Containerize::to_container (const std::string& name)
+{
+  if (prev_kb_ == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::to_container:" \
+      " invalid prev_kb_ to execute to_container\n");
+  }
+  else
+  {
+    if (name.empty ())
+    {
+      if (name_.empty ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::utility::Containerize::to_container:" \
+          " no valid name available\n");
+      }
+      else
+      {
+        to_container (*prev_kb_, name_);
+      }
+    }
+    else
+    {
+      to_container (*prev_kb_, name);
+    }
+  }
+}
+
+void
+gams::utility::Containerize::to_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+{
+  if (name.empty () && name_.empty ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::to_container:" \
+      " no valid name available\n");
+  }
+  else
+  {
+    prev_kb_ = &kb;
+    to_container_impl (*prev_kb_, (name.empty ()) ? name_ : name);
+  }
+}
+
+bool
+gams::utility::Containerize::from_container (const std::string& name)
+{
+  if (prev_kb_ == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::from_container:" \
+      " invalid prev_kb_\n");
+  }
+  else
+  {
+    if (!name.empty ())
+      name_ = name;
+
+    if (name_.empty ())
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::utility::Containerize::from_container:" \
+        " no valid name available\n");
+    }
+    else
+    {
+      from_container (*prev_kb_, name_);
+    }
+  }
+}
+
+bool
+gams::utility::Containerize::from_container (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+{
+  bool ret_val (false);
+  if (name.empty () && name_.empty ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::Containerize::from_container:" \
+      " no valid name available\n");
+  }
+  else
+  {
+    ret_val = from_container_impl (kb, (name.empty ()) ? name_ : name);
+  }
+  return ret_val;
+}
+
+bool
+gams::utility::Containerize::is_valid_type (
+  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name, 
+  const Class_ID& valid) const
+{
+  Madara::Knowledge_Record record = kb.get (name + object_type_suffix_);
+  if (record.exists ())
+    return (record.to_integer () & valid);
+  return false;
+}
 
 gams::utility::Containerize::Class_ID
 gams::utility::Containerize::get_type (
@@ -70,15 +247,4 @@ gams::utility::Containerize::get_type (
       return SEARCH_AREA_TYPE_ID;
   }
   return INVALID;
-}
-
-bool
-gams::utility::Containerize::is_valid_type (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name, 
-  const Class_ID& valid) const
-{
-  Madara::Knowledge_Record record = kb.get (name + object_type_suffix_);
-  if (record.exists ())
-    return (record.to_integer () & valid);
-  return false;
 }
