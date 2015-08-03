@@ -74,14 +74,18 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
     for (size_t i = 0; i < args.size (); ++i)
     {
       vector <double> coords = args[i].to_doubles ();
+      utility::Position w;
       if (coords.size () == 2)
       {
-        waypoints.push_back (utility::Position(coords[0], coords[1], 2));
+        w.x = coords[0];
+        w.y = coords[1];
+        w.z = 2;
       }
       else if (coords.size () == 3)
       {
-        waypoints.push_back (utility::Position(
-          coords[0], coords[1], coords[2]));
+        w.x = coords[0];
+        w.y = coords[1];
+        w.z = coords[2];
       }
       else
       {
@@ -91,6 +95,12 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
           " arg %u is of invalid size %u\n", i, coords.size ());
         error = true;
       }
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::area_coverage::Waypoint_Coverage_Factory:" \
+        " waypoint %u is \"%f,%f,%f\"\n", i, w.x, w.y, w.z);
+      waypoints.push_back (w);
     }
 
     if (!error)

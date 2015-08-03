@@ -106,7 +106,6 @@ gams::algorithms::Formation_Flying_Factory::create (
   return result;
 }
 
-
 /**
  * Formation flying has several parameters. The head of the formation is what 
  * the other agents key off of to determine their location. Offset is the 
@@ -190,22 +189,22 @@ gams::algorithms::Formation_Flying::Formation_Flying (
     delete [] mem_string;
 
     // construct actual string
-    std::stringstream formation_expr;
-    set<int>::iterator it = members.begin ();
-    formation_expr << "formation." << self->id.to_integer ();
-    formation_expr << "." << *it << ".ready ";
-    ++it;
-    for (; it != members.end (); ++it)
+    for (set<int>::iterator it = members.begin (); it != members.end (); ++it)
     {
-      formation_expr << " && formation." << head_id.to_integer ();
-      formation_expr << "." << *it << ".ready ";
-    }
-    compiled_formation_ = knowledge_->compile (formation_expr.str ());
+      std::stringstream formation_expr;
+      formation_expr << "formation." << self->id.to_integer ();
+      formation_expr << "." << *it << ".ready";
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::Formation_Flying:" \
-      " compiled_formation_ = \"%s\"\n", formation_expr.str ().c_str ());
+      compiled temp;
+      temp.ref = knowledge_->compile (formation_expr.str ());
+      temp.agent = *it;
+      compiled_formation_.push_back (temp);
+    }
+
+//    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+//      gams::loggers::LOG_DETAILED,
+//      "gams::algorithms::Formation_Flying:" \
+//      " compiled_formation_ = \"%s\"\n", formation_expr.str ().c_str ());
 
     // set destination
     double lat, lon, alt;
@@ -225,9 +224,13 @@ gams::algorithms::Formation_Flying::Formation_Flying (
   if (modifier_ == ROTATE)
   {
     if (!head_)
-      platform->set_move_speed (platform->get_move_speed () * 1.5);
+    {
+      //platform->set_move_speed (platform->get_move_speed () * 1.5);
+    }
     else // head_
+    {
       platform->set_move_speed (platform->get_move_speed () * 0.2);
+    }
   }
   else
   {
@@ -276,7 +279,26 @@ gams::algorithms::Formation_Flying::analyze (void)
         "gams::algorithms::Formation_Flying:" \
         " head is checking if everybody is in_formation_\n");
 
-      in_formation_ = knowledge_->evaluate (compiled_formation_).to_integer ();
+      int in_formation = 1;
+      for (size_t i = 0; i < compiled_formation_.size (); ++i)
+      {
+        in_formation &= knowledge_->evaluate (compiled_formation_[i].ref).to_integer ();
+        if (knowledge_->evaluate (compiled_formation_[i].ref).to_integer () == 0)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::Formation_Flying::analyze:" \
+            " agent %u not ready\n", compiled_formation_[i].agent);
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::Formation_Flying::analyze:" \
+            " agent %u ready\n", compiled_formation_[i].agent);
+        }
+      }
+      in_formation_ = in_formation;
     }
     // everybody is in formation (due to getting to this else), so inform we are ready to move
     else if (formation_ready_ == 0)
@@ -286,8 +308,8 @@ gams::algorithms::Formation_Flying::analyze (void)
         "gams::algorithms::Formation_Flying:" \
         " head is setting formation_ready_\n");
       formation_ready_ = 1;
+      ret_val = OK;
     }
-    ret_val = OK;
   }
   else // follower
   {
@@ -314,6 +336,15 @@ gams::algorithms::Formation_Flying::analyze (void)
     }
     else
     {
+      if (formation_ready_ == 0)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::Formation_Flying:" \
+          " follower is rebroadcasting that it's in formation\n");
+        in_formation_ = 1;
+      }
+
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::Formation_Flying:" \
@@ -459,6 +490,12 @@ bool
 gams::algorithms::Formation_Flying::is_head () const
 {
   return head_;
+}
+
+bool
+gams::algorithms::Formation_Flying::is_ready () const
+{
+  return (formation_ready_ == 1);
 }
 
 gams::utility::GPS_Position
