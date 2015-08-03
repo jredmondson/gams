@@ -83,19 +83,22 @@ using std::vector;
 namespace mutility = Madara::Utility;
 typedef Madara::Knowledge_Record::Integer Integer;
 
-gams::utility::Search_Area::Search_Area ()
+gams::utility::Search_Area::Search_Area () :
+  Containerize()
 {
 }
 
-gams::utility::Search_Area::Search_Area (const Prioritized_Region& region)
+gams::utility::Search_Area::Search_Area (const Prioritized_Region& region, 
+  const std::string& name) :
+  Containerize (name)
 {
   regions_.push_back (region);
   calculate_bounding_box ();
 }
 
 gams::utility::Search_Area::Search_Area (
-  const vector<Prioritized_Region>& regions) :
-  regions_ (regions)
+  const vector<Prioritized_Region>& regions, const std::string& name) :
+  Containerize (name), regions_ (regions)
 {
   calculate_bounding_box ();
 }

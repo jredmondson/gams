@@ -73,15 +73,19 @@ namespace gams
 
       /**
        * Constructor
-       * @param  region   the initial region of the search area
+       * @param region  the initial region of the search area
+       * @param name    name for this search area
        **/
-      Search_Area (const Prioritized_Region& region);
+      Search_Area (const Prioritized_Region& region, 
+        const std::string& name = "");
 
       /**
        * Constructor
-       * @param regions   regions in this search area
+       * @param regions regions in this search area
+       * @param name    name for this search area
        */
-      Search_Area (const std::vector<Prioritized_Region>& regions);
+      Search_Area (const std::vector<Prioritized_Region>& regions,
+        const std::string& name = "");
 
       /**
        * Destructor

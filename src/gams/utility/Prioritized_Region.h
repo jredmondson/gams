@@ -73,14 +73,14 @@ namespace gams
        * @param new_priority  associated priority
        **/
       Prioritized_Region (const std::vector <GPS_Position>& init_points =
-        std::vector<GPS_Position> (), const unsigned int new_priority = 1);
+        std::vector<GPS_Position> (), const unsigned int new_priority = 1, const std::string& name = "");
 
       /**
        * Constructor
        * @param region    associated region
        * @param new_priority  associated priority
        **/
-      Prioritized_Region (const Region& region, const unsigned int new_priority = 1);
+      Prioritized_Region (const Region& region, const unsigned int new_priority = 1, const std::string& name = "");
 
       /**
        * Destructor

@@ -65,15 +65,17 @@ using std::string;
 using std::vector;
 
 gams::utility::Prioritized_Region::Prioritized_Region (
-  const vector <GPS_Position> & init_points, const unsigned int p) :
-  Region (init_points, 0), priority (p)
+  const vector <GPS_Position> & init_points, const unsigned int p, 
+  const std::string& name) :
+  Region (init_points, 0, name), priority (p)
 {
 }
 
 gams::utility::Prioritized_Region::Prioritized_Region (const Region & region,
-  const unsigned int p) :
+  const unsigned int p, const std::string& name) :
   Region (region), priority (p)
 {
+  set_name (name);
 }
 
 gams::utility::Prioritized_Region::~Prioritized_Region ()

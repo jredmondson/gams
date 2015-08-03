@@ -70,7 +70,7 @@ namespace gams
       /**
        * Constructor
        **/
-      Containerize ();
+      Containerize (const std::string& n = "");
 
       /**
        * Destructor

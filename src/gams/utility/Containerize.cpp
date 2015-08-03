@@ -58,8 +58,8 @@
 const std::string gams::utility::Containerize::object_type_suffix_ (
   ".object_type");
 
-gams::utility::Containerize::Containerize () :
-  name_ (""), prev_kb_ (0)
+gams::utility::Containerize::Containerize (const std::string& n) :
+  name_ (n), prev_kb_ (0)
 {
 }
 

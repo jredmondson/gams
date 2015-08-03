@@ -72,7 +72,7 @@ typedef  Madara::Knowledge_Record::Integer Integer;
 gams::utility::Region::Region (
   const std::vector <GPS_Position> & init_vertices, unsigned int t, 
   const std::string& name) :
-  vertices (init_vertices), type_ (t)
+  Containerize (name), vertices (init_vertices), type_ (t)
 {
   set_name (name);
   calculate_bounding_box ();
