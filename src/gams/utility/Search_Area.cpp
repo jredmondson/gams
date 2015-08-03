@@ -114,9 +114,11 @@ gams::utility::Search_Area::operator== (const Search_Area& rhs) const
     return false;
 
   for (const Prioritized_Region& lpr : regions_)
+  {
+    bool result = false;
     for (const Prioritized_Region& rpr : rhs.regions_)
-      if (lpr != rpr)
-        return false;
+      result |= (lpr != rpr);
+  }
   return true;
 }
 
@@ -394,9 +396,9 @@ gams::utility::Search_Area::to_container_impl (
     }
 
     // check if PR is in KB
-    // TODO: make this less hacky
-    if (!kb.get (pr_name + ".type").exists () ||
-        !kb.get (pr_name + ".size").exists ())
+    const Class_ID valid = (Class_ID) 
+      (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
+    if (!is_valid_type (kb, pr_name, valid))
     {
       // PR must not be in KB, so put it in there
       pr.to_container (kb, pr_name);

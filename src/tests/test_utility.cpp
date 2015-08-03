@@ -327,6 +327,7 @@ test_Search_Area ()
   assert (nullPR != from);
   Search_Area cont1;
   cont1.add_prioritized_region (pr);
+  cont1.add_prioritized_region (nullPR);
   Search_Area cont2;
   cont1.to_container (kb, "sa_test");
   cont2.from_container (kb, "sa_test");
