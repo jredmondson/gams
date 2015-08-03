@@ -121,6 +121,8 @@ gams::utility::Search_Area::operator== (const Search_Area& rhs) const
     bool result = false;
     for (const Prioritized_Region& rpr : rhs.regions_)
       result |= (lpr != rpr);
+    if (!result)
+      return false;
   }
   return true;
 }
