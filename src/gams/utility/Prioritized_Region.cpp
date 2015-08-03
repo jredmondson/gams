@@ -160,7 +160,8 @@ gams::utility::Prioritized_Region::from_container_impl (
     {
       Madara::Knowledge_Engine::Containers::Integer priority_container;
       priority_container.set_name (name + ".priority", kb);
-      if (!priority_container.exists ())
+      if (!priority_container.exists () && 
+        get_type (kb, name) != REGION_TYPE_ID)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
@@ -168,7 +169,12 @@ gams::utility::Prioritized_Region::from_container_impl (
           " \"%s\" is missing priority value\n", name.c_str ());
         ret_val = false;
       }
-      else
+      else if (get_type (kb, name) == REGION_TYPE_ID)
+      {
+        priority_container = 1; // default to 1
+      }
+
+      if (ret_val)
       {
         operator= (
           Prioritized_Region (temp_reg, priority_container.to_integer ()));
