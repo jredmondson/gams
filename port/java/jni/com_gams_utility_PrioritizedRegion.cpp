@@ -78,6 +78,22 @@ void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
 
 /*
  * Class:     com_gams_utility_PrioritizedRegion
+ * Method:    jni_modify
+ * Signature: (J)V
+ */
+void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1modify
+  (JNIEnv *, jobject, jlong cptr)
+{
+  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+
+  if (current)
+  {
+    current->modify();
+  }
+}
+
+/*
+ * Class:     com_gams_utility_PrioritizedRegion
  * Method:    jni_freePrioritizedRegion
  * Signature: (J)V
  */

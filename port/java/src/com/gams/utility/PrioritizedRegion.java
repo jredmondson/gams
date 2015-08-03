@@ -55,6 +55,7 @@ public class PrioritizedRegion extends Region
   private native String jni_toString(long cptr);
   private native void jni_fromContainer(long cptr, long kb, String name);
   private native void jni_toContainer(long cptr, long kb, String name);
+  private native void jni_modify(long cptr);
   private static native void jni_freePrioritizedRegion(long cptr);
   private native long jni_getPriority(long cptr); 
   private native void jni_setPriority(long cptr, long priority); 
@@ -161,6 +162,14 @@ public class PrioritizedRegion extends Region
   public void toContainer(com.madara.KnowledgeBase kb, String name)
   {
     jni_toContainer(getCPtr(), kb.getCPtr(), name);
+  }
+
+  /**
+   * Resends Prioritized_Region over KB
+   **/
+  public void modify()
+  {
+    jni_modify(getCPtr());
   }
 
   /**

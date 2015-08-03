@@ -61,6 +61,7 @@ public class Region extends GamsJNI
   private native void jni_setName(long cptr, String name);
   private native void jni_fromContainer(long cptr, long kb, String name);
   private native void jni_toContainer(long cptr, long kb, String name);
+  private native void jni_modify(long cptr);
   private native java.lang.String jni_toString(long cptr);
   private native void jni_addGpsVertex(long cptr, long coord); 
   private native long[] jni_getVertices(long cptr); 
@@ -298,6 +299,14 @@ public class Region extends GamsJNI
   public void toContainer(com.madara.KnowledgeBase kb, String name)
   {
     jni_toContainer(getCPtr(), kb.getCPtr(), name);
+  }
+
+  /**
+   * Calls toContainer with previous values
+   **/
+  public void modify()
+  {
+    jni_modify(getCPtr());
   }
 
   /**

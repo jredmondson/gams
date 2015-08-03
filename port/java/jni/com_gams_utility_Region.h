@@ -58,6 +58,14 @@ GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1toContainer
 
 /*
  * Class:     com_gams_utility_Region
+ * Method:    jni_modify
+ * Signature: (J)V
+ */
+GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1modify
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_gams_utility_Region
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */

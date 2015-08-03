@@ -90,6 +90,22 @@ void JNICALL Java_com_gams_utility_SearchArea_jni_1toContainer
 
 /*
  * Class:     com_gams_utility_SearchArea
+ * Method:    jni_modify
+ * Signature: (J)V
+ */
+GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1modify
+  (JNIEnv *, jobject, jlong cptr)
+{
+  utility::Search_Area* current = (utility::Search_Area*) cptr;
+
+  if (current)
+  {
+    current->modify();
+  }
+}
+
+/*
+ * Class:     com_gams_utility_SearchArea
  * Method:    jni_freeSearchArea
  * Signature: (J)V
  */

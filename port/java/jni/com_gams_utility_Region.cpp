@@ -110,6 +110,21 @@ void JNICALL Java_com_gams_utility_Region_jni_1toContainer
 
 /*
  * Class:     com_gams_utility_Region
+ * Method:    jni_modify
+ * Signature: (J)V
+ */
+GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1modify
+  (JNIEnv *, jobject, jlong cptr)
+{
+  utility::Region * current = (utility::Region *) cptr;
+  if (current)
+  {
+    current->modify();
+  }
+}
+
+/*
+ * Class:     com_gams_utility_Region
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
