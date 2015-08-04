@@ -177,6 +177,7 @@ gams::utility::Containerize::to_container (
 bool
 gams::utility::Containerize::from_container (const std::string& name)
 {
+  bool ret_val (false);
   if (prev_kb_ == 0)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -198,9 +199,11 @@ gams::utility::Containerize::from_container (const std::string& name)
     }
     else
     {
-      from_container (*prev_kb_, name_);
+      ret_val = from_container (*prev_kb_, name_);
     }
   }
+
+  return ret_val;
 }
 
 bool
