@@ -156,7 +156,8 @@ gams::utility::Prioritized_Region::from_container_impl (
   else
   {
     Region temp_reg;
-    if (ret_val = temp_reg.from_container (kb, name))
+    ret_val = temp_reg.from_container (kb, name);
+    if (ret_val)
     {
       Madara::Knowledge_Engine::Containers::Integer priority_container;
       priority_container.set_name (name + ".priority", kb);

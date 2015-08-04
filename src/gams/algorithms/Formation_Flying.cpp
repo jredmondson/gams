@@ -201,11 +201,6 @@ gams::algorithms::Formation_Flying::Formation_Flying (
       compiled_formation_.push_back (temp);
     }
 
-//    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-//      gams::loggers::LOG_DETAILED,
-//      "gams::algorithms::Formation_Flying:" \
-//      " compiled_formation_ = \"%s\"\n", formation_expr.str ().c_str ());
-
     // set destination
     double lat, lon, alt;
     sscanf (destination.to_string ().c_str (), "%lf,%lf,%lf", &lat, &lon, &alt);

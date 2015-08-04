@@ -133,7 +133,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
   variables::Sensors * sensors,
   variables::Self * self) : 
   Base_Algorithm (knowledge, platform, sensors, self), is_covering_(false), 
-  my_formation_ (0), head_algo_ (0)
+  head_algo_ (0), my_formation_ (0)
 {
   status_.init_vars (*knowledge, "formation_coverage", self->id.to_integer ());
   status_.init_variable_values ();

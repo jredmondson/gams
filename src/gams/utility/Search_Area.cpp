@@ -524,6 +524,13 @@ gams::utility::Search_Area::from_container_impl (
         }
         break;
       }
+      default:
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::utility::Search_Area::from_container:" \
+          " found invalid object_type %u\n", get_type (kb, name));
+      }
     }
   }
   return ret_val;;
