@@ -121,6 +121,12 @@ namespace gams
       virtual int move (const utility::Position & position,
         const double & epsilon = 0.1);
 
+      /**
+       * Set move speed
+       * @param speed new speed in meters/loop execution
+       **/
+      virtual void set_move_speed (const double& speed);
+
     protected:
       /// Move thread name
       const static std::string MOVE_THREAD_NAME;
@@ -137,6 +143,9 @@ namespace gams
           /// Destination container name
           const static std::string DEST_CONTAINER_NAME;
 
+          /// Destination container name
+          const static std::string MOVE_SPEED_CONTAINER_NAME;
+
           /**
            * Constructor
            * @param d   destination container
@@ -144,7 +153,7 @@ namespace gams
            **/
           Target_Mover (
             const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
-            double m = 0);
+            const Madara::Knowledge_Engine::Containers::Double& m);
 
           /**
            * main thread function
@@ -167,7 +176,8 @@ namespace gams
            * Set move speed
            * @param m   new move speed
            **/
-          void set_move_speed (double m);
+          void set_move_speed (
+            const Madara::Knowledge_Engine::Containers::Double& m);
 
           /**
            * Set target position
@@ -182,7 +192,7 @@ namespace gams
           simxInt node_target_;
 
           /// Target move speed per second
-          double move_speed_;
+          Madara::Knowledge_Engine::Containers::Double move_speed_;
 
           /// Current target location
           utility::Position target_pos_;
@@ -199,6 +209,9 @@ namespace gams
 
       /// container for destination
       Madara::Knowledge_Engine::Containers::Native_Double_Vector thread_dest_;
+
+      /// container for move speed
+      Madara::Knowledge_Engine::Containers::Double thread_move_speed_;
 
       /**
        * Add model to environment

@@ -1,7 +1,7 @@
 .vrep_port=19906;
 
-.initial_lat=40.443237;
-.initial_lon=-79.940570;
+.initial_x=0;
+.initial_y=25;
 .initial_alt=4;
 
 device.0.command="formation coverage";

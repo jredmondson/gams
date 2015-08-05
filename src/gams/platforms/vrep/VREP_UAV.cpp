@@ -62,6 +62,7 @@ using std::endl;
 using std::cout;
 using std::string;
 using Madara::Knowledge_Engine::Containers::Native_Double_Vector;
+using Madara::Knowledge_Engine::Containers::Double;
 
 const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
@@ -71,10 +72,13 @@ const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
 
 const double gams::platforms::VREP_UAV::Target_Mover::RATE (30.0);
 
+const std::string gams::platforms::VREP_UAV::MOVE_THREAD_NAME ("move_thread");
+
 const std::string gams::platforms::VREP_UAV::Target_Mover::DEST_CONTAINER_NAME
   (".platform.vrep_uav.thread.destination");
 
-const std::string gams::platforms::VREP_UAV::MOVE_THREAD_NAME ("move_thread");
+const std::string gams::platforms::VREP_UAV::Target_Mover::MOVE_SPEED_CONTAINER_NAME
+  (".platform.vrep_uav.thread.move_speed");
 
 gams::platforms::Base_Platform *
 gams::platforms::VREP_UAV_Factory::create (
@@ -158,9 +162,11 @@ gams::platforms::VREP_UAV::VREP_UAV (
   variables::Self * self) :
   VREP_Base (knowledge, sensors, self), 
   mover_ (
-    Native_Double_Vector (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3)),
+    Native_Double_Vector (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3),
+    Double (Target_Mover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)),
   threader_ (*knowledge), 
-  thread_dest_ (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3)
+  thread_dest_ (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3),
+  thread_move_speed_ (Target_Mover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)
 {
   if (knowledge && sensors && platforms && self)
   {
@@ -176,7 +182,7 @@ gams::platforms::VREP_UAV::VREP_UAV (
     double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
     if (move_speed > 0)
     {
-      mover_.set_move_speed (move_speed);
+      thread_move_speed_ = move_speed;
       set_move_speed (move_speed);
     }
 
@@ -186,7 +192,8 @@ gams::platforms::VREP_UAV::VREP_UAV (
 }
 
 int
-gams::platforms::VREP_UAV::move (const utility::Position & position, const double & epsilon)
+gams::platforms::VREP_UAV::move (const utility::Position & position, 
+  const double & epsilon)
 {
   // update variables
   Base_Platform::move (position);
@@ -206,6 +213,13 @@ gams::platforms::VREP_UAV::move (const utility::Position & position, const doubl
   }
 
   return 1;
+}
+
+void
+gams::platforms::VREP_UAV::set_move_speed (const double& speed)
+{
+  VREP_Base::set_move_speed (speed);
+  thread_move_speed_ = speed;
 }
 
 void
@@ -316,11 +330,12 @@ gams::platforms::VREP_UAV::set_initial_position ()
   utility::Position initial;
   array_to_position (pos, initial);
   mover_.set_target_pos (initial);
+  initial.to_container (thread_dest_);
 }
 
 gams::platforms::VREP_UAV::Target_Mover::Target_Mover (
   const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
-  double m) :
+  const Madara::Knowledge_Engine::Containers::Double& m) :
   client_id_ (-1), node_target_ (-1), move_speed_ (m), target_pos_ (), 
   destination_ (d)
 {
@@ -329,7 +344,7 @@ gams::platforms::VREP_UAV::Target_Mover::Target_Mover (
 void
 gams::platforms::VREP_UAV::Target_Mover::run ()
 {
-  double local_move_speed = move_speed_ / RATE;
+  double local_move_speed = move_speed_.to_double () / RATE;
 
   // get destination
   utility::Position dest_pos;
@@ -417,7 +432,8 @@ gams::platforms::VREP_UAV::Target_Mover::set_client_id (simxInt c)
 }
 
 void
-gams::platforms::VREP_UAV::Target_Mover::set_move_speed (double m)
+gams::platforms::VREP_UAV::Target_Mover::set_move_speed (
+  const Madara::Knowledge_Engine::Containers::Double& m)
 {
   move_speed_ = m;
 }
