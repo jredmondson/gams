@@ -141,11 +141,10 @@ namespace gams
            * Constructor
            * @param d   destination container
            * @param m   move speed for target
-           * @param e   distance from target considered close enough
            **/
           Target_Mover (
             const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
-            double m = 0, double e = 1.0);
+            double m = 0);
 
           /**
            * main thread function
@@ -171,12 +170,6 @@ namespace gams
           void set_move_speed (double m);
 
           /**
-           * Set epsilon
-           * @param e   new epsilon
-           **/
-          void set_epsilon (double e);
-
-          /**
            * Set target position
            **/
           void set_target_pos (const utility::Position& p);
@@ -190,9 +183,6 @@ namespace gams
 
           /// Target move speed per second
           double move_speed_;
-
-          /// distance accuracy
-          double epsilon_;
 
           /// Current target location
           utility::Position target_pos_;

@@ -205,7 +205,7 @@ gams::platforms::VREP_Base::analyze (void)
 double
 gams::platforms::VREP_Base::get_accuracy () const
 {
-  return 0.1;
+  return 0.5;
 }
 
 double

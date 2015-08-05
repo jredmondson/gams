@@ -158,8 +158,7 @@ gams::platforms::VREP_UAV::VREP_UAV (
   variables::Self * self) :
   VREP_Base (knowledge, sensors, self), 
   mover_ (
-    Native_Double_Vector (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3),
-    0.0, 1.0),
+    Native_Double_Vector (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3)),
   threader_ (*knowledge), 
   thread_dest_ (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3)
 {
@@ -321,9 +320,9 @@ gams::platforms::VREP_UAV::set_initial_position ()
 
 gams::platforms::VREP_UAV::Target_Mover::Target_Mover (
   const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
-  double m, double e) :
-  client_id_ (-1), node_target_ (-1), move_speed_ (m), epsilon_ (e), 
-  target_pos_ (), destination_ (d)
+  double m) :
+  client_id_ (-1), node_target_ (-1), move_speed_ (m), target_pos_ (), 
+  destination_ (d)
 {
 }
 
@@ -352,7 +351,7 @@ gams::platforms::VREP_UAV::Target_Mover::run ()
     dest_pos.x, dest_pos.y, distance_to_destination);
 
   // check if quadrotor has reached target (within epsilon)
-  if(distance_to_destination <= epsilon_)
+  if(distance_to_destination <= local_move_speed)
   {
     target_pos_ = dest_pos;
     simxSetObjectPosition (client_id_, node_target_, -1, dest_arr,
@@ -421,12 +420,6 @@ void
 gams::platforms::VREP_UAV::Target_Mover::set_move_speed (double m)
 {
   move_speed_ = m;
-}
-
-void
-gams::platforms::VREP_UAV::Target_Mover::set_epsilon (double e)
-{
-  epsilon_ = e;
 }
 
 void
