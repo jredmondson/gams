@@ -48,6 +48,8 @@ package com.gams.utility;
 
 import com.gams.GamsJNI;
 
+import com.madara.containers.NativeDoubleVector;
+
 /**
  * Position of a device/agent
  **/
@@ -84,6 +86,15 @@ public class Position extends GamsJNI
   public Position(double inx, double iny, double inz)                                   
   {
     setCPtr(jni_Position(inx,iny,inz));
+  }
+
+  /**
+   * Constructor from container
+   * @param cont  Container to copy from
+   **/
+  public Position(NativeDoubleVector cont)
+  {
+    fromContainer(cont);
   }
 
   /**
@@ -186,7 +197,68 @@ public class Position extends GamsJNI
   {
     jni_setZ(getCPtr(),input);
   }
-      
+
+  /**
+   * Get double array representation of Position
+   * @return double array representing this
+   **/
+  public double[] toArray()
+  {
+    double[] retVal = new double[3];
+    retVal[0] = getX();
+    retVal[1] = getY();
+    retVal[2] = getZ();
+    return retVal;
+  }
+
+  /**
+   * Copy values from Array. Does nothing if arr has fewer than 2 elements
+   * @param arr   Array to copy
+   **/
+  public void fromArray(double[] arr)
+  {
+    if(arr.length >= 2)
+    {
+      setX(arr[0]);
+      setY(arr[1]);
+
+      if(arr.length>= 3)
+        setZ(arr[2]);
+      else
+        setZ(0.0);
+    }
+  }
+
+  /**
+   * Copy values to a container
+   * @param cont    Container to copy values to
+   **/
+  public void toContainer(NativeDoubleVector cont)
+  {
+    cont.set(0, getX());
+    cont.set(1, getY());
+    cont.set(2, getZ());
+  }
+
+  /**
+   * Copy values from a container
+   *
+   * @param cont    Container to copy values from
+   */
+  public void fromContainer(NativeDoubleVector cont)
+  {
+    if(cont.size() >= 2)
+    {
+      setX(cont.get(0));
+      setY(cont.get(1));
+
+      if(cont.size() >= 3)
+        setZ(cont.get(2));
+      else
+        setZ(0.0);
+    }
+  }
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
@@ -244,4 +316,3 @@ public class Position extends GamsJNI
     }
   }
 }
-
