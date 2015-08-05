@@ -155,8 +155,8 @@ namespace gams
        * @param arr array to convert
        * @param pos position to store it in
        **/
-      void array_to_position (const simxFloat (&arr)[3], 
-        utility::Position & pos) const;
+      static void array_to_position (const simxFloat (&arr)[3], 
+        utility::Position & pos);
 
       /**
        * Converts lat/long coordinates to vrep coordinates
@@ -171,8 +171,8 @@ namespace gams
        * @param pos position to convert
        * @param arr array to store it in
        **/
-      void position_to_array (const utility::Position & pos,
-        simxFloat (&arr)[3]) const;
+      static void position_to_array (const utility::Position & pos,
+        simxFloat (&arr)[3]);
 
       /**
        * Converts lat/long coordinates to vrep coordinates

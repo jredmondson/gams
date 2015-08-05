@@ -282,7 +282,7 @@ gams::platforms::VREP_Base::get_target_handle ()
 
 void
 gams::platforms::VREP_Base::array_to_position(const simxFloat (&arr)[3],
-  utility::Position & pos) const
+  utility::Position & pos)
 {
   pos.x = arr[0];
   pos.y = arr[1];
@@ -312,7 +312,7 @@ gams::platforms::VREP_Base::gps_to_vrep (const utility::GPS_Position & position,
 
 void
 gams::platforms::VREP_Base::position_to_array (const utility::Position & pos,
-  simxFloat (&arr)[3]) const
+  simxFloat (&arr)[3])
 {
   arr[0] = pos.x;
   arr[1] = pos.y;

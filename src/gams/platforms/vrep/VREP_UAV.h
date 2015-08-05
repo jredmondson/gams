@@ -61,6 +61,9 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/threads/Threader.h"
+#include "madara/threads/Base_Thread.h"
+#include "madara/knowledge_engine/containers/Native_Double_Vector.h"
 
 extern "C" {
 #include "extApi.h"
@@ -119,6 +122,94 @@ namespace gams
         const double & epsilon = 0.1);
 
     protected:
+      /// Move thread name
+      const static std::string MOVE_THREAD_NAME;
+
+      /**
+       * Thread to move target
+       **/
+      class Target_Mover : public Madara::Threads::Base_Thread
+      {
+        public:
+          /// Thread execution rate in Hz
+          const static double RATE;
+
+          /// Destination container name
+          const static std::string DEST_CONTAINER_NAME;
+
+          /**
+           * Constructor
+           * @param d   destination container
+           * @param m   move speed for target
+           * @param e   distance from target considered close enough
+           **/
+          Target_Mover (
+            const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
+            double m = 0, double e = 1.0);
+
+          /**
+           * main thread function
+           */
+          void run ();
+
+          /**
+           * set client id
+           * @param c   new client id
+           **/
+          void set_client_id (simxInt c);
+
+          /**
+           * set node target handle in VREP
+           * @param n   new target handle
+           **/
+          void set_node_target (simxInt n);
+
+          /**
+           * Set move speed
+           * @param m   new move speed
+           **/
+          void set_move_speed (double m);
+
+          /**
+           * Set epsilon
+           * @param e   new epsilon
+           **/
+          void set_epsilon (double e);
+
+          /**
+           * Set target position
+           **/
+          void set_target_pos (const utility::Position& p);
+
+        private:
+          /// client ID for VREP API
+          simxInt client_id_;
+
+          /// target node handle
+          simxInt node_target_;
+
+          /// Target move speed per second
+          double move_speed_;
+
+          /// distance accuracy
+          double epsilon_;
+
+          /// Current target location
+          utility::Position target_pos_;
+
+          /// Destination container
+          Madara::Knowledge_Engine::Containers::Native_Double_Vector destination_;
+      };
+
+      /// Thread object
+      Target_Mover mover_;
+
+      /// MADARA Threader
+      Madara::Threads::Threader threader_;
+
+      /// container for destination
+      Madara::Knowledge_Engine::Containers::Native_Double_Vector thread_dest_;
+
       /**
        * Add model to environment
        */
@@ -133,7 +224,7 @@ namespace gams
       /**
        * Set initial position for agent
        */
-      virtual void set_initial_position () const;
+      virtual void set_initial_position ();
     }; // class VREP_UAV
 
     /**
