@@ -1,11 +1,31 @@
 #!/usr/bin/perl
 use strict;
+use Scalar::Util qw(looks_like_number);
 
 #Script to generate the remote API Ports in the range [start_port, start_port+num_ports] 
 #Usage: perl remoteApiConnectionsGen.pl START_PORT NUM_PORTS
-  
+
 # get arguments
+my $num_args = $#ARGV + 1;
+if ($num_args != 2)
+{
+  print("usage: remoteApiConnectionsGen.pl <start_port> <num_ports>\n");
+  exit;
+}
 my ($start_port, $num_ports) = @ARGV;
+if (!looks_like_number($start_port))
+{
+  print("first argument must be a number\n");
+  print("usage: remoteApiConnectionsGen.pl <start_port> <num_ports>\n");
+  exit;
+}
+if (!looks_like_number($num_ports))
+{
+  print("second argument must be a number\n");
+  print("usage: remoteApiConnectionsGen.pl <start_port> <num_ports>\n");
+  exit;
+}
+  
 print("creating $num_ports starting at port $start_port\n");
 my $osname = $^O;
 my $vrep_root = $ENV{"VREP_ROOT"};
