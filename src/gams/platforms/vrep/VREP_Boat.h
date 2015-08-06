@@ -111,6 +111,12 @@ namespace gams
        **/
       virtual std::string get_name () const;
 
+      /**
+       * Get the position accuracy in meters
+       * @return position accuracy
+       **/
+      virtual double get_accuracy () const;
+
     protected:
       /**
        * Add model to environment

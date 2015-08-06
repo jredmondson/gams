@@ -172,6 +172,12 @@ gams::platforms::VREP_Boat::get_name () const
   return "VREP Boat";
 }
 
+double
+gams::platforms::VREP_Boat::get_accuracy () const
+{
+  return 5;
+}
+
 void
 gams::platforms::VREP_Boat::get_target_handle ()
 {
@@ -222,7 +228,7 @@ gams::platforms::VREP_Boat::set_initial_position () const
     pos[0] = knowledge_->get (".initial_x").to_double ();
     pos[1] = knowledge_->get (".initial_y").to_double ();
   }
-  pos[2] = (simxFloat) 0.3;
+  pos[2] = (simxFloat) 0.16;
 
   // send set object position command
   simxSetObjectPosition (client_id_, node_id_, sim_handle_parent, pos,
