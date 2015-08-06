@@ -2,4 +2,4 @@
 
 .vrep_uav_move_speed=3;
 
-.platform="vrep-boat";
+.platform="vrep-uav";

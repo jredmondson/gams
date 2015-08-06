@@ -1,0 +1,13 @@
+.vrep_port=19910;
+
+.initial_x=0;
+.initial_y=15;
+.initial_alt=7;
+
+device.4.command="formation";
+device.4.command.size=5;
+device.4.command.0=0;
+device.4.command.1="2,4.71,0";
+device.4.command.2="40.443387,-79.940270,2";
+device.4.command.3="17,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+device.4.command.4="rotate";

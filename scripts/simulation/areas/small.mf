@@ -2,7 +2,7 @@
 .vrep_sw_position="40.443077,-79.940570";
 .vrep_ne_position="40.443387,-79.940098";
 
-.surface="water";
+.surface="concrete";
 
 search_area.1.object_type=4;
 search_area.1.size=1;
