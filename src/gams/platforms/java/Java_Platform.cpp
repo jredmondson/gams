@@ -495,7 +495,8 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
       " Obtaining Position class and constructor\n");
 
     jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Position");
-    jmethodID pos_const = jvm.env->GetMethodID(pos_class, "<init>", "(DDD)V");
+    jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
+    jmethodID pos_free = jvm.env->GetMethodID (pos_class, "free", "(V)V");
 
     if (move_call)
     {
@@ -514,6 +515,8 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
         " Calling user-defined move method.\n");
 
       result = jvm.env->CallIntMethod (obj_, move_call, inpos, inepsilon);
+
+      jvm.env->CallVoidMethod (inpos, pos_free);
     }
     else
     {
@@ -557,6 +560,7 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
 
     jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
     jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
+    jmethodID axes_free = jvm.env->GetMethodID (pos_class, "free", "(V)V");
 
     if (move_call)
     {
@@ -574,6 +578,7 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
         " Calling user-defined rotate method.\n");
 
       result = jvm.env->CallIntMethod (obj_, move_call, inaxes);
+      jvm.env->CallVoidMethod (inaxes, axes_free);
     }
     else
     {
