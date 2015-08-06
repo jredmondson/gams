@@ -337,7 +337,7 @@ namespace gams
     private:
 
       /// Code shared between run and run_once
-      int _run_once (void);
+      int run_once_ (void);
     };
   }
 }

@@ -329,7 +329,7 @@ gams::controllers::Base_Controller::execute (void)
 }
 
 int
-gams::controllers::Base_Controller::_run_once (void)
+gams::controllers::Base_Controller::run_once_ (void)
 {
   // return value
   int return_value (0);
@@ -347,9 +347,31 @@ gams::controllers::Base_Controller::_run_once (void)
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Base_Controller::run:" \
+    " after monitor (), %d modifications to send\n",
+    (int)knowledge_.get_context ().get_modifieds ().size ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "%s\n",
+    knowledge_.debug_modifieds ().c_str ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
     " calling analyze ()\n");
 
   return_value |= analyze ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " after analyze (), %d modifications to send\n",
+    (int)knowledge_.get_context ().get_modifieds ().size ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "%s\n",
+    knowledge_.debug_modifieds ().c_str ());
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -361,9 +383,31 @@ gams::controllers::Base_Controller::_run_once (void)
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Base_Controller::run:" \
+    " after plan (), %d modifications to send\n",
+    (int)knowledge_.get_context ().get_modifieds ().size ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "%s\n",
+    knowledge_.debug_modifieds ().c_str ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
     " calling execute ()\n");
 
   return_value |= execute ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::Base_Controller::run:" \
+    " after execute (), %d modifications to send\n",
+    (int)knowledge_.get_context ().get_modifieds ().size ());
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "%s\n",
+    knowledge_.debug_modifieds ().c_str ());
 
   // unlock the context to allow external updates
   knowledge_.unlock ();
@@ -375,7 +419,7 @@ int
 gams::controllers::Base_Controller::run_once (void)
 {
   // return value
-  int return_value (_run_once ());
+  int return_value (run_once_ ());
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -429,7 +473,7 @@ gams::controllers::Base_Controller::run (double loop_period,
     while (first_execute || max_runtime < 0 || current < max_wait)
     {
       // return value should be last return value of mape loop
-      return_value = _run_once ();
+      return_value = run_once_ ();
 
       // grab current time
       current = ACE_OS::gettimeofday ();

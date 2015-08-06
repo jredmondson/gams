@@ -165,7 +165,7 @@ void handle_arguments (int argc, char ** argv)
         std::stringstream buffer (argv[i + 1]);
         int level;
         buffer >> level;
-        Madara::Logger::global_logger->set_level (level);
+        gams::loggers::global_logger->set_level (level);
       }
 
       ++i;
