@@ -4,14 +4,14 @@ use simulation;
 
 $gams_root = $ENV{GAMS_ROOT};
 $time = 3600;
-$madara_debug = 0;
-$gams_debug = 0;
-$period = 0.5;
-$num = 10;
-$sim = "shield";
+$period = 0.25;
+$num = 12;
+$sim = "large_demo";
 $area = "small";
-$border = "";
-$num_coverages = 0;
+$madara_debug = 0;
+$gams_debug = 6;
+$border = "region.0";
+$num_coverage = 0;
 $launch_controllers = 1;
 
 simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border, $num_coverages, $launch_controllers);

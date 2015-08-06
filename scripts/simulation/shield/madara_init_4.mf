@@ -1,7 +1,7 @@
 .vrep_port=19910;
 
-.initial_x=10;
-.initial_y=10;
+.initial_x=0;
+.initial_y=15;
 .initial_alt=4;
 
 device.4.command="formation";

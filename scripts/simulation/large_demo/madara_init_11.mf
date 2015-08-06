@@ -1,0 +1,11 @@
+.vrep_port=19917;
+
+.initial_x=5;
+.initial_y=10;
+.initial_alt=12;
+
+device.11.command="perimeter patrol";
+device.11.command.size=1;
+device.11.command.0="region.0";
+
+.platform="vrep-uav";

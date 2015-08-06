@@ -9,4 +9,4 @@ device.0.command.size=4;
 device.0.command.0=0;
 device.0.command.1="0,0,0";
 device.0.command.2="40.443387,-79.940270,2";
-device.0.command.3="10,0,1,2,3,4,5,6,7,8,9";
+device.0.command.3="17,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";

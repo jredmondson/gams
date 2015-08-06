@@ -74,7 +74,7 @@ namespace gams
        * @param  init_z    the z axis coordinate (e.g. altitude)
        **/
       Position (
-        double init_x = 0.0, double init_y = 0.0, double init_z = 0.0);
+        double init_x = DBL_MAX, double init_y = 0.0, double init_z = 0.0);
 
       /**
        * Copy constructor

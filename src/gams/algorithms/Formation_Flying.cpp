@@ -459,7 +459,7 @@ gams::algorithms::Formation_Flying::plan (void)
           if (dist > platform_->get_move_speed () * 1.5)
           {
             // predict where the reference device will be
-            dist = platform_->get_move_speed ();
+            dist = 1;
             utility::Position direction (
               dist * cos (phi_dir_), dist * sin (phi_dir_));
             utility::GPS_Position predicted =
