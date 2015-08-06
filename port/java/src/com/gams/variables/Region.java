@@ -146,6 +146,7 @@ public class Region extends GamsJNI
   public void free()
   {
     jni_freeRegion(getCPtr());
+    setCPtr(0);
   }
 }
 

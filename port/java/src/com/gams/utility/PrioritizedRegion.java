@@ -181,6 +181,7 @@ public class PrioritizedRegion extends Region
     if(manageMemory)
     {
       jni_freePrioritizedRegion(getCPtr());
+      setCPtr(0);
     }
   }
   

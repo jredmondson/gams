@@ -154,6 +154,7 @@ public class AccentStatus extends GamsJNI
   public void free()
   {
     jni_AccentStatus(getCPtr());
+      setCPtr(0);
   }
   
   /**

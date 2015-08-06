@@ -197,6 +197,7 @@ public class Swarm extends GamsJNI
     if (manageMemory)
     {
       jni_freeSwarm(getCPtr());
+      setCPtr(0);
     }
   }
   

@@ -177,6 +177,7 @@ public class Self extends GamsJNI
     if (manageMemory)
     {
       jni_freeSelf(getCPtr());
+      setCPtr(0);
     }
   }
   

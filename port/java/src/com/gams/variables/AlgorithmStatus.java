@@ -223,6 +223,7 @@ public class AlgorithmStatus extends GamsJNI
     if (manageMemory)
     {
       jni_freeAlgorithmStatus(getCPtr());
+      setCPtr(0);
     }
   }
   

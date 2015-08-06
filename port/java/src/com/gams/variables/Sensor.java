@@ -305,6 +305,7 @@ public class Sensor extends GamsJNI
     if (manageMemory)
     {
       jni_freeSensor(getCPtr());
+      setCPtr(0);
     }
   }
   

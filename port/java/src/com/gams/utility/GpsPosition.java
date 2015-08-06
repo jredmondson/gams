@@ -185,6 +185,7 @@ public class GpsPosition extends Position
     if(manageMemory)
     {
       jni_freeGpsPosition(getCPtr());
+      setCPtr(0);
     }
   }
   

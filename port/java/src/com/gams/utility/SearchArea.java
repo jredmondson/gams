@@ -301,6 +301,7 @@ public class SearchArea extends GamsJNI
     if(manageMemory)
     {
       jni_freeSearchArea(getCPtr());
+      setCPtr(0);
     }
   }           
   

@@ -297,6 +297,7 @@ public class Position extends GamsJNI
     if(manageMemory)
     {
       jni_freePosition(getCPtr());
+      setCPtr(0);
     }
   }
   

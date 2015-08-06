@@ -225,6 +225,7 @@ public class Axes extends GamsJNI
     if(manageMemory)
     {
       jni_freeAxes(getCPtr());
+      setCPtr(0);
     }
   }
   
