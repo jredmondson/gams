@@ -277,6 +277,7 @@ public class Device extends GamsJNI
     if (manageMemory)
     {
       jni_freeDevice(getCPtr());
+      setCPtr(0);
     }
   }
   
