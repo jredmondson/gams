@@ -212,7 +212,7 @@ jclass gams::utility::java::find_class (JNIEnv * env, const char * name)
 
     jclass class_loader = env->FindClass ("java/lang/ClassLoader");
 
-    jmethodID loadClass =
+    jmethodID load_class =
       env->GetMethodID (class_loader,
       "loadClass",
       "(Ljava/lang/String;)Ljava/lang/Class;");
@@ -224,11 +224,14 @@ jclass gams::utility::java::find_class (JNIEnv * env, const char * name)
 
     jstring j_name = env->NewStringUTF (dot_name.c_str ());
 
-    result = (jclass)env->NewWeakGlobalRef (env->CallObjectMethod (
+    jclass loaded_class = (jclass)env->CallObjectMethod (
       gams_class_loader,
-      loadClass,
-      j_name));
+      load_class,
+      j_name);
 
+    result = (jclass)env->NewWeakGlobalRef (loaded_class);
+
+    env->DeleteLocalRef (loaded_class);
     env->DeleteLocalRef (j_name);
     env->DeleteLocalRef (class_loader);
 
@@ -241,7 +244,11 @@ jclass gams::utility::java::find_class (JNIEnv * env, const char * name)
         "gams::utility::java::find_class: "
         "Exception in Class Loader. Attempting FindClass on %s.\n", name);
 
-      result = (jclass)env->NewWeakGlobalRef (env->FindClass (name));
+      jclass local_class = env->FindClass (name);
+
+      result = (jclass)env->NewWeakGlobalRef (local_class);
+
+      env->DeleteLocalRef (local_class);
 
       if (env->ExceptionCheck ())
       {
