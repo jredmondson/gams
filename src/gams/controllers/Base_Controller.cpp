@@ -677,7 +677,7 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 
         jvm.env->DeleteLocalRef (alg_class);
         jvm.env->DeleteLocalRef (alg);
-        jvm.env->DeleteLocalRef (controller_class);
+        jvm.env->DeleteWeakGlobalRef (controller_class);
       }
       else
       {

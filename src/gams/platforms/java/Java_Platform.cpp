@@ -528,7 +528,7 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
         " ERROR: Unable to find user-defined move method.\n");
     }
 
-    jvm.env->DeleteLocalRef (pos_class);
+    jvm.env->DeleteWeakGlobalRef (pos_class);
   }
   else
   {
@@ -594,7 +594,7 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
         " ERROR: Unable to find user-defined rotate method.\n");
     }
 
-    jvm.env->DeleteLocalRef (axes_class);
+    jvm.env->DeleteWeakGlobalRef (axes_class);
   }
   else
   {

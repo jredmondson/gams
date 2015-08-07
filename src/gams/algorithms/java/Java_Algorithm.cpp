@@ -181,8 +181,8 @@ gams::algorithms::Java_Algorithm_Factory::create (
         "gams::algorithms::Java_Algorithm_Factory::create:"
         " Java class does not have a create method.\n");
     }
-    jvm.env->DeleteLocalRef (kb_class);
-    jvm.env->DeleteLocalRef (list_class);
+    jvm.env->DeleteWeakGlobalRef (kb_class);
+    jvm.env->DeleteWeakGlobalRef (list_class);
   }
 
   return result;
