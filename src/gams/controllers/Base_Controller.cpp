@@ -641,28 +641,30 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
         // Acquire the Java virtual machine
         gams::utility::java::Acquire_VM jvm;
 
-        jclass controllerClass = gams::utility::java::find_class (
+        jclass controller_class = gams::utility::java::find_class (
           jvm.env, "com/gams/controllers/BaseController");
         jobject alg = jalg->get_java_instance ();
-        jclass algClass = jvm.env->GetObjectClass (alg);
+        jclass alg_class = jvm.env->GetObjectClass (alg);
         
-        jmethodID initCall = jvm.env->GetMethodID (algClass,
+        jmethodID init_call = jvm.env->GetMethodID (alg_class,
           "init", "(Lcom/gams/controllers/BaseController;)V");
         jmethodID controllerFromPointerCall = jvm.env->GetStaticMethodID (
-          controllerClass,
+          controller_class,
           "fromPointer", "(JZ)Lcom/gams/controllers/BaseController;");
 
-        if (initCall && controllerFromPointerCall)
+        if (init_call && controllerFromPointerCall)
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MAJOR,
             "gams::controllers::Base_Controller::init_algorithm:" \
             " Calling BaseAlgorithm init method.\n");
-          /*jobject controller =*/ jvm.env->CallStaticObjectMethod (controllerClass,
-            controllerFromPointerCall, (jlong)this, (jboolean)false);
+          jobject controller = jvm.env->CallStaticObjectMethod (controller_class,
+            controllerFromPointerCall, (jlong)this, (jboolean)false); 
 
           jvm.env->CallVoidMethod (
-            alg, initCall, jlong (this));
+            alg, init_call, controller);
+
+          jvm.env->DeleteLocalRef (controller);
         }
         else
         {
@@ -672,6 +674,10 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
             " ERROR. Could not locate init and fromPointer calls in "
             "BaseController. Unable to initialize algorithm.\n");
         }
+
+        jvm.env->DeleteLocalRef (alg_class);
+        jvm.env->DeleteLocalRef (alg);
+        jvm.env->DeleteLocalRef (controller_class);
       }
       else
       {

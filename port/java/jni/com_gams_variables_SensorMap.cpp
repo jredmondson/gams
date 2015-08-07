@@ -18,5 +18,6 @@ GAMS_Export void JNICALL Java_com_gams_variables_SensorMap_jni_1freeSensorMap
   {
     Java_com_gams_variables_Sensor_jni_1freeSensor(env, cls, nativeRecords[x]);
   }
+  env->DeleteLocalRef (cls);
 }
 

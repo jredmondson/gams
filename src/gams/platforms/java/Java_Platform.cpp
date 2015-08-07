@@ -517,6 +517,8 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
       result = jvm.env->CallIntMethod (obj_, move_call, inpos, inepsilon);
 
       jvm.env->CallVoidMethod (inpos, pos_free);
+
+      jvm.env->DeleteLocalRef (inpos);
     }
     else
     {
@@ -525,6 +527,8 @@ gams::platforms::Java_Platform::move (const utility::Position & position,
          "gams::platforms::Java_Platform::move:" \
         " ERROR: Unable to find user-defined move method.\n");
     }
+
+    jvm.env->DeleteLocalRef (pos_class);
   }
   else
   {
@@ -556,11 +560,11 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
        "gams::platforms::Java_Platform::rotate:" \
-      " Obtaining Position class and constructor\n");
+      " Obtaining Axes class and constructor\n");
 
-    jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
-    jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
-    jmethodID axes_free = jvm.env->GetMethodID (pos_class, "free", "()V");
+    jclass axes_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
+    jmethodID axes_const = jvm.env->GetMethodID (axes_class, "<init>", "(DDD)V");
+    jmethodID axes_free = jvm.env->GetMethodID (axes_class, "free", "()V");
 
     if (move_call)
     {
@@ -570,7 +574,7 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
         " Creating new axes object.\n");
 
       jobject inaxes = jvm.env->NewObject (
-        pos_class, pos_const, axes.x, axes.y, axes.z);
+        axes_class, axes_const, axes.x, axes.y, axes.z);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -578,7 +582,9 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
         " Calling user-defined rotate method.\n");
 
       result = jvm.env->CallIntMethod (obj_, move_call, inaxes);
+
       jvm.env->CallVoidMethod (inaxes, axes_free);
+      jvm.env->DeleteLocalRef (inaxes);
     }
     else
     {
@@ -588,6 +594,7 @@ gams::platforms::Java_Platform::rotate (const utility::Axes & axes)
         " ERROR: Unable to find user-defined rotate method.\n");
     }
 
+    jvm.env->DeleteLocalRef (axes_class);
   }
   else
   {

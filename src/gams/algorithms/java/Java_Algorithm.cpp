@@ -111,17 +111,17 @@ gams::algorithms::Java_Algorithm_Factory::create (
   if (jvm.env)
   {
     // obtain class handles
-    jclass kbClass = gams::utility::java::find_class (
+    jclass kb_class = gams::utility::java::find_class (
       jvm.env, "com/madara/KnowledgeBase");
-    jclass listClass = gams::utility::java::find_class (
+    jclass list_class = gams::utility::java::find_class (
       jvm.env, "com/madara/KnowledgeList");
 
     // get method call ids that we will need
-    jmethodID listConstructor = jvm.env->GetMethodID (listClass,
+    jmethodID listConstructor = jvm.env->GetMethodID (list_class,
       "<init>", "([J)V");
-    jmethodID kbFromPointerCall = jvm.env->GetStaticMethodID (kbClass,
+    jmethodID kbFromPointerCall = jvm.env->GetStaticMethodID (kb_class,
       "fromPointer", "(J)Lcom/madara/KnowledgeBase;");
-    jmethodID factoryCreateCall = jvm.env->GetMethodID (kbClass,
+    jmethodID factoryCreateCall = jvm.env->GetMethodID (kb_class,
       "create", "(J)Lcom/gams/algorithms/BaseAlgorithm;");
 
     if (factoryCreateCall)
@@ -144,14 +144,14 @@ gams::algorithms::Java_Algorithm_Factory::create (
       delete[] tmp;
 
       // create the KnowledgeList
-      jobject list = jvm.env->NewObject (listClass, listConstructor, ret);
+      jobject list = jvm.env->NewObject (list_class, listConstructor, ret);
 
       // create the KnowledgeBase
-      jobject jknowledge = jvm.env->CallStaticObjectMethod (kbClass,
+      jobject jknowledge = jvm.env->CallStaticObjectMethod (kb_class,
         kbFromPointerCall, (jlong)knowledge);
 
       // get the factory's class
-      /*jclass filterClass = */jvm.env->GetObjectClass (obj_);
+      jclass filter_class = jvm.env->GetObjectClass (obj_);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -167,6 +167,12 @@ gams::algorithms::Java_Algorithm_Factory::create (
         " Creating Java algorithm instance for controller.\n");
 
       result = new Java_Algorithm (obj, knowledge, 0, sensors, self, devices);
+
+      jvm.env->DeleteLocalRef (obj);
+      jvm.env->DeleteLocalRef (filter_class);
+      jvm.env->DeleteLocalRef (jknowledge);
+      jvm.env->DeleteLocalRef (list);
+      jvm.env->DeleteLocalRef (ret);
     }
     else
     {
@@ -175,6 +181,8 @@ gams::algorithms::Java_Algorithm_Factory::create (
         "gams::algorithms::Java_Algorithm_Factory::create:"
         " Java class does not have a create method.\n");
     }
+    jvm.env->DeleteLocalRef (kb_class);
+    jvm.env->DeleteLocalRef (list_class);
   }
 
   return result;
