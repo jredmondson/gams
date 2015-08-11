@@ -77,7 +77,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
           {
             madara_logger_ptr_log (gams::loggers::global_logger.get (),
               gams::loggers::LOG_ERROR,
-               "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+               "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
               " invalid second arg, expected double\n");
           }
         }
@@ -93,7 +93,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
-          "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+          "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
           " invalid first arg, expected string\n");
       }
     }
@@ -101,7 +101,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
         " expected 1 or 2 args\n");
     }
   }
@@ -111,21 +111,21 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
         " invalid knowledge parameter\n");
     }
     if (sensors)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
         " invalid sensors parameter\n");
     }
     if (self)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+        "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
         " invalid self parameter\n");
     }
   }
@@ -134,7 +134,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-      "gams::algorithms::Uniform_Random_Edge_Coverage_Factory::create:" \
+      "gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create:" \
       " error creating algorithm\n");
   }
 

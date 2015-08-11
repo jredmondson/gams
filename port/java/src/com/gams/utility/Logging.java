@@ -53,14 +53,32 @@ public abstract class Logging extends GamsJNI
   private static native void jni_set_level(int level);
   private static native int jni_get_level();
 
+  public enum LogLevel
+  {
+    LOG_NOTHING (-1), LOG_EMERGENCY (0), LOG_ALWAYS (0), LOG_ERROR (1), 
+    LOG_WARNING (2), LOG_MAJOR (3), LOG_MINOR (4), LOG_TRACE (5), 
+    LOG_DETAILED (6), LOG_MAX (6);
+
+    private int value;
+
+    private LogLevel (int v)
+    {
+      value = v;
+    }
+  }
+
+  public static void setLevel(LogLevel level)
+  {
+    setLevel(level.value);
+  }
+
   public static void setLevel(int level)
   {
     jni_set_level(level);
   }
-  
+
   public static int getLevel()
   {
     return jni_get_level();
   }
 }
-
