@@ -77,6 +77,8 @@ gams::variables::Device::operator= (const Device & device)
     this->temperature = device.temperature;
     this->command = device.command;
     this->command_args = device.command_args;
+    this->last_command = device.last_command;
+    this->last_command_args = device.last_command_args;
     this->accents = device.accents;
   }
 }
@@ -102,11 +104,13 @@ gams::variables::Device::init_vars (
     knowledge);
   search_area_id.set_name (device_name + ".search_area_id", knowledge);
   command.set_name (device_name + ".command", knowledge);
+  last_command.set_name (device_name + ".last_command", knowledge);
   variables::init_vars (accents, knowledge, device_name);
   home.set_name (device_name + ".home", knowledge);
   source.set_name (device_name + ".source", knowledge);
   dest.set_name (device_name + ".dest", knowledge);
   command_args.set_name (device_name + ".command", knowledge);
+  last_command_args.set_name (device_name + ".last_command", knowledge);
   temperature.set_name (device_name + ".temperature", knowledge);
 
   // init settings
@@ -134,11 +138,13 @@ gams::variables::Device::init_vars (
     knowledge);
   search_area_id.set_name (device_name + ".search_area_id", knowledge);
   command.set_name (device_name + ".command", knowledge);
+  last_command.set_name (device_name + ".last_command", knowledge);
   variables::init_vars (accents, knowledge, device_name);
   home.set_name (device_name + ".home", knowledge);
   source.set_name (device_name + ".source", knowledge);
   dest.set_name (device_name + ".dest", knowledge);
   command_args.set_name (device_name + ".command", knowledge);
+  last_command_args.set_name (device_name + ".last_command", knowledge);
   temperature.set_name (device_name + ".temperature", knowledge);
 
   // init settings

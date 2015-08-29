@@ -68,6 +68,9 @@
 #include "gams/algorithms/Algorithm_Factory.h"
 #include "gams/platforms/Platform_Factory.h"
 
+#include "madara/knowledge_engine/containers/String.h"
+#include "madara/knowledge_engine/containers/Vector.h"
+
 #ifdef _GAMS_JAVA_
 #include <jni.h>
 #endif

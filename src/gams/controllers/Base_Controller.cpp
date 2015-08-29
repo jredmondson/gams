@@ -171,6 +171,9 @@ gams::controllers::Base_Controller::system_analyze (void)
 
     init_algorithm (self_.device.command.to_string (), args);
 
+    self_.device.last_command = self_.device.command.to_string ();
+    self_.device.command_args.transfer_to (self_.device.last_command_args);
+
     // reset the command
     self_.device.command = "";
     self_.device.command_args.resize (0);
@@ -184,6 +187,9 @@ gams::controllers::Base_Controller::system_analyze (void)
     swarm_.command_args.copy_to (args);
 
     init_algorithm (swarm_.command.to_string (), args);
+
+    self_.device.last_command = swarm_.command.to_string ();
+    swarm_.command_args.transfer_to (self_.device.last_command_args);
 
     // reset the command
     swarm_.command = "";

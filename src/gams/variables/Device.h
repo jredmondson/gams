@@ -116,7 +116,13 @@ namespace gams
 
       /// number of arguments for command
       Madara::Knowledge_Engine::Containers::Vector command_args;
-      
+
+      /// Last command
+      Madara::Knowledge_Engine::Containers::String last_command;
+
+      /// Last command args
+      Madara::Knowledge_Engine::Containers::Vector last_command_args;
+
       /// device specific command
       Madara::Knowledge_Engine::Containers::String coverage_type;
 
