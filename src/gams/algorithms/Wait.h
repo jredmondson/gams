@@ -70,6 +70,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for waiting
+    **/
     class GAMS_Export Wait : public Base_Algorithm
     {
     public:

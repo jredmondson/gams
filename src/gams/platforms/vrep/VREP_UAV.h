@@ -75,12 +75,12 @@ namespace gams
 {
   namespace platforms
   {
+    /**
+    * A VREP platform for an autonomous aerial quadcopter
+    **/
     class GAMS_Export VREP_UAV : public VREP_Base
     {
     public:
-      /**
-       * Default UAV model
-       */
       const static std::string DEFAULT_UAV_MODEL;
 
       /**

@@ -67,6 +67,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for platform status information
+    **/
     class GAMS_Export Platform_Status
     {
     public:

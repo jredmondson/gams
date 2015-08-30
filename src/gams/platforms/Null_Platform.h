@@ -66,6 +66,9 @@ namespace gams
 {
   namespace platforms
   {
+    /**
+    * A null platform. This platform performs no-ops for all operations.
+    **/
     class GAMS_Export Null_Platform : public Base_Platform
     {
     public:

@@ -75,6 +75,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for profiling message generation and receipt
+    **/
     class GAMS_Export Message_Profiling : public Base_Algorithm
     {
     public:

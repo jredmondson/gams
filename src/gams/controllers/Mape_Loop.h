@@ -72,6 +72,9 @@ namespace gams
 {
   namespace controllers
   {
+    /**
+    * A highly extensible MAPE loop
+    **/
     class GAMS_Export Mape_Loop
     {
     public:

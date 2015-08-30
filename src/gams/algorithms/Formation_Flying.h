@@ -66,6 +66,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for moving in formation
+    **/
     class GAMS_Export Formation_Flying : public Base_Algorithm
     {
     public:

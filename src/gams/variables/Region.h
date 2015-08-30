@@ -66,6 +66,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for region information
+    **/
     class GAMS_Export Region
     {
     public:
@@ -112,7 +115,7 @@ namespace gams
     };
     
     /**
-      * Initializes a self containers
+      * Initializes region containers
       * @param   variables    the variables to initialize
       * @param   knowledge    the knowledge base that houses the variables
       * @param   region_name  name of the region

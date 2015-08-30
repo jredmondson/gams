@@ -73,6 +73,9 @@ namespace gams
 {
   namespace platforms
   {
+    /**
+    * A VREP platform for the ant robotic system.
+    **/
     class GAMS_Export VREP_Ant : public VREP_Base
     {
     public:

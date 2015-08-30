@@ -65,6 +65,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for landing
+    **/
     class GAMS_Export Land : public Base_Algorithm
     {
     public:

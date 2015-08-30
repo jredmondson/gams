@@ -68,6 +68,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for algorithm status information
+    **/
     class GAMS_Export Algorithm_Status
     {
     public:

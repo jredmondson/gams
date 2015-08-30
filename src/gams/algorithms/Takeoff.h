@@ -65,6 +65,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for taking off
+    **/
     class GAMS_Export Takeoff : public Base_Algorithm
     {
     public:

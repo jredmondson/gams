@@ -70,6 +70,9 @@ namespace gams
 {
   namespace platforms
   {
+    /**
+    * A facade for Java platforms
+    **/
     class GAMS_Export Java_Platform : public Base_Platform
     {
     public:

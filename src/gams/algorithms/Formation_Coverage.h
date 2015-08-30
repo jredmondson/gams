@@ -70,6 +70,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for covering an area in formation
+    **/
     class GAMS_Export Formation_Coverage : public Base_Algorithm
     {
     public:

@@ -64,6 +64,9 @@ namespace gams
 {
   namespace utility
   {
+    /**
+    * A deprecated class for rotation information. @see Reference_Frame
+    **/
     class GAMS_Export Axes
     {
     public:

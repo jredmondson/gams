@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,15 +45,16 @@
  **/
 
 /**
- * @file VREP_Base.h
+ * @file Platform_Collection.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the VREP_Base simulator uav class
+ * This file contains the definition of a platform collection
  **/
 
-#ifndef   _GAMS_PLATFORM_VREP_BASE_H_
-#define   _GAMS_PLATFORM_VREP_BASE_H_
+#ifndef   _GAMS_PLATFORM_COLLECTION_H_
+#define   _GAMS_PLATFORM_COLLECTION_H_
 
+#include "gams/platforms/Platform_Factory.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Platform_Status.h"
@@ -61,22 +62,14 @@
 #include "gams/utility/GPS_Position.h"
 #include "madara/knowledge_engine/Knowledge_Base.h"
 
-#include "gams/loggers/Global_Logger.h"
-
-extern "C" {
-#include "extApi.h"
-}
-
-#ifdef _GAMS_VREP_
-
 namespace gams
 {
   namespace platforms
   {
     /**
-    * A VREP platform for the base robotic system.
-    **/
-    class GAMS_Export VREP_Base : public Base_Platform
+     * A collection of platforms
+     **/
+    class GAMS_Export Platform_Collection : public Base_Platform
     {
     public:
       /**
@@ -86,51 +79,62 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       device variables that describe self state
        **/
-      VREP_Base (
+      Platform_Collection (
         Madara::Knowledge_Engine::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
+        variables::Platforms * platforms,
         variables::Self * self);
 
       /**
        * Destructor
        **/
-      virtual ~VREP_Base ();
+      ~Platform_Collection ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const VREP_Base & rhs);
-
-      /**
-       * Polls the sensor environment for useful information
-       * @return number of sensors updated/used
-       **/
-      virtual int sense (void);
+      void operator= (const Platform_Collection & rhs);
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int analyze (void);
-
+       
       /**
-       * Get the position accuracy in meters
-       * @return position accuracy
+       * Get the location aproximation value of what is considered close enough
+       * @return location approximation radius
        **/
       virtual double get_accuracy () const;
+      
+      /**
+       * Gets the unique identifier of the platform
+       **/
+      virtual std::string get_id () const;
 
       /**
        * Get move speed
        **/
       virtual double get_move_speed () const;
+      
+      /**
+       * Gets the name of the platform
+       **/
+      virtual std::string get_name () const;
 
+      /**
+       * Instructs the device to return home
+       * @return 1 if moving, 2 if arrived, 0 if error
+       **/
+      virtual int home (void);
+      
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int land (void);
-
+      
       /**
        * Moves the platform to a position
        * @param   position  the coordinate to move to
@@ -139,6 +143,12 @@ namespace gams
        **/
       virtual int move (const utility::Position & position,
         const double & epsilon = 0.1);
+      
+      /**
+       * Polls the sensor environment for useful information
+       * @return number of sensors updated/used
+       **/
+      virtual int sense (void);
       
       /**
        * Set move speed
@@ -151,82 +161,35 @@ namespace gams
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int takeoff (void);
+    };
 
-    protected:
+    /**
+     * A factory class for creating null (no-op) platforms
+     **/
+    class GAMS_Export Platform_Collection_Factory : public Platform_Factory
+    {
+    public:
+
       /**
-       * Get float array from position
-       * @param arr array to convert
-       * @param pos position to store it in
+       * Creates a platform collection.
+       * @param   args      no arguments are necessary for this platform
+       * @param   knowledge the knowledge base. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   platforms status inform for all known devices. This
+       *                    will be set by the controller in init_vars
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
        **/
-      static void array_to_position (const simxFloat (&arr)[3], 
-        utility::Position & pos);
+      virtual Base_Platform * create (
+        const Madara::Knowledge_Vector & args,
+        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        variables::Sensors * sensors,
+        variables::Platforms * platforms,
+        variables::Self * self);
+    };
+  }
+}
 
-      /**
-       * Converts lat/long coordinates to vrep coordinates
-       * @param position    lat/long position to convert
-       * @param converted   x/y coords in vrep reference frame
-       **/
-      void gps_to_vrep (const utility::GPS_Position & position,
-        utility::Position & converted) const;
-
-      /**
-       * Get position from float array
-       * @param pos position to convert
-       * @param arr array to store it in
-       **/
-      static void position_to_array (const utility::Position & pos,
-        simxFloat (&arr)[3]);
-
-      /**
-       * Converts lat/long coordinates to vrep coordinates
-       * @param position    lat/long position to convert
-       * @param converted   x/y coords in vrep reference frame
-       **/
-      void vrep_to_gps (const utility::Position & position,
-        utility::GPS_Position & converted) const;
-
-      /**
-       * Add model to environment
-       */
-      virtual void add_model_to_environment (const std::string& file, 
-        const simxUChar client_side) = 0;
-
-      /**
-       * Get node target handle
-       */
-      virtual void get_target_handle () = 0;
-
-      /**
-       * Set initial position for agent
-       */
-      virtual void set_initial_position () const;
-
-      /**
-       * wait for go signal from controller
-       */
-      void wait_for_go () const;
-
-      /// flag for drone being airborne
-      bool airborne_;
-
-      /// client id for remote API connection
-      simxInt client_id_;
-
-      /// movement speed in meters/iteration
-      double move_speed_;
-
-      /// object id for quadrotor
-      simxInt node_id_;
-
-      /// object id for quadrotor target
-      simxInt node_target_;
-
-      /// gps coordinates corresponding to (0, 0) in vrep
-      utility::GPS_Position sw_position_;
-    }; // class VREP_Base
-  } // namespace platform
-} // namespace gams
-
-#endif // _GAMS_VREP_
-
-#endif // _GAMS_PLATFORM_VREP_BASE_H_
+#endif // _GAMS_PLATFORM_COLLECTION_H_

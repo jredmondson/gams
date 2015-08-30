@@ -63,6 +63,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for search area information
+    **/
     class GAMS_Export Search_Area
     {
     public:
@@ -106,7 +109,7 @@ namespace gams
     };
     
     /**
-      * Initializes a self containers
+      * Initializes search area containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   area_name  name of the area

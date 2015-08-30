@@ -64,21 +64,26 @@ namespace gams
 {
   namespace utility
   {
+    /**
+    * A helper class for prioritized region information
+    **/
     class GAMS_Export Prioritized_Region : public Region
     {
     public:
       /**
        * Constructor
-       * @param init_points vector of points representing boundary polygon of region
+       * @param init_points   vector of points representing boundary polygon of region
        * @param new_priority  associated priority
+       * @param name          name of the region
        **/
       Prioritized_Region (const std::vector <GPS_Position>& init_points =
         std::vector<GPS_Position> (), const unsigned int new_priority = 1, const std::string& name = "");
 
       /**
        * Constructor
-       * @param region    associated region
+       * @param region        associated region
        * @param new_priority  associated priority
+       * @param name          name of the region
        **/
       Prioritized_Region (const Region& region, const unsigned int new_priority = 1, const std::string& name = "");
 
@@ -121,7 +126,7 @@ namespace gams
       /**
        * Check if object is of correct type
        * @param kb        Knowledge Base with object
-       * @param prefix    Prefix of object in the KB
+       * @param name      Prefix of object in the KB
        */
       virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name) const;

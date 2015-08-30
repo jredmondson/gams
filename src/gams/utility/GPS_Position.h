@@ -64,6 +64,9 @@ namespace gams
 {
   namespace utility
   {
+    /**
+    * A position in the global positioning system reference frame
+    **/
     class GAMS_Export GPS_Position : public Position
     {
     public:

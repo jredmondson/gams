@@ -71,6 +71,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for moving to a location
+    **/
     class GAMS_Export Move : public Base_Algorithm
     {
     public:

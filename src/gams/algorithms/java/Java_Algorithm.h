@@ -71,6 +71,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * A facade for Java algorithms
+    **/
     class GAMS_Export Java_Algorithm : public Base_Algorithm
     {
     public:

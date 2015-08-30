@@ -79,6 +79,10 @@ namespace gams
 {
   namespace controllers
   {
+    /**
+     * The basic controller that can be used to perform actions on platforms
+     * and algorithms
+     **/
     class GAMS_Export Base_Controller
     {
     public:

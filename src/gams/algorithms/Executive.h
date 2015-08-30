@@ -67,6 +67,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm capable of executing other algorithms
+    **/
     class GAMS_Export Executive : public Base_Algorithm
     {
     public:

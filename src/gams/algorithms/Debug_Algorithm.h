@@ -71,6 +71,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * A debug algorithm that prints detailed status information
+    **/
     class GAMS_Export Debug_Algorithm : public Base_Algorithm
     {
     public:

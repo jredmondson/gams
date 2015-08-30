@@ -63,6 +63,9 @@ namespace gams
 {
   namespace utility
   {
+    /**
+    * A utility class for search areas
+    **/
     class GAMS_Export Search_Area : public Containerize
     {
     public:
@@ -178,7 +181,7 @@ namespace gams
       /**
        * Check if object is of correct type
        * @param kb        Knowledge Base with object
-       * @param prefix    Prefix of object in the KB
+       * @param name      Name of object in the KB
        */
       virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
         const std::string& name) const;

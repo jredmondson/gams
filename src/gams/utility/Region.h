@@ -67,15 +67,20 @@ namespace gams
 {
   namespace utility
   {
+    /**
+     * A helper class for region information
+     **/
     class GAMS_Export Region : public Containerize
     {
     public:
       /**
        * Constructor
        * @param  init_vertices  the vertices of the region
+       * @param  type           the type of region
+       * @param  name           name of the region
        **/
       Region (const std::vector <GPS_Position> & init_vertices = 
-        std::vector<GPS_Position> (), unsigned int t = 0, 
+        std::vector<GPS_Position> (), unsigned int type = 0, 
         const std::string& name = "");
 
       /**
@@ -102,53 +107,54 @@ namespace gams
       bool operator!= (const Region& rhs) const;
 
       /**
-       * Get name of region
+       * Gets name of region
        * @return name of the region
        */
       std::string get_name () const;
 
       /**
-       * Set name of region
-       * @param n   new name of the region
+       * Sets name of region
+       * @param name   new name of the region
        */
-      void set_name (const std::string& n);
+      void set_name (const std::string& name);
       
       /**
-       * Determine if GPS_Position is in region
-       * @param   p   point to check if in region
+       * Determines if GPS_Position is in region
+       * @param   position   point to check if in region
        * @return  true if point is in region or on border, false otherwise
        **/
-      bool contains (const GPS_Position & p) const;
+      bool contains (const GPS_Position & position) const;
 
       /**
-       * Determine if GPS_Position is in region
-       * @param   p     point to check if in region
+       * Determines if GPS_Position is in region
+       * @param   position     point to check if in region
        * @param   ref   gps reference for point p
        * @return  true if point is in region or on border, false otherwise
        **/
-      bool contains (const Position & p, const GPS_Position& ref) const;
+      bool contains (const Position & position,
+        const GPS_Position & ref) const;
 
       /**
-       * Get distance from any point in this region
-       * @param   p     point to check
+       * Gets distance from any point in this region
+       * @param   position     point to check
        * @return 0 if in region, otherwise distance from region
        **/
-      double distance (const GPS_Position& p) const;
+      double distance (const GPS_Position & position) const;
 
       /**
-       * Get bounding box
+       * Gets bounding box
        * @return Region object corresponding to bounding box
        **/
       Region get_bounding_box () const;
 
       /**
-       * Get area of the region
+       * Gets area of the region
        * @return area of this region
        **/
       double get_area () const;
 
       /**
-       * Helper function for converting the position to a string
+       * Converts the position to a string
        * @param delimiter characters to insert between position components
        * @return string representation of this Region
        **/

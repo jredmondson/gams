@@ -65,6 +65,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm that performs no-ops for all methods
+    **/
     class GAMS_Export Null_Algorithm : public Base_Algorithm
     {
     public:

@@ -70,6 +70,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for device information
+    **/
     class GAMS_Export Device
     {
     public:
@@ -180,7 +183,7 @@ namespace gams
     typedef std::vector <Device>   Devices;
     
     /**
-      * Initializes a self containers
+      * Initializes device containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   processes  the number of processes in the device swarm

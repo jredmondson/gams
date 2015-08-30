@@ -64,6 +64,9 @@ namespace gams
 {
   namespace utility
   {
+    /**
+    * A position in an x, y, z coordinate system
+    **/
     class GAMS_Export Position
     {
     public:

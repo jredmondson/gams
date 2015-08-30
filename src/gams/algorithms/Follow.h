@@ -68,6 +68,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for following a target
+    **/
     class GAMS_Export Follow : public Base_Algorithm
     {
     public:

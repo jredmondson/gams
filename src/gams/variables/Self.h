@@ -63,6 +63,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for self referencing information
+    **/
     class GAMS_Export Self
     {
     public:
@@ -106,7 +109,7 @@ namespace gams
     };
     
     /**
-      * Initializes a self containers
+      * Initializes a self container
       * @param   container  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   id         node identifier

@@ -101,6 +101,9 @@ namespace gams
       PLATFORM_ARRIVED = 2
     };
 
+    /**
+    * The base platform for all platforms to use
+    **/
     class GAMS_Export Base_Platform
     {
     public:

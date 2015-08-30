@@ -69,6 +69,9 @@ namespace gams
 {
   namespace platforms
   {
+    /**
+    * A debug platform that prints detailed status information.
+    **/
     class GAMS_Export Debug_Platform : public Base_Platform
     {
     public:

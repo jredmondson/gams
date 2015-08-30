@@ -69,6 +69,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+     * A container for accent status information
+     **/
     class GAMS_Export Accent_Status
     {
     public:
@@ -123,7 +126,7 @@ namespace gams
     typedef std::vector <Accent_Status>   Accent_Statuses;
     
     /**
-      * Initializes a self containers
+      * Initializes accent status containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   prefix     the prefix of the accents (e.g. swarm/device)
@@ -133,7 +136,7 @@ namespace gams
       const std::string & prefix);
     
     /**
-      * Initializes a self containers
+      * Initializes accent status containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   prefix     the prefix of the accents (e.g. swarm/device)

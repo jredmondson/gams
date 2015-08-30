@@ -74,6 +74,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for sensor information
+    **/
     class GAMS_Export Sensor
     {
     public:

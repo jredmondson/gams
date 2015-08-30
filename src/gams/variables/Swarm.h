@@ -68,6 +68,9 @@ namespace gams
 {
   namespace variables
   {
+    /**
+    * A container for swarm information
+    **/
     class GAMS_Export Swarm
     {
     public:
@@ -136,7 +139,7 @@ namespace gams
     };
     
     /**
-      * Initializes a self containers
+      * Initializes a swarm container
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   swarm_size size of the swarm
@@ -146,7 +149,7 @@ namespace gams
         const Madara::Knowledge_Record::Integer& swarm_size = 1);
     
     /**
-      * Initializes a self containers
+      * Initializes a swarm container
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
       * @param   swarm_size size of the swarm

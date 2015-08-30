@@ -64,6 +64,10 @@ namespace gams
 {
   namespace utility
   {
+    /**
+    * A class meant to assist with retrieving information
+    * into GAMS containers
+    **/
     class GAMS_Export Containerize
     {
     public:

@@ -64,6 +64,9 @@ namespace gams
 {
   namespace algorithms
   {
+    /**
+    * An algorithm for testing computational speed
+    **/
     class GAMS_Export Performance_Profiling : public Base_Algorithm
     {
     public:
