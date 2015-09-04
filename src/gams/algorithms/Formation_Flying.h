@@ -74,22 +74,22 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  head_id       target of the formation
-       * @param  offset       offset of formation
-       * @param  destination  destination of the formation
-       * @param  members      number of members
-       * @param  modifier     modifier that influences the formation
-       * @param  knowledge    the context containing variables and values
-       * @param  platform     the underlying platform the algorithm will use
-       * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables
+       * @param  head_id        target of the formation
+       * @param  offset         offset of formation
+       * @param  destination    destination of the formation
+       * @param  members        number of members
+       * @param  modifier       modifier that influences the formation
+       * @param  knowledge      the context containing variables and values
+       * @param  platform       the underlying platform the algorithm will use
+       * @param  sensors        map of sensor names to sensor information
+       * @param  self           self-referencing variables
        **/
       Formation_Flying (
-        const Madara::Knowledge_Record & head_id,
-        const Madara::Knowledge_Record & offset,
-        const Madara::Knowledge_Record & destination,
-        const Madara::Knowledge_Record & members,
-        const Madara::Knowledge_Record & modifier,
+        const Madara::Knowledge_Record::Integer & head_id,
+        const std::vector<double> & offset,
+        const std::vector<double> & destination,
+        const std::vector<Madara::Knowledge_Record::Integer> & members,
+        const std::string & modifier,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -143,12 +143,12 @@ namespace gams
       utility::GPS_Position get_destination();
 
       /// formation wait string
-      struct compiled
+      struct Compiled
       {
         Madara::Knowledge_Engine::Compiled_Expression ref;
         size_t agent;
       };
-      std::vector<compiled> compiled_formation_;
+      std::vector<Compiled> compiled_formation_;
 
       /// are we in formation?
       Madara::Knowledge_Engine::Containers::Integer formation_ready_;

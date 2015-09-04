@@ -79,21 +79,117 @@ gams::algorithms::Formation_Flying_Factory::create (
     "gams::algorithms::Formation_Flying_Factory:" \
     " entered create with %u args\n", args.size ());
 
-  // set default parameters
-  Madara::Knowledge_Record modifier ("default");
-  
+  // check args
   if (knowledge && sensors && platform && self && args.size () >= 4)
   {
-    if (args.size () == 5)
-      modifier = args[4];
+    // store error value
+    bool error = false;
 
-    result = new Formation_Flying (
-      args[0] /* target */,
-      args[1] /* offset */,
-      args[2] /* destination */,
-      args[3] /* members */,
-      modifier /* for rotation */,
-      knowledge, platform, sensors, self);
+    // create arg types
+    Madara::Knowledge_Record::Integer target;
+    std::vector<double> offset, destination;
+    std::vector<Madara::Knowledge_Record::Integer> members;
+    std::string modifier ("default");
+
+    if (args[0].is_integer_type ())
+    {
+      target = args[0].to_integer ();
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Flying_Factory:" \
+        " invalid target argument\n");
+    }
+
+    if (args[1].is_double_type () || args[1].is_integer_type ())
+    {
+      offset = args[1].to_doubles ();
+      if (offset.size () < 2 || offset.size () > 3)
+      {
+        error = true;
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::Formation_Flying_Factory:" \
+          " invalid offset size (expected 2 or 3, got %u)\n", offset.size ());
+      }
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Flying_Factory:" \
+        " invalid offset argument type (expected doubles)\n");
+    }
+
+    if (args[2].is_double_type ())
+    {
+      destination = args[2].to_doubles ();
+      if (destination.size () < 2 || destination.size () > 3)
+      {
+        error = true;
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::Formation_Flying_Factory:" \
+          " invalid destination size (expected 2 or 3, got %u)\n", 
+          destination.size ());
+      }
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Flying_Factory:" \
+        " invalid destination argument type (expected doubles)\n");
+    }
+
+    if (args[3].is_integer_type ())
+    {
+      members = args[3].to_integers ();
+      if (members.size () == 0)
+      {
+        error = true;
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::Formation_Flying_Factory:" \
+          " invalid members argument size (did not receive any)\n");
+      }
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Flying_Factory:" \
+        " invalid members argument type (expected integers)\n");
+    }
+
+    if (args.size () == 5)
+    {
+      if (args[4].is_string_type ())
+      {
+        modifier = args[4].to_string ();
+      }
+      else
+      {
+        error = true;
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::Formation_Flying_Factory:" \
+          " invalid modifier argument\n");
+      }
+    }
+
+    if (!error)
+    {
+      result = new Formation_Flying (
+        target, offset, destination, members, modifier,
+        knowledge, platform, sensors, self);
+    }
   }
   else
   {
@@ -115,11 +211,11 @@ gams::algorithms::Formation_Flying_Factory::create (
  * is either NONE or ROTATE (rotate the formation).
  */
 gams::algorithms::Formation_Flying::Formation_Flying (
-  const Madara::Knowledge_Record & head_id,
-  const Madara::Knowledge_Record & offset,
-  const Madara::Knowledge_Record & destination,
-  const Madara::Knowledge_Record & members,
-  const Madara::Knowledge_Record & modifier,
+  const Madara::Knowledge_Record::Integer & head_id,
+  const std::vector<double> & offset,
+  const std::vector<double> & destination,
+  const std::vector<Madara::Knowledge_Record::Integer> & members,
+  const std::string & modifier,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
@@ -131,82 +227,65 @@ gams::algorithms::Formation_Flying::Formation_Flying (
   status_.init_variable_values ();
 
   // am i the head agent?
-  head_ = (head_id.to_integer () == self->id.to_integer ());
+  head_ = (head_id == self->id.to_integer ());
 
   // set madara containers
   stringstream in_formation_str;
-  in_formation_str << "formation." << head_id.to_integer ();
+  in_formation_str << "formation." << head_id;
   in_formation_str << "." << *(self->id) << ".ready";
   in_formation_.set_name (in_formation_str.str (), *knowledge);
 
   stringstream formation_ready_str;
-  formation_ready_str << "formation." << head_id.to_integer ();
+  formation_ready_str << "formation." << head_id;
   formation_ready_str << ".flying";
   formation_ready_.set_name (formation_ready_str.str (), *knowledge);
 
   stringstream head_location_str;
-  head_location_str << "device." << head_id.to_integer () << ".location";
+  head_location_str << "device." << head_id << ".location";
   head_location_.set_name (head_location_str.str (), *knowledge, 3);
 
   stringstream head_destination_str;
-  head_destination_str << "device." << head_id.to_integer () << ".destination";
+  head_destination_str << "device." << head_id << ".destination";
   string dest_str = head_destination_str.str ();
   head_destination_.set_name(dest_str, *knowledge, 3);
 
-  // parse offset
-  if (!head_)
-    sscanf (offset.to_string ().c_str (), "%lf,%lf,%lf", &rho_, &phi_, &z_);
+  // get offset
+  rho_ = offset[0];
+  phi_ = offset[1];
+  if (offset.size () == 3)
+    z_ = offset[2];
+  else
+    z_ = 0.0;
 
-  // parse modifier
-  string mod = modifier.to_string ();
-  if (mod == "rotate")
-  {
+  // get modifier
+  if (modifier.compare ("rotate") == 0)
     modifier_ = ROTATE;
-  }
 
   // construct wait for in formation string
   if (head_)
   {
-    // parse members
-    // TODO: clean this up
-    char* mem_string = new char[members.to_string ().length () + 1];
-    const char* idx = mem_string;
-    strcpy (mem_string, members.to_string ().c_str ());
-    int num_members, member;
-    sscanf (idx, "%d,%*s", &num_members);
-    idx = strchr (idx, ',') + 1;
-    set<int> members;
-    for (int i = 0; i < num_members - 1; ++i)
-    {
-      sscanf (idx, "%d,%*s", &member);
-      if (member != self->id.to_integer ())
-        members.insert (member);
-      idx = strchr (idx, ',') + 1;
-    }
-    sscanf (idx, "%d", &member);
-    if (member != self->id.to_integer ())
-      members.insert (member);
-    delete [] mem_string;
-
     // construct actual string
-    for (set<int>::iterator it = members.begin (); it != members.end (); ++it)
+    for (std::vector<Madara::Knowledge_Record::Integer>::const_reference m : 
+      members)
     {
-      std::stringstream formation_expr;
-      formation_expr << "formation." << self->id.to_integer ();
-      formation_expr << "." << *it << ".ready";
-
-      compiled temp;
-      temp.ref = knowledge_->compile (formation_expr.str ());
-      temp.agent = *it;
-      compiled_formation_.push_back (temp);
+      if (m != self->id.to_integer ())
+      {
+        std::stringstream formation_expr;
+        formation_expr << "formation." << self->id.to_integer ();
+        formation_expr << "." << m << ".ready";
+  
+        Compiled temp;
+        temp.ref = knowledge_->compile (formation_expr.str ());
+        temp.agent = m;
+        compiled_formation_.push_back (temp);
+      }
     }
 
     // set destination
-    double lat, lon, alt;
-    sscanf (destination.to_string ().c_str (), "%lf,%lf,%lf", &lat, &lon, &alt);
-    destination_.latitude (lat);
-    destination_.longitude (lon);
-    destination_.altitude (alt);
+    destination_.latitude (destination[0]);
+    destination_.longitude (destination[1]);
+    if (destination.size() == 3)
+      destination_.altitude (destination[2]);
     destination_.to_container (head_destination_);
   }
 

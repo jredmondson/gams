@@ -90,11 +90,11 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       Formation_Coverage (
-        const Madara::Knowledge_Record & head_id,
-        const Madara::Knowledge_Record & offset,
-        const Madara::Knowledge_Record & members,
-        const Madara::Knowledge_Record & modifier,
-        const Madara::Knowledge_Record & coverage,
+        const Madara::Knowledge_Record::Integer & head_id,
+        const std::vector<double> & offset,
+        const std::vector<Madara::Knowledge_Record::Integer> & members,
+        const std::string & modifier,
+        const std::string & coverage,
         const Madara::Knowledge_Vector & cover_args,
         Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,

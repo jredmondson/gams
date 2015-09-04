@@ -85,10 +85,92 @@ gams::algorithms::Formation_Coverage_Factory::create (
   
   if (knowledge && sensors && platform && self && args.size () >= 6)
   {
+    // store error value
+    bool error = false;
+
+    // create arg types
+    Madara::Knowledge_Record::Integer target;
+    std::vector<double> offset;
+    std::vector<Madara::Knowledge_Record::Integer> members;
+    std::string modifier ("default");
+    std::string coverage;
+
+    if (args[0].is_integer_type ())
+    {
+      target = args[0].to_integer ();
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Coverage_Factory:" \
+        " invalid target argument\n");
+    }
+
+    if (args[1].is_double_type ())
+    {
+      offset = args[1].to_doubles ();
+      if (offset.size () < 2 || offset.size () > 3)
+      {
+        error = true;
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::Formation_Coverage_Factory:" \
+          " invalid offset size (expected 2 or 3, got %u)\n", offset.size ());
+      }
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Coverage_Factory:" \
+        " invalid offset argument type (expected doubles)\n");
+    }
+
+    if (args[2].is_integer_type ())
+    {
+      members = args[2].to_integers ();
+      if (members.size () == 0)
+      {
+        error = true;
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::Formation_Coverage_Factory:" \
+          " invalid members argument size (did not receive any)\n");
+      }
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Coverage_Factory:" \
+        " invalid members argument type (expected integers)\n");
+    }
+
+    if (args[3].is_string_type ())
+      modifier = args[3].to_string ();
+
+
+    if (args[4].is_string_type ())
+    {
+      coverage = args[4].to_string ();
+    }
+    else
+    {
+      error = true;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::Formation_Coverage_Factory:" \
+        " invalid coverage argument type (expected string)\n");
+    }
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
      gams::loggers::LOG_DETAILED,
      "gams::algorithms::Formation_Coverage_Factory:" \
-     " coverage arg is %s\n", args[4].to_string ().c_str ());
+     " coverage arg is %s\n", coverage.c_str ());
 
     Madara::Knowledge_Vector cover_args;
     for(size_t i = 5; i < args.size(); ++i)
@@ -102,12 +184,8 @@ gams::algorithms::Formation_Coverage_Factory::create (
     }
 
     result = new Formation_Coverage (
-      args[0] /* head */,
-      args[1] /* offset */,
-      args[2] /* members */,
-      args[3] /* modifier */,
-      args[4] /* coverage */,
-      cover_args,
+      target, offset, members, modifier,
+      coverage, cover_args,
       knowledge, platform, sensors, self);
   }
   else
@@ -122,11 +200,11 @@ gams::algorithms::Formation_Coverage_Factory::create (
 }
 
 gams::algorithms::Formation_Coverage::Formation_Coverage (
-  const Madara::Knowledge_Record & head_id,
-  const Madara::Knowledge_Record & offset,
-  const Madara::Knowledge_Record & members,
-  const Madara::Knowledge_Record & modifier,
-  const Madara::Knowledge_Record & coverage,
+  const Madara::Knowledge_Record::Integer & head_id,
+  const std::vector<double> & offset,
+  const std::vector<Madara::Knowledge_Record::Integer> & members,
+  const std::string & modifier,
+  const std::string & coverage,
   const Madara::Knowledge_Vector & cover_args,
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
@@ -144,8 +222,8 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
     "gams::algorithms::Formation_Coverage::constructor:" \
     " creating formation algorithm\n");
 
-  Madara::Knowledge_Record rec("0,0,0");
-  my_formation_ = new Formation_Flying (head_id, offset, rec, members, 
+  std::vector<double> dest (3, 0.0);
+  my_formation_ = new Formation_Flying (head_id, offset, dest, members, 
     modifier, knowledge, platform, sensors, self);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -161,7 +239,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
       " entering leader agent specific code\n");
 
     Controller_Algorithm_Factory factory (knowledge, sensors, platform, self);
-    Base_Algorithm * base_algo = factory.create (coverage.to_string (), cover_args);
+    Base_Algorithm * base_algo = factory.create (coverage, cover_args);
     head_algo_ = dynamic_cast<area_coverage::Base_Area_Coverage*>(base_algo);
 
     if (head_algo_ == 0)
@@ -170,7 +248,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
         gams::loggers::LOG_ERROR,
         "gams::algorithms::Formation_Coverage::constructor:" \
         " unable to create area_coverage algorithm \"%s\"\n",
-        coverage.to_string ().c_str ());
+        coverage.c_str ());
     }
     else
     {
@@ -178,7 +256,7 @@ gams::algorithms::Formation_Coverage::Formation_Coverage (
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Formation_Coverage::constructor:" \
         " created area_coverage algorithm \"%s\"\n",
-        coverage.to_string ().c_str ());
+        coverage.c_str ());
 
       // TODO: works for now, but change this to use self_.devices.dest
       stringstream head_destination_str;
