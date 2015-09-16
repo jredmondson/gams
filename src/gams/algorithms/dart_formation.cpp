@@ -837,6 +837,7 @@ int SyncAlgo::execute (void)
         phase = 0;
     }
   }
+  knowledge_->evaluate ("WAYPOINT()");
   return 0;
 }
 
@@ -869,7 +870,7 @@ void init_vrep(const std::vector<std::string> &params, engine::Knowledge_Base &k
   knowledge.set("vrep_ready", "1");
 }
 
-void dart_formation_init ()
+void dart_formation_init (variables::Self *self)
 {
   static bool did_init = false;
   if(!did_init)
@@ -902,6 +903,8 @@ void dart_formation_init ()
     // @MadaraWCExecTimeNominal 10000
     // @MadaraWCExecTimeOverload 20000
     // Binding common variables
+
+    settings.id = self->id.to_integer();
 
     // Binding program-specific global variables
     init[settings.id] = var_init_init;
@@ -972,7 +975,7 @@ void dart_formation_init ()
   variables::Self * self,
   variables::Devices * devices)
 {
-  dart_formation_init();
+  dart_formation_init(self);
   return new Algo(10000, args[0].to_string(), &knowledge);
 }
 
@@ -985,7 +988,21 @@ void dart_formation_init ()
   variables::Devices * devices)
 {
   platform = platform_;
-  dart_formation_init();
+  dart_formation_init(self);
+  TopY = args[1].to_double();
+  RightX = args[2].to_double();
+  BottomY = args[3].to_double();
+  LeftX = args[4].to_double();
+  X = args[5].to_integer();
+  Y = args[6].to_integer();
+  x = args[7].to_integer();
+  y = args[8].to_integer();
+  if(args.size() > 9)
+  {
+    xt = args[9].to_integer();
+    yt = args[10].to_integer();
+  }
+  knowledge.set(".vrep_sw_position", args[7].to_string());
   return new SyncAlgo(10000, args[0].to_string(), &knowledge);
 }
 
