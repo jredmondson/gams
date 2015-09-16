@@ -837,6 +837,7 @@ int SyncAlgo::execute (void)
         phase = 0;
     }
   }
+  knowledge_->evaluate ("WAYPOINT()");
   return 0;
 }
 
@@ -869,7 +870,7 @@ void init_vrep(const std::vector<std::string> &params, engine::Knowledge_Base &k
   knowledge.set("vrep_ready", "1");
 }
 
-void dart_formation_init ()
+void dart_formation_init (variables::Self *self)
 {
   static bool did_init = false;
   if(!did_init)
@@ -902,6 +903,8 @@ void dart_formation_init ()
     // @MadaraWCExecTimeNominal 10000
     // @MadaraWCExecTimeOverload 20000
     // Binding common variables
+
+    settings.id = self->id.to_integer();
 
     // Binding program-specific global variables
     init[settings.id] = var_init_init;
@@ -972,7 +975,7 @@ void dart_formation_init ()
   variables::Self * self,
   variables::Devices * devices)
 {
-  dart_formation_init();
+  dart_formation_init(self);
   return new Algo(10000, args[0].to_string(), &knowledge);
 }
 
@@ -985,7 +988,7 @@ void dart_formation_init ()
   variables::Devices * devices)
 {
   platform = platform_;
-  dart_formation_init();
+  dart_formation_init(self);
   TopY = args[1].to_double();
   RightX = args[2].to_double();
   BottomY = args[3].to_double();
