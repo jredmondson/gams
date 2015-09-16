@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include "madara/utility/Utility.h"
 
+#include "dart_formation.h"
+
 // begin dmpl namespace
 namespace dmpl
 {
@@ -838,8 +840,6 @@ int SyncAlgo::execute (void)
   return 0;
 }
 
-} // end dmpl namespace
-
 using namespace dmpl;
 template<class T> std::string to_string(const T &in)
 {
@@ -869,125 +869,124 @@ void init_vrep(const std::vector<std::string> &params, engine::Knowledge_Base &k
   knowledge.set("vrep_ready", "1");
 }
 
-class GAMS_Export Algo_Factory : public ::gams::algorithms::Algorithm_Factory
-{
-public:
-
-  virtual ::gams::algorithms::Base_Algorithm * create (
-    const Madara::Knowledge_Vector & args,
-    Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-    platforms::Base_Platform * platform,
-    variables::Sensors * sensors,
-    variables::Self * self,
-    variables::Devices * devices)
-  {
-    return new Algo(10000, args[0].to_string(), knowledge);
-  }
-};
-
-class GAMS_Export SyncAlgo_Factory : public ::gams::algorithms::Algorithm_Factory
-{
-public:
-
-  virtual ::gams::algorithms::Base_Algorithm * create (
-    const Madara::Knowledge_Vector & args,
-    Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-    platforms::Base_Platform * platform_,
-    variables::Sensors * sensors,
-    variables::Self * self,
-    variables::Devices * devices)
-  {
-    platform = platform_;
-    return new SyncAlgo(10000, args[0].to_string(), knowledge);
-  }
-};
-
 void dart_formation_init ()
 {
-  settings.type = Madara::Transport::MULTICAST;
-  platform_init_fns["vrep"] = init_vrep;
-  platform_init_fns["vrep-uav"] = init_vrep;
-  platform_init_fns["vrep-heli"] = init_vrep;
-  platform_init_fns["vrep-ant"] = init_vrep;
-  platform_init_fns["vrep-uav-ranger"] = init_vrep;
-
-  if (settings.hosts.size () == 0)
+  static bool did_init = false;
+  if(!did_init)
   {
-    // setup default transport as multicast
-    settings.hosts.push_back (default_multicast);
-    settings.add_receive_filter (Madara::Filters::log_aggregate);
-    settings.add_send_filter (Madara::Filters::log_aggregate);
+    settings.type = Madara::Transport::MULTICAST;
+    platform_init_fns["vrep"] = init_vrep;
+    platform_init_fns["vrep-uav"] = init_vrep;
+    platform_init_fns["vrep-heli"] = init_vrep;
+    platform_init_fns["vrep-ant"] = init_vrep;
+    platform_init_fns["vrep-uav-ranger"] = init_vrep;
+
+    if (settings.hosts.size () == 0)
+    {
+      // setup default transport as multicast
+      settings.hosts.push_back (default_multicast);
+      settings.add_receive_filter (Madara::Filters::log_aggregate);
+      settings.add_send_filter (Madara::Filters::log_aggregate);
+    }
+
+    settings.queue_length = 1000000;
+
+    settings.set_deadline(1);
+
+    // configure the knowledge base with the transport settings
+    knowledge.attach_transport(host, settings);
+
+    // NODE: uav
+    // @MadaraCriticality 1
+    // @MadaraPeriod 100001
+    // @MadaraWCExecTimeNominal 10000
+    // @MadaraWCExecTimeOverload 20000
+    // Binding common variables
+
+    // Binding program-specific global variables
+    init[settings.id] = var_init_init;
+
+
+    lx[settings.id] = var_init_lx;
+
+    ly[settings.id] = var_init_ly;
+
+    step[settings.id] = var_init_step;
+
+
+    // Binding program-specific local variables
+    state = var_init_state;
+
+    waypointValid = var_init_waypointValid;
+
+    x = var_init_x;
+
+    xp = var_init_xp;
+
+    xt = var_init_xt;
+
+    y = var_init_y;
+
+    yp = var_init_yp;
+
+    yt = var_init_yt;
+
+
+    // Defining common functions
+
+    knowledge.define_function ("REMODIFY_BARRIERS", REMODIFY_BARRIERS);
+
+    knowledge.define_function ("REMODIFY_GLOBALS", REMODIFY_GLOBALS);
+
+    // Defining global functions for MADARA
+
+
+    // Defining node functions for MADARA
+
+    knowledge.define_function ("COLLISION_AVOIDANCE", uav_COLLISION_AVOIDANCE);
+    knowledge.define_function ("NEXT_XY", uav_NEXT_XY);
+    knowledge.define_function ("StartingPosition", uav_StartingPosition);
+    knowledge.define_function ("WAYPOINT", uav_WAYPOINT);
+
+    // Initialize commonly used local variables
+    id = settings.id;
+    num_processes = processes;
+    if(id < 0 || id >= processes) {
+      std::cerr << "Invalid node id: " << settings.id << "  valid range: [0, " << processes - 1 << "]" << std::endl;
+      exit(1);
+    }
+    PlatformInitFns::iterator init_fn = platform_init_fns.find(platform_name);
+    if(init_fn != platform_init_fns.end())
+      init_fn->second(platform_params, knowledge);
+    knowledge.evaluate("StartingPosition()");
+    knowledge.set("begin_sim", "1");
+    did_init = true;
   }
-
-  settings.queue_length = 1000000;
-
-  settings.set_deadline(1);
-
-  // configure the knowledge base with the transport settings
-  knowledge.attach_transport(host, settings);
-
-  // NODE: uav
-  // @MadaraCriticality 1
-  // @MadaraPeriod 100000
-  // @MadaraWCExecTimeNominal 10000
-  // @MadaraWCExecTimeOverload 20000
-  // Binding common variables
-
-  // Binding program-specific global variables
-  init[settings.id] = var_init_init;
-
-
-  lx[settings.id] = var_init_lx;
-
-  ly[settings.id] = var_init_ly;
-
-  step[settings.id] = var_init_step;
-
-
-  // Binding program-specific local variables
-  state = var_init_state;
-
-  waypointValid = var_init_waypointValid;
-
-  x = var_init_x;
-
-  xp = var_init_xp;
-
-  xt = var_init_xt;
-
-  y = var_init_y;
-
-  yp = var_init_yp;
-
-  yt = var_init_yt;
-
-
-  // Defining common functions
-
-  knowledge.define_function ("REMODIFY_BARRIERS", REMODIFY_BARRIERS);
-
-  knowledge.define_function ("REMODIFY_GLOBALS", REMODIFY_GLOBALS);
-
-  // Defining global functions for MADARA
-
-
-  // Defining node functions for MADARA
-
-  knowledge.define_function ("COLLISION_AVOIDANCE", uav_COLLISION_AVOIDANCE);
-  knowledge.define_function ("NEXT_XY", uav_NEXT_XY);
-  knowledge.define_function ("StartingPosition", uav_StartingPosition);
-  knowledge.define_function ("WAYPOINT", uav_WAYPOINT);
-
-  // Initialize commonly used local variables
-  id = settings.id;
-  num_processes = processes;
-  if(id < 0 || id >= processes) {
-    std::cerr << "Invalid node id: " << settings.id << "  valid range: [0, " << processes - 1 << "]" << std::endl;
-    exit(1);
-  }
-  PlatformInitFns::iterator init_fn = platform_init_fns.find(platform_name);
-  if(init_fn != platform_init_fns.end())
-    init_fn->second(platform_params, knowledge);
-  knowledge.evaluate("StartingPosition()");
-  knowledge.set("begin_sim", "1");
 }
+
+::gams::algorithms::Base_Algorithm * Algo_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge_,
+  platforms::Base_Platform * platform,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  dart_formation_init();
+  return new Algo(10000, args[0].to_string(), &knowledge);
+}
+
+::gams::algorithms::Base_Algorithm * SyncAlgo_Factory::create (
+  const Madara::Knowledge_Vector & args,
+  Madara::Knowledge_Engine::Knowledge_Base * knowledge_,
+  platforms::Base_Platform * platform_,
+  variables::Sensors * sensors,
+  variables::Self * self,
+  variables::Devices * devices)
+{
+  platform = platform_;
+  dart_formation_init();
+  return new SyncAlgo(10000, args[0].to_string(), &knowledge);
+}
+
+} // end dmpl namespace
