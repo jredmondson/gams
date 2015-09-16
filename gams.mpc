@@ -78,6 +78,8 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
     }
 
     src/gams
+
+    src/dmpl
   }
 
   Source_Files {

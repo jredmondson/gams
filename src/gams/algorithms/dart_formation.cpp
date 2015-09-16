@@ -17,6 +17,7 @@
 #define _GAMS_VREP_ 1
 #include "gams/controllers/Base_Controller.h"
 #include "gams/algorithms/Base_Algorithm.h"
+#include "gams/algorithms/Algorithm_Factory.h"
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/platforms/vrep/VREP_Base.h"
@@ -92,17 +93,17 @@ engine::Knowledge_Update_Settings private_update (true);
 unsigned int processes (5);
 
 // Defining program-specific constants
-double BottomY = -2.25
+double BottomY = -2.25;
 #define INITS 0
-double LeftX = -2.25
+double LeftX = -2.25;
 #define MOVE 4
 #define NEXT 1
 #define REQUEST 2
-double RightX = 2.25
-double TopY = 2.25
+double RightX = 2.25;
+double TopY = 2.25;
 #define WAITING 3
-unsigned int X = 10
-unsigned int Y = 10
+unsigned int X = 10;
+unsigned int Y = 10;
 
 // Defining program-specific global variables
 ArrayReference<_Bool, 5> init(knowledge, "init");
@@ -235,267 +236,6 @@ void tokenize(const std::string& str, ContainerT& tokens,
 
       lastPos = pos + 1;
    }
-}
-
-// handle arguments from the command line
-void handle_arguments (int argc, char ** argv)
-{
-  for (int i = 1; i < argc; ++i)
-  {
-    std::string arg1 (argv[i]);
-
-    if (arg1 == "-m" || arg1 == "--multicast")
-    {
-      if (i + 1 < argc)
-      {
-        settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::MULTICAST;
-      }
-      ++i;
-    }
-    else if (arg1 == "-p" || arg1 == "--platform")
-    {
-      if (i + 1 < argc)
-      {
-        tokenize(std::string(argv[i + 1]), platform_params, ":");
-        platform_name = (platform_params[0]);
-      }
-      ++i;
-    }
-    else if (arg1 == "-b" || arg1 == "--broadcast")
-    {
-      if (i + 1 < argc)
-      {
-        settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::BROADCAST;
-      }
-      ++i;
-    }
-    else if (arg1 == "-u" || arg1 == "--udp")
-    {
-      if (i + 1 < argc)
-      {
-        settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::UDP;
-      }
-      ++i;
-    }
-    else if (arg1 == "-o" || arg1 == "--host")
-    {
-      if (i + 1 < argc)
-        host = argv[i + 1];
-        
-      ++i;
-    }
-    else if (arg1 == "-mb" || arg1 == "--max-barrier-time")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> max_barrier_time;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "-d" || arg1 == "--domain")
-    {
-      if (i + 1 < argc)
-        settings.domains = argv[i + 1];
-        
-      ++i;
-    }
-    else if (arg1 == "-i" || arg1 == "--id")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> settings.id;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "-l" || arg1 == "--level")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--drop-rate")
-    {
-      if (i + 1 < argc)
-      {
-        double drop_rate;
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> drop_rate;
-        std::cerr << "drop_rate: " << drop_rate << std::endl;
-        settings.update_drop_rate (drop_rate,
-          Madara::Transport::PACKET_DROP_PROBABLISTIC);
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "-e" || arg1 == "--expect-log")
-    {
-      if (i + 1 < argc)
-      {
-        expect_file.open(argv[i + 1], ios::out | ios::trunc);
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "-f" || arg1 == "--logfile")
-    {
-      if (i + 1 < argc)
-      {
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "-r" || arg1 == "--reduced")
-    {
-      settings.send_reduced_message_header = true;
-    }
-    else if (arg1 == "--write-fd")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> write_fd;
-      }
-      
-      ++i;
-    }
-
-    // Providing init for global variables
-    else if (arg1 == "--var_init")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_init;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_lx")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_lx;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_ly")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_ly;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_step")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_step;
-      }
-      
-      ++i;
-    }
-
-    // Providing init for local variables
-    else if (arg1 == "--var_state")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_state;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_waypointValid")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_waypointValid;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_x")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_x;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_xp")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_xp;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_xt")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_xt;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_y")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_y;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_yp")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_yp;
-      }
-      
-      ++i;
-    }
-    else if (arg1 == "--var_yt")
-    {
-      if (i + 1 < argc)
-      {
-        std::stringstream buffer (argv[i + 1]);
-        buffer >> var_init_yt;
-      }
-      
-      ++i;
-    }
-    else
-    {
-    }
-  }
 }
 
 // Forward declaring global functions
@@ -1129,11 +869,11 @@ void init_vrep(const std::vector<std::string> &params, engine::Knowledge_Base &k
   knowledge.set("vrep_ready", "1");
 }
 
-class GAMS_Export Algo_Factory : public Algorithm_Factory
+class GAMS_Export Algo_Factory : public ::gams::algorithms::Algorithm_Factory
 {
 public:
 
-  virtual Base_Algorithm * create (
+  virtual ::gams::algorithms::Base_Algorithm * create (
     const Madara::Knowledge_Vector & args,
     Madara::Knowledge_Engine::Knowledge_Base * knowledge,
     platforms::Base_Platform * platform,
@@ -1141,15 +881,15 @@ public:
     variables::Self * self,
     variables::Devices * devices)
   {
-    return new Algo(10000, args[0].as_string(), knowledge);
+    return new Algo(10000, args[0].to_string(), knowledge);
   }
 };
 
-class GAMS_Export SyncAlgo_Factory : public Algorithm_Factory
+class GAMS_Export SyncAlgo_Factory : public ::gams::algorithms::Algorithm_Factory
 {
 public:
 
-  virtual Base_Algorithm * create (
+  virtual ::gams::algorithms::Base_Algorithm * create (
     const Madara::Knowledge_Vector & args,
     Madara::Knowledge_Engine::Knowledge_Base * knowledge,
     platforms::Base_Platform * platform_,
@@ -1158,11 +898,11 @@ public:
     variables::Devices * devices)
   {
     platform = platform_;
-    return new SyncAlgo(10000, args[0].as_string(), knowledge);
+    return new SyncAlgo(10000, args[0].to_string(), knowledge);
   }
 };
 
-void init ()
+void dart_formation_init ()
 {
   settings.type = Madara::Transport::MULTICAST;
   platform_init_fns["vrep"] = init_vrep;
@@ -1170,9 +910,6 @@ void init ()
   platform_init_fns["vrep-heli"] = init_vrep;
   platform_init_fns["vrep-ant"] = init_vrep;
   platform_init_fns["vrep-uav-ranger"] = init_vrep;
-
-  // handle any command line arguments
-  handle_arguments (argc, argv);
 
   if (settings.hosts.size () == 0)
   {
