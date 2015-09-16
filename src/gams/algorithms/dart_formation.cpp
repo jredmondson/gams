@@ -992,6 +992,13 @@ void dart_formation_init ()
   LeftX = args[4].to_double();
   X = args[5].to_integer();
   Y = args[6].to_integer();
+  x = args[7].to_integer();
+  y = args[8].to_integer();
+  if(args.size() > 9)
+  {
+    xt = args[9].to_integer();
+    yt = args[10].to_integer();
+  }
   knowledge.set(".vrep_sw_position", args[7].to_string());
   return new SyncAlgo(10000, args[0].to_string(), &knowledge);
 }
