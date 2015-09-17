@@ -88,6 +88,14 @@ GAMS_Export void JNICALL Java_com_gams_logger_GlobalLogger_jni_1addFile
 GAMS_Export void JNICALL Java_com_gams_logger_GlobalLogger_jni_1log
   (JNIEnv *, jclass, jint, jstring);
 
+/*
+* Class:     com_gams_logger_GlobalLogger
+* Method:    jni_setTimestampFormat
+* Signature: (Ljava/lang/String;)V
+*/
+GAMS_Export void JNICALL Java_com_gams_logger_GlobalLogger_jni_1setTimestampFormat
+(JNIEnv *, jclass, jstring);
+
 #ifdef __cplusplus
 }
 #endif

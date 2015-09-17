@@ -65,6 +65,7 @@ public class GlobalLogger extends GamsJNI
   private static native void jni_clear();
   private static native void jni_addFile(java.lang.String filename);
   private static native void jni_log(int level, java.lang.String message);
+  private static native void jni_setTimestampFormat(java.lang.String format);
 
   /**
    * Default constructor
@@ -164,6 +165,15 @@ public class GlobalLogger extends GamsJNI
   public static void log(int level, java.lang.String message)
   {
     jni_log(level, message);
+  }
+  
+  /**
+   * Sets the timestamp format for future messages
+   * @param  format the format to print timestamps for logging
+   */
+  public static void setTimestampFormat(java.lang.String format)
+  {
+    jni_setTimestampFormat(format);
   }
 }
 

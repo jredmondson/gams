@@ -81,3 +81,13 @@ void JNICALL Java_com_gams_logger_GlobalLogger_jni_1log
 
   env->ReleaseStringUTFChars (message, str_message);
 }
+
+void JNICALL Java_com_gams_logger_GlobalLogger_jni_1setTimestampFormat
+(JNIEnv * env, jclass, jstring format)
+{
+  const char * str_format = env->GetStringUTFChars (format, 0);
+
+  logger::global_logger->set_timestamp_format (str_format);
+
+  env->ReleaseStringUTFChars (format, str_format);
+}

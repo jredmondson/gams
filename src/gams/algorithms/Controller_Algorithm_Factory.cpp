@@ -62,8 +62,6 @@
 #include "gams/algorithms/Wait.h"
 #include "gams/algorithms/Performance_Profiling.h"
 
-#include "gams/algorithms/dart_formation.h"
-
 #include "gams/algorithms/area_coverage/Uniform_Random_Area_Coverage.h"
 #include "gams/algorithms/area_coverage/Uniform_Random_Edge_Coverage.h"
 #include "gams/algorithms/area_coverage/Priority_Weighted_Random_Area_Coverage.h"
@@ -143,17 +141,6 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
 
   add (aliases, new Formation_Coverage_Factory ());
 
-  // the DART formation coverage algorithms
-  aliases.resize (1);
-  aliases[0] = "dart_algo";
-
-  add (aliases, new dmpl::Algo_Factory ());
-
-  aliases.resize (1);
-  aliases[0] = "dart_syncalgo";
-
-  add (aliases, new dmpl::SyncAlgo_Factory ());
-  
   // the formation algorithm
   aliases.resize (1);
   aliases[0] = "formation";
