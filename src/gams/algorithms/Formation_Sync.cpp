@@ -520,7 +520,13 @@ gams::algorithms::Formation_Sync::analyze (void)
         " %d: Round %d of %d: Proceeding to next barrier round\n",
         position_, round, (int)plan_.size ());
 
-      barrier_.next ();
+      utility::GPS_Position current;
+      current.from_container (self_->device.location);
+
+      if (plan_[round].approximately_equal (current, platform_->get_accuracy ()))
+      {
+        barrier_.next ();
+      }
     }
     else
     {
