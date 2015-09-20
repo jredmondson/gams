@@ -7,6 +7,7 @@
 swarm.command="formation sync";
 swarm.command.size=4;
 swarm.command.0="start";
-swarm.command.1="[40.437024,-79.948909]";
+swarm.command.1="[40.443387,-79.940098]";
 swarm.command.2="end";
-swarm.command.3="40.436834,-79.947911]";
+swarm.command.3="[40.443077,-79.940570]";
+
