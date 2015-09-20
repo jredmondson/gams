@@ -403,8 +403,15 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     movement.x = position_ * buffer_ * 2;
     movement.y = 0;
 
+    // the initial position for this specific device
     utility::GPS_Position init = start_.to_gps_position (
       movement, start_);
+
+    // the ending position for this specific device
+    utility::GPS_Position position_end;
+    position_end.x = init.x + distances.x;
+    position_end.y = init.y + distances.y;
+
     utility::GPS_Position last (init);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -429,7 +436,7 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     }
 
     // push last latitudinal position onto plan
-    last.x = end_.x;
+    last.x = position_end.x;
     plan_.push_back (last);
 
     // adjust longitudinally
@@ -445,7 +452,7 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     }
 
     // push last latitudinal position onto plan
-    last.y = end_.y;
+    last.y = position_end.y;
     plan_.push_back (last);
   }
 }
