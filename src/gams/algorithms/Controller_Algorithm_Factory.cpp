@@ -55,6 +55,7 @@
 #include "gams/algorithms/Null_Algorithm.h"
 #include "gams/algorithms/Formation_Flying.h"
 #include "gams/algorithms/Formation_Coverage.h"
+#include "gams/algorithms/Formation_Sync.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/Message_Profiling.h"
@@ -249,6 +250,12 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
   aliases[0] = "performance profiling";
 
   add (aliases, new Performance_Profiling_Factory ());
+
+  // the performance profiler
+  aliases.resize (1);
+  aliases[0] = "formation sync";
+
+  add (aliases, new Formation_Sync_Factory ());
 }
 
 algorithms::Base_Algorithm *

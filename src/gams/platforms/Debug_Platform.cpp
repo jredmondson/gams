@@ -400,6 +400,9 @@ gams::platforms::Debug_Platform::move (const utility::Position & position,
     *self_->id, *executions_, *status_.movement_available,
     *self_->id, *executions_, *status_.gps_spoofed);
   
+  position_ = position;
+  position.to_container (self_->device.location);
+
   return 0;
 }
 
