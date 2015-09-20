@@ -1,13 +1,21 @@
 .vrep_port=19909;
 
 .initial_x=18;
-.initial_y=18;
-.initial_alt=4;
+.initial_y=25;
+.initial_alt=6;
 
 device.3.command="formation";
 device.3.command.size=5;
 device.3.command.0=0;
-device.3.command.1="1.25,3.14,0";
-device.3.command.2="40.443387,-79.940270,2";
-device.3.command.3="5,0,1,2,3,4";
+device.3.command.1[0]=2.5;
+device.3.command.1[1]=3.14;
+device.3.command.1[2]=0;
+device.3.command.2[0]=40.443387;
+device.3.command.2[1]=-79.940270;
+device.3.command.2[2]=2;
+device.3.command.3[0]=0;
+device.3.command.3[1]=1;
+device.3.command.3[2]=2;
+device.3.command.3[3]=3;
+device.3.command.3[4]=4;
 device.3.command.4="rotate";

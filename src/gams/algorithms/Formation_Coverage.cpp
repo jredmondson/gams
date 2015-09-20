@@ -108,7 +108,7 @@ gams::algorithms::Formation_Coverage_Factory::create (
         " invalid target argument\n");
     }
 
-    if (args[1].is_double_type ())
+    if (args[1].is_double_type () || args[1].is_integer_type ())
     {
       offset = args[1].to_doubles ();
       if (offset.size () < 2 || offset.size () > 3)
