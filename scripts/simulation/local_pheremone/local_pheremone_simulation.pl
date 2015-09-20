@@ -11,5 +11,7 @@ $num = 10;
 $sim = "local_pheremone";
 $area = "small";
 $border = "search_area.1";
+$num_coverages = 0;
+$launch_controllers = 1;
 
-simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border);
+simulation::run($num, $time, $period, $sim, $area, $madara_debug, $gams_debug, $border, $num_coverages, $launch_controllers);
