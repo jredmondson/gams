@@ -1,8 +1,8 @@
 
 .vrep_port=19906;
 
-.initial_lat=40.437029;
-.initial_lon=-79.940570;
+.initial_lat=40.443227;
+.initial_lon=-79.940250;
 .initial_alt=4;
 
 swarm.command="formation sync";
