@@ -143,7 +143,7 @@ gams::algorithms::Formation_Sync_Factory::create (
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
           "gams::algorithms::Formation_Sync_Factory:" \
-          " setting end to %s\n", start.to_string ().c_str ());
+          " setting end to %s\n", end.to_string ().c_str ());
 
         ++i;
       }
@@ -156,7 +156,7 @@ gams::algorithms::Formation_Sync_Factory::create (
           "gams::algorithms::Formation_Sync_Factory:" \
           " setting group to %s\n", group.c_str ());
 
-        std::string members_list_name = "groups." + group + ".members";
+        std::string members_list_name = "group." + group + ".members";
 
         containers::String_Vector member_list (members_list_name, *knowledge);
 
@@ -236,7 +236,6 @@ gams::algorithms::Formation_Sync_Factory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::Formation_Sync_Factory:" \
             " setting formation to %d\n", formation_type);
-
         }
 
         ++i;
@@ -250,7 +249,6 @@ gams::algorithms::Formation_Sync_Factory::create (
         gams::loggers::LOG_MINOR,
         "gams::algorithms::Formation_Sync::constructor:" \
         " No group specified. Using swarm.\n");
-
 
       Integer processes = (Integer)devices->size ();
 
@@ -296,8 +294,21 @@ gams::algorithms::Formation_Sync::Formation_Sync (
 
   generate_plan (formation);
 
-  barrier_.set_name (barrier_name, *knowledge, position_, (int)members.size ());
-  barrier_.next ();
+  if (position_ >= 0)
+  {
+    barrier_.set_name (barrier_name, *knowledge, position_, (int)members.size ());
+    barrier_.next ();
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Formation_Sync::constructor:" \
+      " device.%d does not have a position in group algorithm." \
+      " Unable to participate in barrier.\n",
+      (int)self_->id.to_integer ());
+
+  }
 }
 
 void
@@ -497,25 +508,37 @@ gams::algorithms::Formation_Sync::analyze (void)
     "gams::algorithms::Formation_Sync::analyze:" \
     " entering analyze method\n");
 
-  int round = barrier_.get_round ();
-
-  if (round < (int)plan_.size () && barrier_.is_done ())
+  if (position_ >= 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::algorithms::Formation_Sync::analyze:" \
-      " %d: Round %d of %d: Proceeding to next barrier round\n",
-      position_, round, (int)plan_.size ());
+    int round = barrier_.get_round ();
 
-    barrier_.next ();
+    if (round < (int)plan_.size () && barrier_.is_done ())
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::Formation_Sync::analyze:" \
+        " %d: Round %d of %d: Proceeding to next barrier round\n",
+        position_, round, (int)plan_.size ());
+
+      barrier_.next ();
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::Formation_Sync::analyze:" \
+        " %d: Round %d of %d: NOT proceeding to next barrier round\n",
+        position_, round, (int)plan_.size ());
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Formation_Sync::analyze:" \
-      " %d: Round %d of %d: NOT proceeding to next barrier round\n",
-      position_, round, (int)plan_.size ());
+      " device.%d does not have a position in group algorithm." \
+      " Nothing to analyze.\n",
+      (int)self_->id.to_integer ());
   }
 
   return OK;
@@ -529,19 +552,30 @@ gams::algorithms::Formation_Sync::execute (void)
     "gams::algorithms::Formation_Sync::execute:" \
     " entering execute method\n");
 
-  int move = (int)barrier_.get_round ();
+  if (position_ >= 0)
+  {
+    int move = (int)barrier_.get_round ();
 
-  if (move < (int)plan_.size ())
+    if (move < (int)plan_.size ())
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::Formation_Sync::execute:" \
+        " %d: Round %d: Moving to %s\n", position_,
+        move, plan_[move].to_string ().c_str ());
+
+      platform_->move (plan_[move], buffer_ / 2);
+    }
+  }
+  else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
+      gams::loggers::LOG_MINOR,
       "gams::algorithms::Formation_Sync::execute:" \
-      " %d: Round %d: Moving to %s\n", position_,
-      move, plan_[move].to_string ().c_str ());
-
-    platform_->move (plan_[move], buffer_ / 2);
+      " device.%d does not have a position in group algorithm." \
+      " Nothing to execute.\n",
+      (int)self_->id.to_integer ());
   }
-
   return 0;
 }
 
