@@ -371,7 +371,7 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
      * will contain the latitude (x) and longitude (y) differences
      * between the points in meters.
      **/
-    utility::Position distances = start_.to_position (end_);
+    utility::Position distances = end_.to_position (start_);
 
     /**
      * the number of moves is sum of the the horizontal and
@@ -400,7 +400,7 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
 
     // the initial position where the first two moves will be for this device
     utility::Position movement;
-    movement.x = position_ * buffer_ * 2;
+    movement.x = position_ * latitude_move * 2;
     movement.y = 0;
 
     // the initial position for this specific device
@@ -409,8 +409,8 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
 
     // the ending position for this specific device
     utility::GPS_Position position_end;
-    position_end.x = init.x + distances.x;
-    position_end.y = init.y + distances.y;
+    position_end.x = end_.x + position_ * latitude_move * 2;
+    position_end.y = end_.y;
 
     utility::GPS_Position last (init);
 
@@ -454,6 +454,21 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     // push last latitudinal position onto plan
     last.y = position_end.y;
     plan_.push_back (last);
+
+    std::stringstream full_plan_description;
+    
+    for (size_t i = 0; i < plan_.size (); ++i)
+    {
+      full_plan_description << "  [" << i << "]: ";
+      full_plan_description << plan_[i].to_string () << "\n";
+    }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Formation_Sync::constructor:" \
+      " Generated the following plan:\n%s",
+      full_plan_description.str ().c_str ());
+
   }
 }
 
@@ -572,7 +587,7 @@ gams::algorithms::Formation_Sync::execute (void)
     if (move < (int)plan_.size ())
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
+        gams::loggers::LOG_MAJOR,
         "gams::algorithms::Formation_Sync::execute:" \
         " %d: Round %d: Moving to %s\n", position_,
         move, plan_[move].to_string ().c_str ());
