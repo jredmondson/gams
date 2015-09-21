@@ -166,7 +166,7 @@ gams::algorithms::Formation_Sync_Factory::create (
       }
       else if (args[i] == "buffer" && i + 1 < args.size ())
       {
-        group = args[i + 1].to_double ();
+        buffer = args[i + 1].to_double ();
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
