@@ -669,6 +669,8 @@ gams::algorithms::Formation_Sync::analyze (void)
   {
     int round = barrier_.get_round ();
 
+    barrier_.modify ();
+
     if (round < (int)plan_.size () && barrier_.is_done ())
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
