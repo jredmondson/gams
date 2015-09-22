@@ -306,6 +306,7 @@ gams::algorithms::Formation_Sync::Formation_Sync (
   if (position_ >= 0)
   {
     barrier_.set_name (barrier_name, *knowledge, position_, (int)members.size ());
+    barrier_.set (0);
     barrier_.next ();
   }
   else
