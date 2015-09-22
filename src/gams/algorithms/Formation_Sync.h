@@ -192,6 +192,9 @@ namespace gams
       /// position in member assignment
       int position_;
 
+      /// the move total before a pivot. Used for debugging
+      int move_pivot_;
+
       /// movement barrier
       Madara::Knowledge_Engine::Containers::Barrier barrier_;
     };

@@ -428,7 +428,7 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     movement.y = 0;
 
     // move latitude until done
-    for (int i = 2; i < x_moves - 1; ++i)
+    for (int i = 0; i < x_moves; ++i)
     {
       last = last.to_gps_position (
         movement, last);
@@ -436,15 +436,18 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     }
 
     // push last latitudinal position onto plan
-    last.x = position_end.x;
-    plan_.push_back (last);
+    //last.x = position_end.x;
+    //plan_.push_back (last);
+
+    // keep track of the pivot point
+    move_pivot_ = x_moves + 2;
 
     // adjust longitudinally
     movement.x = 0;
     movement.y = longitude_move;
 
     // move latitude until done
-    for (int i = 0; i < y_moves - 1; ++i)
+    for (int i = 0; i < y_moves; ++i)
     {
       last = last.to_gps_position (
         movement, last);
@@ -452,8 +455,8 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     }
 
     // push last latitudinal position onto plan
-    last.y = position_end.y;
-    plan_.push_back (last);
+    //last.y = position_end.y;
+    //plan_.push_back (last);
 
     std::stringstream full_plan_description;
     
@@ -586,13 +589,24 @@ gams::algorithms::Formation_Sync::execute (void)
 
     if (move < (int)plan_.size ())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
-        "gams::algorithms::Formation_Sync::execute:" \
-        " %d: Round %d: Moving to %s\n", position_,
-        move, plan_[move].to_string ().c_str ());
+      if (move < move_pivot_)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::Formation_Sync::execute:" \
+          " %d: Round %d: Moving along latitude to %s\n", position_,
+          move, plan_[move].to_string ().c_str ());
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::Formation_Sync::execute:" \
+          " %d: Round %d: Moving along longitude to %s\n", position_,
+          move, plan_[move].to_string ().c_str ());
+      }
 
-      platform_->move (plan_[move], buffer_ / 2);
+      platform_->move (plan_[move], platform_->get_accuracy ());
     }
   }
   else
