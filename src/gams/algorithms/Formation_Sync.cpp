@@ -470,9 +470,30 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       "gams::algorithms::Formation_Sync::constructor:" \
       " Formation type is RECTANGLE\n");
 
+    /**
+    * the offset in the line has an open space between each process
+    * [0] [ ] [1] [ ] 
+    * [ ] [2] [ ] [3] 
+    * [4] [ ] [5] [ ]
+    * initial position will be ref + position * buffer
+    **/
+
+    double num_rows = std::sqrt ((double)members_.size ());
+    int column (0), row (0);
+
+    column = position_ % (int)num_rows;
+    row = position_ / (int)num_rows;
+
     // the initial position where the first two moves will be for this device
-    movement.x = position_ * latitude_move * 2;
-    movement.y = 0;
+    if (row % 2 == 0)
+    {
+      movement.x = column * latitude_move * 2;
+    }
+    else
+    {
+      movement.x = latitude_move + column * latitude_move * 2;
+    }
+    movement.y = row * longitude_move;
 
     // the initial position for this specific device
     init = start_.to_gps_position (
