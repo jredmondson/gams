@@ -3,26 +3,26 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following acknowledgments and disclaimers.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names Carnegie Mellon University, "SEI and/or Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  *    appear in their names without prior written permission of
  *    permission@sei.cmu.edu.
- * 
+ *
  * 5. Redistributions of any form whatsoever must retain the following
  *    acknowledgment:
- * 
+ *
  *      This material is based upon work funded and supported by the Department
  *      of Defense under Contract No. FA8721-05-C-0003 with Carnegie Mellon
  *      University for the operation of the Software Engineering Institute, a
@@ -30,7 +30,7 @@
  *      findings and conclusions or recommendations expressed in this material
  *      are those of the author(s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
- * 
+ *
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  *      INSTITUTE MATERIAL IS FURNISHED ON AN AS-IS BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
@@ -39,7 +39,7 @@
  *      OBTAINED FROM USE OF THE MATERIAL. CARNEGIE MELLON UNIVERSITY DOES
  *      NOT MAKE ANY WARRANTY OF ANY KIND WITH RESPECT TO FREEDOM FROM PATENT,
  *      TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
@@ -85,12 +85,12 @@ const int pyramid_cols[] = {
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Formation_Sync_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
-  variables::Sensors * sensors,
-  variables::Self * self,
-  variables::Devices * devices)
+const Madara::Knowledge_Vector & args,
+Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+platforms::Base_Platform * platform,
+variables::Sensors * sensors,
+variables::Self * self,
+variables::Devices * devices)
 {
   Base_Algorithm * result (0);
 
@@ -116,7 +116,7 @@ gams::algorithms::Formation_Sync_Factory::create (
       if (args[i] == "start" && i + 1 < args.size ())
       {
         std::vector <double> coords (args[i + 1].to_doubles ());
-        
+
         if (coords.size () >= 2)
         {
           start.x = coords[0];
@@ -201,6 +201,15 @@ gams::algorithms::Formation_Sync_Factory::create (
 
           formation_type = Formation_Sync::PYRAMID;
         }
+        else if (formation_str == "TRIANGLE")
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::Formation_Sync_Factory:" \
+            " setting formation to TRIANGLE\n");
+
+          formation_type = Formation_Sync::TRIANGLE;
+        }
         else if (formation_str == "RECTANGLE")
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -278,8 +287,8 @@ gams::algorithms::Formation_Sync::Formation_Sync (
   Madara::Knowledge_Engine::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
-  variables::Self * self) : 
-  Base_Algorithm (knowledge, platform, sensors, self), start_ (start), 
+  variables::Self * self) :
+  Base_Algorithm (knowledge, platform, sensors, self), start_ (start),
   end_ (end), members_ (members), buffer_ (buffer), formation_ (formation)
 {
   status_.init_vars (*knowledge, "formation_sync", self->id.to_integer ());
@@ -330,12 +339,128 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     " %s is position %d in member list\n",
     temp.to_string ().c_str (), position_);
 
-  if (formation == PYRAMID)
+  /**
+   * the offset in the line has an open space between each process
+   * [0] [ ] [1] [ ] [2] [ ] [3] [ ] [4] [ ] [5] ...
+   * initial position will be ref + position * buffer
+   **/
+
+  /**
+   * First step, figure out how many steps we need. Distances
+   * will contain the latitude (x) and longitude (y) differences
+   * between the points in meters.
+   **/
+  utility::Position distances = end_.to_position (start_);
+
+  /**
+   * the number of moves is sum of the the horizontal and
+   * vertical distances divided by the buffer
+   **/
+  int x_moves = (int)(std::abs (distances.x / buffer_)) + 1;
+  int y_moves = (int)(std::abs (distances.y / buffer_)) + 1;
+  int total_moves = x_moves + y_moves;
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Formation_Sync::constructor:" \
+    " Formation will move %.3f m lat, %.3f m long in %d moves\n",
+    distances.x, distances.y, total_moves);
+
+  // the type of movement will be based on sign of distance
+  double latitude_move = distances.x < 0 ? -buffer_ : buffer_;
+  double longitude_move = distances.y < 0 ? -buffer_ : buffer_;
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Formation_Sync::constructor:" \
+    " Will execute %.3f m in %d latitude moves and then" \
+    " %.3f m in %d longitude moves\n",
+    latitude_move, x_moves, longitude_move, y_moves);
+
+  // a cartesian movement offset
+  utility::Position movement;
+
+  // the initial position for this specific device
+  utility::GPS_Position init;
+  utility::GPS_Position position_end;
+
+  if (formation == TRIANGLE)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Formation_Sync::constructor:" \
+      " Formation type is TRIANGLE\n");
+
+    /**
+    * the offset in the line has an open space between each process
+    * [0] [ ] [1] [ ] [2] [ ] n / 2 agents = row
+    * [ ] [3] [ ] [4] row - 1 agents
+    * [5] row - 2 agents
+    * initial position will be ref + position * buffer
+    **/
+
+    // first row
+    if (position_ <= members_.size () / 2)
+    {
+      movement.x = position_ * latitude_move * 2;
+      movement.y = 0;
+    }
+    else
+    {
+      bool position_found = false;
+      int row_length = (int)members_.size () / 4;
+      int last_position = (int)members_.size () / 2;
+      for (int row = 1; !position_found; ++row, last_position += row_length, row_length /= 2)
+      {
+        if (row_length < 1)
+          row_length = 1;
+
+        if (position_ <= last_position + row_length)
+        {
+          int column = position_ - last_position - 1;
+          position_found = true;
+
+          // stagger the rows for a seamless buffer space for neighbor rows
+          if (row % 2 == 0)
+          {
+            movement.x = column * latitude_move * 2;
+          }
+          else
+          {
+            movement.x = latitude_move + column * latitude_move * 2;
+          }
+          movement.y = row * longitude_move;
+        }
+      }
+    }
+
+    // the initial position for this specific device
+    init = start_.to_gps_position (
+      movement, start_);
+
+    // the ending position for this specific device
+    position_end = end_.to_gps_position (
+      movement, end_);
+
+  }
+  else if (formation == PYRAMID)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Formation_Sync::constructor:" \
       " Formation type is PYRAMID\n");
+
+    // the initial position where the first two moves will be for this device
+    movement.x = position_ * latitude_move * 2;
+    movement.y = 0;
+
+    // the initial position for this specific device
+    init = start_.to_gps_position (
+      movement, start_);
+
+    // the ending position for this specific device
+    position_end.x = end_.x + position_ * latitude_move * 2;
+    position_end.y = end_.y;
 
   }
   else if (formation == RECTANGLE)
@@ -344,6 +469,19 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Formation_Sync::constructor:" \
       " Formation type is RECTANGLE\n");
+
+    // the initial position where the first two moves will be for this device
+    movement.x = position_ * latitude_move * 2;
+    movement.y = 0;
+
+    // the initial position for this specific device
+    init = start_.to_gps_position (
+      movement, start_);
+
+    // the ending position for this specific device
+    position_end.x = end_.x + position_ * latitude_move * 2;
+    position_end.y = end_.y;
+
   }
   else if (formation == CIRCLE)
   {
@@ -351,6 +489,19 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Formation_Sync::constructor:" \
       " Formation type is CIRCLE\n");
+
+    // the initial position where the first two moves will be for this device
+    movement.x = position_ * latitude_move * 2;
+    movement.y = 0;
+
+    // the initial position for this specific device
+    init = start_.to_gps_position (
+      movement, start_);
+
+    // the ending position for this specific device
+    position_end.x = end_.x + position_ * latitude_move * 2;
+    position_end.y = end_.y;
+
   }
   // default is LINE
   else
@@ -360,124 +511,84 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       "gams::algorithms::Formation_Sync::constructor:" \
       " Formation type is LINE\n");
 
-    /**
-     * the offset in the line has an open space between each process
-     * [0] [ ] [1] [ ] [2] [ ] [3] [ ] [4] [ ] [5] ...
-     * initial position will be ref + position * buffer
-    **/
-
-    /**
-     * First step, figure out how many steps we need. Distances
-     * will contain the latitude (x) and longitude (y) differences
-     * between the points in meters.
-     **/
-    utility::Position distances = end_.to_position (start_);
-
-    /**
-     * the number of moves is sum of the the horizontal and
-     * vertical distances divided by the buffer
-     **/
-    int x_moves = (int)(std::abs (distances.x / buffer_)) + 1;
-    int y_moves = (int)(std::abs (distances.y / buffer_)) + 1;
-    int total_moves = x_moves + y_moves;
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::Formation_Sync::constructor:" \
-      " Formation will move %.3f m lat, %.3f m long in %d moves\n",
-      distances.x, distances.y, total_moves);
-
-    // the type of movement will be based on sign of distance
-    double latitude_move = distances.x < 0 ? -buffer_ : buffer_;
-    double longitude_move = distances.y < 0 ? -buffer_ : buffer_;
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::Formation_Sync::constructor:" \
-      " Will execute %.3f m in %d latitude moves and then" \
-      " %.3f m in %d longitude moves\n",
-      latitude_move, x_moves, longitude_move, y_moves);
-
     // the initial position where the first two moves will be for this device
-    utility::Position movement;
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
 
     // the initial position for this specific device
-    utility::GPS_Position init = start_.to_gps_position (
+    init = start_.to_gps_position (
       movement, start_);
 
     // the ending position for this specific device
-    utility::GPS_Position position_end;
     position_end.x = end_.x + position_ * latitude_move * 2;
     position_end.y = end_.y;
-
-    utility::GPS_Position last (init);
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::Formation_Sync::constructor:" \
-      " Position[%d] will begin at %s\n",
-     position_, last.to_string ().c_str ());
-
-    // first two barriered moves are the initial position
-    plan_.push_back (last);
-    plan_.push_back (last);
-
-    movement.x = latitude_move;
-    movement.y = 0;
-
-    // move latitude until done
-    for (int i = 0; i < x_moves; ++i)
-    {
-      last = last.to_gps_position (
-        movement, last);
-      plan_.push_back (last);
-    }
-
-    // push last latitudinal position onto plan
-    //last.x = position_end.x;
-    //plan_.push_back (last);
-
-    // keep track of the pivot point
-    move_pivot_ = x_moves + 2;
-
-    // adjust longitudinally
-    movement.x = 0;
-    movement.y = longitude_move;
-
-    // move latitude until done
-    for (int i = 0; i < y_moves; ++i)
-    {
-      last = last.to_gps_position (
-        movement, last);
-      plan_.push_back (last);
-    }
-
-    // push last latitudinal position onto plan
-    //last.y = position_end.y;
-    //plan_.push_back (last);
-
-    std::stringstream full_plan_description;
-    
-    for (size_t i = 0; i < plan_.size (); ++i)
-    {
-      full_plan_description << "  [" << i << "]: ";
-      full_plan_description << plan_[i].to_string () << "\n";
-    }
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::algorithms::Formation_Sync::constructor:" \
-      " Generated the following plan:\n%s",
-      full_plan_description.str ().c_str ());
-
   }
+
+  utility::GPS_Position last (init);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::Formation_Sync::constructor:" \
+    " Position[%d] will begin at %s\n",
+    position_, last.to_string ().c_str ());
+
+  // first two barriered moves are the initial position
+  plan_.push_back (last);
+  plan_.push_back (last);
+
+  movement.x = latitude_move;
+  movement.y = 0;
+
+  // move latitude until done
+  for (int i = 0; i < x_moves; ++i)
+  {
+    last = last.to_gps_position (
+      movement, last);
+    plan_.push_back (last);
+  }
+
+  // push last latitudinal position onto plan
+  //last.x = position_end.x;
+  //plan_.push_back (last);
+
+  // keep track of the pivot point
+  move_pivot_ = x_moves + 2;
+
+  // adjust longitudinally
+  movement.x = 0;
+  movement.y = longitude_move;
+
+  // move latitude until done
+  for (int i = 0; i < y_moves; ++i)
+  {
+    last = last.to_gps_position (
+      movement, last);
+    plan_.push_back (last);
+  }
+
+  // push last latitudinal position onto plan
+  //last.y = position_end.y;
+  //plan_.push_back (last);
+
+  std::stringstream full_plan_description;
+
+  for (size_t i = 0; i < plan_.size (); ++i)
+  {
+    full_plan_description << "  [" << i << "]: ";
+    full_plan_description << plan_[i].to_string () << "\n";
+  }
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::Formation_Sync::constructor:" \
+    " Generated the following plan:\n%s",
+    full_plan_description.str ().c_str ());
+
 }
 
 gams::utility::GPS_Position
 gams::algorithms::Formation_Sync::generate_position (utility::GPS_Position reference,
-  double angle, double distance)
+double angle, double distance)
 {
   // compute the offset position
   utility::Position offset (
@@ -490,8 +601,8 @@ gams::algorithms::Formation_Sync::generate_position (utility::GPS_Position refer
 
 int
 gams::algorithms::Formation_Sync::get_position_in_member_list (
-  std::string id,
-  std::vector <std::string> & member_list)
+std::string id,
+std::vector <std::string> & member_list)
 {
   int result = -1;
 
@@ -574,7 +685,7 @@ gams::algorithms::Formation_Sync::analyze (void)
 
   return OK;
 }
-      
+
 int
 gams::algorithms::Formation_Sync::execute (void)
 {

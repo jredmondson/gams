@@ -85,6 +85,7 @@ namespace gams
       enum Formation_Types
       {
         PYRAMID,
+        TRIANGLE,
         RECTANGLE,
         CIRCLE,
         LINE
