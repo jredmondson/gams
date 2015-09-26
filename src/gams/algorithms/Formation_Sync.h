@@ -88,7 +88,8 @@ namespace gams
         TRIANGLE,
         RECTANGLE,
         CIRCLE,
-        LINE
+        LINE,
+        WING
       };
 
       /**

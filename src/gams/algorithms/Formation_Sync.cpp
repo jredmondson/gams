@@ -237,6 +237,15 @@ variables::Devices * devices)
 
           formation_type = Formation_Sync::LINE;
         }
+        else if (formation_str == "WING")
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::Formation_Sync_Factory:" \
+            " setting formation to WING\n");
+
+          formation_type = Formation_Sync::WING;
+        }
         else if (args[i + 1].is_integer_type ())
         {
           formation_type = (int)args[i + 1].to_integer ();
@@ -460,8 +469,8 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       movement, start_);
 
     // the ending position for this specific device
-    position_end.x = end_.x + position_ * latitude_move * 2;
-    position_end.y = end_.y;
+    position_end = end_.to_gps_position (
+      movement, end_);
 
   }
   else if (formation == RECTANGLE)
@@ -501,8 +510,8 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       movement, start_);
 
     // the ending position for this specific device
-    position_end.x = end_.x + position_ * latitude_move * 2;
-    position_end.y = end_.y;
+    position_end = end_.to_gps_position (
+      movement, end_);
 
   }
   else if (formation == CIRCLE)
@@ -521,9 +530,139 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       movement, start_);
 
     // the ending position for this specific device
-    position_end.x = end_.x + position_ * latitude_move * 2;
-    position_end.y = end_.y;
+    position_end = end_.to_gps_position (
+      movement, end_);
 
+  }
+  else if (formation == WING)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Formation_Sync::constructor:" \
+      " Formation type is WING\n");
+
+    /**
+    [ 0][  ][  ] if size % 2 == 1
+    [  ][ 1][  ]   cols = size / 2 + 1
+    [  ][  ][ 2]   col = position % cols
+    [  ][ 3][  ]   row = position
+    [ 4][  ][  ]
+
+    else // even, 2 and 4 are outliers
+
+    [ 0][  ][  ] if position != size - 1
+    [  ][ 1][  ]   cols = size / 2
+    [ 5][  ][ 2]   row = position
+    [  ][ 3][  ]   col = position % cols
+    [ 4][  ][  ] else
+                   if (size == 4)
+                     row = col = 2
+                   else
+                     row = size / 2
+                     if size != 2
+                       col = 0
+                     else
+                       col = 1
+    **/
+
+
+    int col, row;
+
+    // if size is odd
+    if (members_.size () % 2 == 1)
+    {
+      /**
+       * size = 5, cols = 3
+       * [0][ ][ ] pos = 0, row = 0, col = 0
+       * [ ][1][ ] pos = 1, row = 1, col = 1
+       * [ ][ ][2] pos = 2, row = 2, col = 2
+       * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
+       * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
+       **/
+      int cols = (int)members_.size () / 2 + 1;
+      if (position_ >= cols)
+      {
+        col = cols - position_ % cols - 2;
+      }
+      else
+      {
+        col = position_ % cols;
+      }
+      row = position_;
+    }
+    // if size is even
+    else
+    {
+      // handle everything before last position first
+      if (position_ != members_.size () - 1)
+      {
+        /**
+        * size = 6, cols = 3
+        * [0][ ][ ] pos = 0, row = 0, col = 0
+        * [ ][1][ ] pos = 1, row = 1, col = 1
+        * [ ][ ][2] pos = 2, row = 2, col = 2
+        * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
+        * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
+        **/
+        int cols = (int)members_.size () / 2;
+        row = position_;
+
+        if (position_ >= cols)
+        {
+          col = cols - position_ % cols - 2;
+        }
+        else
+        {
+          col = position_ % cols;
+        }
+      }
+      // handle the last position. 2 and 4 are outliers
+      else
+      {
+        // In size == 4, we create a wedge rather than wing
+        if (members_.size () == 4)
+        {
+          row = col = 2;
+        }
+        else
+        {
+          /**
+          * size = 6, cols = 3
+          * [0][ ][ ] 
+          * [ ][1][ ] 
+          * [5][ ][2] pos = 5, row = 2, col = 2
+          * [ ][3][ ] 
+          * [4][ ][ ] 
+          **/
+
+          // otherwise, we set the row to the middle of the formation
+          row = (int)members_.size () / 2 - 1;
+
+          // most formations will just use a drone at the far back and center
+          if (members_.size () != 2)
+          {
+            col = 0;
+          }
+          // size == 2 will just increment the col 
+          else
+          {
+            col = 1;
+          }
+        }
+      }
+    }
+
+    // the initial position where the first two moves will be for this device
+    movement.x = col * latitude_move * 2;
+    movement.y = row * longitude_move * 2;
+
+    // the initial position for this specific device
+    init = start_.to_gps_position (
+      movement, start_);
+
+    // the ending position for this specific device
+    position_end = end_.to_gps_position (
+      movement, end_);
   }
   // default is LINE
   else
@@ -542,8 +681,8 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
       movement, start_);
 
     // the ending position for this specific device
-    position_end.x = end_.x + position_ * latitude_move * 2;
-    position_end.y = end_.y;
+    position_end = end_.to_gps_position (
+      movement, end_);
   }
 
   utility::GPS_Position last (init);
