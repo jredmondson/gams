@@ -882,7 +882,8 @@ gams::algorithms::Formation_Sync::execute (void)
       }
 
       if (platform_->move (plan_[move], platform_->get_accuracy ()) ==
-        gams::platforms::PLATFORM_ARRIVED)
+        gams::platforms::PLATFORM_ARRIVED &&
+        move < (int)plan_.size () && barrier_.is_done ())
       {
         barrier_.next ();
       }
