@@ -165,6 +165,11 @@ gams::controllers::Base_Controller::system_analyze (void)
   {
     Madara::Knowledge_Vector args;
 
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::system_analyze:" \
+      " Processing device command\n");
+
     // check for args
     self_.device.command_args.resize ();
     self_.device.command_args.copy_to (args);
@@ -183,6 +188,11 @@ gams::controllers::Base_Controller::system_analyze (void)
   {
     Madara::Knowledge_Vector args;
 
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::system_analyze:" \
+      " Processing swarm command\n");
+
     // check for args
     swarm_.command_args.resize ();
     swarm_.command_args.copy_to (args);
@@ -196,6 +206,28 @@ gams::controllers::Base_Controller::system_analyze (void)
     // reset the command
     swarm_.command = "";
     swarm_.command_args.resize (0);
+  }
+
+  if (self_.device.madara_debug_level !=
+    (Integer)Madara::Logger::global_logger->get_level ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::system_analyze:" \
+      " Settings MADARA debug level to %d\n", (int)*self_.device.madara_debug_level);
+
+    Madara::Logger::global_logger->set_level ((int)*self_.device.madara_debug_level);
+  }
+
+  if (self_.device.gams_debug_level !=
+    (Integer)gams::loggers::global_logger->get_level ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::Base_Controller::system_analyze:" \
+      " Settings GAMS debug level to %d\n", (int)*self_.device.gams_debug_level);
+
+    gams::loggers::global_logger->set_level ((int)*self_.device.gams_debug_level);
   }
 
   return return_value;

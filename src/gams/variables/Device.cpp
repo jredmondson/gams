@@ -44,6 +44,7 @@
  *      distribution.
  **/
 #include "Device.h"
+#include "gams/loggers/Global_Logger.h"
 
 #include <string>
 
@@ -80,6 +81,8 @@ gams::variables::Device::operator= (const Device & device)
     this->last_command = device.last_command;
     this->last_command_args = device.last_command_args;
     this->accents = device.accents;
+    this->madara_debug_level = device.madara_debug_level;
+    this->gams_debug_level = device.gams_debug_level;
   }
 }
 
@@ -112,9 +115,14 @@ gams::variables::Device::init_vars (
   command_args.set_name (device_name + ".command", knowledge);
   last_command_args.set_name (device_name + ".last_command", knowledge);
   temperature.set_name (device_name + ".temperature", knowledge);
+  madara_debug_level.set_name (device_name + ".madara_debug_level", knowledge);
+  gams_debug_level.set_name (device_name + ".gams_debug_level", knowledge);
 
   // init settings
   init_variable_settings ();
+
+  madara_debug_level = Madara::Logger::global_logger->get_level ();
+  gams_debug_level = gams::loggers::global_logger->get_level ();
 }
 
 void
@@ -146,9 +154,14 @@ gams::variables::Device::init_vars (
   command_args.set_name (device_name + ".command", knowledge);
   last_command_args.set_name (device_name + ".last_command", knowledge);
   temperature.set_name (device_name + ".temperature", knowledge);
+  madara_debug_level.set_name (device_name + ".madara_debug_level", knowledge);
+  gams_debug_level.set_name (device_name + ".gams_debug_level", knowledge);
 
   // init settings
   init_variable_settings ();
+
+  madara_debug_level = Madara::Logger::global_logger->get_level ();
+  gams_debug_level = gams::loggers::global_logger->get_level ();
 }
 
 void gams::variables::init_vars (Devices & variables,
@@ -188,4 +201,6 @@ gams::variables::Device::init_variable_settings ()
   Madara::Knowledge_Engine::Knowledge_Update_Settings keep_local (true);
   command.set_settings (keep_local);
   command_args.set_settings (keep_local);
+  //madara_debug_level.set_settings (keep_local);
+  //gams_debug_level.set_settings (keep_local);
 }

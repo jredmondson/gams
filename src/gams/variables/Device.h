@@ -162,6 +162,12 @@ namespace gams
       /// container for accents
       Accent_Statuses accents;
 
+      /// the MADARA debug level
+      Madara::Knowledge_Engine::Containers::Integer madara_debug_level;
+
+      /// the GAMS debug level
+      Madara::Knowledge_Engine::Containers::Integer gams_debug_level;
+
     protected:
       /**
        * Create device/local device name

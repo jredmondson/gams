@@ -822,6 +822,7 @@ gams::algorithms::Formation_Sync::analyze (void)
       utility::GPS_Position current;
       current.from_container (self_->device.location);
 
+      // for some reason, we have divergent functions for distance equality
       if (plan_[round].approximately_equal (current, platform_->get_accuracy ()))
       {
         barrier_.next ();
@@ -880,7 +881,11 @@ gams::algorithms::Formation_Sync::execute (void)
           move, plan_[move].to_string ().c_str ());
       }
 
-      platform_->move (plan_[move], platform_->get_accuracy ());
+      if (platform_->move (plan_[move], platform_->get_accuracy ()) ==
+        gams::platforms::PLATFORM_ARRIVED)
+      {
+        barrier_.next ();
+      }
     }
   }
   else
