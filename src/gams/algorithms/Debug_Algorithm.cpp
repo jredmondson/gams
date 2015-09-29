@@ -235,8 +235,8 @@ gams::algorithms::Debug_Algorithm::execute (void)
     "%" PRId64 ":%" PRId64 ":     algorithm.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     algorithm.status_.paused == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     algorithm.status_.waiting == %" PRId64 "\n"
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n",
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     algorithm.status_.unknown == %" PRId64 "\n",
     *self_->id, *k_executions_, *status_.ok,
     *self_->id, *k_executions_, *status_.paused,
@@ -319,11 +319,11 @@ gams::algorithms::Debug_Algorithm::plan (void)
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.ok == %" PRId64 "\n",
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.paused == %" PRId64 "\n",
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.waiting == %" PRId64 "\n",
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n",
-    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n",
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.ok == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.paused == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.waiting == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.deadlocked == %" PRId64 "\n"
+    "%" PRId64 ":%" PRId64 ":     algorithm.status_.failed == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     algorithm.status_.unknown == %" PRId64 "\n",
     *self_->id, *k_executions_, *status_.ok,
     *self_->id, *k_executions_, *status_.paused,

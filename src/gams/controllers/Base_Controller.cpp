@@ -480,6 +480,13 @@ gams::controllers::Base_Controller::run (double loop_period,
   int return_value (0);
   bool first_execute (true);
 
+  // for checking for potential user commands
+  double loop_hz = 1.0 / loop_period;
+  double send_hz = 1.0 / send_period;
+
+  self_.device.loop_hz = loop_hz;
+  self_.device.send_hz = send_hz;
+
   // if user specified non-positive, then we are to use loop_period
   if (send_period <= 0)
   {
@@ -554,12 +561,58 @@ gams::controllers::Base_Controller::run (double loop_period,
       // run will always execute at least one time. Update flag for execution.
       if (first_execute)
         first_execute = false;
+
+      // if send herz difference is more than .001 hz different, change epoch
+      if (!Madara::Utility::approx_equal (
+        send_hz, self_.device.send_hz.to_double (), 0.001))
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::Base_Controller::run:" \
+          " Changing send hertz from %.2f to %.2f\n", send_hz,
+          self_.device.send_hz.to_double ());
+
+        send_hz = self_.device.send_hz.to_double ();
+        send_period = 1 / send_hz;
+        send_poll_frequency.set (send_period);
+        send_next_epoch = current + send_poll_frequency;
+      }
+
+      // if loop herz difference is more than .001 hz different, change epoch
+      if (!Madara::Utility::approx_equal (
+        loop_hz, self_.device.loop_hz.to_double (), 0.001))
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::Base_Controller::run:" \
+          " Changing loop hertz from %.2f to %.2f\n", loop_hz,
+          self_.device.loop_hz.to_double ());
+
+        loop_hz = self_.device.loop_hz.to_double ();
+        loop_period = 1 / loop_hz;
+        poll_frequency.set (loop_period);
+        next_epoch = current + poll_frequency;
+      }
+
+      // if our loop hertz is not fast enough for sending, change it
+      if (send_hz > loop_hz)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::Base_Controller::run:" \
+          " Changing loop hertz from %.2f to %.2f\n", loop_hz,
+          send_hz);
+
+        loop_hz = send_hz;
+        loop_period = 1 / loop_hz;
+        poll_frequency.set (loop_period);
+        next_epoch = current + poll_frequency;
+
+        // update container so others know we are changing rate
+        self_.device.loop_hz = loop_hz;
+      }
     }
   }
-
-  // delete the algorithm
-  delete algorithm_;
-  algorithm_ = 0;
 
   return return_value;
 }

@@ -83,6 +83,8 @@ gams::variables::Device::operator= (const Device & device)
     this->accents = device.accents;
     this->madara_debug_level = device.madara_debug_level;
     this->gams_debug_level = device.gams_debug_level;
+    this->loop_hz = device.loop_hz;
+    this->send_hz = device.send_hz;
   }
 }
 
@@ -117,6 +119,8 @@ gams::variables::Device::init_vars (
   temperature.set_name (device_name + ".temperature", knowledge);
   madara_debug_level.set_name (device_name + ".madara_debug_level", knowledge);
   gams_debug_level.set_name (device_name + ".gams_debug_level", knowledge);
+  loop_hz.set_name (device_name + ".loop_hz", knowledge);
+  send_hz.set_name (device_name + ".send_hz", knowledge);
 
   // init settings
   init_variable_settings ();
@@ -156,6 +160,8 @@ gams::variables::Device::init_vars (
   temperature.set_name (device_name + ".temperature", knowledge);
   madara_debug_level.set_name (device_name + ".madara_debug_level", knowledge);
   gams_debug_level.set_name (device_name + ".gams_debug_level", knowledge);
+  loop_hz.set_name (device_name + ".loop_hz", knowledge);
+  send_hz.set_name (device_name + ".send_hz", knowledge);
 
   // init settings
   init_variable_settings ();

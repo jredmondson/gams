@@ -168,6 +168,12 @@ namespace gams
       /// the GAMS debug level
       Madara::Knowledge_Engine::Containers::Integer gams_debug_level;
 
+      /// the rate to send messages
+      Madara::Knowledge_Engine::Containers::Double send_hz;
+
+      /// the rate to process the algorithm and platform MAPE loop
+      Madara::Knowledge_Engine::Containers::Double loop_hz;
+
     protected:
       /**
        * Create device/local device name
