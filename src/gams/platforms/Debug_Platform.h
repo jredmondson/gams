@@ -55,8 +55,8 @@
 #ifndef   _GAMS_PLATFORM_PRINTER_H_
 #define   _GAMS_PLATFORM_PRINTER_H_
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
-#include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
@@ -86,7 +86,7 @@ namespace gams
        *                    after the .id identifier.
        **/
       Debug_Platform (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self,
@@ -183,7 +183,7 @@ namespace gams
        * base), but this can be changed to an arbitrary location
        * in the constructor
        **/
-      Madara::Knowledge_Engine::Containers::Integer  executions_;
+      madara::knowledge::containers::Integer  executions_;
     };
 
     /**
@@ -206,8 +206,8 @@ namespace gams
        *                    set by the controller in init_vars
        **/
       virtual Base_Platform * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);

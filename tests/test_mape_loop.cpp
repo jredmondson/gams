@@ -51,13 +51,13 @@
  * This file contains a test driver for the GAMS controllers loop.
  **/
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "gams/controllers/Mape_Loop.h"
 
 // create shortcuts to MADARA classes and namespaces
-namespace engine = Madara::Knowledge_Engine;
+namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef Madara::Knowledge_Record   Record;
+typedef madara::Knowledge_Record   Record;
 typedef Record::Integer Integer;
 
 /**

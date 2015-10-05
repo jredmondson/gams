@@ -5,7 +5,7 @@
  * Inserts a single key/value pair into the database continuously
  */
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 #include <string>
 #include <iostream>
@@ -17,7 +17,7 @@ using std::endl;
 double num_sec = 12;
 double poll_period = 0.001;
 
-Madara::Transport::QoS_Transport_Settings settings;
+madara::transport::QoS_Transport_Settings settings;
 
 void handle_arguments (int argc, char ** argv)
 {
@@ -31,7 +31,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::UDP;
+        settings.type = madara::transport::UDP;
         error = false;
       }
 
@@ -42,7 +42,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::BROADCAST;
+        settings.type = madara::transport::BROADCAST;
         error = false;
       }
 
@@ -53,7 +53,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::MULTICAST;
+        settings.type = madara::transport::MULTICAST;
         error = false;
       }
 
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 {
   handle_arguments(argc, argv);
 
-  Madara::Knowledge_Engine::Knowledge_Base knowledge("", settings);
+  madara::knowledge::Knowledge_Base knowledge("", settings);
 
   // get start time
   time_t start_time;
@@ -138,7 +138,7 @@ int main(int argc, char** argv)
     ++updates;
 
     ACE_Time_Value current = ACE_OS::gettimeofday ();
-    Madara::Utility::sleep (next_epoch - current);  
+    madara::utility::sleep (next_epoch - current);  
       
     // setup the next 
     next_epoch += publish_period;

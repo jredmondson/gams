@@ -60,14 +60,14 @@
 #include "madara/utility/Utility.h"
 #include "gams/loggers/Global_Logger.h"
 
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/Vector.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/Vector.h"
 
 using std::string;
 using std::stringstream;
 using std::vector;
 
-typedef  Madara::Knowledge_Record::Integer Integer;
+typedef  madara::Knowledge_Record::Integer Integer;
 
 gams::utility::Region::Region (
   const std::vector <GPS_Position> & init_vertices, unsigned int type, 
@@ -322,7 +322,7 @@ gams::utility::Region::calculate_bounding_box ()
 
 bool
 gams::utility::Region::check_valid_type (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+  madara::knowledge::Knowledge_Base& kb, const std::string& name) const
 {
   const static Class_ID valid = 
     (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
@@ -331,15 +331,15 @@ gams::utility::Region::check_valid_type (
 
 void
 gams::utility::Region::to_container_impl (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::Knowledge_Base& kb, const std::string& name)
 {
   // set object type
-  Madara::Knowledge_Engine::Containers::Integer obj_type (
+  madara::knowledge::containers::Integer obj_type (
     name + object_type_suffix_, kb);
   obj_type = REGION_TYPE_ID;
   
   // set type of region
-  Madara::Knowledge_Engine::Containers::Integer type (name + ".type", kb);
+  madara::knowledge::containers::Integer type (name + ".type", kb);
   type = type_;
 
   switch (type.to_integer ())
@@ -347,11 +347,11 @@ gams::utility::Region::to_container_impl (
     case 0: // arbitrary convex polygon
     {
       // set size
-      Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
+      madara::knowledge::containers::Integer size (name + ".size", kb);
       size = vertices.size();
     
       // set vertices
-      Madara::Knowledge_Engine::Containers::Native_Double_Vector target;
+      madara::knowledge::containers::Native_Double_Vector target;
       for (unsigned int i = 0; i < vertices.size (); ++i)
       {
         std::stringstream vert_name;
@@ -374,7 +374,7 @@ gams::utility::Region::to_container_impl (
 
 bool
 gams::utility::Region::from_container_impl (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::Knowledge_Base& kb, const std::string& name)
 {
   if (!check_valid_type (kb, name))
   {
@@ -391,7 +391,7 @@ gams::utility::Region::from_container_impl (
     " name = %s\n", name.c_str ());
 
   // get type
-  Madara::Knowledge_Record type = kb.get (name + ".type");
+  madara::Knowledge_Record type = kb.get (name + ".type");
   if (!type.exists ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -417,7 +417,7 @@ gams::utility::Region::from_container_impl (
          " type is arbitrary convex polygon\n");
 
       // get size
-      Madara::Knowledge_Record num_verts = kb.get (name + ".size");
+      madara::Knowledge_Record num_verts = kb.get (name + ".size");
       if (!num_verts.exists ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -435,7 +435,7 @@ gams::utility::Region::from_container_impl (
         " size is %u\n", num);
 
       // get each of the vertices
-      Madara::Knowledge_Engine::Containers::Vector vertices_knowledge;
+      madara::knowledge::containers::Vector vertices_knowledge;
       vertices_knowledge.set_name (name, kb);
       vertices_knowledge.resize();
       for (Integer i = 0; i < num; ++i)

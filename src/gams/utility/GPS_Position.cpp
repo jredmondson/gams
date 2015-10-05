@@ -110,7 +110,7 @@ gams::utility::GPS_Position::operator== (const GPS_Position & rhs) const
 
 bool
 gams::utility::GPS_Position::operator== (
-  const Madara::Knowledge_Engine::Containers::Double_Array & rhs) const
+  const madara::knowledge::containers::Double_Array & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -118,7 +118,7 @@ gams::utility::GPS_Position::operator== (
 
 bool
 gams::utility::GPS_Position::operator== (
-  const Madara::Knowledge_Engine::Containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::Native_Double_Array & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -132,14 +132,14 @@ gams::utility::GPS_Position::operator!= (const GPS_Position & rhs) const
 
 bool
 gams::utility::GPS_Position::operator!= (
-  const Madara::Knowledge_Engine::Containers::Double_Array & rhs) const
+  const madara::knowledge::containers::Double_Array & rhs) const
 {
   return !(*this == rhs);
 }
 
 bool
 gams::utility::GPS_Position::operator!= (
-  const Madara::Knowledge_Engine::Containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::Native_Double_Array & rhs) const
 {
   return !(*this == rhs);
 }
@@ -286,7 +286,7 @@ gams::utility::GPS_Position::from_string (const std::string & s)
 
 void
 gams::utility::GPS_Position::to_container (
-  Madara::Knowledge_Engine::Containers::Double_Array & target) const
+  madara::knowledge::containers::Double_Array & target) const
 {
   target.set (0, latitude ());
   target.set (1, longitude ());
@@ -295,7 +295,7 @@ gams::utility::GPS_Position::to_container (
 
 void
 gams::utility::GPS_Position::from_container (
-  Madara::Knowledge_Engine::Containers::Double_Array & source)
+  madara::knowledge::containers::Double_Array & source)
 {
   if (source.size () >= 3)
   {
@@ -307,7 +307,7 @@ gams::utility::GPS_Position::from_container (
 
 void
 gams::utility::GPS_Position::to_container (
-  Madara::Knowledge_Engine::Containers::Native_Double_Array & target) const
+  madara::knowledge::containers::Native_Double_Array & target) const
 {
   target.set (0, latitude ());
   target.set (1, longitude ());
@@ -316,7 +316,7 @@ gams::utility::GPS_Position::to_container (
 
 void
 gams::utility::GPS_Position::from_container (
-  Madara::Knowledge_Engine::Containers::Native_Double_Array & source)
+  madara::knowledge::containers::Native_Double_Array & source)
 {
   if (source.size () >= 3)
   {

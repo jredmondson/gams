@@ -67,7 +67,7 @@ gams::variables::Accent_Status::operator= (const Accent_Status & accent)
 
 void
 gams::variables::Accent_Status::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const std::string & prefix)
 {
   std::string accent_name (prefix);
@@ -83,7 +83,7 @@ gams::variables::Accent_Status::init_vars (
 
 void
 gams::variables::Accent_Status::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
+  madara::knowledge::Variables & knowledge,
   const std::string & prefix)
 {
   std::string accent_name (prefix);
@@ -98,13 +98,13 @@ gams::variables::Accent_Status::init_vars (
 }
 
 void gams::variables::init_vars (Accent_Statuses & variables,
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const std::string & prefix)
 {
   std::string accent_name (prefix);
   accent_name += ".accent";
 
-  Madara::Knowledge_Record::Integer size =
+  madara::Knowledge_Record::Integer size =
     knowledge.get (accent_name + ".size").to_integer ();
   
   // iterate through all accents
@@ -120,13 +120,13 @@ void gams::variables::init_vars (Accent_Statuses & variables,
 }
 
 void gams::variables::init_vars (Accent_Statuses & variables,
-  Madara::Knowledge_Engine::Variables & knowledge,
+  madara::knowledge::Variables & knowledge,
   const std::string & prefix)
 {
   std::string accent_name (prefix);
   accent_name += ".accent";
 
-  Madara::Knowledge_Record::Integer size =
+  madara::Knowledge_Record::Integer size =
     knowledge.get (accent_name + ".size").to_integer ();
   
   // iterate through all accents
@@ -146,7 +146,7 @@ void
 gams::variables::Accent_Status::init_variable_settings ()
 {
   // keep certain varaible changes as local only
-  Madara::Knowledge_Engine::Knowledge_Update_Settings keep_local (true);
+  madara::knowledge::Knowledge_Update_Settings keep_local (true);
   command.set_settings (keep_local);
   command_args.set_settings (keep_local);
 }

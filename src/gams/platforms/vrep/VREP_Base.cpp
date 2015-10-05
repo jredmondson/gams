@@ -51,7 +51,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "madara/knowledge_engine/containers/Double_Vector.h"
+#include "madara/knowledge/containers/Double_Vector.h"
 
 #include "gams/variables/Sensor.h"
 
@@ -62,7 +62,7 @@ using std::cout;
 using std::string;
 
 gams::platforms::VREP_Base::VREP_Base (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Self * self)
   : Base_Platform (knowledge, sensors, self), airborne_ (false),
@@ -76,7 +76,7 @@ gams::platforms::VREP_Base::VREP_Base (
     {
       // get origin
       utility::GPS_Position origin;
-      Madara::Knowledge_Engine::Containers::Native_Double_Array origin_container;
+      madara::knowledge::containers::Native_Double_Array origin_container;
       origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
       origin.from_container (origin_container);
 
@@ -384,9 +384,9 @@ gams::platforms::VREP_Base::wait_for_go () const
   buffer << "(" << init_string.str () << " = 1)";
   buffer << " && begin_sim";
   std::string expression = buffer.str ();
-  Madara::Knowledge_Engine::Wait_Settings wait_settings;
+  madara::knowledge::Wait_Settings wait_settings;
   wait_settings.send_list [init_string.str ()] = true;
-  Madara::Knowledge_Engine::Compiled_Expression compiled;
+  madara::knowledge::Compiled_Expression compiled;
   compiled = knowledge_->compile (expression);
   knowledge_->wait (compiled, wait_settings);
 }

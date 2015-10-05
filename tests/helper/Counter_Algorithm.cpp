@@ -49,7 +49,7 @@
 #include <iostream>
 
 gams::algorithms::Counter_Algorithm::Counter_Algorithm (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge)
+  madara::knowledge::Knowledge_Base & knowledge)
   : Base_Algorithm (&knowledge),
   enable_analyze_counter (false),
   enable_execute_counter (false),

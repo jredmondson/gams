@@ -55,8 +55,8 @@
 #define _GAMS_UTILITY_GPS_POSITION_H_
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Double_Vector.h"
-#include "madara/knowledge_engine/containers/Native_Double_Vector.h"
+#include "madara/knowledge/containers/Double_Vector.h"
+#include "madara/knowledge/containers/Native_Double_Vector.h"
 
 #include "Position.h"
 
@@ -118,7 +118,7 @@ namespace gams
        * @return true if all members are equal in both objects, false otherwise
        **/
       bool operator== (const
-        Madara::Knowledge_Engine::Containers::Double_Array & rhs) const;
+        madara::knowledge::containers::Double_Array & rhs) const;
 
       /**
        * Equality operator
@@ -126,7 +126,7 @@ namespace gams
        * @return true if all members are equal in both objects, false otherwise
        **/
       bool operator== (const
-        Madara::Knowledge_Engine::Containers::Native_Double_Array & rhs) const;
+        madara::knowledge::containers::Native_Double_Array & rhs) const;
       
       /**
        * Inequality operator
@@ -141,7 +141,7 @@ namespace gams
        * @return true if any members are not equal in both objects, false otherwise
        **/
       bool operator!= (const
-        Madara::Knowledge_Engine::Containers::Double_Array & rhs) const;
+        madara::knowledge::containers::Double_Array & rhs) const;
 
       /**
        * Inequality operator
@@ -149,7 +149,7 @@ namespace gams
        * @return true if any members are not equal in both objects, false otherwise
        **/
       bool operator!= (const
-        Madara::Knowledge_Engine::Containers::Native_Double_Array & rhs) const;
+        madara::knowledge::containers::Native_Double_Array & rhs) const;
 
       /**
        * Approximate equality
@@ -209,21 +209,21 @@ namespace gams
        * @param target     target container to copy values to
        **/
       virtual void to_container (
-        Madara::Knowledge_Engine::Containers::Double_Array & target) const;
+        madara::knowledge::containers::Double_Array & target) const;
       
       /**
        * Helper function for copying values to a MADARA double array
        * @param source     source container to copy values from
        **/
       virtual void from_container (
-        Madara::Knowledge_Engine::Containers::Double_Array & source);
+        madara::knowledge::containers::Double_Array & source);
       
       /**
        * Helper function for copying values to a MADARA double array
        * @param target     target container to copy values to
        **/
       virtual void to_container (
-        Madara::Knowledge_Engine::Containers::Native_Double_Array & target)
+        madara::knowledge::containers::Native_Double_Array & target)
         const;
       
       /**
@@ -231,7 +231,7 @@ namespace gams
        * @param source     source container to copy values from
        **/
       virtual void from_container (
-        Madara::Knowledge_Engine::Containers::Native_Double_Array & source);
+        madara::knowledge::containers::Native_Double_Array & source);
 
       /**
        * Returns the latitude of the GPS coordinate

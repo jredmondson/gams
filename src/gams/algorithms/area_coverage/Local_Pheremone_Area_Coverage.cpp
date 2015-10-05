@@ -66,8 +66,8 @@ using std::vector;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Local_Pheremone_Area_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -145,7 +145,7 @@ gams::algorithms::area_coverage::Local_Pheremone_Area_Coverage::
 Local_Pheremone_Area_Coverage (
   const std::string& search_id,
   const ACE_Time_Value& e_time,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time),
@@ -163,7 +163,7 @@ Local_Pheremone_Area_Coverage (
    * See Min_Time_Area_Coverage.cpp for why this needs to be updated later
    */
   utility::GPS_Position origin;
-  Madara::Knowledge_Engine::Containers::Native_Double_Array origin_container;
+  madara::knowledge::containers::Native_Double_Array origin_container;
   origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
   origin.from_container (origin_container);
   pheremone_.set_origin (origin);

@@ -71,9 +71,9 @@ using std::endl;
 using std::string;
 using std::vector;
 
-namespace transport = Madara::Transport;
-namespace engine = Madara::Knowledge_Engine;
-namespace utility = Madara::Utility;
+namespace transport = madara::transport;
+namespace engine = madara::knowledge;
+namespace utility = madara::utility;
 namespace variables = gams::variables;
 
 void

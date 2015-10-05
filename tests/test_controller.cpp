@@ -51,19 +51,19 @@
  * This file contains a test driver for the GAMS controllers loop.
  **/
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "gams/controllers/Base_Controller.h"
 #include "madara/logger/Global_Logger.h"
 
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-Madara::Transport::QoS_Transport_Settings settings;
+madara::transport::QoS_Transport_Settings settings;
 
 // create shortcuts to MADARA classes and namespaces
-namespace engine = Madara::Knowledge_Engine;
+namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef Madara::Knowledge_Record   Record;
+typedef madara::Knowledge_Record   Record;
 typedef Record::Integer Integer;
 
 std::string platform ("debug");
@@ -102,7 +102,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::BROADCAST;
+        settings.type = madara::transport::BROADCAST;
       }
       ++i;
     }
@@ -111,7 +111,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::UDP;
+        settings.type = madara::transport::UDP;
       }
       ++i;
     }
@@ -143,7 +143,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        Madara::Logger::global_logger->add_file (argv[i + 1]);
+        madara::logger::global_logger->add_file (argv[i + 1]);
       }
 
       ++i;
@@ -175,7 +175,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::MULTICAST;
+        settings.type = madara::transport::MULTICAST;
       }
       ++i;
     }
@@ -237,7 +237,7 @@ void handle_arguments (int argc, char ** argv)
     }
     else
     {
-      Madara::Logger::global_logger->log (Madara::Logger::LOG_ALWAYS,
+      madara::logger::global_logger->log (madara::logger::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" \
 "  Attempts to send a file over the network with a certain number\n" \
 "  of rebroadcasts (-e|--rebroadcasts controls the number of rebroadcasts)\n\n" \

@@ -66,10 +66,10 @@
 using std::cerr;
 using std::endl;
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 gams::controllers::Base_Controller::Base_Controller (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge)
+  madara::knowledge::Knowledge_Base & knowledge)
   : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
   algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &devices_),
   platform_factory_ (&knowledge, &sensors_, &platforms_, 0)
@@ -163,7 +163,7 @@ gams::controllers::Base_Controller::system_analyze (void)
 
   if (self_.device.command != "")
   {
-    Madara::Knowledge_Vector args;
+    madara::Knowledge_Vector args;
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -186,7 +186,7 @@ gams::controllers::Base_Controller::system_analyze (void)
   }
   else if (swarm_.command != "")
   {
-    Madara::Knowledge_Vector args;
+    madara::Knowledge_Vector args;
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -209,14 +209,14 @@ gams::controllers::Base_Controller::system_analyze (void)
   }
 
   if (self_.device.madara_debug_level !=
-    (Integer)Madara::Logger::global_logger->get_level ())
+    (Integer)madara::logger::global_logger->get_level ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::Base_Controller::system_analyze:" \
       " Settings MADARA debug level to %d\n", (int)*self_.device.madara_debug_level);
 
-    Madara::Logger::global_logger->set_level ((int)*self_.device.madara_debug_level);
+    madara::logger::global_logger->set_level ((int)*self_.device.madara_debug_level);
   }
 
   if (self_.device.gams_debug_level !=
@@ -552,7 +552,7 @@ gams::controllers::Base_Controller::run (double loop_period,
           "gams::controllers::Base_Controller::run:" \
           " sleeping until next epoch\n");
 
-        Madara::Utility::sleep (next_epoch - current);
+        madara::utility::sleep (next_epoch - current);
       }
 
       // setup the next 
@@ -563,7 +563,7 @@ gams::controllers::Base_Controller::run (double loop_period,
         first_execute = false;
 
       // if send herz difference is more than .001 hz different, change epoch
-      if (!Madara::Utility::approx_equal (
+      if (!madara::utility::approx_equal (
         send_hz, self_.device.send_hz.to_double (), 0.001))
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -579,7 +579,7 @@ gams::controllers::Base_Controller::run (double loop_period,
       }
 
       // if loop herz difference is more than .001 hz different, change epoch
-      if (!Madara::Utility::approx_equal (
+      if (!madara::utility::approx_equal (
         loop_hz, self_.device.loop_hz.to_double (), 0.001))
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -619,7 +619,7 @@ gams::controllers::Base_Controller::run (double loop_period,
 
 void
 gams::controllers::Base_Controller::init_accent (const std::string & algorithm,
-const Madara::Knowledge_Vector & args)
+const madara::Knowledge_Vector & args)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -677,7 +677,7 @@ void gams::controllers::Base_Controller::clear_accents (void)
 }
 void
 gams::controllers::Base_Controller::init_algorithm (
-const std::string & algorithm, const Madara::Knowledge_Vector & args)
+const std::string & algorithm, const madara::Knowledge_Vector & args)
 {
   // initialize the algorithm
 
@@ -786,7 +786,7 @@ const std::string & algorithm, const Madara::Knowledge_Vector & args)
 void
 gams::controllers::Base_Controller::init_platform (
   const std::string & platform,
-  const Madara::Knowledge_Vector & args)
+  const madara::Knowledge_Vector & args)
 {
   // initialize the platform
 

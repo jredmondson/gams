@@ -60,7 +60,7 @@
 #include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/Base_Algorithm.h"
-#include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge/containers/Integer.h"
 
 namespace gams
 {
@@ -74,7 +74,7 @@ namespace gams
        * @param  knowledge    the context containing variables and values
        **/
       Counter_Algorithm (
-        Madara::Knowledge_Engine::Knowledge_Base & knowledge);
+        madara::knowledge::Knowledge_Base & knowledge);
 
       /**
        * Destructor
@@ -130,16 +130,16 @@ namespace gams
       bool enable_plan_counter;
 
       /// tracks the number of loops executed with a normal 64 bit integer
-      mutable Madara::Knowledge_Record::Integer  loops;
+      mutable madara::Knowledge_Record::Integer  loops;
 
       /// tracks the number of calls to analyze
-      mutable Madara::Knowledge_Engine::Containers::Integer  analyze_counter;
+      mutable madara::knowledge::containers::Integer  analyze_counter;
 
       /// tracks the number of calls to execute
-      mutable Madara::Knowledge_Engine::Containers::Integer  execute_counter;
+      mutable madara::knowledge::containers::Integer  execute_counter;
 
       /// tracks the number of calls to plan
-      mutable Madara::Knowledge_Engine::Containers::Integer  plan_counter;
+      mutable madara::knowledge::containers::Integer  plan_counter;
     };
   }
 }

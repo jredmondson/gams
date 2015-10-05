@@ -54,7 +54,7 @@ namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
 gams::platforms::Base_Platform::Base_Platform (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Self * self)
   : knowledge_ (knowledge), self_ (self), sensors_ (sensors)
@@ -218,7 +218,7 @@ gams::platforms::Base_Platform::pause_move (void)
 
 void
 gams::platforms::Base_Platform::set_knowledge (
-  Madara::Knowledge_Engine::Knowledge_Base * rhs)
+  madara::knowledge::Knowledge_Base * rhs)
 {
   knowledge_ = rhs;
 }
@@ -247,7 +247,7 @@ gams::platforms::Base_Platform::stop_move (void)
   self_->device.dest = self_->device.location;
 }
 
-Madara::Knowledge_Engine::Knowledge_Base *
+madara::knowledge::Knowledge_Base *
 gams::platforms::Base_Platform::get_knowledge_base (void)
 {
   return knowledge_;

@@ -90,8 +90,8 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       Message_Profiling (
-        const Madara::Knowledge_Record& send,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        const madara::Knowledge_Record& send,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
@@ -104,7 +104,7 @@ namespace gams
       /**
        * Initialize the transport with the filter
        */
-      void init_filtered_transport (Madara::Transport::QoS_Transport_Settings 
+      void init_filtered_transport (madara::transport::QoS_Transport_Settings 
         settings);
 
       /**
@@ -138,23 +138,23 @@ namespace gams
       const static std::string key_prefix_;
 
       /// provides access to the knowledge base
-      Madara::Knowledge_Engine::Knowledge_Base * local_knowledge_;
+      madara::knowledge::Knowledge_Base * local_knowledge_;
 
       /**
        * Container for storing data to be sent to other controllers
        */
-      Madara::Knowledge_Engine::Containers::String data_;
+      madara::knowledge::containers::String data_;
 
       /**
        * Container for counter
        */
-      //Madara::Knowledge_Engine::Containers::Integer count_;
+      //madara::knowledge::containers::Integer count_;
 
       /**
        * Filter for tracking which messages have come in and which have been 
        * dropped
        */
-      class Message_Filter : public Madara::Filters::Aggregate_Filter
+      class Message_Filter : public madara::filters::Aggregate_Filter
       {
       public:
         /**
@@ -162,9 +162,9 @@ namespace gams
          */
         virtual ~Message_Filter ();
 
-        void filter (Madara::Knowledge_Map& records, 
-          const Madara::Transport::Transport_Context& transport_context,
-          Madara::Knowledge_Engine::Variables& var);
+        void filter (madara::Knowledge_Map& records, 
+          const madara::transport::Transport_Context& transport_context,
+          madara::knowledge::Variables& var);
 
         std::string missing_messages_string () const;
 
@@ -218,8 +218,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

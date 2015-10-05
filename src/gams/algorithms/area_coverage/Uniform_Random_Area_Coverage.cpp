@@ -50,8 +50,8 @@ using std::string;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Uniform_Random_Area_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -129,7 +129,7 @@ gams::algorithms::area_coverage::Uniform_Random_Area_Coverage::
   Uniform_Random_Area_Coverage (
   const string& search_area_id,
   const ACE_Time_Value& e_time,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -178,11 +178,11 @@ gams::algorithms::area_coverage::Uniform_Random_Area_Coverage::
 {
   do
   {
-    next_position_.latitude (Madara::Utility::rand_double (region_.min_lat_,
+    next_position_.latitude (madara::utility::rand_double (region_.min_lat_,
       region_.max_lat_));
-    next_position_.longitude (Madara::Utility::rand_double (region_.min_lon_,
+    next_position_.longitude (madara::utility::rand_double (region_.min_lon_,
       region_.max_lon_));
-    next_position_.altitude (Madara::Utility::rand_double (region_.min_alt_,
+    next_position_.altitude (madara::utility::rand_double (region_.min_alt_,
       region_.max_alt_));
   }
   while (!region_.contains (next_position_));

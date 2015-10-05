@@ -61,11 +61,11 @@
 #include <fstream>
 #include <sstream>
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
-#include "madara/knowledge_engine/Knowledge_Record.h"
+#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Record.h"
 
-namespace engine = Madara::Knowledge_Engine;
-using Madara::Knowledge_Record;
+namespace engine = madara::knowledge;
+using madara::Knowledge_Record;
 
 namespace dmpl
 {

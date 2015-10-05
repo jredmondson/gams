@@ -59,7 +59,7 @@
 #include "gams/variables/Algorithm_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/utility/Region.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 #include "gams/loggers/Global_Logger.h"
 
@@ -105,7 +105,7 @@ namespace gams
        * @param  devices      list of devices in the swarm
        **/
       Base_Algorithm (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
@@ -172,7 +172,7 @@ namespace gams
       /**
        * Gets the knowledge base
        **/
-      Madara::Knowledge_Engine::Knowledge_Base * get_knowledge_base (void);
+      madara::knowledge::Knowledge_Base * get_knowledge_base (void);
 
       /**
        * Gets the platform
@@ -202,7 +202,7 @@ namespace gams
       unsigned int executions_;
 
       /// provides access to the knowledge base
-      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
+      madara::knowledge::Knowledge_Base * knowledge_;
 
       /// provides access to the platform
       platforms::Base_Platform * platform_;

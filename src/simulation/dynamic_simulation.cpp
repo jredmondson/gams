@@ -51,7 +51,7 @@
  * Sets up a vrep simulation environment
  **/
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "madara/utility/Utility.h"
 
 #include "gams/utility/Region.h"
@@ -100,11 +100,11 @@ using std::function;
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-Madara::Transport::QoS_Transport_Settings settings;
+madara::transport::QoS_Transport_Settings settings;
 
 // create shortcuts to MADARA classes and namespaces
-namespace engine = Madara::Knowledge_Engine;
-typedef Madara::Knowledge_Record Record;
+namespace engine = madara::knowledge;
+typedef madara::Knowledge_Record Record;
 typedef Record::Integer Integer;
 
 // controller variables
@@ -200,7 +200,7 @@ void handle_arguments (int argc, char** argv)
         std::stringstream buffer (argv[i + 1]);
         int level;
         buffer >> level;
-        Madara::Logger::global_logger->set_level (level);
+        madara::logger::global_logger->set_level (level);
       }
       else
         print_usage (argv[0]);
@@ -212,7 +212,7 @@ void handle_arguments (int argc, char** argv)
       bool files = false;
       for (;i + 1 < argc && argv[i + 1][0] != '-'; ++i)
       {
-        madara_commands += Madara::Utility::file_to_string (argv[i + 1]);
+        madara_commands += madara::utility::file_to_string (argv[i + 1]);
         madara_commands += ";\r\n";
         files = true;
       }
@@ -284,7 +284,7 @@ void handle_arguments (int argc, char** argv)
  * VREP uses y coord for N/S and x for E/W
  **/
 void get_dimensions (double &max_x, double &max_y,
-  Madara::Knowledge_Engine::Knowledge_Base& knowledge)
+  madara::knowledge::Knowledge_Base& knowledge)
 {
   // check knowledge base
   string sw_position = knowledge.get (".vrep_sw_position").to_string ();
@@ -313,7 +313,7 @@ void get_dimensions (double &max_x, double &max_y,
  * Put border around a region
  * @param region region object to put border around
  */
-void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge, 
+void put_border (madara::knowledge::Knowledge_Base& knowledge, 
    const Region& reg, const int& client_id)
 {
   string model_file = getenv ("GAMS_ROOT");
@@ -375,14 +375,14 @@ void put_border (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
 
 void
 empty_fix (const int& /*client_id*/,
-  Madara::Knowledge_Engine::Knowledge_Base& /*knowledge*/)
+  madara::knowledge::Knowledge_Base& /*knowledge*/)
 {
   // we don't want to do anything here
 }
 
 void
 water_fix (const int& client_id,
-  Madara::Knowledge_Engine::Knowledge_Base& knowledge)
+  madara::knowledge::Knowledge_Base& knowledge)
 {
   // functional water tile
   string water_file (getenv ("GAMS_ROOT"));
@@ -427,14 +427,14 @@ struct surface_type
 {
   string file;
   double size;
-  function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> pre_function;
-  function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> post_function;
+  function<void(const int&, madara::knowledge::Knowledge_Base&)> pre_function;
+  function<void(const int&, madara::knowledge::Knowledge_Base&)> post_function;
 
   surface_type () : file (""), size (0), pre_function (empty_fix), post_function (empty_fix) {}
 
   surface_type (string f, double s, 
-    function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> pre = empty_fix, 
-    function<void(const int&, Madara::Knowledge_Engine::Knowledge_Base&)> post = empty_fix) :
+    function<void(const int&, madara::knowledge::Knowledge_Base&)> pre = empty_fix, 
+    function<void(const int&, madara::knowledge::Knowledge_Base&)> post = empty_fix) :
     file (f), size (s), pre_function (pre), post_function (post) {}
 };
 
@@ -444,7 +444,7 @@ struct surface_type
  * @param client_id id for vrep connection
  */
 void create_environment (const int& client_id,
-  Madara::Knowledge_Engine::Knowledge_Base& knowledge)
+  madara::knowledge::Knowledge_Base& knowledge)
 {
   // store the map types
   map<surface_enum, surface_type> surfaces_map;
@@ -548,7 +548,7 @@ void create_environment (const int& client_id,
  * Wait for all simulated control loops to sync, then start vrep
  **/
 void start_simulator (const int & client_id,
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge)
+  madara::knowledge::Knowledge_Base & knowledge)
 {
   // wait for all processes to get up
   std::stringstream buffer;
@@ -556,7 +556,7 @@ void start_simulator (const int & client_id,
   for (unsigned int i = 1; i < num_agents; ++i)
     buffer << " && S" << i << ".init";
   string expression = buffer.str ();
-  Madara::Knowledge_Engine::Compiled_Expression compiled;
+  madara::knowledge::Compiled_Expression compiled;
   compiled = knowledge.compile (expression);
   cout << "waiting for " << num_agents << " agent(s) to come online...";
   knowledge.wait (compiled);
@@ -576,12 +576,12 @@ void start_simulator (const int & client_id,
 }
 
 void
-time_to_full_coverage (Madara::Knowledge_Engine::Knowledge_Base& knowledge, 
+time_to_full_coverage (madara::knowledge::Knowledge_Base& knowledge, 
   const Search_Area& search)
 {
   // get sensors and discrete area
   GPS_Position origin;
-  Madara::Knowledge_Engine::Containers::Native_Double_Array origin_container;
+  madara::knowledge::containers::Native_Double_Array origin_container;
   origin_container.set_name ("sensor.coverage.origin", knowledge, 3);
   origin.from_container (origin_container);
   Sensor coverage_sensor ("coverage", &knowledge, 2.5, origin);
@@ -599,7 +599,7 @@ time_to_full_coverage (Madara::Knowledge_Engine::Knowledge_Base& knowledge,
     unsigned int num_not_covered = 1;
     while (num_not_covered > 0)
     {
-      Madara::Utility::sleep (1);
+      madara::utility::sleep (1);
 
       num_not_covered = 0;
       for (set<Position>::const_iterator it = valid_positions.begin ();
@@ -639,16 +639,16 @@ int main (int argc, char ** argv)
   handle_arguments (argc, argv);
 
   // create knowledge base
-  settings.type = Madara::Transport::MULTICAST;
+  settings.type = madara::transport::MULTICAST;
   if (settings.hosts.size () == 0)
   {
     // setup default transport as multicast
     settings.hosts.push_back (default_multicast);
   }
-  Madara::Knowledge_Engine::Knowledge_Base knowledge (host, settings);
+  madara::knowledge::Knowledge_Base knowledge (host, settings);
   if (madara_commands != "")
     knowledge.evaluate (madara_commands,
-      Madara::Knowledge_Engine::Eval_Settings (false, true));
+      madara::knowledge::Eval_Settings (false, true));
 
   // connect to vrep
   cout << "connecting to vrep...";

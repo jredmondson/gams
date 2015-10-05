@@ -86,7 +86,7 @@ gams::algorithms::Algorithm_Factory::set_devices (variables::Devices * devices)
 
 void
 gams::algorithms::Algorithm_Factory::set_knowledge (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge)
+  madara::knowledge::Knowledge_Base * knowledge)
 {
   knowledge_ = knowledge;
 }

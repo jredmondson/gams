@@ -49,7 +49,7 @@
 
 using std::string;
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 gams::variables::Platform_Status::Platform_Status ()
 {
@@ -81,7 +81,7 @@ gams::variables::Platform_Status::operator= (const Platform_Status & rhs)
 
 void
 gams::variables::Platform_Status::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const std::string & new_name)
 {
   name = new_name;
@@ -107,7 +107,7 @@ gams::variables::Platform_Status::init_vars (
 
 void
 gams::variables::Platform_Status::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
+  madara::knowledge::Variables & knowledge,
   const std::string & new_name)
 {
   name = new_name;

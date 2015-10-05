@@ -56,9 +56,9 @@
 #define   _GAMS_VARIABLES_GRID_H_
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Double.h"
-#include "madara/knowledge_engine/containers/Map.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/Map.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -87,13 +87,13 @@ namespace gams
        * Initializes variable containers
        * @param   knowledge  the variable context
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge);
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge);
+      void init_vars (madara::knowledge::Variables & knowledge);
     };
   }
 }

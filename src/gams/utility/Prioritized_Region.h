@@ -120,7 +120,7 @@ namespace gams
       void operator= (const Prioritized_Region& rhs);
 
       /// priority
-      Madara::Knowledge_Record::Integer priority;
+      madara::Knowledge_Record::Integer priority;
 
     private:
       /**
@@ -128,7 +128,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      Prefix of object in the KB
        */
-      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      virtual bool check_valid_type (madara::knowledge::Knowledge_Base& kb,
         const std::string& name) const;
 
       /**
@@ -137,7 +137,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual void to_container_impl (
-        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        madara::knowledge::Knowledge_Base& kb, 
         const std::string& name);
 
       /**
@@ -146,7 +146,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual bool from_container_impl (
-        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        madara::knowledge::Knowledge_Base& kb, 
         const std::string& name);
     }; // class Prioritized_Region
   } // namespace utility

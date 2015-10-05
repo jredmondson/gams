@@ -79,7 +79,7 @@ namespace gams
          * @param  e_time    execution time
          **/
         Base_Area_Coverage (
-          Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+          madara::knowledge::Knowledge_Base * knowledge = 0,
           platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,

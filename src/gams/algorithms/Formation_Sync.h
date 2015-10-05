@@ -64,8 +64,8 @@
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/utility/GPS_Position.h"
 #include "gams/algorithms/Algorithm_Factory.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/Barrier.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/Barrier.h"
 
 namespace gams
 {
@@ -113,7 +113,7 @@ namespace gams
         double buffer,
         int formation,
         std::string barrier_name,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
@@ -198,7 +198,7 @@ namespace gams
       int move_pivot_;
 
       /// movement barrier
-      Madara::Knowledge_Engine::Containers::Barrier barrier_;
+      madara::knowledge::containers::Barrier barrier_;
     };
     
     /**
@@ -232,8 +232,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

@@ -46,7 +46,7 @@
 
 #include "gams/variables/Self.h"
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 
 gams::variables::Self::Self ()
@@ -70,7 +70,7 @@ gams::variables::Self::operator= (const Self & rhs)
 
 void
 gams::variables::Self::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const Integer & id)
 {
   // initialize the variable containers
@@ -81,7 +81,7 @@ gams::variables::Self::init_vars (
 
 void
 gams::variables::Self::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
+  madara::knowledge::Variables & knowledge,
   const Integer & id)
 {
   // initialize the variable containers
@@ -90,7 +90,7 @@ gams::variables::Self::init_vars (
 }
 
 void gams::variables::init_vars (Self & variables,
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const Integer & id)
 {
   variables.init_vars (knowledge, id);

@@ -83,8 +83,8 @@ namespace gams
        * @param  devices      variables referencing devices
        **/
       Executive (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
@@ -126,11 +126,11 @@ namespace gams
       struct Algorithm_Init
       {
         std::string algorithm;
-        Madara::Knowledge_Vector args;
+        madara::Knowledge_Vector args;
 
         Algorithm_Init ();
         Algorithm_Init (const std::string& a,
-          const Madara::Knowledge_Vector& v);
+          const madara::Knowledge_Vector& v);
       };
 
       /// algorithm actually being run
@@ -169,8 +169,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

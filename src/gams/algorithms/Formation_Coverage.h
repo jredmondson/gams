@@ -90,13 +90,13 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       Formation_Coverage (
-        const Madara::Knowledge_Record::Integer & head_id,
+        const madara::Knowledge_Record::Integer & head_id,
         const std::vector<double> & offset,
-        const std::vector<Madara::Knowledge_Record::Integer> & members,
+        const std::vector<madara::Knowledge_Record::Integer> & members,
         const std::string & modifier,
         const std::string & coverage,
-        const Madara::Knowledge_Vector & cover_args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        const madara::Knowledge_Vector & cover_args,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
@@ -141,7 +141,7 @@ namespace gams
       Formation_Flying* my_formation_;
 
       /// head destination
-      Madara::Knowledge_Engine::Containers::Native_Double_Array head_destination_;
+      madara::knowledge::containers::Native_Double_Array head_destination_;
     };
     
     /**
@@ -171,8 +171,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

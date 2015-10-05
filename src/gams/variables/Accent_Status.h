@@ -58,12 +58,12 @@
 #include <string>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/Double.h"
-#include "madara/knowledge_engine/containers/String.h"
-#include "madara/knowledge_engine/containers/Native_Double_Vector.h"
-#include "madara/knowledge_engine/containers/Vector.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Native_Double_Vector.h"
+#include "madara/knowledge/containers/Vector.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -96,7 +96,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   prefix     the prefix of the accents (e.g. swarm/device)
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
         const std::string & prefix);
       
       /**
@@ -104,14 +104,14 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   prefix     the prefix of the accents (e.g. swarm/device)
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
+      void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & prefix);
 
       /// accent specific command
-      Madara::Knowledge_Engine::Containers::String command;
+      madara::knowledge::containers::String command;
 
       /// number of arguments for command
-      Madara::Knowledge_Engine::Containers::Vector command_args;
+      madara::knowledge::containers::Vector command_args;
 
     protected:
       /**
@@ -132,7 +132,7 @@ namespace gams
       * @param   prefix     the prefix of the accents (e.g. swarm/device)
       **/
     GAMS_Export void init_vars (Accent_Statuses & variables,
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      madara::knowledge::Knowledge_Base & knowledge,
       const std::string & prefix);
     
     /**
@@ -142,7 +142,7 @@ namespace gams
       * @param   prefix     the prefix of the accents (e.g. swarm/device)
       **/
     GAMS_Export void init_vars (Accent_Statuses & variables,
-      Madara::Knowledge_Engine::Variables & knowledge,
+      madara::knowledge::Variables & knowledge,
       const std::string & prefix);
   }
 }

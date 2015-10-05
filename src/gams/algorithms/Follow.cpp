@@ -65,8 +65,8 @@ using std::stringstream;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Follow_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -75,8 +75,8 @@ gams::algorithms::Follow_Factory::create (
   Base_Algorithm * result (0);
 
   // set defaults
-  Madara::Knowledge_Record target;
-  Madara::Knowledge_Record delay (Madara::Knowledge_Record::Integer (5));
+  madara::Knowledge_Record target;
+  madara::Knowledge_Record delay (madara::Knowledge_Record::Integer (5));
 
   if (args.size () >= 1 && knowledge && sensors && self)
   {
@@ -93,9 +93,9 @@ gams::algorithms::Follow_Factory::create (
 }
 
 gams::algorithms::Follow::Follow (
-  const Madara::Knowledge_Record& id,
-  const Madara::Knowledge_Record& delay,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Record& id,
+  const madara::Knowledge_Record& delay,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self) :
   Base_Algorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),

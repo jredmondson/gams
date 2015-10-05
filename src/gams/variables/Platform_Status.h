@@ -59,8 +59,8 @@
 #include <string>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "gams/variables/Device.h"
 
 namespace gams
@@ -94,7 +94,7 @@ namespace gams
        * @param   knowledge  the knowledge base that houses the variables
        * @param   new_name   the name of the platform
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
         const std::string & new_name);
       
       /**
@@ -102,7 +102,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   new_name   the name of the platform
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
+      void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & new_name);
 
       /// the id of this device
@@ -112,40 +112,40 @@ namespace gams
       //Device device;
       
       /// status flag for number of communication channels available
-      Madara::Knowledge_Engine::Containers::Integer communication_available;
+      madara::knowledge::containers::Integer communication_available;
 
       /// status flag for deadlocked
-      Madara::Knowledge_Engine::Containers::Integer deadlocked;
+      madara::knowledge::containers::Integer deadlocked;
       
       /// status flag for failed
-      Madara::Knowledge_Engine::Containers::Integer failed;
+      madara::knowledge::containers::Integer failed;
       
       /// status flag for the detection of active spoofing of GPS
-      Madara::Knowledge_Engine::Containers::Integer gps_spoofed;
+      madara::knowledge::containers::Integer gps_spoofed;
 
       /// status flag for full movement availability
-      Madara::Knowledge_Engine::Containers::Integer movement_available;
+      madara::knowledge::containers::Integer movement_available;
 
       /// status flag for moving to a location
-      Madara::Knowledge_Engine::Containers::Integer moving;
+      madara::knowledge::containers::Integer moving;
       
       /// status flag for ok
-      Madara::Knowledge_Engine::Containers::Integer ok;
+      madara::knowledge::containers::Integer ok;
       
       /// status flag for paused while moving to a location
-      Madara::Knowledge_Engine::Containers::Integer paused_moving;
+      madara::knowledge::containers::Integer paused_moving;
 
       /// status flag for reduced sensing available
-      Madara::Knowledge_Engine::Containers::Integer reduced_sensing;
+      madara::knowledge::containers::Integer reduced_sensing;
 
       /// status flag for reduced movement available
-      Madara::Knowledge_Engine::Containers::Integer reduced_movement;
+      madara::knowledge::containers::Integer reduced_movement;
 
       /// status flag for full sensor availability
-      Madara::Knowledge_Engine::Containers::Integer sensors_available;
+      madara::knowledge::containers::Integer sensors_available;
 
       /// status flag for waiting
-      Madara::Knowledge_Engine::Containers::Integer waiting;
+      madara::knowledge::containers::Integer waiting;
 
     protected:
       /**

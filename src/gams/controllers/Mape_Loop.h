@@ -62,11 +62,11 @@
 #include "gams/variables/Sensor.h"
 #include "gams/algorithms/Base_Algorithm.h"
 #include "gams/platforms/Base_Platform.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/Double.h"
-#include "madara/knowledge_engine/containers/String.h"
-#include "madara/knowledge_engine/containers/Double_Vector.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Double_Vector.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -82,7 +82,7 @@ namespace gams
        * Constructor
        * @param   knowledge   The knowledge base to reference and mutate
        **/
-      Mape_Loop (Madara::Knowledge_Engine::Knowledge_Base & knowledge);
+      Mape_Loop (madara::knowledge::Knowledge_Base & knowledge);
 
       /**
        * Destructor
@@ -101,9 +101,9 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_monitor (
-        Madara::Knowledge_Record (*func) (
-          Madara::Knowledge_Engine::Function_Arguments &,
-          Madara::Knowledge_Engine::Variables &));
+        madara::Knowledge_Record (*func) (
+          madara::knowledge::Function_Arguments &,
+          madara::knowledge::Variables &));
       
       /**
        * Defines the analyze function (the A of MAPE). This function should
@@ -111,9 +111,9 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_analyze (
-        Madara::Knowledge_Record (*func) (
-          Madara::Knowledge_Engine::Function_Arguments &,
-          Madara::Knowledge_Engine::Variables &));
+        madara::Knowledge_Record (*func) (
+          madara::knowledge::Function_Arguments &,
+          madara::knowledge::Variables &));
       
       /**
        * Defines the plan function (the P of MAPE). This function should
@@ -121,9 +121,9 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_plan (
-        Madara::Knowledge_Record (*func) (
-          Madara::Knowledge_Engine::Function_Arguments &,
-          Madara::Knowledge_Engine::Variables &));
+        madara::Knowledge_Record (*func) (
+          madara::knowledge::Function_Arguments &,
+          madara::knowledge::Variables &));
       
       /**
        * Defines the execute function (the E of MAPE). This function should
@@ -131,9 +131,9 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_execute (
-        Madara::Knowledge_Record (*func) (
-          Madara::Knowledge_Engine::Function_Arguments &,
-          Madara::Knowledge_Engine::Variables &));
+        madara::Knowledge_Record (*func) (
+          madara::knowledge::Function_Arguments &,
+          madara::knowledge::Variables &));
 
       /**
        * Initializes global variable containers
@@ -141,9 +141,9 @@ namespace gams
        * @param   id         node identifier
        * @param   processes  processes
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const Madara::Knowledge_Record::Integer & id = 0,
-        const Madara::Knowledge_Record::Integer & processes = -1);
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
+        const madara::Knowledge_Record::Integer & id = 0,
+        const madara::Knowledge_Record::Integer & processes = -1);
 
       /**
        * Runs one iteration of the MAPE loop
@@ -151,7 +151,7 @@ namespace gams
        * @param  max_runtime  maximum runtime within the MAPE loop
        * @return  the result of the MAPE loop
        **/
-      Madara::Knowledge_Record run (double period = 0.5,
+      madara::Knowledge_Record run (double period = 0.5,
         double max_runtime = -1);
 
     protected:
@@ -160,10 +160,10 @@ namespace gams
       variables::Devices devices_;
 
       /// knowledge base
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge_;
+      madara::knowledge::Knowledge_Base & knowledge_;
 
       /// Compiled MAPE Mape_Loop
-      Madara::Knowledge_Engine::Compiled_Expression mape_loop_;
+      madara::knowledge::Compiled_Expression mape_loop_;
 
       /// Containers for self-referencing variables
       variables::Self self_;

@@ -2,8 +2,8 @@
 #include "com_gams_variables_Device.h"
 #include "gams/variables/Device.h"
 
-namespace containers = Madara::Knowledge_Engine::Containers;
-namespace engine = Madara::Knowledge_Engine;
+namespace containers = madara::knowledge::containers;
+namespace engine = madara::knowledge;
 namespace variables = gams::variables;
 
 /*

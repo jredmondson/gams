@@ -63,8 +63,8 @@ using std::endl;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Executive_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -103,8 +103,8 @@ gams::algorithms::Executive_Factory::create (
 }
 
 gams::algorithms::Executive::Executive (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Algorithm (knowledge, platform, sensors, self, devices), algo_ (0), 
@@ -117,11 +117,11 @@ gams::algorithms::Executive::Executive (
   plan_.reserve (args.size () / 2);
   for (size_t i = 0; i < args.size(); i += 2)
   {
-    Madara::Knowledge_Engine::Containers::Vector v;
+    madara::knowledge::containers::Vector v;
     v.set_name (args[i + 1].to_string (), *knowledge);
     v.resize ();
   
-    Madara::Knowledge_Vector a;
+    madara::Knowledge_Vector a;
     v.copy_to (a);
   
     Algorithm_Init init (args[i].to_string (), a);
@@ -235,7 +235,7 @@ gams::algorithms::Executive::Algorithm_Init::Algorithm_Init () :
 }
 
 gams::algorithms::Executive::Algorithm_Init::Algorithm_Init (
-  const std::string& a, const Madara::Knowledge_Vector& v) :
+  const std::string& a, const madara::Knowledge_Vector& v) :
   algorithm (a), args (v)
 {
 }

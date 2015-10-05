@@ -70,8 +70,8 @@ using std::set;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Prioritized_Min_Time_Area_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -149,7 +149,7 @@ gams::algorithms::area_coverage::Prioritized_Min_Time_Area_Coverage::
   Prioritized_Min_Time_Area_Coverage (
   const string& search_id,
   const ACE_Time_Value& e_time, 
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices,
   const string& algo_name) :

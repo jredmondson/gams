@@ -46,10 +46,10 @@
 
 #include "Mape_Loop.h"
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 gams::controllers::Mape_Loop::Mape_Loop (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge)
+  madara::knowledge::Knowledge_Base & knowledge)
   : knowledge_ (knowledge)
 {
   define_mape ();
@@ -62,18 +62,18 @@ gams::controllers::Mape_Loop::~Mape_Loop ()
 
 void
 gams::controllers::Mape_Loop::define_analyze (
-  Madara::Knowledge_Record (*func) (
-    Madara::Knowledge_Engine::Function_Arguments &,
-    Madara::Knowledge_Engine::Variables &))
+  madara::Knowledge_Record (*func) (
+    madara::knowledge::Function_Arguments &,
+    madara::knowledge::Variables &))
 {
   // define the analyze function
   knowledge_.define_function ("analyze", func);
 }
 
 void gams::controllers::Mape_Loop::define_execute (
-  Madara::Knowledge_Record (*func) (
-    Madara::Knowledge_Engine::Function_Arguments &,
-    Madara::Knowledge_Engine::Variables &))
+  madara::Knowledge_Record (*func) (
+    madara::knowledge::Function_Arguments &,
+    madara::knowledge::Variables &))
 {
   // define the execute function
   knowledge_.define_function ("execute", func);
@@ -88,18 +88,18 @@ gams::controllers::Mape_Loop::define_mape (const std::string & loop)
 
 void
 gams::controllers::Mape_Loop::define_monitor (
-  Madara::Knowledge_Record (*func) (
-    Madara::Knowledge_Engine::Function_Arguments &,
-    Madara::Knowledge_Engine::Variables &))
+  madara::Knowledge_Record (*func) (
+    madara::knowledge::Function_Arguments &,
+    madara::knowledge::Variables &))
 {
   // define the monitor function
   knowledge_.define_function ("monitor", func);
 }
 
 void gams::controllers::Mape_Loop::define_plan (
-  Madara::Knowledge_Record (*func) (
-    Madara::Knowledge_Engine::Function_Arguments &,
-    Madara::Knowledge_Engine::Variables &))
+  madara::Knowledge_Record (*func) (
+    madara::knowledge::Function_Arguments &,
+    madara::knowledge::Variables &))
 {
   // define the plan function
   knowledge_.define_function ("plan", func);
@@ -107,7 +107,7 @@ void gams::controllers::Mape_Loop::define_plan (
 
 void
 gams::controllers::Mape_Loop::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const Integer & id,
   const Integer & processes)
 {
@@ -117,11 +117,11 @@ gams::controllers::Mape_Loop::init_vars (
   self_.init_vars (knowledge, id);
 }
 
-Madara::Knowledge_Record
+madara::Knowledge_Record
 gams::controllers::Mape_Loop::run (double period, double max_runtime)
 {
   // initialize wait settings
-  Madara::Knowledge_Engine::Wait_Settings  settings;
+  madara::knowledge::Wait_Settings  settings;
   settings.max_wait_time = max_runtime;
   settings.poll_frequency = period;
 

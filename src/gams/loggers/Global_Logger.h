@@ -26,7 +26,7 @@ namespace gams
       LOG_MAX = 6
     };
 
-    extern GAMS_Export std::auto_ptr <Madara::Logger::Logger> global_logger;
+    extern GAMS_Export std::auto_ptr <madara::logger::Logger> global_logger;
   }
 }
 

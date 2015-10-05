@@ -82,7 +82,7 @@ namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
 algorithms::Controller_Algorithm_Factory::Controller_Algorithm_Factory (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   platforms::Base_Platform * platform,
   variables::Self * self,
@@ -105,7 +105,7 @@ algorithms::Controller_Algorithm_Factory::add (
   for (size_t i = 0; i < aliases.size (); ++i)
   {
     std::string alias (aliases[i]);
-    Madara::Utility::lower (alias);
+    madara::utility::lower (alias);
 
     factory->set_devices (devices_);
     factory->set_knowledge (knowledge_);
@@ -261,7 +261,7 @@ void algorithms::Controller_Algorithm_Factory::initialize_default_mappings (
 algorithms::Base_Algorithm *
 algorithms::Controller_Algorithm_Factory::create (
   const std::string & type,
-  const Madara::Knowledge_Vector & args)
+  const madara::Knowledge_Vector & args)
 {
   algorithms::Base_Algorithm * result = 0;
 
@@ -302,7 +302,7 @@ algorithms::Controller_Algorithm_Factory::set_devices (
 
 void
 algorithms::Controller_Algorithm_Factory::set_knowledge (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge)
+  madara::knowledge::Knowledge_Base * knowledge)
 {
   knowledge_ = knowledge;
 }

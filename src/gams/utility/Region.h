@@ -58,7 +58,7 @@
 #include <string>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/String_Vector.h"
+#include "madara/knowledge/containers/String_Vector.h"
 #include "gams/utility/Position.h"
 #include "gams/utility/GPS_Position.h"
 #include "gams/utility/Containerize.h"
@@ -184,7 +184,7 @@ namespace gams
        * @param name      Name of object in the KB
        * @return true if name is a valid object in kb, false otherwise
        */
-      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      virtual bool check_valid_type (madara::knowledge::Knowledge_Base& kb,
         const std::string& name) const;
 
       /**
@@ -193,7 +193,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual void to_container_impl (
-        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        madara::knowledge::Knowledge_Base& kb, 
         const std::string& name);
 
       /**
@@ -202,7 +202,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual bool from_container_impl (
-        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        madara::knowledge::Knowledge_Base& kb, 
         const std::string& name);
     }; // class Region
   } // namespace utility

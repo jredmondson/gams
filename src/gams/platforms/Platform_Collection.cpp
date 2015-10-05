@@ -48,8 +48,8 @@
 
 gams::platforms::Base_Platform *
 gams::platforms::Platform_Collection_Factory::create (
-  const Madara::Knowledge_Vector & /*args*/,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & /*args*/,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
@@ -65,7 +65,7 @@ gams::platforms::Platform_Collection_Factory::create (
 }
 
 gams::platforms::Platform_Collection::Platform_Collection (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)

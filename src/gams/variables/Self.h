@@ -55,8 +55,8 @@
 #define   _GAMS_VARIABLES_SELF_H_
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "Device.h"
 
 namespace gams
@@ -90,19 +90,19 @@ namespace gams
        * @param   knowledge  the knowledge base that houses the variables
        * @param   id         node identifier
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const Madara::Knowledge_Record::Integer & id);
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
+        const madara::Knowledge_Record::Integer & id);
       
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
-        const Madara::Knowledge_Record::Integer & id);
+      void init_vars (madara::knowledge::Variables & knowledge,
+        const madara::Knowledge_Record::Integer & id);
 
       /// the id of this device
-      Madara::Knowledge_Engine::Containers::Integer id;
+      madara::knowledge::containers::Integer id;
       
       /// the device-specific variables
       Device device;
@@ -115,8 +115,8 @@ namespace gams
       * @param   id         node identifier
       **/
     GAMS_Export void init_vars (Self & container,
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-      const Madara::Knowledge_Record::Integer & id);
+      madara::knowledge::Knowledge_Base & knowledge,
+      const madara::Knowledge_Record::Integer & id);
   }
 }
 

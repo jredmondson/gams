@@ -55,7 +55,7 @@
 using std::cerr;
 using std::endl;
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "gams/controllers/Base_Controller.h"
 #include "gams/loggers/Global_Logger.h"
 #include "gams/loggers/Global_Logger.h"
@@ -64,12 +64,12 @@ const std::string default_broadcast ("192.168.1.255:15000");
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-Madara::Transport::QoS_Transport_Settings settings;
+madara::transport::QoS_Transport_Settings settings;
 
 // create shortcuts to MADARA classes and namespaces
-namespace engine = Madara::Knowledge_Engine;
+namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef Madara::Knowledge_Record   Record;
+typedef madara::Knowledge_Record   Record;
 typedef Record::Integer Integer;
 
 const std::string KNOWLEDGE_BASE_PLATFORM_KEY (".platform");
@@ -153,7 +153,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::BROADCAST;
+        settings.type = madara::transport::BROADCAST;
       }
       else
         print_usage (argv[0]);
@@ -189,7 +189,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        Madara::Logger::global_logger->add_file (argv[i + 1]);
+        madara::logger::global_logger->add_file (argv[i + 1]);
       }
       else
         print_usage (argv[0]);
@@ -216,7 +216,7 @@ void handle_arguments (int argc, char ** argv)
         std::stringstream buffer (argv[i + 1]);
         int level;
         buffer >> level;
-        Madara::Logger::global_logger->set_level (level);
+        madara::logger::global_logger->set_level (level);
       }
       else
         print_usage (argv[0]);
@@ -254,7 +254,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::MULTICAST;
+        settings.type = madara::transport::MULTICAST;
       }
       else
         print_usage (argv[0]);
@@ -267,7 +267,7 @@ void handle_arguments (int argc, char ** argv)
       ++i;
       for (;i < argc && argv[i][0] != '-'; ++i)
       {
-        madara_commands += Madara::Utility::file_to_string (argv[i]);
+        madara_commands += madara::utility::file_to_string (argv[i]);
         madara_commands += ";\r\n";
         files = true;
       }
@@ -351,7 +351,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::UDP;
+        settings.type = madara::transport::UDP;
       }
       else
         print_usage (argv[0]);
@@ -372,7 +372,7 @@ int main (int argc, char ** argv)
   handle_arguments (argc, argv);
   
   // create knowledge base and a control loop
-  Madara::Knowledge_Engine::Knowledge_Base knowledge (host, settings);
+  madara::knowledge::Knowledge_Base knowledge (host, settings);
   controllers::Base_Controller loop (knowledge);
 
   // initialize variables and function stubs
@@ -382,7 +382,7 @@ int main (int argc, char ** argv)
   if (madara_commands != "")
   {
     knowledge.evaluate (madara_commands,
-      Madara::Knowledge_Engine::Eval_Settings(false, true));
+      madara::knowledge::Eval_Settings(false, true));
   }
 
   // initialize the platform and algorithm

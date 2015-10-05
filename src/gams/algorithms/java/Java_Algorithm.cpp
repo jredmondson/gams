@@ -96,8 +96,8 @@ gams::algorithms::Java_Algorithm_Factory::~Java_Algorithm_Factory ()
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Java_Algorithm_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * /*platform*/,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -190,7 +190,7 @@ gams::algorithms::Java_Algorithm_Factory::create (
 
 gams::algorithms::Java_Algorithm::Java_Algorithm (
   jobject obj,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,

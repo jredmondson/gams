@@ -45,7 +45,7 @@
  **/
 #include "Search_Area.h"
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 
 gams::variables::Search_Area::Search_Area ()
@@ -69,7 +69,7 @@ gams::variables::Search_Area::operator= (const Search_Area & rhs)
 
 void
 gams::variables::Search_Area::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const std::string & area_name)
 {
   // set name
@@ -80,7 +80,7 @@ gams::variables::Search_Area::init_vars (
   prefix += ".";
   prefix += area_name;
 
-  Madara::Knowledge_Record region_id = knowledge.get (prefix);
+  madara::Knowledge_Record region_id = knowledge.get (prefix);
   
   // initialize the variable containers
   //region.init_vars (knowledge, region_id.to_string ());
@@ -88,7 +88,7 @@ gams::variables::Search_Area::init_vars (
 
 void
 gams::variables::Search_Area::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
+  madara::knowledge::Variables & knowledge,
   const std::string & area_name)
 {
   // set name
@@ -99,14 +99,14 @@ gams::variables::Search_Area::init_vars (
   prefix += ".";
   prefix += area_name;
 
-  Madara::Knowledge_Record region_id = knowledge.get (prefix);
+  madara::Knowledge_Record region_id = knowledge.get (prefix);
   
   // initialize the variable containers
   //region.init_vars (knowledge, region_id.to_string ());
 }
 
 void gams::variables::init_vars (Search_Area & variables,
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const std::string & area_name)
 {
   variables.init_vars (knowledge, area_name);

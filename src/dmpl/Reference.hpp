@@ -64,9 +64,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <exception>
-#include <madara/knowledge_engine/Thread_Safe_Context.h>
-#include <madara/knowledge_engine/Thread_Safe_Context.h>
-#include <madara/knowledge_engine/Knowledge_Update_Settings.h>
+#include <madara/knowledge/Thread_Safe_Context.h>
+#include <madara/knowledge/Thread_Safe_Context.h>
+#include <madara/knowledge/Knowledge_Update_Settings.h>
 #include "knowledge_cast.hpp"
 
 #if __cplusplus >= 201103L

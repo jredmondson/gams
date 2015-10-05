@@ -51,7 +51,7 @@ namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
 gams::algorithms::Base_Algorithm::Base_Algorithm (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -112,7 +112,7 @@ gams::algorithms::Base_Algorithm::get_devices (void)
   return devices_;
 }
 
-Madara::Knowledge_Engine::Knowledge_Base *
+madara::knowledge::Knowledge_Base *
 gams::algorithms::Base_Algorithm::get_knowledge_base (void)
 {
   return knowledge_;

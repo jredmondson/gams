@@ -138,7 +138,7 @@ namespace gams
        * @param pos   position to get priority of
        * @return priority of position
        */
-      Madara::Knowledge_Record::Integer get_priority (const GPS_Position& pos) const;
+      madara::Knowledge_Record::Integer get_priority (const GPS_Position& pos) const;
       
       /**
        * Determine if GPS_Position is in region
@@ -183,7 +183,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      Name of object in the KB
        */
-      virtual bool check_valid_type (Madara::Knowledge_Engine::Knowledge_Base& kb,
+      virtual bool check_valid_type (madara::knowledge::Knowledge_Base& kb,
         const std::string& name) const;
 
       /**
@@ -192,7 +192,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual void to_container_impl (
-        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        madara::knowledge::Knowledge_Base& kb, 
         const std::string& name);
 
       /**
@@ -201,7 +201,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual bool from_container_impl (
-        Madara::Knowledge_Engine::Knowledge_Base& kb, 
+        madara::knowledge::Knowledge_Base& kb, 
         const std::string& name);
     }; // class Search_Area
   } // namespace utility

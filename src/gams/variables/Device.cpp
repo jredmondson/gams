@@ -90,8 +90,8 @@ gams::variables::Device::operator= (const Device & device)
 
 void
 gams::variables::Device::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-  const Madara::Knowledge_Record::Integer& id)
+  madara::knowledge::Knowledge_Base & knowledge,
+  const madara::Knowledge_Record::Integer& id)
 {
   // create the device name string identifier ('device.{id}')
   string device_name (make_variable_name (id));
@@ -125,14 +125,14 @@ gams::variables::Device::init_vars (
   // init settings
   init_variable_settings ();
 
-  madara_debug_level = Madara::Logger::global_logger->get_level ();
+  madara_debug_level = madara::logger::global_logger->get_level ();
   gams_debug_level = gams::loggers::global_logger->get_level ();
 }
 
 void
 gams::variables::Device::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
-  const Madara::Knowledge_Record::Integer& id)
+  madara::knowledge::Variables & knowledge,
+  const madara::Knowledge_Record::Integer& id)
 {
   // create the device name string identifier ('device.{id}')
   string device_name (make_variable_name (id));
@@ -166,15 +166,15 @@ gams::variables::Device::init_vars (
   // init settings
   init_variable_settings ();
 
-  madara_debug_level = Madara::Logger::global_logger->get_level ();
+  madara_debug_level = madara::logger::global_logger->get_level ();
   gams_debug_level = gams::loggers::global_logger->get_level ();
 }
 
 void gams::variables::init_vars (Devices & variables,
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-  const Madara::Knowledge_Record::Integer& processes)
+  madara::knowledge::Knowledge_Base & knowledge,
+  const madara::Knowledge_Record::Integer& processes)
 {
-  Madara::Knowledge_Record::Integer limit = processes;
+  madara::Knowledge_Record::Integer limit = processes;
   if (processes >= 0)
   {
     variables.resize (processes);
@@ -192,7 +192,7 @@ void gams::variables::init_vars (Devices & variables,
 
 string
 gams::variables::Device::make_variable_name (
-  const Madara::Knowledge_Record::Integer& id)
+  const madara::Knowledge_Record::Integer& id)
 {
   std::stringstream buffer;
   buffer << "device.";
@@ -204,7 +204,7 @@ void
 gams::variables::Device::init_variable_settings ()
 {
   // keep certain varaible changes as local only
-  Madara::Knowledge_Engine::Knowledge_Update_Settings keep_local (true);
+  madara::knowledge::Knowledge_Update_Settings keep_local (true);
   command.set_settings (keep_local);
   command_args.set_settings (keep_local);
   //madara_debug_level.set_settings (keep_local);

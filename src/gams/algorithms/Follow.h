@@ -84,9 +84,9 @@ namespace gams
        * @param  self       self-referencing variables
        **/
       Follow (
-        const Madara::Knowledge_Record& id,
-        const Madara::Knowledge_Record& delay,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        const madara::Knowledge_Record& id,
+        const madara::Knowledge_Record& delay,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
@@ -122,7 +122,7 @@ namespace gams
       
     protected:
       /// location of agent to follow
-      Madara::Knowledge_Engine::Containers::Native_Double_Array target_location_;
+      madara::knowledge::containers::Native_Double_Array target_location_;
 
       /// type of movement being executed
       utility::GPS_Position next_position_;
@@ -157,8 +157,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

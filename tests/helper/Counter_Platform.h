@@ -59,8 +59,8 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
-#include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
 
 namespace gams
 {
@@ -74,7 +74,7 @@ namespace gams
        * @param  knowledge  knowledge base
        **/
       Counter_Platform (
-        Madara::Knowledge_Engine::Knowledge_Base & knowledge);
+        madara::knowledge::Knowledge_Base & knowledge);
 
       /**
        * Destructor
@@ -161,31 +161,31 @@ namespace gams
       utility::GPS_Position position_;
 
       /// tracks the number of calls to analyze
-      mutable Madara::Knowledge_Engine::Containers::Integer  analyze_counter_;
+      mutable madara::knowledge::containers::Integer  analyze_counter_;
 
       /// tracks the number of calls to get_gps_accuracy
-      mutable Madara::Knowledge_Engine::Containers::Integer  get_gps_accuracy_counter_;
+      mutable madara::knowledge::containers::Integer  get_gps_accuracy_counter_;
 
       /// tracks the number of calls to get_move_speed
-      mutable Madara::Knowledge_Engine::Containers::Integer  get_move_speed_counter_;
+      mutable madara::knowledge::containers::Integer  get_move_speed_counter_;
 
       /// tracks the number of calls to home
-      mutable Madara::Knowledge_Engine::Containers::Integer  home_counter_;
+      mutable madara::knowledge::containers::Integer  home_counter_;
 
       /// tracks the number of calls to land
-      mutable Madara::Knowledge_Engine::Containers::Integer  land_counter_;
+      mutable madara::knowledge::containers::Integer  land_counter_;
 
       /// tracks the number of calls to move
-      mutable Madara::Knowledge_Engine::Containers::Integer  move_counter_;
+      mutable madara::knowledge::containers::Integer  move_counter_;
 
       /// tracks the number of calls to sense
-      mutable Madara::Knowledge_Engine::Containers::Integer  sense_counter_;
+      mutable madara::knowledge::containers::Integer  sense_counter_;
 
       /// tracks the number of calls to set_move_speed
-      mutable Madara::Knowledge_Engine::Containers::Integer  set_move_speed_counter_;
+      mutable madara::knowledge::containers::Integer  set_move_speed_counter_;
 
       /// tracks the number of calls to takeoff
-      mutable Madara::Knowledge_Engine::Containers::Integer  takeoff_counter_;
+      mutable madara::knowledge::containers::Integer  takeoff_counter_;
     };
   }
 }

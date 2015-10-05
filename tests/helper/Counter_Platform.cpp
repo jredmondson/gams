@@ -48,7 +48,7 @@
 
 
 gams::platforms::Counter_Platform::Counter_Platform (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge)
+  madara::knowledge::Knowledge_Base & knowledge)
   : Base_Platform (&knowledge)
 {
   analyze_counter_.set_name (".platform_analyzes", knowledge);

@@ -51,8 +51,8 @@
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Debug_Algorithm_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -69,7 +69,7 @@ gams::algorithms::Debug_Algorithm_Factory::create (
 }
 
 gams::algorithms::Debug_Algorithm::Debug_Algorithm (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,

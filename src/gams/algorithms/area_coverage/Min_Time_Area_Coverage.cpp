@@ -71,8 +71,8 @@ using std::endl;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Min_Time_Area_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -149,7 +149,7 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage_Factory::create (
 gams::algorithms::area_coverage::Min_Time_Area_Coverage::
   Min_Time_Area_Coverage (
   const string& search_id, const ACE_Time_Value& e_time, 
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices,
   const string& algo_name) :
@@ -171,7 +171,7 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage::
    * is in place, the set_range, set_origin should not be called by the agents.
    */
   utility::GPS_Position origin;
-  Madara::Knowledge_Engine::Containers::Native_Double_Array origin_container;
+  madara::knowledge::containers::Native_Double_Array origin_container;
   origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
   origin.from_container (origin_container);
   min_time_.set_origin (origin);
@@ -183,7 +183,7 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage::
    * the sensor map to limit the amount of communication required.
    */
   valid_positions_ = min_time_.discretize (search_area_);
-  static const Madara::Knowledge_Engine::Knowledge_Update_Settings
+  static const madara::knowledge::Knowledge_Update_Settings
     NO_BROADCAST (true, false);
   knowledge_->lock ();
   for (std::set<utility::Position>::iterator it = valid_positions_.begin ();
@@ -220,7 +220,7 @@ gams::algorithms::area_coverage::Min_Time_Area_Coverage::analyze ()
    * As with the initial setup, we don't broadcast our sensor map updates to
    * limit the communications.
    */
-  static const Madara::Knowledge_Engine::Knowledge_Update_Settings
+  static const madara::knowledge::Knowledge_Update_Settings
     NO_BROADCAST (true, false);
   knowledge_->lock ();
   for (std::set<utility::Position>::iterator it = valid_positions_.begin ();

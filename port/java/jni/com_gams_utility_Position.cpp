@@ -2,8 +2,8 @@
 #include "com_gams_utility_Position.h"
 #include "gams/utility/Position.h"
 
-namespace containers = Madara::Knowledge_Engine::Containers;
-namespace engine = Madara::Knowledge_Engine;
+namespace containers = madara::knowledge::containers;
+namespace engine = madara::knowledge;
 namespace utility = gams::utility;
 
 /*

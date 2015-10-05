@@ -57,7 +57,7 @@
 
 #include <string>
 
-#include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge/containers/Integer.h"
 
 #include "gams/GAMS_Export.h"
 #include "gams/variables/Sensor.h"
@@ -88,7 +88,7 @@ namespace gams
        *                    after the .id identifier.
        **/
       Debug_Algorithm (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
@@ -131,7 +131,7 @@ namespace gams
        * This is different from executions_, which can only be
        * seen by the derived classes of Base_Algorithm.
        **/
-      Madara::Knowledge_Engine::Containers::Integer  k_executions_;
+      madara::knowledge::containers::Integer  k_executions_;
     };
 
     /**
@@ -158,8 +158,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

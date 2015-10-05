@@ -52,7 +52,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "madara/knowledge_engine/containers/Double_Vector.h"
+#include "madara/knowledge/containers/Double_Vector.h"
 
 #include "gams/variables/Sensor.h"
 
@@ -61,8 +61,8 @@
 using std::endl;
 using std::cout;
 using std::string;
-using Madara::Knowledge_Engine::Containers::Native_Double_Vector;
-using Madara::Knowledge_Engine::Containers::Double;
+using madara::knowledge::containers::Native_Double_Vector;
+using madara::knowledge::containers::Double;
 
 const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
@@ -82,8 +82,8 @@ const std::string gams::platforms::VREP_UAV::Target_Mover::MOVE_SPEED_CONTAINER_
 
 gams::platforms::Base_Platform *
 gams::platforms::VREP_UAV_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
@@ -98,9 +98,9 @@ gams::platforms::VREP_UAV_Factory::create (
   {
     if (knowledge->get_num_transports () == 0)
     {
-      Madara::Transport::QoS_Transport_Settings settings;
+      madara::transport::QoS_Transport_Settings settings;
 
-      settings.type = Madara::Transport::MULTICAST;
+      settings.type = madara::transport::MULTICAST;
       settings.hosts.push_back ("239.255.0.1:4150");
 
       knowledge_->attach_transport ("", settings);
@@ -156,7 +156,7 @@ gams::platforms::VREP_UAV_Factory::create (
 gams::platforms::VREP_UAV::VREP_UAV (
   std::string model_file, 
   simxUChar is_client_side, 
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self) :
@@ -334,8 +334,8 @@ gams::platforms::VREP_UAV::set_initial_position ()
 }
 
 gams::platforms::VREP_UAV::Target_Mover::Target_Mover (
-  const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
-  const Madara::Knowledge_Engine::Containers::Double& m) :
+  const madara::knowledge::containers::Native_Double_Vector& d, 
+  const madara::knowledge::containers::Double& m) :
   client_id_ (-1), node_target_ (-1), move_speed_ (m), target_pos_ (), 
   destination_ (d)
 {
@@ -433,7 +433,7 @@ gams::platforms::VREP_UAV::Target_Mover::set_client_id (simxInt c)
 
 void
 gams::platforms::VREP_UAV::Target_Mover::set_move_speed (
-  const Madara::Knowledge_Engine::Containers::Double& m)
+  const madara::knowledge::containers::Double& m)
 {
   move_speed_ = m;
 }

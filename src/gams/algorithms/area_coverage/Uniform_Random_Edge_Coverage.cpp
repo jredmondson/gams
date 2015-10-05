@@ -49,8 +49,8 @@ using std::string;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -145,7 +145,7 @@ gams::algorithms::area_coverage::
 Uniform_Random_Edge_Coverage::Uniform_Random_Edge_Coverage (
   const string& prefix,
   const ACE_Time_Value& e_time,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -214,7 +214,7 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::generate_new_posi
 {
   // select new edge
   int num_edges = int (region_.vertices.size());
-  int target_edge = Madara::Utility::rand_int (0, num_edges-1);
+  int target_edge = madara::utility::rand_int (0, num_edges-1);
 
   // get endpoints
   const utility::GPS_Position & pos_1 = region_.vertices[target_edge];
@@ -228,20 +228,20 @@ gams::algorithms::area_coverage::Uniform_Random_Edge_Coverage::generate_new_posi
   {
     const double & min = pos_1.latitude () < pos_2.latitude () ? pos_1.latitude () : pos_2.latitude ();
     const double & max = pos_1.latitude () > pos_2.latitude () ? pos_1.latitude () : pos_2.latitude ();
-    next_position_.latitude (Madara::Utility::rand_double(min, max));
+    next_position_.latitude (madara::utility::rand_double(min, max));
     next_position_.longitude (pos_1.longitude ());
   }
   else if (delta_lat == 0) // east/west line
   {
     const double & min = pos_1.longitude () < pos_2.longitude () ? pos_1.longitude () : pos_2.longitude ();
     const double & max = pos_1.longitude () > pos_2.longitude () ? pos_1.longitude () : pos_2.longitude ();
-    next_position_.longitude (Madara::Utility::rand_double(min, max));
+    next_position_.longitude (madara::utility::rand_double(min, max));
     next_position_.latitude (pos_1.latitude ());
   }
   else // other arbitrary line
   {
     const double slope = delta_lon / delta_lat;
-    next_position_.latitude (Madara::Utility::rand_double(pos_1.latitude (), pos_2.latitude ()));
+    next_position_.latitude (madara::utility::rand_double(pos_1.latitude (), pos_2.latitude ()));
     next_position_.longitude (pos_1.longitude () + slope * (next_position_.latitude () - pos_1.latitude ()));
   }
 

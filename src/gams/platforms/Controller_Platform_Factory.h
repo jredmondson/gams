@@ -59,7 +59,7 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "Platform_Factory.h"
 
 namespace gams
@@ -83,7 +83,7 @@ namespace gams
        * @param  self       device variables that describe self state
        **/
       Controller_Platform_Factory (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -110,13 +110,13 @@ namespace gams
        * @return  the new platform
        **/
       Base_Platform * create (const std::string & type,
-        const Madara::Knowledge_Vector & args = Madara::Knowledge_Vector ());
+        const madara::Knowledge_Vector & args = madara::Knowledge_Vector ());
       
       /**
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (Madara::Knowledge_Engine::Knowledge_Base * knowledge);
+      void set_knowledge (madara::knowledge::Knowledge_Base * knowledge);
       
       /**
        * Sets the map of platform names to platform information
@@ -144,7 +144,7 @@ namespace gams
     private:
 
       /// knowledge base containing variables
-      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
+      madara::knowledge::Knowledge_Base * knowledge_;
 
       /// platform variables
       variables::Platforms * platforms_;

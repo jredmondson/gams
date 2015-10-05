@@ -87,7 +87,7 @@ namespace gams
         Snake_Area_Coverage (
           const std::string& region_id,
           const ACE_Time_Value& e_time,
-          Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+          madara::knowledge::Knowledge_Base * knowledge = 0,
           platforms::Base_Platform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
@@ -146,8 +146,8 @@ namespace gams
          *                    will be set by the controller in init_vars
          **/
         virtual Base_Algorithm * create (
-          const Madara::Knowledge_Vector & args,
-          Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+          const madara::Knowledge_Vector & args,
+          madara::knowledge::Knowledge_Base * knowledge,
           platforms::Base_Platform * platform,
           variables::Sensors * sensors,
           variables::Self * self,

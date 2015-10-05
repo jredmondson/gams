@@ -69,8 +69,8 @@ using std::endl;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Formation_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -89,9 +89,9 @@ gams::algorithms::Formation_Coverage_Factory::create (
     bool error = false;
 
     // create arg types
-    Madara::Knowledge_Record::Integer target;
+    madara::Knowledge_Record::Integer target;
     std::vector<double> offset;
-    std::vector<Madara::Knowledge_Record::Integer> members;
+    std::vector<madara::Knowledge_Record::Integer> members;
     std::string modifier ("default");
     std::string coverage;
 
@@ -172,7 +172,7 @@ gams::algorithms::Formation_Coverage_Factory::create (
      "gams::algorithms::Formation_Coverage_Factory:" \
      " coverage arg is %s\n", coverage.c_str ());
 
-    Madara::Knowledge_Vector cover_args;
+    madara::Knowledge_Vector cover_args;
     for(size_t i = 5; i < args.size(); ++i)
     {
       cover_args.push_back (args[i]);
@@ -200,13 +200,13 @@ gams::algorithms::Formation_Coverage_Factory::create (
 }
 
 gams::algorithms::Formation_Coverage::Formation_Coverage (
-  const Madara::Knowledge_Record::Integer & head_id,
+  const madara::Knowledge_Record::Integer & head_id,
   const std::vector<double> & offset,
-  const std::vector<Madara::Knowledge_Record::Integer> & members,
+  const std::vector<madara::Knowledge_Record::Integer> & members,
   const std::string & modifier,
   const std::string & coverage,
-  const Madara::Knowledge_Vector & cover_args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & cover_args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self) : 
@@ -290,7 +290,7 @@ gams::algorithms::Formation_Coverage::operator= (const Formation_Coverage & rhs)
     //area_coverage::Base_Area_Coverage* head_algo_;
     //bool is_covering_;
     //Formation_Flying* my_formation_;
-    //Madara::Knowledge_Engine::Containers::Native_Double_Array head_destination_;
+    //madara::knowledge::containers::Native_Double_Array head_destination_;
     this->Base_Algorithm::operator= (rhs);
   }
 }

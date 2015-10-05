@@ -268,7 +268,7 @@ test_Region ()
   assert (bound.get_area () < 681.3 && bound.get_area() > 681.2);
 
   // check to/from container
-  Madara::Knowledge_Engine::Knowledge_Base kb;
+  madara::knowledge::Knowledge_Base kb;
   r.to_container (kb, "test");
   Region from;
   from.from_container (kb, "test");
@@ -315,7 +315,7 @@ test_Search_Area ()
   assert (search.get_convex_hull () == convex1);
 
   // test to/from container
-  Madara::Knowledge_Engine::Knowledge_Base kb;
+  madara::knowledge::Knowledge_Base kb;
   pr.to_container (kb, "test");
   Prioritized_Region from;
   from.from_container (kb, "test");

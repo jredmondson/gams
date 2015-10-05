@@ -61,7 +61,7 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/utility/GPS_Position.h"
 #include "gams/utility/Axes.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -116,7 +116,7 @@ namespace gams
        * @param  sensors  map of sensor names to sensor information
        * @param  self     self referencing variables for the device
        **/
-      Base_Platform (Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+      Base_Platform (madara::knowledge::Knowledge_Base * knowledge = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
 
@@ -228,7 +228,7 @@ namespace gams
        * Sets the knowledge base to use for the platform
        * @param  rhs  the new knowledge base to use
        **/
-      void set_knowledge (Madara::Knowledge_Engine::Knowledge_Base * rhs);
+      void set_knowledge (madara::knowledge::Knowledge_Base * rhs);
       
       /**
        * Set move speed
@@ -257,7 +257,7 @@ namespace gams
        * Gets the knowledge base
        * @return the knowledge base referenced by the algorithm and platform
        **/
-      Madara::Knowledge_Engine::Knowledge_Base * get_knowledge_base (void);
+      madara::knowledge::Knowledge_Base * get_knowledge_base (void);
       
       /**
        * Gets self-referencing variables
@@ -282,7 +282,7 @@ namespace gams
       double move_speed_;
 
       /// provides access to variables and values
-      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
+      madara::knowledge::Knowledge_Base * knowledge_;
 
       /// provides access to self state
       variables::Self * self_;

@@ -64,8 +64,8 @@ using std::endl;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Priority_Weighted_Random_Area_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -148,7 +148,7 @@ gams::algorithms::area_coverage::Priority_Weighted_Random_Area_Coverage::
 Priority_Weighted_Random_Area_Coverage (
   const string& search_id,
   const ACE_Time_Value& e_time,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time),
@@ -197,7 +197,7 @@ gams::algorithms::area_coverage::Priority_Weighted_Random_Area_Coverage::
   generate_new_position ()
 {
   // select region
-  double selected_rand = Madara::Utility::rand_double (0.0, total_priority_);
+  double selected_rand = madara::utility::rand_double (0.0, total_priority_);
   const utility::Prioritized_Region* selected_region = 0;
   for (unsigned int i = 0; i < search_area_.get_regions ().size (); ++i)
   {
@@ -211,11 +211,11 @@ gams::algorithms::area_coverage::Priority_Weighted_Random_Area_Coverage::
   // select point in region
   do
   {
-    next_position_.latitude (Madara::Utility::rand_double (selected_region->min_lat_,
+    next_position_.latitude (madara::utility::rand_double (selected_region->min_lat_,
       selected_region->max_lat_));
-    next_position_.longitude (Madara::Utility::rand_double (selected_region->min_lon_,
+    next_position_.longitude (madara::utility::rand_double (selected_region->min_lon_,
       selected_region->max_lon_));
-    next_position_.altitude (Madara::Utility::rand_double (selected_region->min_alt_,
+    next_position_.altitude (madara::utility::rand_double (selected_region->min_alt_,
       selected_region->max_alt_));
   }
   while (!selected_region->contains (next_position_));

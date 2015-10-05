@@ -68,8 +68,8 @@
 #include "gams/algorithms/Algorithm_Factory.h"
 #include "gams/platforms/Platform_Factory.h"
 
-#include "madara/knowledge_engine/containers/String.h"
-#include "madara/knowledge_engine/containers/Vector.h"
+#include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Vector.h"
 
 #ifdef _GAMS_JAVA_
 #include <jni.h>
@@ -90,7 +90,7 @@ namespace gams
        * Constructor
        * @param   knowledge   The knowledge base to reference and mutate
        **/
-      Base_Controller (Madara::Knowledge_Engine::Knowledge_Base & knowledge);
+      Base_Controller (madara::knowledge::Knowledge_Base & knowledge);
 
       /**
        * Destructor
@@ -190,7 +190,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_accent (const std::string & algorithm,
-        const Madara::Knowledge_Vector & args = Madara::Knowledge_Vector ());
+        const madara::Knowledge_Vector & args = madara::Knowledge_Vector ());
 
       /**
        * Clears all accent algorithms
@@ -227,7 +227,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_algorithm (const std::string & algorithm,
-        const Madara::Knowledge_Vector & args = Madara::Knowledge_Vector ());
+        const madara::Knowledge_Vector & args = madara::Knowledge_Vector ());
  
       /**
        * Initializes the controller with a user-provided algorithm. This
@@ -243,7 +243,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_platform (const std::string & platform,
-        const Madara::Knowledge_Vector & args = Madara::Knowledge_Vector ());
+        const madara::Knowledge_Vector & args = madara::Knowledge_Vector ());
        
       /**
        * Initializes the controller with a user-provided platform. This
@@ -272,8 +272,8 @@ namespace gams
        * @param   id         node identifier
        * @param   processes  processes
        **/
-      void init_vars (const Madara::Knowledge_Record::Integer & id = 0,
-        const Madara::Knowledge_Record::Integer & processes = -1);
+      void init_vars (const madara::Knowledge_Record::Integer & id = 0,
+        const madara::Knowledge_Record::Integer & processes = -1);
       
       /**
        * Initializes containers and knowledge base in a platform
@@ -318,7 +318,7 @@ namespace gams
       variables::Devices devices_;
 
       /// Knowledge base
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge_;
+      madara::knowledge::Knowledge_Base & knowledge_;
 
       /// Platform on which the controller is running
       platforms::Base_Platform * platform_;

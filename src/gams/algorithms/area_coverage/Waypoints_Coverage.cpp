@@ -57,8 +57,8 @@ using std::vector;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -119,7 +119,7 @@ gams::algorithms::area_coverage::Waypoints_Coverage_Factory::create (
  */
 gams::algorithms::area_coverage::Waypoints_Coverage::Waypoints_Coverage (
   const std::vector<utility::Position>& waypoints,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices),

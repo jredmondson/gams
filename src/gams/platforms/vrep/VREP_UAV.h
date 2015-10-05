@@ -60,10 +60,10 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Platform_Status.h"
 #include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "madara/threads/Threader.h"
 #include "madara/threads/Base_Thread.h"
-#include "madara/knowledge_engine/containers/Native_Double_Vector.h"
+#include "madara/knowledge/containers/Native_Double_Vector.h"
 
 extern "C" {
 #include "extApi.h"
@@ -95,7 +95,7 @@ namespace gams
       VREP_UAV (
         std::string model_file, 
         simxUChar is_client_side, 
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -134,7 +134,7 @@ namespace gams
       /**
        * Thread to move target
        **/
-      class Target_Mover : public Madara::Threads::Base_Thread
+      class Target_Mover : public madara::Threads::Base_Thread
       {
         public:
           /// Thread execution rate in Hz
@@ -152,8 +152,8 @@ namespace gams
            * @param m   move speed for target
            **/
           Target_Mover (
-            const Madara::Knowledge_Engine::Containers::Native_Double_Vector& d, 
-            const Madara::Knowledge_Engine::Containers::Double& m);
+            const madara::knowledge::containers::Native_Double_Vector& d, 
+            const madara::knowledge::containers::Double& m);
 
           /**
            * main thread function
@@ -177,7 +177,7 @@ namespace gams
            * @param m   new move speed
            **/
           void set_move_speed (
-            const Madara::Knowledge_Engine::Containers::Double& m);
+            const madara::knowledge::containers::Double& m);
 
           /**
            * Set target position
@@ -192,26 +192,26 @@ namespace gams
           simxInt node_target_;
 
           /// Target move speed per second
-          Madara::Knowledge_Engine::Containers::Double move_speed_;
+          madara::knowledge::containers::Double move_speed_;
 
           /// Current target location
           utility::Position target_pos_;
 
           /// Destination container
-          Madara::Knowledge_Engine::Containers::Native_Double_Vector destination_;
+          madara::knowledge::containers::Native_Double_Vector destination_;
       };
 
       /// Thread object
       Target_Mover mover_;
 
       /// MADARA Threader
-      Madara::Threads::Threader threader_;
+      madara::Threads::Threader threader_;
 
       /// container for destination
-      Madara::Knowledge_Engine::Containers::Native_Double_Vector thread_dest_;
+      madara::knowledge::containers::Native_Double_Vector thread_dest_;
 
       /// container for move speed
-      Madara::Knowledge_Engine::Containers::Double thread_move_speed_;
+      madara::knowledge::containers::Double thread_move_speed_;
 
       /**
        * Add model to environment
@@ -250,8 +250,8 @@ namespace gams
        *                    set by the controller in init_vars
        **/
       virtual Base_Platform * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);

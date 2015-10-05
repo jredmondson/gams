@@ -59,8 +59,8 @@ const string gams::algorithms::Message_Profiling::key_prefix_ = "message_profili
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Message_Profiling_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -69,7 +69,7 @@ gams::algorithms::Message_Profiling_Factory::create (
   Base_Algorithm * result (0);
 
   // set defaults
-  Madara::Knowledge_Record send_size (Madara::Knowledge_Record::Integer (100));
+  madara::Knowledge_Record send_size (madara::Knowledge_Record::Integer (100));
 
   if (knowledge && sensors && self)
   {
@@ -84,8 +84,8 @@ gams::algorithms::Message_Profiling_Factory::create (
 }
 
 gams::algorithms::Message_Profiling::Message_Profiling (
-  const Madara::Knowledge_Record& send, 
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Record& send, 
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base * platform,
   variables::Sensors * sensors,
   variables::Self * self)
@@ -98,22 +98,22 @@ gams::algorithms::Message_Profiling::Message_Profiling (
   // attach filter
   //knowledge->close_transport ();
 
-  Madara::Transport::QoS_Transport_Settings settings;
+  madara::transport::QoS_Transport_Settings settings;
 
 //  settings.hosts.push_back (send.to_string ());
-//  settings.type = Madara::Transport::BROADCAST;
+//  settings.type = madara::transport::BROADCAST;
 
 //  const std::string default_broadcast ("128.237.127.255:15000");
 //  settings.hosts.push_back (default_broadcast);
-//  settings.type = Madara::Transport::BROADCAST;
+//  settings.type = madara::transport::BROADCAST;
 
   const std::string default_multicast ("239.255.0.1:4150");
   settings.hosts.push_back (default_multicast);
-  settings.type = Madara::Transport::MULTICAST;
+  settings.type = madara::transport::MULTICAST;
 
   settings.add_receive_filter (&filter_);
 
-  local_knowledge_ = new Madara::Knowledge_Engine::Knowledge_Base (
+  local_knowledge_ = new madara::knowledge::Knowledge_Base (
     knowledge_->get_id (), settings);
 
   // setup containers
@@ -146,18 +146,18 @@ gams::algorithms::Message_Profiling::~Message_Profiling ()
 
     const string prefix = key_prefix_ + "." + map_item.first + ".";
     //knowledge_->set(prefix + "first", 
-    //  Madara::Knowledge_Record::Integer (map_item.second.first));
+    //  madara::Knowledge_Record::Integer (map_item.second.first));
     //knowledge_->set(prefix + "last", 
-    //  Madara::Knowledge_Record::Integer (map_item.second.last));
+    //  madara::Knowledge_Record::Integer (map_item.second.last));
     //knowledge_->set(prefix + "missing", percent_missing);
     knowledge_->set(prefix + "count", 
-      Madara::Knowledge_Record::Integer (map_item.second));
+      madara::Knowledge_Record::Integer (map_item.second));
   }
 }
 
 void
 gams::algorithms::Message_Profiling::init_filtered_transport (
-  Madara::Transport::QoS_Transport_Settings settings)
+  madara::transport::QoS_Transport_Settings settings)
 {
   settings.add_receive_filter (&filter_);
   local_knowledge_->attach_transport (knowledge_->get_id (), settings);
@@ -207,9 +207,9 @@ gams::algorithms::Message_Profiling::Message_Filter::~Message_Filter ()
 
 void
 gams::algorithms::Message_Profiling::Message_Filter::filter (
-  Madara::Knowledge_Map& /*records*/, 
-  const Madara::Transport::Transport_Context& transport_context, 
-  Madara::Knowledge_Engine::Variables& /*var*/)
+  madara::Knowledge_Map& /*records*/, 
+  const madara::transport::Transport_Context& transport_context, 
+  madara::knowledge::Variables& /*var*/)
 {
   const string origin = transport_context.get_originator ();
   if (msg_map.find (origin) == msg_map.end ())
@@ -222,10 +222,10 @@ gams::algorithms::Message_Profiling::Message_Filter::filter (
 //  Message_Data& data = msg_map[origin];
 //
 //  // loop through each update
-//  for (Madara::Knowledge_Map::const_iterator iter = records.begin();
+//  for (madara::Knowledge_Map::const_iterator iter = records.begin();
 //	      iter != records.end(); ++iter)
 //  {
-//    Madara::Knowledge_Map::const_reference update = *iter;
+//    madara::Knowledge_Map::const_reference update = *iter;
 //
 //    // we only care about specific messages
 //    if (update.second.is_integer_type () && 

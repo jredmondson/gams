@@ -60,7 +60,7 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -80,7 +80,7 @@ namespace gams
        * @param  self       device variables that describe self state
        **/
       Null_Platform (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -185,8 +185,8 @@ namespace gams
        *                    set by the controller in init_vars
        **/
       virtual Base_Platform * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);

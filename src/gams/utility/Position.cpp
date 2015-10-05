@@ -84,7 +84,7 @@ gams::utility::Position::operator== (const Position & rhs) const
 
 bool
 gams::utility::Position::operator== (
-  const Madara::Knowledge_Engine::Containers::Double_Array & rhs) const
+  const madara::knowledge::containers::Double_Array & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -92,7 +92,7 @@ gams::utility::Position::operator== (
 
 bool
 gams::utility::Position::operator== (
-  const Madara::Knowledge_Engine::Containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::Native_Double_Array & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -106,14 +106,14 @@ gams::utility::Position::operator!= (const Position & rhs) const
 
 bool
 gams::utility::Position::operator!= (
-  const Madara::Knowledge_Engine::Containers::Double_Array & rhs) const
+  const madara::knowledge::containers::Double_Array & rhs) const
 {
   return !(*this == rhs);
 }
 
 bool
 gams::utility::Position::operator!= (
-  const Madara::Knowledge_Engine::Containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::Native_Double_Array & rhs) const
 {
   return !(*this == rhs);
 }
@@ -275,7 +275,7 @@ gams::utility::Position::from_string (const std::string & s)
 
 void
 gams::utility::Position::to_container (
-  Madara::Knowledge_Engine::Containers::Double_Array & target) const
+  madara::knowledge::containers::Double_Array & target) const
 {
   target.set (0, x);
   target.set (1, y);
@@ -284,7 +284,7 @@ gams::utility::Position::to_container (
 
 void
 gams::utility::Position::from_container (
-  Madara::Knowledge_Engine::Containers::Double_Array & source)
+  madara::knowledge::containers::Double_Array & source)
 {
   if (source.size () >= 3)
   {
@@ -296,7 +296,7 @@ gams::utility::Position::from_container (
 
 void
 gams::utility::Position::to_container (
-  Madara::Knowledge_Engine::Containers::Native_Double_Array & target) const
+  madara::knowledge::containers::Native_Double_Array & target) const
 {
   target.set (0, x);
   target.set (1, y);
@@ -305,7 +305,7 @@ gams::utility::Position::to_container (
 
 void
 gams::utility::Position::from_container (
-  Madara::Knowledge_Engine::Containers::Native_Double_Array & source)
+  madara::knowledge::containers::Native_Double_Array & source)
 {
   if (source.size () >= 3)
   {

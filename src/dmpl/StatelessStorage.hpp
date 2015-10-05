@@ -65,9 +65,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <exception>
-#include <madara/knowledge_engine/Thread_Safe_Context.h>
-#include <madara/knowledge_engine/Thread_Safe_Context.h>
-#include <madara/knowledge_engine/Knowledge_Update_Settings.h>
+#include <madara/knowledge/Thread_Safe_Context.h>
+#include <madara/knowledge/Thread_Safe_Context.h>
+#include <madara/knowledge/Knowledge_Update_Settings.h>
 #include "knowledge_cast.hpp"
 #include "Reference.hpp"
 #include "StorageManager.hpp"
@@ -96,7 +96,7 @@ namespace Containers
 namespace StorageManager
 {
 
-using namespace ::Madara::Knowledge_Engine::Containers::__INTERNAL__;
+using namespace ::madara::knowledge::containers::__INTERNAL__;
 
 namespace __INTERNAL__
 {

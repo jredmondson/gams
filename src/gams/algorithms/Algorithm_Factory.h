@@ -59,7 +59,7 @@
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Device.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -93,8 +93,8 @@ namespace gams
        * @return  the new algorithm
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,
@@ -110,7 +110,7 @@ namespace gams
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (Madara::Knowledge_Engine::Knowledge_Base * knowledge);
+      void set_knowledge (madara::knowledge::Knowledge_Base * knowledge);
       
       /**
        * Sets the map of platform names to platform information
@@ -133,7 +133,7 @@ namespace gams
     protected:
       
       /// knowledge base containing variables
-      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
+      madara::knowledge::Knowledge_Base * knowledge_;
 
       /// list of devices participating in the swarm
       variables::Devices * devices_;

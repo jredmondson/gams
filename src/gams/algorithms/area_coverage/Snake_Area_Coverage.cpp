@@ -59,8 +59,8 @@ using std::string;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::area_coverage::Snake_Area_Coverage_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -141,7 +141,7 @@ gams::algorithms::area_coverage::Snake_Area_Coverage_Factory::create (
 gams::algorithms::area_coverage::Snake_Area_Coverage::Snake_Area_Coverage (
   const string& region_id,
   const ACE_Time_Value& e_time,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
   Base_Area_Coverage (knowledge, platform, sensors, self, devices, e_time),

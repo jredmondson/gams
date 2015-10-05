@@ -5,7 +5,7 @@
  * Counts database updates
  */
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "madara/filters/Generic_Filters.h"
 
 #include <string>
@@ -17,7 +17,7 @@ using std::endl;
 
 double num_sec = 10;
 
-Madara::Transport::QoS_Transport_Settings settings;
+madara::transport::QoS_Transport_Settings settings;
 
 void handle_arguments (int argc, char ** argv)
 {
@@ -31,7 +31,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::UDP;
+        settings.type = madara::transport::UDP;
         error = false;
       }
 
@@ -42,7 +42,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::BROADCAST;
+        settings.type = madara::transport::BROADCAST;
         error = false;
       }
 
@@ -53,7 +53,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         settings.hosts.push_back (argv[i + 1]);
-        settings.type = Madara::Transport::MULTICAST;
+        settings.type = madara::transport::MULTICAST;
         error = false;
       }
 
@@ -86,15 +86,15 @@ void handle_arguments (int argc, char ** argv)
   }
 }
 
-class CounterFilter : public Madara::Filters::Record_Filter
+class CounterFilter : public madara::filters::Record_Filter
 {
 public:
   size_t count;
 
   CounterFilter() : count(0) {}
 
-  Madara::Knowledge_Record filter(Madara::Knowledge_Engine::Function_Arguments& args,
-    Madara::Knowledge_Engine::Variables & /*vars*/)
+  madara::Knowledge_Record filter(madara::knowledge::Function_Arguments& args,
+    madara::knowledge::Variables & /*vars*/)
   {
     ++count;
     return args[1];
@@ -110,14 +110,14 @@ int main(int argc, char** argv)
   {
     const std::string default_multicast ("239.255.0.1:4150");
     settings.hosts.push_back(default_multicast);
-    settings.type = Madara::Transport::MULTICAST;
+    settings.type = madara::transport::MULTICAST;
   }
 
   CounterFilter counter;
-  settings.add_receive_filter(Madara::Knowledge_Record::ALL_TYPES, &counter);
-  Madara::Knowledge_Engine::Knowledge_Base knowledge("", settings);
+  settings.add_receive_filter(madara::Knowledge_Record::ALL_TYPES, &counter);
+  madara::knowledge::Knowledge_Base knowledge("", settings);
 
-  num_sec = Madara::Utility::sleep(num_sec);
+  num_sec = madara::utility::sleep(num_sec);
 
   cout << double(counter.count) / num_sec << " Hz update rate" << endl;
 

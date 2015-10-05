@@ -57,11 +57,11 @@
 #include <string>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/String.h"
-#include "madara/knowledge_engine/containers/Double.h"
-#include "madara/knowledge_engine/containers/Vector.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/Vector.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "Accent_Status.h"
 
 namespace gams
@@ -95,28 +95,28 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   swarm_size size of the swarm
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const Madara::Knowledge_Record::Integer& swarm_size = 1);
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
+        const madara::Knowledge_Record::Integer& swarm_size = 1);
       
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        * @param   swarm_size size of the swarm
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
-        const Madara::Knowledge_Record::Integer& swarm_size = 1);
+      void init_vars (madara::knowledge::Variables & knowledge,
+        const madara::Knowledge_Record::Integer& swarm_size = 1);
 
       /// the current command given to the swarm
-      Madara::Knowledge_Engine::Containers::String command;
+      madara::knowledge::containers::String command;
       
       /// number of arguments for command
-      Madara::Knowledge_Engine::Containers::Vector command_args;
+      madara::knowledge::containers::Vector command_args;
       
       /// minimum altitude for swarm to use
-      Madara::Knowledge_Engine::Containers::Double min_alt;
+      madara::knowledge::containers::Double min_alt;
 
       /// the number of agents participating in the swarm
-      Madara::Knowledge_Engine::Containers::Integer size;
+      madara::knowledge::containers::Integer size;
       
       /// container for accents
       Accent_Statuses accents;
@@ -135,7 +135,7 @@ namespace gams
        * Variable setup
        * @param  swarm_size   number of participating devices
        */
-      void init_vars (const Madara::Knowledge_Record::Integer& swarm_size);
+      void init_vars (const madara::Knowledge_Record::Integer& swarm_size);
     };
     
     /**
@@ -145,8 +145,8 @@ namespace gams
       * @param   swarm_size size of the swarm
       **/
     GAMS_Export void init_vars (Swarm & variables,
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const Madara::Knowledge_Record::Integer& swarm_size = 1);
+      madara::knowledge::Knowledge_Base & knowledge,
+        const madara::Knowledge_Record::Integer& swarm_size = 1);
     
     /**
       * Initializes a swarm container
@@ -155,8 +155,8 @@ namespace gams
       * @param   swarm_size size of the swarm
       **/
     GAMS_Export void init_vars (Swarm & variables,
-      Madara::Knowledge_Engine::Variables & knowledge,
-        const Madara::Knowledge_Record::Integer& swarm_size = 1);
+      madara::knowledge::Variables & knowledge,
+        const madara::Knowledge_Record::Integer& swarm_size = 1);
   }
 }
 

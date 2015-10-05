@@ -59,8 +59,8 @@
 #include <map>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "Device.h"
 
 
@@ -96,7 +96,7 @@ namespace gams
        * @param   new_name   the name of the algorithm
        * @param   i          the device id
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
         const std::string & new_name, int i);
       
       /**
@@ -105,7 +105,7 @@ namespace gams
        * @param   new_name   the name of the algorithm
        * @param   i          the device id
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
+      void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & new_name, int i);
 
       /**
@@ -123,25 +123,25 @@ namespace gams
       //Device device;
       
       /// status flag for deadlocked
-      Madara::Knowledge_Engine::Containers::Integer deadlocked;
+      madara::knowledge::containers::Integer deadlocked;
 
       /// status flag for failed
-      Madara::Knowledge_Engine::Containers::Integer failed;
+      madara::knowledge::containers::Integer failed;
 
       /// status flag for ok
-      Madara::Knowledge_Engine::Containers::Integer ok;
+      madara::knowledge::containers::Integer ok;
       
       /// status flag for ok
-      Madara::Knowledge_Engine::Containers::Integer paused;
+      madara::knowledge::containers::Integer paused;
       
       /// status flag for unknown
-      Madara::Knowledge_Engine::Containers::Integer unknown;
+      madara::knowledge::containers::Integer unknown;
 
       /// status flag for waiting
-      Madara::Knowledge_Engine::Containers::Integer waiting;
+      madara::knowledge::containers::Integer waiting;
 
       /// status flag for finished
-      Madara::Knowledge_Engine::Containers::Integer finished;
+      madara::knowledge::containers::Integer finished;
 
     protected:
       /**

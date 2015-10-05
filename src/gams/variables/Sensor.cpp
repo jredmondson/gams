@@ -56,7 +56,7 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 gams::variables::Sensor::Sensor () :
   knowledge_ (0), name_ ("")
@@ -64,7 +64,7 @@ gams::variables::Sensor::Sensor () :
 }
 
 gams::variables::Sensor::Sensor (const string & name,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   const double & range, const utility::GPS_Position & origin) :
   knowledge_ (knowledge), name_ (name)
 {
@@ -269,7 +269,7 @@ gams::variables::Sensor::set_range (const double & range)
 void
 gams::variables::Sensor::set_value (const utility::GPS_Position & pos,
   const double & val,
-  const Madara::Knowledge_Engine::Knowledge_Update_Settings & settings)
+  const madara::knowledge::Knowledge_Update_Settings & settings)
 {
   set_value (get_index_from_gps (pos), val, settings);
 }
@@ -277,7 +277,7 @@ gams::variables::Sensor::set_value (const utility::GPS_Position & pos,
 void
 gams::variables::Sensor::set_value (const utility::Position & pos,
   const double & val,
-  const Madara::Knowledge_Engine::Knowledge_Update_Settings & settings)
+  const madara::knowledge::Knowledge_Update_Settings & settings)
 {
   string idx = index_pos_to_index (pos);
   value_.set (idx, val, settings);
@@ -309,7 +309,7 @@ gams::variables::Sensor::init_vars ()
 
 void
 gams::variables::Sensor::init_vars (const string & name,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   const double & range, const utility::GPS_Position & origin)
 {
   name_ = name;

@@ -85,12 +85,12 @@ namespace gams
        * @param  self           self-referencing variables
        **/
       Formation_Flying (
-        const Madara::Knowledge_Record::Integer & head_id,
+        const madara::Knowledge_Record::Integer & head_id,
         const std::vector<double> & offset,
         const std::vector<double> & destination,
-        const std::vector<Madara::Knowledge_Record::Integer> & members,
+        const std::vector<madara::Knowledge_Record::Integer> & members,
         const std::string & modifier,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         platforms::Base_Platform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
@@ -145,13 +145,13 @@ namespace gams
       /// formation wait string
       struct Compiled
       {
-        Madara::Knowledge_Engine::Compiled_Expression ref;
+        madara::knowledge::Compiled_Expression ref;
         size_t agent;
       };
       std::vector<Compiled> compiled_formation_;
 
       /// are we in formation?
-      Madara::Knowledge_Engine::Containers::Integer formation_ready_;
+      madara::knowledge::containers::Integer formation_ready_;
 
       /// am i the head?
       bool head_;
@@ -160,16 +160,16 @@ namespace gams
       int head_id_;
 
       /// head location
-      Madara::Knowledge_Engine::Containers::Native_Double_Array head_location_;
+      madara::knowledge::containers::Native_Double_Array head_location_;
 
       /// head destination
-      Madara::Knowledge_Engine::Containers::Native_Double_Array head_destination_;
+      madara::knowledge::containers::Native_Double_Array head_destination_;
 
       /// destination as GPS_Position
       utility::GPS_Position destination_;
 
       /// am i in formation?
-      Madara::Knowledge_Engine::Containers::Integer in_formation_;
+      madara::knowledge::containers::Integer in_formation_;
 
       /// modifier enum
       enum
@@ -230,8 +230,8 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual Base_Algorithm * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         platforms::Base_Platform * platform,
         variables::Sensors * sensors,
         variables::Self * self,

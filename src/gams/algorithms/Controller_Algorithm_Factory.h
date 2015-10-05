@@ -60,7 +60,7 @@
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Device.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "Algorithm_Factory.h"
 
 namespace gams
@@ -84,7 +84,7 @@ namespace gams
        * @param  devices    devices of the swarm
        **/
       Controller_Algorithm_Factory (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         variables::Sensors * sensors = 0,
         platforms::Base_Platform * platform = 0,
         variables::Self * self = 0,
@@ -112,7 +112,7 @@ namespace gams
        * @return  the new algorithm
        **/
       Base_Algorithm * create (const std::string & type,
-        const Madara::Knowledge_Vector & args = Madara::Knowledge_Vector ());
+        const madara::Knowledge_Vector & args = madara::Knowledge_Vector ());
       
       /**
        * Sets list of devices participating in swarm
@@ -124,7 +124,7 @@ namespace gams
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (Madara::Knowledge_Engine::Knowledge_Base * knowledge);
+      void set_knowledge (madara::knowledge::Knowledge_Base * knowledge);
       
       /**
        * Sets the map of platform names to platform information
@@ -155,7 +155,7 @@ namespace gams
       variables::Devices * devices_;
 
       /// knowledge base containing variables
-      Madara::Knowledge_Engine::Knowledge_Base * knowledge_;
+      madara::knowledge::Knowledge_Base * knowledge_;
 
       /// platform variables
       platforms::Base_Platform * platform_;

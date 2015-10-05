@@ -57,7 +57,7 @@
 #include <string>
 #include <sstream>
 
-#include "madara/knowledge_engine/containers/Integer.h"
+#include "madara/knowledge/containers/Integer.h"
 
 #include "gams/loggers/Global_Logger.h"
 
@@ -117,7 +117,7 @@ gams::utility::Prioritized_Region::to_string (const std::string & delimiter)
 
 bool
 gams::utility::Prioritized_Region::check_valid_type (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+  madara::knowledge::Knowledge_Base& kb, const std::string& name) const
 {
   const static Class_ID valid = 
     (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
@@ -126,23 +126,23 @@ gams::utility::Prioritized_Region::check_valid_type (
 
 void
 gams::utility::Prioritized_Region::to_container_impl (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::Knowledge_Base& kb, const std::string& name)
 {
   Region temp (*this);
   temp.to_container (kb, name);
 
-  Madara::Knowledge_Engine::Containers::Integer object_type;
+  madara::knowledge::containers::Integer object_type;
   object_type.set_name (name + object_type_suffix_, kb);
   object_type = PRIORITIZED_REGION_TYPE_ID;
 
-  Madara::Knowledge_Engine::Containers::Integer priority_container;
+  madara::knowledge::containers::Integer priority_container;
   priority_container.set_name (name + ".priority", kb);
   priority_container = priority;
 }
 
 bool
 gams::utility::Prioritized_Region::from_container_impl (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::Knowledge_Base& kb, const std::string& name)
 {
   bool ret_val (false);
   if (!check_valid_type (kb, name))
@@ -159,7 +159,7 @@ gams::utility::Prioritized_Region::from_container_impl (
     ret_val = temp_reg.from_container (kb, name);
     if (ret_val)
     {
-      Madara::Knowledge_Engine::Containers::Integer priority_container;
+      madara::knowledge::containers::Integer priority_container;
       priority_container.set_name (name + ".priority", kb);
       if (!priority_container.exists () && 
         get_type (kb, name) != REGION_TYPE_ID)

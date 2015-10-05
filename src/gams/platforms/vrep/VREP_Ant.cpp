@@ -63,7 +63,7 @@ using std::cout;
 using std::string;
 #include <cmath>
 
-#include "madara/knowledge_engine/containers/Double_Vector.h"
+#include "madara/knowledge/containers/Double_Vector.h"
 
 #include "gams/variables/Sensor.h"
 
@@ -75,8 +75,8 @@ const string gams::platforms::VREP_Ant::DEFAULT_ANT_MODEL (
 
 gams::platforms::Base_Platform *
 gams::platforms::VREP_Ant_Factory::create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self)
@@ -87,14 +87,14 @@ gams::platforms::VREP_Ant_Factory::create (
   {
     if (knowledge->get_num_transports () == 0)
     {
-      Madara::Transport::QoS_Transport_Settings settings;
+      madara::transport::QoS_Transport_Settings settings;
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
         "gams::platforms::VREP_Ant_Factory::create:" \
         " no transports found, attaching multicast\n");
 
-      settings.type = Madara::Transport::MULTICAST;
+      settings.type = madara::transport::MULTICAST;
       settings.hosts.push_back ("239.255.0.1:4150");
 
       knowledge_->attach_transport ("", settings);
@@ -145,7 +145,7 @@ gams::platforms::VREP_Ant_Factory::create (
 gams::platforms::VREP_Ant::VREP_Ant (
   std::string model_file, 
   simxUChar is_client_side, 
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)

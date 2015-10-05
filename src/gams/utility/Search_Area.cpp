@@ -66,8 +66,8 @@
 #include "gams/utility/GPS_Position.h"
 #include "gams/loggers/Global_Logger.h"
 #include "madara/utility/Utility.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/String.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/String.h"
 
 using std::cerr;
 using std::copy;
@@ -80,8 +80,8 @@ using std::stringstream;
 using std::swap;
 using std::vector;
 
-namespace mutility = Madara::Utility;
-typedef Madara::Knowledge_Record::Integer Integer;
+namespace mutility = madara::utility;
+typedef madara::Knowledge_Record::Integer Integer;
 
 gams::utility::Search_Area::Search_Area () :
   Containerize()
@@ -333,10 +333,10 @@ gams::utility::Search_Area::get_regions () const
   return regions_;
 }
 
-Madara::Knowledge_Record::Integer
+madara::Knowledge_Record::Integer
 gams::utility::Search_Area::get_priority (const GPS_Position& pos) const
 {
-  Madara::Knowledge_Record::Integer priority = 0;
+  madara::Knowledge_Record::Integer priority = 0;
   for (vector<Prioritized_Region>::const_iterator it = regions_.begin ();
     it != regions_.end (); ++it)
   {
@@ -396,7 +396,7 @@ gams::utility::Search_Area::cross (const GPS_Position& gp1, const GPS_Position& 
 
 bool
 gams::utility::Search_Area::check_valid_type (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name) const
+  madara::knowledge::Knowledge_Base& kb, const std::string& name) const
 {
   const static Class_ID valid = (Class_ID) 
     (REGION_TYPE_ID        | PRIORITIZED_REGION_TYPE_ID | 
@@ -406,15 +406,15 @@ gams::utility::Search_Area::check_valid_type (
 
 void
 gams::utility::Search_Area::to_container_impl (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::Knowledge_Base& kb, const std::string& name)
 {
   // set object type
-  Madara::Knowledge_Engine::Containers::Integer obj_type (
+  madara::knowledge::containers::Integer obj_type (
     name + object_type_suffix_, kb);
   obj_type = SEARCH_AREA_TYPE_ID;
   
   // set size
-  Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
+  madara::knowledge::containers::Integer size (name + ".size", kb);
   size = regions_.size ();
 
   // add regions
@@ -444,7 +444,7 @@ gams::utility::Search_Area::to_container_impl (
     // set PR as member of search area
     std::stringstream member_key;
     member_key << name << "." << idx;
-    Madara::Knowledge_Engine::Containers::String member (member_key.str (), kb);
+    madara::knowledge::containers::String member (member_key.str (), kb);
     member = pr_name;
 
     // increment index
@@ -454,7 +454,7 @@ gams::utility::Search_Area::to_container_impl (
 
 bool
 gams::utility::Search_Area::from_container_impl (
-  Madara::Knowledge_Engine::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::Knowledge_Base& kb, const std::string& name)
 {
   bool ret_val (false);
   if (!check_valid_type (kb, name))
@@ -484,7 +484,7 @@ gams::utility::Search_Area::from_container_impl (
       case SEARCH_AREA_TYPE_ID:
       {
         // get size
-        Madara::Knowledge_Engine::Containers::Integer size (name + ".size", kb);
+        madara::knowledge::containers::Integer size (name + ".size", kb);
         if (size.exists ())
         {
           // reserve space in regions_

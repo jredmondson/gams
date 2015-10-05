@@ -59,8 +59,8 @@ using std::endl;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Move_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -103,7 +103,7 @@ gams::algorithms::Move_Factory::create (
 }
 
 gams::algorithms::Move::Move (const utility::Position & target, 
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge, 
+  madara::knowledge::Knowledge_Base * knowledge, 
   platforms::Base_Platform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Devices * devices) :
   Base_Algorithm (knowledge, platform, sensors, self, devices), 
@@ -117,7 +117,7 @@ gams::algorithms::Move::Move (
   const string & type,
   unsigned int max_executions,
   double max_execution_time,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
@@ -138,7 +138,7 @@ gams::algorithms::Move::Move (
 gams::algorithms::Move::Move (
   const string & type,
   const utility::Position & target,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)

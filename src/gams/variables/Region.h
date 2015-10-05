@@ -58,9 +58,9 @@
 #include <vector>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/Native_Double_Vector.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/Native_Double_Vector.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -93,7 +93,7 @@ namespace gams
        * @param   knowledge    the knowledge base that houses the variables
        * @param   region_name  name of the region
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
         const std::string & region_name = "0");
       
       /**
@@ -101,14 +101,14 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   region_name  name of the region
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
+      void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & region_name = "0");
 
       /// the type of region (0 for arbitary convex polygon)
-      Madara::Knowledge_Engine::Containers::Integer type;
+      madara::knowledge::containers::Integer type;
 
       /// vertices of the convex polygon
-      std::vector<Madara::Knowledge_Engine::Containers::Native_Double_Vector> vertices;
+      std::vector<madara::knowledge::containers::Native_Double_Vector> vertices;
 
       /// region identifier
       std::string name;
@@ -121,7 +121,7 @@ namespace gams
       * @param   region_name  name of the region
       **/
     GAMS_Export void init_vars (Region & variables,
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      madara::knowledge::Knowledge_Base & knowledge,
       const std::string & region_name = "0");
   }
 }

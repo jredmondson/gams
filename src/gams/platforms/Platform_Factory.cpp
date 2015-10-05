@@ -69,7 +69,7 @@ gams::platforms::Platform_Factory::~Platform_Factory ()
 
 void
 gams::platforms::Platform_Factory::set_knowledge (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge)
+  madara::knowledge::Knowledge_Base * knowledge)
 {
   knowledge_ = knowledge;
 }

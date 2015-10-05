@@ -50,7 +50,7 @@
 
 gams::platforms::Java_Platform::Java_Platform (
   jobject obj,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)

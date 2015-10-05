@@ -58,12 +58,12 @@
 #include <string>
 
 #include "gams/GAMS_Export.h"
-#include "madara/knowledge_engine/containers/Integer.h"
-#include "madara/knowledge_engine/containers/Double.h"
-#include "madara/knowledge_engine/containers/String.h"
-#include "madara/knowledge_engine/containers/Native_Double_Vector.h"
-#include "madara/knowledge_engine/containers/Vector.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Native_Double_Vector.h"
+#include "madara/knowledge/containers/Vector.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "Accent_Status.h"
 
 namespace gams
@@ -97,82 +97,82 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-        const Madara::Knowledge_Record::Integer& id);
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
+        const madara::Knowledge_Record::Integer& id);
       
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
-        const Madara::Knowledge_Record::Integer& id);
+      void init_vars (madara::knowledge::Variables & knowledge,
+        const madara::Knowledge_Record::Integer& id);
       
       /// the battery indicator for this device
-      Madara::Knowledge_Engine::Containers::Integer battery_remaining;
+      madara::knowledge::containers::Integer battery_remaining;
 
       /// indicator for whether or not the device is busy with a mission
-      Madara::Knowledge_Engine::Containers::Integer bridge_id;
+      madara::knowledge::containers::Integer bridge_id;
 
       /// device specific command
-      Madara::Knowledge_Engine::Containers::String command;
+      madara::knowledge::containers::String command;
 
       /// number of arguments for command
-      Madara::Knowledge_Engine::Containers::Vector command_args;
+      madara::knowledge::containers::Vector command_args;
 
       /// Last command
-      Madara::Knowledge_Engine::Containers::String last_command;
+      madara::knowledge::containers::String last_command;
 
       /// Last command args
-      Madara::Knowledge_Engine::Containers::Vector last_command_args;
+      madara::knowledge::containers::Vector last_command_args;
 
       /// device specific command
-      Madara::Knowledge_Engine::Containers::String coverage_type;
+      madara::knowledge::containers::String coverage_type;
 
       /// desired altitude in meters
-      Madara::Knowledge_Engine::Containers::Double desired_altitude;
+      madara::knowledge::containers::Double desired_altitude;
 
       /// the destination location
-      Madara::Knowledge_Engine::Containers::Native_Double_Array dest;
+      madara::knowledge::containers::Native_Double_Array dest;
       
       /// the home location
-      Madara::Knowledge_Engine::Containers::Native_Double_Array home;
+      madara::knowledge::containers::Native_Double_Array home;
 
       /// the mobility indicator for this device (true if mobile)
-      Madara::Knowledge_Engine::Containers::Integer is_mobile;
+      madara::knowledge::containers::Integer is_mobile;
 
       /// the location, usually encoded in GPS, for this device
-      Madara::Knowledge_Engine::Containers::Native_Double_Array location;
+      madara::knowledge::containers::Native_Double_Array location;
       
       /// the minimum altitude for this device
-      Madara::Knowledge_Engine::Containers::Double min_alt;
+      madara::knowledge::containers::Double min_alt;
       
       /// indicator for next type of area coverage requested (queue like)
-      Madara::Knowledge_Engine::Containers::String next_coverage_type;
+      madara::knowledge::containers::String next_coverage_type;
 
       /// indicator for next assigned search area id
-      Madara::Knowledge_Engine::Containers::Integer search_area_id;
+      madara::knowledge::containers::Integer search_area_id;
 
       /// the source location
-      Madara::Knowledge_Engine::Containers::Native_Double_Array source;
+      madara::knowledge::containers::Native_Double_Array source;
       
       /// indicator for temperature
-      Madara::Knowledge_Engine::Containers::Double temperature;
+      madara::knowledge::containers::Double temperature;
 
       /// container for accents
       Accent_Statuses accents;
 
       /// the MADARA debug level
-      Madara::Knowledge_Engine::Containers::Integer madara_debug_level;
+      madara::knowledge::containers::Integer madara_debug_level;
 
       /// the GAMS debug level
-      Madara::Knowledge_Engine::Containers::Integer gams_debug_level;
+      madara::knowledge::containers::Integer gams_debug_level;
 
       /// the rate to send messages
-      Madara::Knowledge_Engine::Containers::Double send_hz;
+      madara::knowledge::containers::Double send_hz;
 
       /// the rate to process the algorithm and platform MAPE loop
-      Madara::Knowledge_Engine::Containers::Double loop_hz;
+      madara::knowledge::containers::Double loop_hz;
 
     protected:
       /**
@@ -181,7 +181,7 @@ namespace gams
        * @return device variable name
        */
       static std::string make_variable_name (
-        const Madara::Knowledge_Record::Integer& id);
+        const madara::Knowledge_Record::Integer& id);
 
       /**
        * Set variable settings
@@ -201,8 +201,8 @@ namespace gams
       * @param   processes  the number of processes in the device swarm
       **/
     GAMS_Export void init_vars (Devices & variables,
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-      const Madara::Knowledge_Record::Integer& processes);
+      madara::knowledge::Knowledge_Base & knowledge,
+      const madara::Knowledge_Record::Integer& processes);
   }
 }
 

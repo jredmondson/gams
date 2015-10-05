@@ -61,7 +61,7 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Platform_Status.h"
 #include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 extern "C" {
 #include "extApi.h"
@@ -97,7 +97,7 @@ namespace gams
       VREP_Boat (
         const std::string& file, 
         const simxUChar client_side,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -158,8 +158,8 @@ namespace gams
        *                    set by the controller in init_vars
        **/
       virtual Base_Platform * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        const madara::Knowledge_Vector & args,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);

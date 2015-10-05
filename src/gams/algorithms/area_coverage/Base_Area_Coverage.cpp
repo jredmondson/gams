@@ -56,7 +56,7 @@
 #include "gams/algorithms/area_coverage/Base_Area_Coverage.h"
 
 gams::algorithms::area_coverage::Base_Area_Coverage::Base_Area_Coverage (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,

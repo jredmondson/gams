@@ -65,8 +65,8 @@ using std::stringstream;
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Formation_Flying_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & args,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -86,9 +86,9 @@ gams::algorithms::Formation_Flying_Factory::create (
     bool error = false;
 
     // create arg types
-    Madara::Knowledge_Record::Integer target;
+    madara::Knowledge_Record::Integer target;
     std::vector<double> offset, destination;
-    std::vector<Madara::Knowledge_Record::Integer> members;
+    std::vector<madara::Knowledge_Record::Integer> members;
     std::string modifier ("default");
 
     if (args[0].is_integer_type ())
@@ -211,12 +211,12 @@ gams::algorithms::Formation_Flying_Factory::create (
  * is either NONE or ROTATE (rotate the formation).
  */
 gams::algorithms::Formation_Flying::Formation_Flying (
-  const Madara::Knowledge_Record::Integer & head_id,
+  const madara::Knowledge_Record::Integer & head_id,
   const std::vector<double> & offset,
   const std::vector<double> & destination,
-  const std::vector<Madara::Knowledge_Record::Integer> & members,
+  const std::vector<madara::Knowledge_Record::Integer> & members,
   const std::string & modifier,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
@@ -265,7 +265,7 @@ gams::algorithms::Formation_Flying::Formation_Flying (
   if (head_)
   {
     // construct actual string
-    for (std::vector<Madara::Knowledge_Record::Integer>::const_reference m : 
+    for (std::vector<madara::Knowledge_Record::Integer>::const_reference m : 
       members)
     {
       if (m != self->id.to_integer ())

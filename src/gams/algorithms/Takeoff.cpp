@@ -57,8 +57,8 @@
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Takeoff_Factory::create (
-  const Madara::Knowledge_Vector & /*args*/,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  const madara::Knowledge_Vector & /*args*/,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
@@ -75,7 +75,7 @@ gams::algorithms::Takeoff_Factory::create (
 }
 
 gams::algorithms::Takeoff::Takeoff (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self)

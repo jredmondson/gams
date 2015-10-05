@@ -59,7 +59,7 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 #include "gams/loggers/Global_Logger.h"
 
@@ -87,7 +87,7 @@ namespace gams
        * @param  self       device variables that describe self state
        **/
       VREP_Base (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        madara::knowledge::Knowledge_Base * knowledge,
         variables::Sensors * sensors,
         variables::Self * self);
 

@@ -57,7 +57,7 @@
 #include <vector>
 
 #include "Region.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace gams
 {
@@ -90,7 +90,7 @@ namespace gams
        * @param   knowledge  the knowledge base that houses the variables
        * @param   area_name  name of the area
        **/
-      void init_vars (Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
       const std::string & area_name = "0");
       
       /**
@@ -98,7 +98,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   area_name  name of the area
        **/
-      void init_vars (Madara::Knowledge_Engine::Variables & knowledge,
+      void init_vars (madara::knowledge::Variables & knowledge,
       const std::string & area_name = "0");
 
       /// region that the named search area points to
@@ -115,7 +115,7 @@ namespace gams
       * @param   area_name  name of the area
       **/
     GAMS_Export void init_vars (Search_Area & variables,
-      Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+      madara::knowledge::Knowledge_Base & knowledge,
       const std::string & area_name = "0");
   }
 }

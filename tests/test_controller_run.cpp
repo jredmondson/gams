@@ -60,7 +60,7 @@
 #include "ace/OS_NS_Thread.h"
 #include "ace/Sched_Params.h"
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 #include "gams/controllers/Base_Controller.h"
 
 #include "helper/Counter_Algorithm.h"
@@ -69,15 +69,15 @@
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-Madara::Transport::QoS_Transport_Settings settings;
+madara::transport::QoS_Transport_Settings settings;
 
 // create shortcuts to MADARA classes and namespaces
-namespace engine = Madara::Knowledge_Engine;
+namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
 namespace platforms = gams::platforms;
 namespace algorithms = gams::algorithms;
 
-typedef Madara::Knowledge_Record   Record;
+typedef madara::Knowledge_Record   Record;
 typedef Record::Integer Integer;
 
 // global variables for platform and algorithm

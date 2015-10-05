@@ -59,7 +59,7 @@
 #include "gams/variables/Platform_Status.h"
 #include "gams/platforms/Base_Platform.h"
 #include "gams/utility/GPS_Position.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 #ifdef _GAMS_JAVA_
 #include <jni.h>
@@ -86,7 +86,7 @@ namespace gams
        **/
       Java_Platform (
         jobject obj,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+        madara::knowledge::Knowledge_Base * knowledge = 0,
         variables::Sensors * sensors = 0,
         variables::Platforms * platforms = 0,
         variables::Self * self = 0);

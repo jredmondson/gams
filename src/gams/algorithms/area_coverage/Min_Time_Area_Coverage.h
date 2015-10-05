@@ -63,7 +63,7 @@
 #include <set>
 #include <string>
 
-#include "madara/knowledge_engine/Knowledge_Update_Settings.h"
+#include "madara/knowledge/Knowledge_Update_Settings.h"
 
 #include "gams/utility/Search_Area.h"
 #include "gams/utility/GPS_Position.h"
@@ -92,7 +92,7 @@ namespace gams
          **/
         Min_Time_Area_Coverage (
           const std::string& search_id, const ACE_Time_Value& e_time, 
-          Madara::Knowledge_Engine::Knowledge_Base * knowledge = 0,
+          madara::knowledge::Knowledge_Base * knowledge = 0,
           platforms::Base_Platform * platform = 0, variables::Sensors * sensors = 0,
           variables::Self * self = 0, variables::Devices * devices = 0, 
           const std::string& algo_name = "mtac");
@@ -162,8 +162,8 @@ namespace gams
          *                    will be set by the controller in init_vars
          **/
         virtual Base_Algorithm * create (
-          const Madara::Knowledge_Vector & args,
-          Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+          const madara::Knowledge_Vector & args,
+          madara::knowledge::Knowledge_Base * knowledge,
           platforms::Base_Platform * platform,
           variables::Sensors * sensors,
           variables::Self * self,

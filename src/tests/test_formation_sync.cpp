@@ -1,15 +1,15 @@
 #include "gams/algorithms/Formation_Sync.h"
 #include "gams/platforms/Debug_Platform.h"
 #include "gams/loggers/Global_Logger.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge/Knowledge_Base.h"
 
 namespace loggers = gams::loggers;
-namespace engine = Madara::Knowledge_Engine;
+namespace engine = madara::knowledge;
 namespace algorithms = gams::algorithms;
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
-namespace transport = Madara::Transport;
-namespace containers = engine::Containers;
+namespace transport = madara::transport;
+namespace containers = engine::containers;
 
 void test_defaults (void)
 {
@@ -40,7 +40,7 @@ void test_defaults (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  Madara::Knowledge_Vector args;
+  madara::Knowledge_Vector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -127,7 +127,7 @@ void test_triangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  Madara::Knowledge_Vector args;
+  madara::Knowledge_Vector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -216,7 +216,7 @@ void test_rectangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  Madara::Knowledge_Vector args;
+  madara::Knowledge_Vector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -331,7 +331,7 @@ void test_groups (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  Madara::Knowledge_Vector args;
+  madara::Knowledge_Vector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -385,7 +385,7 @@ void test_groups (void)
 
 int main(int argc, char *argv[])
 {
-  Madara::Knowledge_Record::set_precision (6);
+  madara::Knowledge_Record::set_precision (6);
   loggers::global_logger->set_level (loggers::LOG_DETAILED);
 
   test_rectangle ();

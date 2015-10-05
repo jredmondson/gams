@@ -55,7 +55,7 @@
 
 #include "gams/algorithms/Formation_Sync.h"
 #include "gams/algorithms/Controller_Algorithm_Factory.h"
-#include "madara/knowledge_engine/containers/String_Vector.h"
+#include "madara/knowledge/containers/String_Vector.h"
 #include "madara/utility/Utility.h"
 
 #include <sstream>
@@ -65,10 +65,10 @@
 
 #include "gams/algorithms/Algorithm_Factory.h"
 
-namespace engine = Madara::Knowledge_Engine;
-namespace containers = engine::Containers;
+namespace engine = madara::knowledge;
+namespace containers = engine::containers;
 
-typedef Madara::Knowledge_Record::Integer  Integer;
+typedef madara::Knowledge_Record::Integer  Integer;
 
 const int pyramid_cols[] = {
   0,                                 // 0 processes have 0 cols
@@ -85,8 +85,8 @@ const int pyramid_cols[] = {
 
 gams::algorithms::Base_Algorithm *
 gams::algorithms::Formation_Sync_Factory::create (
-const Madara::Knowledge_Vector & args,
-Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+const madara::Knowledge_Vector & args,
+madara::knowledge::Knowledge_Base * knowledge,
 platforms::Base_Platform * platform,
 variables::Sensors * sensors,
 variables::Self * self,
@@ -190,7 +190,7 @@ variables::Devices * devices)
       {
         std::string formation_str = args[i + 1].to_string ();
 
-        Madara::Utility::upper (formation_str);
+        madara::utility::upper (formation_str);
 
         if (formation_str == "PYRAMID")
         {
@@ -272,7 +272,7 @@ variables::Devices * devices)
 
       for (Integer i = 0; i < processes; ++i)
       {
-        Madara::Knowledge_Record temp ("device.");
+        madara::Knowledge_Record temp ("device.");
         temp += i;
         members.push_back (temp.to_string ());
       }
@@ -293,7 +293,7 @@ gams::algorithms::Formation_Sync::Formation_Sync (
   double buffer,
   int formation,
   std::string barrier_name,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   platforms::Base_Platform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
@@ -338,7 +338,7 @@ gams::algorithms::Formation_Sync::generate_plan (int formation)
     "gams::algorithms::Formation_Sync::constructor:" \
     " Generating plan\n");
 
-  Madara::Knowledge_Record temp ("device.");
+  madara::Knowledge_Record temp ("device.");
   temp += self_->id.to_string ();
 
   position_ = this->get_position_in_member_list (temp.to_string (), members_);

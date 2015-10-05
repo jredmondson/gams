@@ -49,7 +49,7 @@
 
 using std::string;
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 const string gams::variables::Swarm::SWARM_COMMAND = "swarm.command";
 const string gams::variables::Swarm::SWARM_MIN_ALT = "swarm.min_alt";
@@ -79,8 +79,8 @@ gams::variables::Swarm::operator= (const Swarm & rhs)
 
 void
 gams::variables::Swarm::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-  const Madara::Knowledge_Record::Integer & swarm_size)
+  madara::knowledge::Knowledge_Base & knowledge,
+  const madara::Knowledge_Record::Integer & swarm_size)
 {
   // initialize the variable containers
   variables::init_vars (accents, knowledge, "swarm");
@@ -94,8 +94,8 @@ gams::variables::Swarm::init_vars (
 
 void
 gams::variables::Swarm::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
-  const Madara::Knowledge_Record::Integer& swarm_size)
+  madara::knowledge::Variables & knowledge,
+  const madara::Knowledge_Record::Integer& swarm_size)
 {
   // initialize the variable containers
   variables::init_vars (accents, knowledge, "swarm");
@@ -108,10 +108,10 @@ gams::variables::Swarm::init_vars (
 }
 
 void gams::variables::Swarm::init_vars (
-  const Madara::Knowledge_Record::Integer& swarm_size)
+  const madara::Knowledge_Record::Integer& swarm_size)
 {
-  Madara::Knowledge_Engine::Knowledge_Update_Settings defaults;
-  Madara::Knowledge_Engine::Knowledge_Update_Settings keep_local (true);
+  madara::knowledge::Knowledge_Update_Settings defaults;
+  madara::knowledge::Knowledge_Update_Settings keep_local (true);
 
   // keep certain varaible changes as local only
   command.set_settings (keep_local);
@@ -126,15 +126,15 @@ void gams::variables::Swarm::init_vars (
 }
 
 void gams::variables::init_vars (Swarm & variables,
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
-  const Madara::Knowledge_Record::Integer& swarm_size)
+  madara::knowledge::Knowledge_Base & knowledge,
+  const madara::Knowledge_Record::Integer& swarm_size)
 {
   variables.init_vars (knowledge, swarm_size);
 }
 
 void gams::variables::init_vars (Swarm & variables,
-  Madara::Knowledge_Engine::Variables & knowledge,
-  const Madara::Knowledge_Record::Integer& swarm_size)
+  madara::knowledge::Variables & knowledge,
+  const madara::Knowledge_Record::Integer& swarm_size)
 {
   variables.init_vars (knowledge, swarm_size);
 }

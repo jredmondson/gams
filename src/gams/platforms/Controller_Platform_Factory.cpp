@@ -74,7 +74,7 @@ namespace variables = gams::variables;
 
 
 platforms::Controller_Platform_Factory::Controller_Platform_Factory (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+  madara::knowledge::Knowledge_Base * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
@@ -158,7 +158,7 @@ platforms::Controller_Platform_Factory::add (
   for (size_t i = 0; i < aliases.size (); ++i)
   {
     std::string alias (aliases[i]);
-    Madara::Utility::lower (alias);
+    madara::utility::lower (alias);
 
     factory->set_knowledge (knowledge_);
     factory->set_self (self_);
@@ -172,7 +172,7 @@ platforms::Controller_Platform_Factory::add (
 platforms::Base_Platform *
 platforms::Controller_Platform_Factory::create (
   const std::string & type,
-  const Madara::Knowledge_Vector & args)
+  const madara::Knowledge_Vector & args)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
@@ -203,7 +203,7 @@ platforms::Controller_Platform_Factory::create (
 
 void
 platforms::Controller_Platform_Factory::set_knowledge (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge)
+  madara::knowledge::Knowledge_Base * knowledge)
 {
   knowledge_ = knowledge;
 }

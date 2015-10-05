@@ -49,7 +49,7 @@
 
 using std::string;
 
-typedef  Madara::Knowledge_Record::Integer  Integer;
+typedef  madara::Knowledge_Record::Integer  Integer;
 
 gams::variables::Algorithm_Status::Algorithm_Status ()
 {
@@ -77,7 +77,7 @@ gams::variables::Algorithm_Status::operator= (const Algorithm_Status & rhs)
 
 void
 gams::variables::Algorithm_Status::init_vars (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  madara::knowledge::Knowledge_Base & knowledge,
   const std::string & new_name, int i)
 {
   id = i;
@@ -96,7 +96,7 @@ gams::variables::Algorithm_Status::init_vars (
 
 void
 gams::variables::Algorithm_Status::init_vars (
-  Madara::Knowledge_Engine::Variables & knowledge,
+  madara::knowledge::Variables & knowledge,
   const std::string & new_name, int i)
 {
   id = i;
