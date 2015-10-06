@@ -134,7 +134,7 @@ namespace gams
       /**
        * Thread to move target
        **/
-      class Target_Mover : public madara::Threads::Base_Thread
+      class Target_Mover : public madara::threads::Base_Thread
       {
         public:
           /// Thread execution rate in Hz
@@ -205,7 +205,7 @@ namespace gams
       Target_Mover mover_;
 
       /// MADARA Threader
-      madara::Threads::Threader threader_;
+      madara::threads::Threader threader_;
 
       /// container for destination
       madara::knowledge::containers::Native_Double_Vector thread_dest_;
