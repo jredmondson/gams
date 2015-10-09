@@ -58,71 +58,71 @@ namespace gams
 {
   namespace utility
   {
-    inline constexpr Pose_Vector::Pose_Vector(double x, double y, double z,
+    inline constexpr PoseVector::PoseVector(double x, double y, double z,
                                               double rx, double ry, double rz)
-      : Location_Vector(x, y, z), Rotation_Vector(rx, ry, rz) {}
+      : LocationVector(x, y, z), RotationVector(rx, ry, rz) {}
 
-    inline constexpr Pose_Vector::Pose_Vector(const Location_Vector &loc)
-      : Location_Vector(loc), Rotation_Vector(0, 0, 0) {}
+    inline constexpr PoseVector::PoseVector(const LocationVector &loc)
+      : LocationVector(loc), RotationVector(0, 0, 0) {}
 
-    inline constexpr Pose_Vector::Pose_Vector(const Rotation_Vector &rot)
-      : Location_Vector(0, 0, 0), Rotation_Vector(rot) {}
+    inline constexpr PoseVector::PoseVector(const RotationVector &rot)
+      : LocationVector(0, 0, 0), RotationVector(rot) {}
 
-    inline constexpr Pose_Vector::Pose_Vector(const Location_Vector &loc,
-                                              const Rotation_Vector &rot)
-      : Location_Vector(loc), Rotation_Vector(rot) {}
+    inline constexpr PoseVector::PoseVector(const LocationVector &loc,
+                                              const RotationVector &rot)
+      : LocationVector(loc), RotationVector(rot) {}
 
-    inline constexpr Pose_Vector::Pose_Vector()
-      : Location_Vector(), Rotation_Vector() {}
+    inline constexpr PoseVector::PoseVector()
+      : LocationVector(), RotationVector() {}
 
-    inline constexpr Pose_Vector::Pose_Vector(const Pose_Vector &other)
-      : Location_Vector(other.as_location_vec()),
-        Rotation_Vector(other.as_rotation_vec()) {}
+    inline constexpr PoseVector::PoseVector(const PoseVector &other)
+      : LocationVector(other.as_location_vec()),
+        RotationVector(other.as_rotation_vec()) {}
 
-    inline constexpr bool Pose_Vector::is_invalid() const
+    inline constexpr bool PoseVector::is_invalid() const
     {
-      return Location_Vector::is_invalid() || Rotation_Vector::is_invalid();
+      return LocationVector::is_invalid() || RotationVector::is_invalid();
     }
 
-    inline constexpr bool Pose_Vector::is_location_zero() const
+    inline constexpr bool PoseVector::is_location_zero() const
     {
       return as_location_vec().is_zero();
     }
 
-    inline constexpr bool Pose_Vector::is_rotation_zero() const
+    inline constexpr bool PoseVector::is_rotation_zero() const
     {
       return as_rotation_vec().is_zero();
     }
 
-    inline constexpr bool Pose_Vector::is_zero() const
+    inline constexpr bool PoseVector::is_zero() const
     {
       return is_location_zero() && is_rotation_zero();
     }
 
-    inline constexpr bool Pose_Vector::operator==(
-                                const Pose_Vector &other) const
+    inline constexpr bool PoseVector::operator==(
+                                const PoseVector &other) const
     {
       return as_location_vec() == other.as_location_vec() &&
              as_rotation_vec() == other.as_rotation_vec();
     }
 
-    inline std::string Pose_Vector::name()
+    inline std::string PoseVector::name()
     {
       return "Pose";
     }
 
-    inline constexpr int Pose_Vector::size() const
+    inline constexpr int PoseVector::size() const
     {
       return as_location_vec().size() + as_rotation_vec().size();
     }
 
-    inline constexpr double Pose_Vector::get(int i) const
+    inline constexpr double PoseVector::get(int i) const
     {
       return i <= 2 ? as_location_vec().get(i) :
                       as_rotation_vec().get(i - 3);
     }
 
-    inline double Pose_Vector::set(int i, double val)
+    inline double PoseVector::set(int i, double val)
     {
       if(i <= 2)
         return as_location_vec().set(i, val);
@@ -130,37 +130,37 @@ namespace gams
         return as_rotation_vec().set(i - 3, val);
     }
 
-    inline Pose_Vector &Pose_Vector::as_vec()
+    inline PoseVector &PoseVector::as_vec()
     {
-      return static_cast<Base_Type &>(*this);
+      return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const Pose_Vector &Pose_Vector::as_vec() const
+    inline constexpr const PoseVector &PoseVector::as_vec() const
     {
-      return static_cast<const Base_Type &>(*this);
+      return static_cast<const BaseType &>(*this);
     }
 
-    inline Location_Vector &Pose_Vector::as_location_vec()
+    inline LocationVector &PoseVector::as_location_vec()
     {
-      return static_cast<Location_Vector &>(*this);
+      return static_cast<LocationVector &>(*this);
     }
 
-    inline constexpr const Location_Vector &Pose_Vector::as_location_vec() const
+    inline constexpr const LocationVector &PoseVector::as_location_vec() const
     {
-      return static_cast<const Location_Vector &>(*this);
+      return static_cast<const LocationVector &>(*this);
     }
 
-    inline Rotation_Vector &Pose_Vector::as_rotation_vec()
+    inline RotationVector &PoseVector::as_rotation_vec()
     {
-      return static_cast<Rotation_Vector &>(*this);
+      return static_cast<RotationVector &>(*this);
     }
 
-    inline constexpr const Rotation_Vector &Pose_Vector::as_rotation_vec() const
+    inline constexpr const RotationVector &PoseVector::as_rotation_vec() const
     {
-      return static_cast<const Rotation_Vector &>(*this);
+      return static_cast<const RotationVector &>(*this);
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Pose_Vector &pose)
+    inline std::ostream &operator<<(std::ostream &o, const PoseVector &pose)
     {
       o << "(" << pose.as_location_vec() << ","
                << pose.as_rotation_vec() << ")";
@@ -169,43 +169,43 @@ namespace gams
 
     inline Pose::Pose(double x, double y, double z,
                       double rx, double ry, double rz)
-      : Pose_Vector(x, y, z, rx, ry, rz), Coordinate() {}
+      : PoseVector(x, y, z, rx, ry, rz), Coordinate() {}
 
     inline Pose::Pose(double x, double y, double z)
-      : Pose_Vector(x, y, z, 0, 0, 0), Coordinate() {}
+      : PoseVector(x, y, z, 0, 0, 0), Coordinate() {}
 
-    inline constexpr Pose::Pose(const Reference_Frame &frame,
+    inline constexpr Pose::Pose(const ReferenceFrame &frame,
                                 double x, double y, double z,
                                 double rx, double ry, double rz)
-      : Pose_Vector(x, y, z, rx, ry, rz), Coordinate(frame) {}
+      : PoseVector(x, y, z, rx, ry, rz), Coordinate(frame) {}
 
-    inline constexpr Pose::Pose(const Reference_Frame &frame,
+    inline constexpr Pose::Pose(const ReferenceFrame &frame,
                                 double x, double y, double z)
-      : Pose_Vector(x, y, z, 0, 0, 0), Coordinate(frame) {}
+      : PoseVector(x, y, z, 0, 0, 0), Coordinate(frame) {}
 
-    inline Pose::Pose() : Pose_Vector(), Coordinate() {}
+    inline Pose::Pose() : PoseVector(), Coordinate() {}
 
     inline constexpr Pose::Pose(const Pose &other)
-      : Pose_Vector(other.as_vec()), Coordinate(other.frame()) {}
+      : PoseVector(other.as_vec()), Coordinate(other.frame()) {}
 
     inline constexpr Pose::Pose(const Location &loc)
-      : Pose_Vector(loc), Coordinate(loc.frame()) {}
+      : PoseVector(loc), Coordinate(loc.frame()) {}
 
     inline constexpr Pose::Pose(const Rotation &rot)
-      : Pose_Vector(rot), Coordinate(rot.frame()) {}
+      : PoseVector(rot), Coordinate(rot.frame()) {}
 
-    inline Pose::Pose(const Location_Vector &loc, const Rotation_Vector &rot)
-      : Pose_Vector(loc, rot), Coordinate() {}
+    inline Pose::Pose(const LocationVector &loc, const RotationVector &rot)
+      : PoseVector(loc, rot), Coordinate() {}
 
-    inline constexpr Pose::Pose(const Reference_Frame &frame,
-                      const Location_Vector &loc, const Rotation_Vector &rot)
-      : Pose_Vector(loc, rot), Coordinate(frame) {}
+    inline constexpr Pose::Pose(const ReferenceFrame &frame,
+                      const LocationVector &loc, const RotationVector &rot)
+      : PoseVector(loc, rot), Coordinate(frame) {}
 
     inline constexpr Pose::Pose(const Location &loc, const Rotation &rot)
-      : Pose_Vector(loc, rot), Coordinate(loc.frame()) {}
+      : PoseVector(loc, rot), Coordinate(loc.frame()) {}
 
-    inline Pose::Pose(const Reference_Frame &new_frame, const Pose &orig)
-      : Pose_Vector(orig), Coordinate(orig.frame())
+    inline Pose::Pose(const ReferenceFrame &new_frame, const Pose &orig)
+      : PoseVector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);
     }

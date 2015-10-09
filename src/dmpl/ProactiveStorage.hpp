@@ -65,9 +65,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <exception>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Knowledge_Update_Settings.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/KnowledgeUpdateSettings.h>
 #include "knowledge_cast.hpp"
 #include "Reference.hpp"
 #include "StorageManager.hpp"
@@ -87,7 +87,7 @@
 namespace Madara
 {
 
-namespace Knowledge_Engine
+namespace KnowledgeEngine
 {
 
 namespace Containers

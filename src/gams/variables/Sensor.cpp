@@ -56,7 +56,7 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-typedef  madara::Knowledge_Record::Integer  Integer;
+typedef  madara::KnowledgeRecord::Integer  Integer;
 
 gams::variables::Sensor::Sensor () :
   knowledge_ (0), name_ ("")
@@ -64,8 +64,8 @@ gams::variables::Sensor::Sensor () :
 }
 
 gams::variables::Sensor::Sensor (const string & name,
-  madara::knowledge::Knowledge_Base * knowledge,
-  const double & range, const utility::GPS_Position & origin) :
+  madara::knowledge::KnowledgeBase * knowledge,
+  const double & range, const utility::GPSPosition & origin) :
   knowledge_ (knowledge), name_ (name)
 {
   init_vars ();
@@ -100,21 +100,21 @@ gams::variables::Sensor::discretize (
   set<utility::Position> ret_val;
 
   // find northern most point
-  utility::GPS_Position northern = region.vertices[0];
+  utility::GPSPosition northern = region.vertices[0];
   for (size_t i = 1; i < region.vertices.size (); ++i)
     if (northern.latitude () < region.vertices[i].latitude ())
       northern = region.vertices[i];
   const int max_x = get_index_from_gps (northern).x;
 
   // find southern most point
-  utility::GPS_Position southern = region.vertices[0];
+  utility::GPSPosition southern = region.vertices[0];
   for (size_t i = 1; i < region.vertices.size (); ++i)
     if (southern.latitude () > region.vertices[i].latitude ())
       southern = region.vertices[i];
   const int min_x = get_index_from_gps (southern).x;
 
   // find west most point 
-  utility::GPS_Position start;
+  utility::GPSPosition start;
   start.longitude (DBL_MAX);
   for (size_t i = 0; i < region.vertices.size (); ++i)
     if (start.longitude () > region.vertices[i].longitude ())
@@ -149,7 +149,7 @@ gams::variables::Sensor::discretize (
   }
 
   // find east most point
-  utility::GPS_Position eastern = region.vertices[0];
+  utility::GPSPosition eastern = region.vertices[0];
   for (size_t i = 1; i < region.vertices.size (); ++i)
     if (eastern.longitude () < region.vertices[i].longitude ())
       eastern = region.vertices[i];
@@ -176,10 +176,10 @@ gams::variables::Sensor::discretize (
 
 set<gams::utility::Position>
 gams::variables::Sensor::discretize (
-  const utility::Search_Area & search)
+  const utility::SearchArea & search)
 {
   set<utility::Position> ret_val;
-  const vector<utility::Prioritized_Region>& regions = search.get_regions ();
+  const vector<utility::PrioritizedRegion>& regions = search.get_regions ();
   for (size_t i = 0; i < regions.size (); ++i)
   {
     set<utility::Position> to_add = discretize (regions[i]);
@@ -194,25 +194,25 @@ gams::variables::Sensor::get_discretization () const
   return sqrt (2.0 * pow(get_range (), 2.0));
 }
 
-gams::utility::GPS_Position
+gams::utility::GPSPosition
 gams::variables::Sensor::get_gps_from_index (
   const utility::Position & idx)
 {
   const double discretize = get_discretization ();
   utility::Position meters (
     int(idx.x) * discretize, int(idx.y) * discretize, int(idx.z));
-  utility::GPS_Position origin;
+  utility::GPSPosition origin;
   origin.from_container (origin_);
-  utility::GPS_Position ret =
-    utility::GPS_Position::to_gps_position (meters, origin);
+  utility::GPSPosition ret =
+    utility::GPSPosition::to_gps_position (meters, origin);
   return ret;
 }
 
 gams::utility::Position
 gams::variables::Sensor::get_index_from_gps (
-  const utility::GPS_Position & pos)
+  const utility::GPSPosition & pos)
 {
-  utility::GPS_Position origin;
+  utility::GPSPosition origin;
   origin.from_container (origin_);
   utility::Position idx = pos.to_position (origin);
   const double discretize = get_discretization ();
@@ -228,10 +228,10 @@ gams::variables::Sensor::get_name () const
   return name_;
 }
 
-gams::utility::GPS_Position
+gams::utility::GPSPosition
 gams::variables::Sensor::get_origin ()
 {
-  utility::GPS_Position origin;
+  utility::GPSPosition origin;
   origin.from_container (origin_);
   return origin;
 }
@@ -243,7 +243,7 @@ gams::variables::Sensor::get_range () const
 }
 
 double
-gams::variables::Sensor::get_value (const utility::GPS_Position & pos)
+gams::variables::Sensor::get_value (const utility::GPSPosition & pos)
 {
   return get_value (get_index_from_gps (pos));
 }
@@ -255,7 +255,7 @@ gams::variables::Sensor::get_value (const utility::Position & pos)
 }
 
 void
-gams::variables::Sensor::set_origin (const utility::GPS_Position & origin)
+gams::variables::Sensor::set_origin (const utility::GPSPosition & origin)
 {
   origin.to_container (origin_);
 }
@@ -267,9 +267,9 @@ gams::variables::Sensor::set_range (const double & range)
 }
 
 void
-gams::variables::Sensor::set_value (const utility::GPS_Position & pos,
+gams::variables::Sensor::set_value (const utility::GPSPosition & pos,
   const double & val,
-  const madara::knowledge::Knowledge_Update_Settings & settings)
+  const madara::knowledge::KnowledgeUpdateSettings & settings)
 {
   set_value (get_index_from_gps (pos), val, settings);
 }
@@ -277,7 +277,7 @@ gams::variables::Sensor::set_value (const utility::GPS_Position & pos,
 void
 gams::variables::Sensor::set_value (const utility::Position & pos,
   const double & val,
-  const madara::knowledge::Knowledge_Update_Settings & settings)
+  const madara::knowledge::KnowledgeUpdateSettings & settings)
 {
   string idx = index_pos_to_index (pos);
   value_.set (idx, val, settings);
@@ -309,8 +309,8 @@ gams::variables::Sensor::init_vars ()
 
 void
 gams::variables::Sensor::init_vars (const string & name,
-  madara::knowledge::Knowledge_Base * knowledge,
-  const double & range, const utility::GPS_Position & origin)
+  madara::knowledge::KnowledgeBase * knowledge,
+  const double & range, const utility::GPSPosition & origin)
 {
   name_ = name;
   knowledge_ = knowledge;
@@ -330,7 +330,7 @@ gams::variables::Sensor::init_vars (const string & name,
    * best option would be to have the controller set it when initializing the
    * system.
    **/
-  utility::GPS_Position cur_origin;
+  utility::GPSPosition cur_origin;
   cur_origin.from_container (origin_);
   if (cur_origin.latitude () != 0.0 && origin.latitude () != DBL_MAX)
     origin.to_container (origin_);

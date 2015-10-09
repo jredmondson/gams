@@ -43,7 +43,7 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 #include "Wait.h"
 
 #include <string>
@@ -53,16 +53,16 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-gams::algorithms::Base_Algorithm *
-gams::algorithms::Wait_Factory::create (
-  const madara::Knowledge_Vector & args,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+gams::algorithms::BaseAlgorithm *
+gams::algorithms::WaitFactory::create (
+  const madara::KnowledgeVector & args,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * /*devices*/)
 {
-  Base_Algorithm * result (0);
+  BaseAlgorithm * result (0);
   
   if (knowledge && sensors && platform && self)
   {
@@ -77,7 +77,7 @@ gams::algorithms::Wait_Factory::create (
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-         "gams::algorithms::Wait_Factory::create:" \
+         "gams::algorithms::WaitFactory::create:" \
         " invalid arguments\n");
     }
   }
@@ -87,11 +87,11 @@ gams::algorithms::Wait_Factory::create (
 
 gams::algorithms::Wait::Wait (
   const double& length,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
-  Base_Algorithm (knowledge, platform, sensors, self),
+  BaseAlgorithm (knowledge, platform, sensors, self),
   wait_time_ (length), end_time_ (ACE_OS::gettimeofday () + wait_time_)
 {
   status_.init_vars (*knowledge, "wait", self->id.to_integer ());
@@ -105,7 +105,7 @@ gams::algorithms::Wait::~Wait ()
 void
 gams::algorithms::Wait::operator= (const Wait & rhs)
 {
-  this->Base_Algorithm::operator=(rhs);
+  this->BaseAlgorithm::operator=(rhs);
 }
 
 int

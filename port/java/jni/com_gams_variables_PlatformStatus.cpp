@@ -1,6 +1,6 @@
 
 #include "com_gams_variables_PlatformStatus.h"
-#include "gams/variables/Platform_Status.h"
+#include "gams/variables/PlatformStatus.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -11,10 +11,10 @@ namespace variables = gams::variables;
  * Method:    jni_PlatformStatus
  * Signature: ()J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1PlatformStatus__
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1PlatformStatus__
   (JNIEnv * , jobject)
 {
-  return (jlong) new variables::Platform_Status ();
+  return (jlong) new variables::PlatformStatus ();
 }
 
 /*
@@ -22,11 +22,11 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1PlatformSt
  * Method:    jni_PlatformStatus
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1PlatformStatus__J
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1PlatformStatus__J
   (JNIEnv * , jobject, jlong cptr)
 {
-  return (jlong) new variables::Platform_Status (
-    *(variables::Platform_Status *)cptr);
+  return (jlong) new variables::PlatformStatus (
+    *(variables::PlatformStatus *)cptr);
 }
 
 /*
@@ -34,10 +34,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1PlatformSt
  * Method:    jni_freePlatformStatus
  * Signature: (J)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_PlatformStatus_jni_1freePlatformStatus
+GAMSExport void JNICALL Java_com_gams_variables_PlatformStatus_jni_1freePlatformStatus
   (JNIEnv * , jclass, jlong cptr)
 {
-  delete (variables::Platform_Status *) cptr;
+  delete (variables::PlatformStatus *) cptr;
 }
 
 /*
@@ -45,12 +45,12 @@ GAMS_Export void JNICALL Java_com_gams_variables_PlatformStatus_jni_1freePlatfor
  * Method:    jni_getName
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1getName
+GAMSExport jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
 
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
   if (current)
     result = env->NewStringUTF(current->name.c_str ());
 
@@ -62,10 +62,10 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1getName
  * Method:    jni_init
  * Signature: (JJJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_PlatformStatus_jni_1init
+GAMSExport void JNICALL Java_com_gams_variables_PlatformStatus_jni_1init
   (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   if (current)
   {
@@ -73,7 +73,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_PlatformStatus_jni_1init
 
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (*kb, str_name);
     }
     else if (type == 1)
@@ -91,12 +91,12 @@ GAMS_Export void JNICALL Java_com_gams_variables_PlatformStatus_jni_1init
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1toString
+GAMSExport jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
 
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
   if (current)
     result = env->NewStringUTF(current->name.c_str ());
 
@@ -108,10 +108,10 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1toString
  * Method:    jni_getCommunicationAvailable
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getCommunicationAvailable
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getCommunicationAvailable
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->communication_available;
 }
@@ -121,10 +121,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getCommuni
  * Method:    jni_getDeadlocked
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getDeadlocked
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getDeadlocked
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->deadlocked;
 }
@@ -134,10 +134,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getDeadloc
  * Method:    jni_getFailed
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getFailed
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getFailed
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->failed;
 }
@@ -147,10 +147,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getFailed
  * Method:    jni_getGpsSpoofed
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getGpsSpoofed
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getGpsSpoofed
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->gps_spoofed;
 }
@@ -160,10 +160,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getGpsSpoo
  * Method:    jni_getMovementAvailable
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getMovementAvailable
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getMovementAvailable
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->movement_available;
 }
@@ -173,10 +173,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getMovemen
  * Method:    jni_getMoving
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getMoving
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getMoving
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->moving;
 }
@@ -186,10 +186,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getMoving
  * Method:    jni_getOk
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getOk
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getOk
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->ok;
 }
@@ -199,10 +199,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getOk
  * Method:    jni_getPausedMoving
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getPausedMoving
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getPausedMoving
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->paused_moving;
 }
@@ -212,10 +212,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getPausedM
  * Method:    jni_getReducedSensing
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getReducedSensing
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getReducedSensing
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->reduced_sensing;
 }
@@ -225,10 +225,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getReduced
  * Method:    jni_getReducedMovement
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getReducedMovement
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getReducedMovement
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->reduced_movement;
 }
@@ -238,10 +238,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getReduced
  * Method:    jni_getSensorsAvailable
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getSensorsAvailable
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getSensorsAvailable
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->sensors_available;
 }
@@ -251,10 +251,10 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getSensors
  * Method:    jni_getWaiting
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getWaiting
+GAMSExport jlong JNICALL Java_com_gams_variables_PlatformStatus_jni_1getWaiting
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Platform_Status * current = (variables::Platform_Status *) cptr;
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
   return (jlong) &current->waiting;
 }

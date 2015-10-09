@@ -1,5 +1,5 @@
 #include "com_gams_utility_PrioritizedRegion.h"
-#include "gams/utility/Prioritized_Region.h"
+#include "gams/utility/PrioritizedRegion.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -13,7 +13,7 @@ namespace utility = gams::utility;
 jlong JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1PrioritizedRegion
   (JNIEnv *, jobject)
 {
-  return (jlong) new utility::Prioritized_Region ();
+  return (jlong) new utility::PrioritizedRegion ();
 }
 
 /*
@@ -26,7 +26,7 @@ jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toString
 {
   jstring ret_val;
 
-  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+  utility::PrioritizedRegion * current = (utility::PrioritizedRegion *) cptr;
   if (current)
   {
     std::string result = current->to_string();
@@ -44,9 +44,9 @@ jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toString
 void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContainer
   (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
-  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+  utility::PrioritizedRegion * current = (utility::PrioritizedRegion *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
-  engine::Knowledge_Base * kb = (engine::Knowledge_Base *) kb_ptr;
+  engine::KnowledgeBase * kb = (engine::KnowledgeBase *) kb_ptr;
 
   if (current && str_name && kb)
   {
@@ -64,9 +64,9 @@ void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1fromContainer
 void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
   (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
-  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+  utility::PrioritizedRegion * current = (utility::PrioritizedRegion *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
-  engine::Knowledge_Base * kb = (engine::Knowledge_Base *) kb_ptr;
+  engine::KnowledgeBase * kb = (engine::KnowledgeBase *) kb_ptr;
 
   if (current && str_name && kb)
   {
@@ -84,7 +84,7 @@ void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toContainer
 void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1modify
   (JNIEnv *, jobject, jlong cptr)
 {
-  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+  utility::PrioritizedRegion * current = (utility::PrioritizedRegion *) cptr;
 
   if (current)
   {
@@ -100,7 +100,7 @@ void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1modify
 void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1freePrioritizedRegion
   (JNIEnv *, jclass, jlong cptr)
 {
-  delete (utility::Prioritized_Region *) cptr;
+  delete (utility::PrioritizedRegion *) cptr;
 }
 
 /*
@@ -111,7 +111,7 @@ void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1freePrioritizedRegion
 jlong JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1getPriority
   (JNIEnv *, jobject, jlong cptr)
 {
-  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+  utility::PrioritizedRegion * current = (utility::PrioritizedRegion *) cptr;
 
   return (jlong) current;
 }
@@ -124,6 +124,6 @@ jlong JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1getPriority
 void JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1setPriority
   (JNIEnv *, jobject, jlong cptr, jlong value)
 {
-  utility::Prioritized_Region * current = (utility::Prioritized_Region *) cptr;
+  utility::PrioritizedRegion * current = (utility::PrioritizedRegion *) cptr;
   current->priority = value;
 }

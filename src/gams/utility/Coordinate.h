@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_COORDINATE_H_
 #define _GAMS_UTILITY_COORDINATE_H_
 
-#include "gams/GAMS_Export.h"
+#include "gams/GAMSExport.h"
 #include <gams/CPP11_compat.h>
 #include <string>
 #include <cfloat>
@@ -65,7 +65,7 @@ namespace gams
 {
   namespace utility
   {
-    class Reference_Frame;
+    class ReferenceFrame;
 
     /**
      * For internal use.
@@ -73,19 +73,19 @@ namespace gams
      * Allows all specializations of Coordinate to share the same default frame.
      * This type serves no other purpose.
      **/
-    class Coordinate_Base
+    class CoordinateBase
     {
     public:
       /**
        * Retrieves the default frame that Coordinates (Pose, Location, Rotation)
        * that don't specify a frame will use.
        *
-       * @return a reference to a Cartesian_Frame object that serves as default
+       * @return a reference to a CartesianFrame object that serves as default
        **/
-      GAMS_Export static const Reference_Frame &default_frame();
+      GAMSExport static const ReferenceFrame &default_frame();
 
     private:
-      GAMS_Export static const Reference_Frame *default_frame_;
+      GAMSExport static const ReferenceFrame *default_frame_;
     };
 
     /**
@@ -96,24 +96,24 @@ namespace gams
      *   -- Inherit from Coordinate, and pass itself as template parameter
      *   -- Inherit from a base class which does not inherit from Coordinate
      *   -- That base class must:
-     *      -- Have a typedef Base_Type which refers to itself
+     *      -- Have a typedef BaseType which refers to itself
      *      -- Implement operator==
      *      -- Implement the following methods:
      *   static std::string name() // return the type's name
      *   static constexpr int size() // return # of values in representation
      *   constexpr double get(int i) const // return ith value of representation
-     *   constexpr bool operator==(const Base_Type &rhs) const
-     *   Base_Type &as_vec() // return *this
-     *   constexpr const Base_Type &as_vec() const // return *this
+     *   constexpr bool operator==(const BaseType &rhs) const
+     *   BaseType &as_vec() // return *this
+     *   constexpr const BaseType &as_vec() const // return *this
      *
      * Additionally, new coordinate types should either:
-     *   -- Specialize the Reference_Frame::*_within_frame templates; OR
+     *   -- Specialize the ReferenceFrame::*_within_frame templates; OR
      *   -- Add new overloads for transform_to_origin, transform_from_origin,
-     *      do_normalize, and calc_distance virtual methods in Reference_Frame,
+     *      do_normalize, and calc_distance virtual methods in ReferenceFrame,
      *      and add transformation logic for those methods in the various frames
      **/
     template<typename CoordType>
-    class Coordinate : public Coordinate_Base
+    class Coordinate : public CoordinateBase
     {
     public:
       /**
@@ -123,19 +123,19 @@ namespace gams
 
       /**
        * Construct through a reference to a frame object. This Coordinate must
-       * not outlive the Reference_Frame that is passed in.
+       * not outlive the ReferenceFrame that is passed in.
        *
        * @param frame the reference frame this Coordinate will belong to
        **/
-      constexpr explicit Coordinate(const Reference_Frame &frame);
+      constexpr explicit Coordinate(const ReferenceFrame &frame);
 
       /**
        * Construct through a pointer to a frame object. This Coordinate must not
-       * outlive the Reference_Frame that is passed in.
+       * outlive the ReferenceFrame that is passed in.
        *
        * @param frame the reference frame this Coordinate will belong to
        **/
-      constexpr explicit Coordinate(const Reference_Frame *frame);
+      constexpr explicit Coordinate(const ReferenceFrame *frame);
 
       /**
        * Copy constructor. This Coordinate will refer to the same frame as the
@@ -150,7 +150,7 @@ namespace gams
        *
        * @return the frame
        **/
-      constexpr const Reference_Frame &frame() const;
+      constexpr const ReferenceFrame &frame() const;
 
       /**
        * Setter for the reference frame this Coordinate belongs to. Any further
@@ -161,7 +161,7 @@ namespace gams
        * @param new_frame the frame the Coordinate will now belong to
        * @return the new frame
        **/
-      const Reference_Frame &frame(const Reference_Frame &new_frame);
+      const ReferenceFrame &frame(const ReferenceFrame &new_frame);
 
       /**
        * Evaluate equality with the other Coordinate. If the coordinates belong
@@ -260,7 +260,7 @@ namespace gams
        * container type must support a set method taking two parameters:
        *  first, an integer index; second, a floating-point value
        *
-       * The MADARA Double_Vector and Native_Double_Vector types are supported.
+       * The MADARA DoubleVector and NativeDoubleVector types are supported.
        *
        * @tparam ContainType the type of the container; must support "set"
        * @param container the container to put this Coordinate's values into.
@@ -281,7 +281,7 @@ namespace gams
 
 
       /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-       * The four methods below are defined in Reference_Frame.inl,
+       * The four methods below are defined in ReferenceFrame.inl,
        * due to circular dependencies
        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -298,7 +298,7 @@ namespace gams
        * @throws undefined_transform thrown if no conversion between two frames
        *      along the conversion path has been defined.
        **/
-      CoordType transform_to(const Reference_Frame &new_frame) const;
+      CoordType transform_to(const ReferenceFrame &new_frame) const;
 
       /**
        * Transform this coordinate, in place, to a new reference frame
@@ -312,7 +312,7 @@ namespace gams
        * @throws undefined_transform thrown if no conversion between two frames
        *      along the conversion path has been defined.
        **/
-      void transform_this_to(const Reference_Frame &new_frame);
+      void transform_this_to(const ReferenceFrame &new_frame);
 
       /**
        * Calculate distance from this Coordinate to a target. If the target
@@ -339,7 +339,7 @@ namespace gams
       void normalize();
 
     private:
-      const Reference_Frame *frame_;
+      const ReferenceFrame *frame_;
 
       CoordType &as_coord_type();
 

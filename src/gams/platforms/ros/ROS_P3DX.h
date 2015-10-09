@@ -56,14 +56,14 @@
 
 #ifdef _GAMS_ROS_
 
-#include "gams/platforms/ros/ROS_Base.h"
+#include "gams/platforms/ros/ROSBase.h"
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform_Status.h"
+#include "gams/variables/PlatformStatus.h"
 #include "gams/utility/Position.h"
-#include "gams/platforms/Platform_Factory.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "gams/platforms/PlatformFactory.h"
+#include "madara/knowledge_engine/KnowledgeBase.h"
 
 #include "ros/ros.h"
 #include "move_base_msgs/MoveBaseAction.h"
@@ -74,7 +74,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMS_Export ROS_P3DX : public ROS_Base
+    class GAMSExport ROS_P3DX : public ROSBase
     {
     public:
       /**
@@ -85,7 +85,7 @@ namespace gams
        * @param  self       device variables that describe self state
        **/
       ROS_P3DX (
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+        Madara::KnowledgeEngine::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -132,7 +132,7 @@ namespace gams
     /**
      * A factory class for creating ROS_P3DX platforms
      **/
-    class GAMS_Export ROS_P3DX_Factory : public Platform_Factory
+    class GAMSExport ROS_P3DXFactory : public PlatformFactory
     {
     public:
 
@@ -148,13 +148,13 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
-      virtual Base_Platform * create (
-        const Madara::Knowledge_Vector & args,
-        Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+      virtual BasePlatform * create (
+        const Madara::KnowledgeVector & args,
+        Madara::KnowledgeEngine::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
-      }; // class ROS_P3DX_Factory
+      }; // class ROS_P3DXFactory
   } // namespace platform
 } // namespace gams
 

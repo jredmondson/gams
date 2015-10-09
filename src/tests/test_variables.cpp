@@ -53,17 +53,17 @@
  **/
 
 #include "gams/utility/Position.h"
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 #include "gams/variables/Sensor.h"
 
-#include "gams/variables/Accent_Status.h"
+#include "gams/variables/AccentStatus.h"
 
 #include <string>
 #include <iostream>
 #include <assert.h>
 #include <vector>
 
-using gams::utility::GPS_Position;
+using gams::utility::GPSPosition;
 using gams::utility::Position;
 using gams::variables::Sensor;
 using std::cout;
@@ -89,8 +89,8 @@ test_accent ()
 {
   testing_output ("gams::variables::Accent");
 
-  engine::Knowledge_Base knowledge;
-  variables::Accent_Status cur_accent;
+  engine::KnowledgeBase knowledge;
+  variables::AccentStatus cur_accent;
   cur_accent.init_vars (knowledge, "device");
 
   knowledge.print ("Check the following printout for device.accent vars.\n");
@@ -110,13 +110,13 @@ test_Sensor ()
   // init knowledge base to use
   std::string host ("");
   const std::string default_multicast ("239.255.0.1:4150");
-  transport::QoS_Transport_Settings settings;
+  transport::QoSTransportSettings settings;
   settings.type = transport::MULTICAST;
   if (settings.hosts.size () == 0)
   {
     settings.hosts.push_back (default_multicast);
   }
-  engine::Knowledge_Base test (host, settings);
+  engine::KnowledgeBase test (host, settings);
 
   // test constructor
   testing_output ("constructor", 1);
@@ -151,7 +151,7 @@ test_Sensor ()
    * We make the assumption that the Earth is flat over the area of operation 
    * and overlay a cartesian grid with the origin GPS location as (0,0,0).
    */
-  const GPS_Position origin (40, -80); 
+  const GPSPosition origin (40, -80); 
 
   // actual sensor construction
   Sensor s (name, &test, range, origin);
@@ -186,8 +186,8 @@ test_Sensor ()
    * Another utility functions provided by the Sensor class is the discretize()
    * function. Given a region or a convex search area it will return a 
    * set<Position> object with all valid discretized positions in the region or 
-   * search area. This is used by Local_Pheremone_Area_Coverage, 
-   * Min_Time_Area_Coverage, and some other algorithms to limit the number of 
+   * search area. This is used by LocalPheremoneAreaCoverage, 
+   * MinTimeAreaCoverage, and some other algorithms to limit the number of 
    * positions to be checked for maximum movement utility. 
    *
    * This next section shows converting between gps coordinate and cartesian 
@@ -197,12 +197,12 @@ test_Sensor ()
    * performing a set. When calling get_gps_from_index() with a Position, it 
    * returns the GPS location of the closest discretized Position. 
    */
-  GPS_Position g1 (origin);
+  GPSPosition g1 (origin);
   g1.latitude (40.01);
   value = 2;
   s.set_value (g1, value);
   Position p1 = s.get_index_from_gps (g1);
-  GPS_Position g2 = s.get_gps_from_index (p1);
+  GPSPosition g2 = s.get_gps_from_index (p1);
   assert (s.get_value (g1) == value);
   assert (s.get_value (p1) == value);
   assert (s.get_value (g2) == value);
@@ -215,9 +215,9 @@ test_Sensor ()
    * value for all cells within range of a location. 
    *
    * For further uses of Sensor, look at:
-   *  - Local_Pheremone_Area_Coverage
-   *  - Min_Time_Area_Coverage
-   *  - Prioritized_Min_Time_Area_Coverage
+   *  - LocalPheremoneAreaCoverage
+   *  - MinTimeAreaCoverage
+   *  - PrioritizedMinTimeAreaCoverage
    */
 }
 

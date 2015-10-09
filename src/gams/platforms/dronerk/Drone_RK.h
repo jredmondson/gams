@@ -57,14 +57,14 @@
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Platform.h"
-#include "gams/platforms/Base_Platform.h"
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "gams/platforms/BasePlatform.h"
+#include "madara/knowledge_engine/KnowledgeBase.h"
 
 namespace gams
 {
   namespace platforms
   {
-    class GAMS_Export Drone_RK : public Base
+    class GAMSExport Drone_RK : public Base
     {
     public:
       /**
@@ -75,7 +75,7 @@ namespace gams
        * @param  self       device variables that describe self state
        **/
       Drone_RK (
-        Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+        Madara::KnowledgeEngine::KnowledgeBase & knowledge,
         variables::Sensors * sensors,
         variables::Platforms & platforms,
         variables::Self & self);
@@ -137,7 +137,7 @@ namespace gams
       /**
        * Fills a list of sensor names with sensors available on the platform
        **/
-      virtual void get_sensors (variables::Sensor_Names & sensors);
+      virtual void get_sensors (variables::SensorNames & sensors);
       
       /**
        * Obtains the current position

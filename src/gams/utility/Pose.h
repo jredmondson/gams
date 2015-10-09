@@ -64,17 +64,17 @@ namespace gams
 {
   namespace utility
   {
-    class Reference_Frame;
+    class ReferenceFrame;
 
     /**
      * Container for Pose information, not bound to a frame.
-     * See Location_Vector and Rotation_Vector for representation deatils
+     * See LocationVector and RotationVector for representation deatils
      **/
-    class Pose_Vector : public Location_Vector, public Rotation_Vector
+    class PoseVector : public LocationVector, public RotationVector
     {
     public:
       /**
-       * Constructs a Pose_Vector from individual location and rotation values
+       * Constructs a PoseVector from individual location and rotation values
        *
        * @param x position along x-axis
        * @param y position along y-axis
@@ -83,43 +83,43 @@ namespace gams
        * @param ry length of rotation vector along y-axis
        * @param rz length of rotation vector along z-axis
        **/
-      constexpr Pose_Vector(double x, double y, double z,
+      constexpr PoseVector(double x, double y, double z,
                             double rx, double ry, double rz);
 
       /**
-       * Construct a Pose_Vector from a Location_Vector. Rotation info will
+       * Construct a PoseVector from a LocationVector. Rotation info will
        * be all zeros (is_rotation_zero() == true)
        *
-       * @param loc the Location_Vector to get location info from.
+       * @param loc the LocationVector to get location info from.
        **/
-      constexpr Pose_Vector(const Location_Vector &loc);
+      constexpr PoseVector(const LocationVector &loc);
 
       /**
-       * Construct a Pose_Vector from a Rotation_Vector. Location info will
+       * Construct a PoseVector from a RotationVector. Location info will
        * be all zeros (is_location_zero() == true)
        *
-       * @param rot the Rotation_Vector to get location info from.
+       * @param rot the RotationVector to get location info from.
        **/
-      constexpr Pose_Vector(const Rotation_Vector &rot);
+      constexpr PoseVector(const RotationVector &rot);
 
       /**
-       * Construct from individual Location_Vector and Rotation_Vector
+       * Construct from individual LocationVector and RotationVector
        *
-       * @param loc the Location_Vector
-       * @param rot the Rotation_Vector
+       * @param loc the LocationVector
+       * @param rot the RotationVector
        **/
-      constexpr Pose_Vector(const Location_Vector &loc,
-                            const Rotation_Vector &rot);
+      constexpr PoseVector(const LocationVector &loc,
+                            const RotationVector &rot);
 
       /**
        * Default constructor. All values will be INVAL_COORD
        **/
-      constexpr Pose_Vector();
+      constexpr PoseVector();
 
       /**
        * Copy constructor
        **/
-      constexpr Pose_Vector(const Pose_Vector &other);
+      constexpr PoseVector(const PoseVector &other);
 
       /**
        * Tests if this Pose is invalid; i.e., any values are INVAL_COORD
@@ -156,7 +156,7 @@ namespace gams
        * @param rhs the other pose to test against
        * @return true if all values equal corresponding values in other pose
        **/
-      constexpr bool operator==(const Pose_Vector &rhs) const;
+      constexpr bool operator==(const PoseVector &rhs) const;
 
       /**
        * Get the name of this coordinate type
@@ -191,56 +191,56 @@ namespace gams
        **/
       double set(int i, double val);
 
-      typedef Pose_Vector Base_Type;
+      typedef PoseVector BaseType;
 
       /**
        * Gets a reference to this object. Useful for derived types.
        *
        * @return reference to this object.
        **/
-      Base_Type &as_vec();
+      BaseType &as_vec();
 
       /**
        * Gets a const reference to this object. Useful for derived types.
        *
        * @return const reference to this object.
        **/
-      constexpr const Base_Type &as_vec() const;
+      constexpr const BaseType &as_vec() const;
 
       /**
        * Gets a reference to this object's Location part.
        *
-       * @return reference to the Location_Vector
+       * @return reference to the LocationVector
        **/
-      Location_Vector &as_location_vec();
+      LocationVector &as_location_vec();
 
       /**
        * Gets a const reference to this object's Location part.
        *
-       * @return const reference to the Location_Vector
+       * @return const reference to the LocationVector
        **/
-      constexpr const Location_Vector &as_location_vec() const;
+      constexpr const LocationVector &as_location_vec() const;
 
       /**
        * Gets a reference to this object's Rotation part.
        *
-       * @return reference to the Rotation_Vector
+       * @return reference to the RotationVector
        **/
-      Rotation_Vector &as_rotation_vec();
+      RotationVector &as_rotation_vec();
 
       /**
        * Gets a const reference to this object's Rotation part.
        *
-       * @return const reference to the Rotation_Vector
+       * @return const reference to the RotationVector
        **/
-      constexpr const Rotation_Vector &as_rotation_vec() const;
+      constexpr const RotationVector &as_rotation_vec() const;
     };
 
     /**
      * Represents a combination of Location and Rotation within a single
      * reference frame.
      **/
-    class Pose : public Pose_Vector, public Coordinate<Pose>
+    class Pose : public PoseVector, public Coordinate<Pose>
     {
     public:
       /**
@@ -278,7 +278,7 @@ namespace gams
        * @param ry length of rotation vector along y-axis
        * @param rz length of rotation vector along z-axis
        **/
-      constexpr Pose(const Reference_Frame &frame,
+      constexpr Pose(const ReferenceFrame &frame,
                      double x, double y, double z,
                      double rx, double ry, double rz);
 
@@ -292,7 +292,7 @@ namespace gams
        * @param y position along y-axis
        * @param z position along z-axis
        **/
-      constexpr Pose(const Reference_Frame &frame,
+      constexpr Pose(const ReferenceFrame &frame,
                      double x, double y, double z = 0.0);
 
       /**
@@ -323,7 +323,7 @@ namespace gams
        * @param loc the Location to copy location info from.
        * @param rot the Rotation to copy rotation info from.
        **/
-      Pose(const Location_Vector &loc, const Rotation_Vector &rot);
+      Pose(const LocationVector &loc, const RotationVector &rot);
 
       /**
        * Copy constructor
@@ -338,9 +338,9 @@ namespace gams
        * @param loc the Location to copy location info from.
        * @param rot the Rotation to copy rotation info from.
        **/
-      constexpr Pose(const Reference_Frame &frame,
-                     const Location_Vector &loc,
-                     const Rotation_Vector &rot);
+      constexpr Pose(const ReferenceFrame &frame,
+                     const LocationVector &loc,
+                     const RotationVector &rot);
 
       /**
        * Construct from individual Location and Rotation.
@@ -359,7 +359,7 @@ namespace gams
        * @param new_frame the frame to transform into
        * @param orig      the origin to use for Pose information
        **/
-      Pose(const Reference_Frame &new_frame, const Pose &orig);
+      Pose(const ReferenceFrame &new_frame, const Pose &orig);
 
       /**
        * Finds angle to the target; transforms target to this frame if needed.
@@ -397,6 +397,6 @@ namespace gams
 #include "Pose.inl"
 
 // Include if not already included
-#include <gams/utility/Reference_Frame.h>
+#include <gams/utility/ReferenceFrame.h>
 
 #endif

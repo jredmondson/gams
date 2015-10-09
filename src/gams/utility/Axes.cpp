@@ -83,7 +83,7 @@ gams::utility::Axes::operator== (const Axes & rhs) const
 
 bool
 gams::utility::Axes::operator== (
-  const madara::knowledge::containers::Double_Array & rhs) const
+  const madara::knowledge::containers::DoubleArray & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -91,7 +91,7 @@ gams::utility::Axes::operator== (
 
 bool
 gams::utility::Axes::operator== (
-  const madara::knowledge::containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::NativeDoubleArray & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -105,14 +105,14 @@ gams::utility::Axes::operator!= (const Axes & rhs) const
 
 bool
 gams::utility::Axes::operator!= (
-  const madara::knowledge::containers::Double_Array & rhs) const
+  const madara::knowledge::containers::DoubleArray & rhs) const
 {
   return !(*this == rhs);
 }
 
 bool
 gams::utility::Axes::operator!= (
-  const madara::knowledge::containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::NativeDoubleArray & rhs) const
 {
   return !(*this == rhs);
 }
@@ -141,7 +141,7 @@ gams::utility::Axes::from_string (const std::string & s)
 
 void
 gams::utility::Axes::to_container (
-  madara::knowledge::containers::Double_Array & target) const
+  madara::knowledge::containers::DoubleArray & target) const
 {
   target.set (0, x);
   target.set (1, y);
@@ -150,7 +150,7 @@ gams::utility::Axes::to_container (
 
 void
 gams::utility::Axes::from_container (
-  madara::knowledge::containers::Double_Array & source)
+  madara::knowledge::containers::DoubleArray & source)
 {
   if (source.size () >= 3)
   {
@@ -162,7 +162,7 @@ gams::utility::Axes::from_container (
 
 void
 gams::utility::Axes::to_container (
-  madara::knowledge::containers::Native_Double_Array & target) const
+  madara::knowledge::containers::NativeDoubleArray & target) const
 {
   target.set (0, x);
   target.set (1, y);
@@ -171,7 +171,7 @@ gams::utility::Axes::to_container (
 
 void
 gams::utility::Axes::from_container (
-  madara::knowledge::containers::Native_Double_Array & source)
+  madara::knowledge::containers::NativeDoubleArray & source)
 {
   if (source.size () >= 3)
   {

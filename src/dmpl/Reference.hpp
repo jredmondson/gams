@@ -64,9 +64,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <exception>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Knowledge_Update_Settings.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/KnowledgeUpdateSettings.h>
 #include "knowledge_cast.hpp"
 
 #if __cplusplus >= 201103L
@@ -80,7 +80,7 @@
 namespace Madara
 {
 
-namespace Knowledge_Engine
+namespace KnowledgeEngine
 {
 namespace Containers
 {
@@ -115,29 +115,29 @@ public:
     return get_impl()->get_name();
   }
 
-  Thread_Safe_Context &get_context() const
+  ThreadSafeContext &get_context() const
   {
     return get_impl()->get_context();
   }
 
   /// Returns previous settings
-  Knowledge_Update_Settings *set_settings(Knowledge_Update_Settings *new_settings)
+  KnowledgeUpdateSettings *set_settings(KnowledgeUpdateSettings *new_settings)
   {
     return get_impl()->set_settings(new_settings);;
   }
 
-  Knowledge_Update_Settings *get_settings() const
+  KnowledgeUpdateSettings *get_settings() const
   {
     return get_impl()->get_settings();;
   }
 
-  const Knowledge_Update_Settings &get_settings_cref() const
+  const KnowledgeUpdateSettings &get_settings_cref() const
   {
     return get_impl()->get_settings_cref();
     //return settings ? *settings : default_knowledge_settings;
   }
 
-  Knowledge_Record get_knowledge_record() const {
+  KnowledgeRecord get_knowledge_record() const {
     return get_impl()->get_knowledge_record();
   }
 
@@ -164,7 +164,7 @@ public:
     return get_context().exists(get_name(), get_settings_cref());
   }
 
-  Knowledge_Record::Integer get_integer() const
+  KnowledgeRecord::Integer get_integer() const
   {
     return get_knowledge_record().to_integer();
   }
@@ -259,17 +259,17 @@ public:
     return set(in, get_settings_cref());
   }
 
-  const T &set(const T& in, const Knowledge_Update_Settings &settings)
+  const T &set(const T& in, const KnowledgeUpdateSettings &settings)
   {
     return get_impl()->set(in, settings);
   }
 
-  const Knowledge_Record &set_knowledge_record(const Knowledge_Record &in)
+  const KnowledgeRecord &set_knowledge_record(const KnowledgeRecord &in)
   {
     return set_knowledge_record(in, get_settings_cref());
   }
 
-  const Knowledge_Record &set_knowledge_record(const Knowledge_Record &in, const Knowledge_Update_Settings &settings)
+  const KnowledgeRecord &set_knowledge_record(const KnowledgeRecord &in, const KnowledgeUpdateSettings &settings)
   {
     return get_impl()->set_knowledge_record(in, settings);
   }
@@ -278,25 +278,25 @@ public:
 namespace
 {
   /* All defaults, except don't expand variable names (siginificant performance penalty) */
-  const Knowledge_Update_Settings default_knowledge_settings(false, true, false, false, false, 1);
+  const KnowledgeUpdateSettings default_knowledge_settings(false, true, false, false, false, 1);
 }
 
 class ContextHost
 {
 protected:
-  Thread_Safe_Context &context;
-  Knowledge_Update_Settings *settings;
+  ThreadSafeContext &context;
+  KnowledgeUpdateSettings *settings;
 
-  ContextHost(Knowledge_Base &kbase)
+  ContextHost(KnowledgeBase &kbase)
     : context(kbase.get_context()), settings() {}
 
-  ContextHost(Thread_Safe_Context &con)
+  ContextHost(ThreadSafeContext &con)
     : context(con), settings() {}
 
-  ContextHost(Thread_Safe_Context &con, Knowledge_Update_Settings *settings)
+  ContextHost(ThreadSafeContext &con, KnowledgeUpdateSettings *settings)
     : context(con), settings(settings) {}
 
-  ContextHost(Knowledge_Base &kbase, Knowledge_Update_Settings *settings)
+  ContextHost(KnowledgeBase &kbase, KnowledgeUpdateSettings *settings)
     : context(kbase.get_context()), settings(settings) {}
 
   ContextHost(const ContextHost &o)
@@ -306,25 +306,25 @@ noexcept
     : context(o.get_context()), settings(o.get_settings()) {}
 
 public:
-  Thread_Safe_Context &get_context() const
+  ThreadSafeContext &get_context() const
   {
     return context;
   }
 
   /// Returns previous settings
-  Knowledge_Update_Settings *set_settings(Knowledge_Update_Settings *new_settings)
+  KnowledgeUpdateSettings *set_settings(KnowledgeUpdateSettings *new_settings)
   {
-    Knowledge_Update_Settings *old_settings = settings;
+    KnowledgeUpdateSettings *old_settings = settings;
     settings = new_settings;
     return old_settings;
   }
 
-  Knowledge_Update_Settings *get_settings() const
+  KnowledgeUpdateSettings *get_settings() const
   {
     return settings;
   }
 
-  const Knowledge_Update_Settings &get_settings_cref() const
+  const KnowledgeUpdateSettings &get_settings_cref() const
   {
     return settings ? *settings : default_knowledge_settings;
   }
@@ -341,10 +341,10 @@ protected:
   typedef __INTERNAL__::ContextHost ContextStorage;
 
 #ifdef USE_CPP11
-  const Variable_Reference var_ref;
+  const VariableReference var_ref;
 #else
   // to support putting Reference in a vector, pre-C++11, must be assignable
-  Variable_Reference var_ref;
+  VariableReference var_ref;
 #endif
 
 public:
@@ -359,16 +359,16 @@ noexcept
     : ContextStorage(std::move(o)), var_ref(std::move(o.var_ref)) {}
 #endif
 
-  Reference(Thread_Safe_Context &con, const std::string &name)
+  Reference(ThreadSafeContext &con, const std::string &name)
     : ContextStorage(con), var_ref(con.get_ref(name)) {}
 
-  Reference(Knowledge_Base &kbase, const std::string &name)
+  Reference(KnowledgeBase &kbase, const std::string &name)
     : ContextStorage(kbase), var_ref(this->get_context().get_ref(name)) {}
 
-  Reference(Thread_Safe_Context &con, Knowledge_Update_Settings *settings, const std::string &name)
+  Reference(ThreadSafeContext &con, KnowledgeUpdateSettings *settings, const std::string &name)
     : ContextStorage(con, settings), var_ref(con.get_ref(name, settings)) {}
 
-  Reference(Knowledge_Base &kbase, Knowledge_Update_Settings *settings, const std::string &name)
+  Reference(KnowledgeBase &kbase, KnowledgeUpdateSettings *settings, const std::string &name)
     : ContextStorage(kbase, settings), var_ref(this->get_context().get_ref(name, settings)) {}
 
   template<typename Impl>
@@ -397,7 +397,7 @@ noexcept
   {
     // const_cast required to workaround missing const decorator;
     // current implementation is actually const
-    return std::string(const_cast<Variable_Reference&>(this->var_ref).get_name());
+    return std::string(const_cast<VariableReference&>(this->var_ref).get_name());
   }
 
   void mark_modified()
@@ -406,7 +406,7 @@ noexcept
     //this->get_context().set(var_ref, 
   }
 
-  Knowledge_Record get_knowledge_record() const {
+  KnowledgeRecord get_knowledge_record() const {
     return this->get_context().get(var_ref, this->get_settings_cref());
   }
 
@@ -415,13 +415,13 @@ noexcept
     return knowledge_cast<T>(get_knowledge_record());
   }
 
-  const Knowledge_Record &set_knowledge_record(const Knowledge_Record &in, const Knowledge_Update_Settings &settings)
+  const KnowledgeRecord &set_knowledge_record(const KnowledgeRecord &in, const KnowledgeUpdateSettings &settings)
   {
     this->get_context().set(var_ref, in, settings);
     return in;
   }
 
-  const T &set(const T& in, const Knowledge_Update_Settings &settings)
+  const T &set(const T& in, const KnowledgeUpdateSettings &settings)
   {
     set_knowledge_record(knowledge_cast(in), settings);
     return in;
@@ -446,13 +446,13 @@ protected:
     bool exist:1;
     bool dirty:1;
     bool create:1;
-    Variable_Reference var_ref;
+    VariableReference var_ref;
     T data;
     mutable unsigned int ref_count;
 
-    data_t(Thread_Safe_Context &con, const std::string &name) : name(name),
+    data_t(ThreadSafeContext &con, const std::string &name) : name(name),
       exist(con.exists(name)), dirty(false), create(false),
-      var_ref(exist ? con.get_ref(name) : Variable_Reference()),
+      var_ref(exist ? con.get_ref(name) : VariableReference()),
       data(exist ? knowledge_cast<T>(con.get(name)) : T()),
       ref_count(1) {}
 
@@ -483,16 +483,16 @@ noexcept
   data_t *data;
 public:
 
-  CachedReference(Thread_Safe_Context &con, const std::string &name)
+  CachedReference(ThreadSafeContext &con, const std::string &name)
     : ContextStorage(con), data(new data_t(con, name)) {}
 
-  CachedReference(Knowledge_Base &kbase, const std::string &name)
+  CachedReference(KnowledgeBase &kbase, const std::string &name)
     : ContextStorage(kbase), data(new data_t(kbase.get_context(), name)) {}
 
-  CachedReference(Thread_Safe_Context &con, Knowledge_Update_Settings *settings, const std::string &name)
+  CachedReference(ThreadSafeContext &con, KnowledgeUpdateSettings *settings, const std::string &name)
     : ContextStorage(con, settings), data(new data_t(con, name)) {}
 
-  CachedReference(Knowledge_Base &kbase, Knowledge_Update_Settings *settings, const std::string &name)
+  CachedReference(KnowledgeBase &kbase, KnowledgeUpdateSettings *settings, const std::string &name)
     : ContextStorage(kbase, settings), data(new data_t(kbase.get_context(), name)) {}
 
   CachedReference(const CachedReference &o)
@@ -511,7 +511,7 @@ noexcept
   CachedReference(const __INTERNAL__::BaseReference<T, Impl> &o)
     : ContextStorage(o.get_context(), o.get_settings()), data(new data_t(o.get_context(), o.get_name())) {
       //exist(this->get_context().exists(this->get_name(), this->get_settings())), dirty(false), create(false),
-      //var_ref(exist ? this->get_context().get_ref(this->get_name(), this->get_settings()) : Variable_Reference()),
+      //var_ref(exist ? this->get_context().get_ref(this->get_name(), this->get_settings()) : VariableReference()),
       //data(exist ? knowledge_cast<T>(this->get_context().get(this->get_name(), this->get_settings())) : T()) {
     //std::cerr << "Converting to CachedReference type from " << typeid(Impl).name() << std::endl;
   }
@@ -531,7 +531,7 @@ noexcept
     return data->name;
   }
   
-  Knowledge_Record get_knowledge_record() const {
+  KnowledgeRecord get_knowledge_record() const {
     return knowledge_cast(data->data);
   }
 
@@ -551,12 +551,12 @@ noexcept
     return data->data;
   }
 
-  const Knowledge_Record &set_knowledge_record(const Knowledge_Record &in, const Knowledge_Update_Settings &settings)
+  const KnowledgeRecord &set_knowledge_record(const KnowledgeRecord &in, const KnowledgeUpdateSettings &settings)
   {
     return set(knowledge_cast<T>(in), settings);
   }
 
-  const T &set(const T& in, const Knowledge_Update_Settings &settings)
+  const T &set(const T& in, const KnowledgeUpdateSettings &settings)
   {
     if(!data->exist)
     {

@@ -64,7 +64,7 @@ namespace gams
 {
   namespace utility
   {
-    class Reference_Frame;
+    class ReferenceFrame;
 
     /**
      * Container for Location information, not bound to a frame.
@@ -78,7 +78,7 @@ namespace gams
      *
      * Each of the above are bound to x/y/z respectively.
      **/
-    class Location_Vector
+    class LocationVector
     {
     public:
       /**
@@ -88,17 +88,17 @@ namespace gams
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      constexpr Location_Vector(double x, double y, double z = 0.0);
+      constexpr LocationVector(double x, double y, double z = 0.0);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).
        **/
-      constexpr Location_Vector();
+      constexpr LocationVector();
 
       /**
        * Copy constructor.
        **/
-      constexpr Location_Vector(const Location_Vector &orig);
+      constexpr LocationVector(const LocationVector &orig);
 
       /**
        * Tests if this Location is valid
@@ -113,7 +113,7 @@ namespace gams
        *
        * @param rhs the other Location to check against
        **/
-      constexpr bool operator==(const Location_Vector &rhs) const;
+      constexpr bool operator==(const LocationVector &rhs) const;
 
       /**
        * Tests if all values in this Location are zero
@@ -302,27 +302,27 @@ namespace gams
        **/
       double set(int i, double val);
 
-      typedef Location_Vector Base_Type;
+      typedef LocationVector BaseType;
 
       /**
-       * Returns reference to this as the above Base_Type; useful
+       * Returns reference to this as the above BaseType; useful
        * for derived types
        *
-       * @return reference to this as Base_Type
+       * @return reference to this as BaseType
        **/
-      Base_Type &as_vec();
+      BaseType &as_vec();
 
       /**
-       * Returns const reference to this as the above Base_Type; useful
+       * Returns const reference to this as the above BaseType; useful
        * for derived types
        *
-       * @return const reference to this as Base_Type
+       * @return const reference to this as BaseType
        **/
-      constexpr const Base_Type &as_vec() const;
+      constexpr const BaseType &as_vec() const;
 
       friend class Quaternion;
 
-      friend class Reference_Frame;
+      friend class ReferenceFrame;
 
     private:
       double x_, y_, z_;
@@ -341,7 +341,7 @@ namespace gams
      *
      * Each of the above are bound to x/y/z respectively.
      **/
-    class Location : public Location_Vector, public Coordinate<Location>
+    class Location : public LocationVector, public Coordinate<Location>
     {
     public:
       /**
@@ -357,12 +357,12 @@ namespace gams
        * Primary constructor
        *
        * @param frame the reference frame to bind to. This object must not
-       *    outlive this Reference_Frame object.
+       *    outlive this ReferenceFrame object.
        * @param x the x coordinate of the new Location
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      constexpr Location(const Reference_Frame &frame,
+      constexpr Location(const ReferenceFrame &frame,
                          double x = 0.0, double y = 0.0, double z = 0.0);
 
       /**
@@ -381,7 +381,7 @@ namespace gams
        * @param new_frame the new frame to transform to
        * @param orig      the origin location
        **/
-      Location(const Reference_Frame &new_frame, const Location &orig);
+      Location(const ReferenceFrame &new_frame, const Location &orig);
 
       using Coordinate<Location>::operator==;
     };

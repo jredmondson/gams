@@ -1,5 +1,5 @@
 #include "com_gams_utility_Logging.h"
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 
 namespace loggers = gams::loggers;
 

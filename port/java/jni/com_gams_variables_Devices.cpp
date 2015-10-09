@@ -3,7 +3,7 @@
 
 #include "gams/variables/Device.h"
 
-GAMS_Export void JNICALL Java_com_gams_variables_Devices_jni_1freeDevices
+GAMSExport void JNICALL Java_com_gams_variables_Devices_jni_1freeDevices
   (JNIEnv * env, jobject , jlongArray devices, jint length)
 {
   jlong* array = env->GetLongArrayElements (devices, 

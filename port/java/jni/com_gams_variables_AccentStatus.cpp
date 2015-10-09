@@ -1,6 +1,6 @@
 
 #include "com_gams_variables_AccentStatus.h"
-#include "gams/variables/Accent_Status.h"
+#include "gams/variables/AccentStatus.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -14,7 +14,7 @@ namespace variables = gams::variables;
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__
   (JNIEnv * , jobject)
 {
-  return (jlong) new variables::Accent_Status ();
+  return (jlong) new variables::AccentStatus ();
 }
 
 /*
@@ -25,8 +25,8 @@ jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__J
   (JNIEnv * , jobject, jlong cptr)
 {
-  return (jlong) new variables::Accent_Status (
-    *(variables::Accent_Status *)cptr);
+  return (jlong) new variables::AccentStatus (
+    *(variables::AccentStatus *)cptr);
 }
 
 /*
@@ -37,7 +37,7 @@ jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1AccentStatus__J
 void JNICALL Java_com_gams_variables_AccentStatus_jni_1freeAccentStatus
   (JNIEnv * , jclass, jlong cptr)
 {
-  delete (variables::Accent_Status *) cptr;
+  delete (variables::AccentStatus *) cptr;
 }
 
 /*
@@ -50,7 +50,7 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1getName
 {
   jstring result;
 
-  variables::Accent_Status * current = (variables::Accent_Status *) cptr;
+  variables::AccentStatus * current = (variables::AccentStatus *) cptr;
   if (current)
     result = env->NewStringUTF(current->command.get_name ().c_str ());
 
@@ -65,7 +65,7 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1getName
 void JNICALL Java_com_gams_variables_AccentStatus_jni_1init
   (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name)
 {
-  variables::Accent_Status * current = (variables::Accent_Status *) cptr;
+  variables::AccentStatus * current = (variables::AccentStatus *) cptr;
 
   if (current)
   {
@@ -73,7 +73,7 @@ void JNICALL Java_com_gams_variables_AccentStatus_jni_1init
 
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (*kb, str_name);
     }
     else if (type == 1)
@@ -96,7 +96,7 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1toString
 {
   jstring result;
 
-  variables::Accent_Status * current = (variables::Accent_Status *) cptr;
+  variables::AccentStatus * current = (variables::AccentStatus *) cptr;
   if (current)
     result = env->NewStringUTF(current->command.get_name ().c_str ());
 
@@ -111,7 +111,7 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1toString
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1getArgs
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Accent_Status * current = (variables::Accent_Status *) cptr;
+  variables::AccentStatus * current = (variables::AccentStatus *) cptr;
 
   return (jlong) &current->command_args;
 }
@@ -124,7 +124,7 @@ jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1getArgs
 jlong JNICALL Java_com_gams_variables_AccentStatus_jni_1getCommand
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Accent_Status * current = (variables::Accent_Status *) cptr;
+  variables::AccentStatus * current = (variables::AccentStatus *) cptr;
 
   return (jlong) &current->command;
 }

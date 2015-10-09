@@ -5,7 +5,7 @@
  * Inserts a single key/value pair into the database continuously
  */
 
-#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 #include <string>
 #include <iostream>
@@ -17,7 +17,7 @@ using std::endl;
 double num_sec = 12;
 double poll_period = 0.001;
 
-madara::transport::QoS_Transport_Settings settings;
+madara::transport::QoSTransportSettings settings;
 
 void handle_arguments (int argc, char ** argv)
 {
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 {
   handle_arguments(argc, argv);
 
-  madara::knowledge::Knowledge_Base knowledge("", settings);
+  madara::knowledge::KnowledgeBase knowledge("", settings);
 
   // get start time
   time_t start_time;

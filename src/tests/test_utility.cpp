@@ -59,18 +59,18 @@
 #include <cmath>
 
 #include "gams/utility/Position.h"
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 #include "gams/utility/Region.h"
-#include "gams/utility/Prioritized_Region.h"
-#include "gams/utility/Search_Area.h"
+#include "gams/utility/PrioritizedRegion.h"
+#include "gams/utility/SearchArea.h"
 
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 
-using gams::utility::GPS_Position;
+using gams::utility::GPSPosition;
 using gams::utility::Position;
-using gams::utility::Prioritized_Region;
+using gams::utility::PrioritizedRegion;
 using gams::utility::Region;
-using gams::utility::Search_Area;
+using gams::utility::SearchArea;
 using std::cout;
 using std::endl;
 using std::string;
@@ -158,16 +158,16 @@ test_Position ()
   assert (p3.z == DBL_MAX);
 }
 
-// TODO: fill out remaining GPS_Position function tests
+// TODO: fill out remaining GPSPosition function tests
 void
-test_GPS_Position ()
+test_GPSPosition ()
 {
-  testing_output ("gams::utility::GPS_Position");
+  testing_output ("gams::utility::GPSPosition");
 
   // test constructor
   testing_output ("constructor", 1);
-  GPS_Position p (40.442775, -79.940967);
-  GPS_Position p2 (40.443412, -79.93954);
+  GPSPosition p (40.442775, -79.940967);
+  GPSPosition p2 (40.443412, -79.93954);
   assert (p.latitude () == 40.442775
     && p.longitude () == -79.940967
     && p.altitude () == 0.0);
@@ -177,7 +177,7 @@ test_GPS_Position ()
 
   // test assignment operator
   testing_output ("assignment operator", 1);
-  GPS_Position p3 = p;
+  GPSPosition p3 = p;
   assert (p3.latitude () == p.latitude ()
     && p3.longitude () == p.longitude ()
     && p3.altitude () == p.altitude ());
@@ -201,7 +201,7 @@ test_GPS_Position ()
 
   // test direction_to
   testing_output ("direction_to", 1);
-  GPS_Position p4 = p;
+  GPSPosition p4 = p;
   p4.latitude (p4.latitude() + 1);
   double phi;
   p.direction_to (p4, phi);
@@ -228,8 +228,8 @@ test_Region ()
 
   // test constructor
   testing_output ("constructor using to_string", 1);
-  vector<GPS_Position> points;
-  GPS_Position p (40.443273, -79.939951);
+  vector<GPSPosition> points;
+  GPSPosition p (40.443273, -79.939951);
   points.push_back (p);
   p.latitude (40.443116);
   p.longitude (-79.939973);
@@ -249,9 +249,9 @@ test_Region ()
   // test contains
   testing_output ("contains", 1);
   assert (r.contains (p));
-  GPS_Position p2 (40.4432, -79.9401);
+  GPSPosition p2 (40.4432, -79.9401);
   assert (r.contains (p2));
-  GPS_Position empty;
+  GPSPosition empty;
   assert (!r.contains (empty));
 
   // bounding box
@@ -268,7 +268,7 @@ test_Region ()
   assert (bound.get_area () < 681.3 && bound.get_area() > 681.2);
 
   // check to/from container
-  madara::knowledge::Knowledge_Base kb;
+  madara::knowledge::KnowledgeBase kb;
   r.to_container (kb, "test");
   Region from;
   from.from_container (kb, "test");
@@ -278,14 +278,14 @@ test_Region ()
 }
 
 void
-test_Search_Area ()
+test_SearchArea ()
 {
-  testing_output ("gams::utility::Search_Area");
+  testing_output ("gams::utility::SearchArea");
 
   // test constructor
   testing_output ("get_convex_hull", 1);
-  vector<GPS_Position> points;
-  GPS_Position p (40.443237, -79.94057);
+  vector<GPSPosition> points;
+  GPSPosition p (40.443237, -79.94057);
   points.push_back (p);
   p.latitude (40.443387);
   p.longitude (-79.94027);
@@ -296,8 +296,8 @@ test_Search_Area ()
   p.latitude (40.443077);
   p.longitude (-79.940398);
   points.push_back (p);
-  Prioritized_Region pr (points, 1);
-  Search_Area search (pr);
+  PrioritizedRegion pr (points, 1);
+  SearchArea search (pr);
   Region convex1 = search.get_convex_hull ();
 
   points.clear ();
@@ -310,29 +310,29 @@ test_Search_Area ()
   p.latitude (40.443337);
   p.longitude (-79.940298);
   points.push_back (p);
-  Prioritized_Region pr2 (points, 5);
+  PrioritizedRegion pr2 (points, 5);
   search.add_prioritized_region (pr2);
   assert (search.get_convex_hull () == convex1);
 
   // test to/from container
-  madara::knowledge::Knowledge_Base kb;
+  madara::knowledge::KnowledgeBase kb;
   pr.to_container (kb, "test");
-  Prioritized_Region from;
+  PrioritizedRegion from;
   from.from_container (kb, "test");
   assert (from == pr);
   from.to_container (kb, "test2");
   pr.from_container (kb, "test2");
   assert (from == pr);
-  Prioritized_Region nullPR;
+  PrioritizedRegion nullPR;
   assert (nullPR != from);
-  Search_Area cont1;
+  SearchArea cont1;
   cont1.add_prioritized_region (pr);
   cont1.add_prioritized_region (nullPR);
-  Search_Area cont2;
+  SearchArea cont2;
   cont1.to_container (kb, "sa_test");
   cont2.from_container (kb, "sa_test");
   assert (cont1 == cont2);
-  Search_Area nullSA;
+  SearchArea nullSA;
   nullSA.to_container (kb, "nullSA");
   assert (cont1 != nullSA);
   cont1.from_container (kb, "nullSA");
@@ -349,8 +349,8 @@ main (int /*argc*/, char ** /*argv*/)
 {
   gams::loggers::global_logger->set_level (-1);
   test_Position ();
-  test_GPS_Position ();
+  test_GPSPosition ();
   test_Region ();
-  test_Search_Area ();
+  test_SearchArea ();
   return 0;
 }

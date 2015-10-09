@@ -62,7 +62,7 @@ namespace gams
 {
   namespace utility
   {
-    inline const Reference_Frame &Coordinate_Base::default_frame()
+    inline const ReferenceFrame &CoordinateBase::default_frame()
     {
       return *default_frame_;
     }
@@ -73,12 +73,12 @@ namespace gams
 
     template<typename CoordType>
     inline constexpr Coordinate<CoordType>::Coordinate(
-                            const Reference_Frame &frame)
+                            const ReferenceFrame &frame)
       : frame_(&frame) {}
 
     template<typename CoordType>
     inline constexpr Coordinate<CoordType>::Coordinate(
-                            const Reference_Frame *frame)
+                            const ReferenceFrame *frame)
       : frame_(frame) {}
 
     template<typename CoordType>
@@ -114,14 +114,14 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline constexpr const Reference_Frame &Coordinate<CoordType>::frame() const
+    inline constexpr const ReferenceFrame &Coordinate<CoordType>::frame() const
     {
       return *frame_;
     }
 
     template<typename CoordType>
-    inline const Reference_Frame &Coordinate<CoordType>::frame(
-        const Reference_Frame &new_frame)
+    inline const ReferenceFrame &Coordinate<CoordType>::frame(
+        const ReferenceFrame &new_frame)
     {
       return *(frame_ = &new_frame);
     }
@@ -131,12 +131,12 @@ namespace gams
     {
       if(frame() == rhs.frame())
       {
-        return as_type<typename CoordType::Base_Type>() == rhs;
+        return as_type<typename CoordType::BaseType>() == rhs;
       }
       else
       {
         CoordType tmp(frame(), static_cast<const CoordType &>(rhs));
-        return as_type<typename CoordType::Base_Type>() == tmp;
+        return as_type<typename CoordType::BaseType>() == tmp;
       }
     }
 

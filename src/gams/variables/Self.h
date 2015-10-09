@@ -54,9 +54,9 @@
 #ifndef   _GAMS_VARIABLES_SELF_H_
 #define   _GAMS_VARIABLES_SELF_H_
 
-#include "gams/GAMS_Export.h"
+#include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Integer.h"
-#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/KnowledgeBase.h"
 #include "Device.h"
 
 namespace gams
@@ -66,7 +66,7 @@ namespace gams
     /**
     * A container for self referencing information
     **/
-    class GAMS_Export Self
+    class GAMSExport Self
     {
     public:
       /**
@@ -90,8 +90,8 @@ namespace gams
        * @param   knowledge  the knowledge base that houses the variables
        * @param   id         node identifier
        **/
-      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
-        const madara::Knowledge_Record::Integer & id);
+      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+        const madara::KnowledgeRecord::Integer & id);
       
       /**
        * Initializes variable containers
@@ -99,7 +99,7 @@ namespace gams
        * @param   id         node identifier
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const madara::Knowledge_Record::Integer & id);
+        const madara::KnowledgeRecord::Integer & id);
 
       /// the id of this device
       madara::knowledge::containers::Integer id;
@@ -114,9 +114,9 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   id         node identifier
       **/
-    GAMS_Export void init_vars (Self & container,
-      madara::knowledge::Knowledge_Base & knowledge,
-      const madara::Knowledge_Record::Integer & id);
+    GAMSExport void init_vars (Self & container,
+      madara::knowledge::KnowledgeBase & knowledge,
+      const madara::KnowledgeRecord::Integer & id);
   }
 }
 

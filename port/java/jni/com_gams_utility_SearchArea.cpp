@@ -1,5 +1,5 @@
 #include "com_gams_utility_SearchArea.h"
-#include "gams/utility/Search_Area.h"
+#include "gams/utility/SearchArea.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -10,10 +10,10 @@ namespace utility = gams::utility;
  * Method:    jni_SearchArea
  * Signature: ()J
  */
-GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1SearchArea
+GAMSExport jlong JNICALL Java_com_gams_utility_SearchArea_jni_1SearchArea
   (JNIEnv *, jobject)
 {
-  return (jlong) new utility::Search_Area ();
+  return (jlong) new utility::SearchArea ();
 }
 
 /*
@@ -24,7 +24,7 @@ GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1SearchArea
 jstring JNICALL Java_com_gams_utility_SearchArea_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  utility::SearchArea* current = (utility::SearchArea*) cptr;
   jstring result;
 
   if (current)
@@ -43,7 +43,7 @@ jstring JNICALL Java_com_gams_utility_SearchArea_jni_1getName
 void JNICALL Java_com_gams_utility_SearchArea_jni_1setName
   (JNIEnv * env, jobject, jlong cptr, jstring new_name)
 {
-  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  utility::SearchArea* current = (utility::SearchArea*) cptr;
   const char * str_name = env->GetStringUTFChars (new_name, 0);
 
   if (current && str_name)
@@ -60,8 +60,8 @@ void JNICALL Java_com_gams_utility_SearchArea_jni_1setName
 void JNICALL Java_com_gams_utility_SearchArea_jni_1fromContainer
   (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
-  utility::Search_Area* current = (utility::Search_Area*) cptr;
-  engine::Knowledge_Base* kb = (engine::Knowledge_Base*) kb_ptr;
+  utility::SearchArea* current = (utility::SearchArea*) cptr;
+  engine::KnowledgeBase* kb = (engine::KnowledgeBase*) kb_ptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
 
   if (current && kb && str_name)
@@ -78,8 +78,8 @@ void JNICALL Java_com_gams_utility_SearchArea_jni_1fromContainer
 void JNICALL Java_com_gams_utility_SearchArea_jni_1toContainer
   (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
-  utility::Search_Area* current = (utility::Search_Area*) cptr;
-  engine::Knowledge_Base* kb = (engine::Knowledge_Base*) kb_ptr;
+  utility::SearchArea* current = (utility::SearchArea*) cptr;
+  engine::KnowledgeBase* kb = (engine::KnowledgeBase*) kb_ptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
 
   if (current && kb && str_name)
@@ -93,10 +93,10 @@ void JNICALL Java_com_gams_utility_SearchArea_jni_1toContainer
  * Method:    jni_modify
  * Signature: (J)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1modify
+GAMSExport void JNICALL Java_com_gams_utility_SearchArea_jni_1modify
   (JNIEnv *, jobject, jlong cptr)
 {
-  utility::Search_Area* current = (utility::Search_Area*) cptr;
+  utility::SearchArea* current = (utility::SearchArea*) cptr;
 
   if (current)
   {
@@ -109,10 +109,10 @@ GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1modify
  * Method:    jni_freeSearchArea
  * Signature: (J)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1freeSearchArea
+GAMSExport void JNICALL Java_com_gams_utility_SearchArea_jni_1freeSearchArea
   (JNIEnv *, jclass, jlong cptr)
 {
-  delete (utility::Search_Area *) cptr;
+  delete (utility::SearchArea *) cptr;
 }
 
 /*
@@ -120,7 +120,7 @@ GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1freeSearchArea
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_utility_SearchArea_jni_1toString
+GAMSExport jstring JNICALL Java_com_gams_utility_SearchArea_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
@@ -137,11 +137,11 @@ GAMS_Export jstring JNICALL Java_com_gams_utility_SearchArea_jni_1toString
  * Method:    jni_addPrioritizedRegion
  * Signature: (JJ)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1addPrioritizedRegion
+GAMSExport void JNICALL Java_com_gams_utility_SearchArea_jni_1addPrioritizedRegion
   (JNIEnv *, jobject, jlong cptr, jlong region_ptr)
 {
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
-  utility::Prioritized_Region * region = (utility::Prioritized_Region *) region_ptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
+  utility::PrioritizedRegion * region = (utility::PrioritizedRegion *) region_ptr;
 
   if (current && region)
     current->add_prioritized_region (*region);
@@ -152,12 +152,12 @@ GAMS_Export void JNICALL Java_com_gams_utility_SearchArea_jni_1addPrioritizedReg
  * Method:    jni_getConvexHull
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getConvexHull
+GAMSExport jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getConvexHull
   (JNIEnv *, jobject, jlong cptr)
 {
   jlong result (0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = (jlong) new utility::Region (current->get_convex_hull ());
 
@@ -169,13 +169,13 @@ GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getConvexHull
  * Method:    jni_containsGps
  * Signature: (JJ)Z
  */
-GAMS_Export jboolean JNICALL Java_com_gams_utility_SearchArea_jni_1containsGps
+GAMSExport jboolean JNICALL Java_com_gams_utility_SearchArea_jni_1containsGps
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
 {
   jboolean result (false);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current && coord)
     result = current->contains (*coord);
 
@@ -187,12 +187,12 @@ GAMS_Export jboolean JNICALL Java_com_gams_utility_SearchArea_jni_1containsGps
  * Method:    jni_getMaxAlt
  * Signature: (J)D
  */
-GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxAlt
+GAMSExport jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxAlt
   (JNIEnv *, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = current->max_alt_;
 
@@ -204,12 +204,12 @@ GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxAlt
  * Method:    jni_getMinAlt
  * Signature: (J)D
  */
-GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinAlt
+GAMSExport jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinAlt
   (JNIEnv *, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = current->min_alt_;
 
@@ -221,12 +221,12 @@ GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinAlt
  * Method:    jni_getMaxLat
  * Signature: (J)D
  */
-GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxLat
+GAMSExport jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxLat
   (JNIEnv *, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = current->max_lat_;
 
@@ -238,12 +238,12 @@ GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxLat
  * Method:    jni_getMinLat
  * Signature: (J)D
  */
-GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinLat
+GAMSExport jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinLat
   (JNIEnv *, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = current->min_lat_;
 
@@ -255,12 +255,12 @@ GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinLat
  * Method:    jni_getMaxLong
  * Signature: (J)D
  */
-GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxLong
+GAMSExport jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxLong
   (JNIEnv *, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = current->max_lon_;
 
@@ -272,12 +272,12 @@ GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMaxLong
  * Method:    jni_getMinLong
  * Signature: (J)D
  */
-GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinLong
+GAMSExport jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinLong
   (JNIEnv *, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
   if (current)
     result = current->min_lon_;
 
@@ -289,13 +289,13 @@ GAMS_Export jdouble JNICALL Java_com_gams_utility_SearchArea_jni_1getMinLong
  * Method:    jni_getGpsPriority
  * Signature: (JJ)I
  */
-GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getGpsPriority
+GAMSExport jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getGpsPriority
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
 {
   jlong result (0);
 
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current)
     result = current->get_priority (*coord);
 
@@ -307,15 +307,15 @@ GAMS_Export jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getGpsPriority
  * Method:    jni_getRegions
  * Signature: (J)[J
  */
-GAMS_Export jlongArray JNICALL Java_com_gams_utility_SearchArea_jni_1getRegions
+GAMSExport jlongArray JNICALL Java_com_gams_utility_SearchArea_jni_1getRegions
   (JNIEnv * env, jobject, jlong cptr)
 {
   jlongArray result;
-  utility::Search_Area * current = (utility::Search_Area *) cptr;
+  utility::SearchArea * current = (utility::SearchArea *) cptr;
 
   if (current)
   {
-    std::vector <utility::Prioritized_Region> regions = current->get_regions ();
+    std::vector <utility::PrioritizedRegion> regions = current->get_regions ();
 
     if (regions.size () > 0)
     {
@@ -323,7 +323,7 @@ GAMS_Export jlongArray JNICALL Java_com_gams_utility_SearchArea_jni_1getRegions
       jlong * elements = env->GetLongArrayElements(result, 0);
       for (size_t i = 0; i < regions.size (); ++i)
       {
-        elements[i] = (jlong) new utility::Prioritized_Region (regions[i]);
+        elements[i] = (jlong) new utility::PrioritizedRegion (regions[i]);
       }
       env->ReleaseLongArrayElements(result, elements, 0);
     }

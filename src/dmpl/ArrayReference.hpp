@@ -65,9 +65,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <exception>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Knowledge_Update_Settings.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/KnowledgeUpdateSettings.h>
 #include "knowledge_cast.hpp"
 #include "Reference.hpp"
 
@@ -98,7 +98,7 @@ std::unique_ptr<T> make_unique( Args&& ...args )
 }
 #endif
 
-namespace Knowledge_Engine
+namespace KnowledgeEngine
 {
 namespace Containers
 {
@@ -163,8 +163,8 @@ protected:
 
   std::string name;
 
-  ArrayReferenceBase(Thread_Safe_Context &con,
-      Knowledge_Update_Settings *settings = nullptr,
+  ArrayReferenceBase(ThreadSafeContext &con,
+      KnowledgeUpdateSettings *settings = nullptr,
       const std::string &varName = "") :
     ContextHost(con, settings), name(varName) {}
 public:
@@ -915,53 +915,53 @@ protected:
 public:
 
 #ifdef USE_VAR_TMPL
-  ArrayReference(Thread_Safe_Context &con, const std::string &varName)
+  ArrayReference(ThreadSafeContext &con, const std::string &varName)
     : raw_subarray_type(con, nullptr, varName), storage_mixin(*this) {}
 
-  ArrayReference(Thread_Safe_Context &con,
-      Knowledge_Update_Settings *settings, const std::string &varName)
+  ArrayReference(ThreadSafeContext &con,
+      KnowledgeUpdateSettings *settings, const std::string &varName)
     : raw_subarray_type(con, settings, varName), storage_mixin(*this) {}
 
   template<typename... Args>
-  ArrayReference(Thread_Safe_Context &con,
-        Knowledge_Update_Settings *settings, const std::string &varName,
+  ArrayReference(ThreadSafeContext &con,
+        KnowledgeUpdateSettings *settings, const std::string &varName,
         unsigned int default_dim, Args... args)
     : raw_subarray_type(con, settings, varName, args...), storage_mixin(*this, default_dim) { }
 
   template<typename... Args>
-  ArrayReference(Thread_Safe_Context &con, const std::string &varName,
+  ArrayReference(ThreadSafeContext &con, const std::string &varName,
         unsigned int default_dim, Args... args)
     : ArrayReference(con, nullptr, varName, default_dim, args...) {}
 
   template<typename... Args>
-  ArrayReference(Knowledge_Base &kbase, Args... args)
+  ArrayReference(KnowledgeBase &kbase, Args... args)
     : ArrayReference(kbase.get_context(), args...) {}
 
 #else
-  ArrayReference(Thread_Safe_Context &con, const std::string &varName,
+  ArrayReference(ThreadSafeContext &con, const std::string &varName,
       unsigned int i0 = 0, unsigned int i1 = 0, unsigned int i2 = 0, unsigned int i3 = 0,
       unsigned int i4 = 0, unsigned int i5 = 0, unsigned int i6 = 0, unsigned int i7 = 0,
       unsigned int i8 = 0, unsigned int i9 = 0) :
     raw_subarray_type(con, nullptr, varName,
       i1, i2, i3, i4, i5, i6, i7, i8, i9), storage_mixin(*this, i0) { }
 
-  ArrayReference(Thread_Safe_Context &con,
-      Knowledge_Update_Settings *settings, const std::string &varName,
+  ArrayReference(ThreadSafeContext &con,
+      KnowledgeUpdateSettings *settings, const std::string &varName,
       unsigned int i0 = 0, unsigned int i1 = 0, unsigned int i2 = 0, unsigned int i3 = 0,
       unsigned int i4 = 0, unsigned int i5 = 0, unsigned int i6 = 0, unsigned int i7 = 0,
       unsigned int i8 = 0, unsigned int i9 = 0) :
     raw_subarray_type(con, settings, varName,
       i1, i2, i3, i4, i5, i6, i7, i8, i9), storage_mixin(*this, i0) { }
 
-  ArrayReference(Knowledge_Base &kbase, const std::string &varName,
+  ArrayReference(KnowledgeBase &kbase, const std::string &varName,
       unsigned int i0 = 0, unsigned int i1 = 0, unsigned int i2 = 0, unsigned int i3 = 0,
       unsigned int i4 = 0, unsigned int i5 = 0, unsigned int i6 = 0, unsigned int i7 = 0,
       unsigned int i8 = 0, unsigned int i9 = 0) :
     raw_subarray_type(kbase.get_context(), nullptr, varName,
       i1, i2, i3, i4, i5, i6, i7, i8, i9), storage_mixin(*this, i0) { }
 
-  ArrayReference(Knowledge_Base &kbase,
-      Knowledge_Update_Settings *settings, const std::string &varName,
+  ArrayReference(KnowledgeBase &kbase,
+      KnowledgeUpdateSettings *settings, const std::string &varName,
       unsigned int i0 = 0, unsigned int i1 = 0, unsigned int i2 = 0, unsigned int i3 = 0,
       unsigned int i4 = 0, unsigned int i5 = 0, unsigned int i6 = 0, unsigned int i7 = 0,
       unsigned int i8 = 0, unsigned int i9 = 0) :
@@ -1245,8 +1245,8 @@ public:
 public:
 
   ArrayReference
-    (Thread_Safe_Context &con,
-      Knowledge_Update_Settings *settings = nullptr, const std::string &varName = ""
+    (ThreadSafeContext &con,
+      KnowledgeUpdateSettings *settings = nullptr, const std::string &varName = ""
 #ifndef USE_VAR_TMPL
       , unsigned int i0 = 0, unsigned int i1 = 0, unsigned int i2 = 0, unsigned int i3 = 0,
       unsigned int i4 = 0, unsigned int i5 = 0, unsigned int i6 = 0, unsigned int i7 = 0,

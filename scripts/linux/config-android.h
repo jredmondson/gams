@@ -82,7 +82,7 @@
 
 // Android Standalone compiler std library does not include
 // wide character support
-// Used in tests/Sequence_Unit_Tests/string_sequence_tester.hpp
+// Used in tests/SequenceUnitTests/string_sequence_tester.hpp
 # define TAO_LACKS_WCHAR_CXX_STDLIB
 
 #if !defined (ACE_MT_SAFE)

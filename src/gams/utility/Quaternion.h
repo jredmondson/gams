@@ -61,8 +61,8 @@ namespace gams
 {
   namespace utility
   {
-    class Rotation_Vector;
-    class Location_Vector;
+    class RotationVector;
+    class LocationVector;
 
     /**
      * Used internally to implement angle operations.
@@ -79,38 +79,38 @@ namespace gams
       /**
        * Constructor which converts a rotation vector, specified in individual
        * terms, into the corresponding quaternion representation. See
-       * Rotation_Vector for details of the rotation vector representation.
+       * RotationVector for details of the rotation vector representation.
        **/
       Quaternion(double rx, double ry, double rz);
 
       /**
        * Constructor which converts a rotation vector into the corresponding
-       * quaternion representation. See Rotation_Vector for details of the
+       * quaternion representation. See RotationVector for details of the
        * rotation vector representation.
        **/
-      explicit Quaternion(const Rotation_Vector &rot);
+      explicit Quaternion(const RotationVector &rot);
 
       /**
        * Constructor which converts a location vector into the corresponding
        * quaternion representation; x, y, and z are copied over. The w term is 0
        **/
-      explicit Quaternion(const Location_Vector &loc);
+      explicit Quaternion(const LocationVector &loc);
 
       void from_location_vector(double x, double y, double z);
 
-      void from_location_vector(const Location_Vector &loc);
+      void from_location_vector(const LocationVector &loc);
 
       void to_location_vector(double &x, double &y, double &z) const;
 
-      void to_location_vector(Location_Vector &loc) const;
+      void to_location_vector(LocationVector &loc) const;
 
       void from_rotation_vector(double rx, double ry, double rz);
 
-      void from_rotation_vector(const Rotation_Vector &rot);
+      void from_rotation_vector(const RotationVector &rot);
 
       void to_rotation_vector(double &rx, double &ry, double &rz) const;
 
-      void to_rotation_vector(Rotation_Vector &rot) const;
+      void to_rotation_vector(RotationVector &rot) const;
 
       /**
        * Calculates the hamilton product of two quaternions, into a third.

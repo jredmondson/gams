@@ -54,7 +54,7 @@
 #include "gams/platforms/vrep/VREP_UAV.h"
 #include "gams/utility/Position.h"
 
-#include "madara/knowledge_engine/Knowledge_Base.h"
+#include "madara/knowledge_engine/KnowledgeBase.h"
 #include "madara/utility/Utility.h"
 
 #include "gams/variables/Sensor.h"
@@ -84,8 +84,8 @@ int main (int argc, char* argv[])
   if(argc >= 2)
     port = atoi(argv[1]);
   cout << "using port: " << port << endl;
-  Madara::Knowledge_Engine::Knowledge_Base knowledge;
-  knowledge.set(".vrep_port", Madara::Knowledge_Record::Integer(port));
+  Madara::KnowledgeEngine::KnowledgeBase knowledge;
+  knowledge.set(".vrep_port", Madara::KnowledgeRecord::Integer(port));
   gams::variables::Sensors sensors;
   gams::variables::Platforms platform;
   gams::variables::Self self;

@@ -55,16 +55,16 @@
 #ifndef   _GAMS_VARIABLES_GRID_H_
 #define   _GAMS_VARIABLES_GRID_H_
 
-#include "gams/GAMS_Export.h"
+#include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/Map.h"
-#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
 {
   namespace variables
   {
-    class GAMS_Export Grid
+    class GAMSExport Grid
     {
     public:
       /**
@@ -87,7 +87,7 @@ namespace gams
        * Initializes variable containers
        * @param   knowledge  the variable context
        **/
-      void init_vars (madara::knowledge::Knowledge_Base & knowledge);
+      void init_vars (madara::knowledge::KnowledgeBase & knowledge);
 
       /**
        * Initializes variable containers

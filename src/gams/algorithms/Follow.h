@@ -56,13 +56,13 @@
 
 #include <queue>
 
-#include "gams/algorithms/Base_Algorithm.h"
+#include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/variables/Sensor.h"
-#include "gams/platforms/Base_Platform.h"
-#include "gams/variables/Algorithm_Status.h"
+#include "gams/platforms/BasePlatform.h"
+#include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "gams/utility/GPS_Position.h"
-#include "gams/algorithms/Algorithm_Factory.h"
+#include "gams/utility/GPSPosition.h"
+#include "gams/algorithms/AlgorithmFactory.h"
 
 namespace gams
 {
@@ -71,7 +71,7 @@ namespace gams
     /**
     * An algorithm for following a target
     **/
-    class GAMS_Export Follow : public Base_Algorithm
+    class GAMSExport Follow : public BaseAlgorithm
     {
     public:
       /**
@@ -84,10 +84,10 @@ namespace gams
        * @param  self       self-referencing variables
        **/
       Follow (
-        const madara::Knowledge_Record& id,
-        const madara::Knowledge_Record& delay,
-        madara::knowledge::Knowledge_Base * knowledge = 0,
-        platforms::Base_Platform * platform = 0,
+        const madara::KnowledgeRecord& id,
+        const madara::KnowledgeRecord& delay,
+        madara::knowledge::KnowledgeBase * knowledge = 0,
+        platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
       
@@ -122,13 +122,13 @@ namespace gams
       
     protected:
       /// location of agent to follow
-      madara::knowledge::containers::Native_Double_Array target_location_;
+      madara::knowledge::containers::NativeDoubleArray target_location_;
 
       /// type of movement being executed
-      utility::GPS_Position next_position_;
+      utility::GPSPosition next_position_;
 
       /// previous locations of target agent
-      std::queue<utility::GPS_Position> previous_locations_;
+      std::queue<utility::GPSPosition> previous_locations_;
 
       /// timesteps to delay/max size of queue
       size_t delay_;
@@ -137,7 +137,7 @@ namespace gams
     /**
      * A factory class for creating Follow Algorithms
      **/
-    class GAMS_Export Follow_Factory : public Algorithm_Factory
+    class GAMSExport FollowFactory : public AlgorithmFactory
     {
     public:
 
@@ -156,10 +156,10 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual Base_Algorithm * create (
-        const madara::Knowledge_Vector & args,
-        madara::knowledge::Knowledge_Base * knowledge,
-        platforms::Base_Platform * platform,
+      virtual BaseAlgorithm * create (
+        const madara::KnowledgeVector & args,
+        madara::knowledge::KnowledgeBase * knowledge,
+        platforms::BasePlatform * platform,
         variables::Sensors * sensors,
         variables::Self * self,
         variables::Devices * devices);

@@ -46,7 +46,7 @@
 #include <cmath>
 #include <sstream>
 #include "gams/utility/Position.h"
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 
 #define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
 
@@ -84,7 +84,7 @@ gams::utility::Position::operator== (const Position & rhs) const
 
 bool
 gams::utility::Position::operator== (
-  const madara::knowledge::containers::Double_Array & rhs) const
+  const madara::knowledge::containers::DoubleArray & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -92,7 +92,7 @@ gams::utility::Position::operator== (
 
 bool
 gams::utility::Position::operator== (
-  const madara::knowledge::containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::NativeDoubleArray & rhs) const
 {
   return rhs.size () == 3 && 
     this->x == rhs[0] && this->y == rhs[1] && this->z == rhs[2];
@@ -106,14 +106,14 @@ gams::utility::Position::operator!= (const Position & rhs) const
 
 bool
 gams::utility::Position::operator!= (
-  const madara::knowledge::containers::Double_Array & rhs) const
+  const madara::knowledge::containers::DoubleArray & rhs) const
 {
   return !(*this == rhs);
 }
 
 bool
 gams::utility::Position::operator!= (
-  const madara::knowledge::containers::Native_Double_Array & rhs) const
+  const madara::knowledge::containers::NativeDoubleArray & rhs) const
 {
   return !(*this == rhs);
 }
@@ -275,7 +275,7 @@ gams::utility::Position::from_string (const std::string & s)
 
 void
 gams::utility::Position::to_container (
-  madara::knowledge::containers::Double_Array & target) const
+  madara::knowledge::containers::DoubleArray & target) const
 {
   target.set (0, x);
   target.set (1, y);
@@ -284,7 +284,7 @@ gams::utility::Position::to_container (
 
 void
 gams::utility::Position::from_container (
-  madara::knowledge::containers::Double_Array & source)
+  madara::knowledge::containers::DoubleArray & source)
 {
   if (source.size () >= 3)
   {
@@ -296,7 +296,7 @@ gams::utility::Position::from_container (
 
 void
 gams::utility::Position::to_container (
-  madara::knowledge::containers::Native_Double_Array & target) const
+  madara::knowledge::containers::NativeDoubleArray & target) const
 {
   target.set (0, x);
   target.set (1, y);
@@ -305,7 +305,7 @@ gams::utility::Position::to_container (
 
 void
 gams::utility::Position::from_container (
-  madara::knowledge::containers::Native_Double_Array & source)
+  madara::knowledge::containers::NativeDoubleArray & source)
 {
   if (source.size () >= 3)
   {

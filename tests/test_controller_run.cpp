@@ -60,16 +60,16 @@
 #include "ace/OS_NS_Thread.h"
 #include "ace/Sched_Params.h"
 
-#include "madara/knowledge/Knowledge_Base.h"
-#include "gams/controllers/Base_Controller.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "gams/controllers/BaseController.h"
 
-#include "helper/Counter_Algorithm.h"
-#include "helper/Counter_Platform.h"
+#include "helper/CounterAlgorithm.h"
+#include "helper/CounterPlatform.h"
 
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-madara::transport::QoS_Transport_Settings settings;
+madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
@@ -77,19 +77,19 @@ namespace controllers = gams::controllers;
 namespace platforms = gams::platforms;
 namespace algorithms = gams::algorithms;
 
-typedef madara::Knowledge_Record   Record;
+typedef madara::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
 // global variables for platform and algorithm
-platforms::Counter_Platform * platform (0);
-algorithms::Counter_Algorithm * algorithm (0);
+platforms::CounterPlatform * platform (0);
+algorithms::CounterAlgorithm * algorithm (0);
   
 std::vector <double> normal_blasting;
 std::map <double, Integer> normal_loops;
 std::map <double, std::string> normal_status;
 
 Record
-to_legible_hertz (engine::Function_Arguments & args, engine::Variables & /*vars*/)
+to_legible_hertz (engine::FunctionArguments & args, engine::Variables & /*vars*/)
 {
   Record result;
 
@@ -154,8 +154,8 @@ to_legible_hertz (engine::Function_Arguments & args, engine::Variables & /*vars*
 }
 
 void
-test_period (engine::Knowledge_Base & knowledge,
-  controllers::Base_Controller & loop, double period = 0.0, double duration = 10.0)
+test_period (engine::KnowledgeBase & knowledge,
+  controllers::BaseController & loop, double period = 0.0, double duration = 10.0)
 {
   algorithm->reset_counters ();
   std::cerr << "Testing " << duration << "s experiment with "
@@ -169,8 +169,8 @@ test_period (engine::Knowledge_Base & knowledge,
 }
 
 void
-test_hz (engine::Knowledge_Base & knowledge,
-  controllers::Base_Controller & loop, double hz = 0.0, double duration = 10.0)
+test_hz (engine::KnowledgeBase & knowledge,
+  controllers::BaseController & loop, double hz = 0.0, double duration = 10.0)
 {
   algorithm->reset_counters ();
   std::cerr << "Testing " << duration << "s experiment with "
@@ -187,13 +187,13 @@ test_hz (engine::Knowledge_Base & knowledge,
 int main (int /*argc*/, char ** /*argv*/)
 {
   // create knowledge base and a control loop
-  engine::Knowledge_Base knowledge;
-  controllers::Base_Controller loop (knowledge);
+  engine::KnowledgeBase knowledge;
+  controllers::BaseController loop (knowledge);
 
   platform =
-    new platforms::Counter_Platform (knowledge);
+    new platforms::CounterPlatform (knowledge);
   algorithm =
-    new algorithms::Counter_Algorithm (knowledge);
+    new algorithms::CounterAlgorithm (knowledge);
   
   // use ACE real time scheduling class
   int prio  = ACE_Sched_Params::next_priority

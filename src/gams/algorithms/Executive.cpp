@@ -53,29 +53,29 @@
 
 #include "gams/algorithms/Executive.h"
 
-#include "gams/algorithms/Controller_Algorithm_Factory.h"
-#include "gams/loggers/Global_Logger.h"
+#include "gams/algorithms/ControllerAlgorithmFactory.h"
+#include "gams/loggers/GlobalLogger.h"
 
 #include <iostream>
 
 using std::cerr;
 using std::endl;
 
-gams::algorithms::Base_Algorithm *
-gams::algorithms::Executive_Factory::create (
-  const madara::Knowledge_Vector & args,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+gams::algorithms::BaseAlgorithm *
+gams::algorithms::ExecutiveFactory::create (
+  const madara::KnowledgeVector & args,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * devices)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-     "gams::algorithms::Executive_Factory::create:" \
+     "gams::algorithms::ExecutiveFactory::create:" \
     " creating Executive with %d args\n", args.size ());
 
-  Base_Algorithm * result (0);
+  BaseAlgorithm * result (0);
   
   if (knowledge && sensors && platform && self && devices)
   {
@@ -87,7 +87,7 @@ gams::algorithms::Executive_Factory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-         "gams::algorithms::Executive_Factory::create:" \
+         "gams::algorithms::ExecutiveFactory::create:" \
         " invalid number of args, must be even\n");
     }
   }
@@ -95,7 +95,7 @@ gams::algorithms::Executive_Factory::create (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-      "gams::algorithms::Executive_Factory::create:" \
+      "gams::algorithms::ExecutiveFactory::create:" \
       " knowledge, sensors, platform, self, or devices are invalid\n");
   }
 
@@ -103,11 +103,11 @@ gams::algorithms::Executive_Factory::create (
 }
 
 gams::algorithms::Executive::Executive (
-  const madara::Knowledge_Vector & args,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform, variables::Sensors * sensors,
+  const madara::KnowledgeVector & args,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
-  Base_Algorithm (knowledge, platform, sensors, self, devices), algo_ (0), 
+  BaseAlgorithm (knowledge, platform, sensors, self, devices), algo_ (0), 
   plan_index_ (-1), plan_ (),
   algo_factory_ (knowledge, sensors, platform, self, devices)
 {
@@ -121,10 +121,10 @@ gams::algorithms::Executive::Executive (
     v.set_name (args[i + 1].to_string (), *knowledge);
     v.resize ();
   
-    madara::Knowledge_Vector a;
+    madara::KnowledgeVector a;
     v.copy_to (a);
   
-    Algorithm_Init init (args[i].to_string (), a);
+    AlgorithmInit init (args[i].to_string (), a);
 
     plan_.push_back (init);
 
@@ -229,13 +229,13 @@ gams::algorithms::Executive::plan (void)
   return ret_val;
 }
 
-gams::algorithms::Executive::Algorithm_Init::Algorithm_Init () :
+gams::algorithms::Executive::AlgorithmInit::AlgorithmInit () :
   algorithm (), args ()
 {
 }
 
-gams::algorithms::Executive::Algorithm_Init::Algorithm_Init (
-  const std::string& a, const madara::Knowledge_Vector& v) :
+gams::algorithms::Executive::AlgorithmInit::AlgorithmInit (
+  const std::string& a, const madara::KnowledgeVector& v) :
   algorithm (a), args (v)
 {
 }

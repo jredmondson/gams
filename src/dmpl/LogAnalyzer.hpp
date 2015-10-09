@@ -61,11 +61,11 @@
 #include <fstream>
 #include <sstream>
 
-#include "madara/knowledge/Knowledge_Base.h"
-#include "madara/knowledge/Knowledge_Record.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/KnowledgeRecord.h"
 
 namespace engine = madara::knowledge;
-using madara::Knowledge_Record;
+using madara::KnowledgeRecord;
 
 namespace dmpl
 {
@@ -73,7 +73,7 @@ namespace dmpl
   {
   protected:
     istream &in;
-    engine::Knowledge_Base &kbase;
+    engine::KnowledgeBase &kbase;
     long active_frame;
     long cur_frame;
 
@@ -84,7 +84,7 @@ namespace dmpl
       int node;
       std::string var;
       std::string madara_name;
-      Knowledge_Record val;
+      KnowledgeRecord val;
     };
 
     Row cur_row;
@@ -130,7 +130,7 @@ namespace dmpl
       cur_row.var = row[3];
       cur_row.madara_name = cur_row.var + "." + row[2];
       if(row[4].find('.') == std::string::npos)
-        cur_row.val.set_value(stream_cast<Knowledge_Record::Integer>(row[4]));
+        cur_row.val.set_value(stream_cast<KnowledgeRecord::Integer>(row[4]));
       else
         cur_row.val.set_value(stream_cast<double>(row[4]));
       return true;
@@ -148,7 +148,7 @@ namespace dmpl
     }
   public:
 
-    LogAnalyzer(istream &csv_stream, engine::Knowledge_Base &knowledge)
+    LogAnalyzer(istream &csv_stream, engine::KnowledgeBase &knowledge)
       : in(csv_stream), kbase(knowledge), active_frame(0)
     {
       get_header();

@@ -58,14 +58,14 @@
 #include <map>
 #include <string>
 
-#include "gams/GAMS_Export.h"
+#include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/Map.h"
-#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 #include "gams/utility/Position.h"
-#include "gams/utility/Search_Area.h"
+#include "gams/utility/SearchArea.h"
 
 #include <set>
 using std::set;
@@ -77,7 +77,7 @@ namespace gams
     /**
     * A container for sensor information
     **/
-    class GAMS_Export Sensor
+    class GAMSExport Sensor
     {
     public:
       /**
@@ -89,9 +89,9 @@ namespace gams
        * Constructor
        **/
       Sensor (const std::string & name,
-        madara::knowledge::Knowledge_Base * knowledge,
+        madara::knowledge::KnowledgeBase * knowledge,
         const double & range = 0.0,
-        const utility::GPS_Position & origin = utility::GPS_Position (DBL_MAX));
+        const utility::GPSPosition & origin = utility::GPSPosition (DBL_MAX));
 
       /**
        * Destructor
@@ -118,7 +118,7 @@ namespace gams
        * @return set of index positions considered inside search area
        **/
       set<utility::Position> discretize (
-        const utility::Search_Area & area);
+        const utility::SearchArea & area);
       
       /**
        * Get the length of the side of each discretized cell
@@ -129,9 +129,9 @@ namespace gams
       /**
        * Gets GPS position from index position
        * @param index   index location in cartesian location on sensor map
-       * @return GPS_Position of index position
+       * @return GPSPosition of index position
        **/
-      utility::GPS_Position get_gps_from_index (
+      utility::GPSPosition get_gps_from_index (
         const utility::Position & index);
 
       /**
@@ -140,7 +140,7 @@ namespace gams
        * @return current location in cartesian location on sensor map
        **/
       utility::Position get_index_from_gps (
-        const utility::GPS_Position & pos);
+        const utility::GPSPosition & pos);
 
       /**
        * Gets name
@@ -152,7 +152,7 @@ namespace gams
        * Gets origin
        * @return GPS origin
        **/
-      utility::GPS_Position get_origin();
+      utility::GPSPosition get_origin();
 
       /**
        * Gets range in meters
@@ -165,7 +165,7 @@ namespace gams
        * @param pos   position to get
        * @return sensor value at pos
        **/
-      double get_value (const utility::GPS_Position& pos);
+      double get_value (const utility::GPSPosition& pos);
 
       /**
        * Gets value at index position
@@ -178,7 +178,7 @@ namespace gams
        * Sets origin
        * @param origin  new origin
        **/
-      void set_origin (const utility::GPS_Position& origin);
+      void set_origin (const utility::GPSPosition& origin);
 
       /**
        * Sets range in meters
@@ -192,9 +192,9 @@ namespace gams
        * @param val     value to set at position
        * @param settings  settings to use for mutating value
        **/
-      void set_value (const utility::GPS_Position& pos, const double& val,
-        const madara::knowledge::Knowledge_Update_Settings& settings =
-          madara::knowledge::Knowledge_Update_Settings());
+      void set_value (const utility::GPSPosition& pos, const double& val,
+        const madara::knowledge::KnowledgeUpdateSettings& settings =
+          madara::knowledge::KnowledgeUpdateSettings());
 
       /**
        * Sets value at a point with index position
@@ -203,8 +203,8 @@ namespace gams
        * @param settings  settings to use for mutating value
        **/
       void set_value (const utility::Position& pos, const double& val,
-        const madara::knowledge::Knowledge_Update_Settings& settings =
-          madara::knowledge::Knowledge_Update_Settings());
+        const madara::knowledge::KnowledgeUpdateSettings& settings =
+          madara::knowledge::KnowledgeUpdateSettings());
       /**
        * Initializes the variables
        * @param name      name of the sensor
@@ -213,9 +213,9 @@ namespace gams
        * @param origin    the GPS origin
        **/
       void init_vars (const std::string & name,
-        madara::knowledge::Knowledge_Base* knowledge,
+        madara::knowledge::KnowledgeBase* knowledge,
         const double & range = 0.0,
-        const utility::GPS_Position & origin = utility::GPS_Position (DBL_MAX));
+        const utility::GPSPosition & origin = utility::GPSPosition (DBL_MAX));
 
     protected:
       /**
@@ -234,7 +234,7 @@ namespace gams
       madara::knowledge::containers::Map value_;
 
       /// knowledge base
-      madara::knowledge::Knowledge_Base* knowledge_;
+      madara::knowledge::KnowledgeBase* knowledge_;
 
       /// the range of the sensor, determines discretization
       madara::knowledge::containers::Double range_;
@@ -243,14 +243,14 @@ namespace gams
       std::string name_;
 
       /// origin for index calculations
-      madara::knowledge::containers::Double_Array origin_;
+      madara::knowledge::containers::DoubleArray origin_;
     };
 
     /// a map of sensor names to the sensor information
     typedef  std::map <std::string, Sensor*>   Sensors;
 
     /// a list of sensor names
-    typedef  std::vector <std::string>        Sensor_Names;
+    typedef  std::vector <std::string>        SensorNames;
   }
 }
 

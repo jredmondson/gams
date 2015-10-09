@@ -53,7 +53,7 @@
 
 #include "gams/utility/Containerize.h"
 
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 
 const std::string gams::utility::Containerize::object_type_suffix_ (
   ".object_type");
@@ -81,7 +81,7 @@ gams::utility::Containerize::set_name (const std::string& n)
 
 void
 gams::utility::Containerize::set_knowledge_base (
-  madara::knowledge::Knowledge_Base* kb)
+  madara::knowledge::KnowledgeBase* kb)
 {
   if (kb == 0)
   {
@@ -158,7 +158,7 @@ gams::utility::Containerize::to_container (const std::string& name)
 
 void
 gams::utility::Containerize::to_container (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   if (name.empty () && name_.empty ())
   {
@@ -208,7 +208,7 @@ gams::utility::Containerize::from_container (const std::string& name)
 
 bool
 gams::utility::Containerize::from_container (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   bool ret_val (false);
   if (name.empty () && name_.empty ())
@@ -227,10 +227,10 @@ gams::utility::Containerize::from_container (
 
 bool
 gams::utility::Containerize::is_valid_type (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name, 
+  madara::knowledge::KnowledgeBase& kb, const std::string& name, 
   const Class_ID& valid) const
 {
-  madara::Knowledge_Record record = kb.get (name + object_type_suffix_);
+  madara::KnowledgeRecord record = kb.get (name + object_type_suffix_);
   if (record.exists ())
     return (record.to_integer () & valid);
   return false;
@@ -238,7 +238,7 @@ gams::utility::Containerize::is_valid_type (
 
 gams::utility::Containerize::Class_ID
 gams::utility::Containerize::get_type (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   switch (kb.get (name + object_type_suffix_).to_integer ())
   {

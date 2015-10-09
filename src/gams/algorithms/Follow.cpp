@@ -59,24 +59,24 @@
 using std::cerr;
 using std::endl;
 
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 
 using std::stringstream;
 
-gams::algorithms::Base_Algorithm *
-gams::algorithms::Follow_Factory::create (
-  const madara::Knowledge_Vector & args,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+gams::algorithms::BaseAlgorithm *
+gams::algorithms::FollowFactory::create (
+  const madara::KnowledgeVector & args,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * /*devices*/)
 {
-  Base_Algorithm * result (0);
+  BaseAlgorithm * result (0);
 
   // set defaults
-  madara::Knowledge_Record target;
-  madara::Knowledge_Record delay (madara::Knowledge_Record::Integer (5));
+  madara::KnowledgeRecord target;
+  madara::KnowledgeRecord delay (madara::KnowledgeRecord::Integer (5));
 
   if (args.size () >= 1 && knowledge && sensors && self)
   {
@@ -93,12 +93,12 @@ gams::algorithms::Follow_Factory::create (
 }
 
 gams::algorithms::Follow::Follow (
-  const madara::Knowledge_Record& id,
-  const madara::Knowledge_Record& delay,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform, variables::Sensors * sensors,
+  const madara::KnowledgeRecord& id,
+  const madara::KnowledgeRecord& delay,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self) :
-  Base_Algorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
+  BaseAlgorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
   delay_ (delay.to_integer ())
 {
   status_.init_vars (*knowledge, "follow", self->id.to_integer ());
@@ -118,7 +118,7 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
 {
   if (this != &rhs)
   {
-    this->Base_Algorithm::operator= (rhs);
+    this->BaseAlgorithm::operator= (rhs);
     this->target_location_ = rhs.target_location_;
     this->next_position_ = rhs.next_position_;
     this->previous_locations_ = rhs.previous_locations_;
@@ -133,8 +133,8 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
 int
 gams::algorithms::Follow::analyze (void)
 {
-  static utility::GPS_Position prev;
-  utility::GPS_Position current;
+  static utility::GPSPosition prev;
+  utility::GPSPosition current;
   current.from_container (target_location_);
 
   // if target agent has moved

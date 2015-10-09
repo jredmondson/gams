@@ -58,7 +58,7 @@
 
 #include "Region.h"
 #include "madara/utility/Utility.h"
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Vector.h"
@@ -67,10 +67,10 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-typedef  madara::Knowledge_Record::Integer Integer;
+typedef  madara::KnowledgeRecord::Integer Integer;
 
 gams::utility::Region::Region (
-  const std::vector <GPS_Position> & init_vertices, unsigned int type, 
+  const std::vector <GPSPosition> & init_vertices, unsigned int type, 
   const std::string& name) :
   Containerize (name), vertices (init_vertices), type_ (type)
 {
@@ -136,7 +136,7 @@ gams::utility::Region::set_name (const std::string& n)
 }
 
 bool
-gams::utility::Region::contains (const GPS_Position & p) const
+gams::utility::Region::contains (const GPSPosition & p) const
 {
   // check if in bounding box
   if (p.latitude () < min_lat_ || p.latitude () > max_lat_ ||
@@ -146,7 +146,7 @@ gams::utility::Region::contains (const GPS_Position & p) const
   }
 
   // check if point in polygon code from 
-  // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+  // http://www.ecse.rpi.edu/Homepages/wrf/Research/ShortNotes/pnpoly.html
   size_t i, j;
   bool ret = false;
   for (i = 0, j = vertices.size() - 1; i < vertices.size(); j = i++)
@@ -176,14 +176,14 @@ gams::utility::Region::contains (const GPS_Position & p) const
 }
 
 double
-gams::utility::Region::distance (const GPS_Position& p) const
+gams::utility::Region::distance (const GPSPosition& p) const
 {
   // if point is in region, then the distance is 0
   if (contains (p))
     return 0;
 
   // convert to cartesian coords with equirectangular projection
-  const GPS_Position sw (min_lat_, min_lon_);
+  const GPSPosition sw (min_lat_, min_lon_);
   vector<Position> local_vertices;
   for (size_t i = 0; i < vertices.size (); ++i)
     local_vertices.push_back (vertices[i].to_position (sw));
@@ -204,10 +204,10 @@ gams::utility::Region::distance (const GPS_Position& p) const
 
 bool
 gams::utility::Region::contains (const Position & p,
-  const GPS_Position & ref) const
+  const GPSPosition & ref) const
 {
-  // convert to GPS_Position and then just use other contains
-  return contains (utility::GPS_Position::to_gps_position (p, ref));
+  // convert to GPSPosition and then just use other contains
+  return contains (utility::GPSPosition::to_gps_position (p, ref));
 }
 
 gams::utility::Region
@@ -215,7 +215,7 @@ gams::utility::Region::get_bounding_box () const
 {
   Region ret;
 
-  GPS_Position p;
+  GPSPosition p;
 
   p.latitude (min_lat_);
   p.longitude (min_lon_);
@@ -322,7 +322,7 @@ gams::utility::Region::calculate_bounding_box ()
 
 bool
 gams::utility::Region::check_valid_type (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name) const
+  madara::knowledge::KnowledgeBase& kb, const std::string& name) const
 {
   const static Class_ID valid = 
     (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
@@ -331,7 +331,7 @@ gams::utility::Region::check_valid_type (
 
 void
 gams::utility::Region::to_container_impl (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   // set object type
   madara::knowledge::containers::Integer obj_type (
@@ -351,7 +351,7 @@ gams::utility::Region::to_container_impl (
       size = vertices.size();
     
       // set vertices
-      madara::knowledge::containers::Native_Double_Vector target;
+      madara::knowledge::containers::NativeDoubleVector target;
       for (unsigned int i = 0; i < vertices.size (); ++i)
       {
         std::stringstream vert_name;
@@ -374,7 +374,7 @@ gams::utility::Region::to_container_impl (
 
 bool
 gams::utility::Region::from_container_impl (
-  madara::knowledge::Knowledge_Base& kb, const std::string& name)
+  madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   if (!check_valid_type (kb, name))
   {
@@ -391,7 +391,7 @@ gams::utility::Region::from_container_impl (
     " name = %s\n", name.c_str ());
 
   // get type
-  madara::Knowledge_Record type = kb.get (name + ".type");
+  madara::KnowledgeRecord type = kb.get (name + ".type");
   if (!type.exists ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -417,7 +417,7 @@ gams::utility::Region::from_container_impl (
          " type is arbitrary convex polygon\n");
 
       // get size
-      madara::Knowledge_Record num_verts = kb.get (name + ".size");
+      madara::KnowledgeRecord num_verts = kb.get (name + ".size");
       if (!num_verts.exists ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -449,7 +449,7 @@ gams::utility::Region::from_container_impl (
             "gams::utility::Region::from_container:" \
             " Adding coordinate (%f, %f)\n",
             coords[0], coords[1]);
-          vertices[i] = GPS_Position(coords[0], coords[1]);
+          vertices[i] = GPSPosition(coords[0], coords[1]);
         }
         else if (coords.size () == 3)
         {
@@ -458,7 +458,7 @@ gams::utility::Region::from_container_impl (
             "gams::utility::Region::from_container:" \
             " Adding coordinate (%f, %f, %f)\n",
             coords[0], coords[1], coords[2]);
-          vertices[i] = GPS_Position(coords[0], coords[1], coords[2]);
+          vertices[i] = GPSPosition(coords[0], coords[1], coords[2]);
         }
         else
         {

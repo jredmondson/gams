@@ -43,7 +43,7 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 #include "Move.h"
 
 #include <string>
@@ -57,16 +57,16 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-gams::algorithms::Base_Algorithm *
-gams::algorithms::Move_Factory::create (
-  const madara::Knowledge_Vector & args,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+gams::algorithms::BaseAlgorithm *
+gams::algorithms::MoveFactory::create (
+  const madara::KnowledgeVector & args,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * devices)
 {
-  Base_Algorithm * result (0);
+  BaseAlgorithm * result (0);
   
   if (knowledge && sensors && platform && self)
   {
@@ -93,7 +93,7 @@ gams::algorithms::Move_Factory::create (
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
-           "gams::algorithms::Move_Factory::create:" \
+           "gams::algorithms::MoveFactory::create:" \
           " bad arguments");
       }
     }
@@ -103,10 +103,10 @@ gams::algorithms::Move_Factory::create (
 }
 
 gams::algorithms::Move::Move (const utility::Position & target, 
-  madara::knowledge::Knowledge_Base * knowledge, 
-  platforms::Base_Platform * platform, variables::Sensors * sensors, 
+  madara::knowledge::KnowledgeBase * knowledge, 
+  platforms::BasePlatform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Devices * devices) :
-  Base_Algorithm (knowledge, platform, sensors, self, devices), 
+  BaseAlgorithm (knowledge, platform, sensors, self, devices), 
   end_time_(0.0), max_execution_time_(0), max_executions_(0), mode_(TARGET), 
   target_ (target), type_("target")
 {
@@ -117,11 +117,11 @@ gams::algorithms::Move::Move (
   const string & type,
   unsigned int max_executions,
   double max_execution_time,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
-  Base_Algorithm (knowledge, platform, sensors, self),
+  BaseAlgorithm (knowledge, platform, sensors, self),
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (max_execution_time),
   max_executions_ (max_executions), mode_ (TARGET), target_ (), type_ (type)
 {
@@ -138,11 +138,11 @@ gams::algorithms::Move::Move (
 gams::algorithms::Move::Move (
   const string & type,
   const utility::Position & target,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base_Algorithm (knowledge, platform, sensors, self),
+  : BaseAlgorithm (knowledge, platform, sensors, self),
   end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (-1),
   max_executions_ (0), mode_ (TARGET), target_ (target), type_ (type)
 {
@@ -165,7 +165,7 @@ gams::algorithms::Move::operator= (const Move & rhs)
     this->target_ = rhs.target_;
     this->type_ = rhs.type_;
 
-    this->Base_Algorithm::operator=(rhs);
+    this->BaseAlgorithm::operator=(rhs);
   }
 }
 

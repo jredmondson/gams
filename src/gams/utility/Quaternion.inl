@@ -70,12 +70,12 @@ namespace gams
       from_rotation_vector(rx, ry, rz);
     }
 
-    inline Quaternion::Quaternion(const Rotation_Vector &rot)
+    inline Quaternion::Quaternion(const RotationVector &rot)
     {
       from_rotation_vector(rot);
     }
 
-    inline Quaternion::Quaternion(const Location_Vector &loc)
+    inline Quaternion::Quaternion(const LocationVector &loc)
     {
       from_location_vector(loc);
     }
@@ -88,7 +88,7 @@ namespace gams
       w_ = 0;
     }
 
-    inline void Quaternion::from_location_vector(const Location_Vector &loc)
+    inline void Quaternion::from_location_vector(const LocationVector &loc)
     {
       from_location_vector(loc.x(), loc.y(), loc.z());
     }
@@ -101,7 +101,7 @@ namespace gams
       z = z_;
     }
 
-    inline void Quaternion::to_location_vector(Location_Vector &loc) const
+    inline void Quaternion::to_location_vector(LocationVector &loc) const
     {
       to_location_vector(loc.x_, loc.y_, loc.z_);
     }
@@ -127,7 +127,7 @@ namespace gams
       }
     }
 
-    inline void Quaternion::from_rotation_vector(const Rotation_Vector &rot)
+    inline void Quaternion::from_rotation_vector(const RotationVector &rot)
     {
       from_rotation_vector(rot.rx(), rot.ry(), rot.rz());
     }
@@ -150,7 +150,7 @@ namespace gams
       }
     }
 
-    inline void Quaternion::to_rotation_vector(Rotation_Vector &rot) const
+    inline void Quaternion::to_rotation_vector(RotationVector &rot) const
     {
       to_rotation_vector(rot.rx_, rot.ry_, rot.rz_);
     }
@@ -221,7 +221,7 @@ namespace gams
     inline double Quaternion::z(double new_z) { return z_ = new_z; }
     inline double Quaternion::w(double new_w) { return w_ = new_w; }
 
-    inline Rotation_Vector::Rotation_Vector(const Quaternion &quat)
+    inline RotationVector::RotationVector(const Quaternion &quat)
     {
       quat.to_rotation_vector(rx_, ry_, rz_);
     }

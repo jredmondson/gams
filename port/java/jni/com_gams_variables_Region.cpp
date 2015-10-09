@@ -11,7 +11,7 @@ namespace variables = gams::variables;
  * Method:    jni_Region
  * Signature: ()J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
+GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
   (JNIEnv * , jobject)
 {
   return (jlong) new variables::Region ();
@@ -22,7 +22,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
  * Method:    jni_Region
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
+GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
   (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Region (*(variables::Region *)cptr);
@@ -33,7 +33,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
  * Method:    jni_freeRegion
  * Signature: (J)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
+GAMSExport void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
   (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Region *) cptr;
@@ -44,7 +44,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
  * Method:    jni_getName
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_variables_Region_jni_1getName
+GAMSExport jstring JNICALL Java_com_gams_variables_Region_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
@@ -61,7 +61,7 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_Region_jni_1getName
  * Method:    jni_init
  * Signature: (JJJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_Region_jni_1init
+GAMSExport void JNICALL Java_com_gams_variables_Region_jni_1init
   (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name)
 {
   variables::Region * current = (variables::Region *) cptr;
@@ -72,7 +72,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_Region_jni_1init
 
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (*kb, str_name);
     }
     else if (type == 1)
@@ -90,7 +90,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_Region_jni_1init
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_variables_Region_jni_1toString
+GAMSExport jstring JNICALL Java_com_gams_variables_Region_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
@@ -107,7 +107,7 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_Region_jni_1toString
  * Method:    jni_getVertices
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Region_jni_1getVertices
+GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1getVertices
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Region * current = (variables::Region *) cptr;

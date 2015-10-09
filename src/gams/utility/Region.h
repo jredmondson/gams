@@ -57,10 +57,10 @@
 #include <vector>
 #include <string>
 
-#include "gams/GAMS_Export.h"
-#include "madara/knowledge/containers/String_Vector.h"
+#include "gams/GAMSExport.h"
+#include "madara/knowledge/containers/StringVector.h"
 #include "gams/utility/Position.h"
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 #include "gams/utility/Containerize.h"
 
 namespace gams
@@ -70,7 +70,7 @@ namespace gams
     /**
      * A helper class for region information
      **/
-    class GAMS_Export Region : public Containerize
+    class GAMSExport Region : public Containerize
     {
     public:
       /**
@@ -79,8 +79,8 @@ namespace gams
        * @param  type           the type of region
        * @param  name           name of the region
        **/
-      Region (const std::vector <GPS_Position> & init_vertices = 
-        std::vector<GPS_Position> (), unsigned int type = 0, 
+      Region (const std::vector <GPSPosition> & init_vertices = 
+        std::vector<GPSPosition> (), unsigned int type = 0, 
         const std::string& name = "");
 
       /**
@@ -119,27 +119,27 @@ namespace gams
       void set_name (const std::string& name);
       
       /**
-       * Determines if GPS_Position is in region
+       * Determines if GPSPosition is in region
        * @param   position   point to check if in region
        * @return  true if point is in region or on border, false otherwise
        **/
-      bool contains (const GPS_Position & position) const;
+      bool contains (const GPSPosition & position) const;
 
       /**
-       * Determines if GPS_Position is in region
+       * Determines if GPSPosition is in region
        * @param   position     point to check if in region
        * @param   ref   gps reference for point p
        * @return  true if point is in region or on border, false otherwise
        **/
       bool contains (const Position & position,
-        const GPS_Position & ref) const;
+        const GPSPosition & ref) const;
 
       /**
        * Gets distance from any point in this region
        * @param   position     point to check
        * @return 0 if in region, otherwise distance from region
        **/
-      double distance (const GPS_Position & position) const;
+      double distance (const GPSPosition & position) const;
 
       /**
        * Gets bounding box
@@ -161,7 +161,7 @@ namespace gams
       std::string to_string (const std::string & delimiter = ":") const;
 
       /// the vertices of the region
-      std::vector <GPS_Position> vertices;
+      std::vector <GPSPosition> vertices;
 
       /// bounding box
       double min_lat_, max_lat_;
@@ -184,7 +184,7 @@ namespace gams
        * @param name      Name of object in the KB
        * @return true if name is a valid object in kb, false otherwise
        */
-      virtual bool check_valid_type (madara::knowledge::Knowledge_Base& kb,
+      virtual bool check_valid_type (madara::knowledge::KnowledgeBase& kb,
         const std::string& name) const;
 
       /**
@@ -193,7 +193,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual void to_container_impl (
-        madara::knowledge::Knowledge_Base& kb, 
+        madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
 
       /**
@@ -202,7 +202,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual bool from_container_impl (
-        madara::knowledge::Knowledge_Base& kb, 
+        madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
     }; // class Region
   } // namespace utility

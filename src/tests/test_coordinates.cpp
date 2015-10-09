@@ -1,7 +1,7 @@
 #include <iostream>
 #include <math.h>
-#include <gams/utility/Cartesian_Frame.h>
-#include <gams/utility/GPS_Frame.h>
+#include <gams/utility/CartesianFrame.h>
+#include <gams/utility/GPSFrame.h>
 
 using namespace gams::utility;
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   TEST(dloc1.distance_to(dloc0), 5);
 
   std::cout << std::endl << "Testing GPS frame support:" << std::endl;
-  GPS_Frame gps_frame;
+  GPSFrame gps_frame;
   Location gloc0(gps_frame,0,0);
   Location gloc1(gps_frame,1,1);
   Location gloc2(gps_frame,0,90);
@@ -75,12 +75,12 @@ int main(int argc, char *argv[])
   LOG(gloc6);
   TEST(gloc6.distance_to(gloc0), gps_frame.circ()/2);
 
-  std::cout << std::endl << "Testing Cartesian_Frame tree:" << std::endl;
+  std::cout << std::endl << "Testing CartesianFrame tree:" << std::endl;
   Location gloc(gps_frame,-90,0);
-  Cartesian_Frame cart_frame0(gloc);
-  Cartesian_Frame cart_frame1(Pose(cart_frame0, 3, 4));
-  Cartesian_Frame cart_frame2(Pose(cart_frame1, 3, 4));
-  Cartesian_Frame cart_frame3(Pose(cart_frame2, 3, 4));
+  CartesianFrame cart_frame0(gloc);
+  CartesianFrame cart_frame1(Pose(cart_frame0, 3, 4));
+  CartesianFrame cart_frame2(Pose(cart_frame1, 3, 4));
+  CartesianFrame cart_frame3(Pose(cart_frame2, 3, 4));
 
   Location cloc0(cart_frame0, 0, 0);
   Location cloc2(cart_frame2, 0, 0);
@@ -114,8 +114,8 @@ int main(int argc, char *argv[])
   LOG(gloc0.distance_to(cloc3));
 
   std::cout << std::endl << "Testing rotations between Cartesian frames:" << std::endl;
-  Cartesian_Frame rot_frame0(gloc0);
-  Cartesian_Frame rot_frame1(Pose(rot_frame0, Location(50, 100), Rotation(Rotation::Z_axis, 90)));
+  CartesianFrame rot_frame0(gloc0);
+  CartesianFrame rot_frame1(Pose(rot_frame0, Location(50, 100), Rotation(Rotation::Z_axis, 90)));
 
   Rotation rot0(rot_frame0, 0, 0, 0);
   Rotation rot1(rot_frame1, 0, 0, 0);
@@ -158,19 +158,19 @@ int main(int argc, char *argv[])
   TEST(pose1.transform_to(gps_frame).rz(), M_PI / 2);
 
   std::cout << std::endl << "Forming a hexagon with a chain of Cartesian frames:" << std::endl;
-  Cartesian_Frame hex_frame0(gloc0);
+  CartesianFrame hex_frame0(gloc0);
   Pose hex0(hex_frame0, 0, 0);
-  Cartesian_Frame hex_frame1(Pose(hex_frame0, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame1(Pose(hex_frame0, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
   Pose hex1(hex_frame1, 0, 0);
-  Cartesian_Frame hex_frame2(Pose(hex_frame1, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame2(Pose(hex_frame1, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
   Pose hex2(hex_frame2, 0, 0);
-  Cartesian_Frame hex_frame3(Pose(hex_frame2, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame3(Pose(hex_frame2, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
   Pose hex3(hex_frame3, 0, 0);
-  Cartesian_Frame hex_frame4(Pose(hex_frame3, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame4(Pose(hex_frame3, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
   Pose hex4(hex_frame4, 0, 0);
-  Cartesian_Frame hex_frame5(Pose(hex_frame4, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame5(Pose(hex_frame4, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
   Pose hex5(hex_frame5, 0, 0);
-  Cartesian_Frame hex_frame6(Pose(hex_frame5, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame6(Pose(hex_frame5, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
   Pose hex6(hex_frame6, 0, 0);
   TEST(hex6.distance_to(hex0), 0);
   TEST(hex0.distance_to(hex6), 0);

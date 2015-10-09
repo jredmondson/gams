@@ -45,7 +45,7 @@
  **/
 #include "Grid.h"
 
-typedef  madara::Knowledge_Record::Integer  Integer;
+typedef  madara::KnowledgeRecord::Integer  Integer;
 
 
 gams::variables::Grid::Grid ()
@@ -67,7 +67,7 @@ gams::variables::Grid::operator= (const Grid & rhs)
 
 void
 gams::variables::Grid::init_vars (
-  madara::knowledge::Knowledge_Base & /*knowledge*/)
+  madara::knowledge::KnowledgeBase & /*knowledge*/)
 {
 }
 

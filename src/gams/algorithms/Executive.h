@@ -55,13 +55,13 @@
 #define _GAMS_ALGORITHMS_EXECUTIVE_H_
 
 #include "gams/variables/Sensor.h"
-#include "gams/platforms/Base_Platform.h"
-#include "gams/algorithms/Formation_Flying.h"
-#include "gams/variables/Algorithm_Status.h"
+#include "gams/platforms/BasePlatform.h"
+#include "gams/algorithms/FormationFlying.h"
+#include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "gams/algorithms/Base_Algorithm.h"
-#include "gams/algorithms/Algorithm_Factory.h"
-#include "gams/algorithms/Controller_Algorithm_Factory.h"
+#include "gams/algorithms/BaseAlgorithm.h"
+#include "gams/algorithms/AlgorithmFactory.h"
+#include "gams/algorithms/ControllerAlgorithmFactory.h"
 
 namespace gams
 {
@@ -70,7 +70,7 @@ namespace gams
     /**
     * An algorithm capable of executing other algorithms
     **/
-    class GAMS_Export Executive : public Base_Algorithm
+    class GAMSExport Executive : public BaseAlgorithm
     {
     public:
       /**
@@ -83,9 +83,9 @@ namespace gams
        * @param  devices      variables referencing devices
        **/
       Executive (
-        const madara::Knowledge_Vector & args,
-        madara::knowledge::Knowledge_Base * knowledge = 0,
-        platforms::Base_Platform * platform = 0,
+        const madara::KnowledgeVector & args,
+        madara::knowledge::KnowledgeBase * knowledge = 0,
+        platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
         variables::Devices * devices = 0);
@@ -121,35 +121,35 @@ namespace gams
       
     protected:
       /**
-       * Algorithm_Init data keeps track of algorithm information
+       * AlgorithmInit data keeps track of algorithm information
        */
-      struct Algorithm_Init
+      struct AlgorithmInit
       {
         std::string algorithm;
-        madara::Knowledge_Vector args;
+        madara::KnowledgeVector args;
 
-        Algorithm_Init ();
-        Algorithm_Init (const std::string& a,
-          const madara::Knowledge_Vector& v);
+        AlgorithmInit ();
+        AlgorithmInit (const std::string& a,
+          const madara::KnowledgeVector& v);
       };
 
       /// algorithm actually being run
-      Base_Algorithm* algo_;
+      BaseAlgorithm* algo_;
 
       /// index into plan
       size_t plan_index_;
 
       /// plan vector
-      std::vector<Algorithm_Init> plan_;
+      std::vector<AlgorithmInit> plan_;
 
       /// Subalgorithm constructor
-      Controller_Algorithm_Factory algo_factory_;
+      ControllerAlgorithmFactory algo_factory_;
     };
     
     /**
      * A factory class for creating Executive algorithms
      **/
-    class GAMS_Export Executive_Factory : public Algorithm_Factory
+    class GAMSExport ExecutiveFactory : public AlgorithmFactory
     {
     public:
       /**
@@ -168,10 +168,10 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual Base_Algorithm * create (
-        const madara::Knowledge_Vector & args,
-        madara::knowledge::Knowledge_Base * knowledge,
-        platforms::Base_Platform * platform,
+      virtual BaseAlgorithm * create (
+        const madara::KnowledgeVector & args,
+        madara::knowledge::KnowledgeBase * knowledge,
+        platforms::BasePlatform * platform,
         variables::Sensors * sensors,
         variables::Self * self,
         variables::Devices * devices);

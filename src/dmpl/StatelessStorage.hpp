@@ -65,9 +65,9 @@
 #include <sstream>
 #include <typeinfo>
 #include <exception>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Thread_Safe_Context.h>
-#include <madara/knowledge/Knowledge_Update_Settings.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/ThreadSafeContext.h>
+#include <madara/knowledge/KnowledgeUpdateSettings.h>
 #include "knowledge_cast.hpp"
 #include "Reference.hpp"
 #include "StorageManager.hpp"
@@ -87,7 +87,7 @@
 namespace Madara
 {
 
-namespace Knowledge_Engine
+namespace KnowledgeEngine
 {
 
 namespace Containers
@@ -451,42 +451,42 @@ struct Stateless
     {
       //std::cerr << "Ref mark_modified " << this->get_name() << std::endl;
 
-      const Knowledge_Update_Settings &settings = this->get_settings_cref();
-      //Knowledge_Record *rec = this->get_context().get_record(this->get_name(), settings);
+      const KnowledgeUpdateSettings &settings = this->get_settings_cref();
+      //KnowledgeRecord *rec = this->get_context().get_record(this->get_name(), settings);
       //std::cerr << "Value: " << rec->to_integer() << std::endl;
       //std::cerr << "Size: " << rec->size() << std::endl;
-      Variable_Reference ref = this->get_context().get_ref(this->get_name(), settings);
+      VariableReference ref = this->get_context().get_ref(this->get_name(), settings);
       //std::cerr << "Value: " << this->get_context().get(ref, settings) << std::endl;
       //this->get_context().mark_modified(ref);
       this->get_context().set(ref, this->get_context().get(ref,settings));
     }
 
-    Thread_Safe_Context &get_context() const
+    ThreadSafeContext &get_context() const
     {
       return get_array().get_context();
     }
 
     /// Returns previous settings
     /*
-    Knowledge_Update_Settings *set_settings(Knowledge_Update_Settings *new_settings)
+    KnowledgeUpdateSettings *set_settings(KnowledgeUpdateSettings *new_settings)
     {
       return get_array().set_settings(new_settings);
-      Knowledge_Update_Settings *old_settings = settings;
+      KnowledgeUpdateSettings *old_settings = settings;
       settings = new_settings;
       return old_settings;
     }*/
 
-    Knowledge_Update_Settings *get_settings() const
+    KnowledgeUpdateSettings *get_settings() const
     {
       return get_array().get_settings();
     }
 
-    const Knowledge_Update_Settings &get_settings_cref() const
+    const KnowledgeUpdateSettings &get_settings_cref() const
     {
       return get_array().get_settings_cref();
     }
 
-    Knowledge_Record get_knowledge_record() const {
+    KnowledgeRecord get_knowledge_record() const {
       return this->get_context().get(this->get_name(), this->get_settings_cref());
     }
 
@@ -495,13 +495,13 @@ struct Stateless
       return knowledge_cast<T>(get_knowledge_record());
     }
 
-    const Knowledge_Record &set_knowledge_record(const Knowledge_Record &in, const Knowledge_Update_Settings &settings)
+    const KnowledgeRecord &set_knowledge_record(const KnowledgeRecord &in, const KnowledgeUpdateSettings &settings)
     {
       this->get_context().set(this->get_name(), in, settings);
       return in;
     }
 
-    const T &set(const T& in, const Knowledge_Update_Settings &settings)
+    const T &set(const T& in, const KnowledgeUpdateSettings &settings)
     {
       set_knowledge_record(knowledge_cast(in), settings);
       return in;

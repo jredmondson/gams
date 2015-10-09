@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 {
   std::cout.precision(4);
   std::cout << std::fixed;
-  std::cout << "Testing Location (without Reference_Frame.h):" << std::endl;
+  std::cout << "Testing Location (without ReferenceFrame.h):" << std::endl;
   Location dloc0(0,0,0);
   Location dloc1(3,4,0);
   LOG(dloc0);

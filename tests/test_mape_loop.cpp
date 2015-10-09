@@ -51,13 +51,13 @@
  * This file contains a test driver for the GAMS controllers loop.
  **/
 
-#include "madara/knowledge/Knowledge_Base.h"
-#include "gams/controllers/Mape_Loop.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "gams/controllers/MapeLoop.h"
 
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef madara::Knowledge_Record   Record;
+typedef madara::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
 /**
@@ -65,7 +65,7 @@ typedef Record::Integer Integer;
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record monitor (engine::Function_Arguments & /*args*/, engine::Variables & vars)
+Record monitor (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".monitor");
 
@@ -77,7 +77,7 @@ Record monitor (engine::Function_Arguments & /*args*/, engine::Variables & vars)
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record analyze (engine::Function_Arguments & /*args*/, engine::Variables & vars)
+Record analyze (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".analyze");
 
@@ -89,7 +89,7 @@ Record analyze (engine::Function_Arguments & /*args*/, engine::Variables & vars)
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record plan (engine::Function_Arguments & /*args*/, engine::Variables & vars)
+Record plan (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   Record value = vars.inc (".plan");
 
@@ -101,7 +101,7 @@ Record plan (engine::Function_Arguments & /*args*/, engine::Variables & vars)
  * @param  args   arguments to the function
  * @param  vars   interface to the knowledge base
  **/
-Record execute (engine::Function_Arguments & /*args*/, engine::Variables & vars)
+Record execute (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".execute");
 
@@ -112,8 +112,8 @@ Record execute (engine::Function_Arguments & /*args*/, engine::Variables & vars)
 int main (int /*argc*/, char ** /*argv*/)
 {
   // create knowledge base and a control loop
-  engine::Knowledge_Base knowledge;
-  controllers::Mape_Loop loop (knowledge);
+  engine::KnowledgeBase knowledge;
+  controllers::MapeLoop loop (knowledge);
 
   // initialize variables and function stubs
   loop.init_vars (knowledge, 0, 4);

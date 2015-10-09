@@ -1,6 +1,6 @@
 
 #include "com_gams_variables_AlgorithmStatus.h"
-#include "gams/variables/Algorithm_Status.h"
+#include "gams/variables/AlgorithmStatus.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -14,7 +14,7 @@ namespace variables = gams::variables;
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__
   (JNIEnv * , jobject)
 {
-  return (jlong) new variables::Algorithm_Status ();
+  return (jlong) new variables::AlgorithmStatus ();
 }
 
 /*
@@ -25,8 +25,8 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__J
   (JNIEnv * , jobject, jlong cptr)
 {
-  return (jlong) new variables::Algorithm_Status (
-    *(variables::Algorithm_Status *)cptr);
+  return (jlong) new variables::AlgorithmStatus (
+    *(variables::AlgorithmStatus *)cptr);
 }
 
 /*
@@ -37,7 +37,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__J
 void JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1freeAlgorithmStatus
   (JNIEnv * , jclass, jlong cptr)
 {
-  delete (variables::Algorithm_Status *) cptr;
+  delete (variables::AlgorithmStatus *) cptr;
 }
 
 /*
@@ -50,7 +50,7 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getName
 {
   jstring result;
 
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
   if (current)
     result = env->NewStringUTF(current->name.c_str ());
 
@@ -65,7 +65,7 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getName
 void JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1init
   (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name, jint i)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   if (current)
   {
@@ -73,7 +73,7 @@ void JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1init
 
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (*kb, str_name, (int)i);
     }
     else if (type == 1)
@@ -96,7 +96,7 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1toString
 {
   jstring result;
 
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
   if (current)
     result = env->NewStringUTF(current->name.c_str ());
 
@@ -111,7 +111,7 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1toString
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getDeadlocked
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->deadlocked;
 }
@@ -124,7 +124,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getDeadlocked
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getFailed
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->failed;
 }
@@ -137,7 +137,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getFailed
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getOk
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->ok;
 }
@@ -150,7 +150,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getOk
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getPaused
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->paused;
 }
@@ -163,7 +163,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getPaused
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getUnknown
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->unknown;
 }
@@ -176,7 +176,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getUnknown
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getWaiting
   (JNIEnv * , jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->waiting;
 }
@@ -189,7 +189,7 @@ jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getWaiting
 jlong JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getFinished
   (JNIEnv *, jobject, jlong cptr)
 {
-  variables::Algorithm_Status * current = (variables::Algorithm_Status *) cptr;
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
   return (jlong) &current->finished;
 }

@@ -58,70 +58,70 @@ namespace gams
 {
   namespace utility
   {
-    inline constexpr Location_Vector::Location_Vector(
+    inline constexpr LocationVector::LocationVector(
                             double x, double y, double z)
       : x_(x), y_(y), z_(z) {}
 
-    inline constexpr Location_Vector::Location_Vector()
+    inline constexpr LocationVector::LocationVector()
       : x_(INVAL_COORD), y_(INVAL_COORD), z_(INVAL_COORD) {}
 
-    inline constexpr Location_Vector::Location_Vector(
-                            const Location_Vector &orig)
+    inline constexpr LocationVector::LocationVector(
+                            const LocationVector &orig)
       : x_(orig.x_), y_(orig.y_), z_(orig.z_) { }
 
-    inline constexpr bool Location_Vector::is_invalid() const
+    inline constexpr bool LocationVector::is_invalid() const
     {
       return x_ == INVAL_COORD || y_ == INVAL_COORD || z_ == INVAL_COORD;
     }
 
     inline constexpr bool
-        Location_Vector::operator==(const Location_Vector &other) const
+        LocationVector::operator==(const LocationVector &other) const
     {
       return x_ == other.x_ && y_ == other.y_ && z_ == other.z_;
     }
 
-    inline constexpr bool Location_Vector::is_zero() const
+    inline constexpr bool LocationVector::is_zero() const
     {
       return x_ == 0 && y_ == 0 && z_ == 0;
     }
 
-    inline std::string Location_Vector::name()
+    inline std::string LocationVector::name()
     {
       return "Location";
     }
 
-    inline constexpr double Location_Vector::x() const { return x_; }
-    inline constexpr double Location_Vector::y() const { return y_; }
-    inline constexpr double Location_Vector::z() const { return z_; }
+    inline constexpr double LocationVector::x() const { return x_; }
+    inline constexpr double LocationVector::y() const { return y_; }
+    inline constexpr double LocationVector::z() const { return z_; }
 
-    inline double Location_Vector::x(double new_x) { return x_ = new_x; }
-    inline double Location_Vector::y(double new_y) { return y_ = new_y; }
-    inline double Location_Vector::z(double new_z) { return z_ = new_z; }
+    inline double LocationVector::x(double new_x) { return x_ = new_x; }
+    inline double LocationVector::y(double new_y) { return y_ = new_y; }
+    inline double LocationVector::z(double new_z) { return z_ = new_z; }
 
-    inline constexpr double Location_Vector::lng() const { return x_; }
-    inline constexpr double Location_Vector::lat() const { return y_; }
-    inline constexpr double Location_Vector::alt() const { return z_; }
+    inline constexpr double LocationVector::lng() const { return x_; }
+    inline constexpr double LocationVector::lat() const { return y_; }
+    inline constexpr double LocationVector::alt() const { return z_; }
 
-    inline double Location_Vector::lng(double new_x) { return x_ = new_x; }
-    inline double Location_Vector::lat(double new_y) { return y_ = new_y; }
-    inline double Location_Vector::alt(double new_z) { return z_ = new_z; }
+    inline double LocationVector::lng(double new_x) { return x_ = new_x; }
+    inline double LocationVector::lat(double new_y) { return y_ = new_y; }
+    inline double LocationVector::alt(double new_z) { return z_ = new_z; }
 
-    inline constexpr double Location_Vector::rho() const { return x_; }
-    inline constexpr double Location_Vector::theta() const { return x_; }
-    inline constexpr double Location_Vector::phi() const { return y_; }
-    inline constexpr double Location_Vector::r() const { return z_; }
+    inline constexpr double LocationVector::rho() const { return x_; }
+    inline constexpr double LocationVector::theta() const { return x_; }
+    inline constexpr double LocationVector::phi() const { return y_; }
+    inline constexpr double LocationVector::r() const { return z_; }
 
-    inline double Location_Vector::rho(double new_x) { return x_ = new_x; }
-    inline double Location_Vector::theta(double new_x) { return x_ = new_x; }
-    inline double Location_Vector::phi(double new_y) { return y_ = new_y; }
-    inline double Location_Vector::r(double new_z) { return z_ = new_z; }
+    inline double LocationVector::rho(double new_x) { return x_ = new_x; }
+    inline double LocationVector::theta(double new_x) { return x_ = new_x; }
+    inline double LocationVector::phi(double new_y) { return y_ = new_y; }
+    inline double LocationVector::r(double new_z) { return z_ = new_z; }
 
-    inline constexpr int Location_Vector::size()
+    inline constexpr int LocationVector::size()
     {
       return 3;
     }
 
-    inline constexpr double Location_Vector::get(int i) const
+    inline constexpr double LocationVector::get(int i) const
     {
       return i == 0 ? x() :
              i == 1 ? y() :
@@ -129,7 +129,7 @@ namespace gams
              throw std::range_error("Index out of bounds for Location");
     }
 
-    inline double Location_Vector::set(int i, double val)
+    inline double LocationVector::set(int i, double val)
     {
       switch(i)
       {
@@ -144,37 +144,37 @@ namespace gams
       }
     }
 
-    inline Location_Vector &Location_Vector::as_vec()
+    inline LocationVector &LocationVector::as_vec()
     {
-      return static_cast<Base_Type &>(*this);
+      return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const Location_Vector &Location_Vector::as_vec() const
+    inline constexpr const LocationVector &LocationVector::as_vec() const
     {
-      return static_cast<const Base_Type &>(*this);
+      return static_cast<const BaseType &>(*this);
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Location_Vector &loc)
+    inline std::ostream &operator<<(std::ostream &o, const LocationVector &loc)
     {
       o << "(" << loc.x() << "," << loc.y() << "," << loc.z() << ")";
       return o;
     }
 
     inline Location::Location(double x, double y, double z)
-      : Location_Vector(x, y, z), Coordinate() {}
+      : LocationVector(x, y, z), Coordinate() {}
 
-    inline constexpr Location::Location(const Reference_Frame &frame,
+    inline constexpr Location::Location(const ReferenceFrame &frame,
                        double x, double y, double z)
-      : Location_Vector(x, y, z), Coordinate(frame) {}
+      : LocationVector(x, y, z), Coordinate(frame) {}
 
-    inline Location::Location() : Location_Vector(), Coordinate() {}
+    inline Location::Location() : LocationVector(), Coordinate() {}
 
     inline constexpr Location::Location(const Location &orig)
-      : Location_Vector(orig), Coordinate(orig) {}
+      : LocationVector(orig), Coordinate(orig) {}
 
-    inline Location::Location(const Reference_Frame &new_frame,
+    inline Location::Location(const ReferenceFrame &new_frame,
                               const Location &orig)
-      : Location_Vector(orig), Coordinate(orig.frame())
+      : LocationVector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);
     }

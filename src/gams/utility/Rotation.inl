@@ -60,74 +60,74 @@ namespace gams
 {
   namespace utility
   {
-    inline constexpr Rotation_Vector::Rotation_Vector(
+    inline constexpr RotationVector::RotationVector(
             double rx, double ry, double rz)
       : rx_(rx), ry_(ry), rz_(rz) {}
 
-    inline constexpr Rotation_Vector::Rotation_Vector(
+    inline constexpr RotationVector::RotationVector(
             double x, double y, double z, double angle)
       : rx_(x * DEG_TO_RAD(angle)),
         ry_(y * DEG_TO_RAD(angle)),
         rz_(z * DEG_TO_RAD(angle)) {}
 
-    inline constexpr Rotation_Vector::Rotation_Vector(
+    inline constexpr RotationVector::RotationVector(
             int axis_index, double angle)
       : rx_(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
         ry_(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
         rz_(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
 
-    inline constexpr Rotation_Vector::Rotation_Vector()
+    inline constexpr RotationVector::RotationVector()
       : rx_(INVAL_COORD), ry_(INVAL_COORD), rz_(INVAL_COORD) {}
 
-    inline constexpr Rotation_Vector::Rotation_Vector(
-            const Rotation_Vector &orig)
+    inline constexpr RotationVector::RotationVector(
+            const RotationVector &orig)
       : rx_(orig.rx_), ry_(orig.ry_), rz_(orig.rz_) {}
 
-    inline constexpr bool Rotation_Vector::is_invalid() const
+    inline constexpr bool RotationVector::is_invalid() const
     {
       return rx_ == INVAL_COORD || ry_ == INVAL_COORD || rz_ == INVAL_COORD;
     }
 
-    inline constexpr bool Rotation_Vector::is_zero() const
+    inline constexpr bool RotationVector::is_zero() const
     {
       return rx_ == 0 && ry_ == 0 && rz_ == 0;
     }
 
-    inline constexpr bool Rotation_Vector::operator==(
-            const Rotation_Vector &other) const
+    inline constexpr bool RotationVector::operator==(
+            const RotationVector &other) const
     {
       return rx_ == other.rx_ && ry_ == other.ry_ && rz_ == other.rz_;
     }
 
-    inline std::string Rotation_Vector::name()
+    inline std::string RotationVector::name()
     {
       return "Rotation";
     }
 
-    inline constexpr double Rotation_Vector::rx() const { return rx_; }
-    inline constexpr double Rotation_Vector::ry() const { return ry_; }
-    inline constexpr double Rotation_Vector::rz() const { return rz_; }
+    inline constexpr double RotationVector::rx() const { return rx_; }
+    inline constexpr double RotationVector::ry() const { return ry_; }
+    inline constexpr double RotationVector::rz() const { return rz_; }
 
-    inline double Rotation_Vector::rx(double new_rx) { return rx_ = new_rx; }
-    inline double Rotation_Vector::ry(double new_ry) { return ry_ = new_ry; }
-    inline double Rotation_Vector::rz(double new_rz) { return rz_ = new_rz; }
+    inline double RotationVector::rx(double new_rx) { return rx_ = new_rx; }
+    inline double RotationVector::ry(double new_ry) { return ry_ = new_ry; }
+    inline double RotationVector::rz(double new_rz) { return rz_ = new_rz; }
 
-    inline Rotation_Vector &Rotation_Vector::as_vec()
+    inline RotationVector &RotationVector::as_vec()
     {
-      return static_cast<Base_Type &>(*this);
+      return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const Rotation_Vector &Rotation_Vector::as_vec() const
+    inline constexpr const RotationVector &RotationVector::as_vec() const
     {
-      return static_cast<const Base_Type &>(*this);
+      return static_cast<const BaseType &>(*this);
     }
 
-    inline constexpr int Rotation_Vector::size() const
+    inline constexpr int RotationVector::size() const
     {
       return 3;
     }
 
-    inline constexpr double Rotation_Vector::get(int i) const
+    inline constexpr double RotationVector::get(int i) const
     {
       return i == 0 ? rx() :
              i == 1 ? ry() :
@@ -135,7 +135,7 @@ namespace gams
             throw std::range_error("Index out of bounds for Rotation");
     }
 
-    inline double Rotation_Vector::set(int i, double val)
+    inline double RotationVector::set(int i, double val)
     {
       if(i == 0)
         return rx(val);
@@ -146,48 +146,48 @@ namespace gams
       throw std::range_error("Index out of bounds for Rotation");
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Rotation_Vector &rot)
+    inline std::ostream &operator<<(std::ostream &o, const RotationVector &rot)
     {
       o << "(" << rot.rx() << "," << rot.ry() << "," << rot.rz() << ")";
       return o;
     }
 
     inline Rotation::Rotation(double rx, double ry, double rz)
-      : Rotation_Vector(rx, ry, rz), Coordinate() {}
+      : RotationVector(rx, ry, rz), Coordinate() {}
 
     inline constexpr Rotation::Rotation(
-            const Reference_Frame &frame, double rx, double ry, double rz)
-      : Rotation_Vector(rx, ry, rz), Coordinate(frame) {}
+            const ReferenceFrame &frame, double rx, double ry, double rz)
+      : RotationVector(rx, ry, rz), Coordinate(frame) {}
 
     inline Rotation::Rotation(double x, double y, double z, double angle)
-      : Rotation_Vector(x, y, z, angle), Coordinate() {}
+      : RotationVector(x, y, z, angle), Coordinate() {}
 
     inline constexpr Rotation::Rotation(
-       const Reference_Frame &frame, double x, double y, double z, double angle)
-      : Rotation_Vector(x, y, z, angle), Coordinate(frame) {}
+       const ReferenceFrame &frame, double x, double y, double z, double angle)
+      : RotationVector(x, y, z, angle), Coordinate(frame) {}
 
     inline Rotation::Rotation(int axis_index, double angle)
-      : Rotation_Vector(axis_index, angle), Coordinate() {}
+      : RotationVector(axis_index, angle), Coordinate() {}
 
     inline constexpr Rotation::Rotation(
-          const Reference_Frame &frame, int axis_index, double angle)
-      : Rotation_Vector(axis_index, angle), Coordinate(frame) {}
+          const ReferenceFrame &frame, int axis_index, double angle)
+      : RotationVector(axis_index, angle), Coordinate(frame) {}
 
-    inline Rotation::Rotation() : Rotation_Vector(), Coordinate() {}
+    inline Rotation::Rotation() : RotationVector(), Coordinate() {}
 
     inline constexpr Rotation::Rotation(const Rotation &orig)
-      : Rotation_Vector(orig), Coordinate(orig) {}
+      : RotationVector(orig), Coordinate(orig) {}
 
     inline Rotation::Rotation(const Quaternion &quat)
-      : Rotation_Vector(quat), Coordinate() {}
+      : RotationVector(quat), Coordinate() {}
 
     inline Rotation::Rotation(
-          const Reference_Frame &frame, const Quaternion &quat)
-      : Rotation_Vector(quat), Coordinate(frame) {}
+          const ReferenceFrame &frame, const Quaternion &quat)
+      : RotationVector(quat), Coordinate(frame) {}
 
     inline Rotation::Rotation(
-                const Reference_Frame &new_frame, const Rotation &orig)
-      : Rotation_Vector(orig), Coordinate(orig.frame())
+                const ReferenceFrame &new_frame, const Rotation &orig)
+      : RotationVector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);
     }

@@ -54,11 +54,11 @@
 #ifndef  _GAMS_UTILITY_CONTAINERIZE_H_
 #define  _GAMS_UTILITY_CONTAINERIZE_H_
 
-#include "gams/GAMS_Export.h"
+#include "gams/GAMSExport.h"
 
 #include <string>
 
-#include "madara/knowledge/Knowledge_Base.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
 {
@@ -68,7 +68,7 @@ namespace gams
     * A class meant to assist with retrieving information
     * into GAMS containers
     **/
-    class GAMS_Export Containerize
+    class GAMSExport Containerize
     {
     public:
       /**
@@ -96,7 +96,7 @@ namespace gams
       /**
        * Set knowledge base to use
        **/
-      void set_knowledge_base (madara::knowledge::Knowledge_Base* kb);
+      void set_knowledge_base (madara::knowledge::KnowledgeBase* kb);
 
       /**
        * Resend the information in the container using same knowledge base as
@@ -115,7 +115,7 @@ namespace gams
        * @param kb        Knowledge Base to store object in
        * @param name      location of object in Knowlege Base
        **/
-      void to_container (madara::knowledge::Knowledge_Base& kb, 
+      void to_container (madara::knowledge::KnowledgeBase& kb, 
         const std::string& name = "");
 
       /**
@@ -132,7 +132,7 @@ namespace gams
        * @return true if object successfully loaded from knowledge base
        **/
       bool from_container (
-        madara::knowledge::Knowledge_Base& kb, 
+        madara::knowledge::KnowledgeBase& kb, 
         const std::string& name = "");
 
     protected:
@@ -143,7 +143,7 @@ namespace gams
       std::string name_;
 
       /// previous knowledge base used for sending objects
-      madara::knowledge::Knowledge_Base* prev_kb_;
+      madara::knowledge::KnowledgeBase* prev_kb_;
 
       /**
        * These are used to check on the type of the object in from_container.
@@ -166,7 +166,7 @@ namespace gams
        * @param expected  Expected value
        * @return true if correct type, false otherwise
        **/
-      bool is_valid_type (madara::knowledge::Knowledge_Base& kb,
+      bool is_valid_type (madara::knowledge::KnowledgeBase& kb,
         const std::string& name, const Class_ID& expected) const;
 
       /**
@@ -175,7 +175,7 @@ namespace gams
        * @param name      Prefix of object in the KB
        * @return Class_ID of object in kb
        **/
-      static Class_ID get_type (madara::knowledge::Knowledge_Base& kb,
+      static Class_ID get_type (madara::knowledge::KnowledgeBase& kb,
         const std::string& name);
 
     private:
@@ -186,7 +186,7 @@ namespace gams
        * @return true if name is a valid object type in kb
        **/
       virtual bool check_valid_type (
-        madara::knowledge::Knowledge_Base& kb,
+        madara::knowledge::KnowledgeBase& kb,
         const std::string& name) const = 0;
 
       /**
@@ -195,7 +195,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual void to_container_impl (
-        madara::knowledge::Knowledge_Base& kb, 
+        madara::knowledge::KnowledgeBase& kb, 
         const std::string& name) = 0;
 
       /**
@@ -204,7 +204,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        **/
       virtual bool from_container_impl (
-        madara::knowledge::Knowledge_Base& kb, 
+        madara::knowledge::KnowledgeBase& kb, 
         const std::string& name) = 0;
     };
   }

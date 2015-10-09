@@ -66,7 +66,7 @@ namespace gams
 {
   namespace utility
   {
-    class Reference_Frame;
+    class ReferenceFrame;
 
     class Quaternion;
 
@@ -80,7 +80,7 @@ namespace gams
      * direction of the rotation axis, rotations curve in the direction your
      * fingers are pointing.
      **/
-    class Rotation_Vector
+    class RotationVector
     {
     public:
       static const int X_axis = 0;
@@ -96,7 +96,7 @@ namespace gams
        * @param ry length of rotation vector in y-axis direction
        * @param rz length of rotation vector in z-axis direction
        **/
-      constexpr Rotation_Vector(double rx, double ry, double rz);
+      constexpr RotationVector(double rx, double ry, double rz);
 
       /**
        * Constructor, taking axis and angle separately
@@ -107,7 +107,7 @@ namespace gams
        * @param z length of rotation axis unit vector in z-axis direction
        * @param angle the amount of rotation, in degrees, around the axis
        **/
-      constexpr Rotation_Vector(double x, double y, double z, double angle);
+      constexpr RotationVector(double x, double y, double z, double angle);
 
       /**
        * For easy specification of a simple rotation around a single axis,
@@ -119,23 +119,23 @@ namespace gams
        *    axes respectively, or constant X_axis, Y_axis, or Z_axis
        * @param angle the rotation, in degrees, around the selected axis
        **/
-      constexpr Rotation_Vector(int axis_index, double angle);
+      constexpr RotationVector(int axis_index, double angle);
 
       /**
        * Default Constructor. Produces an invalid rotation (INVAL_COORD)
        **/
-      constexpr Rotation_Vector();
+      constexpr RotationVector();
 
       /**
        * Copy Constructor
        **/
-      constexpr Rotation_Vector(const Rotation_Vector &orig);
+      constexpr RotationVector(const RotationVector &orig);
 
       /**
        * Constructor to convert from Quaternion to equivalent
        * rotation vector
        **/
-      explicit Rotation_Vector(const Quaternion &quat);
+      explicit RotationVector(const Quaternion &quat);
 
       /**
        * Tests if this object is invalid.
@@ -152,12 +152,12 @@ namespace gams
       constexpr bool is_zero() const;
 
       /**
-       * Tests for perfect equality with another Rotation_Vector
+       * Tests for perfect equality with another RotationVector
        *
        * @param rhs the other vector to compare to
        * @return true if all values are equal to corresponding values
        **/
-      constexpr bool operator==(const Rotation_Vector &rhs) const;
+      constexpr bool operator==(const RotationVector &rhs) const;
 
       static std::string name();
 
@@ -206,21 +206,21 @@ namespace gams
        **/
       double rz(double new_rz);
 
-      typedef Rotation_Vector Base_Type;
+      typedef RotationVector BaseType;
 
       /**
        * Retrieves a reference to this type. Useful for derived types.
        *
        * @return reference to this object
        **/
-      Base_Type &as_vec();
+      BaseType &as_vec();
 
       /**
        * Retrieves a const reference to this type. Useful for derived types.
        *
        * @return const reference to this object
        **/
-      constexpr const Base_Type &as_vec() const;
+      constexpr const BaseType &as_vec() const;
 
       /**
        * Gets the size of the vector this coordinate type is represented by.
@@ -248,7 +248,7 @@ namespace gams
 
       friend class Quaternion;
 
-      friend class Reference_Frame;
+      friend class ReferenceFrame;
     private:
       double rx_, ry_, rz_;
     };
@@ -264,7 +264,7 @@ namespace gams
      * direction of the rotation axis, rotations curve in the direction your
      * fingers are pointing.
      **/
-    class Rotation : public Rotation_Vector, public Coordinate<Rotation>
+    class Rotation : public RotationVector, public Coordinate<Rotation>
     {
     public:
       /**
@@ -288,7 +288,7 @@ namespace gams
        * @param ry length of rotation vector in owning-frame's y-axis direction
        * @param rz length of rotation vector in owning-frame's z-axis direction
        **/
-      constexpr Rotation(const Reference_Frame &frame,
+      constexpr Rotation(const ReferenceFrame &frame,
                          double rx, double ry, double rz);
 
       /**
@@ -312,7 +312,7 @@ namespace gams
        * @param z length of rotation axis vector in frame's z-axis direction
        * @param angle the amount of rotation, in degrees, around the axis
        **/
-      constexpr Rotation(const Reference_Frame &frame,
+      constexpr Rotation(const ReferenceFrame &frame,
                double x, double y, double z, double angle);
 
       /**
@@ -340,7 +340,7 @@ namespace gams
        *    axes respectively, or constant X_axis, Y_axis, or Z_axis
        * @param angle the rotation, in degrees, around the selected axis
        **/
-      constexpr Rotation(const Reference_Frame &frame,
+      constexpr Rotation(const ReferenceFrame &frame,
                          int axis_index, double angle);
 
       /**
@@ -366,7 +366,7 @@ namespace gams
        * @param frame the frame that this rotation belongs to
        * @param quat the Quaternion to converto to a rotation vector
        **/
-      explicit Rotation(const Reference_Frame &frame, const Quaternion &quat);
+      explicit Rotation(const ReferenceFrame &frame, const Quaternion &quat);
 
       /**
        * Copy constructor, but also convert to a new frame
@@ -374,7 +374,7 @@ namespace gams
        * @param new_frame the new frame to convert to
        * @param orig      the Rotational origin
        **/
-      Rotation(const Reference_Frame &new_frame, const Rotation &orig);
+      Rotation(const ReferenceFrame &new_frame, const Rotation &orig);
 
       /**
        * Synonym for distance_to. Returns angle of shortest rotation mapping

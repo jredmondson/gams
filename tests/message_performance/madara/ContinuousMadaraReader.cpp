@@ -5,8 +5,8 @@
  * Counts database updates
  */
 
-#include "madara/knowledge/Knowledge_Base.h"
-#include "madara/filters/Generic_Filters.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "madara/filters/GenericFilters.h"
 
 #include <string>
 #include <iostream>
@@ -17,7 +17,7 @@ using std::endl;
 
 double num_sec = 10;
 
-madara::transport::QoS_Transport_Settings settings;
+madara::transport::QoSTransportSettings settings;
 
 void handle_arguments (int argc, char ** argv)
 {
@@ -86,14 +86,14 @@ void handle_arguments (int argc, char ** argv)
   }
 }
 
-class CounterFilter : public madara::filters::Record_Filter
+class CounterFilter : public madara::filters::RecordFilter
 {
 public:
   size_t count;
 
   CounterFilter() : count(0) {}
 
-  madara::Knowledge_Record filter(madara::knowledge::Function_Arguments& args,
+  madara::KnowledgeRecord filter(madara::knowledge::FunctionArguments& args,
     madara::knowledge::Variables & /*vars*/)
   {
     ++count;
@@ -114,8 +114,8 @@ int main(int argc, char** argv)
   }
 
   CounterFilter counter;
-  settings.add_receive_filter(madara::Knowledge_Record::ALL_TYPES, &counter);
-  madara::knowledge::Knowledge_Base knowledge("", settings);
+  settings.add_receive_filter(madara::KnowledgeRecord::ALL_TYPES, &counter);
+  madara::knowledge::KnowledgeBase knowledge("", settings);
 
   num_sec = madara::utility::sleep(num_sec);
 

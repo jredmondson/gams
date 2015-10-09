@@ -8,7 +8,7 @@
  * Method:    jni_freeSensorMap
  * Signature: ([JI)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_SensorMap_jni_1freeSensorMap
+GAMSExport void JNICALL Java_com_gams_variables_SensorMap_jni_1freeSensorMap
   (JNIEnv *env, jobject obj, jlongArray records, jint length)
 {
   jboolean jniNoCopy = JNI_FALSE;

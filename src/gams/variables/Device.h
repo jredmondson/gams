@@ -57,14 +57,14 @@
 #include <vector>
 #include <string>
 
-#include "gams/GAMS_Export.h"
+#include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/String.h"
-#include "madara/knowledge/containers/Native_Double_Vector.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/containers/Vector.h"
-#include "madara/knowledge/Knowledge_Base.h"
-#include "Accent_Status.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "AccentStatus.h"
 
 namespace gams
 {
@@ -73,7 +73,7 @@ namespace gams
     /**
     * A container for device information
     **/
-    class GAMS_Export Device
+    class GAMSExport Device
     {
     public:
       /**
@@ -97,8 +97,8 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (madara::knowledge::Knowledge_Base & knowledge,
-        const madara::Knowledge_Record::Integer& id);
+      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+        const madara::KnowledgeRecord::Integer& id);
       
       /**
        * Initializes variable containers
@@ -106,7 +106,7 @@ namespace gams
        * @param   id         node identifier
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const madara::Knowledge_Record::Integer& id);
+        const madara::KnowledgeRecord::Integer& id);
       
       /// the battery indicator for this device
       madara::knowledge::containers::Integer battery_remaining;
@@ -133,16 +133,16 @@ namespace gams
       madara::knowledge::containers::Double desired_altitude;
 
       /// the destination location
-      madara::knowledge::containers::Native_Double_Array dest;
+      madara::knowledge::containers::NativeDoubleArray dest;
       
       /// the home location
-      madara::knowledge::containers::Native_Double_Array home;
+      madara::knowledge::containers::NativeDoubleArray home;
 
       /// the mobility indicator for this device (true if mobile)
       madara::knowledge::containers::Integer is_mobile;
 
       /// the location, usually encoded in GPS, for this device
-      madara::knowledge::containers::Native_Double_Array location;
+      madara::knowledge::containers::NativeDoubleArray location;
       
       /// the minimum altitude for this device
       madara::knowledge::containers::Double min_alt;
@@ -154,13 +154,13 @@ namespace gams
       madara::knowledge::containers::Integer search_area_id;
 
       /// the source location
-      madara::knowledge::containers::Native_Double_Array source;
+      madara::knowledge::containers::NativeDoubleArray source;
       
       /// indicator for temperature
       madara::knowledge::containers::Double temperature;
 
       /// container for accents
-      Accent_Statuses accents;
+      AccentStatuses accents;
 
       /// the MADARA debug level
       madara::knowledge::containers::Integer madara_debug_level;
@@ -181,7 +181,7 @@ namespace gams
        * @return device variable name
        */
       static std::string make_variable_name (
-        const madara::Knowledge_Record::Integer& id);
+        const madara::KnowledgeRecord::Integer& id);
 
       /**
        * Set variable settings
@@ -200,9 +200,9 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   processes  the number of processes in the device swarm
       **/
-    GAMS_Export void init_vars (Devices & variables,
-      madara::knowledge::Knowledge_Base & knowledge,
-      const madara::Knowledge_Record::Integer& processes);
+    GAMSExport void init_vars (Devices & variables,
+      madara::knowledge::KnowledgeBase & knowledge,
+      const madara::KnowledgeRecord::Integer& processes);
   }
 }
 

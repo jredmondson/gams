@@ -55,21 +55,21 @@
 using std::cerr;
 using std::endl;
 
-#include "madara/knowledge/Knowledge_Base.h"
-#include "gams/controllers/Base_Controller.h"
-#include "gams/loggers/Global_Logger.h"
-#include "gams/loggers/Global_Logger.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "gams/controllers/BaseController.h"
+#include "gams/loggers/GlobalLogger.h"
+#include "gams/loggers/GlobalLogger.h"
 
 const std::string default_broadcast ("192.168.1.255:15000");
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-madara::transport::QoS_Transport_Settings settings;
+madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef madara::Knowledge_Record   Record;
+typedef madara::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
 const std::string KNOWLEDGE_BASE_PLATFORM_KEY (".platform");
@@ -372,8 +372,8 @@ int main (int argc, char ** argv)
   handle_arguments (argc, argv);
   
   // create knowledge base and a control loop
-  madara::knowledge::Knowledge_Base knowledge (host, settings);
-  controllers::Base_Controller loop (knowledge);
+  madara::knowledge::KnowledgeBase knowledge (host, settings);
+  controllers::BaseController loop (knowledge);
 
   // initialize variables and function stubs
   loop.init_vars (settings.id, num_agents);
@@ -382,7 +382,7 @@ int main (int argc, char ** argv)
   if (madara_commands != "")
   {
     knowledge.evaluate (madara_commands,
-      madara::knowledge::Eval_Settings(false, true));
+      madara::knowledge::EvalSettings(false, true));
   }
 
   // initialize the platform and algorithm

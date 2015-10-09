@@ -54,16 +54,16 @@
 #ifndef   _GAMS_PLATFORM_VREP_UAV_H_
 #define   _GAMS_PLATFORM_VREP_UAV_H_
 
-#include "gams/platforms/Platform_Factory.h"
-#include "gams/platforms/vrep/VREP_Base.h"
+#include "gams/platforms/PlatformFactory.h"
+#include "gams/platforms/vrep/VREPBase.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Platform_Status.h"
-#include "gams/utility/GPS_Position.h"
-#include "madara/knowledge/Knowledge_Base.h"
+#include "gams/variables/PlatformStatus.h"
+#include "gams/utility/GPSPosition.h"
+#include "madara/knowledge/KnowledgeBase.h"
 #include "madara/threads/Threader.h"
-#include "madara/threads/Base_Thread.h"
-#include "madara/knowledge/containers/Native_Double_Vector.h"
+#include "madara/threads/BaseThread.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 extern "C" {
 #include "extApi.h"
@@ -78,7 +78,7 @@ namespace gams
     /**
     * A VREP platform for an autonomous aerial quadcopter
     **/
-    class GAMS_Export VREP_UAV : public VREP_Base
+    class GAMSExport VREP_UAV : public VREPBase
     {
     public:
       const static std::string DEFAULT_UAV_MODEL;
@@ -95,7 +95,7 @@ namespace gams
       VREP_UAV (
         std::string model_file, 
         simxUChar is_client_side, 
-        madara::knowledge::Knowledge_Base * knowledge,
+        madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -134,7 +134,7 @@ namespace gams
       /**
        * Thread to move target
        **/
-      class Target_Mover : public madara::threads::Base_Thread
+      class TargetMover : public madara::threads::BaseThread
       {
         public:
           /// Thread execution rate in Hz
@@ -151,8 +151,8 @@ namespace gams
            * @param d   destination container
            * @param m   move speed for target
            **/
-          Target_Mover (
-            const madara::knowledge::containers::Native_Double_Vector& d, 
+          TargetMover (
+            const madara::knowledge::containers::NativeDoubleVector& d, 
             const madara::knowledge::containers::Double& m);
 
           /**
@@ -198,17 +198,17 @@ namespace gams
           utility::Position target_pos_;
 
           /// Destination container
-          madara::knowledge::containers::Native_Double_Vector destination_;
+          madara::knowledge::containers::NativeDoubleVector destination_;
       };
 
       /// Thread object
-      Target_Mover mover_;
+      TargetMover mover_;
 
       /// MADARA Threader
       madara::threads::Threader threader_;
 
       /// container for destination
-      madara::knowledge::containers::Native_Double_Vector thread_dest_;
+      madara::knowledge::containers::NativeDoubleVector thread_dest_;
 
       /// container for move speed
       madara::knowledge::containers::Double thread_move_speed_;
@@ -233,7 +233,7 @@ namespace gams
     /**
      * A factory class for creating VREP UAV platforms
      **/
-    class GAMS_Export VREP_UAV_Factory : public Platform_Factory
+    class GAMSExport VREPUAVFactory : public PlatformFactory
     {
     public:
 
@@ -249,9 +249,9 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
-      virtual Base_Platform * create (
-        const madara::Knowledge_Vector & args,
-        madara::knowledge::Knowledge_Base * knowledge,
+      virtual BasePlatform * create (
+        const madara::KnowledgeVector & args,
+        madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);

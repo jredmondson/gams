@@ -1,6 +1,6 @@
 #include "com_gams_algorithms_BaseAlgorithm.h"
-#include "gams/algorithms/java/Java_Algorithm.h"
-#include "gams/platforms/java/Java_Platform.h"
+#include "gams/algorithms/java/JavaAlgorithm.h"
+#include "gams/platforms/java/JavaPlatform.h"
 
 namespace algorithms = gams::algorithms;
 
@@ -9,12 +9,12 @@ namespace algorithms = gams::algorithms;
  * Method:    jni_getKnowledgeBase
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getKnowledgeBase
+GAMSExport jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getKnowledgeBase
   (JNIEnv * , jobject, jlong cptr)
 {
   jlong result (0);
 
-  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
+  algorithms::BaseAlgorithm * current = (algorithms::BaseAlgorithm *)cptr;
   if (current)
   {
     result = (jlong) current->get_knowledge_base ();
@@ -28,12 +28,12 @@ GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getKnowled
  * Method:    jni_getSelf
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getSelf
+GAMSExport jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getSelf
   (JNIEnv * , jobject, jlong cptr)
 {
   jlong result (0);
 
-  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
+  algorithms::BaseAlgorithm * current = (algorithms::BaseAlgorithm *)cptr;
   if (current)
   {
     result = (jlong) current->get_self ();
@@ -47,16 +47,16 @@ GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getSelf
  * Method:    jni_getPlatformObject
  * Signature: (J)Ljava/lang/Object;
  */
-GAMS_Export jobject JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getPlatformObject
+GAMSExport jobject JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getPlatformObject
   (JNIEnv *, jobject, jlong cptr)
 {
   jobject result (0);
 
-  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
+  algorithms::BaseAlgorithm * current = (algorithms::BaseAlgorithm *)cptr;
   if (current)
   {
-    gams::platforms::Java_Platform * platform =
-      dynamic_cast <gams::platforms::Java_Platform *> (
+    gams::platforms::JavaPlatform * platform =
+      dynamic_cast <gams::platforms::JavaPlatform *> (
         current->get_platform ());
 
     if (platform)
@@ -73,12 +73,12 @@ GAMS_Export jobject JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getPlatf
  * Method:    jni_getAlgorithmStatus
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getAlgorithmStatus
+GAMSExport jlong JNICALL Java_com_gams_algorithms_BaseAlgorithm_jni_1getAlgorithmStatus
   (JNIEnv * , jobject, jlong cptr)
 {
   jlong result (0);
 
-  algorithms::Base_Algorithm * current = (algorithms::Base_Algorithm *)cptr;
+  algorithms::BaseAlgorithm * current = (algorithms::BaseAlgorithm *)cptr;
   if (current)
   {
     result = (jlong) current->get_algorithm_status ();

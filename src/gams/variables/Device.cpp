@@ -44,7 +44,7 @@
  *      distribution.
  **/
 #include "Device.h"
-#include "gams/loggers/Global_Logger.h"
+#include "gams/loggers/GlobalLogger.h"
 
 #include <string>
 
@@ -90,8 +90,8 @@ gams::variables::Device::operator= (const Device & device)
 
 void
 gams::variables::Device::init_vars (
-  madara::knowledge::Knowledge_Base & knowledge,
-  const madara::Knowledge_Record::Integer& id)
+  madara::knowledge::KnowledgeBase & knowledge,
+  const madara::KnowledgeRecord::Integer& id)
 {
   // create the device name string identifier ('device.{id}')
   string device_name (make_variable_name (id));
@@ -132,7 +132,7 @@ gams::variables::Device::init_vars (
 void
 gams::variables::Device::init_vars (
   madara::knowledge::Variables & knowledge,
-  const madara::Knowledge_Record::Integer& id)
+  const madara::KnowledgeRecord::Integer& id)
 {
   // create the device name string identifier ('device.{id}')
   string device_name (make_variable_name (id));
@@ -171,10 +171,10 @@ gams::variables::Device::init_vars (
 }
 
 void gams::variables::init_vars (Devices & variables,
-  madara::knowledge::Knowledge_Base & knowledge,
-  const madara::Knowledge_Record::Integer& processes)
+  madara::knowledge::KnowledgeBase & knowledge,
+  const madara::KnowledgeRecord::Integer& processes)
 {
-  madara::Knowledge_Record::Integer limit = processes;
+  madara::KnowledgeRecord::Integer limit = processes;
   if (processes >= 0)
   {
     variables.resize (processes);
@@ -192,7 +192,7 @@ void gams::variables::init_vars (Devices & variables,
 
 string
 gams::variables::Device::make_variable_name (
-  const madara::Knowledge_Record::Integer& id)
+  const madara::KnowledgeRecord::Integer& id)
 {
   std::stringstream buffer;
   buffer << "device.";
@@ -204,7 +204,7 @@ void
 gams::variables::Device::init_variable_settings ()
 {
   // keep certain varaible changes as local only
-  madara::knowledge::Knowledge_Update_Settings keep_local (true);
+  madara::knowledge::KnowledgeUpdateSettings keep_local (true);
   command.set_settings (keep_local);
   command_args.set_settings (keep_local);
   //madara_debug_level.set_settings (keep_local);

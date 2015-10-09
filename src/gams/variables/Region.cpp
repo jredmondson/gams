@@ -46,7 +46,7 @@
 
 #include "gams/variables/Region.h"
 
-typedef  madara::Knowledge_Record::Integer  Integer;
+typedef  madara::KnowledgeRecord::Integer  Integer;
 
 
 gams::variables::Region::Region ()
@@ -70,7 +70,7 @@ gams::variables::Region::operator= (const Region & rhs)
 
 void
 gams::variables::Region::init_vars (
-  madara::knowledge::Knowledge_Base & knowledge,
+  madara::knowledge::KnowledgeBase & knowledge,
   const std::string & region_name)
 {
   // set the name of the region
@@ -103,7 +103,7 @@ gams::variables::Region::init_vars (
 }
 
 void gams::variables::init_vars (Region & variables,
-  madara::knowledge::Knowledge_Base & knowledge,
+  madara::knowledge::KnowledgeBase & knowledge,
   const std::string & region_name)
 {
   variables.init_vars (knowledge, region_name);

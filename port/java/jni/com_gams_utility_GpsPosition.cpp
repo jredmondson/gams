@@ -1,6 +1,6 @@
 
 #include "com_gams_utility_GpsPosition.h"
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -14,7 +14,7 @@ namespace utility = gams::utility;
 jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__
   (JNIEnv * , jobject)
 {
-  return (jlong) new utility::GPS_Position ();
+  return (jlong) new utility::GPSPosition ();
 }
 
 /*
@@ -25,7 +25,7 @@ jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__
 jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__J
   (JNIEnv * , jobject, jlong cptr)
 {
-  return (jlong) new utility::GPS_Position (*(utility::GPS_Position *)cptr);
+  return (jlong) new utility::GPSPosition (*(utility::GPSPosition *)cptr);
 }
 
 /*
@@ -33,10 +33,10 @@ jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__J
  * Method:    jni_GpsPosition
  * Signature: (DDD)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__DDD
+GAMSExport jlong JNICALL Java_com_gams_utility_GpsPosition_jni_1GpsPosition__DDD
   (JNIEnv * , jobject, jdouble lat, jdouble lon, jdouble alt)
 {
-  return (jlong) new utility::GPS_Position (lat, lon, alt);
+  return (jlong) new utility::GPSPosition (lat, lon, alt);
 }
 
 /*
@@ -60,7 +60,7 @@ jstring JNICALL Java_com_gams_utility_GpsPosition_jni_1toString
 {
   jstring result;
 
-  utility::GPS_Position * current = (utility::GPS_Position *) cptr;
+  utility::GPSPosition * current = (utility::GPSPosition *) cptr;
   if (current)
     result = env->NewStringUTF(current->to_string ().c_str ());
 

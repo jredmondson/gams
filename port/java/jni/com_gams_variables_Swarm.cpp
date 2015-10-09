@@ -11,7 +11,7 @@ namespace variables = gams::variables;
  * Method:    jni_Swarm
  * Signature: ()J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__
+GAMSExport jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__
   (JNIEnv * , jobject)
 {
   return (jlong) new variables::Swarm ();
@@ -22,7 +22,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__
  * Method:    jni_Swarm
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__J
+GAMSExport jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__J
   (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Swarm (*(variables::Swarm *)cptr);
@@ -33,7 +33,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1Swarm__J
  * Method:    jni_freeSwarm
  * Signature: (J)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_Swarm_jni_1freeSwarm
+GAMSExport void JNICALL Java_com_gams_variables_Swarm_jni_1freeSwarm
   (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Swarm *) cptr;
@@ -44,7 +44,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_Swarm_jni_1freeSwarm
  * Method:    jni_init
  * Signature: (JJJLjava/lang/String;)V
  */
-GAMS_Export void JNICALL Java_com_gams_variables_Swarm_jni_1init
+GAMSExport void JNICALL Java_com_gams_variables_Swarm_jni_1init
   (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
@@ -55,7 +55,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_Swarm_jni_1init
 
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (*kb);
     }
 
@@ -68,7 +68,7 @@ GAMS_Export void JNICALL Java_com_gams_variables_Swarm_jni_1init
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
-GAMS_Export jstring JNICALL Java_com_gams_variables_Swarm_jni_1toString
+GAMSExport jstring JNICALL Java_com_gams_variables_Swarm_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
@@ -85,7 +85,7 @@ GAMS_Export jstring JNICALL Java_com_gams_variables_Swarm_jni_1toString
  * Method:    jni_getCommand
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getCommand
+GAMSExport jlong JNICALL Java_com_gams_variables_Swarm_jni_1getCommand
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
@@ -98,7 +98,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getCommand
  * Method:    jni_getArgs
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getArgs
+GAMSExport jlong JNICALL Java_com_gams_variables_Swarm_jni_1getArgs
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
@@ -111,7 +111,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getArgs
  * Method:    jni_getMinAlt
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getMinAlt
+GAMSExport jlong JNICALL Java_com_gams_variables_Swarm_jni_1getMinAlt
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
@@ -124,7 +124,7 @@ GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getMinAlt
  * Method:    jni_getSize
  * Signature: (J)J
  */
-GAMS_Export jlong JNICALL Java_com_gams_variables_Swarm_jni_1getSize
+GAMSExport jlong JNICALL Java_com_gams_variables_Swarm_jni_1getSize
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Swarm * current = (variables::Swarm *) cptr;

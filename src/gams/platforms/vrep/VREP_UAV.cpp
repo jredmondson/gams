@@ -52,7 +52,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "madara/knowledge/containers/Double_Vector.h"
+#include "madara/knowledge/containers/DoubleVector.h"
 
 #include "gams/variables/Sensor.h"
 
@@ -61,44 +61,44 @@
 using std::endl;
 using std::cout;
 using std::string;
-using madara::knowledge::containers::Native_Double_Vector;
+using madara::knowledge::containers::NativeDoubleVector;
 using madara::knowledge::containers::Double;
 
 const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
   "" : // if GAMS_ROOT is not defined, then just leave this as empty string
-  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/QuadricopterNoCamera.ttm")
   );
 
-const double gams::platforms::VREP_UAV::Target_Mover::RATE (30.0);
+const double gams::platforms::VREP_UAV::TargetMover::RATE (30.0);
 
 const std::string gams::platforms::VREP_UAV::MOVE_THREAD_NAME ("move_thread");
 
-const std::string gams::platforms::VREP_UAV::Target_Mover::DEST_CONTAINER_NAME
+const std::string gams::platforms::VREP_UAV::TargetMover::DEST_CONTAINER_NAME
   (".platform.vrep_uav.thread.destination");
 
-const std::string gams::platforms::VREP_UAV::Target_Mover::MOVE_SPEED_CONTAINER_NAME
+const std::string gams::platforms::VREP_UAV::TargetMover::MOVE_SPEED_CONTAINER_NAME
   (".platform.vrep_uav.thread.move_speed");
 
-gams::platforms::Base_Platform *
-gams::platforms::VREP_UAV_Factory::create (
-  const madara::Knowledge_Vector & args,
-  madara::knowledge::Knowledge_Base * knowledge,
+gams::platforms::BasePlatform *
+gams::platforms::VREPUAVFactory::create (
+  const madara::KnowledgeVector & args,
+  madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
-    "entering gams::platforms::VREP_UAV_Factory::create\n");
+    "entering gams::platforms::VREPUAVFactory::create\n");
 
-  Base_Platform * result (0);
+  BasePlatform * result (0);
 
   if (knowledge && sensors && platforms && self)
   {
     if (knowledge->get_num_transports () == 0)
     {
-      madara::transport::QoS_Transport_Settings settings;
+      madara::transport::QoSTransportSettings settings;
 
       settings.type = madara::transport::MULTICAST;
       settings.hosts.push_back ("239.255.0.1:4150");
@@ -108,13 +108,13 @@ gams::platforms::VREP_UAV_Factory::create (
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
-         "gams::platforms::VREP_UAV_Factory::create:" \
+         "gams::platforms::VREPUAVFactory::create:" \
         " no transports found, attaching multicast\n");
     }
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::VREP_UAV_Factory::create:" \
+       "gams::platforms::VREPUAVFactory::create:" \
       " creating VREP_UAV object\n");
 
     // specify the model file
@@ -138,7 +138,7 @@ gams::platforms::VREP_UAV_Factory::create (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::VREP_UAV_Factory::create:" \
+       "gams::platforms::VREPUAVFactory::create:" \
       " invalid knowledge, sensors, platforms, or self\n");
   }
 
@@ -146,7 +146,7 @@ gams::platforms::VREP_UAV_Factory::create (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::VREP_UAV_Factory::create:" \
+       "gams::platforms::VREPUAVFactory::create:" \
       " error creating VREP_UAV object\n");
   }
 
@@ -156,17 +156,17 @@ gams::platforms::VREP_UAV_Factory::create (
 gams::platforms::VREP_UAV::VREP_UAV (
   std::string model_file, 
   simxUChar is_client_side, 
-  madara::knowledge::Knowledge_Base * knowledge,
+  madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self) :
-  VREP_Base (knowledge, sensors, self), 
+  VREPBase (knowledge, sensors, self), 
   mover_ (
-    Native_Double_Vector (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3),
-    Double (Target_Mover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)),
+    NativeDoubleVector (TargetMover::DEST_CONTAINER_NAME, *knowledge, 3),
+    Double (TargetMover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)),
   threader_ (*knowledge), 
-  thread_dest_ (Target_Mover::DEST_CONTAINER_NAME, *knowledge, 3),
-  thread_move_speed_ (Target_Mover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)
+  thread_dest_ (TargetMover::DEST_CONTAINER_NAME, *knowledge, 3),
+  thread_move_speed_ (TargetMover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)
 {
   if (knowledge && sensors && platforms && self)
   {
@@ -187,7 +187,7 @@ gams::platforms::VREP_UAV::VREP_UAV (
     }
 
     mover_.set_client_id (client_id_);
-    threader_.run (Target_Mover::RATE, MOVE_THREAD_NAME, &mover_);
+    threader_.run (TargetMover::RATE, MOVE_THREAD_NAME, &mover_);
   }
 }
 
@@ -196,11 +196,11 @@ gams::platforms::VREP_UAV::move (const utility::Position & position,
   const double & epsilon)
 {
   // update variables
-  Base_Platform::move (position);
+  BasePlatform::move (position);
 
   // inform the thread
-  const utility::GPS_Position* dest_gps_pos = 
-    dynamic_cast<const utility::GPS_Position*>(&position);
+  const utility::GPSPosition* dest_gps_pos = 
+    dynamic_cast<const utility::GPSPosition*>(&position);
   if (dest_gps_pos == 0)
   {
     position.to_container (thread_dest_);
@@ -218,7 +218,7 @@ gams::platforms::VREP_UAV::move (const utility::Position & position,
 void
 gams::platforms::VREP_UAV::set_move_speed (const double& speed)
 {
-  VREP_Base::set_move_speed (speed);
+  VREPBase::set_move_speed (speed);
   thread_move_speed_ = speed;
 }
 
@@ -305,7 +305,7 @@ gams::platforms::VREP_UAV::set_initial_position ()
   if (knowledge_->get (".initial_lat").to_double () != 0)
   {
     // get gps coords
-    utility::GPS_Position gps_coord;
+    utility::GPSPosition gps_coord;
     gps_coord.latitude (knowledge_->get (".initial_lat").to_double ());
     gps_coord.longitude (knowledge_->get (".initial_lon").to_double ());
 
@@ -333,8 +333,8 @@ gams::platforms::VREP_UAV::set_initial_position ()
   initial.to_container (thread_dest_);
 }
 
-gams::platforms::VREP_UAV::Target_Mover::Target_Mover (
-  const madara::knowledge::containers::Native_Double_Vector& d, 
+gams::platforms::VREP_UAV::TargetMover::TargetMover (
+  const madara::knowledge::containers::NativeDoubleVector& d, 
   const madara::knowledge::containers::Double& m) :
   client_id_ (-1), node_target_ (-1), move_speed_ (m), target_pos_ (), 
   destination_ (d)
@@ -342,7 +342,7 @@ gams::platforms::VREP_UAV::Target_Mover::Target_Mover (
 }
 
 void
-gams::platforms::VREP_UAV::Target_Mover::run ()
+gams::platforms::VREP_UAV::TargetMover::run ()
 {
   double local_move_speed = move_speed_.to_double () / RATE;
 
@@ -361,7 +361,7 @@ gams::platforms::VREP_UAV::Target_Mover::run ()
   
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::platforms::VREP_UAV::Target_Mover::run:" \
+    "gams::platforms::VREP_UAV::TargetMover::run:" \
     " moving to (%f,%f, distance %f m)\n",
     dest_pos.x, dest_pos.y, distance_to_destination);
 
@@ -379,7 +379,7 @@ gams::platforms::VREP_UAV::Target_Mover::run ()
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
-      "gams::platforms::VREP_UAV::Target_Mover::run:" \
+      "gams::platforms::VREP_UAV::TargetMover::run:" \
       " moving to target instantly\n");
 
     curr_arr[0] = dest_arr[0];
@@ -390,7 +390,7 @@ gams::platforms::VREP_UAV::Target_Mover::run ()
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
-      "gams::platforms::VREP_UAV::Target_Mover::run:" \
+      "gams::platforms::VREP_UAV::TargetMover::run:" \
       " calculating new target location\n");
 
     // how far do we have to go in each dimension
@@ -420,26 +420,26 @@ gams::platforms::VREP_UAV::Target_Mover::run ()
 }
 
 void
-gams::platforms::VREP_UAV::Target_Mover::set_node_target (simxInt n)
+gams::platforms::VREP_UAV::TargetMover::set_node_target (simxInt n)
 {
   node_target_ = n;
 }
 
 void
-gams::platforms::VREP_UAV::Target_Mover::set_client_id (simxInt c)
+gams::platforms::VREP_UAV::TargetMover::set_client_id (simxInt c)
 {
   client_id_ = c;
 }
 
 void
-gams::platforms::VREP_UAV::Target_Mover::set_move_speed (
+gams::platforms::VREP_UAV::TargetMover::set_move_speed (
   const madara::knowledge::containers::Double& m)
 {
   move_speed_ = m;
 }
 
 void
-gams::platforms::VREP_UAV::Target_Mover::set_target_pos (
+gams::platforms::VREP_UAV::TargetMover::set_target_pos (
   const utility::Position& p)
 {
   target_pos_ = p;

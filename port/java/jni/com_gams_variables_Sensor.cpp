@@ -1,7 +1,7 @@
 
 #include "com_gams_variables_Sensor.h"
 #include "gams/variables/Sensor.h"
-#include "gams/utility/GPS_Position.h"
+#include "gams/utility/GPSPosition.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -75,7 +75,7 @@ void JNICALL Java_com_gams_variables_Sensor_jni_1init
 
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (str_name, kb, region_copy);
     }
 
@@ -131,7 +131,7 @@ jdouble JNICALL Java_com_gams_variables_Sensor_jni_1getGpsValue
   jdouble result (0.0);
 
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current && coord)
   {
     result = current->get_value (*coord);
@@ -153,7 +153,7 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1getOrigin
   variables::Sensor * current = (variables::Sensor *) cptr;
   if (current)
   {
-    result = (jlong) new utility::GPS_Position (current->get_origin ());
+    result = (jlong) new utility::GPSPosition (current->get_origin ());
   }
 
   return result;
@@ -187,7 +187,7 @@ void JNICALL Java_com_gams_variables_Sensor_jni_1setOrigin
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current && coord)
   {
     current->set_origin (*coord);
@@ -234,7 +234,7 @@ void JNICALL Java_com_gams_variables_Sensor_jni_1setGpsValue
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr, jdouble value)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current && coord)
   {
     current->set_value (*coord, value);
@@ -255,7 +255,7 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1getGpsFromIndex
   utility::Position * index = (utility::Position *) index_ptr;
   if (current && index)
   {
-    result = (jlong) new utility::GPS_Position (
+    result = (jlong) new utility::GPSPosition (
       current->get_gps_from_index (*index));
   }
 
@@ -273,7 +273,7 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1getIndexFromGps
   jlong result (0);
 
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current && coord)
   {
     result = (jlong) new utility::Position (
@@ -345,7 +345,7 @@ jlongArray JNICALL Java_com_gams_variables_Sensor_jni_1discretizeSearchArea
 {
   jlongArray result;
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::Search_Area * area = (utility::Search_Area *) area_ptr;
+  utility::SearchArea * area = (utility::SearchArea *) area_ptr;
   
   if (current && area)
   {

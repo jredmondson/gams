@@ -64,28 +64,28 @@ using std::cerr;
 using std::string;
 #include <cmath>
 
-#include "madara/knowledge_engine/containers/Double_Vector.h"
+#include "madara/knowledge_engine/containers/DoubleVector.h"
 
 #include "gams/variables/Sensor.h"
 
-gams::platforms::Base_Platform *
-gams::platforms::ROS_P3DX_Factory::create (
-  const Madara::Knowledge_Vector & args,
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge,
+gams::platforms::BasePlatform *
+gams::platforms::ROS_P3DXFactory::create (
+  const Madara::KnowledgeVector & args,
+  Madara::KnowledgeEngine::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Platforms * platforms,
   variables::Self * self)
 {
-  Base_Platform * result (0);
+  BasePlatform * result (0);
   if (knowledge && sensors && platforms && self)
     result = new ROS_P3DX (knowledge, sensors, platforms, self);
   return result;
 }
 
 gams::platforms::ROS_P3DX::ROS_P3DX (
-  Madara::Knowledge_Engine::Knowledge_Base * knowledge, 
+  Madara::KnowledgeEngine::KnowledgeBase * knowledge, 
   variables::Sensors * sensors,
   variables::Platforms * platforms, variables::Self * self) :
-  ROS_Base (knowledge, sensors, self),
+  ROSBase (knowledge, sensors, self),
   ros_namespace_(knowledge->get (".ros_namespace").to_string ()), 
   node_handle_ (ros_namespace_),
   move_client_ (ros_namespace_ + std::string ("/move_base"), true), 
@@ -112,7 +112,7 @@ gams::platforms::ROS_P3DX::ROS_P3DX (
   }
 
   // get initial position from knowledge base
-  Madara::Knowledge_Record record = knowledge->get (".initial_position");
+  Madara::KnowledgeRecord record = knowledge->get (".initial_position");
   std::vector <double> coords = record.to_doubles ();
   utility::Position p(coords[0], coords[1], coords[2]);
   set_initial_position(p);

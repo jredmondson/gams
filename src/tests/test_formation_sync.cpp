@@ -1,7 +1,7 @@
-#include "gams/algorithms/Formation_Sync.h"
-#include "gams/platforms/Debug_Platform.h"
-#include "gams/loggers/Global_Logger.h"
-#include "madara/knowledge/Knowledge_Base.h"
+#include "gams/algorithms/FormationSync.h"
+#include "gams/platforms/DebugPlatform.h"
+#include "gams/loggers/GlobalLogger.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 namespace loggers = gams::loggers;
 namespace engine = madara::knowledge;
@@ -13,12 +13,12 @@ namespace containers = engine::containers;
 
 void test_defaults (void)
 {
-  transport::QoS_Transport_Settings settings;
+  transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
 
-  engine::Knowledge_Base knowledge ("", settings);
-  engine::Knowledge_Base knowledge1 ("", settings), knowledge2 ("", settings),
+  engine::KnowledgeBase knowledge ("", settings);
+  engine::KnowledgeBase knowledge1 ("", settings), knowledge2 ("", settings),
     knowledge3 ("", settings), knowledge4 ("", settings);
 
   variables::Self self1, self2, self3, self4, self0;
@@ -40,28 +40,28 @@ void test_defaults (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::Knowledge_Vector args;
+  madara::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
   args.push_back (start);
 
-  platforms::Debug_Platform platform1 (&knowledge1, &sensors, 0, &self1);
-  platforms::Debug_Platform platform2 (&knowledge2, &sensors, 0, &self2);
-  platforms::Debug_Platform platform3 (&knowledge3, &sensors, 0, &self3);
-  platforms::Debug_Platform platform4 (&knowledge4, &sensors, 0, &self4);
-  platforms::Debug_Platform platform0 (&knowledge, &sensors, 0, &self0);
+  platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
+  platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
+  platforms::DebugPlatform platform3 (&knowledge3, &sensors, 0, &self3);
+  platforms::DebugPlatform platform4 (&knowledge4, &sensors, 0, &self4);
+  platforms::DebugPlatform platform0 (&knowledge, &sensors, 0, &self0);
 
-  algorithms::Formation_Sync_Factory factory;
-  algorithms::Base_Algorithm * alg1 = factory.create (
+  algorithms::FormationSyncFactory factory;
+  algorithms::BaseAlgorithm * alg1 = factory.create (
     args, &knowledge1, &platform1, &sensors, &self1, &devices);
-  algorithms::Base_Algorithm * alg2 = factory.create (
+  algorithms::BaseAlgorithm * alg2 = factory.create (
     args, &knowledge2, &platform2, &sensors, &self2, &devices);
-  algorithms::Base_Algorithm * alg3 = factory.create (
+  algorithms::BaseAlgorithm * alg3 = factory.create (
     args, &knowledge3, &platform3, &sensors, &self3, &devices);
-  algorithms::Base_Algorithm * alg4 = factory.create (
+  algorithms::BaseAlgorithm * alg4 = factory.create (
     args, &knowledge4, &platform4, &sensors, &self4, &devices);
-  algorithms::Base_Algorithm * alg0 = factory.create (
+  algorithms::BaseAlgorithm * alg0 = factory.create (
     args, &knowledge, &platform0, &sensors, &self0, &devices);
 
   for (int i = 0; i < 24; ++i)
@@ -100,12 +100,12 @@ void test_defaults (void)
 
 void test_triangle (void)
 {
-  transport::QoS_Transport_Settings settings;
+  transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
 
-  engine::Knowledge_Base knowledge ("", settings);
-  engine::Knowledge_Base knowledge1 ("", settings), knowledge2 ("", settings),
+  engine::KnowledgeBase knowledge ("", settings);
+  engine::KnowledgeBase knowledge1 ("", settings), knowledge2 ("", settings),
     knowledge3 ("", settings), knowledge4 ("", settings);
 
   variables::Self self1, self2, self3, self4, self0;
@@ -127,7 +127,7 @@ void test_triangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::Knowledge_Vector args;
+  madara::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -135,22 +135,22 @@ void test_triangle (void)
   args.push_back ("formation");
   args.push_back ("triangle");
 
-  platforms::Debug_Platform platform1 (&knowledge1, &sensors, 0, &self1);
-  platforms::Debug_Platform platform2 (&knowledge2, &sensors, 0, &self2);
-  platforms::Debug_Platform platform3 (&knowledge3, &sensors, 0, &self3);
-  platforms::Debug_Platform platform4 (&knowledge4, &sensors, 0, &self4);
-  platforms::Debug_Platform platform0 (&knowledge, &sensors, 0, &self0);
+  platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
+  platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
+  platforms::DebugPlatform platform3 (&knowledge3, &sensors, 0, &self3);
+  platforms::DebugPlatform platform4 (&knowledge4, &sensors, 0, &self4);
+  platforms::DebugPlatform platform0 (&knowledge, &sensors, 0, &self0);
 
-  algorithms::Formation_Sync_Factory factory;
-  algorithms::Base_Algorithm * alg1 = factory.create (
+  algorithms::FormationSyncFactory factory;
+  algorithms::BaseAlgorithm * alg1 = factory.create (
     args, &knowledge1, &platform1, &sensors, &self1, &devices);
-  algorithms::Base_Algorithm * alg2 = factory.create (
+  algorithms::BaseAlgorithm * alg2 = factory.create (
     args, &knowledge2, &platform2, &sensors, &self2, &devices);
-  algorithms::Base_Algorithm * alg3 = factory.create (
+  algorithms::BaseAlgorithm * alg3 = factory.create (
     args, &knowledge3, &platform3, &sensors, &self3, &devices);
-  algorithms::Base_Algorithm * alg4 = factory.create (
+  algorithms::BaseAlgorithm * alg4 = factory.create (
     args, &knowledge4, &platform4, &sensors, &self4, &devices);
-  algorithms::Base_Algorithm * alg0 = factory.create (
+  algorithms::BaseAlgorithm * alg0 = factory.create (
     args, &knowledge, &platform0, &sensors, &self0, &devices);
 
   for (int i = 0; i < 24; ++i)
@@ -189,12 +189,12 @@ void test_triangle (void)
 
 void test_rectangle (void)
 {
-  transport::QoS_Transport_Settings settings;
+  transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
 
-  engine::Knowledge_Base knowledge ("", settings);
-  engine::Knowledge_Base knowledge1 ("", settings), knowledge2 ("", settings),
+  engine::KnowledgeBase knowledge ("", settings);
+  engine::KnowledgeBase knowledge1 ("", settings), knowledge2 ("", settings),
     knowledge3 ("", settings), knowledge4 ("", settings);
 
   variables::Self self1, self2, self3, self4, self0;
@@ -216,7 +216,7 @@ void test_rectangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::Knowledge_Vector args;
+  madara::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -224,22 +224,22 @@ void test_rectangle (void)
   args.push_back ("formation");
   args.push_back ("rectangle");
 
-  platforms::Debug_Platform platform1 (&knowledge1, &sensors, 0, &self1);
-  platforms::Debug_Platform platform2 (&knowledge2, &sensors, 0, &self2);
-  platforms::Debug_Platform platform3 (&knowledge3, &sensors, 0, &self3);
-  platforms::Debug_Platform platform4 (&knowledge4, &sensors, 0, &self4);
-  platforms::Debug_Platform platform0 (&knowledge, &sensors, 0, &self0);
+  platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
+  platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
+  platforms::DebugPlatform platform3 (&knowledge3, &sensors, 0, &self3);
+  platforms::DebugPlatform platform4 (&knowledge4, &sensors, 0, &self4);
+  platforms::DebugPlatform platform0 (&knowledge, &sensors, 0, &self0);
 
-  algorithms::Formation_Sync_Factory factory;
-  algorithms::Base_Algorithm * alg1 = factory.create (
+  algorithms::FormationSyncFactory factory;
+  algorithms::BaseAlgorithm * alg1 = factory.create (
     args, &knowledge1, &platform1, &sensors, &self1, &devices);
-  algorithms::Base_Algorithm * alg2 = factory.create (
+  algorithms::BaseAlgorithm * alg2 = factory.create (
     args, &knowledge2, &platform2, &sensors, &self2, &devices);
-  algorithms::Base_Algorithm * alg3 = factory.create (
+  algorithms::BaseAlgorithm * alg3 = factory.create (
     args, &knowledge3, &platform3, &sensors, &self3, &devices);
-  algorithms::Base_Algorithm * alg4 = factory.create (
+  algorithms::BaseAlgorithm * alg4 = factory.create (
     args, &knowledge4, &platform4, &sensors, &self4, &devices);
-  algorithms::Base_Algorithm * alg0 = factory.create (
+  algorithms::BaseAlgorithm * alg0 = factory.create (
     args, &knowledge, &platform0, &sensors, &self0, &devices);
 
   for (int i = 0; i < 24; ++i)
@@ -278,19 +278,19 @@ void test_rectangle (void)
 
 void test_groups (void)
 {
-  transport::QoS_Transport_Settings settings;
+  transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
 
-  engine::Knowledge_Base knowledge0 ("", settings);
-  engine::Knowledge_Base knowledge1 ("", settings), knowledge2 ("", settings),
+  engine::KnowledgeBase knowledge0 ("", settings);
+  engine::KnowledgeBase knowledge1 ("", settings), knowledge2 ("", settings),
     knowledge3 ("", settings), knowledge4 ("", settings);
 
-  containers::String_Vector group3_1 ("group.3.members", knowledge1);
-  containers::String_Vector group3_2 ("group.3.members", knowledge2);
-  containers::String_Vector group3_3 ("group.3.members", knowledge3);
-  containers::String_Vector group3_4 ("group.3.members", knowledge4);
-  containers::String_Vector group3_0 ("group.3.members", knowledge0);
+  containers::StringVector group3_1 ("group.3.members", knowledge1);
+  containers::StringVector group3_2 ("group.3.members", knowledge2);
+  containers::StringVector group3_3 ("group.3.members", knowledge3);
+  containers::StringVector group3_4 ("group.3.members", knowledge4);
+  containers::StringVector group3_0 ("group.3.members", knowledge0);
 
   group3_0.push_back ("device.1");
   group3_0.push_back ("device.3");
@@ -331,7 +331,7 @@ void test_groups (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::Knowledge_Vector args;
+  madara::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -339,20 +339,20 @@ void test_groups (void)
   args.push_back ("group");
   args.push_back ("3");
 
-  platforms::Debug_Platform platform1 (&knowledge1, &sensors, 0, &self1);
-  platforms::Debug_Platform platform2 (&knowledge2, &sensors, 0, &self2);
-  platforms::Debug_Platform platform3 (&knowledge3, &sensors, 0, &self3);
-  platforms::Debug_Platform platform4 (&knowledge4, &sensors, 0, &self4);
-  platforms::Debug_Platform platform0 (&knowledge0, &sensors, 0, &self0);
+  platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
+  platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
+  platforms::DebugPlatform platform3 (&knowledge3, &sensors, 0, &self3);
+  platforms::DebugPlatform platform4 (&knowledge4, &sensors, 0, &self4);
+  platforms::DebugPlatform platform0 (&knowledge0, &sensors, 0, &self0);
 
-  algorithms::Formation_Sync_Factory factory;
-  algorithms::Base_Algorithm * alg1 = factory.create (
+  algorithms::FormationSyncFactory factory;
+  algorithms::BaseAlgorithm * alg1 = factory.create (
     args, &knowledge1, &platform1, &sensors, &self1, &devices);
-  algorithms::Base_Algorithm * alg2 = factory.create (
+  algorithms::BaseAlgorithm * alg2 = factory.create (
     args, &knowledge2, &platform2, &sensors, &self2, &devices);
-  algorithms::Base_Algorithm * alg3 = factory.create (
+  algorithms::BaseAlgorithm * alg3 = factory.create (
     args, &knowledge3, &platform3, &sensors, &self3, &devices);
-  algorithms::Base_Algorithm * alg4 = factory.create (
+  algorithms::BaseAlgorithm * alg4 = factory.create (
     args, &knowledge4, &platform4, &sensors, &self4, &devices);
 
   for (int i = 0; i < 24; ++i)
@@ -385,7 +385,7 @@ void test_groups (void)
 
 int main(int argc, char *argv[])
 {
-  madara::Knowledge_Record::set_precision (6);
+  madara::KnowledgeRecord::set_precision (6);
   loggers::global_logger->set_level (loggers::LOG_DETAILED);
 
   test_rectangle ();

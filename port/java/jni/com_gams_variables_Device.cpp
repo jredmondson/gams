@@ -53,7 +53,7 @@ void JNICALL Java_com_gams_variables_Device_jni_1init
   {
     if (type == 0)
     {
-      engine::Knowledge_Base * kb = (engine::Knowledge_Base *) context;
+      engine::KnowledgeBase * kb = (engine::KnowledgeBase *) context;
       current->init_vars (*kb, id);
     }
     else if (type == 1)

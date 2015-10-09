@@ -51,19 +51,19 @@
  * This file contains a test driver for the GAMS controllers loop.
  **/
 
-#include "madara/knowledge/Knowledge_Base.h"
-#include "gams/controllers/Base_Controller.h"
-#include "madara/logger/Global_Logger.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "gams/controllers/BaseController.h"
+#include "madara/logger/GlobalLogger.h"
 
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");
-madara::transport::QoS_Transport_Settings settings;
+madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef madara::Knowledge_Record   Record;
+typedef madara::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
 std::string platform ("debug");
@@ -272,8 +272,8 @@ int main (int argc, char ** argv)
   handle_arguments (argc, argv);
 
   // create knowledge base and a control loop
-  engine::Knowledge_Base knowledge;
-  controllers::Base_Controller loop (knowledge);
+  engine::KnowledgeBase knowledge;
+  controllers::BaseController loop (knowledge);
 
   // initialize variables and function stubs
   loop.init_vars (1, 4);

@@ -55,16 +55,16 @@
 
 #include <iostream>
 
-gams::algorithms::Base_Algorithm *
-gams::algorithms::Takeoff_Factory::create (
-  const madara::Knowledge_Vector & /*args*/,
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+gams::algorithms::BaseAlgorithm *
+gams::algorithms::TakeoffFactory::create (
+  const madara::KnowledgeVector & /*args*/,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Devices * /*devices*/)
 {
-  Base_Algorithm * result (0);
+  BaseAlgorithm * result (0);
   
   if (knowledge && sensors && platform && self)
   {
@@ -75,11 +75,11 @@ gams::algorithms::Takeoff_Factory::create (
 }
 
 gams::algorithms::Takeoff::Takeoff (
-  madara::knowledge::Knowledge_Base * knowledge,
-  platforms::Base_Platform * platform,
+  madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : Base_Algorithm (knowledge, platform, sensors, self)
+  : BaseAlgorithm (knowledge, platform, sensors, self)
 {
   status_.init_vars (*knowledge, "takeoff", self->id.to_integer ());
   status_.init_variable_values ();

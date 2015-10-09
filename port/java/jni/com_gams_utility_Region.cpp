@@ -78,7 +78,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
 {
   utility::Region * current = (utility::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
-  engine::Knowledge_Base * kb = (engine::Knowledge_Base *) kb_ptr;
+  engine::KnowledgeBase * kb = (engine::KnowledgeBase *) kb_ptr;
 
   if (current && str_name && kb)
   {
@@ -98,7 +98,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1toContainer
 {
   utility::Region * current = (utility::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
-  engine::Knowledge_Base * kb = (engine::Knowledge_Base *) kb_ptr;
+  engine::KnowledgeBase * kb = (engine::KnowledgeBase *) kb_ptr;
 
   if (current && str_name && kb)
   {
@@ -113,7 +113,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1toContainer
  * Method:    jni_modify
  * Signature: (J)V
  */
-GAMS_Export void JNICALL Java_com_gams_utility_Region_jni_1modify
+GAMSExport void JNICALL Java_com_gams_utility_Region_jni_1modify
   (JNIEnv *, jobject, jlong cptr)
 {
   utility::Region * current = (utility::Region *) cptr;
@@ -153,7 +153,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1addGpsVertex
 {
   utility::Region * current = (utility::Region *) cptr;
   if (current && vertex != 0)
-    current->vertices.push_back (*(utility::GPS_Position *)vertex);
+    current->vertices.push_back (*(utility::GPSPosition *)vertex);
 }
 
 /*
@@ -175,7 +175,7 @@ jlongArray JNICALL Java_com_gams_utility_Region_jni_1getVertices
       jlong * elements = env->GetLongArrayElements(result, 0);
       for (size_t i = 0; i < current->vertices.size (); ++i)
       {
-        elements[i] = (jlong) new utility::GPS_Position (current->vertices[i]);
+        elements[i] = (jlong) new utility::GPSPosition (current->vertices[i]);
       }
       env->ReleaseLongArrayElements(result, elements, 0);
     }
@@ -229,7 +229,7 @@ jboolean JNICALL Java_com_gams_utility_Region_jni_1containsGps
   jboolean result (0.0);
 
   utility::Region * current = (utility::Region *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current)
     result = current->contains (*coord);
 
@@ -247,7 +247,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getGpsDistance
   jboolean result (0.0);
 
   utility::Region * current = (utility::Region *) cptr;
-  utility::GPS_Position * coord = (utility::GPS_Position *) coord_ptr;
+  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
   if (current && coord)
     result = current->distance (*coord);
 

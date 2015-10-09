@@ -52,7 +52,7 @@ extern "C"
 }
 
 gams::platforms::Drone_RK::Drone_RK (
-  Madara::Knowledge_Engine::Knowledge_Base & knowledge,
+  Madara::KnowledgeEngine::KnowledgeBase & knowledge,
   variables::Sensors * sensors,
   variables::Platforms & platforms,
   variables::Self & self)
@@ -84,7 +84,7 @@ gams::platforms::Drone_RK::operator= (const Drone_RK & rhs)
 }
 
 void
-gams::platforms::Drone_RK::get_sensors (variables::Sensor_Names & sensors)
+gams::platforms::Drone_RK::get_sensors (variables::SensorNames & sensors)
 {
   bool needs_change (false);
 
