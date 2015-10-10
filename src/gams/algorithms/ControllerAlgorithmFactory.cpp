@@ -62,6 +62,7 @@
 #include "gams/algorithms/Executive.h"
 #include "gams/algorithms/Wait.h"
 #include "gams/algorithms/PerformanceProfiling.h"
+#include "gams/algorithms/GroupBarrier.h"
 
 #include "gams/algorithms/area_coverage/UniformRandomAreaCoverage.h"
 #include "gams/algorithms/area_coverage/UniformRandomEdgeCoverage.h"
@@ -256,6 +257,12 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
   aliases[0] = "formation sync";
 
   add (aliases, new FormationSyncFactory ());
+
+  // the performance profiler
+  aliases.resize (1);
+  aliases[0] = "barrier";
+
+  add (aliases, new GroupBarrierFactory ());
 }
 
 algorithms::BaseAlgorithm *

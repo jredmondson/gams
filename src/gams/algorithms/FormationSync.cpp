@@ -46,11 +46,7 @@
 
 /**
  * @file FormationSync.cpp
- * @author Anton Dukeman <anton.dukeman@gmail.com>
- *
- * Definitions for FormationSync class
- * - The head agent runs some area coverage algorithm
- * - Followers perform formation flying around the head agent
+ * @author James Edmondson <jedmondson@gmail.com>
  **/
 
 #include "gams/algorithms/FormationSync.h"
@@ -70,18 +66,6 @@ namespace containers = engine::containers;
 
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
-const int pyramid_cols[] = {
-  0,                                 // 0 processes have 0 cols
-  1,                                 // 1 process has 1 cols
-  3, 3,                              // 2-3 processes have 3 cols
-  5, 5, 5,                           // 4-6 processes have 5 cols
-  7, 7, 7, 7,                        // 7-10 processes have 7 cols
-  9, 9, 9, 9, 9,                     // 11-15 processes have 9 cols
-  11, 11, 11, 11, 11, 11,            // 16-21 processes have 11
-  13, 13, 13, 13, 13, 13, 13,        // 13 columns
-  15, 15, 15, 15, 15, 15, 15, 15,    // 15 columns
-  17, 17, 17, 17, 17, 17, 17, 17, 17 // 17 columns
-};
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationSyncFactory::create (
@@ -794,6 +778,7 @@ gams::algorithms::FormationSync::operator= (const FormationSync & rhs)
     end_ = rhs.end_;
     members_ = rhs.members_;
     buffer_ = rhs.buffer_;
+    barrier_ = rhs.barrier_;
   }
 }
 
