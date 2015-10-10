@@ -48,7 +48,7 @@
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::PerformanceProfilingFactory::create (
-  const madara::KnowledgeVector & /*args*/,
+  const madara::knowledge::KnowledgeVector & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -79,7 +79,7 @@ gams::algorithms::PerformanceProfiling::PerformanceProfiling (
 gams::algorithms::PerformanceProfiling::~PerformanceProfiling ()
 {
   knowledge_->set(".performance_profiling.executions",
-    madara::KnowledgeRecord::Integer (executions_));
+    madara::knowledge::KnowledgeRecord::Integer (executions_));
 }
 
 void

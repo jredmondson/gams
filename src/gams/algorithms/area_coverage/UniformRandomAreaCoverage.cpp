@@ -50,7 +50,7 @@ using std::string;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,

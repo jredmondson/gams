@@ -46,7 +46,7 @@
 
 #include "gams/variables/Self.h"
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
 gams::variables::Self::Self ()

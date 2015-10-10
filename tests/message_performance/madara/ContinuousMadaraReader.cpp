@@ -17,6 +17,9 @@ using std::endl;
 
 double num_sec = 10;
 
+namespace knowledge = madara::knowledge;
+typedef knowledge::KnowledgeRecord    KnowledgeRecord;
+
 madara::transport::QoSTransportSettings settings;
 
 void handle_arguments (int argc, char ** argv)
@@ -93,8 +96,8 @@ public:
 
   CounterFilter() : count(0) {}
 
-  madara::KnowledgeRecord filter(madara::knowledge::FunctionArguments& args,
-    madara::knowledge::Variables & /*vars*/)
+  KnowledgeRecord filter(knowledge::FunctionArguments& args,
+    knowledge::Variables & /*vars*/)
   {
     ++count;
     return args[1];
@@ -114,8 +117,8 @@ int main(int argc, char** argv)
   }
 
   CounterFilter counter;
-  settings.add_receive_filter(madara::KnowledgeRecord::ALL_TYPES, &counter);
-  madara::knowledge::KnowledgeBase knowledge("", settings);
+  settings.add_receive_filter(KnowledgeRecord::ALL_TYPES, &counter);
+  knowledge::KnowledgeBase knowledge("", settings);
 
   num_sec = madara::utility::sleep(num_sec);
 

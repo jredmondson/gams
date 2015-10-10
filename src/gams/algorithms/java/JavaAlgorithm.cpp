@@ -96,7 +96,7 @@ gams::algorithms::JavaAlgorithmFactory::~JavaAlgorithmFactory ()
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::JavaAlgorithmFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * /*platform*/,
   variables::Sensors * sensors,

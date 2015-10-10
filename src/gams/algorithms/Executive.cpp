@@ -63,7 +63,7 @@ using std::endl;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::ExecutiveFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -103,7 +103,7 @@ gams::algorithms::ExecutiveFactory::create (
 }
 
 gams::algorithms::Executive::Executive (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Devices * devices) :
@@ -121,7 +121,7 @@ gams::algorithms::Executive::Executive (
     v.set_name (args[i + 1].to_string (), *knowledge);
     v.resize ();
   
-    madara::KnowledgeVector a;
+    madara::knowledge::KnowledgeVector a;
     v.copy_to (a);
   
     AlgorithmInit init (args[i].to_string (), a);
@@ -235,7 +235,7 @@ gams::algorithms::Executive::AlgorithmInit::AlgorithmInit () :
 }
 
 gams::algorithms::Executive::AlgorithmInit::AlgorithmInit (
-  const std::string& a, const madara::KnowledgeVector& v) :
+  const std::string& a, const madara::knowledge::KnowledgeVector& v) :
   algorithm (a), args (v)
 {
 }

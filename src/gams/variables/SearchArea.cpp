@@ -45,7 +45,7 @@
  **/
 #include "SearchArea.h"
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
 gams::variables::SearchArea::SearchArea ()
@@ -80,7 +80,7 @@ gams::variables::SearchArea::init_vars (
   prefix += ".";
   prefix += area_name;
 
-  madara::KnowledgeRecord region_id = knowledge.get (prefix);
+  madara::knowledge::KnowledgeRecord region_id = knowledge.get (prefix);
   
   // initialize the variable containers
   //region.init_vars (knowledge, region_id.to_string ());
@@ -99,7 +99,7 @@ gams::variables::SearchArea::init_vars (
   prefix += ".";
   prefix += area_name;
 
-  madara::KnowledgeRecord region_id = knowledge.get (prefix);
+  madara::knowledge::KnowledgeRecord region_id = knowledge.get (prefix);
   
   // initialize the variable containers
   //region.init_vars (knowledge, region_id.to_string ());

@@ -230,7 +230,7 @@ gams::utility::Containerize::is_valid_type (
   madara::knowledge::KnowledgeBase& kb, const std::string& name, 
   const Class_ID& valid) const
 {
-  madara::KnowledgeRecord record = kb.get (name + object_type_suffix_);
+  madara::knowledge::KnowledgeRecord record = kb.get (name + object_type_suffix_);
   if (record.exists ())
     return (record.to_integer () & valid);
   return false;

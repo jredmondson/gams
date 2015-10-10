@@ -77,7 +77,7 @@ namespace controllers = gams::controllers;
 namespace platforms = gams::platforms;
 namespace algorithms = gams::algorithms;
 
-typedef madara::KnowledgeRecord   Record;
+typedef madara::knowledge::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
 // global variables for platform and algorithm

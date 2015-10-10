@@ -75,7 +75,7 @@ const string gams::platforms::VREPAnt::DEFAULT_ANT_MODEL (
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPAntFactory::create (
-        const madara::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeVector & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,

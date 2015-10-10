@@ -46,7 +46,7 @@
 
 #include "gams/variables/Region.h"
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
 gams::variables::Region::Region ()

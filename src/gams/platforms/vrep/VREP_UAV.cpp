@@ -82,7 +82,7 @@ const std::string gams::platforms::VREP_UAV::TargetMover::MOVE_SPEED_CONTAINER_N
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPUAVFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,

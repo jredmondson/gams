@@ -84,8 +84,8 @@ namespace gams
        * @param  self       self-referencing variables
        **/
       Follow (
-        const madara::KnowledgeRecord& id,
-        const madara::KnowledgeRecord& delay,
+        const madara::knowledge::KnowledgeRecord& id,
+        const madara::knowledge::KnowledgeRecord& delay,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -157,7 +157,7 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual BaseAlgorithm * create (
-        const madara::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeVector & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,

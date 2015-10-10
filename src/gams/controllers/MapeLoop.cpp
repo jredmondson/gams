@@ -46,7 +46,7 @@
 
 #include "MapeLoop.h"
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::controllers::MapeLoop::MapeLoop (
   madara::knowledge::KnowledgeBase & knowledge)
@@ -62,7 +62,7 @@ gams::controllers::MapeLoop::~MapeLoop ()
 
 void
 gams::controllers::MapeLoop::define_analyze (
-  madara::KnowledgeRecord (*func) (
+  madara::knowledge::KnowledgeRecord (*func) (
     madara::knowledge::FunctionArguments &,
     madara::knowledge::Variables &))
 {
@@ -71,7 +71,7 @@ gams::controllers::MapeLoop::define_analyze (
 }
 
 void gams::controllers::MapeLoop::define_execute (
-  madara::KnowledgeRecord (*func) (
+  madara::knowledge::KnowledgeRecord (*func) (
     madara::knowledge::FunctionArguments &,
     madara::knowledge::Variables &))
 {
@@ -88,7 +88,7 @@ gams::controllers::MapeLoop::define_mape (const std::string & loop)
 
 void
 gams::controllers::MapeLoop::define_monitor (
-  madara::KnowledgeRecord (*func) (
+  madara::knowledge::KnowledgeRecord (*func) (
     madara::knowledge::FunctionArguments &,
     madara::knowledge::Variables &))
 {
@@ -97,7 +97,7 @@ gams::controllers::MapeLoop::define_monitor (
 }
 
 void gams::controllers::MapeLoop::define_plan (
-  madara::KnowledgeRecord (*func) (
+  madara::knowledge::KnowledgeRecord (*func) (
     madara::knowledge::FunctionArguments &,
     madara::knowledge::Variables &))
 {
@@ -117,7 +117,7 @@ gams::controllers::MapeLoop::init_vars (
   self_.init_vars (knowledge, id);
 }
 
-madara::KnowledgeRecord
+madara::knowledge::KnowledgeRecord
 gams::controllers::MapeLoop::run (double period, double max_runtime)
 {
   // initialize wait settings

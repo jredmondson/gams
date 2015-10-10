@@ -91,7 +91,7 @@ gams::variables::Device::operator= (const Device & device)
 void
 gams::variables::Device::init_vars (
   madara::knowledge::KnowledgeBase & knowledge,
-  const madara::KnowledgeRecord::Integer& id)
+  const madara::knowledge::KnowledgeRecord::Integer& id)
 {
   // create the device name string identifier ('device.{id}')
   string device_name (make_variable_name (id));
@@ -132,7 +132,7 @@ gams::variables::Device::init_vars (
 void
 gams::variables::Device::init_vars (
   madara::knowledge::Variables & knowledge,
-  const madara::KnowledgeRecord::Integer& id)
+  const madara::knowledge::KnowledgeRecord::Integer& id)
 {
   // create the device name string identifier ('device.{id}')
   string device_name (make_variable_name (id));
@@ -172,9 +172,9 @@ gams::variables::Device::init_vars (
 
 void gams::variables::init_vars (Devices & variables,
   madara::knowledge::KnowledgeBase & knowledge,
-  const madara::KnowledgeRecord::Integer& processes)
+  const madara::knowledge::KnowledgeRecord::Integer& processes)
 {
-  madara::KnowledgeRecord::Integer limit = processes;
+  madara::knowledge::KnowledgeRecord::Integer limit = processes;
   if (processes >= 0)
   {
     variables.resize (processes);
@@ -192,7 +192,7 @@ void gams::variables::init_vars (Devices & variables,
 
 string
 gams::variables::Device::make_variable_name (
-  const madara::KnowledgeRecord::Integer& id)
+  const madara::knowledge::KnowledgeRecord::Integer& id)
 {
   std::stringstream buffer;
   buffer << "device.";

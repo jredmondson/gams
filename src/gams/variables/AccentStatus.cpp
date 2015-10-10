@@ -104,7 +104,7 @@ void gams::variables::init_vars (AccentStatuses & variables,
   std::string accent_name (prefix);
   accent_name += ".accent";
 
-  madara::KnowledgeRecord::Integer size =
+  madara::knowledge::KnowledgeRecord::Integer size =
     knowledge.get (accent_name + ".size").to_integer ();
   
   // iterate through all accents
@@ -126,7 +126,7 @@ void gams::variables::init_vars (AccentStatuses & variables,
   std::string accent_name (prefix);
   accent_name += ".accent";
 
-  madara::KnowledgeRecord::Integer size =
+  madara::knowledge::KnowledgeRecord::Integer size =
     knowledge.get (accent_name + ".size").to_integer ();
   
   // iterate through all accents

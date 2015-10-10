@@ -56,7 +56,7 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::variables::Sensor::Sensor () :
   knowledge_ (0), name_ ("")

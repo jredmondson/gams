@@ -11,7 +11,7 @@ namespace controllers = gams::controllers;
 namespace algorithms = gams::algorithms;
 namespace platforms = gams::platforms;
 
-typedef madara::KnowledgeRecord::Integer  Integer;
+typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 /*
  * Class:     com_gams_controllers_BaseController
@@ -153,16 +153,16 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAccent
     const char * str_name = env->GetStringUTFChars(name, 0);
 
     // create a knowledge vector to hold the arguments
-    madara::KnowledgeVector args (env->GetArrayLength (argslist));
+    madara::knowledge::KnowledgeVector args (env->GetArrayLength (argslist));
     jlong * elements = env->GetLongArrayElements (argslist, 0);
 
     // iterate through arguments and copy the knowledge record for each arg
     for (size_t i = 0; i < args.size (); ++i)
     {
-      madara::KnowledgeRecord * cur_record = (madara::KnowledgeRecord *)elements[i];
+      madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
       if (cur_record)
-        args[i] = madara::KnowledgeRecord (*cur_record);
+        args[i] = madara::knowledge::KnowledgeRecord (*cur_record);
     }
     
     // call the initialization method
@@ -188,7 +188,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
   {
     // get the name in C string format
     const char * str_name = env->GetStringUTFChars(name, 0);
-    madara::KnowledgeVector args;
+    madara::knowledge::KnowledgeVector args;
 
     if (argslist)
     {
@@ -212,10 +212,10 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
       // iterate through arguments and copy the knowledge record for each arg
       for (size_t i = 0; i < args.size (); ++i)
       {
-        madara::KnowledgeRecord * cur_record = (madara::KnowledgeRecord *)elements[i];
+        madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
         if (cur_record)
-          args[i] = madara::KnowledgeRecord (*cur_record);
+          args[i] = madara::knowledge::KnowledgeRecord (*cur_record);
       }
 
       env->ReleaseLongArrayElements (argslist, elements, 0);
@@ -286,16 +286,16 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_
     const char * str_name = env->GetStringUTFChars(name, 0);
 
     // create a knowledge vector to hold the arguments
-    madara::KnowledgeVector args (env->GetArrayLength (argslist));
+    madara::knowledge::KnowledgeVector args (env->GetArrayLength (argslist));
     jlong * elements = env->GetLongArrayElements (argslist, 0);
 
     // iterate through arguments and copy the knowledge record for each arg
     for (size_t i = 0; i < args.size (); ++i)
     {
-      madara::KnowledgeRecord * cur_record = (madara::KnowledgeRecord *)elements[i];
+      madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
       if (cur_record)
-        args[i] = madara::KnowledgeRecord (*cur_record);
+        args[i] = madara::knowledge::KnowledgeRecord (*cur_record);
     }
 
     // call the initialization method

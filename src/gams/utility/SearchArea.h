@@ -138,7 +138,7 @@ namespace gams
        * @param pos   position to get priority of
        * @return priority of position
        */
-      madara::KnowledgeRecord::Integer get_priority (const GPSPosition& pos) const;
+      madara::knowledge::KnowledgeRecord::Integer get_priority (const GPSPosition& pos) const;
       
       /**
        * Determine if GPSPosition is in region

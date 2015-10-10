@@ -40,7 +40,7 @@ void test_defaults (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::KnowledgeVector args;
+  madara::knowledge::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -127,7 +127,7 @@ void test_triangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::KnowledgeVector args;
+  madara::knowledge::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -216,7 +216,7 @@ void test_rectangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::KnowledgeVector args;
+  madara::knowledge::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -331,7 +331,7 @@ void test_groups (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::KnowledgeVector args;
+  madara::knowledge::KnowledgeVector args;
   args.push_back ("end");
   args.push_back (end);
   args.push_back ("start");
@@ -385,7 +385,7 @@ void test_groups (void)
 
 int main(int argc, char *argv[])
 {
-  madara::KnowledgeRecord::set_precision (6);
+  madara::knowledge::KnowledgeRecord::set_precision (6);
   loggers::global_logger->set_level (loggers::LOG_DETAILED);
 
   test_rectangle ();

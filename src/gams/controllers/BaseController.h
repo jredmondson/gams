@@ -190,7 +190,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_accent (const std::string & algorithm,
-        const madara::KnowledgeVector & args = madara::KnowledgeVector ());
+        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
 
       /**
        * Clears all accent algorithms
@@ -227,7 +227,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_algorithm (const std::string & algorithm,
-        const madara::KnowledgeVector & args = madara::KnowledgeVector ());
+        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
  
       /**
        * Initializes the controller with a user-provided algorithm. This
@@ -243,7 +243,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_platform (const std::string & platform,
-        const madara::KnowledgeVector & args = madara::KnowledgeVector ());
+        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
        
       /**
        * Initializes the controller with a user-provided platform. This
@@ -272,8 +272,8 @@ namespace gams
        * @param   id         node identifier
        * @param   processes  processes
        **/
-      void init_vars (const madara::KnowledgeRecord::Integer & id = 0,
-        const madara::KnowledgeRecord::Integer & processes = -1);
+      void init_vars (const madara::knowledge::KnowledgeRecord::Integer & id = 0,
+        const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
       
       /**
        * Initializes containers and knowledge base in a platform

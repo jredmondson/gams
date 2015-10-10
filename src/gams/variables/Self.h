@@ -91,7 +91,7 @@ namespace gams
        * @param   id         node identifier
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
-        const madara::KnowledgeRecord::Integer & id);
+        const madara::knowledge::KnowledgeRecord::Integer & id);
       
       /**
        * Initializes variable containers
@@ -99,7 +99,7 @@ namespace gams
        * @param   id         node identifier
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const madara::KnowledgeRecord::Integer & id);
+        const madara::knowledge::KnowledgeRecord::Integer & id);
 
       /// the id of this device
       madara::knowledge::containers::Integer id;
@@ -116,7 +116,7 @@ namespace gams
       **/
     GAMSExport void init_vars (Self & container,
       madara::knowledge::KnowledgeBase & knowledge,
-      const madara::KnowledgeRecord::Integer & id);
+      const madara::knowledge::KnowledgeRecord::Integer & id);
   }
 }
 

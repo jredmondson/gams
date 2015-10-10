@@ -49,7 +49,7 @@
 
 using std::string;
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 const string gams::variables::Swarm::SWARM_COMMAND = "swarm.command";
 const string gams::variables::Swarm::SWARM_MIN_ALT = "swarm.min_alt";
@@ -80,7 +80,7 @@ gams::variables::Swarm::operator= (const Swarm & rhs)
 void
 gams::variables::Swarm::init_vars (
   madara::knowledge::KnowledgeBase & knowledge,
-  const madara::KnowledgeRecord::Integer & swarm_size)
+  const madara::knowledge::KnowledgeRecord::Integer & swarm_size)
 {
   // initialize the variable containers
   variables::init_vars (accents, knowledge, "swarm");
@@ -95,7 +95,7 @@ gams::variables::Swarm::init_vars (
 void
 gams::variables::Swarm::init_vars (
   madara::knowledge::Variables & knowledge,
-  const madara::KnowledgeRecord::Integer& swarm_size)
+  const madara::knowledge::KnowledgeRecord::Integer& swarm_size)
 {
   // initialize the variable containers
   variables::init_vars (accents, knowledge, "swarm");
@@ -108,7 +108,7 @@ gams::variables::Swarm::init_vars (
 }
 
 void gams::variables::Swarm::init_vars (
-  const madara::KnowledgeRecord::Integer& swarm_size)
+  const madara::knowledge::KnowledgeRecord::Integer& swarm_size)
 {
   madara::knowledge::KnowledgeUpdateSettings defaults;
   madara::knowledge::KnowledgeUpdateSettings keep_local (true);
@@ -127,14 +127,14 @@ void gams::variables::Swarm::init_vars (
 
 void gams::variables::init_vars (Swarm & variables,
   madara::knowledge::KnowledgeBase & knowledge,
-  const madara::KnowledgeRecord::Integer& swarm_size)
+  const madara::knowledge::KnowledgeRecord::Integer& swarm_size)
 {
   variables.init_vars (knowledge, swarm_size);
 }
 
 void gams::variables::init_vars (Swarm & variables,
   madara::knowledge::Variables & knowledge,
-  const madara::KnowledgeRecord::Integer& swarm_size)
+  const madara::knowledge::KnowledgeRecord::Integer& swarm_size)
 {
   variables.init_vars (knowledge, swarm_size);
 }

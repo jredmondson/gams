@@ -90,7 +90,7 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       MessageProfiling (
-        const madara::KnowledgeRecord& send,
+        const madara::knowledge::KnowledgeRecord& send,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::Base * platform = 0,
         variables::Sensors * sensors = 0,
@@ -162,7 +162,7 @@ namespace gams
          */
         virtual ~MessageFilter ();
 
-        void filter (madara::KnowledgeMap& records, 
+        void filter (madara::knowledge::KnowledgeMap& records, 
           const madara::transport::TransportContext& transport_context,
           madara::knowledge::Variables& var);
 
@@ -218,7 +218,7 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual BaseAlgorithm * create (
-        const madara::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeVector & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,

@@ -130,7 +130,7 @@ namespace gams
       bool enable_plan_counter;
 
       /// tracks the number of loops executed with a normal 64 bit integer
-      mutable madara::KnowledgeRecord::Integer  loops;
+      mutable madara::knowledge::KnowledgeRecord::Integer  loops;
 
       /// tracks the number of calls to analyze
       mutable madara::knowledge::containers::Integer  analyze_counter;

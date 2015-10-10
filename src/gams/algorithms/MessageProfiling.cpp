@@ -59,7 +59,7 @@ const string gams::algorithms::MessageProfiling::key_prefix_ = "message_profilin
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::MessageProfilingFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -69,7 +69,7 @@ gams::algorithms::MessageProfilingFactory::create (
   BaseAlgorithm * result (0);
 
   // set defaults
-  madara::KnowledgeRecord send_size (madara::KnowledgeRecord::Integer (100));
+  madara::knowledge::KnowledgeRecord send_size (madara::knowledge::KnowledgeRecord::Integer (100));
 
   if (knowledge && sensors && self)
   {
@@ -84,7 +84,7 @@ gams::algorithms::MessageProfilingFactory::create (
 }
 
 gams::algorithms::MessageProfiling::MessageProfiling (
-  const madara::KnowledgeRecord& send, 
+  const madara::knowledge::KnowledgeRecord& send, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::Base * platform,
   variables::Sensors * sensors,
@@ -146,12 +146,12 @@ gams::algorithms::MessageProfiling::~MessageProfiling ()
 
     const string prefix = key_prefix_ + "." + map_item.first + ".";
     //knowledge_->set(prefix + "first", 
-    //  madara::KnowledgeRecord::Integer (map_item.second.first));
+    //  madara::knowledge::KnowledgeRecord::Integer (map_item.second.first));
     //knowledge_->set(prefix + "last", 
-    //  madara::KnowledgeRecord::Integer (map_item.second.last));
+    //  madara::knowledge::KnowledgeRecord::Integer (map_item.second.last));
     //knowledge_->set(prefix + "missing", percent_missing);
     knowledge_->set(prefix + "count", 
-      madara::KnowledgeRecord::Integer (map_item.second));
+      madara::knowledge::KnowledgeRecord::Integer (map_item.second));
   }
 }
 
@@ -207,7 +207,7 @@ gams::algorithms::MessageProfiling::MessageFilter::~MessageFilter ()
 
 void
 gams::algorithms::MessageProfiling::MessageFilter::filter (
-  madara::KnowledgeMap& /*records*/, 
+  madara::knowledge::KnowledgeMap& /*records*/, 
   const madara::transport::TransportContext& transport_context, 
   madara::knowledge::Variables& /*var*/)
 {
@@ -222,10 +222,10 @@ gams::algorithms::MessageProfiling::MessageFilter::filter (
 //  MessageData& data = msg_map[origin];
 //
 //  // loop through each update
-//  for (madara::KnowledgeMap::const_iterator iter = records.begin();
+//  for (madara::knowledge::KnowledgeMap::const_iterator iter = records.begin();
 //	      iter != records.end(); ++iter)
 //  {
-//    madara::KnowledgeMap::const_reference update = *iter;
+//    madara::knowledge::KnowledgeMap::const_reference update = *iter;
 //
 //    // we only care about specific messages
 //    if (update.second.is_integer_type () && 

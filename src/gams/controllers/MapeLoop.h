@@ -101,7 +101,7 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_monitor (
-        madara::KnowledgeRecord (*func) (
+        madara::knowledge::KnowledgeRecord (*func) (
           madara::knowledge::FunctionArguments &,
           madara::knowledge::Variables &));
       
@@ -111,7 +111,7 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_analyze (
-        madara::KnowledgeRecord (*func) (
+        madara::knowledge::KnowledgeRecord (*func) (
           madara::knowledge::FunctionArguments &,
           madara::knowledge::Variables &));
       
@@ -121,7 +121,7 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_plan (
-        madara::KnowledgeRecord (*func) (
+        madara::knowledge::KnowledgeRecord (*func) (
           madara::knowledge::FunctionArguments &,
           madara::knowledge::Variables &));
       
@@ -131,7 +131,7 @@ namespace gams
        * @param  func   the function to call
        **/
       void define_execute (
-        madara::KnowledgeRecord (*func) (
+        madara::knowledge::KnowledgeRecord (*func) (
           madara::knowledge::FunctionArguments &,
           madara::knowledge::Variables &));
 
@@ -142,8 +142,8 @@ namespace gams
        * @param   processes  processes
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
-        const madara::KnowledgeRecord::Integer & id = 0,
-        const madara::KnowledgeRecord::Integer & processes = -1);
+        const madara::knowledge::KnowledgeRecord::Integer & id = 0,
+        const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
 
       /**
        * Runs one iteration of the MAPE loop
@@ -151,7 +151,7 @@ namespace gams
        * @param  max_runtime  maximum runtime within the MAPE loop
        * @return  the result of the MAPE loop
        **/
-      madara::KnowledgeRecord run (double period = 0.5,
+      madara::knowledge::KnowledgeRecord run (double period = 0.5,
         double max_runtime = -1);
 
     protected:

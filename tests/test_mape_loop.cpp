@@ -57,7 +57,7 @@
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
-typedef madara::KnowledgeRecord   Record;
+typedef madara::knowledge::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
 /**

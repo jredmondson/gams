@@ -65,7 +65,7 @@ using std::stringstream;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FollowFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -75,8 +75,8 @@ gams::algorithms::FollowFactory::create (
   BaseAlgorithm * result (0);
 
   // set defaults
-  madara::KnowledgeRecord target;
-  madara::KnowledgeRecord delay (madara::KnowledgeRecord::Integer (5));
+  madara::knowledge::KnowledgeRecord target;
+  madara::knowledge::KnowledgeRecord delay (madara::knowledge::KnowledgeRecord::Integer (5));
 
   if (args.size () >= 1 && knowledge && sensors && self)
   {
@@ -93,8 +93,8 @@ gams::algorithms::FollowFactory::create (
 }
 
 gams::algorithms::Follow::Follow (
-  const madara::KnowledgeRecord& id,
-  const madara::KnowledgeRecord& delay,
+  const madara::knowledge::KnowledgeRecord& id,
+  const madara::knowledge::KnowledgeRecord& delay,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self) :

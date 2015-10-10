@@ -98,7 +98,7 @@ namespace gams
        * @param   id         node identifier
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
-        const madara::KnowledgeRecord::Integer& id);
+        const madara::knowledge::KnowledgeRecord::Integer& id);
       
       /**
        * Initializes variable containers
@@ -106,7 +106,7 @@ namespace gams
        * @param   id         node identifier
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const madara::KnowledgeRecord::Integer& id);
+        const madara::knowledge::KnowledgeRecord::Integer& id);
       
       /// the battery indicator for this device
       madara::knowledge::containers::Integer battery_remaining;
@@ -181,7 +181,7 @@ namespace gams
        * @return device variable name
        */
       static std::string make_variable_name (
-        const madara::KnowledgeRecord::Integer& id);
+        const madara::knowledge::KnowledgeRecord::Integer& id);
 
       /**
        * Set variable settings
@@ -202,7 +202,7 @@ namespace gams
       **/
     GAMSExport void init_vars (Devices & variables,
       madara::knowledge::KnowledgeBase & knowledge,
-      const madara::KnowledgeRecord::Integer& processes);
+      const madara::knowledge::KnowledgeRecord::Integer& processes);
   }
 }
 

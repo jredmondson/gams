@@ -66,7 +66,7 @@
 using std::cerr;
 using std::endl;
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::controllers::BaseController::BaseController (
   madara::knowledge::KnowledgeBase & knowledge)
@@ -163,7 +163,7 @@ gams::controllers::BaseController::system_analyze (void)
 
   if (self_.device.command != "")
   {
-    madara::KnowledgeVector args;
+    madara::knowledge::KnowledgeVector args;
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -186,7 +186,7 @@ gams::controllers::BaseController::system_analyze (void)
   }
   else if (swarm_.command != "")
   {
-    madara::KnowledgeVector args;
+    madara::knowledge::KnowledgeVector args;
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -619,7 +619,7 @@ gams::controllers::BaseController::run (double loop_period,
 
 void
 gams::controllers::BaseController::init_accent (const std::string & algorithm,
-const madara::KnowledgeVector & args)
+const madara::knowledge::KnowledgeVector & args)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -677,7 +677,7 @@ void gams::controllers::BaseController::clear_accents (void)
 }
 void
 gams::controllers::BaseController::init_algorithm (
-const std::string & algorithm, const madara::KnowledgeVector & args)
+const std::string & algorithm, const madara::knowledge::KnowledgeVector & args)
 {
   // initialize the algorithm
 
@@ -786,7 +786,7 @@ const std::string & algorithm, const madara::KnowledgeVector & args)
 void
 gams::controllers::BaseController::init_platform (
   const std::string & platform,
-  const madara::KnowledgeVector & args)
+  const madara::knowledge::KnowledgeVector & args)
 {
   // initialize the platform
 

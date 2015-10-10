@@ -110,7 +110,7 @@ namespace gams
        * @return  the new platform
        **/
       BasePlatform * create (const std::string & type,
-        const madara::KnowledgeVector & args = madara::KnowledgeVector ());
+        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
       
       /**
        * Sets the knowledge base

@@ -120,7 +120,7 @@ namespace gams
       void operator= (const PrioritizedRegion& rhs);
 
       /// priority
-      madara::KnowledgeRecord::Integer priority;
+      madara::knowledge::KnowledgeRecord::Integer priority;
 
     private:
       /**

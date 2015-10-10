@@ -81,7 +81,7 @@ using std::swap;
 using std::vector;
 
 namespace mutility = madara::utility;
-typedef madara::KnowledgeRecord::Integer Integer;
+typedef madara::knowledge::KnowledgeRecord::Integer Integer;
 
 gams::utility::SearchArea::SearchArea () :
   Containerize()
@@ -333,10 +333,10 @@ gams::utility::SearchArea::get_regions () const
   return regions_;
 }
 
-madara::KnowledgeRecord::Integer
+madara::knowledge::KnowledgeRecord::Integer
 gams::utility::SearchArea::get_priority (const GPSPosition& pos) const
 {
-  madara::KnowledgeRecord::Integer priority = 0;
+  madara::knowledge::KnowledgeRecord::Integer priority = 0;
   for (vector<PrioritizedRegion>::const_iterator it = regions_.begin ();
     it != regions_.end (); ++it)
   {

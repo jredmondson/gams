@@ -67,7 +67,7 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-typedef  madara::KnowledgeRecord::Integer Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer Integer;
 
 gams::utility::Region::Region (
   const std::vector <GPSPosition> & init_vertices, unsigned int type, 
@@ -391,7 +391,7 @@ gams::utility::Region::from_container_impl (
     " name = %s\n", name.c_str ());
 
   // get type
-  madara::KnowledgeRecord type = kb.get (name + ".type");
+  madara::knowledge::KnowledgeRecord type = kb.get (name + ".type");
   if (!type.exists ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -417,7 +417,7 @@ gams::utility::Region::from_container_impl (
          " type is arbitrary convex polygon\n");
 
       // get size
-      madara::KnowledgeRecord num_verts = kb.get (name + ".size");
+      madara::knowledge::KnowledgeRecord num_verts = kb.get (name + ".size");
       if (!num_verts.exists ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),

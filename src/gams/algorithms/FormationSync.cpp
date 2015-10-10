@@ -68,7 +68,7 @@
 namespace engine = madara::knowledge;
 namespace containers = engine::containers;
 
-typedef madara::KnowledgeRecord::Integer  Integer;
+typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 const int pyramid_cols[] = {
   0,                                 // 0 processes have 0 cols
@@ -85,7 +85,7 @@ const int pyramid_cols[] = {
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationSyncFactory::create (
-const madara::KnowledgeVector & args,
+const madara::knowledge::KnowledgeVector & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
@@ -272,7 +272,7 @@ variables::Devices * devices)
 
       for (Integer i = 0; i < processes; ++i)
       {
-        madara::KnowledgeRecord temp ("device.");
+        madara::knowledge::KnowledgeRecord temp ("device.");
         temp += i;
         members.push_back (temp.to_string ());
       }
@@ -338,7 +338,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     "gams::algorithms::FormationSync::constructor:" \
     " Generating plan\n");
 
-  madara::KnowledgeRecord temp ("device.");
+  madara::knowledge::KnowledgeRecord temp ("device.");
   temp += self_->id.to_string ();
 
   position_ = this->get_position_in_member_list (temp.to_string (), members_);

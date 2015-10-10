@@ -51,7 +51,7 @@
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::DebugAlgorithmFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,

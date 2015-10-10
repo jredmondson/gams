@@ -96,7 +96,7 @@ namespace gams
        * @param   swarm_size size of the swarm
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
-        const madara::KnowledgeRecord::Integer& swarm_size = 1);
+        const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
       
       /**
        * Initializes variable containers
@@ -104,7 +104,7 @@ namespace gams
        * @param   swarm_size size of the swarm
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const madara::KnowledgeRecord::Integer& swarm_size = 1);
+        const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
 
       /// the current command given to the swarm
       madara::knowledge::containers::String command;
@@ -135,7 +135,7 @@ namespace gams
        * Variable setup
        * @param  swarm_size   number of participating devices
        */
-      void init_vars (const madara::KnowledgeRecord::Integer& swarm_size);
+      void init_vars (const madara::knowledge::KnowledgeRecord::Integer& swarm_size);
     };
     
     /**
@@ -146,7 +146,7 @@ namespace gams
       **/
     GAMSExport void init_vars (Swarm & variables,
       madara::knowledge::KnowledgeBase & knowledge,
-        const madara::KnowledgeRecord::Integer& swarm_size = 1);
+        const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
     
     /**
       * Initializes a swarm container
@@ -156,7 +156,7 @@ namespace gams
       **/
     GAMSExport void init_vars (Swarm & variables,
       madara::knowledge::Variables & knowledge,
-        const madara::KnowledgeRecord::Integer& swarm_size = 1);
+        const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
   }
 }
 

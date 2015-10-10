@@ -76,7 +76,7 @@ const string gams::platforms::VREPSummit::DEFAULT_SUMMIT_MODEL (
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPSummitFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,

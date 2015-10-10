@@ -261,7 +261,7 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
 algorithms::BaseAlgorithm *
 algorithms::ControllerAlgorithmFactory::create (
   const std::string & type,
-  const madara::KnowledgeVector & args)
+  const madara::knowledge::KnowledgeVector & args)
 {
   algorithms::BaseAlgorithm * result = 0;
 

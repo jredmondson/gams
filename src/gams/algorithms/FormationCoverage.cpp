@@ -69,7 +69,7 @@ using std::endl;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationCoverageFactory::create (
-  const madara::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -89,9 +89,9 @@ gams::algorithms::FormationCoverageFactory::create (
     bool error = false;
 
     // create arg types
-    madara::KnowledgeRecord::Integer target;
+    madara::knowledge::KnowledgeRecord::Integer target;
     std::vector<double> offset;
-    std::vector<madara::KnowledgeRecord::Integer> members;
+    std::vector<madara::knowledge::KnowledgeRecord::Integer> members;
     std::string modifier ("default");
     std::string coverage;
 
@@ -172,7 +172,7 @@ gams::algorithms::FormationCoverageFactory::create (
      "gams::algorithms::FormationCoverageFactory:" \
      " coverage arg is %s\n", coverage.c_str ());
 
-    madara::KnowledgeVector cover_args;
+    madara::knowledge::KnowledgeVector cover_args;
     for(size_t i = 5; i < args.size(); ++i)
     {
       cover_args.push_back (args[i]);
@@ -200,12 +200,12 @@ gams::algorithms::FormationCoverageFactory::create (
 }
 
 gams::algorithms::FormationCoverage::FormationCoverage (
-  const madara::KnowledgeRecord::Integer & head_id,
+  const madara::knowledge::KnowledgeRecord::Integer & head_id,
   const std::vector<double> & offset,
-  const std::vector<madara::KnowledgeRecord::Integer> & members,
+  const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
   const std::string & modifier,
   const std::string & coverage,
-  const madara::KnowledgeVector & cover_args,
+  const madara::knowledge::KnowledgeVector & cover_args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,

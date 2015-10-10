@@ -92,7 +92,7 @@ namespace gams
        * @return  the new platform
        **/
       virtual BasePlatform * create (
-        const madara::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeVector & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,

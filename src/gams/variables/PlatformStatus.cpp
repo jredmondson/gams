@@ -49,7 +49,7 @@
 
 using std::string;
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::variables::PlatformStatus::PlatformStatus ()
 {

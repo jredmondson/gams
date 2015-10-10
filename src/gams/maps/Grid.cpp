@@ -45,7 +45,7 @@
  **/
 #include "Grid.h"
 
-typedef  madara::KnowledgeRecord::Integer  Integer;
+typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
 gams::variables::Grid::Grid ()

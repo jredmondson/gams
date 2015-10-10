@@ -104,7 +104,7 @@ madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
-typedef madara::KnowledgeRecord Record;
+typedef madara::knowledge::KnowledgeRecord Record;
 typedef Record::Integer Integer;
 
 // controller variables

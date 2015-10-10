@@ -85,10 +85,10 @@ namespace gams
        * @param  self           self-referencing variables
        **/
       FormationFlying (
-        const madara::KnowledgeRecord::Integer & head_id,
+        const madara::knowledge::KnowledgeRecord::Integer & head_id,
         const std::vector<double> & offset,
         const std::vector<double> & destination,
-        const std::vector<madara::KnowledgeRecord::Integer> & members,
+        const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
         const std::string & modifier,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
@@ -230,7 +230,7 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual BaseAlgorithm * create (
-        const madara::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeVector & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,
