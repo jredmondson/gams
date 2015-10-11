@@ -5,8 +5,8 @@
 #include <jni.h>
 #include "gams/GAMSExport.h"
 
-GAMSExport jint JNICALL JNIOnLoad (JavaVM * vm, void * reserved);
-GAMSExport void JNICALL JNIOnUnload (JavaVM * vm, void * reserved);
+GAMSExport jint JNICALL JNI_OnLoad (JavaVM * vm, void * reserved);
+GAMSExport void JNICALL JNI_OnUnload (JavaVM * vm, void * reserved);
 
 GAMSExport bool gams_jni_is_attached ();
 GAMSExport JNIEnv * gams_jni_get_env ();
