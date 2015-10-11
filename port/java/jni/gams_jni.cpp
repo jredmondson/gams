@@ -12,7 +12,7 @@ namespace loggers = gams::loggers;
 static jobject gams_class_loader;
 
 
-jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
+jint JNICALL JNI_OnLoad (JavaVM* vm, void* /*reserved*/)
 {
   JNIEnv * env;
   if (vm->GetEnv ( (void**)&env, JNI_VERSION_1_6) != JNI_OK)
@@ -32,7 +32,7 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MINOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Retrieving current thread context\n");
 
   jclass thread_class = env->FindClass ("java/lang/Thread");
@@ -45,7 +45,7 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MINOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Retrieving class loader for current thread\n");
 
   jobject thread = env->CallStaticObjectMethod (thread_class, current_thread);
@@ -56,7 +56,7 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
   {
     madara_logger_ptr_log (loggers::global_logger.get (),
       loggers::LOG_MAJOR,
-      "Gams:JNIOnLoad: "
+      "Gams:JNI_OnLoad: "
       "SUCCESS: Class loader found. Storing reference.\n");
 
     gams_class_loader = env->NewGlobalRef (class_loader);
@@ -65,13 +65,13 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
   {
     madara_logger_ptr_log (loggers::global_logger.get (),
       loggers::LOG_ERROR,
-      "Gams:JNIOnLoad: "
+      "Gams:JNI_OnLoad: "
       "ERROR: No class loader found.\n");
   }
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MINOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Clearing any exceptions\n");
 
   /**
@@ -85,7 +85,7 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MINOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Creating handle to findClass\n");
 
   jmethodID find_class = env->GetMethodID (cl_class, "findClass",
@@ -93,7 +93,7 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MINOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Attempting to call class loader\n");
 
   jclass kr_class = (jclass)env->CallObjectMethod (
@@ -106,20 +106,20 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
     env->ExceptionClear ();
     madara_logger_ptr_log (loggers::global_logger.get (),
       loggers::LOG_ERROR,
-      "Gams:JNIOnLoad: "
+      "Gams:JNI_OnLoad: "
       "Class loader call failed for com.madara.KnowledgeRecord\n");
   }
   else
   {
     madara_logger_ptr_log (loggers::global_logger.get (),
       loggers::LOG_MAJOR,
-      "Gams:JNIOnLoad: "
+      "Gams:JNI_OnLoad: "
       "Class loader call succeeded\n");
   }
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MINOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Cleaning up local references\n");
 
 
@@ -131,13 +131,13 @@ jint JNICALL JNIOnLoad (JavaVM* vm, void* /*reserved*/)
 
   madara_logger_ptr_log (loggers::global_logger.get (),
     loggers::LOG_MAJOR,
-    "Gams:JNIOnLoad: "
+    "Gams:JNI_OnLoad: "
     "Leaving OnLoad\n");
 
   return env->GetVersion ();
 }
 
-void JNICALL JNIOnUnload (JavaVM* vm, void* /*reserved*/)
+void JNICALL JNI_OnUnload (JavaVM* vm, void* /*reserved*/)
 {
   JNIEnv * env;
   vm->GetEnv ( (void**)&env, JNI_VERSION_1_6);
