@@ -111,7 +111,7 @@ variables::Devices * devices)
 
         ++i;
       }
-      if (args[i] == "interval" && i + 1 < args.size ())
+      else if (args[i] == "interval" && i + 1 < args.size ())
       {
         interval = args[i + 1].to_double ();
 
@@ -171,7 +171,7 @@ gams::algorithms::GroupBarrier::GroupBarrier (
   BaseAlgorithm (knowledge, platform, sensors, self),
   members_ (members)
 {
-  status_.init_vars (*knowledge, "formation_sync", self->id.to_integer ());
+  status_.init_vars (*knowledge, "barrier", self->id.to_integer ());
   status_.init_variable_values ();
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
