@@ -67,7 +67,7 @@ using madara::knowledge::containers::Double;
 const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
   "" : // if GAMS_ROOT is not defined, then just leave this as empty string
-  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/QuadricopterNoCamera.ttm")
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
   );
 
 const double gams::platforms::VREP_UAV::TargetMover::RATE (30.0);
