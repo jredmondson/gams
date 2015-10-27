@@ -362,7 +362,7 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
       if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
         simx_opmode_oneshot_wait) != simx_error_noerror)
       {
-        cerr << "failure loading border model" << endl;
+        cerr << "failure loading border model:" << model_file << endl;
         exit (-1);
       }
   
@@ -390,10 +390,12 @@ water_fix (const int& client_id,
 
   // load object
   int node_id;
-  if (simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
-    simx_opmode_oneshot_wait) != simx_error_noerror)
+  int error_num;
+  if ((error_num = simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
+    simx_opmode_oneshot_wait)) != simx_error_noerror)
   {
-    cerr << "failure loading floor model" << endl;
+    cerr << "failure loading floor model: " << water_file
+         << " (" << error_num << ")" << endl;
     exit (-1);
   }
 
@@ -499,10 +501,13 @@ void create_environment (const int& client_id,
 
     // load object
     int node_id;
-    if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
-      simx_opmode_oneshot_wait) != simx_error_noerror)
+    int error_num;
+    cerr << "Loading surface " << i << endl;
+    if ((error_num = simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
+      simx_opmode_oneshot_wait)) != simx_error_noerror)
     {
-      cerr << "failure loading surface model" << endl;
+      cerr << "failure loading surface model: " << model_file
+           << " (" << error_num << ")" << endl;
       exit (0);
     }
 

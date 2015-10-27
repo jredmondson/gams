@@ -3,6 +3,7 @@
 
 #if __cplusplus >= 201103L || (MSC_VER >= 1600) 
 // If C++11 support is active
+#define CPP11
 #else
 // If C++11 support is not active
 
