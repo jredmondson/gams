@@ -88,11 +88,7 @@ namespace gams
         std::input_iterator_tag, typename map_iterator::value_type >
       {
       public:
-        //typedef std::iterator<
-           //std::input_iterator_tag, typename map_iterator::value_type >
-             //base_iterator;
         typedef typename my_iterator::value_type value_type;
-        //typedef typename base_iterator::value_type value_type;
       private:
         my_iterator() : parent_(NULL), cache_valid_(0) {}
 

@@ -91,7 +91,8 @@ variables::Devices * devices)
     std::string formation = "line";
     double buffer = 0.00001;
 
-    utility::ArgumentParser argp(args);
+    utility::ArgumentParser argp(self_->device.command.get_name() + ".",
+                                 *knowledge_, args);
 
     for(utility::ArgumentParser::const_iterator i = argp.begin();
          i != argp.end(); i.next())
