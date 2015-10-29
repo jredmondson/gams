@@ -56,6 +56,7 @@
 #include "gams/algorithms/FormationFlying.h"
 #include "gams/algorithms/FormationCoverage.h"
 #include "gams/algorithms/FormationSync.h"
+#include "gams/algorithms/ZoneCoverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/MessageProfiling.h"
@@ -263,6 +264,13 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
   aliases[0] = "barrier";
 
   add (aliases, new GroupBarrierFactory ());
+
+  // zone coverage
+  aliases.resize (1);
+  aliases[0] = "zone coverage";
+
+  add (aliases, new ZoneCoverageFactory ());
+
 }
 
 algorithms::BaseAlgorithm *

@@ -190,6 +190,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         madara::logger::global_logger->add_file (argv[i + 1]);
+        gams::loggers::global_logger->add_file (argv[i + 1]);
       }
       else
         print_usage (argv[0]);

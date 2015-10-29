@@ -74,6 +74,12 @@ namespace gams
     /**
     * An algorithm for covering an area in formation with a synchronous
     * model of computation. Allows specification of arbitrary group or swarm.
+    *
+    * Supports the following formation types, with the following names:
+    *
+    * "line": protectors arrange themselves in a line perpendicular to line
+    *   connecting enemy to asset, and parallel to the ground; supports only
+    *   one enemy and one asset (only first in each group will be used)
     **/
     class GAMSExport ZoneCoverage : public BaseAlgorithm
     {
@@ -81,12 +87,21 @@ namespace gams
 
       /**
        * Constructor
+       * @param  protectors   name of group of protecting agents
+       * @param  assets       name of group of agents to protect
+       * @param  enemies      name of group of attacking agents
+       * @param  formation    name of formation
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
       ZoneCoverage (
+        const std::string &protectors,
+        const std::string &assets,
+        const std::string &enemies,
+        const std::string &formation,
+        double buffer,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -122,6 +137,42 @@ namespace gams
       virtual int plan (void);
       
     protected:
+      std::string protector_group_;
+      std::string asset_group_;
+      std::string enemy_group_;
+
+      madara::knowledge::containers::StringVector protectors_;
+      madara::knowledge::containers::StringVector assets_;
+      madara::knowledge::containers::StringVector enemies_;
+      std::string formation_;
+      double buffer_;
+
+      int index_;
+
+      typedef utility::GPSPosition (ZoneCoverage::*formation_func)() const;
+
+      formation_func form_func_;
+
+      utility::GPSPosition line_formation() const;
+
+      static formation_func get_form_func(const std::string &form_name);
+
+      typedef std::vector<madara::knowledge::containers::NativeDoubleArray> MadaraArrayVec;
+
+      MadaraArrayVec asset_loc_cont_;
+      MadaraArrayVec enemy_loc_cont_;
+
+      std::vector<utility::GPSPosition> asset_locs_;
+      std::vector<utility::GPSPosition> enemy_locs_;
+      utility::GPSPosition next_loc_;
+
+    private:
+      madara::knowledge::containers::StringVector get_group(const std::string &name) const;
+      void update_arrays(const madara::knowledge::containers::StringVector &names,
+                         MadaraArrayVec &arrays) const;
+      void update_locs(const MadaraArrayVec &arrays,
+                       std::vector<utility::GPSPosition> &locs) const;
+      int get_index() const;
     };
     
     /**

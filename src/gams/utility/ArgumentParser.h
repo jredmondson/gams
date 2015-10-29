@@ -82,14 +82,21 @@ namespace gams
       ArgumentParser(const madara::knowledge::KnowledgeVector &kvec)
         : prefix_(""), kmap_(), kvec_(&kvec) {}
 
-      class const_iterator : public std::iterator<
-        std::input_iterator_tag,
-        madara::knowledge::KnowledgeMap::const_iterator::value_type >
+    private:
+      template<class map_iterator, class vec_iterator>
+      class my_iterator : public std::iterator<
+        std::input_iterator_tag, typename map_iterator::value_type >
       {
+      public:
+        //typedef std::iterator<
+           //std::input_iterator_tag, typename map_iterator::value_type >
+             //base_iterator;
+        typedef typename my_iterator::value_type value_type;
+        //typedef typename base_iterator::value_type value_type;
       private:
-        const_iterator() : parent_(NULL), cache_valid_(0) {}
+        my_iterator() : parent_(NULL), cache_valid_(0) {}
 
-        const_iterator(const ArgumentParser &parent)
+        my_iterator(const ArgumentParser &parent)
           : parent_(&parent), map_i_(parent_->kmap_.begin()), cache_valid_(0)
         {
           if(parent_->kvec_ != NULL)
@@ -104,8 +111,8 @@ namespace gams
         mutable bool cache_valid_;
 
         const ArgumentParser *parent_;
-        madara::knowledge::KnowledgeMap::const_iterator map_i_;
-        madara::knowledge::KnowledgeVector::const_iterator vec_i_;
+        map_iterator map_i_;
+        vec_iterator vec_i_;
 
       public:
         bool map_at_end() const
@@ -125,7 +132,7 @@ namespace gams
                  (map_at_end() && vec_at_end());
         }
 
-        bool operator==(const const_iterator &o) const
+        bool operator==(const my_iterator &o) const
         {
           bool ae1 = at_end(), ae2 = o.at_end();
           if(ae1 || ae2)
@@ -137,7 +144,7 @@ namespace gams
                      vec_i_ == o.vec_i_);
         }
 
-        bool operator!=(const const_iterator &o) const
+        bool operator!=(const my_iterator &o) const
         {
           return !(*this == o);
         }
@@ -157,7 +164,7 @@ namespace gams
             return vec_i_->to_string();
         }
 
-        const madara::knowledge::KnowledgeRecord &value() const
+        typename value_type::second_type value() const
         {
           if(!map_at_end())
             return map_i_->second;
@@ -217,15 +224,15 @@ namespace gams
           return *ret;
         }
 
-        const_iterator &operator++()
+        my_iterator &operator++()
         {
           next();
           return *this;
         }
 
-        const_iterator operator++(int)
+        my_iterator operator++(int)
         {
-          const_iterator ret(*this);
+          my_iterator<map_iterator, vec_iterator> ret(*this);
           next();
           return ret;
         }
@@ -235,13 +242,19 @@ namespace gams
           return &operator*();
         }
 
-        ~const_iterator()
+        ~my_iterator()
         {
           clear_cache();
         }
 
         friend class ArgumentParser;
       };
+    public:
+      typedef my_iterator<madara::knowledge::KnowledgeMap::iterator,
+            madara::knowledge::KnowledgeVector::iterator> iterator;
+
+      typedef my_iterator<madara::knowledge::KnowledgeMap::const_iterator,
+            madara::knowledge::KnowledgeVector::const_iterator> const_iterator;
 
       const_iterator begin() const
       {
