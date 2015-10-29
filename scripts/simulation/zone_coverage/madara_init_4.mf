@@ -1,0 +1,19 @@
+.vrep_port=19910;
+
+.initial_lat=40.443131;
+.initial_lon=-79.940470;
+.initial_alt=4;
+
+group.assets.size=1;
+group.assets.0="device.0";
+group.protectors.size=4;
+group.protectors.0="device.1";
+group.protectors.1="device.3";
+group.protectors.2="device.4";
+group.protectors.3="device.5";
+group.enemies.size=1;
+group.enemies.0="device.2";
+
+device.4.command="zone coverage";
+device.4.command.size=0;
+device.4.command.formation="line";
