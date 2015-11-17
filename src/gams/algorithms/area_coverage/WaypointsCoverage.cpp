@@ -62,7 +62,7 @@ gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
   
@@ -121,8 +121,8 @@ gams::algorithms::area_coverage::WaypointsCoverage::WaypointsCoverage (
   const std::vector<utility::Position>& waypoints,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices),
+  variables::Self * self, variables::Agents * agents) :
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents),
   waypoints_(waypoints), cur_waypoint_ (0)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

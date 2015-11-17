@@ -144,7 +144,7 @@ namespace gams
        *                    controller in init_vars.
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
-       * @param   devices   the list of devices, which is dictated by
+       * @param   agents   the list of agents, which is dictated by
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
@@ -154,7 +154,7 @@ namespace gams
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,
         variables::Self * self,
-        variables::Devices * devices);
+        variables::Agents * agents);
     };
   }
 }

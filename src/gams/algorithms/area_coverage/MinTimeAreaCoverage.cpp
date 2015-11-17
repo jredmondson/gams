@@ -76,11 +76,11 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self && agents)
   {
     if (args.size () >= 1)
     {
@@ -93,7 +93,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
             result = new area_coverage::MinTimeAreaCoverage (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self, agents);
           }
           else
           {
@@ -108,7 +108,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
           result = new area_coverage::MinTimeAreaCoverage (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self, agents);
         }
       }
       else
@@ -132,7 +132,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
        "gams::algorithms::MinTimeAreaCoverageFactory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+      " invalid knowledge, sensors, self, or agents parameters\n");
   }
 
   if (result == 0)
@@ -151,9 +151,9 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
   const string& search_id, const ACE_Time_Value& e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices,
+  variables::Self * self, variables::Agents * agents,
   const string& algo_name) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices, e_time),
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
   min_time_ (search_id + "." + algo_name, knowledge)
 {
   // init status vars
@@ -232,7 +232,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze ()
 
   // mark current position as seen
   utility::GPSPosition current;
-  current.from_container (self_->device.location);
+  current.from_container (self_->agent.location);
   /**
    * However, we do need to communicate when we reset a time value for out
    * current location. Note that due to lack of synchronization, this value 
@@ -257,7 +257,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
   double max_util = -DBL_MAX;
   std::set<utility::Position> online;
   utility::GPSPosition current;
-  current.from_container (self_->device.location);
+  current.from_container (self_->agent.location);
   next_position_ = current;
   utility::Position cur_index = min_time_.get_index_from_gps (current);
   for (std::set<utility::Position>::const_iterator it = valid_positions_.begin ();
@@ -269,7 +269,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
     {
       max_util = util;
       next_position_ = min_time_.get_gps_from_index (*it);
-      next_position_.altitude (self_->device.desired_altitude.to_double ());
+      next_position_.altitude (self_->agent.desired_altitude.to_double ());
       online.swap (cur_online);
     }
   }

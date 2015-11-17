@@ -4,6 +4,6 @@
 .initial_y=15;
 .initial_alt=4;
 
-device.8.command="pmtac";
-device.8.command.size=1;
-device.8.command.0="search_area.2";
+agent.8.command="pmtac";
+agent.8.command.size=1;
+agent.8.command.0="search_area.2";

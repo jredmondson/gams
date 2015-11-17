@@ -4,7 +4,7 @@
 .initial_y=5;
 .initial_alt=3;
 
-device.1.command="follow";
-device.1.command.size=2;
-device.1.command.0=0;
-device.1.command.1=3;
+agent.1.command="follow";
+agent.1.command.size=2;
+agent.1.command.0=0;
+agent.1.command.1=3;

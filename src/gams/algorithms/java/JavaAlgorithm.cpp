@@ -101,7 +101,7 @@ gams::algorithms::JavaAlgorithmFactory::create (
   platforms::BasePlatform * /*platform*/,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   // Acquire the Java virtual machine
   gams::utility::java::Acquire_VM jvm;
@@ -166,7 +166,7 @@ gams::algorithms::JavaAlgorithmFactory::create (
         "gams::algorithms::JavaAlgorithmFactory::create:"
         " Creating Java algorithm instance for controller.\n");
 
-      result = new JavaAlgorithm (obj, knowledge, 0, sensors, self, devices);
+      result = new JavaAlgorithm (obj, knowledge, 0, sensors, self, agents);
 
       jvm.env->DeleteLocalRef (obj);
       jvm.env->DeleteLocalRef (filter_class);
@@ -194,8 +194,8 @@ gams::algorithms::JavaAlgorithm::JavaAlgorithm (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
-  : BaseAlgorithm (knowledge, platform, sensors, self, devices)
+  variables::Agents * agents)
+  : BaseAlgorithm (knowledge, platform, sensors, self, agents)
 {
   gams::utility::java::Acquire_VM jvm;
 

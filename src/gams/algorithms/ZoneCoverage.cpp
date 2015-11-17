@@ -74,7 +74,7 @@ madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
 variables::Self * self,
-variables::Devices * devices)
+variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
 
@@ -91,7 +91,7 @@ variables::Devices * devices)
     std::string formation = "line";
     double buffer = 0.00001;
 
-    utility::ArgumentParser argp(self_->device.command.get_name() + ".",
+    utility::ArgumentParser argp(self_->agent.command.get_name() + ".",
                                  *knowledge_, args);
 
     for(utility::ArgumentParser::const_iterator i = argp.begin();
@@ -247,7 +247,7 @@ int
 gams::algorithms::ZoneCoverage::get_index() const
 {
   std::stringstream to_find;
-  to_find << "device." << self_->id.to_integer();
+  to_find << "agent." << self_->id.to_integer();
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
     "gams::algorithms::ZoneCoverage::get_index:" \

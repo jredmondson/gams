@@ -81,7 +81,7 @@ gams::utility::Position *
 gams::platforms::BasePlatform::get_position ()
 {
   utility::Position * position = new utility::Position ();
-  position->from_container (self_->device.location);
+  position->from_container (self_->agent.location);
   return position;
 }
 
@@ -132,11 +132,11 @@ int
 gams::platforms::BasePlatform::home (void)
 {
   // check if home has been set
-  if (self_->device.home.size () == 3)
+  if (self_->agent.home.size () == 3)
   {
     // read the home position
     utility::GPSPosition position;
-    position.from_container (self_->device.home);
+    position.from_container (self_->agent.home);
 
     // move to home
     move (position);
@@ -152,7 +152,7 @@ gams::platforms::BasePlatform::move (const utility::Position & target,
   int result = 0;
 
   utility::GPSPosition current;
-  current.from_container (self_->device.location);
+  current.from_container (self_->agent.location);
 
   /**
    * if we are not paused, we are not already at the target,
@@ -161,10 +161,10 @@ gams::platforms::BasePlatform::move (const utility::Position & target,
    * moving and return 1 (moving to the new location)
    **/
   if (!*status_.paused_moving && target != current &&
-     (!*status_.moving || target != self_->device.dest))
+     (!*status_.moving || target != self_->agent.dest))
   {
-    self_->device.source = self_->device.location;
-    target.to_container (self_->device.dest);
+    self_->agent.source = self_->agent.location;
+    target.to_container (self_->agent.dest);
 
     result = 1;
     status_.moving = 1;
@@ -243,8 +243,8 @@ gams::platforms::BasePlatform::stop_move (void)
   status_.paused_moving = 0;
 
   // set source and dest to current position
-  self_->device.source = self_->device.location;
-  self_->device.dest = self_->device.location;
+  self_->agent.source = self_->agent.location;
+  self_->agent.dest = self_->agent.location;
 }
 
 madara::knowledge::KnowledgeBase *

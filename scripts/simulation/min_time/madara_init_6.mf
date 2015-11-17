@@ -4,6 +4,6 @@
 .initial_y=17;
 .initial_alt=4;
 
-device.6.command="min time";
-device.6.command.size=1;
-device.6.command.0="search_area.1";
+agent.6.command="min time";
+agent.6.command.size=1;
+agent.6.command.0="search_area.1";

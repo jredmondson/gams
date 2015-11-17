@@ -4,13 +4,13 @@
 .initial_y=25;
 .initial_alt=6;
 
-device.4.command="formation coverage";
-device.4.command.size=6;
-device.4.command.0=4;
-device.4.command.1=[0, 0, 0];
-device.4.command.2=[4, 5, 6, 7, 8, 9, 10];
-device.4.command.3="default";
-device.4.command.4="urec";
-device.4.command.5="region.0";
+agent.4.command="formation coverage";
+agent.4.command.size=6;
+agent.4.command.0=4;
+agent.4.command.1=[0, 0, 0];
+agent.4.command.2=[4, 5, 6, 7, 8, 9, 10];
+agent.4.command.3="default";
+agent.4.command.4="urec";
+agent.4.command.5="region.0";
 
 .platform="vrep-uav";

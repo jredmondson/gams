@@ -117,7 +117,7 @@ string
 gams::variables::AlgorithmStatus::make_variable_prefix () const
 {
   std::stringstream buffer;
-  buffer << "device." << id << ".algorithm.";
+  buffer << "agent." << id << ".algorithm.";
   buffer << name;
 
   return buffer.str ();

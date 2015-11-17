@@ -160,7 +160,7 @@ gams::platforms::VREPSummit::VREPSummit (
     status_ = (*platforms)[get_id ()];
   }
 
-  self_->device.desired_altitude = 0.05;
+  self_->agent.desired_altitude = 0.05;
   add_model_to_environment (file, client_side);
   set_initial_position ();
   get_target_handle ();

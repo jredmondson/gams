@@ -1,4 +1,4 @@
-device.0.command="move";
-device.0.command.size=0;
-//device.0.command.0="pwrac";
-//device.0.command.1="search_area.2";
+agent.0.command="move";
+agent.0.command.size=0;
+//agent.0.command.0="pwrac";
+//agent.0.command.1="search_area.2";

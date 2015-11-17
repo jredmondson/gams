@@ -111,8 +111,8 @@ gams::controllers::MapeLoop::init_vars (
   const Integer & id,
   const Integer & processes)
 {
-  // initialize the devices, swarm, and self variables
-  variables::init_vars (devices_, knowledge_, processes);
+  // initialize the agents, swarm, and self variables
+  variables::init_vars (agents_, knowledge_, processes);
   swarm_.init_vars (knowledge);
   self_.init_vars (knowledge, id);
 }

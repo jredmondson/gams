@@ -73,11 +73,11 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self && agents)
   {
     if (args.size () >= 1)
     {
@@ -90,7 +90,7 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
             result = new area_coverage::PerimeterPatrol (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self, agents);
           }
           else
           {
@@ -105,7 +105,7 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
           result = new area_coverage::PerimeterPatrol (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self, agents);
         }
       }
       else
@@ -129,7 +129,7 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
        "gams::algorithms::PerimeterPatrolFactory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+      " invalid knowledge, sensors, self, or agents parameters\n");
   }
 
   if (result == 0)
@@ -151,8 +151,8 @@ gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
   const string& region_id, const ACE_Time_Value& e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices, e_time)
+  variables::Self * self, variables::Agents * agents) :
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time)
 {
   // initialize some status variables
   status_.init_vars (*knowledge, "ppac", self->id.to_integer ());
@@ -167,7 +167,7 @@ gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
   // find closest waypoint as starting point
   size_t closest = 0;
   utility::GPSPosition current;
-  current.from_container (self_->device.location);
+  current.from_container (self_->agent.location);
   double min_distance = current.distance_to (vertices[0]);
   for (size_t i = 1; i < vertices.size (); ++i)
   {
@@ -193,7 +193,7 @@ gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
       utility::GPSPosition temp (
         start.latitude () - lat_dif * j / NUM_INTERMEDIATE_PTS,
         start.longitude () - lon_dif * j / NUM_INTERMEDIATE_PTS,
-        self_->device.desired_altitude.to_double ());
+        self_->agent.desired_altitude.to_double ());
       waypoints_.push_back (temp);
     }
   }

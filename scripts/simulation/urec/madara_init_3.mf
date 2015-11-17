@@ -4,6 +4,6 @@
 .initial_y=22;
 .initial_alt=4;
 
-device.3.command="urec";
-device.3.command.size=1;
-device.3.command.0="region.0";
+agent.3.command="urec";
+agent.3.command.size=1;
+agent.3.command.0="region.0";

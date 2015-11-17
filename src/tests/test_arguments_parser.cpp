@@ -3,6 +3,7 @@
 #include <gams/CPP11_compat.h>
 #include <gams/utility/ArgumentParser.h>
 
+namespace knowledge = madara::knowledge;
 using namespace gams::utility;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
@@ -36,9 +37,9 @@ double round_nearest(double in)
 
 int main(int argc, char *argv[])
 {
-  madara::knowledge::KnowledgeBase kbase;
+  knowledge::KnowledgeBase kbase;
   kbase.set("not_args.asdf", "shouldn't appear");
-  kbase.set("args.size", long(2));
+  kbase.set("args.size", knowledge::KnowledgeRecord::Integer (2));
   kbase.set("args.0", "aname");
   kbase.set("args.1", "a val");
   kbase.set("args.2", "bname");
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
   kbase.set("args.cname", "c val");
   kbase.set("args.dname", "d val");
 
-  madara::knowledge::KnowledgeVector kvec;
+  knowledge::KnowledgeVector kvec;
 
   kbase.to_vector("args.", 0, 3, kvec);
 

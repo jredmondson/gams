@@ -4,9 +4,9 @@
 .initial_y=5;
 .initial_alt=4;
 
-device.6.command="formation";
-device.6.command.size=4;
-device.6.command.0=0;
-device.6.command.1="4,0.785,-0.5";
-device.6.command.2="40.443387,-79.940270,2";
-device.6.command.3="10,0,1,2,3,4,5,6,7,8,9";
+agent.6.command="formation";
+agent.6.command.size=4;
+agent.6.command.0=0;
+agent.6.command.1="4,0.785,-0.5";
+agent.6.command.2="40.443387,-79.940270,2";
+agent.6.command.3="10,0,1,2,3,4,5,6,7,8,9";

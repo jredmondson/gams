@@ -94,7 +94,7 @@ namespace gams
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
-       * @param   prefix     the prefix of the accents (e.g. swarm/device)
+       * @param   prefix     the prefix of the accents (e.g. swarm/agent)
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
         const std::string & prefix);
@@ -102,7 +102,7 @@ namespace gams
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
-       * @param   prefix     the prefix of the accents (e.g. swarm/device)
+       * @param   prefix     the prefix of the accents (e.g. swarm/agent)
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & prefix);
@@ -129,7 +129,7 @@ namespace gams
       * Initializes accent status containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
-      * @param   prefix     the prefix of the accents (e.g. swarm/device)
+      * @param   prefix     the prefix of the accents (e.g. swarm/agent)
       **/
     GAMSExport void init_vars (AccentStatuses & variables,
       madara::knowledge::KnowledgeBase & knowledge,
@@ -139,7 +139,7 @@ namespace gams
       * Initializes accent status containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
-      * @param   prefix     the prefix of the accents (e.g. swarm/device)
+      * @param   prefix     the prefix of the accents (e.g. swarm/agent)
       **/
     GAMSExport void init_vars (AccentStatuses & variables,
       madara::knowledge::Variables & knowledge,

@@ -75,11 +75,11 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self && agents)
   {
     if (args.size () >= 1)
     {
@@ -92,7 +92,7 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverageFactory::create (
             result = new area_coverage::PrioritizedMinTimeAreaCoverage (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self, agents);
           }
           else
           {
@@ -107,7 +107,7 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverageFactory::create (
           result = new area_coverage::PrioritizedMinTimeAreaCoverage (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self, agents);
         }
       }
       else
@@ -131,7 +131,7 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverageFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
        "gams::algorithms::PrioritizedMinTimeAreaCoverageFactory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+      " invalid knowledge, sensors, self, or agents parameters\n");
   }
 
   if (result == 0)
@@ -151,9 +151,9 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverage::
   const ACE_Time_Value& e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices,
+  variables::Self * self, variables::Agents * agents,
   const string& algo_name) :
-  MinTimeAreaCoverage (search_id, e_time, knowledge, platform, sensors, self, devices, algo_name)
+  MinTimeAreaCoverage (search_id, e_time, knowledge, platform, sensors, self, agents, algo_name)
 {
 }
 

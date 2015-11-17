@@ -58,7 +58,7 @@
 #include "gams/variables/PlatformStatus.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Device.h"
+#include "gams/variables/Agent.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
@@ -88,8 +88,8 @@ namespace gams
        * @param  knowledge    the knowledge base of variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables for this device
-       * @param  devices      list of devices in the swarm
+       * @param  self         self-referencing variables for this agent
+       * @param  agents      list of agents in the swarm
        * @return  the new algorithm
        **/
       virtual BaseAlgorithm * create (
@@ -98,13 +98,13 @@ namespace gams
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,
         variables::Self * self,
-        variables::Devices * devices) = 0;
+        variables::Agents * agents) = 0;
       
       /**
-       * Sets list of devices participating in swarm
-       * @param  devices    devices in the swarm
+       * Sets list of agents participating in swarm
+       * @param  agents    agents in the swarm
        **/
-      void set_devices (variables::Devices * devices);
+      void set_agents (variables::Agents * agents);
       
       /**
        * Sets the knowledge base
@@ -135,8 +135,8 @@ namespace gams
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;
 
-      /// list of devices participating in the swarm
-      variables::Devices * devices_;
+      /// list of agents participating in the swarm
+      variables::Agents * agents_;
 
       /// platform variables
       platforms::BasePlatform * platform_;

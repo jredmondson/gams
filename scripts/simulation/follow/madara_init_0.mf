@@ -4,6 +4,6 @@
 .initial_y=10;
 .initial_alt=3;
 
-device.0.command="ppac";
-device.0.command.size=1;
-device.0.command.0="region.0";
+agent.0.command="ppac";
+agent.0.command.size=1;
+agent.0.command.0="region.0";

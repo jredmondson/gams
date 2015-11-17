@@ -70,7 +70,7 @@ gams::algorithms::FollowFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
 
@@ -105,7 +105,7 @@ gams::algorithms::Follow::Follow (
   status_.init_variable_values ();
 
   stringstream location_string;
-  location_string << "device." << id.to_integer () << ".location";
+  location_string << "agent." << id.to_integer () << ".location";
   target_location_.set_name (location_string.str (), *knowledge, 3);
 }
 

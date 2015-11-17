@@ -75,7 +75,7 @@ madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
 variables::Self * self,
-variables::Devices * devices)
+variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
 
@@ -143,11 +143,11 @@ variables::Devices * devices)
         "gams::algorithms::GroupBarrier::constructor:" \
         " No group specified. Using swarm.\n");
 
-      Integer processes = (Integer)devices->size ();
+      Integer processes = (Integer)agents->size ();
 
       for (Integer i = 0; i < processes; ++i)
       {
-        madara::knowledge::KnowledgeRecord temp ("device.");
+        madara::knowledge::KnowledgeRecord temp ("agent.");
         temp += i;
         members.push_back (temp.to_string ());
       }
@@ -181,7 +181,7 @@ gams::algorithms::GroupBarrier::GroupBarrier (
     " barrier=%s\n",
     barrier_name.c_str ());
 
-  madara::knowledge::KnowledgeRecord temp ("device.");
+  madara::knowledge::KnowledgeRecord temp ("agent.");
   temp += self_->id.to_string ();
 
   position_ = this->get_position_in_member_list (temp.to_string (), members_);
@@ -202,7 +202,7 @@ gams::algorithms::GroupBarrier::GroupBarrier (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::GroupBarrier::constructor:" \
-      " device.%d does not have a position in group algorithm." \
+      " agent.%d does not have a position in group algorithm." \
       " Unable to participate in barrier.\n",
       (int)self_->id.to_integer ());
   }
@@ -292,7 +292,7 @@ gams::algorithms::GroupBarrier::analyze (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::GroupBarrier::analyze:" \
-      " device.%d does not have a position in group algorithm." \
+      " agent.%d does not have a position in group algorithm." \
       " Nothing to analyze.\n",
       (int)self_->id.to_integer ());
   }

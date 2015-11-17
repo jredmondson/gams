@@ -74,7 +74,7 @@ madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
 variables::Self * self,
-variables::Devices * devices)
+variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
 
@@ -252,11 +252,11 @@ variables::Devices * devices)
         "gams::algorithms::FormationSync::constructor:" \
         " No group specified. Using swarm.\n");
 
-      Integer processes = (Integer)devices->size ();
+      Integer processes = (Integer)agents->size ();
 
       for (Integer i = 0; i < processes; ++i)
       {
-        madara::knowledge::KnowledgeRecord temp ("device.");
+        madara::knowledge::KnowledgeRecord temp ("agent.");
         temp += i;
         members.push_back (temp.to_string ());
       }
@@ -307,7 +307,7 @@ gams::algorithms::FormationSync::FormationSync (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::FormationSync::constructor:" \
-      " device.%d does not have a position in group algorithm." \
+      " agent.%d does not have a position in group algorithm." \
       " Unable to participate in barrier.\n",
       (int)self_->id.to_integer ());
 
@@ -322,7 +322,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     "gams::algorithms::FormationSync::constructor:" \
     " Generating plan\n");
 
-  madara::knowledge::KnowledgeRecord temp ("device.");
+  madara::knowledge::KnowledgeRecord temp ("agent.");
   temp += self_->id.to_string ();
 
   position_ = this->get_position_in_member_list (temp.to_string (), members_);
@@ -374,7 +374,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
   // a cartesian movement offset
   utility::Position movement;
 
-  // the initial position for this specific device
+  // the initial position for this specific agent
   utility::GPSPosition init;
   utility::GPSPosition position_end;
 
@@ -428,11 +428,11 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       }
     }
 
-    // the initial position for this specific device
+    // the initial position for this specific agent
     init = start_.to_gps_position (
       movement, start_);
 
-    // the ending position for this specific device
+    // the ending position for this specific agent
     position_end = end_.to_gps_position (
       movement, end_);
 
@@ -444,15 +444,15 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       "gams::algorithms::FormationSync::constructor:" \
       " Formation type is PYRAMID\n");
 
-    // the initial position where the first two moves will be for this device
+    // the initial position where the first two moves will be for this agent
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
 
-    // the initial position for this specific device
+    // the initial position for this specific agent
     init = start_.to_gps_position (
       movement, start_);
 
-    // the ending position for this specific device
+    // the ending position for this specific agent
     position_end = end_.to_gps_position (
       movement, end_);
 
@@ -478,7 +478,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     column = position_ % (int)num_rows;
     row = position_ / (int)num_rows;
 
-    // the initial position where the first two moves will be for this device
+    // the initial position where the first two moves will be for this agent
     if (row % 2 == 0)
     {
       movement.x = column * latitude_move * 2;
@@ -489,11 +489,11 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     }
     movement.y = row * longitude_move;
 
-    // the initial position for this specific device
+    // the initial position for this specific agent
     init = start_.to_gps_position (
       movement, start_);
 
-    // the ending position for this specific device
+    // the ending position for this specific agent
     position_end = end_.to_gps_position (
       movement, end_);
 
@@ -505,15 +505,15 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       "gams::algorithms::FormationSync::constructor:" \
       " Formation type is CIRCLE\n");
 
-    // the initial position where the first two moves will be for this device
+    // the initial position where the first two moves will be for this agent
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
 
-    // the initial position for this specific device
+    // the initial position for this specific agent
     init = start_.to_gps_position (
       movement, start_);
 
-    // the ending position for this specific device
+    // the ending position for this specific agent
     position_end = end_.to_gps_position (
       movement, end_);
 
@@ -636,15 +636,15 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       }
     }
 
-    // the initial position where the first two moves will be for this device
+    // the initial position where the first two moves will be for this agent
     movement.x = col * latitude_move * 2;
     movement.y = row * longitude_move * 2;
 
-    // the initial position for this specific device
+    // the initial position for this specific agent
     init = start_.to_gps_position (
       movement, start_);
 
-    // the ending position for this specific device
+    // the ending position for this specific agent
     position_end = end_.to_gps_position (
       movement, end_);
   }
@@ -656,15 +656,15 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       "gams::algorithms::FormationSync::constructor:" \
       " Formation type is LINE\n");
 
-    // the initial position where the first two moves will be for this device
+    // the initial position where the first two moves will be for this agent
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
 
-    // the initial position for this specific device
+    // the initial position for this specific agent
     init = start_.to_gps_position (
       movement, start_);
 
-    // the ending position for this specific device
+    // the ending position for this specific agent
     position_end = end_.to_gps_position (
       movement, end_);
   }
@@ -805,7 +805,7 @@ gams::algorithms::FormationSync::analyze (void)
         position_, round, (int)plan_.size ());
 
       utility::GPSPosition current;
-      current.from_container (self_->device.location);
+      current.from_container (self_->agent.location);
 
       // for some reason, we have divergent functions for distance equality
       if (plan_[round].approximately_equal (current, platform_->get_accuracy ()))
@@ -827,7 +827,7 @@ gams::algorithms::FormationSync::analyze (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::FormationSync::analyze:" \
-      " device.%d does not have a position in group algorithm." \
+      " agent.%d does not have a position in group algorithm." \
       " Nothing to analyze.\n",
       (int)self_->id.to_integer ());
   }
@@ -879,7 +879,7 @@ gams::algorithms::FormationSync::execute (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::FormationSync::execute:" \
-      " device.%d does not have a position in group algorithm." \
+      " agent.%d does not have a position in group algorithm." \
       " Nothing to execute.\n",
       (int)self_->id.to_integer ());
   }

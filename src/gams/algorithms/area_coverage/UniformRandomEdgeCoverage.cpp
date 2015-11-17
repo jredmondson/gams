@@ -54,7 +54,7 @@ gams::algorithms::area_coverage::UniformRandomEdgeCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
   
@@ -149,8 +149,8 @@ UniformRandomEdgeCoverage::UniformRandomEdgeCoverage (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices, e_time)
+  variables::Agents * agents) :
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
@@ -246,5 +246,5 @@ gams::algorithms::area_coverage::UniformRandomEdgeCoverage::generate_new_positio
   }
 
   // fill in altitude on waypoint
-  next_position_.altitude (self_->device.desired_altitude.to_double ());
+  next_position_.altitude (self_->agent.desired_altitude.to_double ());
 }

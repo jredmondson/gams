@@ -57,7 +57,7 @@
 #include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "Device.h"
+#include "Agent.h"
 
 namespace gams
 {
@@ -81,9 +81,9 @@ namespace gams
 
       /**
        * Assignment operator
-       * @param  device   device to copy
+       * @param  agent   agent to copy
        **/
-      void operator= (const Self & device);
+      void operator= (const Self & agent);
 
       /**
        * Initializes variable containers
@@ -101,11 +101,11 @@ namespace gams
       void init_vars (madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer & id);
 
-      /// the id of this device
+      /// the id of this agent
       madara::knowledge::containers::Integer id;
       
-      /// the device-specific variables
-      Device device;
+      /// the agent-specific variables
+      Agent agent;
     };
     
     /**

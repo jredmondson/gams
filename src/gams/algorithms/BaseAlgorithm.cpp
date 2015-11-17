@@ -55,8 +55,8 @@ gams::algorithms::BaseAlgorithm::BaseAlgorithm (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
-  : devices_ (devices), executions_ (0), knowledge_ (knowledge),
+  variables::Agents * agents)
+  : agents_ (agents), executions_ (0), knowledge_ (knowledge),
     platform_ (platform), self_ (self), sensors_ (sensors)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -83,9 +83,9 @@ gams::algorithms::BaseAlgorithm::operator= (const BaseAlgorithm & rhs)
 }
 
 void
-gams::algorithms::BaseAlgorithm::set_devices (variables::Devices * devices)
+gams::algorithms::BaseAlgorithm::set_agents (variables::Agents * agents)
 {
-  devices_ = devices;
+  agents_ = agents;
 }
 
 void
@@ -106,10 +106,10 @@ gams::algorithms::BaseAlgorithm::set_sensors (variables::Sensors * sensors)
   sensors_ = sensors;
 }
 
-variables::Devices *
-gams::algorithms::BaseAlgorithm::get_devices (void)
+variables::Agents *
+gams::algorithms::BaseAlgorithm::get_agents (void)
 {
-  return devices_;
+  return agents_;
 }
 
 madara::knowledge::KnowledgeBase *

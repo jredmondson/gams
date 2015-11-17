@@ -82,7 +82,7 @@ namespace gams
        * @param  knowledge  knowledge base
        * @param  sensors    map of sensor names to sensor information
        * @param  platforms  map of platform names to platform information
-       * @param  self       device variables that describe self state
+       * @param  self       agent variables that describe self state
        **/
       JavaPlatform (
         jobject obj,
@@ -132,7 +132,7 @@ namespace gams
       virtual std::string get_name () const;
 
       /**
-       * Instructs the device to return home
+       * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int home (void);

@@ -60,9 +60,9 @@ gams::algorithms::area_coverage::BaseAreaCoverage::BaseAreaCoverage (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices,
+  variables::Agents * agents,
   const ACE_Time_Value& e_time) :
-  BaseAlgorithm (knowledge, platform, sensors, self, devices), 
+  BaseAlgorithm (knowledge, platform, sensors, self, agents), 
   exec_time_ (e_time), end_time_(ACE_OS::gettimeofday () + e_time)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

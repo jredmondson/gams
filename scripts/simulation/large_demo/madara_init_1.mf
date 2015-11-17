@@ -3,8 +3,8 @@
 .initial_x=20;
 .initial_y=0;
 
-device.1.command="urec";
-device.1.command.size=1;
-device.1.command.0="region.0";
+agent.1.command="urec";
+agent.1.command.size=1;
+agent.1.command.0="region.0";
 
 .platform="vrep-boat";

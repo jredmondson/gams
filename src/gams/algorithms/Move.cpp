@@ -64,7 +64,7 @@ gams::algorithms::MoveFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
@@ -87,7 +87,7 @@ gams::algorithms::MoveFactory::create (
               target.z = targ[2];
           }
         }
-        result = new Move (target, knowledge, platform, sensors, self, devices);
+        result = new Move (target, knowledge, platform, sensors, self, agents);
       }
       else
       {
@@ -105,8 +105,8 @@ gams::algorithms::MoveFactory::create (
 gams::algorithms::Move::Move (const utility::Position & target, 
   madara::knowledge::KnowledgeBase * knowledge, 
   platforms::BasePlatform * platform, variables::Sensors * sensors, 
-  variables::Self * self, variables::Devices * devices) :
-  BaseAlgorithm (knowledge, platform, sensors, self, devices), 
+  variables::Self * self, variables::Agents * agents) :
+  BaseAlgorithm (knowledge, platform, sensors, self, agents), 
   end_time_(0.0), max_execution_time_(0), max_executions_(0), mode_(TARGET), 
   target_ (target), type_("target")
 {

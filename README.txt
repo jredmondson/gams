@@ -4,7 +4,7 @@ The Group Autonomy for Mobile Systems (GAMS) project at Carnegie Mellon Universi
 is intended to provide a distributed operating environment for control of unmanned
 autonomous systems (UAS). The repository is composed of C++, Java, MADARA, and some
 LUA bindings that enable a single person to control and understand information from
-a swarm of devices, robots, or UAS.
+a swarm of agents, robots, or UAS.
 
 GAMS is an extension of an earlier project called SMASH.
 

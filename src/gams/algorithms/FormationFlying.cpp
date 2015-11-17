@@ -70,7 +70,7 @@ gams::algorithms::FormationFlyingFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
 
@@ -241,11 +241,11 @@ gams::algorithms::FormationFlying::FormationFlying (
   formation_ready_.set_name (formation_ready_str.str (), *knowledge);
 
   stringstream head_location_str;
-  head_location_str << "device." << head_id << ".location";
+  head_location_str << "agent." << head_id << ".location";
   head_location_.set_name (head_location_str.str (), *knowledge, 3);
 
   stringstream head_destination_str;
-  head_destination_str << "device." << head_id << ".destination";
+  head_destination_str << "agent." << head_id << ".destination";
   string dest_str = head_destination_str.str ();
   head_destination_.set_name(dest_str, *knowledge, 3);
 
@@ -395,7 +395,7 @@ gams::algorithms::FormationFlying::analyze (void)
       start.direction_to (get_destination (), phi_dir_);
 
       utility::GPSPosition location;
-      location.from_container (self_->device.location);
+      location.from_container (self_->agent.location);
 
       // check if in formation
       if (location.approximately_equal (next_position_,
@@ -537,7 +537,7 @@ gams::algorithms::FormationFlying::plan (void)
           // TODO: tune the movement parameter
           if (dist > platform_->get_move_speed () * 1.5)
           {
-            // predict where the reference device will be
+            // predict where the reference agent will be
             dist = 1;
             utility::Position direction (
               dist * cos (phi_dir_), dist * sin (phi_dir_));

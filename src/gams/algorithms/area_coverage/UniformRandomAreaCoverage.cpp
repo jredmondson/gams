@@ -55,11 +55,11 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self && agents)
   {
     if (args.size () >= 1)
     {
@@ -72,7 +72,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
             result = new area_coverage::UniformRandomAreaCoverage (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self, agents);
           }
           else
           {
@@ -87,7 +87,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
           result = new area_coverage::UniformRandomAreaCoverage (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self, agents);
         }
       }
       else
@@ -111,7 +111,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
        "gams::algorithms::UniformRandomAreaCoverageFactory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+      " invalid knowledge, sensors, self, or agents parameters\n");
   }
 
   if (result == 0)
@@ -133,8 +133,8 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices, e_time)
+  variables::Agents * agents) :
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time)
 {
   // init status vars
   status_.init_vars (*knowledge, "urac", self->id.to_integer ());
@@ -189,6 +189,6 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::
 
   // found an acceptable position, so set it as next
   utility::GPSPosition current;
-  current.from_container (self_->device.location);
+  current.from_container (self_->agent.location);
   next_position_.altitude (current.altitude ()); // TODO: update when altitude is handled
 }

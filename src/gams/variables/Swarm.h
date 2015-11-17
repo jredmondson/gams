@@ -86,9 +86,9 @@ namespace gams
 
       /**
        * Assignment operator
-       * @param  device   device to copy
+       * @param  agent   agent to copy
        **/
-      void operator= (const Swarm & device);
+      void operator= (const Swarm & agent);
 
       /**
        * Initializes variable containers
@@ -133,7 +133,7 @@ namespace gams
 
       /**
        * Variable setup
-       * @param  swarm_size   number of participating devices
+       * @param  swarm_size   number of participating agents
        */
       void init_vars (const madara::knowledge::KnowledgeRecord::Integer& swarm_size);
     };

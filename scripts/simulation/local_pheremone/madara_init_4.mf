@@ -4,6 +4,6 @@
 .initial_y=20;
 .initial_alt=4;
 
-device.4.command="local pheremone";
-device.4.command.size=1;
-device.4.command.0="search_area.1";
+agent.4.command="local pheremone";
+agent.4.command.size=1;
+agent.4.command.0="search_area.1";

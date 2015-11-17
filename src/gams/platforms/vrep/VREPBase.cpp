@@ -184,7 +184,7 @@ gams::platforms::VREPBase::sense (void)
     position.latitude (), position.longitude (), position.altitude ());
 
   // set position in madara
-  position.to_container (self_->device.location);
+  position.to_container (self_->agent.location);
 
   return 0;
 }

@@ -60,7 +60,7 @@ gams::algorithms::WaitFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
   

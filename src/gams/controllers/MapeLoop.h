@@ -56,7 +56,7 @@
 #define   _GAMS_LOOP_H_
 
 #include "gams/GAMSExport.h"
-#include "gams/variables/Device.h"
+#include "gams/variables/Agent.h"
 #include "gams/variables/Swarm.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
@@ -156,8 +156,8 @@ namespace gams
 
     protected:
 
-      /// Containers for device-related variables
-      variables::Devices devices_;
+      /// Containers for agent-related variables
+      variables::Agents agents_;
 
       /// knowledge base
       madara::knowledge::KnowledgeBase & knowledge_;

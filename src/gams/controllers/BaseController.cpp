@@ -71,7 +71,7 @@ typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 gams::controllers::BaseController::BaseController (
   madara::knowledge::KnowledgeBase & knowledge)
   : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
-  algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &devices_),
+  algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &agents_),
   platform_factory_ (&knowledge, &sensors_, &platforms_, 0)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -151,38 +151,38 @@ gams::controllers::BaseController::system_analyze (void)
   //bool error (false);
 
   /**
-   * Note that certain device variables like command are kept local only.
-   * @see gams::variables::Device::init_vars
+   * Note that certain agent variables like command are kept local only.
+   * @see gams::variables::Agent::init_vars
    * @see gams::variables::Swarm::init_vars
    **/
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::system_analyze:" \
-    " checking device and swarm commands\n");
+    " checking agent and swarm commands\n");
 
-  if (self_.device.command != "")
+  if (self_.agent.command != "")
   {
     madara::knowledge::KnowledgeVector args;
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Processing device command\n");
+      " Processing agent command\n");
 
     // check for args
-    self_.device.command_args.resize ();
-    self_.device.command_args.copy_to (args);
+    self_.agent.command_args.resize ();
+    self_.agent.command_args.copy_to (args);
 
-    init_algorithm (self_.device.command.to_string (), args);
+    init_algorithm (self_.agent.command.to_string (), args);
 
-    self_.device.last_command = self_.device.command.to_string ();
-    self_.device.last_command_args.resize (0);
-    self_.device.command_args.transfer_to (self_.device.last_command_args);
+    self_.agent.last_command = self_.agent.command.to_string ();
+    self_.agent.last_command_args.resize (0);
+    self_.agent.command_args.transfer_to (self_.agent.last_command_args);
 
     // reset the command
-    self_.device.command = "";
-    self_.device.command_args.resize (0);
+    self_.agent.command = "";
+    self_.agent.command_args.resize (0);
   }
   else if (swarm_.command != "")
   {
@@ -199,35 +199,35 @@ gams::controllers::BaseController::system_analyze (void)
 
     init_algorithm (swarm_.command.to_string (), args);
 
-    self_.device.last_command = swarm_.command.to_string ();
-    self_.device.last_command_args.resize (0);
-    swarm_.command_args.transfer_to (self_.device.last_command_args);
+    self_.agent.last_command = swarm_.command.to_string ();
+    self_.agent.last_command_args.resize (0);
+    swarm_.command_args.transfer_to (self_.agent.last_command_args);
 
     // reset the command
     swarm_.command = "";
     swarm_.command_args.resize (0);
   }
 
-  if (self_.device.madara_debug_level !=
+  if (self_.agent.madara_debug_level !=
     (Integer)madara::logger::global_logger->get_level ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Settings MADARA debug level to %d\n", (int)*self_.device.madara_debug_level);
+      " Settings MADARA debug level to %d\n", (int)*self_.agent.madara_debug_level);
 
-    madara::logger::global_logger->set_level ((int)*self_.device.madara_debug_level);
+    madara::logger::global_logger->set_level ((int)*self_.agent.madara_debug_level);
   }
 
-  if (self_.device.gams_debug_level !=
+  if (self_.agent.gams_debug_level !=
     (Integer)gams::loggers::global_logger->get_level ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Settings GAMS debug level to %d\n", (int)*self_.device.gams_debug_level);
+      " Settings GAMS debug level to %d\n", (int)*self_.agent.gams_debug_level);
 
-    gams::loggers::global_logger->set_level ((int)*self_.device.gams_debug_level);
+    gams::loggers::global_logger->set_level ((int)*self_.agent.gams_debug_level);
   }
 
   return return_value;
@@ -484,8 +484,8 @@ gams::controllers::BaseController::run (double loop_period,
   double loop_hz = 1.0 / loop_period;
   double send_hz = 1.0 / send_period;
 
-  self_.device.loop_hz = loop_hz;
-  self_.device.send_hz = send_hz;
+  self_.agent.loop_hz = loop_hz;
+  self_.agent.send_hz = send_hz;
 
   // if user specified non-positive, then we are to use loop_period
   if (send_period <= 0)
@@ -564,15 +564,15 @@ gams::controllers::BaseController::run (double loop_period,
 
       // if send herz difference is more than .001 hz different, change epoch
       if (!madara::utility::approx_equal (
-        send_hz, self_.device.send_hz.to_double (), 0.001))
+        send_hz, self_.agent.send_hz.to_double (), 0.001))
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "gams::controllers::BaseController::run:" \
           " Changing send hertz from %.2f to %.2f\n", send_hz,
-          self_.device.send_hz.to_double ());
+          self_.agent.send_hz.to_double ());
 
-        send_hz = self_.device.send_hz.to_double ();
+        send_hz = self_.agent.send_hz.to_double ();
         send_period = 1 / send_hz;
         send_poll_frequency.set (send_period);
         send_next_epoch = current + send_poll_frequency;
@@ -580,15 +580,15 @@ gams::controllers::BaseController::run (double loop_period,
 
       // if loop herz difference is more than .001 hz different, change epoch
       if (!madara::utility::approx_equal (
-        loop_hz, self_.device.loop_hz.to_double (), 0.001))
+        loop_hz, self_.agent.loop_hz.to_double (), 0.001))
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "gams::controllers::BaseController::run:" \
           " Changing loop hertz from %.2f to %.2f\n", loop_hz,
-          self_.device.loop_hz.to_double ());
+          self_.agent.loop_hz.to_double ());
 
-        loop_hz = self_.device.loop_hz.to_double ();
+        loop_hz = self_.agent.loop_hz.to_double ();
         loop_period = 1 / loop_hz;
         poll_frequency.set (loop_period);
         next_epoch = current + poll_frequency;
@@ -609,7 +609,7 @@ gams::controllers::BaseController::run (double loop_period,
         next_epoch = current + poll_frequency;
 
         // update container so others know we are changing rate
-        self_.device.loop_hz = loop_hz;
+        self_.agent.loop_hz = loop_hz;
       }
     }
   }
@@ -638,7 +638,7 @@ const madara::knowledge::KnowledgeVector & args)
     // create new accent pointer and algorithm factory
     algorithms::BaseAlgorithm * new_accent (0);
     algorithms::ControllerAlgorithmFactory factory (&knowledge_, &sensors_,
-      platform_, &self_, &devices_);
+      platform_, &self_, &agents_);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -706,7 +706,7 @@ const std::string & algorithm, const madara::knowledge::KnowledgeVector & args)
 
     delete algorithm_;
     algorithms::ControllerAlgorithmFactory factory (&knowledge_, &sensors_,
-      platform_, &self_, &devices_);
+      platform_, &self_, &agents_);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -982,8 +982,8 @@ const Integer & processes)
     "gams::controllers::BaseController::init_vars:" \
     " %" PRId64 " id, %" PRId64 " processes\n", id, processes);
 
-  // initialize the devices, swarm, and self variables
-  variables::init_vars (devices_, knowledge_, processes);
+  // initialize the agents, swarm, and self variables
+  variables::init_vars (agents_, knowledge_, processes);
   swarm_.init_vars (knowledge_, processes);
   self_.init_vars (knowledge_, id);
 }
@@ -1010,7 +1010,7 @@ gams::controllers::BaseController::init_vars (algorithms::BaseAlgorithm & algori
     "gams::controllers::BaseController::init_vars:" \
     " initializing algorithm's vars\n");
 
-  algorithm.devices_ = &devices_;
+  algorithm.agents_ = &agents_;
   algorithm.knowledge_ = &knowledge_;
   algorithm.platform_ = platform_;
   algorithm.self_ = &self_;

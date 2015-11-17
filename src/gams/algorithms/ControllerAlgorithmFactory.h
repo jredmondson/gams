@@ -59,7 +59,7 @@
 #include "gams/variables/PlatformStatus.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
-#include "gams/variables/Device.h"
+#include "gams/variables/Agent.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "AlgorithmFactory.h"
 
@@ -81,14 +81,14 @@ namespace gams
        * @param  sensors    variables for all sensors
        * @param  platform   the current platform
        * @param  self       self-referencing variables
-       * @param  devices    devices of the swarm
+       * @param  agents    agents of the swarm
        **/
       ControllerAlgorithmFactory (
         madara::knowledge::KnowledgeBase * knowledge = 0,
         variables::Sensors * sensors = 0,
         platforms::BasePlatform * platform = 0,
         variables::Self * self = 0,
-        variables::Devices * devices = 0);
+        variables::Agents * agents = 0);
 
       /**
        * Destructor
@@ -115,10 +115,10 @@ namespace gams
         const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
       
       /**
-       * Sets list of devices participating in swarm
-       * @param  devices    devices in the swarm
+       * Sets list of agents participating in swarm
+       * @param  agents    agents in the swarm
        **/
-      void set_devices (variables::Devices * devices);
+      void set_agents (variables::Agents * agents);
       
       /**
        * Sets the knowledge base
@@ -151,8 +151,8 @@ namespace gams
 
     protected:
 
-      /// list of devices participating in the swarm
-      variables::Devices * devices_;
+      /// list of agents participating in the swarm
+      variables::Agents * agents_;
 
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;

@@ -88,8 +88,8 @@ algorithms::ControllerAlgorithmFactory::ControllerAlgorithmFactory (
   variables::Sensors * sensors,
   platforms::BasePlatform * platform,
   variables::Self * self,
-  variables::Devices * devices)
-: devices_ (devices), knowledge_ (knowledge), platform_ (platform),
+  variables::Agents * agents)
+: agents_ (agents), knowledge_ (knowledge), platform_ (platform),
   self_ (self), sensors_ (sensors)
 {
   initialize_default_mappings ();
@@ -109,7 +109,7 @@ algorithms::ControllerAlgorithmFactory::add (
     std::string alias (aliases[i]);
     madara::utility::lower (alias);
 
-    factory->set_devices (devices_);
+    factory->set_agents (agents_);
     factory->set_knowledge (knowledge_);
     factory->set_platform (platform_);
     factory->set_self (self_);
@@ -293,7 +293,7 @@ algorithms::ControllerAlgorithmFactory::create (
     if (it != factory_map_.end ())
     {
       result = it->second->create (args, knowledge_, platform_,
-        sensors_, self_, devices_);
+        sensors_, self_, agents_);
     }
     else
     {
@@ -309,10 +309,10 @@ algorithms::ControllerAlgorithmFactory::create (
 }
 
 void
-algorithms::ControllerAlgorithmFactory::set_devices (
-  variables::Devices * devices)
+algorithms::ControllerAlgorithmFactory::set_agents (
+  variables::Agents * agents)
 {
-  devices_ = devices;
+  agents_ = agents;
 }
 
 void
