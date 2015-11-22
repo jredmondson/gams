@@ -49,43 +49,43 @@ package com.gams.variables;
 import java.util.AbstractList;
 
 /**
- * Devices provides a read-only interface for devices
+ * Agents provides a read-only interface for agents
  */
-public class Devices extends AbstractList<Device>
+public class Agents extends AbstractList<Agent>
 {
-  private native void jni_freeDevices(long[] records, int length);
+  private native void jni_freeAgents(long[] records, int length);
 
-  private long[] devices;
+  private long[] agents;
 
   /**
    * Constructor
-   * @param input list of C pointers to the underlying devices
+   * @param input list of C pointers to the underlying agents
    **/
-  public Devices(long[] input)
+  public Agents(long[] input)
   {
-    devices = input;
+    agents = input;
   }
 
   /**
-   * Gets the device at the specified index
+   * Gets the agent at the specified index
    * @see java.util.AbstractList#get (int)
-   * @param index the element of the device list to retrieve
+   * @param index the element of the agent list to retrieve
    */
   @Override
-  public Device get(int index)
+  public Agent get(int index)
   {
-    return Device.fromPointer(devices[index]);
+    return Agent.fromPointer(agents[index]);
   }
 
   /**
-   * Returns the size of the device list
+   * Returns the size of the agent list
    * @see java.util.AbstractCollection#size ()
-   * @return the size of the device list
+   * @return the size of the agent list
    */
   @Override
   public int size()
   {
-    return devices == null ? 0 : devices.length;
+    return agents == null ? 0 : agents.length;
   }
 
 
@@ -95,10 +95,10 @@ public class Devices extends AbstractList<Device>
    */
   public void free()
   {
-    if (devices == null)
+    if (agents == null)
       return;
-    jni_freeDevices(devices, devices.length);
-    devices = null;
+    jni_freeAgents(agents, agents.length);
+    agents = null;
   }
 }
 
