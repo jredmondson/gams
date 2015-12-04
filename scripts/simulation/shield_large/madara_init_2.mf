@@ -4,10 +4,10 @@
 .initial_y=5;
 .initial_alt=5;
 
-device.2.command="formation";
-device.2.command.size=5;
-device.2.command.0=0;
-device.2.command.1="2,1.57,0";
-device.2.command.2="40.443387,-79.940270,2";
-device.2.command.3="17,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
-device.2.command.4="rotate";
+agent.2.command="formation";
+agent.2.command.size=5;
+agent.2.command.0=0;
+agent.2.command.1="2,1.57,0";
+agent.2.command.2="40.443387,-79.940270,2";
+agent.2.command.3="17,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+agent.2.command.4="rotate";

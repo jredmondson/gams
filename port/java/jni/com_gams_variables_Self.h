@@ -58,10 +58,10 @@ GAMSExport jlong JNICALL Java_com_gams_variables_Self_jni_1getId
 
 /*
  * Class:     com_gams_variables_Self
- * Method:    jni_getDevice
+ * Method:    jni_getAgent
  * Signature: (J)J
  */
-GAMSExport jlong JNICALL Java_com_gams_variables_Self_jni_1getDevice
+GAMSExport jlong JNICALL Java_com_gams_variables_Self_jni_1getAgent
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus

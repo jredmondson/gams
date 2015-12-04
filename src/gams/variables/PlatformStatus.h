@@ -61,7 +61,7 @@
 #include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "gams/variables/Device.h"
+#include "gams/variables/Agent.h"
 
 namespace gams
 {
@@ -105,11 +105,11 @@ namespace gams
       void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & new_name);
 
-      /// the id of this device
+      /// the id of this agent
       std::string name;
       
-      /// the device-specific variables
-      //Device device;
+      /// the agent-specific variables
+      //Agent agent;
       
       /// status flag for number of communication channels available
       madara::knowledge::containers::Integer communication_available;

@@ -74,7 +74,7 @@ gams::algorithms::FormationCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
 
@@ -258,9 +258,9 @@ gams::algorithms::FormationCoverage::FormationCoverage (
         " created area_coverage algorithm \"%s\"\n",
         coverage.c_str ());
 
-      // TODO: works for now, but change this to use self_.devices.dest
+      // TODO: works for now, but change this to use self_.agents.dest
       stringstream head_destination_str;
-      head_destination_str << "device." << self->id.to_integer () << ".destination";
+      head_destination_str << "agent." << self->id.to_integer () << ".destination";
       string dest_str = head_destination_str.str ();
       head_destination_.set_name(dest_str, *knowledge, 3);
     }

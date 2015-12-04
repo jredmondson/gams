@@ -117,7 +117,7 @@ namespace gams
       virtual std::string get_name () const;
 
       /**
-       * Instructs the device to return home
+       * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int home (void);

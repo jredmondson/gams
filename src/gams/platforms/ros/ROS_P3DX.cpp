@@ -118,7 +118,7 @@ gams::platforms::ROS_P3DX::ROS_P3DX (
   set_initial_position(p);
 
   // probably not needed?
-  self_->device.desired_altitude = 0.05;
+  self_->agent.desired_altitude = 0.05;
 
   // start spinner for reading position from AMCL
   spinner_.start();
@@ -227,7 +227,7 @@ gams::platforms::ROS_P3DX::update_pose(const geometry_msgs::PoseWithCovarianceSt
   p.x = msg.pose.pose.position.x;
   p.y = msg.pose.pose.position.y;
   p.z = msg.pose.pose.position.z;
-  p.to_container (self_->device.location);
+  p.to_container (self_->agent.location);
 }
 
 #endif // _GAMS_ROS_

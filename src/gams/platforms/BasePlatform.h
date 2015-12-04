@@ -117,7 +117,7 @@ namespace gams
        * Constructor
        * @param  knowledge  context containing variables and values
        * @param  sensors  map of sensor names to sensor information
-       * @param  self     self referencing variables for the device
+       * @param  self     self referencing variables for the agent
        **/
       BasePlatform (
         madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -208,13 +208,13 @@ namespace gams
       virtual void get_sensor_names (variables::SensorNames & sensors) const;
 
       /**
-       * Instructs the device to return home
+       * Instructs the agent to return home
        * @return the status of the home operation, @see PlatformReturnValues
        **/
       virtual int home (void);
 
       /**
-       * Instructs the device to land
+       * Instructs the agent to land
        * @return the status of the land operation, @see PlatformReturnValues
        **/
       virtual int land (void);
@@ -308,7 +308,7 @@ namespace gams
       virtual void stop_move (void);
 
       /**
-       * Instructs the device to take off
+       * Instructs the agent to take off
        * @return the status of the takeoff, @see PlatformReturnValues
        **/
       virtual int takeoff (void);
@@ -321,7 +321,7 @@ namespace gams
 
       /**
        * Gets self-referencing variables
-       * @return self-referencing information like id and device attributes
+       * @return self-referencing information like id and agent attributes
        **/
       variables::Self * get_self (void) const;
 

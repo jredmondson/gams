@@ -61,7 +61,7 @@
 #include "gams/GAMSExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "Device.h"
+#include "Agent.h"
 
 
 namespace gams
@@ -94,7 +94,7 @@ namespace gams
        * Initializes variable containers
        * @param   knowledge  the knowledge base that houses the variables
        * @param   new_name   the name of the algorithm
-       * @param   i          the device id
+       * @param   i          the agent id
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
         const std::string & new_name, int i);
@@ -103,7 +103,7 @@ namespace gams
        * Initializes variable containers
        * @param   knowledge  the variable context
        * @param   new_name   the name of the algorithm
-       * @param   i          the device id
+       * @param   i          the agent id
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
         const std::string & new_name, int i);
@@ -113,14 +113,14 @@ namespace gams
        */
       void init_variable_values ();
 
-      /// the device id
+      /// the agent id
       int id;
 
       /// the name of the algorithm
       std::string name;
       
-      /// the device-specific variables
-      //Device device;
+      /// the agent-specific variables
+      //Agent agent;
       
       /// status flag for deadlocked
       madara::knowledge::containers::Integer deadlocked;

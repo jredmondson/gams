@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file Device.h
+ * @file Agent.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the device-prefixed MADARA variables
+ * This file contains the definition of the agent-prefixed MADARA variables
  **/
 
 #ifndef   _GAMS_VARIABLES_DEVICES_H_
@@ -71,26 +71,26 @@ namespace gams
   namespace variables
   {
     /**
-    * A container for device information
+    * A container for agent information
     **/
-    class GAMSExport Device
+    class GAMSExport Agent
     {
     public:
       /**
        * Constructor
        **/
-      Device ();
+      Agent ();
 
       /**
        * Destructor
        **/
-      ~Device ();
+      ~Agent ();
 
       /**
        * Assignment operator
-       * @param  device   device to copy
+       * @param  agent   agent to copy
        **/
-      void operator= (const Device & device);
+      void operator= (const Agent & agent);
 
       /**
        * Initializes variable containers
@@ -108,13 +108,13 @@ namespace gams
       void init_vars (madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& id);
       
-      /// the battery indicator for this device
+      /// the battery indicator for this agent
       madara::knowledge::containers::Integer battery_remaining;
 
-      /// indicator for whether or not the device is busy with a mission
+      /// indicator for whether or not the agent is busy with a mission
       madara::knowledge::containers::Integer bridge_id;
 
-      /// device specific command
+      /// agent specific command
       madara::knowledge::containers::String command;
 
       /// number of arguments for command
@@ -126,7 +126,7 @@ namespace gams
       /// Last command args
       madara::knowledge::containers::Vector last_command_args;
 
-      /// device specific command
+      /// agent specific command
       madara::knowledge::containers::String coverage_type;
 
       /// desired altitude in meters
@@ -141,16 +141,16 @@ namespace gams
       /// the home location
       madara::knowledge::containers::NativeDoubleArray home;
 
-      /// the mobility indicator for this device (true if mobile)
+      /// the mobility indicator for this agent (true if mobile)
       madara::knowledge::containers::Integer is_mobile;
 
-      /// the location, usually encoded in GPS, for this device
+      /// the location, usually encoded in GPS, for this agent
       madara::knowledge::containers::NativeDoubleArray location;
 
       /// the angle for this device
       madara::knowledge::containers::NativeDoubleArray angle;
       
-      /// the minimum altitude for this device
+      /// the minimum altitude for this agent
       madara::knowledge::containers::Double min_alt;
       
       /// indicator for next type of area coverage requested (queue like)
@@ -185,9 +185,9 @@ namespace gams
 
     protected:
       /**
-       * Create device/local device name
-       * @param id  id of device as string
-       * @return device variable name
+       * Create agent/local agent name
+       * @param id  id of agent as string
+       * @return agent variable name
        */
       static std::string make_variable_name (
         const madara::knowledge::KnowledgeRecord::Integer& id);
@@ -199,17 +199,17 @@ namespace gams
     };
 
     /**
-     * An array of devices
+     * An array of agents
      **/
-    typedef std::vector <Device>   Devices;
+    typedef std::vector <Agent>   Agents;
     
     /**
-      * Initializes device containers
+      * Initializes agent containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
-      * @param   processes  the number of processes in the device swarm
+      * @param   processes  the number of processes in the agent swarm
       **/
-    GAMSExport void init_vars (Devices & variables,
+    GAMSExport void init_vars (Agents & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer& processes);
   }

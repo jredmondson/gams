@@ -29,9 +29,9 @@ void test_defaults (void)
   self0.init_vars (knowledge, 0);
 
   variables::Sensors sensors;
-  variables::Devices devices;
+  variables::Agents agents;
 
-  variables::init_vars (devices, knowledge, 5);
+  variables::init_vars (agents, knowledge, 5);
 
   std::vector <double> start, end;
   start.push_back (40.437024);
@@ -54,15 +54,15 @@ void test_defaults (void)
 
   algorithms::FormationSyncFactory factory;
   algorithms::BaseAlgorithm * alg1 = factory.create (
-    args, &knowledge1, &platform1, &sensors, &self1, &devices);
+    args, &knowledge1, &platform1, &sensors, &self1, &agents);
   algorithms::BaseAlgorithm * alg2 = factory.create (
-    args, &knowledge2, &platform2, &sensors, &self2, &devices);
+    args, &knowledge2, &platform2, &sensors, &self2, &agents);
   algorithms::BaseAlgorithm * alg3 = factory.create (
-    args, &knowledge3, &platform3, &sensors, &self3, &devices);
+    args, &knowledge3, &platform3, &sensors, &self3, &agents);
   algorithms::BaseAlgorithm * alg4 = factory.create (
-    args, &knowledge4, &platform4, &sensors, &self4, &devices);
+    args, &knowledge4, &platform4, &sensors, &self4, &agents);
   algorithms::BaseAlgorithm * alg0 = factory.create (
-    args, &knowledge, &platform0, &sensors, &self0, &devices);
+    args, &knowledge, &platform0, &sensors, &self0, &agents);
 
   for (int i = 0; i < 24; ++i)
   {
@@ -116,9 +116,9 @@ void test_triangle (void)
   self0.init_vars (knowledge, 0);
 
   variables::Sensors sensors;
-  variables::Devices devices;
+  variables::Agents agents;
 
-  variables::init_vars (devices, knowledge, 5);
+  variables::init_vars (agents, knowledge, 5);
 
   std::vector <double> start, end;
   start.push_back (40.437024);
@@ -143,15 +143,15 @@ void test_triangle (void)
 
   algorithms::FormationSyncFactory factory;
   algorithms::BaseAlgorithm * alg1 = factory.create (
-    args, &knowledge1, &platform1, &sensors, &self1, &devices);
+    args, &knowledge1, &platform1, &sensors, &self1, &agents);
   algorithms::BaseAlgorithm * alg2 = factory.create (
-    args, &knowledge2, &platform2, &sensors, &self2, &devices);
+    args, &knowledge2, &platform2, &sensors, &self2, &agents);
   algorithms::BaseAlgorithm * alg3 = factory.create (
-    args, &knowledge3, &platform3, &sensors, &self3, &devices);
+    args, &knowledge3, &platform3, &sensors, &self3, &agents);
   algorithms::BaseAlgorithm * alg4 = factory.create (
-    args, &knowledge4, &platform4, &sensors, &self4, &devices);
+    args, &knowledge4, &platform4, &sensors, &self4, &agents);
   algorithms::BaseAlgorithm * alg0 = factory.create (
-    args, &knowledge, &platform0, &sensors, &self0, &devices);
+    args, &knowledge, &platform0, &sensors, &self0, &agents);
 
   for (int i = 0; i < 24; ++i)
   {
@@ -205,9 +205,9 @@ void test_rectangle (void)
   self0.init_vars (knowledge, 0);
 
   variables::Sensors sensors;
-  variables::Devices devices;
+  variables::Agents agents;
 
-  variables::init_vars (devices, knowledge, 5);
+  variables::init_vars (agents, knowledge, 5);
 
   std::vector <double> start, end;
   start.push_back (40.437024);
@@ -232,15 +232,15 @@ void test_rectangle (void)
 
   algorithms::FormationSyncFactory factory;
   algorithms::BaseAlgorithm * alg1 = factory.create (
-    args, &knowledge1, &platform1, &sensors, &self1, &devices);
+    args, &knowledge1, &platform1, &sensors, &self1, &agents);
   algorithms::BaseAlgorithm * alg2 = factory.create (
-    args, &knowledge2, &platform2, &sensors, &self2, &devices);
+    args, &knowledge2, &platform2, &sensors, &self2, &agents);
   algorithms::BaseAlgorithm * alg3 = factory.create (
-    args, &knowledge3, &platform3, &sensors, &self3, &devices);
+    args, &knowledge3, &platform3, &sensors, &self3, &agents);
   algorithms::BaseAlgorithm * alg4 = factory.create (
-    args, &knowledge4, &platform4, &sensors, &self4, &devices);
+    args, &knowledge4, &platform4, &sensors, &self4, &agents);
   algorithms::BaseAlgorithm * alg0 = factory.create (
-    args, &knowledge, &platform0, &sensors, &self0, &devices);
+    args, &knowledge, &platform0, &sensors, &self0, &agents);
 
   for (int i = 0; i < 24; ++i)
   {
@@ -292,25 +292,25 @@ void test_groups (void)
   containers::StringVector group3_4 ("group.3.members", knowledge4);
   containers::StringVector group3_0 ("group.3.members", knowledge0);
 
-  group3_0.push_back ("device.1");
-  group3_0.push_back ("device.3");
-  group3_0.push_back ("device.4");
+  group3_0.push_back ("agent.1");
+  group3_0.push_back ("agent.3");
+  group3_0.push_back ("agent.4");
 
-  group3_1.push_back ("device.1");
-  group3_1.push_back ("device.3");
-  group3_1.push_back ("device.4");
+  group3_1.push_back ("agent.1");
+  group3_1.push_back ("agent.3");
+  group3_1.push_back ("agent.4");
 
-  group3_2.push_back ("device.1");
-  group3_2.push_back ("device.3");
-  group3_2.push_back ("device.4");
+  group3_2.push_back ("agent.1");
+  group3_2.push_back ("agent.3");
+  group3_2.push_back ("agent.4");
 
-  group3_3.push_back ("device.1");
-  group3_3.push_back ("device.3");
-  group3_3.push_back ("device.4");
+  group3_3.push_back ("agent.1");
+  group3_3.push_back ("agent.3");
+  group3_3.push_back ("agent.4");
 
-  group3_4.push_back ("device.1");
-  group3_4.push_back ("device.3");
-  group3_4.push_back ("device.4");
+  group3_4.push_back ("agent.1");
+  group3_4.push_back ("agent.3");
+  group3_4.push_back ("agent.4");
 
   variables::Self self1, self2, self3, self4, self0;
   self1.init_vars (knowledge1, 1);
@@ -320,9 +320,9 @@ void test_groups (void)
   self0.init_vars (knowledge0, 0);
 
   variables::Sensors sensors;
-  variables::Devices devices;
+  variables::Agents agents;
 
-  variables::init_vars (devices, knowledge0, 5);
+  variables::init_vars (agents, knowledge0, 5);
 
   std::vector <double> start, end;
   start.push_back (40.437024);
@@ -347,13 +347,13 @@ void test_groups (void)
 
   algorithms::FormationSyncFactory factory;
   algorithms::BaseAlgorithm * alg1 = factory.create (
-    args, &knowledge1, &platform1, &sensors, &self1, &devices);
+    args, &knowledge1, &platform1, &sensors, &self1, &agents);
   algorithms::BaseAlgorithm * alg2 = factory.create (
-    args, &knowledge2, &platform2, &sensors, &self2, &devices);
+    args, &knowledge2, &platform2, &sensors, &self2, &agents);
   algorithms::BaseAlgorithm * alg3 = factory.create (
-    args, &knowledge3, &platform3, &sensors, &self3, &devices);
+    args, &knowledge3, &platform3, &sensors, &self3, &agents);
   algorithms::BaseAlgorithm * alg4 = factory.create (
-    args, &knowledge4, &platform4, &sensors, &self4, &devices);
+    args, &knowledge4, &platform4, &sensors, &self4, &agents);
 
   for (int i = 0; i < 24; ++i)
   {

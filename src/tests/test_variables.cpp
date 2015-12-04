@@ -91,9 +91,9 @@ test_accent ()
 
   engine::KnowledgeBase knowledge;
   variables::AccentStatus cur_accent;
-  cur_accent.init_vars (knowledge, "device");
+  cur_accent.init_vars (knowledge, "agent");
 
-  knowledge.print ("Check the following printout for device.accent vars.\n");
+  knowledge.print ("Check the following printout for agent.accent vars.\n");
   knowledge.print ();
   
   cur_accent.init_vars (knowledge, "swarm");

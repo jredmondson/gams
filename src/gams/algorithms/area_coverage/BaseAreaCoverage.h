@@ -74,8 +74,8 @@ namespace gams
          * @param  knowledge    the knowledge base of variables and values
          * @param  platform     the underlying platform the algorithm will use
          * @param  sensors      map of sensor names to sensor information
-         * @param  self         self-referencing variables of this device
-         * @param  devices      list of devices in the swarm
+         * @param  self         self-referencing variables of this agent
+         * @param  agents      list of agents in the swarm
          * @param  e_time    execution time
          **/
         BaseAreaCoverage (
@@ -83,7 +83,7 @@ namespace gams
           platforms::BasePlatform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
-          variables::Devices * devices = 0,
+          variables::Agents * agents = 0,
           const ACE_Time_Value& e_time = ACE_Time_Value(0.0));
   
         /**

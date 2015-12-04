@@ -4,10 +4,10 @@
 .initial_y=13;
 .initial_alt=4;
 
-device.3.command="formation";
-device.3.command.size=5;
-device.3.command.0=0;
-device.3.command.1="1.25,3.14,0";
-device.3.command.2="40.443387,-79.940270,2";
-device.3.command.3="9,0,1,2,3,4,5,6,7,8";
-device.3.command.4="rotate";
+agent.3.command="formation";
+agent.3.command.size=5;
+agent.3.command.0=0;
+agent.3.command.1="1.25,3.14,0";
+agent.3.command.2="40.443387,-79.940270,2";
+agent.3.command.3="9,0,1,2,3,4,5,6,7,8";
+agent.3.command.4="rotate";

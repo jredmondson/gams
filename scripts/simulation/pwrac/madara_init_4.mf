@@ -4,6 +4,6 @@
 .initial_y=16;
 .initial_alt=4;
 
-device.4.command="pwrac";
-device.4.command.size=1;
-device.4.command.0="search_area.2";
+agent.4.command="pwrac";
+agent.4.command.size=1;
+agent.4.command.0="search_area.2";

@@ -179,13 +179,13 @@ namespace gams
       /// center of formation end
       utility::GPSPosition end_;
 
-      /// members of the formation (e.g., device.0, device.1, etc.)
+      /// members of the formation (e.g., agent.0, agent.1, etc.)
       std::vector <std::string> members_;
 
       /// the buffer between cells in the formation
       double buffer_;
 
-      /// the planned positions of this device
+      /// the planned positions of this agent
       std::vector <utility::GPSPosition> plan_;
 
       /// the formation to use
@@ -227,7 +227,7 @@ namespace gams
        *                    controller in init_vars.
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
-       * @param   devices   the list of devices, which is dictated by
+       * @param   agents   the list of agents, which is dictated by
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
@@ -237,7 +237,7 @@ namespace gams
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,
         variables::Self * self,
-        variables::Devices * devices);
+        variables::Agents * agents);
     };
   }
 }

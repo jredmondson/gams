@@ -77,7 +77,7 @@ namespace gams
        * @param  knowledge  knowledge base
        * @param  sensors    map of sensor names to sensor information
        * @param  platforms  map of platform names to platform information
-       * @param  self       device variables that describe self state
+       * @param  self       agent variables that describe self state
        **/
       NullPlatform (
         madara::knowledge::KnowledgeBase * knowledge,
@@ -126,7 +126,7 @@ namespace gams
       virtual std::string get_name () const;
 
       /**
-       * Instructs the device to return home
+       * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int home (void);
@@ -179,7 +179,7 @@ namespace gams
        *                    controller in init_vars.
        * @param   sensors   the sensor info. This will be set by the
        *                    controller in init_vars.
-       * @param   platforms status inform for all known devices. This
+       * @param   platforms status inform for all known agents. This
        *                    will be set by the controller in init_vars
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars

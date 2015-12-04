@@ -237,7 +237,7 @@ gams::platforms::VREPBase::sense (void)
       " gps position: %f,%f,%f\n", loc.lat(), loc.lng(), loc.alt());
 
     // set position in madara
-    loc.to_container<utility::order::GPS> (self_->device.location);
+    loc.to_container<utility::order::GPS> (self_->agent.location);
   }
 
   return 0;
@@ -493,7 +493,7 @@ gams::platforms::VREPBase::set_initial_position ()
 
   utility::Location vrep_loc(get_vrep_frame(), pos);
   utility::Location gps_loc(get_frame(), vrep_loc);
-  gps_loc.to_container<utility::order::GPS>(self_->device.location);
+  gps_loc.to_container<utility::order::GPS>(self_->agent.location);
   //BasePlatform::move(vrep_loc);
 }
 
@@ -545,7 +545,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   // convert form input reference frame to vrep reference frame, if necessary
   utility::Location target(get_frame(), 0, 0);
-  target.from_container<utility::order::GPS>(base_.self_->device.dest);
+  target.from_container<utility::order::GPS>(base_.self_->agent.dest);
   utility::Location vrep_target(base_.get_vrep_frame(), target);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

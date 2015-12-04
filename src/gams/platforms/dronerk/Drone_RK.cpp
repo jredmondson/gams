@@ -116,11 +116,11 @@ int
 gams::platforms::Drone_RK::home (void)
 {
   // check if home has been set
-  if (self_.device.home.size () == 3)
+  if (self_.agent.home.size () == 3)
   {
     // read the home position
     utility::Position position;
-    position.from_container (self_.device.home);
+    position.from_container (self_.agent.home);
 
     // move to home
     move (position);

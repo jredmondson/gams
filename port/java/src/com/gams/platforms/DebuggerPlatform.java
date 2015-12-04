@@ -215,9 +215,9 @@ public class DebuggerPlatform extends BasePlatform
     
     Position position = getPosition();
     
-    self.device.location.set(0,position.getX());
-    self.device.location.set(1,position.getY());
-    self.device.location.set(2,position.getZ());
+    self.agent.location.set(0,position.getX());
+    self.agent.location.set(1,position.getY());
+    self.agent.location.set(2,position.getZ());
     
     return PlatformStatusEnum.OK.value();
   }

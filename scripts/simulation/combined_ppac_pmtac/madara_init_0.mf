@@ -4,6 +4,6 @@
 .initial_y=10;
 .initial_alt=4;
 
-device.0.command="ppac";
-device.0.command.size=1;
-device.0.command.0="search_area.2";
+agent.0.command="ppac";
+agent.0.command.size=1;
+agent.0.command.0="search_area.2";

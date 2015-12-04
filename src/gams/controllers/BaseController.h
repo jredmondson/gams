@@ -55,7 +55,7 @@
 #define   _GAMS_BASE_CONTROLLER_H_
 
 #include "gams/GAMSExport.h"
-#include "gams/variables/Device.h"
+#include "gams/variables/Agent.h"
 #include "gams/variables/Swarm.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
@@ -314,8 +314,8 @@ namespace gams
       /// Containers for algorithm information
       variables::Algorithms algorithms_;
       
-      /// Containers for device-related variables
-      variables::Devices devices_;
+      /// Containers for agent-related variables
+      variables::Agents agents_;
 
       /// Knowledge base
       madara::knowledge::KnowledgeBase & knowledge_;

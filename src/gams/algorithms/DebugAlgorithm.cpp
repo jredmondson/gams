@@ -56,7 +56,7 @@ gams::algorithms::DebugAlgorithmFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * /*devices*/)
+  variables::Agents * /*agents*/)
 {
   std::string executions (".executions");
 

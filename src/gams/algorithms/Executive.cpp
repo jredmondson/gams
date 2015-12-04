@@ -68,7 +68,7 @@ gams::algorithms::ExecutiveFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -77,11 +77,11 @@ gams::algorithms::ExecutiveFactory::create (
 
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && platform && self && devices)
+  if (knowledge && sensors && platform && self && agents)
   {
     if (args.size () % 2 == 0)
     {
-      result = new Executive (args, knowledge, platform, sensors, self, devices);
+      result = new Executive (args, knowledge, platform, sensors, self, agents);
     }
     else
     {
@@ -96,7 +96,7 @@ gams::algorithms::ExecutiveFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
       "gams::algorithms::ExecutiveFactory::create:" \
-      " knowledge, sensors, platform, self, or devices are invalid\n");
+      " knowledge, sensors, platform, self, or agents are invalid\n");
   }
 
   return result;
@@ -106,10 +106,10 @@ gams::algorithms::Executive::Executive (
   const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices) :
-  BaseAlgorithm (knowledge, platform, sensors, self, devices), algo_ (0), 
+  variables::Self * self, variables::Agents * agents) :
+  BaseAlgorithm (knowledge, platform, sensors, self, agents), algo_ (0), 
   plan_index_ (-1), plan_ (),
-  algo_factory_ (knowledge, sensors, platform, self, devices)
+  algo_factory_ (knowledge, sensors, platform, self, agents)
 {
   status_.init_vars (*knowledge, "executive", self->id.to_integer ());
   status_.init_variable_values ();

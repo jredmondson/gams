@@ -116,11 +116,11 @@ int
 gams::platforms::BasePlatform::home (void)
 {
   // check if home has been set
-  if (self_->device.home.size () == 3)
+  if (self_->agent.home.size () == 3)
   {
     // read the home position
     utility::GPSPosition position;
-    position.from_container (self_->device.home);
+    position.from_container (self_->agent.home);
 
     // move to home
     move (position);
@@ -146,7 +146,7 @@ gams::platforms::BasePlatform::move (const utility::Location & target,
   utility::Location current(get_location());
 
   utility::Location dest(get_frame(), 0, 0);
-  dest.from_container<utility::order::GPS> (self_->device.dest);
+  dest.from_container<utility::order::GPS> (self_->agent.dest);
 
   utility::Location gps_target(get_frame(), target);
 
@@ -159,8 +159,8 @@ gams::platforms::BasePlatform::move (const utility::Location & target,
   if (!*status_.paused_moving && gps_target != current &&
      (!*status_.moving || gps_target != dest))
   {
-    self_->device.source = self_->device.location;
-    gps_target.to_container<utility::order::GPS> (self_->device.dest);
+    self_->agent.source = self_->agent.location;
+    gps_target.to_container<utility::order::GPS> (self_->agent.dest);
 
     result = 1;
     status_.moving = 1;
@@ -201,10 +201,10 @@ gams::platforms::BasePlatform::rotate (const utility::Rotation & target,
    * moving and return 1 (moving to the new location)
    **/
   if (!*status_.paused_rotating && target != current &&
-     (!*status_.rotating || target != self_->device.dest_angle))
+     (!*status_.rotating || target != self_->agent.dest_angle))
   {
-    self_->device.source_angle = self_->device.angle;
-    target.to_container (self_->device.dest_angle);
+    self_->agent.source_angle = self_->agent.angle;
+    target.to_container (self_->agent.dest_angle);
 
     result = 1;
     status_.rotating = 1;
@@ -289,8 +289,8 @@ gams::platforms::BasePlatform::stop_move (void)
   status_.paused_moving = 0;
 
   // set source and dest to current position
-  self_->device.source = self_->device.location;
-  self_->device.dest = self_->device.location;
+  self_->agent.source = self_->agent.location;
+  self_->agent.dest = self_->agent.location;
 }
 
 gams::utility::GPSFrame gams::platforms::BasePlatform::frame_;

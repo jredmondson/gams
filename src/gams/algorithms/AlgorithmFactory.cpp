@@ -70,7 +70,7 @@ using std::cerr;
 using std::endl;
 
 gams::algorithms::AlgorithmFactory::AlgorithmFactory ()
-  : knowledge_ (0), devices_ (0), platform_ (0), self_ (0), sensors_ (0)
+  : knowledge_ (0), agents_ (0), platform_ (0), self_ (0), sensors_ (0)
 {
 }
 
@@ -79,9 +79,9 @@ gams::algorithms::AlgorithmFactory::~AlgorithmFactory ()
 }
 
 void
-gams::algorithms::AlgorithmFactory::set_devices (variables::Devices * devices)
+gams::algorithms::AlgorithmFactory::set_agents (variables::Agents * agents)
 {
-  devices_ = devices;
+  agents_ = agents;
 }
 
 void

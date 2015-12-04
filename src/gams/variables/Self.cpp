@@ -63,7 +63,7 @@ gams::variables::Self::operator= (const Self & rhs)
   if (this != &rhs)
   {
     this->id = rhs.id;
-    this->device = rhs.device;
+    this->agent = rhs.agent;
   }
 }
 
@@ -76,7 +76,7 @@ gams::variables::Self::init_vars (
   // initialize the variable containers
   this->id.set_name (".id", knowledge);
   this->id = id;
-  this->device.init_vars (knowledge, id);
+  this->agent.init_vars (knowledge, id);
 }
 
 void
@@ -86,7 +86,7 @@ gams::variables::Self::init_vars (
 {
   // initialize the variable containers
   this->id.set_name (".id", knowledge);
-  this->device.init_vars (knowledge, id);
+  this->agent.init_vars (knowledge, id);
 }
 
 void gams::variables::init_vars (Self & variables,

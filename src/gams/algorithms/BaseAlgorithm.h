@@ -101,15 +101,15 @@ namespace gams
        * @param  knowledge    the knowledge base of variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables for this device
-       * @param  devices      list of devices in the swarm
+       * @param  self         self-referencing variables for this agent
+       * @param  agents      list of agents in the swarm
        **/
       BaseAlgorithm (
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
-        variables::Devices * devices = 0);
+        variables::Agents * agents = 0);
 
       /**
        * Destructor
@@ -141,10 +141,10 @@ namespace gams
       virtual int plan () = 0;
       
       /**
-       * Sets the list of devices in the swarm
-       * @param  devices      list of devices
+       * Sets the list of agents in the swarm
+       * @param  agents      list of agents
        **/
-      virtual void set_devices (variables::Devices * devices);
+      virtual void set_agents (variables::Agents * agents);
       
       /**
        * Sets the platform
@@ -165,9 +165,9 @@ namespace gams
       virtual void set_sensors (variables::Sensors * sensors);
       
       /**
-       * Gets the list of devices
+       * Gets the list of agents
        **/
-      variables::Devices * get_devices (void);
+      variables::Agents * get_agents (void);
 
       /**
        * Gets the knowledge base
@@ -195,8 +195,8 @@ namespace gams
       variables::AlgorithmStatus * get_algorithm_status (void);
 
     protected:
-      /// the list of devices potentially participating in the algorithm
-      variables::Devices * devices_;
+      /// the list of agents potentially participating in the algorithm
+      variables::Agents * agents_;
 
       /// number of executions
       unsigned int executions_;

@@ -55,11 +55,11 @@ import com.madara.containers.String;
 import com.madara.containers.Vector;
 import com.madara.containers.NativeDoubleVector;
 
-public class Device extends GamsJNI
+public class Agent extends GamsJNI
 {	
-  private native long jni_Device();
-  private native long jni_Device(long cptr);
-  private static native void jni_freeDevice(long cptr);
+  private native long jni_Agent();
+  private native long jni_Agent(long cptr);
+  private static native void jni_freeAgent(long cptr);
   private native void jni_init(long cptr, long type, long kb, java.lang.String name);
   private native java.lang.String jni_toString(long cptr);
   private native long jni_getBatteryRemaining(long cptr);
@@ -82,9 +82,9 @@ public class Device extends GamsJNI
   /**
    * Default constructor
    **/
-  public Device()
+  public Agent()
   {
-    setCPtr(jni_Device());
+    setCPtr(jni_Agent());
     init();
   }
 
@@ -92,9 +92,9 @@ public class Device extends GamsJNI
    * Copy constructor
    * @param input  the device to copy
    **/
-  public Device(Device input)
+  public Agent(Agent input)
   {
-    setCPtr(jni_Device(input.getCPtr()));
+    setCPtr(jni_Agent(input.getCPtr()));
     init();
   }
 
@@ -104,9 +104,9 @@ public class Device extends GamsJNI
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static Device fromPointer(long cptr)
+  public static Agent fromPointer(long cptr)
   {
-    Device ret = new Device();
+    Agent ret = new Agent();
     ret.manageMemory = true;
     ret.setCPtr(cptr);
     ret.init();
@@ -120,9 +120,9 @@ public class Device extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static Device fromPointer(long cptr, boolean shouldManage)
+  public static Agent fromPointer(long cptr, boolean shouldManage)
   {
-    Device ret = new Device();
+    Agent ret = new Agent();
     ret.manageMemory=shouldManage;
     ret.setCPtr(cptr);
     ret.init();
@@ -276,7 +276,7 @@ public class Device extends GamsJNI
   {
     if (manageMemory)
     {
-      jni_freeDevice(getCPtr());
+      jni_freeAgent(getCPtr());
       setCPtr(0);
     }
   }

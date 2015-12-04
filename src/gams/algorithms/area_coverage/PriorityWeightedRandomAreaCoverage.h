@@ -79,7 +79,7 @@ namespace gams
          * @param  platform     the underlying platform the algorithm will use
          * @param  sensors      map of sensor names to sensor information
          * @param  self         self-referencing variables
-         * @param  devices      variables related to devices
+         * @param  agents      variables related to agents
          **/
         PriorityWeightedRandomAreaCoverage (
           const std::string& search_id, 
@@ -88,7 +88,7 @@ namespace gams
           platforms::BasePlatform * platform = 0,
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
-          variables::Devices * devices = 0);
+          variables::Agents * agents = 0);
   
         /**
          * Assignment operator
@@ -131,7 +131,7 @@ namespace gams
          *                    controller in init_vars.
          * @param   self      self-referencing variables. This will be
          *                    set by the controller in init_vars
-         * @param   devices   the list of devices, which is dictated by
+         * @param   agents   the list of agents, which is dictated by
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
@@ -141,7 +141,7 @@ namespace gams
           platforms::BasePlatform * platform,
           variables::Sensors * sensors,
           variables::Self * self,
-          variables::Devices * devices);
+          variables::Agents * agents);
       };
     } // namespace area_coverage
   } // namespace algorithms

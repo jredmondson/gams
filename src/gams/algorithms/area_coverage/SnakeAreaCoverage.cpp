@@ -64,11 +64,11 @@ gams::algorithms::area_coverage::SnakeAreaCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self && agents)
   {
     if (args.size () >= 1)
     {
@@ -81,7 +81,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverageFactory::create (
             result = new area_coverage::SnakeAreaCoverage (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self, agents);
           }
           else
           {
@@ -96,7 +96,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverageFactory::create (
           result = new area_coverage::SnakeAreaCoverage (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self, agents);
         }
       }
       else
@@ -120,7 +120,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverageFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
        "gams::algorithms::SnakeAreaCoverageFactory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+      " invalid knowledge, sensors, self, or agents parameters\n");
   }
 
   if (result == 0)
@@ -143,8 +143,8 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::SnakeAreaCoverage (
   const ACE_Time_Value& e_time,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices, e_time),
+  variables::Self * self, variables::Agents * agents) :
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
   cur_waypoint_ (0)
 {
   status_.init_vars (*knowledge, "sac", self->id.to_integer ());
@@ -230,11 +230,11 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::compute_waypoints (
   // starting points are vertices of longest edge
   utility::GPSPosition temp = utility::GPSPosition::to_gps_position (
     positions[longest_edge], reference);
-  temp.altitude (self_->device.desired_altitude.to_double ());
+  temp.altitude (self_->agent.desired_altitude.to_double ());
   waypoints_.push_back (temp);
   temp = utility::GPSPosition::to_gps_position (
     positions[(longest_edge + 1) % num_edges], reference);
-  temp.altitude (self_->device.desired_altitude.to_double ());
+  temp.altitude (self_->agent.desired_altitude.to_double ());
   waypoints_.push_back (temp);
 
   // determine shift direction
@@ -323,7 +323,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::compute_waypoints (
         } // end else longest_edge is vertical line
 
         // check if it's actually an intercept
-        check.z = self_->device.desired_altitude.to_double (); // TODO: actual altitude control
+        check.z = self_->agent.desired_altitude.to_double (); // TODO: actual altitude control
         if (check_intercept && p_n_0.is_between_2d(p_n_1, check))
           intercepts[intercept_idx++] = check;
       } // end foreach edge

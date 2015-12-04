@@ -59,7 +59,7 @@ inline gams::utility::Position *
 gams::platforms::BasePlatform::get_position ()
 {
   utility::Position * position = new utility::Position ();
-  position->from_container (self_->device.location);
+  position->from_container (self_->agent.location);
   return position;
 }
 
@@ -67,21 +67,21 @@ inline gams::utility::Location
 gams::platforms::BasePlatform::get_location () const
 {
   utility::Location ret(get_frame(), 0, 0);
-  ret.from_container<utility::order::GPS>(self_->device.location);
+  ret.from_container<utility::order::GPS>(self_->agent.location);
   return ret;
 }
 
 inline gams::utility::Rotation
 gams::platforms::BasePlatform::get_rotation () const
 {
-  return utility::Rotation(get_frame(), self_->device.angle);
+  return utility::Rotation(get_frame(), self_->agent.angle);
 }
 
 inline gams::utility::Pose
 gams::platforms::BasePlatform::get_pose () const
 {
-  return utility::Pose(get_frame(), self_->device.location,
-                       self_->device.angle);
+  return utility::Pose(get_frame(), self_->agent.location,
+                       self_->agent.angle);
 }
 
 inline madara::knowledge::KnowledgeBase *

@@ -61,7 +61,7 @@ public class Self extends GamsJNI
   private native void jni_init(long cptr, long type, long kb, long name);
   private native java.lang.String jni_toString(long cptr);
   private native long jni_getId(long cptr);
-  private native long jni_getDevice(long cptr);
+  private native long jni_getAgent(long cptr);
 
   private boolean manageMemory = true;
 
@@ -121,14 +121,14 @@ public class Self extends GamsJNI
   public void init()
   {
     id = Integer.fromPointer (jni_getId (getCPtr ()),false);
-    device = Device.fromPointer (jni_getDevice (getCPtr ()),false);
+    agent = Agent.fromPointer (jni_getAgent (getCPtr ()),false);
   }
   
   /**
-   * Initializes the id and device containers within Self
+   * Initializes the id and agent containers within Self
    *
-   * @param  kb      the knowledge base that contains the device info
-   * @param  id      the device id (0 to n - 1, inclusively)
+   * @param  kb      the knowledge base that contains the agent info
+   * @param  id      the agent id (0 to n - 1, inclusively)
    */
   public void init(KnowledgeBase kb, long id)
   {
@@ -137,10 +137,10 @@ public class Self extends GamsJNI
   }
 
   /**
-   * Initializes the id and device containers within Self
+   * Initializes the id and agent containers within Self
    *
-   * @param  vars    the variables facade that contains the device info
-   * @param  id      the device id (0 to n - 1, inclusively)
+   * @param  vars    the variables facade that contains the agent info
+   * @param  id      the agent id (0 to n - 1, inclusively)
    */
   public void init(Variables vars, long id)
   {
@@ -149,14 +149,14 @@ public class Self extends GamsJNI
   }
 
   /**
-   * The device id
+   * The agent id
    */
   public com.madara.containers.Integer id;
 
   /**
-   * The device-specific variables
+   * The agent-specific variables
    */
-  public Device device;
+  public Agent agent;
   
   /**
    * Converts the value to a string

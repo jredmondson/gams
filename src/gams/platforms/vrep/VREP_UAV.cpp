@@ -157,7 +157,7 @@ gams::platforms::VREP_UAV::VREP_UAV (
     (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
     status_ = (*platforms)[get_id ()];
 
-    self->device.desired_altitude = self->id.to_integer () + 1;
+    self->agent.desired_altitude = self->id.to_integer () + 1;
     add_model_to_environment (model_file, is_client_side);
     set_initial_position ();
     get_target_handle ();

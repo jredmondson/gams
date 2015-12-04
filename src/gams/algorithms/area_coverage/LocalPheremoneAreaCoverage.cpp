@@ -71,11 +71,11 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
-  variables::Devices * devices)
+  variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && devices)
+  if (knowledge && sensors && self && agents)
   {
     if (args.size () >= 1)
     {
@@ -88,7 +88,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
             result = new area_coverage::LocalPheremoneAreaCoverage (
               args[0].to_string () /* search area id*/,
               ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, devices);
+              knowledge, platform, sensors, self, agents);
           }
           else
           {
@@ -103,7 +103,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
           result = new area_coverage::LocalPheremoneAreaCoverage (
             args[0].to_string () /* search area id*/,
             ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, devices);
+            knowledge, platform, sensors, self, agents);
         }
       }
       else
@@ -127,7 +127,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
        "gams::algorithms::LocalPheremoneAreaCoverageFactory::create:" \
-      " invalid knowledge, sensors, self, or devices parameters\n");
+      " invalid knowledge, sensors, self, or agents parameters\n");
   }
 
   if (result == 0)
@@ -147,8 +147,8 @@ LocalPheremoneAreaCoverage (
   const ACE_Time_Value& e_time,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
-  variables::Self * self, variables::Devices * devices) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, devices, e_time),
+  variables::Self * self, variables::Agents * agents) :
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
   pheremone_ (search_id + ".pheremone", knowledge)
 {
   // init status vars
@@ -191,7 +191,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
 {
   // get current location
   utility::GPSPosition cur_gps;
-  cur_gps.from_container (self_->device.location);
+  cur_gps.from_container (self_->agent.location);
 
   // create possible next positions
   const int num_possible = 12;
@@ -259,6 +259,6 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
 
   // assign new next
   // TODO: fix with proper altitude
-  lowest.altitude (self_->device.desired_altitude.to_double ());
+  lowest.altitude (self_->agent.desired_altitude.to_double ());
   next_position_ = lowest;
 }
