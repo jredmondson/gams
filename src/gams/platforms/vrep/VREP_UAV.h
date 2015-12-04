@@ -112,107 +112,7 @@ namespace gams
        **/
       virtual std::string get_name () const;
 
-      /**
-       * Moves the platform to a position
-       * @param   position  the coordinate to move to
-       * @param   epsilon   approximation value
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      virtual int move (const utility::Position & position,
-        const double & epsilon = 0.1);
-
-      /**
-       * Set move speed
-       * @param speed new speed in meters/loop execution
-       **/
-      virtual void set_move_speed (const double& speed);
-
     protected:
-      /// Move thread name
-      const static std::string MOVE_THREAD_NAME;
-
-      /**
-       * Thread to move target
-       **/
-      class TargetMover : public madara::threads::BaseThread
-      {
-        public:
-          /// Thread execution rate in Hz
-          const static double RATE;
-
-          /// Destination container name
-          const static std::string DEST_CONTAINER_NAME;
-
-          /// Destination container name
-          const static std::string MOVE_SPEED_CONTAINER_NAME;
-
-          /**
-           * Constructor
-           * @param d   destination container
-           * @param m   move speed for target
-           **/
-          TargetMover (
-            const madara::knowledge::containers::NativeDoubleVector& d, 
-            const madara::knowledge::containers::Double& m);
-
-          /**
-           * main thread function
-           */
-          void run ();
-
-          /**
-           * set client id
-           * @param c   new client id
-           **/
-          void set_client_id (simxInt c);
-
-          /**
-           * set node target handle in VREP
-           * @param n   new target handle
-           **/
-          void set_node_target (simxInt n);
-
-          /**
-           * Set move speed
-           * @param m   new move speed
-           **/
-          void set_move_speed (
-            const madara::knowledge::containers::Double& m);
-
-          /**
-           * Set target position
-           **/
-          void set_target_pos (const utility::Position& p);
-
-        private:
-          /// client ID for VREP API
-          simxInt client_id_;
-
-          /// target node handle
-          simxInt node_target_;
-
-          /// Target move speed per second
-          madara::knowledge::containers::Double move_speed_;
-
-          /// Current target location
-          utility::Position target_pos_;
-
-          /// Destination container
-          madara::knowledge::containers::NativeDoubleVector destination_;
-      };
-
-      /// Thread object
-      TargetMover mover_;
-
-      /// MADARA Threader
-      madara::threads::Threader threader_;
-
-      /// container for destination
-      madara::knowledge::containers::NativeDoubleVector thread_dest_;
-
-      /// container for move speed
-      madara::knowledge::containers::Double thread_move_speed_;
-
       /**
        * Add model to environment
        */
@@ -223,11 +123,6 @@ namespace gams
        * Get node target handle
        */
       virtual void get_target_handle ();
-
-      /**
-       * Set initial position for agent
-       */
-      virtual void set_initial_position ();
     }; // class VREP_UAV
 
     /**

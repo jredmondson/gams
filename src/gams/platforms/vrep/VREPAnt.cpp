@@ -215,4 +215,10 @@ gams::platforms::VREPAnt::get_target_handle ()
   }
 }
 
+double
+gams::platforms::VREPAnt::get_initial_z() const
+{
+  return 0.05;
+}
+
 #endif // _GAMS_VREP_

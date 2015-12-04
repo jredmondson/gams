@@ -525,6 +525,7 @@ void create_environment (const int& client_id,
   if (border)
   {
     cout << "placing border models as markers...";
+    cout << std::flush;
 
     // paint each selected region
     for (size_t i = 0; i < regions.size (); ++i)
@@ -564,6 +565,7 @@ void start_simulator (const int & client_id,
   madara::knowledge::CompiledExpression compiled;
   compiled = knowledge.compile (expression);
   cout << "waiting for " << num_agents << " agent(s) to come online...";
+  cout << std::flush;
   knowledge.wait (compiled);
   cout << "done" << endl;
 

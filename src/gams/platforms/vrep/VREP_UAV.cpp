@@ -70,16 +70,6 @@ const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
   (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
   );
 
-const double gams::platforms::VREP_UAV::TargetMover::RATE (30.0);
-
-const std::string gams::platforms::VREP_UAV::MOVE_THREAD_NAME ("move_thread");
-
-const std::string gams::platforms::VREP_UAV::TargetMover::DEST_CONTAINER_NAME
-  (".platform.vrep_uav.thread.destination");
-
-const std::string gams::platforms::VREP_UAV::TargetMover::MOVE_SPEED_CONTAINER_NAME
-  (".platform.vrep_uav.thread.move_speed");
-
 gams::platforms::BasePlatform *
 gams::platforms::VREPUAVFactory::create (
   const madara::knowledge::KnowledgeVector & args,
@@ -160,13 +150,7 @@ gams::platforms::VREP_UAV::VREP_UAV (
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self) :
-  VREPBase (knowledge, sensors, self), 
-  mover_ (
-    NativeDoubleVector (TargetMover::DEST_CONTAINER_NAME, *knowledge, 3),
-    Double (TargetMover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)),
-  threader_ (*knowledge), 
-  thread_dest_ (TargetMover::DEST_CONTAINER_NAME, *knowledge, 3),
-  thread_move_speed_ (TargetMover::MOVE_SPEED_CONTAINER_NAME, *knowledge, 3)
+  VREPBase (knowledge, sensors, self)
 {
   if (knowledge && sensors && platforms && self)
   {
@@ -179,47 +163,14 @@ gams::platforms::VREP_UAV::VREP_UAV (
     get_target_handle ();
     wait_for_go ();
 
-    double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
-    if (move_speed > 0)
+    /*
+    if(knowledge_->exists (".vrep_uav_move_speed"))
     {
-      thread_move_speed_ = move_speed;
-      set_move_speed (move_speed);
+      double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
+      max_delta_ = move_speed;
     }
-
-    mover_.set_client_id (client_id_);
-    threader_.run (TargetMover::RATE, MOVE_THREAD_NAME, &mover_);
+    */
   }
-}
-
-int
-gams::platforms::VREP_UAV::move (const utility::Position & position, 
-  const double & epsilon)
-{
-  // update variables
-  BasePlatform::move (position);
-
-  // inform the thread
-  const utility::GPSPosition* dest_gps_pos = 
-    dynamic_cast<const utility::GPSPosition*>(&position);
-  if (dest_gps_pos == 0)
-  {
-    position.to_container (thread_dest_);
-  }
-  else
-  {
-    utility::Position pos;
-    gps_to_vrep (*dest_gps_pos, pos);
-    pos.to_container (thread_dest_);
-  }
-
-  return 1;
-}
-
-void
-gams::platforms::VREP_UAV::set_move_speed (const double& speed)
-{
-  VREPBase::set_move_speed (speed);
-  thread_move_speed_ = speed;
 }
 
 void
@@ -293,156 +244,6 @@ gams::platforms::VREP_UAV::get_target_handle ()
        "gams::platforms::VREP_UAV::get_target_handle:" \
       " invalid target handle id\n");
   }
-
-  mover_.set_node_target (node_target_);
-}
-
-void
-gams::platforms::VREP_UAV::set_initial_position ()
-{
-  // get initial position
-  simxFloat pos[3];
-  if (knowledge_->get (".initial_lat").to_double () != 0)
-  {
-    // get gps coords
-    utility::GPSPosition gps_coord;
-    gps_coord.latitude (knowledge_->get (".initial_lat").to_double ());
-    gps_coord.longitude (knowledge_->get (".initial_lon").to_double ());
-
-    // convert to vrep
-    utility::Position vrep_coord;
-    gps_to_vrep (gps_coord, vrep_coord);
-    position_to_array (vrep_coord, pos);
-  }
-  else
-  {
-    // get vrep coords
-    pos[0] = knowledge_->get (".initial_x").to_double ();
-    pos[1] = knowledge_->get (".initial_y").to_double ();
-  }
-
-  // send set object position command
-  pos[2] = knowledge_->get (".initial_alt").to_double ();
-  simxSetObjectPosition (client_id_, node_id_, -1, pos,
-    simx_opmode_oneshot_wait);
-
-  // initial position
-  utility::Position initial;
-  array_to_position (pos, initial);
-  mover_.set_target_pos (initial);
-  initial.to_container (thread_dest_);
-}
-
-gams::platforms::VREP_UAV::TargetMover::TargetMover (
-  const madara::knowledge::containers::NativeDoubleVector& d, 
-  const madara::knowledge::containers::Double& m) :
-  client_id_ (-1), node_target_ (-1), move_speed_ (m), target_pos_ (), 
-  destination_ (d)
-{
-}
-
-void
-gams::platforms::VREP_UAV::TargetMover::run ()
-{
-  double local_move_speed = move_speed_.to_double () / RATE;
-
-  // get destination
-  utility::Position dest_pos;
-  dest_pos.from_container (destination_);
-  simxFloat dest_arr[3];
-  position_to_array (dest_pos, dest_arr);
-
-  // set current position of node target
-  simxFloat curr_arr[3];
-  position_to_array (target_pos_, curr_arr);
-
-  // get distance to destination
-  double distance_to_destination = dest_pos.distance_to_2d (target_pos_);
-  
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::platforms::VREP_UAV::TargetMover::run:" \
-    " moving to (%f,%f, distance %f m)\n",
-    dest_pos.x, dest_pos.y, distance_to_destination);
-
-  // check if quadrotor has reached target (within epsilon)
-  if(distance_to_destination <= local_move_speed)
-  {
-    target_pos_ = dest_pos;
-    simxSetObjectPosition (client_id_, node_target_, -1, dest_arr,
-      simx_opmode_oneshot_wait);
-    return;
-  }
-
-  // move quadrotor target closer to the desired position
-  if(distance_to_destination < local_move_speed) // we can get to target in one step
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::platforms::VREP_UAV::TargetMover::run:" \
-      " moving to target instantly\n");
-
-    curr_arr[0] = dest_arr[0];
-    curr_arr[1] = dest_arr[1];
-    curr_arr[2] = dest_arr[2];
-  }
-  else // we cannot reach target in this step
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::platforms::VREP_UAV::TargetMover::run:" \
-      " calculating new target location\n");
-
-    // how far do we have to go in each dimension
-    double dist[3];
-    for (int i = 0; i < 3; ++i)
-      dist[i] = fabs (curr_arr[i] - dest_arr[i]);
-
-    // update target position
-    for (int i = 0; i < 3; ++i)
-    {
-      if(curr_arr[i] < dest_arr[i])
-        curr_arr[i] += dist[i] * local_move_speed / distance_to_destination;
-      else
-        curr_arr[i] -= dist[i] * local_move_speed / distance_to_destination;
-    }
-  }
-
-  // send movement command
-  simxSetObjectPosition (client_id_, node_target_, -1, curr_arr,
-    simx_opmode_oneshot_wait);
-  array_to_position (curr_arr, target_pos_);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_ERROR,
-    "gams::platforms::VREP_UAV::move:" \
-    " setting target to \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
-}
-
-void
-gams::platforms::VREP_UAV::TargetMover::set_node_target (simxInt n)
-{
-  node_target_ = n;
-}
-
-void
-gams::platforms::VREP_UAV::TargetMover::set_client_id (simxInt c)
-{
-  client_id_ = c;
-}
-
-void
-gams::platforms::VREP_UAV::TargetMover::set_move_speed (
-  const madara::knowledge::containers::Double& m)
-{
-  move_speed_ = m;
-}
-
-void
-gams::platforms::VREP_UAV::TargetMover::set_target_pos (
-  const utility::Position& p)
-{
-  target_pos_ = p;
 }
 
 #endif // _GAMS_VREP_

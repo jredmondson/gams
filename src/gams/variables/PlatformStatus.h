@@ -128,12 +128,18 @@ namespace gams
 
       /// status flag for moving to a location
       madara::knowledge::containers::Integer moving;
-      
+
+      /// status flag for rotating to an angle
+      madara::knowledge::containers::Integer rotating;
+
       /// status flag for ok
       madara::knowledge::containers::Integer ok;
-      
+
       /// status flag for paused while moving to a location
       madara::knowledge::containers::Integer paused_moving;
+
+      /// status flag for paused while rotating to anangle
+      madara::knowledge::containers::Integer paused_rotating;
 
       /// status flag for reduced sensing available
       madara::knowledge::containers::Integer reduced_sensing;

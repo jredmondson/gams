@@ -238,34 +238,10 @@ gams::platforms::VREPSummit::get_target_handle ()
   }
 }
 
-void
-gams::platforms::VREPSummit::set_initial_position () const
+double
+gams::platforms::VREPSummit::get_initial_z() const
 {
-  // get initial position
-  simxFloat pos[3];
-  if (knowledge_->get (".initial_lat").to_double () != 0)
-  {
-    // get gps coords
-    utility::GPSPosition gps_coord;
-    gps_coord.latitude (knowledge_->get (".initial_lat").to_double ());
-    gps_coord.longitude (knowledge_->get (".initial_lon").to_double ());
-
-    // convert to vrep
-    utility::Position vrep_coord;
-    gps_to_vrep (gps_coord, vrep_coord);
-    position_to_array (vrep_coord, pos);
-  }
-  else
-  {
-    // get vrep coords
-    pos[0] = knowledge_->get (".initial_x").to_double ();
-    pos[1] = knowledge_->get (".initial_y").to_double ();
-  }
-  pos[2] = (simxFloat) 0.3;
-
-  // send set object position command
-  simxSetObjectPosition (client_id_, node_id_, sim_handle_parent, pos,
-    simx_opmode_oneshot_wait);
+  return 0.3;
 }
 
 #endif // _GAMS_VREP_

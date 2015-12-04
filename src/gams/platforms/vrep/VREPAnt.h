@@ -124,7 +124,12 @@ namespace gams
        * Get target handle
        */
       virtual void get_target_handle ();
-    }; // class VREPAnt
+
+      /**
+       * Get initial altitude
+       */
+      virtual double get_initial_z () const;
+     }; // class VREPAnt
 
     /**
      * A factory class for creating VREP Ant platforms

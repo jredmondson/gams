@@ -60,6 +60,10 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/utility/GPSPosition.h"
 #include "madara/knowledge/KnowledgeBase.h"
+#include "gams/utility/CartesianFrame.h"
+#include "madara/threads/Threader.h"
+#include "madara/threads/BaseThread.h"
+#include "madara/LockType.h"
 
 #include "gams/loggers/GlobalLogger.h"
 
@@ -139,7 +143,16 @@ namespace gams
        **/
       virtual int move (const utility::Position & position,
         const double & epsilon = 0.1);
-      
+
+      /**
+       * Moves the platform to a location
+       * @param   target    the coordinates to move to
+       * @param   epsilon   approximation value
+       * @return the status of the move operation, @see PlatformReturnValues
+       **/
+      virtual int move (const utility::Location & location,
+        double epsilon = 0.1);
+
       /**
        * Set move speed
        * @param speed new speed in meters/loop execution
@@ -152,39 +165,9 @@ namespace gams
        **/
       virtual int takeoff (void);
 
+      const utility::ReferenceFrame &get_vrep_frame() const;
+
     protected:
-      /**
-       * Get float array from position
-       * @param arr array to convert
-       * @param pos position to store it in
-       **/
-      static void array_to_position (const simxFloat (&arr)[3], 
-        utility::Position & pos);
-
-      /**
-       * Converts lat/long coordinates to vrep coordinates
-       * @param position    lat/long position to convert
-       * @param converted   x/y coords in vrep reference frame
-       **/
-      void gps_to_vrep (const utility::GPSPosition & position,
-        utility::Position & converted) const;
-
-      /**
-       * Get position from float array
-       * @param pos position to convert
-       * @param arr array to store it in
-       **/
-      static void position_to_array (const utility::Position & pos,
-        simxFloat (&arr)[3]);
-
-      /**
-       * Converts lat/long coordinates to vrep coordinates
-       * @param position    lat/long position to convert
-       * @param converted   x/y coords in vrep reference frame
-       **/
-      void vrep_to_gps (const utility::Position & position,
-        utility::GPSPosition & converted) const;
-
       /**
        * Add model to environment
        */
@@ -199,7 +182,13 @@ namespace gams
       /**
        * Set initial position for agent
        */
-      virtual void set_initial_position () const;
+      virtual void set_initial_position ();
+
+      /**
+       * Get what altitude agent should start at. Land agents might
+       * override this to ensure they don't spawn in the air.
+       */
+      virtual double get_initial_z() const;
 
       /**
        * wait for go signal from controller
@@ -222,7 +211,59 @@ namespace gams
       simxInt node_target_;
 
       /// gps coordinates corresponding to (0, 0) in vrep
-      utility::GPSPosition sw_position_;
+      utility::Pose sw_pose_;
+
+      /**
+       * CartesianFrame representing vrep coordinate system.
+       **/
+      utility::CartesianFrame vrep_frame_;
+
+      madara::knowledge::containers::Double thread_rate_;
+
+      madara::knowledge::containers::Double thread_move_speed_;
+
+      madara::knowledge::containers::Double max_delta_;
+
+      /// Move thread name
+      const static std::string MOVE_THREAD_NAME;
+
+      /**
+       * Thread to move target
+       **/
+      class TargetMover : public madara::threads::BaseThread
+      {
+        public:
+          /**
+           * Constructor
+           * @param base   the VREPBase object this thread belongs to
+           **/
+          TargetMover (VREPBase &base);
+
+          /**
+           * main thread function
+           */
+          void run ();
+
+          static const std::string NAME;
+        private:
+          VREPBase &base_;
+      };
+
+      friend class TargetMover;
+
+      /// Thread object
+      TargetMover *mover_;
+
+      /// MADARA Threader
+      madara::threads::Threader threader_;
+
+      mutable MADARA_LOCK_TYPE vrep_mutex_;
+
+    private:
+      utility::Pose get_sw_pose(const utility::ReferenceFrame &frame);
+
+      int do_move (const utility::Location & target,
+                   const utility::Location & current, double max_delta);
     }; // class VREPBase
   } // namespace platform
 } // namespace gams

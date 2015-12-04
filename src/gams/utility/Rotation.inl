@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file Rotation.inl
+ * @file Coordinates.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains inline functions for the Rotation
  **/
 
 #ifndef _GAMS_UTILITY_ROTATION_INL_
@@ -76,12 +76,16 @@ namespace gams
         ry_(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
         rz_(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
 
+    inline RotationVector::RotationVector(
+        const madara::knowledge::containers::DoubleVector &vec)
+      : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
+
+    inline RotationVector::RotationVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
+
     inline constexpr RotationVector::RotationVector()
       : rx_(INVAL_COORD), ry_(INVAL_COORD), rz_(INVAL_COORD) {}
-
-    inline constexpr RotationVector::RotationVector(
-            const RotationVector &orig)
-      : rx_(orig.rx_), ry_(orig.ry_), rz_(orig.rz_) {}
 
     inline constexpr bool RotationVector::is_invalid() const
     {
@@ -175,9 +179,6 @@ namespace gams
 
     inline Rotation::Rotation() : RotationVector(), Coordinate() {}
 
-    inline constexpr Rotation::Rotation(const Rotation &orig)
-      : RotationVector(orig), Coordinate(orig) {}
-
     inline Rotation::Rotation(const Quaternion &quat)
       : RotationVector(quat), Coordinate() {}
 
@@ -191,6 +192,23 @@ namespace gams
     {
       transform_this_to(new_frame);
     }
+
+    inline Rotation::Rotation(
+        const madara::knowledge::containers::DoubleVector &vec)
+      : RotationVector(vec), Coordinate() {}
+
+    inline Rotation::Rotation(const ReferenceFrame &frame,
+        const madara::knowledge::containers::DoubleVector &vec)
+      : RotationVector(vec), Coordinate(frame) {}
+
+    inline Rotation::Rotation(
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : RotationVector(vec), Coordinate() {}
+
+    inline Rotation::Rotation(
+        const ReferenceFrame &frame,
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : RotationVector(vec), Coordinate(frame) {}
 
     inline double Rotation::angle_to(const Rotation &target) const
     {

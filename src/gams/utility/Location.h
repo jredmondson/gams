@@ -59,6 +59,8 @@
 
 #include <stdexcept>
 #include <gams/utility/Coordinate.h>
+#include <madara/knowledge/containers/DoubleVector.h>
+#include <madara/knowledge/containers/NativeDoubleVector.h>
 
 namespace gams
 {
@@ -96,9 +98,32 @@ namespace gams
       constexpr LocationVector();
 
       /**
-       * Copy constructor.
+       * Constructor from C array
+       * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
+       *              if array's size is less than 3, behavior is undefined
        **/
-      constexpr LocationVector(const LocationVector &orig);
+      explicit LocationVector(const double array[]);
+
+      /**
+       * Constructor from C array
+       * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
+       *              if array's size is less than 3, behavior is undefined
+       **/
+      explicit LocationVector(const float array[]);
+
+      /**
+       * Constructor from MADARA DoubleVector
+       * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
+       **/
+      explicit LocationVector(
+        const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector
+       * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
+       **/
+      explicit LocationVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
        * Tests if this Location is valid
@@ -363,7 +388,69 @@ namespace gams
        * @param z the z coordinate of the new Location; defaults to zero
        **/
       constexpr Location(const ReferenceFrame &frame,
-                         double x = 0.0, double y = 0.0, double z = 0.0);
+                         double x, double y, double z = 0.0);
+
+      /**
+       * Constructor from C array, into default ReferenceFrame
+       * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
+       *              if array's size is less than 3, behavior is undefined
+       **/
+      explicit Location(const double array[]);
+
+      /**
+       * Constructor from C array, into specified ReferenceFrame
+       * @param frame the frame to belong to
+       * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
+       *              if array's size is less than 3, behavior is undefined
+       **/
+      explicit Location(const ReferenceFrame &frame, const double array[]);
+
+      /**
+       * Constructor from C array, into default ReferenceFrame
+       * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
+       *              if array's size is less than 3, behavior is undefined
+       **/
+      explicit Location(const float array[]);
+
+      /**
+       * Constructor from C array, into specified ReferenceFrame
+       * @param frame the frame to belong to
+       * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
+       *              if array's size is less than 3, behavior is undefined
+       **/
+      explicit Location(const ReferenceFrame &frame, const float array[]);
+
+      /**
+       * Constructor from MADARA DoubleVector, into default ReferenceFrame
+       * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
+       **/
+      explicit Location(
+              const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA DoubleVector, into specified ReferenceFrame
+       * @param frame the frame to belong to
+       * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
+       **/
+      Location(const ReferenceFrame &frame,
+               const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector, into default
+       * ReferenceFrame
+       * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
+       **/
+      explicit Location(
+         const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector, into specified
+       * ReferenceFrame
+       * @param frame the frame to belong to
+       * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
+       **/
+      Location(const ReferenceFrame &frame,
+         const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).
@@ -371,15 +458,9 @@ namespace gams
       Location();
 
       /**
-       * Copy constructor.
-       **/
-      constexpr Location(const Location &orig);
-
-      /**
        * Copy constructor, but transform into the new frame as well.
        *
        * @param new_frame the new frame to transform to
-       * @param orig      the origin location
        **/
       Location(const ReferenceFrame &new_frame, const Location &orig);
 

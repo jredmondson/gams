@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Rotation.h
+ * @file Coordinates.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes
@@ -110,6 +110,20 @@ namespace gams
       constexpr RotationVector(double x, double y, double z, double angle);
 
       /**
+       * Constructor from MADARA DoubleVector
+       * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
+       **/
+      explicit RotationVector(
+        const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector
+       * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
+       **/
+      explicit RotationVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
        * For easy specification of a simple rotation around a single axis,
        * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
        * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
@@ -125,11 +139,6 @@ namespace gams
        * Default Constructor. Produces an invalid rotation (INVAL_COORD)
        **/
       constexpr RotationVector();
-
-      /**
-       * Copy Constructor
-       **/
-      constexpr RotationVector(const RotationVector &orig);
 
       /**
        * Constructor to convert from Quaternion to equivalent
@@ -316,6 +325,38 @@ namespace gams
                double x, double y, double z, double angle);
 
       /**
+       * Constructor from MADARA DoubleVector, into default ReferenceFrame
+       * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
+       **/
+      explicit Rotation(
+              const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA DoubleVector, into specified ReferenceFrame
+       * @param frame the frame to belong to
+       * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
+       **/
+      Rotation(const ReferenceFrame &frame,
+               const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector, into default
+       * ReferenceFrame
+       * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
+       **/
+      explicit Rotation(
+         const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector, into specified
+       * ReferenceFrame
+       * @param frame the frame to belong to
+       * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
+       **/
+      Rotation(const ReferenceFrame &frame,
+         const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
        * For easy specification of a simple rotation around a single axis,
        * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
        * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
@@ -349,11 +390,6 @@ namespace gams
       Rotation();
 
       /**
-       * Copy constructor
-       **/
-      constexpr Rotation(const Rotation &orig);
-
-      /**
        * Construct from a Quaternion, into the default frame.
        *
        * @param quat the Quaternion to converto to a rotation vector
@@ -372,7 +408,6 @@ namespace gams
        * Copy constructor, but also convert to a new frame
        *
        * @param new_frame the new frame to convert to
-       * @param orig      the Rotational origin
        **/
       Rotation(const ReferenceFrame &new_frame, const Rotation &orig);
 

@@ -148,13 +148,12 @@ gams::algorithms::area_coverage::BaseAreaCoverage::plan ()
     "gams::algorithms::area_coverage::BaseAreaCoverage::plan:" \
     " distance between points is %f (need %f accuracy)\n", dist, platform_->get_accuracy());
 
-  utility::Position* position_ptr = platform_->get_position ();
+  utility::Location loc = platform_->get_location ();
+  utility::Location next_loc(platform_->get_frame(),
+    next_position_.longitude(), next_position_.latitude(),
+    next_position_.altitude());
 
-  utility::Position* test = dynamic_cast<utility::GPSPosition*> (platform_->get_position());
-  if (test != 0)
-    position_ptr = test;
-
-  if (position_ptr->approximately_equal(next_position_, platform_->get_accuracy()))
+  if (loc.approximately_equal(next_loc, platform_->get_accuracy()))
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,

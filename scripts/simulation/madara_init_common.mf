@@ -1,5 +1,8 @@
 .vrep_host="127.0.0.1";
 
-.vrep_uav_move_speed=3;
+.vrep_max_delta=1;
 
-.platform="vrep-uav";
+//.vrep_move_thread_rate=10;
+.vrep_thread_move_speed=2;
+
+.platform="vrep-boat";

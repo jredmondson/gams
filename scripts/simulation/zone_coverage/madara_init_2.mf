@@ -1,5 +1,6 @@
 .vrep_port=19908;
-.vrep_uav_move_speed=2;
+.vrep_max_delta=0.5;
+.vrep_thread_move_speed=1;
 
 .initial_lat=40.443236;
 .initial_lon=-79.940570;

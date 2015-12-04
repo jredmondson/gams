@@ -65,9 +65,19 @@ namespace gams
     inline constexpr LocationVector::LocationVector()
       : x_(INVAL_COORD), y_(INVAL_COORD), z_(INVAL_COORD) {}
 
-    inline constexpr LocationVector::LocationVector(
-                            const LocationVector &orig)
-      : x_(orig.x_), y_(orig.y_), z_(orig.z_) { }
+    inline LocationVector::LocationVector(const double array[])
+      : x_(array[0]), y_(array[1]), z_(array[2]) {}
+
+    inline LocationVector::LocationVector(const float array[])
+      : x_(array[0]), y_(array[1]), z_(array[2]) {}
+
+    inline LocationVector::LocationVector(
+        const madara::knowledge::containers::DoubleVector &vec)
+      : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
+
+    inline LocationVector::LocationVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
 
     inline constexpr bool LocationVector::is_invalid() const
     {
@@ -131,17 +141,10 @@ namespace gams
 
     inline double LocationVector::set(int i, double val)
     {
-      switch(i)
-      {
-      case 0:
-        return x(val);
-      case 1:
-        return y(val);
-      case 2:
-        return z(val);
-      default:
-        throw std::range_error("Index out of bounds for Location");
-      }
+      return i == 0 ? x(val) :
+             i == 1 ? y(val) :
+             i == 2 ? z(val) :
+             throw std::range_error("Index out of bounds for Location");
     }
 
     inline LocationVector &LocationVector::as_vec()
@@ -169,8 +172,8 @@ namespace gams
 
     inline Location::Location() : LocationVector(), Coordinate() {}
 
-    inline constexpr Location::Location(const Location &orig)
-      : LocationVector(orig), Coordinate(orig) {}
+    //inline constexpr Location::Location(const Location &orig)
+      //: LocationVector(orig), Coordinate(orig) {}
 
     inline Location::Location(const ReferenceFrame &new_frame,
                               const Location &orig)
@@ -178,6 +181,35 @@ namespace gams
     {
       transform_this_to(new_frame);
     }
+
+    inline Location::Location(const double array[])
+      : LocationVector(array), Coordinate() {}
+
+    inline Location::Location(const ReferenceFrame &frame, const double array[])
+      : LocationVector(array), Coordinate(frame) {}
+
+    inline Location::Location(const float array[])
+      : LocationVector(array), Coordinate() {}
+
+    inline Location::Location(const ReferenceFrame &frame, const float array[])
+      : LocationVector(array), Coordinate(frame) {}
+
+    inline Location::Location(
+        const madara::knowledge::containers::DoubleVector &vec)
+      : LocationVector(vec), Coordinate() {}
+
+    inline Location::Location(const ReferenceFrame &frame,
+        const madara::knowledge::containers::DoubleVector &vec)
+      : LocationVector(vec), Coordinate(frame) {}
+
+    inline Location::Location(
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : LocationVector(vec), Coordinate() {}
+
+    inline Location::Location(
+        const ReferenceFrame &frame,
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : LocationVector(vec), Coordinate(frame) {}
   }
 }
 

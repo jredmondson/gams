@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -44,46 +44,78 @@
  *      distribution.
  **/
 
-/**
- * @file CartesianFrame.h
- * @author James Edmondson <jedmondson@gmail.com>
- *
- * This file contains the base reference Frame class
- **/
+namespace platforms = gams::platforms;
+namespace variables = gams::variables;
 
-#ifndef _GAMS_UTILITY_CARTESIAN_FRAME_INL_
-#define _GAMS_UTILITY_CARTESIAN_FRAME_INL_
-
-#include "ReferenceFrame.h"
-
-namespace gams
+inline gams::platforms::BasePlatform::BasePlatform (
+  madara::knowledge::KnowledgeBase * knowledge,
+  variables::Sensors * sensors,
+  variables::Self * self)
+  : knowledge_ (knowledge), self_ (self), sensors_ (sensors)
 {
-  namespace utility
-  {
-    inline CartesianFrame::CartesianFrame() : AxisAngleFrame() {}
-
-    inline CartesianFrame::CartesianFrame(const Pose &origin)
-              : AxisAngleFrame(origin) {}
-
-    inline CartesianFrame::CartesianFrame(Pose *origin)
-              : AxisAngleFrame(origin) {}
-
-    inline std::string CartesianFrame::get_name() const
-    {
-      return "Cartesian";
-    }
-
-    inline double CartesianFrame::calc_distance(
-                      double x1, double y1, double z1,
-                      double x2, double y2, double z2) const
-    {
-      double x_dist = x2 - x1;
-      double y_dist = y2 - y1;
-      double z_dist = z2 - z2;
-
-      return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
-    }
-  }
 }
 
-#endif
+inline gams::utility::Position *
+gams::platforms::BasePlatform::get_position ()
+{
+  utility::Position * position = new utility::Position ();
+  position->from_container (self_->device.location);
+  return position;
+}
+
+inline gams::utility::Location
+gams::platforms::BasePlatform::get_location () const
+{
+  utility::Location ret(get_frame(), 0, 0);
+  ret.from_container<utility::order::GPS>(self_->device.location);
+  return ret;
+}
+
+inline gams::utility::Rotation
+gams::platforms::BasePlatform::get_rotation () const
+{
+  return utility::Rotation(get_frame(), self_->device.angle);
+}
+
+inline gams::utility::Pose
+gams::platforms::BasePlatform::get_pose () const
+{
+  return utility::Pose(get_frame(), self_->device.location,
+                       self_->device.angle);
+}
+
+inline madara::knowledge::KnowledgeBase *
+gams::platforms::BasePlatform::get_knowledge_base (void) const
+{
+  return knowledge_;
+}
+
+inline variables::Self *
+gams::platforms::BasePlatform::get_self (void) const
+{
+  return self_;
+}
+
+inline variables::Sensors *
+gams::platforms::BasePlatform::get_sensors (void) const
+{
+  return sensors_;
+}
+
+inline const variables::PlatformStatus *
+gams::platforms::BasePlatform::get_platform_status (void) const
+{
+  return &status_;
+}
+
+inline variables::PlatformStatus *
+gams::platforms::BasePlatform::get_platform_status (void)
+{
+  return &status_;
+}
+
+inline const gams::utility::ReferenceFrame &
+gams::platforms::BasePlatform::get_frame (void)
+{
+  return frame_;
+}

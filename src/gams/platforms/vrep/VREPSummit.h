@@ -127,9 +127,9 @@ namespace gams
       virtual void get_target_handle ();
   
       /**
-       * Set initial position
+       * Get initial altitude
        */
-      virtual void set_initial_position () const;
+      virtual double get_initial_z () const;
     }; // class VREPSummit
 
     /**

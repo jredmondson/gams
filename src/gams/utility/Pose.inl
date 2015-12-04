@@ -75,9 +75,27 @@ namespace gams
     inline constexpr PoseVector::PoseVector()
       : LocationVector(), RotationVector() {}
 
-    inline constexpr PoseVector::PoseVector(const PoseVector &other)
-      : LocationVector(other.as_location_vec()),
-        RotationVector(other.as_rotation_vec()) {}
+    inline PoseVector::PoseVector(
+        const madara::knowledge::containers::DoubleVector &vec)
+      : LocationVector(vec[0], vec[1], vec[2]),
+        RotationVector(vec[3], vec[4], vec[5]) {}
+
+    inline PoseVector::PoseVector(
+        const madara::knowledge::containers::DoubleVector &vec_loc,
+        const madara::knowledge::containers::DoubleVector &vec_rot)
+      : LocationVector(vec_loc),
+        RotationVector(vec_rot) {}
+
+    inline PoseVector::PoseVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : LocationVector(vec[0], vec[1], vec[2]),
+        RotationVector(vec[3], vec[4], vec[5]) {}
+
+    inline PoseVector::PoseVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+        const madara::knowledge::containers::NativeDoubleVector &vec_rot)
+      : LocationVector(vec_loc),
+        RotationVector(vec_rot) {}
 
     inline constexpr bool PoseVector::is_invalid() const
     {
@@ -185,9 +203,6 @@ namespace gams
 
     inline Pose::Pose() : PoseVector(), Coordinate() {}
 
-    inline constexpr Pose::Pose(const Pose &other)
-      : PoseVector(other.as_vec()), Coordinate(other.frame()) {}
-
     inline constexpr Pose::Pose(const Location &loc)
       : PoseVector(loc), Coordinate(loc.frame()) {}
 
@@ -209,6 +224,44 @@ namespace gams
     {
       transform_this_to(new_frame);
     }
+
+    inline Pose::Pose(
+        const madara::knowledge::containers::DoubleVector &vec)
+      : PoseVector(vec), Coordinate() {}
+
+    inline Pose::Pose(const ReferenceFrame &frame,
+        const madara::knowledge::containers::DoubleVector &vec)
+      : PoseVector(vec), Coordinate(frame) {}
+
+    inline Pose::Pose(
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : PoseVector(vec), Coordinate() {}
+
+    inline Pose::Pose(
+        const ReferenceFrame &frame,
+        const madara::knowledge::containers::NativeDoubleVector &vec)
+      : PoseVector(vec), Coordinate(frame) {}
+
+    inline Pose::Pose(
+        const madara::knowledge::containers::DoubleVector &vec_loc,
+        const madara::knowledge::containers::DoubleVector &vec_rot)
+      : PoseVector(vec_loc, vec_rot), Coordinate() {}
+
+    inline Pose::Pose(const ReferenceFrame &frame,
+        const madara::knowledge::containers::DoubleVector &vec_loc,
+        const madara::knowledge::containers::DoubleVector &vec_rot)
+      : PoseVector(vec_loc, vec_rot), Coordinate(frame) {}
+
+    inline Pose::Pose(
+        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+        const madara::knowledge::containers::NativeDoubleVector &vec_rot)
+      : PoseVector(vec_loc, vec_rot), Coordinate() {}
+
+    inline Pose::Pose(
+        const ReferenceFrame &frame,
+        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+        const madara::knowledge::containers::NativeDoubleVector &vec_rot)
+      : PoseVector(vec_loc, vec_rot), Coordinate(frame) {}
 
     inline double Pose::angle_to(const Pose &target) const
     {

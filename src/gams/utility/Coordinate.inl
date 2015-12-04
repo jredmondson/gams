@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file Coordinate.inl
+ * @file Coordinates.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the inline functions Location, Rotation, and Pose
+ * This file contains the Location, Rotation, and Pose classes
  **/
 
 #ifndef _GAMS_UTILITY_COORDINATE_INL_
@@ -80,11 +80,6 @@ namespace gams
     inline constexpr Coordinate<CoordType>::Coordinate(
                             const ReferenceFrame *frame)
       : frame_(frame) {}
-
-    template<typename CoordType>
-    inline constexpr Coordinate<CoordType>::Coordinate(
-                            const Coordinate<CoordType> &orig)
-      : frame_(&orig.frame()) {}
 
     template<typename CoordType>
     inline CoordType &Coordinate<CoordType>::as_coord_type()
@@ -135,35 +130,12 @@ namespace gams
       }
       else
       {
-        CoordType tmp(frame(), static_cast<const CoordType &>(rhs));
-        return as_type<typename CoordType::BaseType>() == tmp;
-      }
-    }
-
-    template<typename CoordType>
-    template<typename RhsType>
-    bool Coordinate<CoordType>::operator==(const RhsType &rhs) const
-    {
-      const CoordType &self = as_coord_type();
-      if(self.size() != rhs.size())
         return false;
-      for(int i = 0; i < self.size(); ++i)
-      {
-        if(self.get(i) != rhs[i])
-          return false;
       }
-      return true;
     }
 
     template<typename CoordType>
     inline bool Coordinate<CoordType>::operator!=(const CoordType &rhs) const
-    {
-      return !(*this == rhs);
-    }
-
-    template<typename CoordType>
-    template<typename RhsType>
-    inline bool Coordinate<CoordType>::operator!=(const RhsType &rhs) const
     {
       return !(*this == rhs);
     }
@@ -251,6 +223,17 @@ namespace gams
     }
 
     template<typename CoordType>
+    template<typename Order, typename ContainType>
+    inline void Coordinate<CoordType>::to_container(
+                                ContainType &container) const
+    {
+      const CoordType &s = as_coord_type();
+      container.set(0, s.get(Order::template find<0>::value));
+      container.set(1, s.get(Order::template find<1>::value));
+      container.set(2, s.get(Order::template find<2>::value));
+    }
+
+    template<typename CoordType>
     template<typename ContainType>
     inline void Coordinate<CoordType>::from_container(
                               const ContainType &container)
@@ -260,6 +243,63 @@ namespace gams
       {
         s.set(i, container[i]);
       }
+    }
+
+    template<typename CoordType>
+    template<typename Order, typename ContainType>
+    inline void Coordinate<CoordType>::from_container(
+                                ContainType &container)
+    {
+      CoordType &s = as_coord_type();
+      s.set(0, container[Order::template get<0>::value]);
+      s.set(1, container[Order::template get<1>::value]);
+      s.set(2, container[Order::template get<2>::value]);
+    }
+
+    template<typename CoordType>
+    template<typename ContainType>
+    inline void Coordinate<CoordType>::to_array(
+                                ContainType &out) const
+    {
+      const CoordType &s = as_coord_type();
+      for(int i = 0; i < s.size(); i++)
+      {
+        out[i] = s.get(i);
+      }
+    }
+
+    template<typename CoordType>
+    template<typename ContainType>
+    inline void Coordinate<CoordType>::from_array(
+                              const ContainType &in)
+    {
+      CoordType &s = as_coord_type();
+      for(int i = 0; i < s.size(); i++)
+      {
+        s.set(i, in[i]);
+      }
+    }
+
+    template<typename CoordType>
+    template<typename ContainType>
+    inline bool Coordinate<CoordType>::operator==(
+      const ContainType &container) const
+    {
+      const CoordType &s = as_coord_type();
+      for(int i = 0; i < s.size(); i++)
+      {
+        if(s.get(i) != container[i])
+          return false;
+      }
+      return true;
+    }
+
+    template<typename CoordType>
+    template<typename ContainType>
+    inline bool Coordinate<CoordType>::operator!=(
+      const ContainType &container) const
+    {
+      return !operator==(container);
     }
   }
 }

@@ -1,6 +1,12 @@
 #ifndef INCLUDED_CPP11_COMPAT_H
 #define INCLUDED_CPP11_COMPAT_H
 
+#ifdef __GNUC__
+#define WARN_UNUSED __attribute__((warn_unused_result))
+#else
+#define WARN_UNUSED
+#endif
+
 #if __cplusplus >= 201103L || (MSC_VER >= 1600) 
 // If C++11 support is active
 #define CPP11

@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Coordinate.h
+ * @file Coordinates.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes
@@ -66,6 +66,81 @@ namespace gams
   namespace utility
   {
     class ReferenceFrame;
+
+    namespace order
+    {
+      template<int i0_, int i1_, int i2_>
+      class Order
+      {
+      public:
+        static const int i0 = i0_;
+        static const int i1 = i1_;
+        static const int i2 = i2_;
+
+        template<int i, bool = true>
+        struct get;
+
+        template<bool dummy>
+        struct get<0, dummy>
+        {
+          static const int value = i0_;
+        };
+
+        template<bool dummy>
+        struct get<1, dummy>
+        {
+          static const int value = i1_;
+        };
+
+        template<bool dummy>
+        struct get<2, dummy>
+        {
+          static const int value = i2_;
+        };
+
+        template<int i, bool = true>
+        struct find;
+
+        template<bool dummy>
+        struct find<i0_, dummy>
+        {
+          static const int value = 0;
+        };
+
+        template<bool dummy>
+        struct find<i1_, dummy>
+        {
+          static const int value = 1;
+        };
+
+        template<bool dummy>
+        struct find<i2_, dummy>
+        {
+          static const int value = 2;
+        };
+      };
+
+      static const int X = 0;
+      static const int Lng = X;
+
+      static const int Y = 1;
+      static const int Lat = Y;
+
+      static const int Z = 2;
+      static const int Alt = Z;
+
+      typedef Order<X, Y, Z> XYZ;
+      typedef Order<X, Z, Y> XZY;
+      typedef Order<Y, X, Z> YXZ;
+      typedef Order<Y, Z, X> YZX;
+      typedef Order<Z, X, Y> ZXY;
+      typedef Order<Z, Y, X> ZYX;
+
+      typedef Order<Lat, Lng, Alt> LatLng;
+      typedef Order<Lng, Lat, Alt> LngLat;
+
+      typedef LatLng GPS;
+    }
 
     /**
      * For internal use.
@@ -138,14 +213,6 @@ namespace gams
       constexpr explicit Coordinate(const ReferenceFrame *frame);
 
       /**
-       * Copy constructor. This Coordinate will refer to the same frame as the
-       * original Coordinate.
-       *
-       * @param orig the original Coordinate to copy.
-       **/
-      constexpr Coordinate(const Coordinate &orig);
-
-      /**
        * Getter for the reference frame this Coordinate belongs to.
        *
        * @return the frame
@@ -164,55 +231,27 @@ namespace gams
       const ReferenceFrame &frame(const ReferenceFrame &new_frame);
 
       /**
-       * Evaluate equality with the other Coordinate. If the coordinates belong
-       * to different reference frames, the rhs will be copied, and converted
-       * to the same frame as the lhs
+       * Evaluate equality with the other Coordinate
        *
        * Note: in practice, the approximately_equal method may be more useful
        *
        * @param rhs the other Coordinate
-       * @return true if, after conversion, the two coordinates are the same
+       * @return true if the two coordinates are in the same reference frame,
+       *  and they have the same values
        **/
       bool operator==(const CoordType &rhs) const;
 
       /**
-       * Evaluate equality with a vector-like object
-       *
-       * @tparam RhsType type of the right-hand-side. Must support a size()
-       *     method, and operator[] to access contents.
-       * @param rhs the right-hand-side of the equality. This object is treated
-       *     as a set of coordinates in this Coordinate's reference frame.
-       * @return true if the rhs is the same size as this object, and all terms
-       *     are equal to each other, respectively. False otherwise.
-       **/
-      template<typename RhsType>
-      bool operator==(const RhsType &rhs) const;
-
-      /**
-       * Evaluate inequality with the other Coordinate. If the coordinates
-       * belong to different reference frames, the rhs will be copied, and
-       * converted to the same frame as the lhs
+       * Evaluate inequality with the other Coordinate.
        *
        * Note: in practice, a negated call to the approximately_equal method
        * may be more useful
        *
        * @param rhs the other Coordinate
-       * @return false if, after conversion, the two coordinates are the same
+       * @return false if the two coordinates are in the same reference frame,
+       *  and they have the same values
        **/
       bool operator!=(const CoordType &rhs) const;
-
-      /**
-       * Evaluate inequality with a vector-like object
-       *
-       * @tparam RhsType type of the right-hand-side. Must support a size()
-       *     method, and operator[] to access contents.
-       * @param rhs the right-hand-side of the equality. This object is treated
-       *     as a set of coordinates in this Coordinate's reference frame.
-       * @return false if the rhs is the same size as this object, and all terms
-       *     are equal to each other, respectively. True otherwise.
-       **/
-      template<typename RhsType>
-      bool operator!=(const RhsType &rhs) const;
 
       /**
        * Tests if this Coordinate is within epsilon in distance (as defined by
@@ -251,16 +290,18 @@ namespace gams
        * This does not modify this Coordinate's reference frame binding.
        * The new coordinate will be within this Coordinate's reference frame.
        *
-       * @param in  the input string, as specified above
+       * @param the input string, as specified above
        **/
       void from_string(const std::string &in);
 
       /**
        * Outputs this Coordinates values to the referenced container. This
-       * container type must support a set method taking two parameters:
-       *  first, an integer index; second, a floating-point value
+       * container type must support the following set method:
+       *  ContainType::set(int index, double value)
        *
        * The MADARA DoubleVector and NativeDoubleVector types are supported.
+       *
+       * Values read in XYZ, or Lng/Lat/Alt order
        *
        * @tparam ContainType the type of the container; must support "set"
        * @param container the container to put this Coordinate's values into.
@@ -269,9 +310,25 @@ namespace gams
       void to_container(ContainType &container) const;
 
       /**
+       * Outputs this Coordinates values to the referenced container. This
+       * container type must support the following set method:
+       *  ContainType::set(int index, double value)
+       *
+       * The MADARA DoubleVector and NativeDoubleVector types are supported.
+       *
+       * @tparam Order a type which specifies the ordering (see order namespace)
+       * @tparam ContainType the type of the container; must support "set"
+       * @param container the container to put this Coordinate's values into.
+       **/
+      template<typename Order, typename ContainType>
+      void to_container(ContainType &container) const;
+
+      /**
        * Overwrites this Coordinate's values with those pulled from the
        * referenced container. These values will be within this object's
        * current reference frame. The container must support operator[],
+       *
+       * Values read in XYZ, or Lng/Lat/Alt order
        *
        * @tparam ContainType the type of the container; must support operator[]
        * @param container the container to pull new values from.
@@ -279,6 +336,78 @@ namespace gams
       template<typename ContainType>
       void from_container(const ContainType &container);
 
+      /**
+       * Overwrites this Coordinate's values with those pulled from the
+       * referenced container. These values will be within this object's
+       * current reference frame. The container must support operator[],
+       *
+       * @tparam Order a type which specifies the ordering (see order namespace)
+       * @tparam ContainType the type of the container; must support operator[]
+       * @param container the container to pull new values from.
+       **/
+      template<typename Order, typename ContainType>
+      void from_container(ContainType &container);
+
+      /**
+       * Outputs this Coordinates values to the referenced container. This
+       * container type must support operator[] for setting by index.
+       *
+       * If the array's size is smaller than the cardinality of this
+       * coordinate type, the behavior is undefined. If it is larger, the
+       * extra elements are not changed.
+       *
+       * The MADARA DoubleVector and NativeDoubleVector types are supported.
+       *
+       * @tparam ContainType the type of the container; must support "set"
+       * @param container the container to put this Coordinate's values into.
+       **/
+      template<typename ContainType>
+      void to_array(ContainType &out) const;
+
+      /**
+       * Overwrites this Coordinate's values with those pulled from the
+       * referenced array. These values will be within this object's
+       * current reference frame. The container must support operator[],
+       *
+       * If the array's size is smaller than the cardinality of this
+       * coordinate type, the behavior is undefined. If it is larger, the
+       * extra elements are ignored.
+       *
+       * @tparam ContainType the type of the container; must support operator[]
+       * @param container the container to pull new values from.
+       **/
+      template<typename ContainType>
+      void from_array(const ContainType &in);
+
+      /**
+       * Compares coordinates values to those in the container. The container
+       * must support operator[], returning a numerical type. The values in
+       * the container are assumed to lie in the same reference frame as those
+       * of this coordinate
+       *
+       * @tparam ContainType the type of the container; must support operator[]
+       * @return returns true if this coordinates values match those in the
+       *         container, respectively. If this container is smaller than the
+       *         cardinality of this coordinate type, behavior is undefined.
+       *         If it is greater, the extra values are ignored.
+       **/
+      template<typename ContainType>
+      bool operator==(const ContainType &container) const;
+
+      /**
+       * Compares coordinates values to those in the container. The container
+       * must support operator[], returning a numerical type. The values in
+       * the container are assumed to lie in the same reference frame as those
+       * of this coordinate
+       *
+       * @tparam ContainType the type of the container; must support operator[]
+       * @return returns false if this coordinates values match those in the
+       *         container, respectively. If this container is smaller than the
+       *         cardinality of this coordinate type, behavior is undefined.
+       *         If it is greater, the extra values are ignored.
+       **/
+      template<typename ContainType>
+      bool operator!=(const ContainType &container) const;
 
       /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
        * The four methods below are defined in ReferenceFrame.inl,
@@ -298,7 +427,7 @@ namespace gams
        * @throws undefined_transform thrown if no conversion between two frames
        *      along the conversion path has been defined.
        **/
-      CoordType transform_to(const ReferenceFrame &new_frame) const;
+      CoordType WARN_UNUSED transform_to(const ReferenceFrame &new_frame)const;
 
       /**
        * Transform this coordinate, in place, to a new reference frame

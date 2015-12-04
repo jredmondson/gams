@@ -53,14 +53,6 @@
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
-gams::platforms::BasePlatform::BasePlatform (
-  madara::knowledge::KnowledgeBase * knowledge,
-  variables::Sensors * sensors,
-  variables::Self * self)
-  : knowledge_ (knowledge), self_ (self), sensors_ (sensors)
-{
-}
-
 gams::platforms::BasePlatform::~BasePlatform ()
 {
 }
@@ -75,14 +67,6 @@ gams::platforms::BasePlatform::operator= (const BasePlatform & rhs)
     this->status_ = rhs.status_;
     this->self_ = rhs.self_;
   }
-}
-
-gams::utility::Position *
-gams::platforms::BasePlatform::get_position ()
-{
-  utility::Position * position = new utility::Position ();
-  position->from_container (self_->device.location);
-  return position;
 }
 
 double
@@ -149,10 +133,22 @@ int
 gams::platforms::BasePlatform::move (const utility::Position & target,
   const double & epsilon)
 {
+  return move(utility::Location(get_frame(),
+              target.y, target.x, target.z), epsilon);
+}
+
+int
+gams::platforms::BasePlatform::move (const utility::Location & target,
+  double epsilon)
+{
   int result = 0;
 
-  utility::GPSPosition current;
-  current.from_container (self_->device.location);
+  utility::Location current(get_location());
+
+  utility::Location dest(get_frame(), 0, 0);
+  dest.from_container<utility::order::GPS> (self_->device.dest);
+
+  utility::Location gps_target(get_frame(), target);
 
   /**
    * if we are not paused, we are not already at the target,
@@ -160,11 +156,11 @@ gams::platforms::BasePlatform::move (const utility::Position & target,
    * from the existing move location, then set status to
    * moving and return 1 (moving to the new location)
    **/
-  if (!*status_.paused_moving && target != current &&
-     (!*status_.moving || target != self_->device.dest))
+  if (!*status_.paused_moving && gps_target != current &&
+     (!*status_.moving || gps_target != dest))
   {
     self_->device.source = self_->device.location;
-    target.to_container (self_->device.dest);
+    gps_target.to_container<utility::order::GPS> (self_->device.dest);
 
     result = 1;
     status_.moving = 1;
@@ -188,6 +184,56 @@ int
 gams::platforms::BasePlatform::rotate (const utility::Axes &)
 {
   return 0;
+}
+
+int
+gams::platforms::BasePlatform::rotate (const utility::Rotation & target,
+  double epsilon)
+{
+  int result (0);
+
+  utility::Rotation current(get_rotation());
+
+  /**
+   * if we are not paused, we are not already at the target,
+   * and we are either not moving or the target is different
+   * from the existing move location, then set status to
+   * moving and return 1 (moving to the new location)
+   **/
+  if (!*status_.paused_rotating && target != current &&
+     (!*status_.rotating || target != self_->device.dest_angle))
+  {
+    self_->device.source_angle = self_->device.angle;
+    target.to_container (self_->device.dest_angle);
+
+    result = 1;
+    status_.rotating = 1;
+  }
+  /**
+   * otherwise, if we are approximately at the target angle,
+   * change status and paused to 0 and return 2 (arrived)
+   **/
+  else if (target.approximately_equal (current, epsilon))
+  {
+    status_.rotating = 0;
+    status_.paused_rotating = 0;
+    result = 2;
+  }
+
+  return 0;
+}
+
+int
+gams::platforms::BasePlatform::pose (const utility::Pose & target,
+  double loc_epsilon, double rot_epsilon)
+{
+  int move_status = move(utility::Location(target), loc_epsilon);
+  int rotate_status = rotate(utility::Rotation(target), rot_epsilon);
+  if(move_status == 0 || rotate_status == 0)
+    return 0;
+  if(move_status == 2 && rotate_status == 2)
+    return 2;
+  return 1;
 }
 
 int
@@ -247,26 +293,4 @@ gams::platforms::BasePlatform::stop_move (void)
   self_->device.dest = self_->device.location;
 }
 
-madara::knowledge::KnowledgeBase *
-gams::platforms::BasePlatform::get_knowledge_base (void)
-{
-  return knowledge_;
-}
-
-variables::Self *
-gams::platforms::BasePlatform::get_self (void)
-{
-  return self_;
-}
-
-variables::Sensors *
-gams::platforms::BasePlatform::get_sensors (void)
-{
-  return sensors_;
-}
-
-variables::PlatformStatus *
-gams::platforms::BasePlatform::get_platform_status (void)
-{
-  return &status_;
-}
+gams::utility::GPSFrame gams::platforms::BasePlatform::frame_;

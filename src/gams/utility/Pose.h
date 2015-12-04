@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Pose.h
+ * @file Coordinates.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes
@@ -98,7 +98,7 @@ namespace gams
        * Construct a PoseVector from a RotationVector. Location info will
        * be all zeros (is_location_zero() == true)
        *
-       * @param rot the RotationVector to get location info from.
+       * @param loc the RotationVector to get location info from.
        **/
       constexpr PoseVector(const RotationVector &rot);
 
@@ -117,9 +117,38 @@ namespace gams
       constexpr PoseVector();
 
       /**
-       * Copy constructor
+       * Constructor from MADARA DoubleVector
+       * @param vec the vector to get values from (index 0, 1, 2, 3, 4, 5 go
+       *            to x, y, z, rx, ry, rz)
        **/
-      constexpr PoseVector(const PoseVector &other);
+      explicit PoseVector(
+        const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector
+       * @param vec the vector to get values from (index 0, 1, 2, 3, 4, 5 go
+       *            to x, y, z, rx, ry, rz)
+       **/
+      explicit PoseVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
+       * Constructor from two MADARA DoubleVectors, for location and rotation
+       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_rot  rotation values from (0, 1, 2 into rx, ry, rz)
+       **/
+      explicit PoseVector(
+        const madara::knowledge::containers::DoubleVector &vec_loc,
+        const madara::knowledge::containers::DoubleVector &vec_rot);
+
+      /**
+       * Constructor from two MADARA NativeDoubleVector, for location/rotation
+       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_rot  rotation values from (0, 1, 2 into rx, ry, rz)
+       **/
+      explicit PoseVector(
+        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+        const madara::knowledge::containers::NativeDoubleVector &vec_rot);
 
       /**
        * Tests if this Pose is invalid; i.e., any values are INVAL_COORD
@@ -326,11 +355,6 @@ namespace gams
       Pose(const LocationVector &loc, const RotationVector &rot);
 
       /**
-       * Copy constructor
-       **/
-      constexpr Pose(const Pose &other);
-
-      /**
        * Construct from individual Location and Rotation vectors, in a
        * given frame.
        *
@@ -357,9 +381,86 @@ namespace gams
        * Copy constructor, but also transform to the new frame.
        *
        * @param new_frame the frame to transform into
-       * @param orig      the origin to use for Pose information
        **/
       Pose(const ReferenceFrame &new_frame, const Pose &orig);
+
+      /**
+       * Constructor from MADARA DoubleVector, into default ReferenceFrame
+       * @param vec the vector to get values from (index 0, 1, 2, 3, 4, 5 go
+       *            to x, y, z, rx, ry, rz)
+       **/
+      explicit Pose(
+              const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA DoubleVector, into specified ReferenceFrame
+       * @param frame the frame to belong to
+       * @param vec the vector to get values from (index 0, 1, 2, 3, 4, 5 go
+       *            to x, y, z, rx, ry, rz)
+       **/
+      Pose(const ReferenceFrame &frame,
+               const madara::knowledge::containers::DoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector, into default
+       * ReferenceFrame
+       * @param vec the vector to get values from (index 0, 1, 2, 3, 4, 5 go
+       *            to x, y, z, rx, ry, rz)
+       **/
+      explicit Pose(
+         const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
+       * Constructor from MADARA NativeDoubleVector, into specified
+       * ReferenceFrame
+       * @param frame the frame to belong to
+       * @param vec the vector to get values from (index 0, 1, 2, 3, 4, 5 go
+       *            to x, y, z, rx, ry, rz)
+       **/
+      Pose(const ReferenceFrame &frame,
+         const madara::knowledge::containers::NativeDoubleVector &vec);
+
+      /**
+       * Constructor from two MADARA DoubleVector, for location/rotation
+       * into default reference frame
+       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_rot  rotation values from (0, 1, 2 into rx, ry, rz)
+       **/
+      Pose(
+        const madara::knowledge::containers::DoubleVector &vec_loc,
+        const madara::knowledge::containers::DoubleVector &vec_rot);
+
+      /**
+       * Constructor from two MADARA DoubleVector, for location/rotation
+       * into specified reference frame
+       * @param frame the frame to belong to
+       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_rot  rotation values from (0, 1, 2 into rx, ry, rz)
+       **/
+      Pose(const ReferenceFrame &frame,
+        const madara::knowledge::containers::DoubleVector &vec_loc,
+        const madara::knowledge::containers::DoubleVector &vec_rot);
+
+      /**
+       * Constructor from two MADARA NativeDoubleVector, for location/rotation
+       * into default reference frame
+       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_rot  rotation values from (0, 1, 2 into rx, ry, rz)
+       **/
+      Pose(
+        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+        const madara::knowledge::containers::NativeDoubleVector &vec_rot);
+
+      /**
+       * Constructor from two MADARA NativeDoubleVector, for location/rotation
+       * into specified reference frame
+       * @param frame the frame to belong to
+       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_rot  rotation values from (0, 1, 2 into rx, ry, rz)
+       **/
+      Pose(const ReferenceFrame &frame,
+        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+        const madara::knowledge::containers::NativeDoubleVector &vec_rot);
 
       /**
        * Finds angle to the target; transforms target to this frame if needed.

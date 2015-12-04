@@ -181,7 +181,7 @@ namespace gams
      **/
     class GAMSExport ReferenceFrame
     {
-    public:
+    protected:
       /**
        * Default constructor. No parent frame.
        **/
@@ -204,6 +204,7 @@ namespace gams
        **/
       virtual ~ReferenceFrame();
 
+    public:
       /**
        * Gets the origin of this Frame
        *
@@ -506,6 +507,9 @@ namespace gams
     protected:
       Pose *origin_;
       bool destruct_origin_;
+      bool is_YXZ;
+
+    public:
     };
 
     /**

@@ -135,7 +135,7 @@ namespace gams
       /**
        * Set initial position
        */
-      virtual void set_initial_position () const;
+      virtual double get_initial_z () const;
     }; // class VREPBoat
 
     /**

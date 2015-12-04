@@ -61,6 +61,9 @@
 #include "gams/variables/PlatformStatus.h"
 #include "gams/utility/GPSPosition.h"
 #include "gams/utility/Axes.h"
+#include "gams/utility/GPSFrame.h"
+#include "gams/utility/Location.h"
+#include "gams/utility/Pose.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
@@ -116,7 +119,8 @@ namespace gams
        * @param  sensors  map of sensor names to sensor information
        * @param  self     self referencing variables for the device
        **/
-      BasePlatform (madara::knowledge::KnowledgeBase * knowledge = 0,
+      BasePlatform (
+        madara::knowledge::KnowledgeBase * knowledge = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
 
@@ -148,6 +152,24 @@ namespace gams
        * @return GPS location of platform
        */
       utility::Position * get_position ();
+
+      /**
+       * Gets Location of platform, within its parent frame
+       * @return Location of platform
+       */
+      utility::Location get_location () const;
+
+      /**
+       * Gets Rotation of platform, within its parent frame
+       * @return Location of platform
+       */
+      utility::Rotation get_rotation () const;
+
+      /**
+       * Gets Pose of platform, within its parent frame
+       * @return Location of platform
+       */
+      utility::Pose get_pose () const;
 
       /**
        * Gets the name of the platform
@@ -207,11 +229,49 @@ namespace gams
         const double & epsilon = 0.1);
 
       /**
+       * Moves the platform to a location
+       * @param   target    the coordinates to move to
+       * @param   epsilon   approximation value
+       * @return the status of the move operation, @see PlatformReturnValues
+       **/
+      virtual int move (const utility::Location & location,
+        double epsilon = 0.1);
+
+      /**
       * Rotates the platform by an angle on a 3D axis
       * @param   axes  the coordinates to move to
       * @return the status of the rotate, @see PlatformReturnValues
       **/
       virtual int rotate (const utility::Axes & axes);
+
+      /**
+       * Rotates the platform to match a given angle
+       * @param   target    the rotation to move to
+       * @param   epsilon   approximation value
+       * @return the status of the rotate, @see PlatformReturnValues
+       **/
+      virtual int rotate (const utility::Rotation & target,
+        double epsilon = M_PI/16);
+
+      /**
+       * Moves the platform to a pose (location and rotation)
+       *
+       * This default implementation calls move and rotate with the
+       * Location and Rotation portions of the target Pose. The return value
+       * is composed as follows: if either call returns ERROR (0), this call
+       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
+       * this call also returns ARRIVED (2). Otherwise, this call returns
+       * MOVING (1)
+       *
+       * Overrides might function differently.
+       *
+       * @param   target        the coordinates to move to
+       * @param   loc_epsilon   approximation value for the location
+       * @param   rot_epsilon   approximation value for the rotation
+       * @return the status of the operation, @see PlatformReturnValues
+       **/
+      virtual int pose (const utility::Pose & target,
+        double loc_epsilon = 0.1, double rot_epsilon = M_PI/16);
 
       /**
        * Pauses movement, keeps source and dest at current values
@@ -223,25 +283,25 @@ namespace gams
        * @return number of sensors updated/used
        **/
       virtual int sense (void) = 0;
-      
+
       /**
        * Sets the knowledge base to use for the platform
        * @param  rhs  the new knowledge base to use
        **/
       void set_knowledge (madara::knowledge::KnowledgeBase * rhs);
-      
+
       /**
        * Set move speed
        * @param speed new speed in meters/second
        **/
       virtual void set_move_speed (const double& speed);
-      
+
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
       virtual void set_sensors (variables::Sensors * sensors);
-      
+
       /**
        * Stops movement, resetting source and dest to current location
        **/
@@ -252,30 +312,38 @@ namespace gams
        * @return the status of the takeoff, @see PlatformReturnValues
        **/
       virtual int takeoff (void);
-      
+
       /**
        * Gets the knowledge base
        * @return the knowledge base referenced by the algorithm and platform
        **/
-      madara::knowledge::KnowledgeBase * get_knowledge_base (void);
-      
+      madara::knowledge::KnowledgeBase * get_knowledge_base (void) const;
+
       /**
        * Gets self-referencing variables
        * @return self-referencing information like id and device attributes
        **/
-      variables::Self * get_self (void);
+      variables::Self * get_self (void) const;
 
       /**
        * Gets the available sensor information
        * @return sensor information
        **/
-      variables::Sensors * get_sensors (void);
+      variables::Sensors * get_sensors (void) const;
 
       /**
        * Gets platform status information
        * @return platform status info
        **/
       variables::PlatformStatus * get_platform_status (void);
+
+      /**
+       * Gets platform status information (const version)
+       * @return platform status info
+       **/
+      const variables::PlatformStatus * get_platform_status (void) const;
+
+      static const utility::ReferenceFrame &get_frame (void);
 
     protected:
       /// movement speed for platform in meters/second
@@ -292,11 +360,16 @@ namespace gams
 
       /// provides access to status information for this platform
       variables::PlatformStatus status_;
+
+      /// the reference frame this platform operates within
+      static utility::GPSFrame frame_;
     };
 
     // deprecated typdef. Please use BasePlatform instead.
     typedef  BasePlatform    Base;
   }
 }
+
+#include "BasePlatform.inl"
 
 #endif // _GAMS_PLATFORM_BASE_H_

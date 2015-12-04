@@ -180,7 +180,7 @@ gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
   }
 
   // add some intermediate points
-  const size_t NUM_INTERMEDIATE_PTS = 5;
+  const size_t NUM_INTERMEDIATE_PTS = 1;
   for (size_t i = 0; i < vertices.size(); ++i)
   {
     utility::GPSPosition start = vertices[(i + closest) % vertices.size ()];
