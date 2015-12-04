@@ -25,8 +25,9 @@ sub run {
       $cmd = "$cmd $gams_root/gams_controller -i $i -n $num --loop-time $time --period $period";
       $cmd = "$cmd --madara-file $gams_root/scripts/simulation/madara_init_common.mf";
       $cmd = "$cmd $gams_root/scripts/simulation/areas/$area.mf";
+      $cmd = "$cmd $gams_root/scripts/simulation/$sim/madara_init_common.mf";
       $cmd = "$cmd $gams_root/scripts/simulation/$sim/madara_init_$i.mf";
-      $cmd = "$cmd --madara-level $madara_debug --gams-level $gams_debug"
+      $cmd = "$cmd --madara-level $madara_debug --gams-level $gams_debug";
       $cmd = "$cmd --logfile gams_log_$i.log";
       $cmd = "$cmd \"";
       if ($term_prefix)

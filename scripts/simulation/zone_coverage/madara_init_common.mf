@@ -1,0 +1,11 @@
+group.assets.size=1;
+group.assets.0="agent.0";
+group.protectors.size=4;
+group.protectors.0="agent.1";
+group.protectors.1="agent.3";
+group.protectors.2="agent.4";
+group.protectors.3="agent.5";
+group.enemies.size=1;
+group.enemies.0="agent.2";
+
+.platform="vrep-uav";

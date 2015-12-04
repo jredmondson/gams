@@ -1,8 +1,14 @@
 .vrep_host="127.0.0.1";
 
+// Max distance (meters) to move target when VREPBase::move is invoked,
+// if no move thread is being used (vrep_move_thread_rate = 0)
 .vrep_max_delta=1;
 
-//.vrep_move_thread_rate=10;
+// Hertz rate to run VREPBase move thread. Set to zero to disable thread
+.vrep_move_thread_rate=10;
+
+// Each thread tick, target will move at most vrep_thread_move_speed divided
+// by vrep_move_thread_rate meters.
 .vrep_thread_move_speed=2;
 
 .platform="vrep-boat";
