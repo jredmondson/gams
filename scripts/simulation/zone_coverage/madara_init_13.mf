@@ -1,0 +1,13 @@
+.vrep_port=19919;
+
+.initial_lat=40.443331;
+.initial_lon=-79.940170;
+.initial_alt=4;
+
+agent.13.command="zone coverage";
+agent.13.command.size=0;
+agent.13.command.formation=.zone_coverage_formation;
+agent.13.command.assets="assets";
+agent.13.command.protectors="protectors";
+agent.13.command.enemies="enemies";
+agent.13.command.buffer.zone_coverage_buffer;
