@@ -12,6 +12,7 @@ Makefile*
 lib*
 .*.swp
 *.class
+*.log
 
 resource/vrep/starting.ttt
 
@@ -27,5 +28,9 @@ test_madara_writer
 test_madara_reader
 hello_publisher
 loop_rate_testing
+test_arguments_parser
+test_coordinates
+test_formation_sync
+test_location
 
 bin/*
