@@ -118,7 +118,10 @@ namespace gams
     inline const ReferenceFrame &Coordinate<CoordType>::frame(
         const ReferenceFrame &new_frame)
     {
-      return *(frame_ = &new_frame);
+      const ReferenceFrame *ret = &new_frame;
+      using std::swap;
+      swap(frame_, ret);
+      return *ret;
     }
 
     template<typename CoordType>

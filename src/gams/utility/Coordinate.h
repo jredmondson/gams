@@ -58,6 +58,7 @@
 #include <gams/CPP11_compat.h>
 #include <string>
 #include <cfloat>
+#include <utility>
 
 #define INVAL_COORD DBL_MAX
 
@@ -226,7 +227,7 @@ namespace gams
        * Not thread-safe.
        *
        * @param new_frame the frame the Coordinate will now belong to
-       * @return the new frame
+       * @return the old frame
        **/
       const ReferenceFrame &frame(const ReferenceFrame &new_frame);
 
