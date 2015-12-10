@@ -61,9 +61,12 @@
 
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/utility/ArgumentParser.h"
+#include "gams/utility/CartesianFrame.h"
 
 namespace engine = madara::knowledge;
 namespace containers = engine::containers;
+
+using namespace gams::utility;
 
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
@@ -89,12 +92,12 @@ variables::Agents * agents)
     std::string assets = "assets";
     std::string enemies = "enemies";
     std::string formation = "line";
-    double buffer = 0.00001;
+    double buffer = 2;
 
-    utility::ArgumentParser argp(self_->agent.command.get_name() + ".",
+    ArgumentParser argp(self_->agent.command.get_name() + ".",
                                  *knowledge_, args);
 
-    for(utility::ArgumentParser::const_iterator i = argp.begin();
+    for(ArgumentParser::const_iterator i = argp.begin();
          i != argp.end(); i.next())
     {
       std::string name(i.name());
@@ -170,14 +173,14 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
+  BaseAlgorithm (knowledge, platform, sensors, self),
   protector_group_(protectors), asset_group_(assets), enemy_group_(enemies),
   protectors_(get_group(protectors)), assets_(get_group(assets)),
   enemies_(get_group(enemies)),
   formation_(formation), buffer_(buffer),
   index_(get_index()),
   form_func_(get_form_func(formation)),
-  next_loc_(utility::GPSPosition(DBL_MAX, DBL_MAX, 0)),
-  BaseAlgorithm (knowledge, platform, sensors, self)
+  next_loc_()
 {
   status_.init_vars (*knowledge, "zone_coverage", self->id.to_integer ());
   status_.init_variable_values ();
@@ -283,14 +286,27 @@ gams::algorithms::ZoneCoverage::update_arrays(
 void
 gams::algorithms::ZoneCoverage::update_locs(
   const MadaraArrayVec &arrays,
-  std::vector<utility::GPSPosition> &locs) const
+  std::vector<Location> &locs) const
 {
   if(locs.size() != arrays.size())
-    locs.resize(arrays.size());
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::update_locs:" \
+      " resizing locs array\n");
+    locs.resize(arrays.size(), Location(platform_->get_frame()));
+  }
   for(int i = 0; i < arrays.size(); ++i)
   {
-    locs[i].from_container(
-     const_cast<madara::knowledge::containers::NativeDoubleArray &>(arrays[i]));
+    if(arrays[i][0] != 0.0 && arrays[i][1] != 0.0)
+    {
+      locs[i].from_container<order::GPS>(arrays[i]);
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::update_locs:" \
+        " read loc (%f, %f, %f) for #%i\n",
+        locs[i].x(), locs[i].y(), locs[i].z(), i);
+    }
   }
 }
 
@@ -315,7 +331,7 @@ gams::algorithms::ZoneCoverage::execute (void)
     "gams::algorithms::ZoneCoverage::execute:" \
     " entering execute method\n");
 
-  if(next_loc_.latitude() != DBL_MAX)
+  if(!next_loc_.is_invalid())
     platform_->move(next_loc_);
   return OK;
 }
@@ -328,35 +344,218 @@ gams::algorithms::ZoneCoverage::plan (void)
     "gams::algorithms::ZoneCoverage::plan:" \
     " entering plan method\n");
 
-  next_loc_ = ((this)->*(form_func_))();
+  if(index_ >= 0)
+    next_loc_ = ((this)->*(form_func_))();
   return OK;
 }
 
-gams::utility::GPSPosition
+Location
 gams::algorithms::ZoneCoverage::line_formation() const
 {
-  utility::GPSPosition ret(DBL_MAX, DBL_MAX, 0);
+  Location ret(platform_->get_frame());
 
   if(asset_locs_.size() >= 1 && enemy_locs_.size() >= 1)
   {
-    const utility::GPSPosition &asset_loc = asset_locs_[0];
-    const utility::GPSPosition &enemy_loc = enemy_locs_[0];
+    const Location &asset_loc = asset_locs_[0];
+    const Location &enemy_loc = enemy_locs_[0];
 
-    utility::GPSPosition middle((asset_loc.x + enemy_loc.x) / 2,
-                                (asset_loc.y + enemy_loc.y) / 2,
-                                (asset_loc.z + enemy_loc.z) / 2);
-    if(index_ == 0)
-      ret = middle;
-    else
+    if(!asset_loc.is_invalid() && !enemy_loc.is_invalid())
     {
-      int offset = (index_ % 2 == 0) ? (index_ / 2) : (- (index_ + 1) / 2);
-      double a = atan2(enemy_loc.x - asset_loc.x, enemy_loc.y - asset_loc.y);
-      double pa = a + M_PI / 2;
-      double xo = sin(pa);
-      double yo = cos(pa);
-      ret.x = middle.x + xo * offset * buffer_;
-      ret.y = middle.y + yo * offset * buffer_;
-      ret.z = middle.z;
+      Location middle(platform_->get_frame(),
+                      (asset_loc.x() + enemy_loc.x()) / 2,
+                      (asset_loc.y() + enemy_loc.y()) / 2,
+                      (asset_loc.z() + enemy_loc.z()) / 2);
+      if(index_ == 0)
+        ret = middle;
+      else
+      {
+        CartesianFrame frame(asset_loc);
+
+        ret.frame(frame);
+
+        Location middle_cart(frame, middle);
+        Location enemy_loc_cart(frame, enemy_loc);
+
+        int offset = (index_ % 2 == 0) ? (index_ / 2) : (- (index_ + 1) / 2);
+        double a = atan2(enemy_loc_cart.x(),
+                         enemy_loc_cart.y());
+        double pa = a + M_PI / 2;
+        double xo = sin(pa);
+        double yo = cos(pa);
+        ret.x(middle_cart.x() + xo * offset * buffer_);
+        ret.y(middle_cart.y() + yo * offset * buffer_);
+        ret.z(0);
+
+        ret.transform_this_to(platform_->get_frame());
+        ret.z(middle.z());
+      }
+    }
+  }
+
+  return ret;
+}
+
+Location
+gams::algorithms::ZoneCoverage::arc_formation() const
+{
+  Location ret(platform_->get_frame());
+
+  if(asset_locs_.size() >= 1 && enemy_locs_.size() >= 1)
+  {
+    const Location &asset_loc = asset_locs_[0];
+    const Location &enemy_loc = enemy_locs_[0];
+
+    if(!asset_loc.is_invalid() && !enemy_loc.is_invalid())
+    {
+      Location middle(platform_->get_frame(),
+                      (asset_loc.x() + enemy_loc.x()) / 2,
+                      (asset_loc.y() + enemy_loc.y()) / 2,
+                      (asset_loc.z() + enemy_loc.z()) / 2);
+      if(index_ == 0)
+        ret = middle;
+      else
+      {
+        CartesianFrame frame(asset_loc);
+
+        ret.frame(frame);
+
+        Location enemy_cart_loc(frame, enemy_loc);
+
+        double distance = asset_loc.distance_to(middle);
+        double circ = distance * M_PI * 2;
+
+        int offset = (index_ % 2 == 0) ? (index_ / 2) : (- (index_ + 1) / 2);
+        double arc_len = offset * buffer_;
+
+        double a = atan2(enemy_cart_loc.x(), enemy_cart_loc.y());
+        double ao = a + (((arc_len) / circ) * M_PI * 2);
+        double xo = sin(ao);
+        double yo = cos(ao);
+        ret.x(xo * distance);
+        ret.y(yo * distance);
+        ret.z(0);
+
+        ret.transform_this_to(platform_->get_frame());
+        ret.z(middle.z());
+      }
+    }
+  }
+
+  return ret;
+}
+
+namespace onion
+{
+  struct placement
+  {
+    int rank;
+    int offset;
+  };
+
+  void init_placements(std::vector<placement> &placements, int index)
+  {
+    if(index >= placements.size())
+    {
+      std::vector<int> counts;
+      int i = 0;
+      size_t last_rank = 0;
+      counts.resize(1);
+      for(; i < placements.size(); ++i)
+      {
+        placement cur = placements[i];
+        if(cur.rank >= counts.size())
+          counts.resize(cur.rank + 1);
+        ++counts[cur.rank];
+        last_rank = cur.rank;
+      }
+      placements.resize(index + 1);
+      for(; i < placements.size(); ++i)
+      {
+        bool want_even = (last_rank == 0 ? false :
+                          ((((last_rank - 1) / 2) % 2) == 0 ? true : false));
+        bool is_even = ((counts[last_rank] % 2) == 0) ? true : false;
+
+        int min_rank_count = is_even ? 2 : 3;
+
+        if(counts[last_rank] < min_rank_count || want_even != is_even)
+        {
+          /* do nothing */
+        }
+        else
+        {
+          ++last_rank;
+          if(last_rank == counts.size())
+          {
+            if(last_rank >= 2 && counts[last_rank - 1] <= 3)
+              last_rank = 0;
+            else
+              counts.push_back(0);
+          }
+        }
+        placement p = {(int)last_rank, counts[last_rank]};
+        placements[i] = p;
+        ++counts[last_rank];
+        //cout << i << ": " << placements[i].rank << " " << placements[i].offset << endl;
+      }
+    }
+  }
+
+  placement get_placement(int index)
+  {
+    static std::vector<placement> placements;
+    init_placements(placements, index);
+    return placements[index];
+  }
+}
+
+Location
+gams::algorithms::ZoneCoverage::onion_formation() const
+{
+  Location ret(platform_->get_frame());
+
+  if(asset_locs_.size() >= 1 && enemy_locs_.size() >= 1)
+  {
+    const Location &asset_loc = asset_locs_[0];
+    const Location &enemy_loc = enemy_locs_[0];
+
+    if(!asset_loc.is_invalid() && !enemy_loc.is_invalid())
+    {
+      Location middle(platform_->get_frame(),
+                      (asset_loc.x() + enemy_loc.x()) / 2,
+                      (asset_loc.y() + enemy_loc.y()) / 2,
+                      (asset_loc.z() + enemy_loc.z()) / 2);
+      if(index_ == 0)
+        ret = middle;
+      else
+      {
+        onion::placement p = onion::get_placement(index_);
+
+        CartesianFrame frame(asset_loc);
+
+        ret.frame(frame);
+
+        Location enemy_cart_loc(frame, enemy_loc);
+
+        int even_rank = p.rank % 2 == 0;
+        int rank = (even_rank) ? (p.rank / 2) : (- (p.rank + 1) / 2);
+        int offset = (p.offset % 2 == 0) ? (p.offset / 2) : (- (p.offset + 1) / 2);
+
+        double distance = asset_loc.distance_to(middle) + rank * buffer_;
+        double circ = distance * M_PI * 2;
+
+        double arc_len = offset * buffer_ - (even_rank ? 0 : buffer_ / 2);
+
+        double a = atan2(enemy_cart_loc.x(), enemy_cart_loc.y());
+        double ao = a + (((arc_len) / circ) * M_PI * 2);
+        double xo = sin(ao);
+        double yo = cos(ao);
+        ret.x(xo * distance);
+        ret.y(yo * distance);
+        ret.z(0);
+
+        ret.transform_this_to(platform_->get_frame());
+        ret.z(middle.z());
+      }
     }
   }
 
@@ -366,5 +565,20 @@ gams::algorithms::ZoneCoverage::line_formation() const
 gams::algorithms::ZoneCoverage::formation_func
 gams::algorithms::ZoneCoverage::get_form_func(const std::string &form_name)
 {
-  return &ZoneCoverage::line_formation;
+  if(form_name.size() == 0)
+    return &ZoneCoverage::line_formation;
+  switch(form_name[0])
+  {
+  case 'a':
+    if(form_name == "arc")
+      return &ZoneCoverage::arc_formation;
+    goto unknown;
+  case 'o':
+    if(form_name == "onion")
+      return &ZoneCoverage::onion_formation;
+    goto unknown;
+  default:
+  unknown:
+    return &ZoneCoverage::line_formation;
+  }
 }
