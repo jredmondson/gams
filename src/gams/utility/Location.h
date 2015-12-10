@@ -458,6 +458,13 @@ namespace gams
       Location();
 
       /**
+       * Constructs an invalid Location (INVAL_COORD), in the given frame
+       *
+       * @param frame the frame to belong to
+       **/
+      Location(const ReferenceFrame &frame);
+
+      /**
        * Copy constructor, but transform into the new frame as well.
        *
        * @param new_frame the new frame to transform to

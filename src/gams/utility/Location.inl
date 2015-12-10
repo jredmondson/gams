@@ -172,8 +172,8 @@ namespace gams
 
     inline Location::Location() : LocationVector(), Coordinate() {}
 
-    //inline constexpr Location::Location(const Location &orig)
-      //: LocationVector(orig), Coordinate(orig) {}
+    inline Location::Location(const ReferenceFrame &frame)
+      : LocationVector(), Coordinate(frame) {}
 
     inline Location::Location(const ReferenceFrame &new_frame,
                               const Location &orig)
