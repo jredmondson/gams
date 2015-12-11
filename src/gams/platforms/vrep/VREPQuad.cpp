@@ -46,7 +46,7 @@
 
 #ifdef _GAMS_VREP_ // only compile this if we are simulating in VREP
 
-#include "VREP_UAV.h"
+#include "VREPQuad.h"
 
 
 #include <iostream>
@@ -64,14 +64,14 @@ using std::string;
 using madara::knowledge::containers::NativeDoubleVector;
 using madara::knowledge::containers::Double;
 
-const string gams::platforms::VREP_UAV::DEFAULT_UAV_MODEL (
+const string gams::platforms::VREPQuad::DEFAULT_QUAD_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
   "" : // if GAMS_ROOT is not defined, then just leave this as empty string
   (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
   );
 
 gams::platforms::BasePlatform *
-gams::platforms::VREPUAVFactory::create (
+gams::platforms::VREPQuadFactory::create (
   const madara::knowledge::KnowledgeVector & args,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
@@ -80,7 +80,7 @@ gams::platforms::VREPUAVFactory::create (
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
-    "entering gams::platforms::VREPUAVFactory::create\n");
+    "entering gams::platforms::VREPQuadFactory::create\n");
 
   BasePlatform * result (0);
 
@@ -98,14 +98,14 @@ gams::platforms::VREPUAVFactory::create (
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
-         "gams::platforms::VREPUAVFactory::create:" \
+         "gams::platforms::VREPQuadFactory::create:" \
         " no transports found, attaching multicast\n");
     }
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::VREPUAVFactory::create:" \
-      " creating VREP_UAV object\n");
+       "gams::platforms::VREPQuadFactory::create:" \
+      " creating VREPQuad object\n");
 
     // specify the model file
     string model_file;
@@ -117,18 +117,18 @@ gams::platforms::VREPUAVFactory::create (
     }
     else
     {
-      model_file = VREP_UAV::DEFAULT_UAV_MODEL;
+      model_file = VREPQuad::DEFAULT_QUAD_MODEL;
       is_client_side = 0;
     }
 
-    result = new VREP_UAV (model_file, is_client_side, knowledge, sensors, 
+    result = new VREPQuad (model_file, is_client_side, knowledge, sensors, 
       platforms, self);
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::VREPUAVFactory::create:" \
+       "gams::platforms::VREPQuadFactory::create:" \
       " invalid knowledge, sensors, platforms, or self\n");
   }
 
@@ -136,14 +136,14 @@ gams::platforms::VREPUAVFactory::create (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-       "gams::platforms::VREPUAVFactory::create:" \
-      " error creating VREP_UAV object\n");
+       "gams::platforms::VREPQuadFactory::create:" \
+      " error creating VREPQuad object\n");
   }
 
   return result;
 }
 
-gams::platforms::VREP_UAV::VREP_UAV (
+gams::platforms::VREPQuad::VREPQuad (
   std::string model_file, 
   simxUChar is_client_side, 
   madara::knowledge::KnowledgeBase * knowledge,
@@ -174,19 +174,19 @@ gams::platforms::VREP_UAV::VREP_UAV (
 }
 
 void
-gams::platforms::VREP_UAV::add_model_to_environment (const string &model_file, 
+gams::platforms::VREPQuad::add_model_to_environment (const string &model_file, 
   const simxUChar is_client_side)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_ERROR,
-    "gams::platforms::VREP_UAV::add_model_to_environment(" \
+    "gams::platforms::VREPQuad::add_model_to_environment(" \
     "%s, %u)\n", model_file.c_str (), is_client_side);
   if (simxLoadModel (client_id_, model_file.c_str (), is_client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::VREP_UAV::add_model_to_environment:" \
+       "gams::platforms::VREPQuad::add_model_to_environment:" \
       " error loading model in vrep\n");
     exit (-1);
   }
@@ -195,24 +195,24 @@ gams::platforms::VREP_UAV::add_model_to_environment (const string &model_file,
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::VREP_UAV::add_model_to_environment:" \
+       "gams::platforms::VREPQuad::add_model_to_environment:" \
       " invalid handle id\n");
     exit (-1);
   }
 }
 
-std::string gams::platforms::VREP_UAV::get_id () const
+std::string gams::platforms::VREPQuad::get_id () const
 {
-  return "vrep_uav";
+  return "vrep_quad";
 }
 
-std::string gams::platforms::VREP_UAV::get_name () const
+std::string gams::platforms::VREPQuad::get_name () const
 {
-  return "VREP UAV";
+  return "VREP Quadcopter";
 }
 
 void
-gams::platforms::VREP_UAV::get_target_handle ()
+gams::platforms::VREPQuad::get_target_handle ()
 {
   //find the dummy base sub-object
   simxInt handlesCount = 0,*handles = NULL;
@@ -241,7 +241,7 @@ gams::platforms::VREP_UAV::get_target_handle ()
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-       "gams::platforms::VREP_UAV::get_target_handle:" \
+       "gams::platforms::VREPQuad::get_target_handle:" \
       " invalid target handle id\n");
   }
 }

@@ -55,7 +55,7 @@
 #endif
 
 #ifdef _GAMS_VREP_
-#include "gams/platforms/vrep/VREP_UAV.h"
+#include "gams/platforms/vrep/VREPQuad.h"
 #include "gams/platforms/vrep/VREPAnt.h"
 #include "gams/platforms/vrep/VREPSummit.h"
 #include "gams/platforms/vrep/VREPBoat.h"
@@ -117,12 +117,14 @@ platforms::ControllerPlatformFactory::initialize_default_mappings (void)
 
   add (aliases, new VREPAntFactory ());
   
-  // the VREP Ant platform
-  aliases.resize (2);
+  // the VREP Quadcopter platform
+  aliases.resize (4);
   aliases[0] = "vrep-uav";
   aliases[1] = "vrep_uav";
+  aliases[2] = "vrep-quad";
+  aliases[3] = "vrep_quad";
 
-  add (aliases, new VREPUAVFactory ());
+  add (aliases, new VREPQuadFactory ());
 
   // the VREP Summit platform
   aliases.resize (2);

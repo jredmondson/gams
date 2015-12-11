@@ -315,7 +315,7 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREP_UAV::do_move:" \
+    "gams::platforms::VREPQuad::do_move:" \
     " moving from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
     current.x(), current.y(), current.z(),
     target.x(), target.y(), target.z(), distance);
@@ -327,7 +327,7 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_TRACE,
-        "gams::platforms::VREP_UAV::do_move:" \
+        "gams::platforms::VREPQuad::do_move:" \
         " moving to target instantly\n");
 
       curr_arr[0] = dest_arr[0];
@@ -338,7 +338,7 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_TRACE,
-        "gams::platforms::VREP_UAV::do_move:" \
+        "gams::platforms::VREPQuad::do_move:" \
         " calculating new target location\n");
 
       // how far do we have to go in each dimension
@@ -362,14 +362,14 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREP_UAV::do_move:" \
+      "gams::platforms::VREPQuad::do_move:" \
       " setting target to \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREP_UAV::do_move:" \
+      "gams::platforms::VREPQuad::do_move:" \
       " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
 
     // send movement command
@@ -391,7 +391,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREP_UAV::move:" \
+    "gams::platforms::VREPQuad::move:" \
     " requested target \"%f,%f,%f\"\n", target.x(), target.y(), target.z());
 
   // convert form input reference frame to vrep reference frame, if necessary
@@ -399,7 +399,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREP_UAV::move:" \
+    "gams::platforms::VREPQuad::move:" \
     " vrep target \"%f,%f,%f\" rate %f\n", vrep_target.x(), vrep_target.y(), vrep_target.z(), thread_rate_.to_double());
 
   // get current position in VREP frame
@@ -510,7 +510,6 @@ void
 gams::platforms::VREPBase::wait_for_go () const
 {
   // sync with other nodes; wait for all processes to get up
-  std::cerr << "*** Wait for go called!" << std::endl;
   std::stringstream buffer, init_string;
   init_string << "S";
   init_string << self_->id.to_integer ();
@@ -540,7 +539,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREP_UAV::TargetMover::run:" \
+    "gams::platforms::VREPQuad::TargetMover::run:" \
     " moving at speed %f\n", local_move_speed);
 
   // convert form input reference frame to vrep reference frame, if necessary
@@ -550,7 +549,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREP_UAV::TargetMover::run:" \
+    "gams::platforms::VREPQuad::TargetMover::run:" \
     " vrep target \"%f,%f,%f\"\n", vrep_target.x(), vrep_target.y(), vrep_target.z());
 
   // get current target position in VREP frame
@@ -563,7 +562,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREP_UAV::TargetMover::run:" \
+    "gams::platforms::VREPQuad::TargetMover::run:" \
     " vrep target position \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
 
   utility::Location vrep_loc(base_.get_vrep_frame(), curr_arr);

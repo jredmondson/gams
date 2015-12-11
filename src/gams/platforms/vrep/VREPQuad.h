@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file VREP_UAV.h
+ * @file VREPQuad.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the VREP_UAV simulator uav class
+ * This file contains the definition of the VREPQuad simulator uav class
  **/
 
-#ifndef   _GAMS_PLATFORM_VREP_UAV_H_
-#define   _GAMS_PLATFORM_VREP_UAV_H_
+#ifndef   _GAMS_PLATFORM_VREP_QUAD_H_
+#define   _GAMS_PLATFORM_VREP_QUAD_H_
 
 #include "gams/platforms/PlatformFactory.h"
 #include "gams/platforms/vrep/VREPBase.h"
@@ -78,10 +78,10 @@ namespace gams
     /**
     * A VREP platform for an autonomous aerial quadcopter
     **/
-    class GAMSExport VREP_UAV : public VREPBase
+    class GAMSExport VREPQuad : public VREPBase
     {
     public:
-      const static std::string DEFAULT_UAV_MODEL;
+      const static std::string DEFAULT_QUAD_MODEL;
 
       /**
        * Constructor
@@ -92,7 +92,7 @@ namespace gams
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
        **/
-      VREP_UAV (
+      VREPQuad (
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,
@@ -123,17 +123,17 @@ namespace gams
        * Get node target handle
        */
       virtual void get_target_handle ();
-    }; // class VREP_UAV
+    }; // class VREPQuad
 
     /**
-     * A factory class for creating VREP UAV platforms
+     * A factory class for creating VREP Quadcopter platforms
      **/
-    class GAMSExport VREPUAVFactory : public PlatformFactory
+    class GAMSExport VREPQuadFactory : public PlatformFactory
     {
     public:
 
       /**
-       * Creates a VREP UAV platform.
+       * Creates a VREP Quadcopter platform.
        * @param   args      no arguments are necessary for this platform
        * @param   knowledge the knowledge base. This will be set by the
        *                    controller in init_vars.
@@ -156,4 +156,4 @@ namespace gams
 
 #endif // _GAMS_VREP_
 
-#endif // _GAMS_PLATFORM_VREP_UAV_H_
+#endif // _GAMS_PLATFORM_VREPQuad_H_

@@ -64,6 +64,8 @@ public class ControllerWrapper extends Thread
         {
             case "vrep-uav":
             case "vrep_uav":
+            case "vrep-quad":
+            case "vrep_quad":
                 file = "Quadricopter_NoCamera.ttm";
                 break;
         }

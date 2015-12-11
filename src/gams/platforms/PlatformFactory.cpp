@@ -52,7 +52,7 @@
 #endif
 
 #ifdef _GAMS_VREP_
-#include "gams/platforms/vrep/VREP_UAV.h"
+#include "gams/platforms/vrep/VREPQuad.h"
 #include "gams/platforms/vrep/VREPAnt.h"
 #endif
 
