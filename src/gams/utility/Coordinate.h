@@ -78,47 +78,78 @@ namespace gams
         static const int i1 = i1_;
         static const int i2 = i2_;
 
+        template<int i>
+        constexpr static int get()
+        {
+#ifdef MSC_VER
+          // Visual Studio chokes on the partial specializations of get_ below,
+          // so use another approach. Should be just as efficient with C++11,
+          // but possibly less efficient under C++03 (relies on smarter
+          // optimization by the compiler for same efficiency).
+          return (i == 0 ? i0_:
+                 (i == 1 ? i1_:
+                 (i == 2 ? i2_: -1 )));
+#else
+          return get_<i>::value;
+#endif
+        }
+
+        template<int i>
+        constexpr static int find()
+        {
+#ifdef MSC_VER
+          return (i == i0_ ? 0:
+                 (i == i1_ ? 1:
+                 (i == i2_ ? 2: -1 )));
+#else
+          return find_<i>::value;
+#endif
+        }
+
+#ifndef MSC_VER
+      protected:
         template<int i, bool = true>
-        struct get;
+        struct get_;
 
         template<bool dummy>
-        struct get<0, dummy>
+        struct get_<0, dummy>
         {
           static const int value = i0_;
         };
 
         template<bool dummy>
-        struct get<1, dummy>
+        struct get_<1, dummy>
         {
           static const int value = i1_;
         };
 
         template<bool dummy>
-        struct get<2, dummy>
+        struct get_<2, dummy>
         {
           static const int value = i2_;
         };
 
         template<int i, bool = true>
-        struct find;
+        struct find_;
 
         template<bool dummy>
-        struct find<i0_, dummy>
+        struct find_<i0_, dummy>
         {
           static const int value = 0;
         };
 
         template<bool dummy>
-        struct find<i1_, dummy>
+        struct find_<i1_, dummy>
         {
           static const int value = 1;
         };
 
         template<bool dummy>
-        struct find<i2_, dummy>
+        struct find_<i2_, dummy>
         {
           static const int value = 2;
         };
+#endif
       };
 
       static const int X = 0;

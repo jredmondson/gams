@@ -231,9 +231,9 @@ namespace gams
                                 ContainType &container) const
     {
       const CoordType &s = as_coord_type();
-      container.set(0, s.get(Order::template find<0>::value));
-      container.set(1, s.get(Order::template find<1>::value));
-      container.set(2, s.get(Order::template find<2>::value));
+      container.set(0, s.get(Order::template find<0>()));
+      container.set(1, s.get(Order::template find<1>()));
+      container.set(2, s.get(Order::template find<2>()));
     }
 
     template<typename CoordType>
@@ -254,9 +254,9 @@ namespace gams
                                 ContainType &container)
     {
       CoordType &s = as_coord_type();
-      s.set(0, container[Order::template get<0>::value]);
-      s.set(1, container[Order::template get<1>::value]);
-      s.set(2, container[Order::template get<2>::value]);
+      s.set(0, container[Order::template get<0>()]);
+      s.set(1, container[Order::template get<1>()]);
+      s.set(2, container[Order::template get<2>()]);
     }
 
     template<typename CoordType>
