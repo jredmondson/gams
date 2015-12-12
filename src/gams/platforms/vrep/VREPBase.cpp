@@ -57,8 +57,6 @@
 
 #include <ace/Guard_T.h>
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 typedef ACE_Guard<MADARA_LOCK_TYPE> Guard;
 
 #define VREP_LOCK_MUTEX(mutex) \
