@@ -70,6 +70,13 @@ namespace gams
 
     namespace order
     {
+      /**
+       * Used to specify ordering for reading from a container, e.g.,
+       * as template argument to to_container and from_container.
+       *
+       * Use the typedefs below; they cover all possible instantiations
+       * with readable names.
+       **/
       template<int i0_, int i1_, int i2_>
       class Order
       {
@@ -78,10 +85,9 @@ namespace gams
         static const int i1 = i1_;
         static const int i2 = i2_;
 
-        template<int i>
-        constexpr static int get()
+        constexpr static int get(int i)
         {
-#ifdef MSC_VER
+//#ifdef MSC_VER
           // Visual Studio chokes on the partial specializations of get_ below,
           // so use another approach. Should be just as efficient with C++11,
           // but possibly less efficient under C++03 (relies on smarter
@@ -89,24 +95,23 @@ namespace gams
           return (i == 0 ? i0_:
                  (i == 1 ? i1_:
                  (i == 2 ? i2_: -1 )));
-#else
-          return get_<i>::value;
-#endif
+//#else
+          //return get_<i>::value;
+//#endif
         }
 
-        template<int i>
-        constexpr static int find()
+        constexpr static int find(int i)
         {
-#ifdef MSC_VER
+//#ifdef MSC_VER
           return (i == i0_ ? 0:
                  (i == i1_ ? 1:
                  (i == i2_ ? 2: -1 )));
-#else
-          return find_<i>::value;
-#endif
+//#else
+          //return find_<i>::value;
+//#endif
         }
 
-#ifndef MSC_VER
+#if 0
       protected:
         template<int i, bool = true>
         struct get_;
@@ -161,16 +166,31 @@ namespace gams
       static const int Z = 2;
       static const int Alt = Z;
 
+      /** Use to read/write in X/Y/Z order */
       typedef Order<X, Y, Z> XYZ;
+
+      /** Use to read/write in X/Z/Y order */
       typedef Order<X, Z, Y> XZY;
+
+      /** Use to read/write in Y/X/Z order */
       typedef Order<Y, X, Z> YXZ;
+
+      /** Use to read/write in Y/Z/X order */
       typedef Order<Y, Z, X> YZX;
+      
+      /** Use to read/write in Z/X/Y order */
       typedef Order<Z, X, Y> ZXY;
+      
+      /** Use to read/write in Z/Y/X order */
       typedef Order<Z, Y, X> ZYX;
 
+      /** Use to read/write in Lat/Lng/Alt order */
       typedef Order<Lat, Lng, Alt> LatLng;
+
+      /** Use to read/write in Lng/Lat/Alt order */
       typedef Order<Lng, Lat, Alt> LngLat;
 
+      /** Use to read in conventional GPS Lat/Lng/Alt order */
       typedef LatLng GPS;
     }
 

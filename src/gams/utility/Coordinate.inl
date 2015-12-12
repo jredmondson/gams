@@ -226,14 +226,14 @@ namespace gams
     }
 
     template<typename CoordType>
-    template<typename Order, typename ContainType>
+    template<typename O, typename ContainType>
     inline void Coordinate<CoordType>::to_container(
                                 ContainType &container) const
     {
       const CoordType &s = as_coord_type();
-      container.set(0, s.get(Order::template find<0>()));
-      container.set(1, s.get(Order::template find<1>()));
-      container.set(2, s.get(Order::template find<2>()));
+      container.set(0, s.get(O::find(0)));
+      container.set(1, s.get(O::find(1)));
+      container.set(2, s.get(O::find(2)));
     }
 
     template<typename CoordType>
@@ -249,14 +249,14 @@ namespace gams
     }
 
     template<typename CoordType>
-    template<typename Order, typename ContainType>
+    template<typename O, typename ContainType>
     inline void Coordinate<CoordType>::from_container(
                                 ContainType &container)
     {
       CoordType &s = as_coord_type();
-      s.set(0, container[Order::template get<0>()]);
-      s.set(1, container[Order::template get<1>()]);
-      s.set(2, container[Order::template get<2>()]);
+      s.set(0, container[O::get(0)]);
+      s.set(1, container[O::get(1)]);
+      s.set(2, container[O::get(2)]);
     }
 
     template<typename CoordType>
