@@ -473,6 +473,13 @@ gams::platforms::JavaPlatform::land (void)
 }
 
 int
+gams::platforms::JavaPlatform::move (const utility::Location & location, double epsilon)
+{
+  GPSPosition pos(location.x(), location.y(), location.z());
+  return move(pos, epsilon);
+}
+
+int
 gams::platforms::JavaPlatform::move (const utility::Position & position,
   const double & epsilon)
 {
