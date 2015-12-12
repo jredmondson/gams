@@ -267,7 +267,7 @@ madara::knowledge::containers::StringVector
 gams::algorithms::ZoneCoverage::get_group(const std::string &name) const
 {
   return madara::knowledge::containers::StringVector(
-     "group." + name, *knowledge_);
+     "group." + name + ".members", *knowledge_);
 }
 
 void
