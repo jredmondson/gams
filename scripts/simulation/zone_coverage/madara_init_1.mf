@@ -10,4 +10,5 @@ agent.1.command.formation=.zone_coverage_formation;
 agent.1.command.assets="assets";
 agent.1.command.protectors="protectors";
 agent.1.command.enemies="enemies";
-agent.1.command.buffer.zone_coverage_buffer;
+agent.1.command.buffer=.zone_coverage_buffer;
+agent.1.command.distance=.zone_coverage_distance;

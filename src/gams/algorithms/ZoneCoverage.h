@@ -101,7 +101,7 @@ namespace gams
         const std::string &assets,
         const std::string &enemies,
         const std::string &formation,
-        double buffer,
+        double buffer, double distance,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -146,6 +146,8 @@ namespace gams
       madara::knowledge::containers::StringVector enemies_;
       std::string formation_;
       double buffer_;
+
+      double distance_;
 
       int index_;
 

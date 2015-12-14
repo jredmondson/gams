@@ -93,6 +93,7 @@ variables::Agents * agents)
     std::string enemies = "enemies";
     std::string formation = "line";
     double buffer = 2;
+    double distance = 0.5;
 
     ArgumentParser argp(self_->agent.command.get_name() + ".",
                                  *knowledge_, args);
@@ -116,6 +117,13 @@ variables::Agents * agents)
         if("buffer" == name)
         {
           buffer = i.value().to_double();
+          break;
+        }
+        goto unknown;
+      case 'd':
+        if("distance" == name)
+        {
+          distance = i.value().to_double();
           break;
         }
         goto unknown;
@@ -156,7 +164,7 @@ variables::Agents * agents)
     }
 
     result = new ZoneCoverage (
-      protectors, assets, enemies, formation, buffer,
+      protectors, assets, enemies, formation, buffer, distance,
       knowledge, platform, sensors, self);
   }
 
@@ -168,7 +176,7 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   const std::string &assets,
   const std::string &enemies,
   const std::string &formation,
-  double buffer,
+  double buffer, double distance,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -177,7 +185,7 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   protector_group_(protectors), asset_group_(assets), enemy_group_(enemies),
   protectors_(get_group(protectors)), assets_(get_group(assets)),
   enemies_(get_group(enemies)),
-  formation_(formation), buffer_(buffer),
+  formation_(formation), buffer_(buffer), distance_(distance),
   index_(get_index()),
   form_func_(get_form_func(formation)),
   next_loc_()
@@ -362,9 +370,9 @@ gams::algorithms::ZoneCoverage::line_formation() const
     if(!asset_loc.is_invalid() && !enemy_loc.is_invalid())
     {
       Location middle(platform_->get_frame(),
-                      (asset_loc.x() + enemy_loc.x()) / 2,
-                      (asset_loc.y() + enemy_loc.y()) / 2,
-                      (asset_loc.z() + enemy_loc.z()) / 2);
+              (asset_loc.x() * distance_) + (enemy_loc.x() * (1 - distance_)),
+              (asset_loc.y() * distance_) + (enemy_loc.y() * (1 - distance_)),
+              (asset_loc.z() * distance_) + (enemy_loc.z() * (1 - distance_)));
       if(index_ == 0)
         ret = middle;
       else
@@ -408,9 +416,9 @@ gams::algorithms::ZoneCoverage::arc_formation() const
     if(!asset_loc.is_invalid() && !enemy_loc.is_invalid())
     {
       Location middle(platform_->get_frame(),
-                      (asset_loc.x() + enemy_loc.x()) / 2,
-                      (asset_loc.y() + enemy_loc.y()) / 2,
-                      (asset_loc.z() + enemy_loc.z()) / 2);
+              (asset_loc.x() * distance_) + (enemy_loc.x() * (1 - distance_)),
+              (asset_loc.y() * distance_) + (enemy_loc.y() * (1 - distance_)),
+              (asset_loc.z() * distance_) + (enemy_loc.z() * (1 - distance_)));
       if(index_ == 0)
         ret = middle;
       else
@@ -521,9 +529,9 @@ gams::algorithms::ZoneCoverage::onion_formation() const
     if(!asset_loc.is_invalid() && !enemy_loc.is_invalid())
     {
       Location middle(platform_->get_frame(),
-                      (asset_loc.x() + enemy_loc.x()) / 2,
-                      (asset_loc.y() + enemy_loc.y()) / 2,
-                      (asset_loc.z() + enemy_loc.z()) / 2);
+              (asset_loc.x() * distance_) + (enemy_loc.x() * (1 - distance_)),
+              (asset_loc.y() * distance_) + (enemy_loc.y() * (1 - distance_)),
+              (asset_loc.z() * distance_) + (enemy_loc.z() * (1 - distance_)));
       if(index_ == 0)
         ret = middle;
       else

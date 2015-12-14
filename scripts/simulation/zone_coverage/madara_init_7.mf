@@ -11,3 +11,5 @@ agent.7.command.assets="assets";
 agent.7.command.protectors="protectors";
 agent.7.command.enemies="enemies";
 agent.7.command.buffer.zone_coverage_buffer;
+agent.7.command.buffer=.zone_coverage_buffer;
+agent.7.command.distance=.zone_coverage_distance;

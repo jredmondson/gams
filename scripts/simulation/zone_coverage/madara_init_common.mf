@@ -22,3 +22,4 @@ group.enemies.members.0="agent.2";
 
 .zone_coverage_formation="onion";
 .zone_coverage_buffer=2;
+.zone_coverage_distance=0.5;
