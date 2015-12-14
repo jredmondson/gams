@@ -51,11 +51,12 @@
  * This file contains the definition of the VREPQuad simulator uav class
  **/
 
-#ifndef   _GAMS_PLATFORM_VREP_QUAD_H_
-#define   _GAMS_PLATFORM_VREP_QUAD_H_
+#ifndef   _GAMS_PLATFORM_VREP_QUAD_LASER_H_
+#define   _GAMS_PLATFORM_VREP_QUAD_LASER_H_
 
 #include "gams/platforms/PlatformFactory.h"
 #include "gams/platforms/vrep/VREPBase.h"
+#include "gams/platforms/vrep/VREPQuad.h"
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
@@ -75,10 +76,16 @@ namespace gams
 {
   namespace platforms
   {
+    class GAMSExport HasRangeSensor
+    {
+    public:
+      virtual double get_range() const = 0;
+    };
+
     /**
-    * A VREP platform for an autonomous aerial quadcopter
+    * A VREP platform for an autonomous aerial quadcopter w/ Laser ranger
     **/
-    class GAMSExport VREPQuad : public VREPBase
+    class GAMSExport VREPQuadLaser : public VREPQuad, public HasRangeSensor
     {
     public:
       const static std::string DEFAULT_MODEL;
@@ -92,7 +99,7 @@ namespace gams
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
        **/
-      VREPQuad (
+      VREPQuadLaser (
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,
@@ -112,52 +119,24 @@ namespace gams
        **/
       virtual std::string get_name () const;
 
-    protected:
-      /**
-       * Add model to environment
-       */
-      virtual void add_model_to_environment (const std::string& file, 
-        const simxUChar client_side);
+      virtual double get_range () const;
 
-      /**
-       * Get node target handle
-       */
-      virtual void get_target_handle ();
+    protected:
+      void get_laser_sensor_handle ();
+
+      simxInt laser_sensor_;
     }; // class VREPQuad
 
     /**
      * A factory class for creating VREP Quadcopter platforms
      **/
-    class GAMSExport VREPQuadFactory : public PlatformFactory
+    class GAMSExport VREPQuadLaserFactory : public VREPQuadFactory
     {
-    public:
-
-      /**
-       * Creates a VREP Quadcopter platform.
-       * @param   args      no arguments are necessary for this platform
-       * @param   knowledge the knowledge base. This will be set by the
-       *                    controller in init_vars.
-       * @param   sensors   the sensor info. This will be set by the
-       *                    controller in init_vars.
-       * @param   platforms status inform for all known agents. This
-       *                    will be set by the controller in init_vars
-       * @param   self      self-referencing variables. This will be
-       *                    set by the controller in init_vars
-       **/
-      virtual BasePlatform * create (
-        const madara::knowledge::KnowledgeVector & args,
-        madara::knowledge::KnowledgeBase * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self);
-
-      /**
-       * Return default model name
-       **/
+    protected:
       virtual std::string get_default_model();
 
       /**
-       * Call through to VREPQuad Constructor. Override for other types.
+       * Call through to VREPQuadLaser Constructor
        * @param  file         model file to load
        * @param  client_side  0 if model is server side, 1 if client side
        * @param  knowledge    knowledge base
@@ -166,7 +145,7 @@ namespace gams
        * @param  self         agent variables that describe self state
        * @return a new VREPQuadLaser
        **/
-      virtual VREPQuad *create_quad (
+      virtual VREPQuadLaser *create_quad (
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,
@@ -179,4 +158,4 @@ namespace gams
 
 #endif // _GAMS_VREP_
 
-#endif // _GAMS_PLATFORM_VREPQuad_H_
+#endif // _GAMS_PLATFORM_VREP_QUAD_LASER_H_

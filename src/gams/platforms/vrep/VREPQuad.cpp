@@ -62,11 +62,17 @@ using std::string;
 using madara::knowledge::containers::NativeDoubleVector;
 using madara::knowledge::containers::Double;
 
-const string gams::platforms::VREPQuad::DEFAULT_QUAD_MODEL (
+const string gams::platforms::VREPQuad::DEFAULT_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
   "" : // if GAMS_ROOT is not defined, then just leave this as empty string
   (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
   );
+
+std::string
+gams::platforms::VREPQuadFactory::get_default_model()
+{
+  return VREPQuad::DEFAULT_MODEL;
+}
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPQuadFactory::create (
@@ -115,11 +121,11 @@ gams::platforms::VREPQuadFactory::create (
     }
     else
     {
-      model_file = VREPQuad::DEFAULT_QUAD_MODEL;
+      model_file = get_default_model();
       is_client_side = 0;
     }
 
-    result = new VREPQuad (model_file, is_client_side, knowledge, sensors, 
+    result = create_quad(model_file, is_client_side, knowledge, sensors, 
       platforms, self);
   }
   else
@@ -139,6 +145,19 @@ gams::platforms::VREPQuadFactory::create (
   }
 
   return result;
+}
+
+gams::platforms::VREPQuad *
+gams::platforms::VREPQuadFactory::create_quad (
+  std::string model_file, 
+  simxUChar is_client_side, 
+  madara::knowledge::KnowledgeBase * knowledge,
+  variables::Sensors * sensors,
+  variables::Platforms * platforms,
+  variables::Self * self)
+{
+  return new VREPQuad (model_file, is_client_side, knowledge, sensors, 
+    platforms, self);
 }
 
 gams::platforms::VREPQuad::VREPQuad (
