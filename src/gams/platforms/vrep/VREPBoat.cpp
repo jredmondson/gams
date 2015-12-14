@@ -55,8 +55,6 @@
 
 #include "gams/platforms/vrep/VREPBoat.h"
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 #include <iostream>
 using std::endl;
 using std::cout;

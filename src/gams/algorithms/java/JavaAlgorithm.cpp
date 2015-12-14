@@ -493,7 +493,7 @@ gams::algorithms::JavaAlgorithm::plan (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::JavaAlgorithm::plan:" \
-      " Obtaining user-defined explanecute method.\n");
+      " Obtaining user-defined plan method.\n");
 
     jmethodID call = jvm.env->GetMethodID (class_, "plan", "()I");
 
