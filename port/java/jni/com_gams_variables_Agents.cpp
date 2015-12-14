@@ -3,7 +3,7 @@
 
 #include "gams/variables/Agent.h"
 
-GAMSExport void JNICALL Java_com_gams_variables_Agents_jni_1freeAgents
+void JNICALL Java_com_gams_variables_Agents_jni_1freeAgents
   (JNIEnv * env, jobject , jlongArray agents, jint length)
 {
   jlong* array = env->GetLongArrayElements (agents, 

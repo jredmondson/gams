@@ -11,7 +11,7 @@ namespace variables = gams::variables;
  * Method:    jni_Region
  * Signature: ()J
  */
-GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
+jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
   (JNIEnv * , jobject)
 {
   return (jlong) new variables::Region ();
@@ -22,7 +22,7 @@ GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1Region__
  * Method:    jni_Region
  * Signature: (J)J
  */
-GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
+jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
   (JNIEnv * , jobject, jlong cptr)
 {
   return (jlong) new variables::Region (*(variables::Region *)cptr);
@@ -33,7 +33,7 @@ GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1Region__J
  * Method:    jni_freeRegion
  * Signature: (J)V
  */
-GAMSExport void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
+void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
   (JNIEnv * , jclass, jlong cptr)
 {
   delete (variables::Region *) cptr;
@@ -44,7 +44,7 @@ GAMSExport void JNICALL Java_com_gams_variables_Region_jni_1freeRegion
  * Method:    jni_getName
  * Signature: (J)Ljava/lang/String;
  */
-GAMSExport jstring JNICALL Java_com_gams_variables_Region_jni_1getName
+jstring JNICALL Java_com_gams_variables_Region_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
@@ -61,7 +61,7 @@ GAMSExport jstring JNICALL Java_com_gams_variables_Region_jni_1getName
  * Method:    jni_init
  * Signature: (JJJLjava/lang/String;)V
  */
-GAMSExport void JNICALL Java_com_gams_variables_Region_jni_1init
+void JNICALL Java_com_gams_variables_Region_jni_1init
   (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jstring name)
 {
   variables::Region * current = (variables::Region *) cptr;
@@ -90,7 +90,7 @@ GAMSExport void JNICALL Java_com_gams_variables_Region_jni_1init
  * Method:    jni_toString
  * Signature: (J)Ljava/lang/String;
  */
-GAMSExport jstring JNICALL Java_com_gams_variables_Region_jni_1toString
+jstring JNICALL Java_com_gams_variables_Region_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
   jstring result;
@@ -107,7 +107,7 @@ GAMSExport jstring JNICALL Java_com_gams_variables_Region_jni_1toString
  * Method:    jni_getVertices
  * Signature: (J)J
  */
-GAMSExport jlong JNICALL Java_com_gams_variables_Region_jni_1getVertices
+jlong JNICALL Java_com_gams_variables_Region_jni_1getVertices
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Region * current = (variables::Region *) cptr;

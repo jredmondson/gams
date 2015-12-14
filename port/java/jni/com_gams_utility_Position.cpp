@@ -33,7 +33,7 @@ jlong JNICALL Java_com_gams_utility_Position_jni_1Position__J
  * Method:    jni_Position
  * Signature: (DDD)J
  */
-GAMSExport jlong JNICALL Java_com_gams_utility_Position_jni_1Position__DDD
+jlong JNICALL Java_com_gams_utility_Position_jni_1Position__DDD
   (JNIEnv * , jobject, jdouble x, jdouble y, jdouble z)
 {
   return (jlong) new utility::Position (x, y, z);

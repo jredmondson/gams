@@ -113,7 +113,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1toContainer
  * Method:    jni_modify
  * Signature: (J)V
  */
-GAMSExport void JNICALL Java_com_gams_utility_Region_jni_1modify
+void JNICALL Java_com_gams_utility_Region_jni_1modify
   (JNIEnv *, jobject, jlong cptr)
 {
   utility::Region * current = (utility::Region *) cptr;
