@@ -2,8 +2,8 @@ use strict;
 package simulation;
 
 # empty string to represent not set
-my $term_prefix = "";
-my $term_suffix = "";
+my $term_prefix = $ENV{"GAMS_TERM_PREFIX"};
+my $term_suffix = $ENV{"GAMS_TERM_SUFFIX"};
 
 sub run {
   # get arguments
