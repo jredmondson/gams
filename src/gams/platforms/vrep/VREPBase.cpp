@@ -93,6 +93,10 @@ gams::platforms::VREPBase::VREPBase (
     if(!max_delta_.exists())
       max_delta_ = 0;
 
+    max_delta_.set_name(".vrep_max_rotate_delta", *knowledge);
+    if(!max_rotate_delta_.exists())
+      max_rotate_delta_ = 0;
+
     // grab coverage sensor
     variables::Sensors::iterator it = sensors->find ("coverage");
     if (it == sensors->end ()) // create coverage sensor
@@ -381,6 +385,93 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 }
 
 int
+gams::platforms::VREPBase::do_rotate (const utility::Rotation & target,
+                                      const utility::Rotation & current,
+                                      double max_delta)
+{
+  // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
+  simxFloat dest_arr[3];
+  dest_arr[0] = 0;
+  dest_arr[1] = 0;
+  dest_arr[2] = target.rz();
+
+  simxFloat curr_arr[3];
+  curr_arr[0] = 0;
+  curr_arr[1] = 0;
+  curr_arr[2] = target.rz();
+
+  double distance = target.distance_to(current);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_TRACE,
+    "gams::platforms::VREPQuad::do_rotate:" \
+    " rotating from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
+    current.rx(), current.ry(), current.rz(),
+    target.rx(), target.ry(), target.rz(), distance);
+
+  if (max_delta > 0)
+  {
+    // move quadrotor target closer to the desired position
+    if(distance < max_delta) // we can get to target in one step
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_TRACE,
+        "gams::platforms::VREPQuad::do_rotate:" \
+        " rotating to target instantly\n");
+
+      curr_arr[0] = dest_arr[0];
+      curr_arr[1] = dest_arr[1];
+      curr_arr[2] = dest_arr[2];
+    }
+    else // we cannot reach target in this step
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_TRACE,
+        "gams::platforms::VREPQuad::do_rotate:" \
+        " calculating new target location\n");
+
+      // how far do we have to go in each dimension
+      double dist[3];
+      for (int i = 0; i < 3; ++i)
+        dist[i] = curr_arr[i] - dest_arr[i];
+
+      // update target position
+      for (int i = 0; i < 3; ++i)
+      {
+        curr_arr[i] -= dist[i] * max_delta / distance;
+      }
+    }
+
+    // send movement command
+    VREP_LOCK
+    {
+      simxSetObjectOrientation (client_id_, node_target_, -1, curr_arr,
+                                simx_opmode_oneshot_wait);
+    }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::platforms::VREPQuad::do_rotate:" \
+      " setting target to \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::platforms::VREPQuad::do_rotate:" \
+      " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
+
+    // send movement command
+    VREP_LOCK
+    {
+      simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
+                                simx_opmode_oneshot_wait);
+    }
+  }
+  return 1;
+}
+
+int
 gams::platforms::VREPBase::move (const utility::Location & target,
   double epsilon)
 {
@@ -431,6 +522,62 @@ gams::platforms::VREPBase::move (const utility::Location & target,
 
   // return code
   if (vrep_loc.distance_to (vrep_target) < epsilon)
+    return 2;
+  else
+    return 1;
+}
+
+int
+gams::platforms::VREPBase::rotate (const utility::Rotation & target,
+  double epsilon)
+{
+  // update variables
+  BasePlatform::rotate (target);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_TRACE,
+    "gams::platforms::VREPQuad::rotate:" \
+    " requested target \"%f,%f,%f\"\n", target.rx(), target.ry(), target.rz());
+
+  // convert form input reference frame to vrep reference frame, if necessary
+  utility::Rotation vrep_target(get_vrep_frame(), target);
+
+  // get current position in VREP frame
+  simxFloat curr_arr[3];
+  VREP_LOCK
+  {
+    simxGetObjectOrientation (client_id_, node_target_, -1, curr_arr,
+                              simx_opmode_oneshot_wait);
+  }
+
+  // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
+  curr_arr[0] = 0;
+  curr_arr[1] = 0;
+
+  utility::Rotation vrep_rot(get_vrep_frame(), 0, 0, curr_arr[2]);
+
+  if(do_rotate(vrep_target, vrep_rot, max_rotate_delta_.to_double()) == 0)
+    return 0;
+
+  #if 0
+  simxFloat dest_arr[3];
+
+  // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
+  dest_arr[0] = 0;
+  dest_arr[1] = 0;
+
+  dest_arr[2] = vrep_target.rz();
+
+  // send movement command
+  VREP_LOCK
+  {
+    simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
+                           simx_opmode_oneshot_wait);
+  }
+  #endif
+
+  // return code
+  if (vrep_rot.distance_to (vrep_target) < epsilon)
     return 2;
   else
     return 1;

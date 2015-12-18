@@ -61,6 +61,8 @@
 #include "gams/utility/GPSPosition.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "gams/utility/CartesianFrame.h"
+#include "gams/utility/Location.h"
+#include "gams/utility/Rotation.h"
 #include "madara/threads/Threader.h"
 #include "madara/threads/BaseThread.h"
 #include "madara/LockType.h"
@@ -154,6 +156,15 @@ namespace gams
         double epsilon = 0.1);
 
       /**
+       * Rotates the platform to a specified Rotation
+       * @param   target    the coordinates to move to
+       * @param   epsilon   approximation value, in radians
+       * @return the status of the rotate operation, @see PlatformReturnValues
+       **/
+      virtual int rotate (const utility::Rotation & location,
+        double epsilon = M_PI/32);
+
+      /**
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
@@ -224,6 +235,8 @@ namespace gams
 
       madara::knowledge::containers::Double max_delta_;
 
+      madara::knowledge::containers::Double max_rotate_delta_;
+
       /// Move thread name
       const static std::string MOVE_THREAD_NAME;
 
@@ -264,6 +277,9 @@ namespace gams
 
       int do_move (const utility::Location & target,
                    const utility::Location & current, double max_delta);
+
+      int do_rotate (const utility::Rotation & target,
+                     const utility::Rotation & current, double max_delta);
     }; // class VREPBase
   } // namespace platform
 } // namespace gams
