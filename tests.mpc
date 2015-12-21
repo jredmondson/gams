@@ -199,6 +199,30 @@ project (test_location) : using_gams, using_madara, using_ace {
   }
 }
 
+project (test_euler) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_euler
+
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    src/tests/test_euler.cpp
+  }
+}
+
 project (test_arguments_parser) : using_gams, using_madara, using_ace {
   exeout = $(GAMS_ROOT)/bin
   exename = test_arguments_parser
