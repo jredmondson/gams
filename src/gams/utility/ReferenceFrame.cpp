@@ -186,7 +186,7 @@ namespace gams
     {
       Quaternion quat1(rx1, ry1, rz1);
       Quaternion quat2(ry2, ry2, rz2);
-      return RAD_TO_DEG(quat1.angle_to(quat2));
+      return quat1.angle_to(quat2);
     }
 
   }

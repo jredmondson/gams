@@ -587,7 +587,7 @@ namespace gams
        * @param rx2 the ending rotatation on x axis
        * @param ry2  the ending rotation on y axis
        * @param rz2  the ending rotation on z axis
-       * @return the difference in degrees
+       * @return the difference in radians
        **/
       virtual double calc_angle(
                       double rx1, double ry1, double rz1,

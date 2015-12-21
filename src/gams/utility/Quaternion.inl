@@ -221,6 +221,167 @@ namespace gams
     inline double Quaternion::z(double new_z) { return z_ = new_z; }
     inline double Quaternion::w(double new_w) { return w_ = new_w; }
 
+    inline double Quaternion::mag_squared() const
+    {
+      return x_ * x_ + y_ * y_ + z_ * z_ + w_ * w_;
+    }
+
+    inline void Quaternion::invert()
+    {
+      double m = mag_squared();
+      conjugate();
+      w_ /= m;
+      x_ /= m;
+      y_ /= m;
+      z_ /= m;
+    }
+
+    inline double Quaternion::mag() const
+    {
+      return sqrt(mag_squared());
+    }
+
+    inline double Quaternion::imag() const
+    {
+      return sqrt(x_ * x_ + y_ * y_ + z_ * z_);
+    }
+
+    inline void Quaternion::scale(double s)
+    {
+      w_ *= s;
+      x_ *= s;
+      y_ *= s;
+      z_ *= s;
+    }
+
+    inline Quaternion Quaternion::exp() const
+    {
+      Quaternion ret(*this);
+      ret.exp_this();
+      return ret;
+    }
+
+    inline void Quaternion::exp_this()
+    {
+      double i = imag();
+      double e = std::exp(w_);
+      double sin_i = sin(i);
+      w_ = e * cos(i);
+      x_ = e * (x_/i) * sin_i;
+      y_ = e * (y_/i) * sin_i;
+      z_ = e * (z_/i) * sin_i;
+    }
+
+    inline Quaternion Quaternion::ln() const
+    {
+      Quaternion ret(*this);
+      ret.ln_this();
+      return ret;
+    }
+
+    inline void Quaternion::ln_this()
+    {
+      double m = mag();
+      double i = imag();
+      double ac = acos(w_ / m);
+      w_ = log(m);
+      x_ = (x_/i) * ac;
+      y_ = (y_/i) * ac;
+      z_ = (z_/i) * ac;
+    }
+
+    inline Quaternion Quaternion::pow(double e) const
+    {
+      Quaternion ret(*this);
+      ret.pow_this(e);
+      return ret;
+    }
+
+    inline void Quaternion::pow_this(double e)
+    {
+      ln_this();
+      scale(e);
+      exp_this();
+    }
+
+    inline Quaternion Quaternion::pow(const Quaternion &e) const
+    {
+      Quaternion ret(*this);
+      ret.pow_this(e);
+      return ret;
+    }
+
+    inline void Quaternion::pow_this(const Quaternion &e)
+    {
+      ln_this();
+      (*this) *= e;
+      exp_this();
+    }
+
+    inline Quaternion Quaternion::slerp(const Quaternion &o, double t)
+    {
+      Quaternion ret(*this);
+      ret.slerp_this(o, t);
+      return ret;
+    }
+
+    inline void Quaternion::slerp_this(const Quaternion &o, double t)
+    {
+      Quaternion tmp(*this);
+      tmp.conjugate();
+      tmp.pre_multiply(o);
+      tmp.pow_this(t);
+      this->pre_multiply(tmp);
+    }
+
+    /* The methods below return the cells of the 3x3 rotation matrix this
+     * quaternion represents; names are mRC(), where R is row, and C is column
+     */
+    inline double Quaternion::m11() const
+    {
+      return w_ * w_ + x_* x_ - y_ * y_ - z_ * z_;
+    }
+
+    inline double Quaternion::m12() const
+    {
+      return 2*(x_ * y_ - w_ * z_);
+    }
+
+    inline double Quaternion::m13() const
+    {
+      return 2*(w_ * y_ + x_ * z_);
+    }
+
+    inline double Quaternion::m21() const
+    {
+      return 2*(x_ * y_ + w_ * z_);
+    }
+
+    inline double Quaternion::m22() const
+    {
+      return w_ * w_ - x_* x_ + y_ * y_ - z_ * z_;
+    }
+
+    inline double Quaternion::m23() const
+    {
+      return 2*(y_ * z_ - w_ * x_);
+    }
+
+    inline double Quaternion::m31() const
+    {
+      return 2*(x_ * z_ - w_ * y_);
+    }
+
+    inline double Quaternion::m32() const
+    {
+      return 2*( w_ * x_ + y_ * z_);
+    }
+
+    inline double Quaternion::m33() const
+    {
+      return w_ * w_ - x_* x_ - y_ * y_ + z_ * z_;
+    }
+
     inline RotationVector::RotationVector(const Quaternion &quat)
     {
       quat.to_rotation_vector(rx_, ry_, rz_);
@@ -228,9 +389,27 @@ namespace gams
 
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)
     {
-      o << quat.w() << "+" << quat.x() << "i+"
-        << quat.y() << "j+" << quat.z() << "z";
+      o << quat.w()
+        << (quat.x() < 0 ? "" : "+") << quat.x() << "i"
+        << (quat.y() < 0 ? "" : "+") << quat.y() << "j"
+        << (quat.z() < 0 ? "" : "+") << quat.z() << "k";
       return o;
+    }
+
+    inline Rotation Rotation::slerp(const Rotation &o, double t) const
+    {
+      Quaternion q(*this),
+        qo(frame() == o.frame() ? o : o.transform_to(frame()));
+      q.slerp_this(qo, t);
+      return Rotation(q);
+    }
+
+    inline void Rotation::slerp_this(const Rotation &o, double t)
+    {
+      Quaternion q(*this),
+        qo(frame() == o.frame() ? o : o.transform_to(frame()));
+      q.slerp_this(qo, t);
+      q.to_rotation_vector(*this);
     }
   }
 }

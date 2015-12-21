@@ -143,6 +143,8 @@ namespace gams
       /**
        * Constructor to convert from Quaternion to equivalent
        * rotation vector
+       *
+       * Implementation in Quaternion.inl due to circular dependencies
        **/
       explicit RotationVector(const Quaternion &quat);
 
@@ -254,6 +256,32 @@ namespace gams
        * @return the new i'th value
        **/
       double set(int i, double val);
+
+      /**
+       * Get the magnitude of rotation; i.e., the number of radians of rotation
+       * around the axis of rotation
+       *
+       * @return magnitidue of rotation
+       **/
+      double magnitude() const
+      {
+        return sqrt(rx_ * rx_ + ry_ * ry_ + rz_ * rz_);
+      }
+
+      /**
+       * Set the magnitude of rotation; i.e., the number of radians of rotation
+       * around the axis of rotation, without changing the axis of rotation
+       *
+       * @param mag the new magnitude
+       **/
+      void magnitude(double mag)
+      {
+        double old_mag = magnitude();
+        double pct = mag / old_mag;
+        rx_ *= pct;
+        ry_ *= pct;
+        rz_ *= pct;
+      }
 
       friend class Quaternion;
 
@@ -419,6 +447,35 @@ namespace gams
        * @return the shortest angle to rotate this onto target
        **/
       double angle_to(const Rotation &target) const;
+
+      /**
+       * Interpolate a new Rotation that is (t * 100)% between *this and
+       * o, along the shortest path of rotation between them in 3D space.
+       *
+       * @param o the other Rotation. If it is not in the same frame as *this,
+       *          it will be transformed first.
+       * @param t between 0 and 1, how "close" the interpolated rotation should
+       *          be to *this
+       *
+       * @return the interpolated Rotation.
+       *
+       * Implementation in Quaternion.inl due to circular dependencies
+       **/
+      Rotation slerp(const Rotation &o, double t) const;
+
+      /**
+       * Interpolate a new Rotation that is (t * 100)% between *this and
+       * o, along the shortest path of rotation between them in 3D space.
+       * Store the result in *this.
+       *
+       * @param o the other Rotation. If it is not in the same frame as *this,
+       *          it will be transformed first.
+       * @param t between 0 and 1, how "close" the interpolated rotation should
+       *          be to *this
+       *
+       * Implementation in Quaternion.inl due to circular dependencies
+       **/
+      void slerp_this(const Rotation &o, double t);
 
       using Coordinate<Rotation>::operator==;
     };

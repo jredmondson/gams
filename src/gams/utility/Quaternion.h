@@ -72,6 +72,11 @@ namespace gams
     {
     public:
       /**
+       * Default constructor. Initializes x, y, z, and w to zero.
+       **/
+      constexpr Quaternion() : x_(0), y_(0), z_(0), w_(0) {}
+
+      /**
        * Primary constructor. Specifies each term explicitly
        **/
       constexpr Quaternion(double x, double y, double z, double w);
@@ -143,7 +148,19 @@ namespace gams
       Quaternion operator*(const Quaternion &rhs) const;
 
       /**
-       * Conjugate this quaternion in-place
+       * Calculate hamilton product, lhs * this, and store into this.
+       * Equivalent to hamilton_product(*this, lhs, *this)
+       *
+       * @param lhs left-hand-side to multiply with
+       **/
+      void pre_multiply(const Quaternion &lhs)
+      {
+        hamilton_product(*this, lhs, *this);
+      }
+
+      /**
+       * Conjugate this quaternion in-place; may use in place of invert for unit
+       * quaternions for better performance.
        *
        * @return *this, after conjugation
        **/
@@ -173,19 +190,176 @@ namespace gams
        * this can be rotated to arrive at target.
        *
        * @param target the target Quaternion
-       * @return the angle between this and the target
+       * @return the angle in radians between this and the target
        **/
       double angle_to(const Quaternion &target) const;
 
+      /** getter of x (or i) part of quaternion */
       constexpr double x() const;
+
+      /** getter of y (or j) part of quaternion */
       constexpr double y() const;
+
+      /** getter of z (or k) part of quaternion */
       constexpr double z() const;
+
+      /** getter of w (or real scalar) part of quaternion */
       constexpr double w() const;
 
+      /** getter of x (or i) part of quaternion */
       double x(double new_x);
+
+      /** getter of y (or j) part of quaternion */
       double y(double new_y);
+
+      /** getter of z (or k) part of quaternion */
       double z(double new_z);
+
+      /** setter of w (or real scalar) part of quaternion */
       double w(double new_w);
+
+      /**
+       * Inverts this quaternion to its reciprical. Equivalent to (but slower
+       * than) conjugate if you know this quaternion is a unit quaternion.
+       **/
+      void invert();
+
+      /**
+       * Returns the magnitude of this quaternion
+       **/
+      double mag() const;
+
+      /**
+       * Returns the magnitude of imaginary part of this quaternion
+       **/
+      double imag() const;
+
+      /**
+       * Returns the magnitude of this quaternion, squared. Faster than
+       * squaring the return value of mag()
+       **/
+      double mag_squared() const;
+
+      /**
+       * Multiply each part of this quaternion by s
+       **/
+      void scale(double s);
+
+      /**
+       * Calculate e to the power of this quaternion, return result as new
+       * quaternion.
+       *
+       * @return result
+       **/
+      Quaternion exp() const;
+
+      /**
+       * Calculate e to the power of this quaternion, store result in this
+       * quaternion.
+       **/
+      void exp_this();
+
+      /**
+       * Calculate the natural log of this quaternion, return result in a new
+       * quaternion.
+       *
+       * @return result
+       **/
+      Quaternion ln() const;
+
+      /**
+       * Calculate natural log of this quaternion, store result in this
+       * quaternion.
+       **/
+      void ln_this();
+
+      /**
+       * Calculate this quaternion raised to a scalar power, return result in
+       * a new quaternion.
+       *
+       * @return result.
+       **/
+      Quaternion pow(double e) const;
+
+      /**
+       * Calculate this quaternion raised to a scalar power, store result in
+       * this quaternion.
+       **/
+      void pow_this(double e);
+
+      /**
+       * Calculate this quaternion raised to a quaternion power, return result
+       * in a new quaternion.
+       *
+       * @return result.
+       **/
+      Quaternion pow(const Quaternion &e) const;
+
+      /**
+       * Calculate this quaternion raised to a quaternion power, store result in
+       * this quaternion.
+       **/
+      void pow_this(const Quaternion &e);
+
+      /**
+       * If *this and o are unit quaternions, interpolate a quaternion that is
+       * partially between them, and return it as a new quaternion.
+       *
+       * If either quaternion is not a unit quaternion, the calculation will
+       * not produce an error, but will be meaningless.
+       *
+       * @param o the other unit quaternion
+       * @param t how "close" to this quaternion the result should be, in a
+       *          range from 0 to 1, inclusive, where 0 is *this, 1 is o, and
+       *          0.5 is halfway inbetween.
+       * @return the resulting interpolated quaternion
+       **/
+      Quaternion slerp(const Quaternion &o, double t);
+
+      /**
+       * If *this and o are unit quaternions, interpolate a quaternion that is
+       * partially between them, and store it in *this
+       *
+       * If either quaternion is not a unit quaternion, the calculation will
+       * not produce an error, but will be meaningless.
+       *
+       * @param o the other unit quaternion
+       * @param t how "close" to this quaternion the result should be, in a
+       *          range from 0 to 1, inclusive, where 0 is *this, 1 is o, and
+       *          0.5 is halfway inbetween.
+       **/
+      void slerp_this(const Quaternion &o, double t);
+
+      /* The methods below return the cells of the 3x3 rotation matrix this
+       * quaternion represents; names are mRC(), where R is row, and C is column
+       */
+
+      /** Row 1 Column 1 of rotation matrix equivalent to this quaternion */
+      double m11() const;
+
+      /** Row 1 Column 2 of rotation matrix equivalent to this quaternion */
+      double m12() const;
+
+      /** Row 1 Column 3 of rotation matrix equivalent to this quaternion */
+      double m13() const;
+
+      /** Row 2 Column 1 of rotation matrix equivalent to this quaternion */
+      double m21() const;
+
+      /** Row 2 Column 2 of rotation matrix equivalent to this quaternion */
+      double m22() const;
+
+      /** Row 2 Column 3 of rotation matrix equivalent to this quaternion */
+      double m23() const;
+
+      /** Row 3 Column 1 of rotation matrix equivalent to this quaternion */
+      double m31() const;
+
+      /** Row 3 Column 2 of rotation matrix equivalent to this quaternion */
+      double m32() const;
+
+      /** Row 3 Column 3 of rotation matrix equivalent to this quaternion */
+      double m33() const;
 
     private:
       double x_, y_, z_, w_;
