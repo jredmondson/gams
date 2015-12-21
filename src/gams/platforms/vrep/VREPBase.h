@@ -278,7 +278,7 @@ namespace gams
       int do_move (const utility::Location & target,
                    const utility::Location & current, double max_delta);
 
-      int do_rotate (const utility::Rotation & target,
+      int do_rotate (utility::Rotation target,
                      const utility::Rotation & current, double max_delta);
     }; // class VREPBase
   } // namespace platform

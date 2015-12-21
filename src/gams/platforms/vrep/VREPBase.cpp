@@ -55,6 +55,8 @@
 
 #include "gams/variables/Sensor.h"
 
+#include "gams/utility/Euler.h"
+
 #include <ace/Guard_T.h>
 
 typedef ACE_Guard<MADARA_LOCK_TYPE> Guard;
@@ -67,6 +69,8 @@ typedef ACE_Guard<MADARA_LOCK_TYPE> Guard;
 using std::endl;
 using std::cout;
 using std::string;
+
+using namespace gams::utility::euler;
 
 const std::string gams::platforms::VREPBase::TargetMover::NAME("move_thread");
 
@@ -93,7 +97,7 @@ gams::platforms::VREPBase::VREPBase (
     if(!max_delta_.exists())
       max_delta_ = 0;
 
-    max_delta_.set_name(".vrep_max_rotate_delta", *knowledge);
+    max_rotate_delta_.set_name(".vrep_max_rotate_delta", *knowledge);
     if(!max_rotate_delta_.exists())
       max_rotate_delta_ = 0;
 
@@ -385,20 +389,20 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::do_rotate (const utility::Rotation & target,
+gams::platforms::VREPBase::do_rotate (utility::Rotation target,
                                       const utility::Rotation & current,
                                       double max_delta)
 {
   // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
-  simxFloat dest_arr[3];
-  dest_arr[0] = 0;
-  dest_arr[1] = 0;
-  dest_arr[2] = target.rz();
+
+  /*
+  EulerVREP euler_current(current);
 
   simxFloat curr_arr[3];
-  curr_arr[0] = 0;
-  curr_arr[1] = 0;
-  curr_arr[2] = target.rz();
+  curr_arr[0] = euler_current.a();
+  curr_arr[1] = euler_current.b();
+  curr_arr[2] = euler_current.c();
+  */
 
   double distance = target.distance_to(current);
 
@@ -409,64 +413,43 @@ gams::platforms::VREPBase::do_rotate (const utility::Rotation & target,
     current.rx(), current.ry(), current.rz(),
     target.rx(), target.ry(), target.rz(), distance);
 
-  if (max_delta > 0)
+  if(max_delta == 0 || distance < max_delta + 0.01) // we can get to target in one step
   {
-    // move quadrotor target closer to the desired position
-    if(distance < max_delta) // we can get to target in one step
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_TRACE,
-        "gams::platforms::VREPQuad::do_rotate:" \
-        " rotating to target instantly\n");
-
-      curr_arr[0] = dest_arr[0];
-      curr_arr[1] = dest_arr[1];
-      curr_arr[2] = dest_arr[2];
-    }
-    else // we cannot reach target in this step
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_TRACE,
-        "gams::platforms::VREPQuad::do_rotate:" \
-        " calculating new target location\n");
-
-      // how far do we have to go in each dimension
-      double dist[3];
-      for (int i = 0; i < 3; ++i)
-        dist[i] = curr_arr[i] - dest_arr[i];
-
-      // update target position
-      for (int i = 0; i < 3; ++i)
-      {
-        curr_arr[i] -= dist[i] * max_delta / distance;
-      }
-    }
-
-    // send movement command
-    VREP_LOCK
-    {
-      simxSetObjectOrientation (client_id_, node_target_, -1, curr_arr,
-                                simx_opmode_oneshot_wait);
-    }
-
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
       "gams::platforms::VREPQuad::do_rotate:" \
-      " setting target to \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
+      " rotating to target instantly\n");
   }
-  else
+  else // we cannot reach target in this step
   {
+    double fraction = max_delta/distance;
+
+    // move quadrotor target closer to the desired rotation
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
       "gams::platforms::VREPQuad::do_rotate:" \
-      " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
+      " calculating new target location %f / %f == %f\n",
+      max_delta, distance, fraction);
 
-    // send movement command
-    VREP_LOCK
-    {
-      simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
-                                simx_opmode_oneshot_wait);
-    }
+    target.slerp_this(current, 1.0 - fraction);
+  }
+
+  EulerVREP euler_target(target);
+  simxFloat dest_arr[3];
+  dest_arr[0] = euler_target.a();
+  dest_arr[1] = euler_target.b();
+  dest_arr[2] = euler_target.c();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_TRACE,
+    "gams::platforms::VREPQuad::do_rotate:" \
+    " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
+
+  // send movement command
+  VREP_LOCK
+  {
+    simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
+                              simx_opmode_oneshot_wait);
   }
   return 1;
 }
@@ -550,11 +533,9 @@ gams::platforms::VREPBase::rotate (const utility::Rotation & target,
                               simx_opmode_oneshot_wait);
   }
 
-  // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
-  curr_arr[0] = 0;
-  curr_arr[1] = 0;
+  EulerVREP euler_curr(curr_arr[0], curr_arr[1], curr_arr[2]);
 
-  utility::Rotation vrep_rot(get_vrep_frame(), 0, 0, curr_arr[2]);
+  utility::Rotation vrep_rot(euler_curr.to_rotation(get_vrep_frame()));
 
   if(do_rotate(vrep_target, vrep_rot, max_rotate_delta_.to_double()) == 0)
     return 0;
