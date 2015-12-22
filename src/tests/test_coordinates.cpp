@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
   std::cout << std::endl << "Testing rotations between Cartesian frames:" << std::endl;
   CartesianFrame rot_frame0(gloc0);
-  CartesianFrame rot_frame1(Pose(rot_frame0, Location(50, 100), Rotation(Rotation::Z_axis, 90)));
+  CartesianFrame rot_frame1(Pose(rot_frame0, Location(50, 100), Rotation(0, 0, 90, degrees)));
 
   Rotation rot0(rot_frame0, 0, 0, 0);
   Rotation rot1(rot_frame1, 0, 0, 0);
@@ -160,17 +160,17 @@ int main(int argc, char *argv[])
   std::cout << std::endl << "Forming a hexagon with a chain of Cartesian frames:" << std::endl;
   CartesianFrame hex_frame0(gloc0);
   Pose hex0(hex_frame0, 0, 0);
-  CartesianFrame hex_frame1(Pose(hex_frame0, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame1(Pose(hex_frame0, Location(10, 0), Rotation(0, 0, 60, degrees)));
   Pose hex1(hex_frame1, 0, 0);
-  CartesianFrame hex_frame2(Pose(hex_frame1, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame2(Pose(hex_frame1, Location(10, 0), Rotation(0, 0, 60, degrees)));
   Pose hex2(hex_frame2, 0, 0);
-  CartesianFrame hex_frame3(Pose(hex_frame2, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame3(Pose(hex_frame2, Location(10, 0), Rotation(0, 0, 60, degrees)));
   Pose hex3(hex_frame3, 0, 0);
-  CartesianFrame hex_frame4(Pose(hex_frame3, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame4(Pose(hex_frame3, Location(10, 0), Rotation(0, 0, 60, degrees)));
   Pose hex4(hex_frame4, 0, 0);
-  CartesianFrame hex_frame5(Pose(hex_frame4, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame5(Pose(hex_frame4, Location(10, 0), Rotation(0, 0, 60, degrees)));
   Pose hex5(hex_frame5, 0, 0);
-  CartesianFrame hex_frame6(Pose(hex_frame5, Location(10, 0), Rotation(Rotation::Z_axis, 60)));
+  CartesianFrame hex_frame6(Pose(hex_frame5, Location(10, 0), Rotation(0, 0, 60, degrees)));
   Pose hex6(hex_frame6, 0, 0);
   TEST(hex6.distance_to(hex0), 0);
   TEST(hex0.distance_to(hex6), 0);

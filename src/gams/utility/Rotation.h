@@ -65,6 +65,8 @@
 #define DEG_TO_RAD(x) (((x) * M_PI) / 180.0)
 #define RAD_TO_DEG(x) (((x) * 180) / M_PI)
 
+#include "AngleUnits.h"
+
 namespace gams
 {
   namespace utility
@@ -86,18 +88,15 @@ namespace gams
     class RotationVector
     {
     public:
-      static const int X_axis = 0;
-      static const int Y_axis = 1;
-      static const int Z_axis = 2;
-
       /**
        * Constructor, taking values forming an angle-axis 3-vector
-       * Rotation axis is determined by vector's direction. Amount of rotation,
-       * in radians, is the length of the vector.
+       * Rotation axis is determined by vector's direction. The length of
+       * the vector is the amount of rotation (in radians, by default).
        *
        * @param rx length of rotation vector in x-axis direction
        * @param ry length of rotation vector in y-axis direction
        * @param rz length of rotation vector in z-axis direction
+       * @param u units to use (default radians)
        **/
       constexpr RotationVector(double rx, double ry, double rz);
 
@@ -108,7 +107,8 @@ namespace gams
        * @param x length of rotation axis unit vector in x-axis direction
        * @param y length of rotation axis unit vector in y-axis direction
        * @param z length of rotation axis unit vector in z-axis direction
-       * @param angle the amount of rotation, in degrees, around the axis
+       * @param angle the amount of rotation around the axis
+       * @param u units to use (default radians)
        **/
       constexpr RotationVector(double x, double y, double z, double angle);
 
@@ -125,18 +125,6 @@ namespace gams
        **/
       explicit RotationVector(
         const madara::knowledge::containers::NativeDoubleVector &vec);
-
-      /**
-       * For easy specification of a simple rotation around a single axis,
-       * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
-       * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
-       * around that axis as the angle, in degrees
-       *
-       * @param axis_index the index of the axis, 0, 1, or 2, for x, y, and z
-       *    axes respectively, or constant X_axis, Y_axis, or Z_axis
-       * @param angle the rotation, in degrees, around the selected axis
-       **/
-      constexpr RotationVector(int axis_index, double angle);
 
       /**
        * Default Constructor. Produces an invalid rotation (INVAL_COORD)
@@ -260,32 +248,6 @@ namespace gams
        **/
       double set(int i, double val);
 
-      /**
-       * Get the magnitude of rotation; i.e., the number of radians of rotation
-       * around the axis of rotation
-       *
-       * @return magnitidue of rotation
-       **/
-      double magnitude() const
-      {
-        return sqrt(rx_ * rx_ + ry_ * ry_ + rz_ * rz_);
-      }
-
-      /**
-       * Set the magnitude of rotation; i.e., the number of radians of rotation
-       * around the axis of rotation, without changing the axis of rotation
-       *
-       * @param mag the new magnitude
-       **/
-      void magnitude(double mag)
-      {
-        double old_mag = magnitude();
-        double pct = mag / old_mag;
-        rx_ *= pct;
-        ry_ *= pct;
-        rz_ *= pct;
-      }
-
       friend class Quaternion;
 
       friend class ReferenceFrame;
@@ -312,6 +274,9 @@ namespace gams
        * 3-vector Rotation axis is determined by vector's direction. Amount of
        * rotation, in radians, is the length of the vector.
        *
+       * For a simple rotation around a single axis, just pass that angle in the
+       * corresponding axis' argument.
+       *
        * @param rx length of rotation vector in default-frame's x-axis direction
        * @param ry length of rotation vector in default-frame's y-axis direction
        * @param rz length of rotation vector in default-frame's z-axis direction
@@ -319,9 +284,27 @@ namespace gams
       Rotation(double rx, double ry, double rz);
 
       /**
+       * Constructor, for default frame, taking values forming an angle-axis
+       * 3-vector Rotation axis is determined by vector's direction. Amount of
+       * rotation is the length of the vector.
+       *
+       * For a simple rotation around a single axis, just pass that angle in the
+       * corresponding axis' argument.
+       *
+       * @param rx length of rotation vector in default-frame's x-axis direction
+       * @param ry length of rotation vector in default-frame's y-axis direction
+       * @param rz length of rotation vector in default-frame's z-axis direction
+       * @param u units to use (see AngleUnits.h)
+       **/
+      template<typename U> Rotation(double rx, double ry, double rz, U u);
+
+      /**
        * Constructor, for given frame, taking values forming an angle-axis
        * 3-vector Rotation axis is determined by vector's direction. Amount of
        * rotation, in radians, is the length of the vector.
+       *
+       * For a simple rotation around a single axis, just pass that angle in the
+       * corresponding axis' argument.
        *
        * @param frame the frame that this rotation belongs to
        * @param rx length of rotation vector in owning-frame's x-axis direction
@@ -332,15 +315,47 @@ namespace gams
                          double rx, double ry, double rz);
 
       /**
+       * Constructor, for given frame, taking values forming an angle-axis
+       * 3-vector Rotation axis is determined by vector's direction. Amount of
+       * rotation is the length of the vector.
+       *
+       * For a simple rotation around a single axis, just pass that angle in the
+       * corresponding axis' argument.
+       *
+       * @param frame the frame that this rotation belongs to
+       * @param rx length of rotation vector in owning-frame's x-axis direction
+       * @param ry length of rotation vector in owning-frame's y-axis direction
+       * @param rz length of rotation vector in owning-frame's z-axis direction
+       * @param u units to use (see AngleUnits.h)
+       **/
+      template<typename U>
+      constexpr Rotation(const ReferenceFrame &frame,
+                         double rx, double ry, double rz, U u);
+
+      /**
        * Constructor, for default frame taking axis and angle separately
        * @pre (x, y, z) must form a unit vector (sqrt(x*x + y*y + z*z) == 1)
        *
        * @param x length of rotation axis vector in frame's x-axis direction
        * @param y length of rotation axis vector in frame's y-axis direction
        * @param z length of rotation axis vector in frame's z-axis direction
-       * @param angle the amount of rotation, in degrees, around the axis
+       * @param angle the amount of rotation, in radians, around the axis
        **/
-      Rotation(double x, double y, double z, double angle);
+      Rotation(double x, double y, double z,
+                                    double angle);
+
+      /**
+       * Constructor, for default frame taking axis and angle separately
+       * @pre (x, y, z) must form a unit vector (sqrt(x*x + y*y + z*z) == 1)
+       *
+       * @param x length of rotation axis vector in frame's x-axis direction
+       * @param y length of rotation axis vector in frame's y-axis direction
+       * @param z length of rotation axis vector in frame's z-axis direction
+       * @param angle the amount of rotation around the axis
+       * @param u units to use (see AngleUnits.h)
+       **/
+      template<typename U> Rotation(double x, double y, double z,
+                                    double angle, U u);
 
       /**
        * Constructor, for a given frame taking axis and angle separately
@@ -350,10 +365,25 @@ namespace gams
        * @param x length of rotation axis vector in frame's x-axis direction
        * @param y length of rotation axis vector in frame's y-axis direction
        * @param z length of rotation axis vector in frame's z-axis direction
-       * @param angle the amount of rotation, in degrees, around the axis
+       * @param angle the amount of rotation, default radians, around the axis
        **/
       constexpr Rotation(const ReferenceFrame &frame,
-               double x, double y, double z, double angle);
+                         double x, double y, double z, double angle);
+
+      /**
+       * Constructor, for a given frame taking axis and angle separately
+       * @pre (x, y, z) must form a unit vector (sqrt(x*x + y*y + z*z) == 1)
+       *
+       * @param frame the frame that this rotation belongs to
+       * @param x length of rotation axis vector in frame's x-axis direction
+       * @param y length of rotation axis vector in frame's y-axis direction
+       * @param z length of rotation axis vector in frame's z-axis direction
+       * @param angle the amount of rotation around the axis
+       * @param u units to use (see AngleUnits.h)
+       **/
+      template<typename U> constexpr Rotation(const ReferenceFrame &frame,
+                                              double x, double y, double z,
+                                              double angle, U u);
 
       /**
        * Constructor from MADARA DoubleVector, into default ReferenceFrame
@@ -388,34 +418,6 @@ namespace gams
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
-       * For easy specification of a simple rotation around a single axis,
-       * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
-       * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
-       * around that axis as the angle, in degrees
-       *
-       * This Rotation will belong to the default frame.
-       *
-       * @param axis_index the index of the axis, 0, 1, or 2, for x, y, and z
-       *    axes respectively, or constant X_axis, Y_axis, or Z_axis
-       * @param angle the rotation, in degrees, around the selected axis
-       **/
-      Rotation(int axis_index, double angle);
-
-      /**
-       * For easy specification of a simple rotation around a single axis,
-       * pass the index of the axis (0, 1, 2 for X, Y, and Z, respectively)
-       * or use the X_axis, Y_axis, or Z_axis constants. Pass the rotation
-       * around that axis as the angle, in degrees
-       *
-       * @param frame the frame that this rotation belongs to
-       * @param axis_index the index of the axis, 0, 1, or 2, for x, y, and z
-       *    axes respectively, or constant X_axis, Y_axis, or Z_axis
-       * @param angle the rotation, in degrees, around the selected axis
-       **/
-      constexpr Rotation(const ReferenceFrame &frame,
-                         int axis_index, double angle);
-
-      /**
        * Default constructor; an invalid rotation, in the default frame
        **/
       Rotation();
@@ -447,9 +449,19 @@ namespace gams
        * this rotation onto the target.
        *
        * @param target the other Rotation
-       * @return the shortest angle to rotate this onto target
+       * @return the shortest angle, in radians, to rotate this onto target
        **/
       double angle_to(const Rotation &target) const;
+
+      /**
+       * Synonym for distance_to. Returns angle of shortest rotation mapping
+       * this rotation onto the target.
+       *
+       * @param target the other Rotation
+       * @param u units to use (see AngleUnits.h)
+       * @return the shortest angle to rotate this onto target
+       **/
+      template<typename U> double angle_to(const Rotation &target, U u) const;
 
       /**
        * Interpolate a new Rotation that is (t * 100)% between *this and

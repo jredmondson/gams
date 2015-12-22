@@ -269,9 +269,9 @@ namespace gams
       double e = std::exp(w_);
       double sin_i = sin(i);
       w_ = e * cos(i);
-      x_ = e * (x_/i) * sin_i;
-      y_ = e * (y_/i) * sin_i;
-      z_ = e * (z_/i) * sin_i;
+      x_ = i == 0 ? 0 : e * (x_/i) * sin_i;
+      y_ = i == 0 ? 0 : e * (y_/i) * sin_i;
+      z_ = i == 0 ? 0 : e * (z_/i) * sin_i;
     }
 
     inline Quaternion Quaternion::ln() const
@@ -287,9 +287,9 @@ namespace gams
       double i = imag();
       double ac = acos(w_ / m);
       w_ = log(m);
-      x_ = (x_/i) * ac;
-      y_ = (y_/i) * ac;
-      z_ = (z_/i) * ac;
+      x_ = i == 0 ? 0 : (x_/i) * ac;
+      y_ = i == 0 ? 0 : (y_/i) * ac;
+      z_ = i == 0 ? 0 : (z_/i) * ac;
     }
 
     inline Quaternion Quaternion::pow(double e) const

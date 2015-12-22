@@ -59,6 +59,7 @@
 #include <iostream>
 #include <cmath>
 #include "Rotation.h"
+#include "AngleUnits.h"
 #include "Quaternion.h"
 
 namespace gams
@@ -119,15 +120,6 @@ namespace gams
   {
     namespace euler
     {
-      /// Radians unit flag; see Euler constructor
-      static const detail::radians_t radians;
-
-      /// Degres unit flag; see Euler constructor
-      static const detail::degrees_t degrees;
-
-      /// Revolutions (i.e., 1 == 360 degrees) unit flag; see Euler constructor
-      static const detail::revolutions_t revolutions;
-
       /**
        * Class template for representing an angle in Euler notation. Euler
        * notation represents an angle as a sequence of rotations about axes
@@ -187,8 +179,7 @@ namespace gams
          * @tparam Unit the type of the units flag (inferred automatically)
          **/
         template<typename Unit>
-        Euler(Unit u, double a, double b, double c)
-          : a_(u.to_radians(a)), b_(u.to_radians(b)), c_(u.to_radians(c)) {}
+        Euler(double a, double b, double c, Unit u);
 
         /**
          * Constructor to convert from a unit Quaternion.
@@ -198,10 +189,7 @@ namespace gams
          * @param quat the Quaternion to convert. Must be a unit quaternion,
          *             or behavior is undefined.
          **/
-        explicit Euler(const Quaternion &quat)
-          : a_(Conv::reverse ? F::eular_c(quat) : F::eular_a(quat)),
-            b_(F::eular_b(quat)),
-            c_(Conv::reverse ? F::eular_a(quat) : F::eular_c(quat)) {}
+        explicit Euler(const Quaternion &quat);
 
         /**
          * Constructor to convert from a different Euler convention.
@@ -209,26 +197,14 @@ namespace gams
          * @param o the other Euler object
          **/
         template<typename A2, typename B2, typename C2, typename Conv2>
-        explicit Euler(const Euler<A2, B2, C2, Conv2> &o)
-        {
-          Quaternion quat(o.to_quat());
-          a_ = Conv::reverse ? F::eular_c(quat) : F::eular_a(quat);
-          b_ = F::eular_b(quat);
-          c_ = Conv::reverse ? F::eular_a(quat) : F::eular_c(quat);
-        }
+        explicit Euler(const Euler<A2, B2, C2, Conv2> &o);
 
         /**
          * Constructor to convert from a Rotation (or RotationVector)
          *
          * @param o the rotation
          **/
-        explicit Euler(const RotationVector &r)
-        {
-          Quaternion quat(r);
-          a_ = Conv::reverse ? F::eular_c(quat) : F::eular_a(quat);
-          b_ = F::eular_b(quat);
-          c_ = Conv::reverse ? F::eular_a(quat) : F::eular_c(quat);
-        }
+        explicit Euler(const RotationVector &r);
 
         /// Getter for the first rotation angle, around axis A
         double a() const { return a_; }
@@ -249,13 +225,7 @@ namespace gams
          *
          * @return the Quaternion which represents the same angle as *this
          **/
-        Quaternion to_quat() const
-        {
-          // Precalculates and caches all sin/cos required by F::quat_*
-          Trig trig(Conv::reverse ? c_ : a_, b_, Conv::reverse ? a_ : c_);
-          return Quaternion(F::quat_x(trig), F::quat_y(trig),
-                            F::quat_z(trig), F::quat_w(trig));
-        };
+        Quaternion to_quat() const;
 
         /**
          * Convert this Euler angle to a Rotation (axis-angle notation),
@@ -263,10 +233,7 @@ namespace gams
          *
          * @return the Rotation which represents the same angle as *this
          **/
-        Rotation to_rotation() const
-        {
-          return Rotation(to_quat());
-        };
+        Rotation to_rotation() const;
 
         /**
          * Convert this Euler angle to a Rotation (axis-angle notation),
@@ -275,10 +242,7 @@ namespace gams
          * @param frame the reference frame the Rotation will belong to
          * @return the Rotation which represents the same angle as *this
          **/
-        Rotation to_rotation(const ReferenceFrame &frame) const
-        {
-          return Rotation(frame, to_quat());
-        };
+        Rotation to_rotation(const ReferenceFrame &frame) const;
 
         /**
          * Convert a Quaternion into a Euler angle.
@@ -286,12 +250,11 @@ namespace gams
          * @param quat the Quaternion to convert
          * @return a Euler angle equivalent to quat
          **/
-        static Euler from_quat(const Quaternion &quat)
-        {
-          return Euler(quat);
-        };
+        static Euler from_quat(const Quaternion &quat);
       private:
         double a_, b_, c_;
+
+        void set_from_quat(const Quaternion &quat);
       };
 
       typedef Euler<conv::X, conv::Y, conv::Z>             EulerXYZ;
@@ -312,14 +275,11 @@ namespace gams
 
       /** Stream operator for Euler angles */
       template<typename A, typename B, typename C, typename Conv>
-      std::ostream &operator<<(std::ostream &o, const Euler<A, B, C, Conv> &e)
-      {
-        return o << "Euler" <<
-                 Conv::name() << A::name() << B::name() << C::name() << "(" <<
-                 e.a() << ", " << e.b() << ", " << e.c() << ")";
-      }
+      std::ostream &operator<<(std::ostream &o, const Euler<A, B, C, Conv> &e);
     }
   }
 }
+
+#include "Euler.inl"
 
 #endif

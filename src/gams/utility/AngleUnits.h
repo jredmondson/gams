@@ -44,86 +44,52 @@
  *      distribution.
  **/
 
-#include "CartesianFrame.h"
-#include "GPSFrame.h"
+/**
+ * @file AngleUnits.h
+ * @author James Edmondson <jedmondson@gmail.com>
+ *
+ * Angle units for specifying argument types
+ **/
+
+#ifndef _GAMS_UTILITY_ANGLE_UNITS_H_
+#define _GAMS_UTILITY_ANGLE_UNITS_H_
+
+#include "Rotation.h"
 
 namespace gams
 {
   namespace utility
   {
-    void CartesianFrame::transform_location_to_origin(
-                      double &x, double &y, double &z) const
+    namespace detail
     {
-      GAMS_WITH_FRAME_TYPE(origin(), CartesianFrame, frame)
+      struct radians_t
       {
-        rotate_location_vec(x, y, z, origin());
+        double to_radians(double in) { return in; }
+        double from_radians(double in) { return in; }
+      };
 
-        x += origin().x();
-        y += origin().y();
-        z += origin().z();
-        return;
-      }
-      GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+      struct degrees_t
       {
-        rotate_location_vec(x, y, z, origin());
+        double to_radians(double in) { return DEG_TO_RAD(in); }
+        double from_radians(double in) { return RAD_TO_DEG(in); }
+      };
 
-        z += origin().z();
-
-        // convert the latitude/y coordinates
-        y = (y * 360.0) / frame->circ() + origin().y();
-
-        // assume the meters/degree longitude is constant throughout environment
-        // convert the longitude/x coordinates
-        double r_prime = frame->radius() * cos (DEG_TO_RAD (y));
-        double circumference = 2 * r_prime * M_PI;
-        x = (x * 360.0) / circumference + origin().x();
-
-        frame->normalize_location(x, y, z);
-        return;
-      }
-      throw undefined_transform(*this, origin().frame(), true);
-    }
-
-    void CartesianFrame::transform_location_from_origin(
-                      double &x, double &y, double &z) const
-    {
-      GAMS_WITH_FRAME_TYPE(origin(), CartesianFrame, frame)
+      struct revolutions_t
       {
-        rotate_location_vec(x, y, z, origin(), true);
+        double to_radians(double in) { return in * 2 * M_PI; }
+        double from_radians(double in) { return in / (2 * M_PI); }
+      };
+    } // namespace detail
 
-        x -= origin().x();
-        y -= origin().y();
-        z -= origin().z();
-        return;
-      }
-      GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
-      {
-        if(!origin().is_rotation_zero())
-          throw undefined_transform(*this, origin().frame(), false, true);
-        frame->normalize_location(x, y, z);
+    /// Radians unit flag; see Euler constructor
+    static const detail::radians_t radians;
 
-        z -= origin().z();
+    /// Degres unit flag; see Euler constructor
+    static const detail::degrees_t degrees;
 
-        // convert the latitude/y coordinates
-        double new_y = ((y - origin().y()) * frame->circ()) / 360.0;
-
-        // assume the meters/degree longitude is constant throughout environment
-        // convert the longitude/x coordinates
-        double r_prime = frame->radius() * cos (DEG_TO_RAD (y));
-        double circumference = 2 * r_prime * M_PI;
-        y = new_y;
-        x = ((x - origin().x()) * circumference) / 360.0;
-        return;
-      }
-      throw undefined_transform(*this, origin().frame(), false);
-    }
-
-    namespace
-    {
-      CartesianFrame cartesian_default_frame;
-    }
-
-    const ReferenceFrame *CoordinateBase::default_frame_ =
-           &cartesian_default_frame;
+    /// Revolutions (i.e., 1 == 360 degrees) unit flag; see Euler constructor
+    static const detail::revolutions_t revolutions;
   }
 }
+
+#endif

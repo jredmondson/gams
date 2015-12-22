@@ -72,12 +72,6 @@ namespace gams
         ry_(y * DEG_TO_RAD(angle)),
         rz_(z * DEG_TO_RAD(angle)) {}
 
-    inline constexpr RotationVector::RotationVector(
-            int axis_index, double angle)
-      : rx_(axis_index == X_axis ? DEG_TO_RAD(angle) : 0),
-        ry_(axis_index == Y_axis ? DEG_TO_RAD(angle) : 0),
-        rz_(axis_index == Z_axis ? DEG_TO_RAD(angle) : 0) {}
-
     inline RotationVector::RotationVector(
         const madara::knowledge::containers::DoubleVector &vec)
       : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
@@ -159,11 +153,13 @@ namespace gams
     }
 
     inline Rotation::Rotation(double rx, double ry, double rz)
-      : RotationVector(rx, ry, rz), Coordinate() {}
+      : RotationVector(rx, ry, rz),
+        Coordinate() {}
 
     inline constexpr Rotation::Rotation(
             const ReferenceFrame &frame, double rx, double ry, double rz)
-      : RotationVector(rx, ry, rz), Coordinate(frame) {}
+      : RotationVector(rx, ry, rz),
+        Coordinate(frame) {}
 
     inline Rotation::Rotation(double x, double y, double z, double angle)
       : RotationVector(x, y, z, angle), Coordinate() {}
@@ -172,12 +168,26 @@ namespace gams
        const ReferenceFrame &frame, double x, double y, double z, double angle)
       : RotationVector(x, y, z, angle), Coordinate(frame) {}
 
-    inline Rotation::Rotation(int axis_index, double angle)
-      : RotationVector(axis_index, angle), Coordinate() {}
+    template<typename U>
+    inline Rotation::Rotation(double rx, double ry, double rz, U u)
+      : RotationVector(u.to_radians(rx), u.to_radians(ry), u.to_radians(rz)),
+        Coordinate() {}
 
+    template<typename U>
     inline constexpr Rotation::Rotation(
-          const ReferenceFrame &frame, int axis_index, double angle)
-      : RotationVector(axis_index, angle), Coordinate(frame) {}
+            const ReferenceFrame &frame, double rx, double ry, double rz, U u)
+      : RotationVector(u.to_radians(rx), u.to_radians(ry), u.to_radians(rz)),
+        Coordinate(frame) {}
+
+    template<typename U>
+    inline Rotation::Rotation(double x, double y, double z, double angle, U u)
+      : RotationVector(x, y, z, u.to_radians(angle)), Coordinate() {}
+
+    template<typename U>
+    inline constexpr Rotation::Rotation(
+       const ReferenceFrame &frame, double x, double y, double z,
+                                    double angle, U u)
+      : RotationVector(x, y, z, u.to_radians(angle)), Coordinate(frame) {}
 
     inline Rotation::Rotation() : RotationVector(), Coordinate() {}
 
@@ -215,6 +225,12 @@ namespace gams
     inline double Rotation::angle_to(const Rotation &target) const
     {
       return distance_to(target);
+    }
+
+    template<typename U>
+    inline double Rotation::angle_to(const Rotation &target, U u) const
+    {
+      return u.from_radians(distance_to(target));
     }
   }
 }

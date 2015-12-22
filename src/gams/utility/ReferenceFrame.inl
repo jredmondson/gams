@@ -360,10 +360,12 @@ namespace gams
     }
 
 
+// Make Visual Studio Intellisense ignore these definitions; it gets confused
+// and thinks they're declarations for some reason.
 #ifndef __INTELLISENSE__
 
     template<typename CoordType>
-	inline CoordType Coordinate<CoordType>::transform_to(
+    inline CoordType Coordinate<CoordType>::transform_to(
                                 const ReferenceFrame &new_frame) const
     {
       CoordType ret(as_coord_type());

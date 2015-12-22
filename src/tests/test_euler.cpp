@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     cout << e2 << endl;
   }
   {
-    EulerZYX e(degrees, 15, 45, 60);
+    EulerZYX e(15, 45, 60, degrees);
     Quaternion q(e.to_quat());
 
     cout << e << endl;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     cout << q2 << endl;
   }
   {
-    EulerExtrXYZ e(degrees, 60, 45, 15);
+    EulerExtrXYZ e(60, 45, 15, degrees);
     Quaternion q(e.to_quat());
 
     cout << e << endl;
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     cout << q2 << endl;
   }
   {
-    EulerZYX e(revolutions, 1.0/24, 1.0/8, 1.0/6);
+    EulerZYX e(1.0/24, 1.0/8, 1.0/6, revolutions);
     Quaternion q(e.to_quat());
 
     cout << e << endl;
@@ -109,13 +109,13 @@ int main(int argc, char *argv[])
   }
 
   {
-    EulerExtrXYZ e(degrees, 60, 45, 15);
+    EulerExtrXYZ e(60, 45, 15, degrees);
     Rotation r(e.to_rotation());
 
     cout << r << endl;
   }
   {
-    EulerExtrXYZ e(radians, 0, 0, 1);
+    EulerExtrXYZ e(0, 0, 1, radians);
     Rotation r(e.to_rotation());
 
     cout << r << endl;

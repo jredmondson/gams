@@ -146,6 +146,7 @@ namespace gams
         rotq.conjugate();
 
       Quaternion::hamilton_product(locq, rotq, locq);
+      locq.pre_multiply(rotq);
       rotq.conjugate();
       locq *= rotq;
       locq.to_location_vector(x, y, z);

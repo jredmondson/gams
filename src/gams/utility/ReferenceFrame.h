@@ -63,18 +63,11 @@
 /**
  * Following statement or block is executed only if the frame `coord` belongs
  * to is of type `type` (i.e., can be dynamic_cast to it). The casted frame
- * is provided as a const reference in `frame_ref`, in scope only within the
+ * is provided as a const pointer in `frame_ptr`, in scope only within the
  * following statement/block.
- *
- * Warning: this uses a for loop as implementation, so using break or continue
- * inside will produce unexpected results.
  **/
-#define GAMS_WITH_FRAME_TYPE(coord, type, frame_ref) \
-  for(const type *with_frame_type_temp_ptr___ = \
-            dynamic_cast<const type *>(&coord.frame()), \
-        &frame_ref = *with_frame_type_temp_ptr___; \
-        with_frame_type_temp_ptr___; with_frame_type_temp_ptr___ = nullptr,\
-        (void)frame_ref)
+#define GAMS_WITH_FRAME_TYPE(coord, type, frame_ptr) \
+  if(const type *frame_ptr = dynamic_cast<const type *>(&coord.frame()))
 
 // note: (void)frame_ref silences warnings if frame_ref isn't used in body code
 
