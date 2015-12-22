@@ -54,6 +54,8 @@
 #ifndef _GAMS_UTILITY_REFERENCE_FRAME_INL_
 #define _GAMS_UTILITY_REFERENCE_FRAME_INL_
 
+#include "ReferenceFrame.h"
+
 #include <gams/utility/Pose.h>
 
 namespace gams
@@ -357,8 +359,11 @@ namespace gams
       pose.frame().normalize_rotation(pose.rx_, pose.ry_, pose.rz_);
     }
 
+
+#ifndef __INTELLISENSE__
+
     template<typename CoordType>
-    inline CoordType Coordinate<CoordType>::transform_to(
+	inline CoordType Coordinate<CoordType>::transform_to(
                                 const ReferenceFrame &new_frame) const
     {
       CoordType ret(as_coord_type());
@@ -386,6 +391,7 @@ namespace gams
       frame().normalize(as_coord_type());
     }
 
+#endif // ndef __INTELLISENSE
 
     inline std::ostream &operator<<(std::ostream &o, const Location &loc)
     {

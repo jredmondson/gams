@@ -56,6 +56,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <gams/CPP11_compat.h>
 
 namespace gams
 {
@@ -368,8 +369,5 @@ namespace gams
 }
 
 #include "Quaternion.inl"
-
-// Include if not already included
-#include <gams/utility/Pose.h>
 
 #endif

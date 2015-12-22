@@ -61,6 +61,8 @@
 #include <cmath>
 #include "gams/utility/Quaternion.h"
 
+#include "Euler.h"
+
 namespace gams
 {
   namespace utility
@@ -154,7 +156,7 @@ namespace gams
         template<>
         struct EulerFormulas<X, Y, Z>
         {
-          typedef typename GetEulerTrig<X, Y, Z>::type Trig;
+          typedef GetEulerTrig<X, Y, Z>::type Trig;
 
           static double eular_a(const Quaternion &q)
           {
@@ -195,7 +197,7 @@ namespace gams
         template<>
         struct EulerFormulas<Z, Y, X>
         {
-          typedef typename GetEulerTrig<Z, Y, X>::type Trig;
+          typedef GetEulerTrig<Z, Y, X>::type Trig;
 
           static double eular_a(const Quaternion &q)
           {

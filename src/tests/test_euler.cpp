@@ -1,8 +1,8 @@
 #include <iostream>
 #include <math.h>
-#include <gams/utility/ReferenceFrame.h>
 #include <gams/utility/Euler.h>
-#include <gams/utility/GPSFrame.h>
+#include <gams/utility/Rotation.h>
+//#include <gams/utility/GPSFrame.h>
 
 using namespace gams::utility;
 

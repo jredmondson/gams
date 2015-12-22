@@ -58,6 +58,8 @@
 #include <cstdio>
 #include <sstream>
 
+#include "Coordinate.h"
+
 namespace gams
 {
   namespace utility

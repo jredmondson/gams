@@ -56,8 +56,11 @@
 
 #include <iostream>
 #include <string>
+#include <gams/CPP11_compat.h>
 #include <gams/utility/Coordinate.h>
 #include <cmath>
+#include <madara/knowledge/containers/DoubleVector.h>
+#include <madara/knowledge/containers/NativeDoubleVector.h>
 
 #define DEG_TO_RAD(x) (((x) * M_PI) / 180.0)
 #define RAD_TO_DEG(x) (((x) * 180) / M_PI)
@@ -483,8 +486,5 @@ namespace gams
 }
 
 #include "Rotation.inl"
-
-// Include if not already included
-#include <gams/utility/Pose.h>
 
 #endif

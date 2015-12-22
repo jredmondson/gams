@@ -55,10 +55,10 @@
 #define _GAMS_UTILITY_COORDINATE_H_
 
 #include "gams/GAMSExport.h"
-#include <gams/CPP11_compat.h>
 #include <string>
 #include <cfloat>
 #include <utility>
+#include <gams/CPP11_compat.h>
 
 #define INVAL_COORD DBL_MAX
 
@@ -468,6 +468,8 @@ namespace gams
 
       /**
        * Copy and transform this coordinate to a new reference frame
+	   *
+	   * Requres "ReferenceFrame.h"
        *
        * @param new_frame the frame to transform to
        * @return the new coordinate in the new frame
@@ -483,6 +485,8 @@ namespace gams
 
       /**
        * Transform this coordinate, in place, to a new reference frame
+	   *
+	   * Requres "ReferenceFrame.h"
        *
        * @param new_frame the frame to transform to
        *
@@ -499,6 +503,8 @@ namespace gams
        * Calculate distance from this Coordinate to a target. If the target
        * is in another reference frame, this and the target will be copied, and
        * converted to their closest common frame.
+	   *
+	   * Requres "ReferenceFrame.h"
        *
        * @param target the target Coordinate to calculate distance to
        * @return the distance according to the distance metric in the common
@@ -516,6 +522,8 @@ namespace gams
       /**
        * Reduces this Coordinate to it's normalized form, should one exist.
        * Typically useful for Coordinate types which incorporate angles.
+	   *
+	   * Requres "ReferenceFrame.h"
        **/
       void normalize();
 
@@ -536,8 +544,5 @@ namespace gams
 }
 
 #include "Coordinate.inl"
-
-// Include if not already included
-#include <gams/utility/Pose.h>
 
 #endif

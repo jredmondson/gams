@@ -1,6 +1,6 @@
 #include <iostream>
 #include <math.h>
-#include <gams/utility/Coordinate.h>
+#include <gams/utility/Location.h>
 
 using namespace gams::utility;
 
@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
   Location dloc1(3,4,0);
   LOG(dloc0);
   LOG(dloc1);
-  TEST(dloc0.distance_to(dloc1), 5);
-  TEST(dloc1.distance_to(dloc0), 5);
+  // These won't work without including ReferenceFrame.h
+  //TEST(dloc0.distance_to(dloc1), 5);
+  //TEST(dloc1.distance_to(dloc0), 5);
   return 0;
 }

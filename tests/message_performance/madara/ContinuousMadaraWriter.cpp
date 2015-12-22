@@ -119,7 +119,8 @@ int main(int argc, char** argv)
   const std::string key("data");
   knowledge.set(key, val);
 
-  ACE_Time_Value current = ACE_OS::gettimeofday();
+  //ACE_Time_Value current = ACE_OS::gettimeofday();
+  ACE_Time_Value current;
 
   ACE_Time_Value publish_period;
   publish_period.set(poll_period);
@@ -130,14 +131,16 @@ int main(int argc, char** argv)
 
   ACE_Time_Value next_epoch = current + publish_period;
 
-  ACE_Time_Value start = ACE_OS::gettimeofday();
+  //ACE_Time_Value start = ACE_OS::gettimeofday();
+  ACE_Time_Value start;
 
   while(end - start_time < num_sec)
   {
     knowledge.set(key, val);
     ++updates;
 
-    ACE_Time_Value current = ACE_OS::gettimeofday ();
+    //ACE_Time_Value current = ACE_OS::gettimeofday ();
+	ACE_Time_Value current;
     madara::utility::sleep (next_epoch - current);  
       
     // setup the next 

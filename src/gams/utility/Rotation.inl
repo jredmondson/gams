@@ -56,6 +56,8 @@
 
 #include <stdexcept>
 
+#include "Rotation.h"
+
 namespace gams
 {
   namespace utility

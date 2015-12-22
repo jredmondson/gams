@@ -478,7 +478,4 @@ namespace gams
 
 #include "Location.inl"
 
-// Include if not already included
-#include <gams/utility/Pose.h>
-
 #endif

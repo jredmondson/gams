@@ -54,6 +54,8 @@
 #ifndef _GAMS_UTILITY_LOCATION_INL_
 #define _GAMS_UTILITY_LOCATION_INL_
 
+#include "Location.h"
+
 namespace gams
 {
   namespace utility

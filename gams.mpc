@@ -118,6 +118,43 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
 
     src/gams
   }
+
+  Inline_Files {
+
+    Algorithms {
+      src/gams/algorithms
+    }
+
+    Area_Coverage {
+      src/gams/algorithms/area_coverage
+    }
+
+    Controllers {
+      src/gams/controllers
+    }
+    
+    Loggers {
+      src/gams/loggers
+    }
+
+    Maps {
+      src/gams/maps
+    }
+
+    Platforms {
+      src/gams/platforms
+    }
+
+    Utility {
+      src/gams/utility
+    }
+
+    Variables {
+      src/gams/variables
+    }
+
+    src/gams
+  }
 }
 
 project (gams_jar) : using_gams, using_madara, using_ace {

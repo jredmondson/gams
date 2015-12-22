@@ -56,6 +56,8 @@
 
 #include "ReferenceFrame.h"
 
+#include "CartesianFrame.h"
+
 namespace gams
 {
   namespace utility

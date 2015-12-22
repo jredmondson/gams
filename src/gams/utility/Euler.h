@@ -58,7 +58,8 @@
 
 #include <iostream>
 #include <cmath>
-#include "gams/utility/Quaternion.h"
+#include "Rotation.h"
+#include "Quaternion.h"
 
 namespace gams
 {

@@ -56,6 +56,8 @@
 
 #include "ReferenceFrame.h"
 
+#include "GPSFrame.h"
+
 namespace gams
 {
   namespace utility

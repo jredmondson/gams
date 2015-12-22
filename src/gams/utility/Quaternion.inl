@@ -57,6 +57,8 @@
 #include <gams/utility/Rotation.h>
 #include <gams/utility/Location.h>
 
+#include "Quaternion.h"
+
 namespace gams
 {
   namespace utility
@@ -399,7 +401,7 @@ namespace gams
     inline Rotation Rotation::slerp(const Rotation &o, double t) const
     {
       Quaternion q(*this),
-        qo(frame() == o.frame() ? o : o.transform_to(frame()));
+        qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
       return Rotation(q);
     }
@@ -407,7 +409,7 @@ namespace gams
     inline void Rotation::slerp_this(const Rotation &o, double t)
     {
       Quaternion q(*this),
-        qo(frame() == o.frame() ? o : o.transform_to(frame()));
+        qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
       q.to_rotation_vector(*this);
     }

@@ -54,6 +54,8 @@
 #ifndef _GAMS_UTILITY_POSE_INL_
 #define _GAMS_UTILITY_POSE_INL_
 
+#include "Pose.h"
+
 namespace gams
 {
   namespace utility
