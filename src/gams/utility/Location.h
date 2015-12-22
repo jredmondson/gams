@@ -77,8 +77,9 @@ namespace gams
      * lng/lat/alt for GPS-style systems
      * rho/phi/r for Cylindrical systems
      * theta/phi/r for Spherical systems
+     * northing/easting/zone/hemi/alt for UTM/USP systems
      *
-     * Each of the above are bound to x/y/z respectively.
+     * Each of the above are bound to x/y/z respectively
      **/
     class LocationVector
     {
@@ -304,6 +305,108 @@ namespace gams
        **/
       double r(double new_r);
 
+#ifdef GAMS_UTM
+
+      /**
+       * Gets the UTM northing for this location.
+       * Will return arbitrary value if this location is not bound to a UTMFrame
+       *
+       * Defined in UTMFrame.inl
+       **/
+      constexpr double northing() const;
+
+      /**
+       * Gets the UTM easting for this location.
+       * Will return arbitrary value if this location is not bound to a UTMFrame
+       *
+       * Defined in UTMFrame.inl
+       **/
+      constexpr double easting() const;
+
+      /**
+       * Gets the UTM zone (longitudinal) for this location: 0 if USP (near
+       * poles) otherwise in range [1, 60]
+       * Will return arbitrary value if this location is not bound to a UTMFrame
+       *
+       * Defined in UTMFrame.inl
+       **/
+      constexpr int zone() const;
+
+      /**
+       * Gets the UTM hemisphere for this location. True if northern.
+       * Will return arbitrary value if this location is not bound to a UTMFrame
+       *
+       * Defined in UTMFrame.inl
+       **/
+      constexpr bool hemi() const;
+
+      /**
+       * Set UTM northing and hemisphere (true is northern) simultaneously
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @param n the new northing
+       * @param h the new hemisphere
+       **/
+      void northing(double n, bool h);
+
+      /**
+       * Set UTM northing only; do not change hemisphere
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @param n the new northing
+       **/
+      void northing(double n);
+
+      /**
+       * Set UTM hemisphere (true is northern) only; do not change northing
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @param h the new hemisphere
+       **/
+      void hemi(bool h);
+
+      /**
+       * Set UTM easting and zone simultaneously
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @param e the new easting
+       * @param z the new zone; 0 for USP (polar regions), otherwise [1,60]
+       **/
+      void easting(double e, int z);
+
+      /**
+       * Set UTM easting only; do not change zone
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @param e the new easting
+       **/
+      void easting(double e);
+
+      /**
+       * Set UTM zone only; do not change easting
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @param z the new zone; 0 for USP (polar regions), otherwise [1,60]
+       **/
+      void zone(int z);
+
+      /**
+       * Get the NATO band code for the latitude of this UTM location
+       *
+       * Defined in UTMFrame.inl
+       *
+       * @return an uppercase letter according to NATO standards
+       **/
+      char nato_band();
+
+#endif // GAMS_UTM
+
       /**
        * Number of elements in this tuple
        *
@@ -363,8 +466,15 @@ namespace gams
      * lng/lat/alt for GPS-style systems
      * rho/phi/r for Cylindrical systems
      * theta/phi/r for Spherical systems
+     * northing/easting/zone/hemi/alt for UTM/USP systems
      *
      * Each of the above are bound to x/y/z respectively.
+     *
+     * Note that no checking is done to ensure that the correct accessors are
+     * used based on the actual ReferenceFrame type this Location is bound
+     * to. In particular, the UTM/USP accessors may produce strange values if
+     * the Location is not actually bound to a UTMFrame, but will not cause
+     * exceptions.
      **/
     class Location : public LocationVector, public Coordinate<Location>
     {

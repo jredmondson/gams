@@ -1,4 +1,4 @@
-project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk {
+project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk {
   libout = lib
   sharedname = GAMS
   includes += src
@@ -36,6 +36,7 @@ project (gams) : using_madara, using_ace, using_dronerk, vrep_lib, ros_lib, port
     using_ace.mpb
     using_madara.mpb
     using_gams.mpb
+    using_utm.mpb
     using_dronerk.mpb
     using_vrep.mpb
     using_ros.mpb

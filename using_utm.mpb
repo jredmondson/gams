@@ -1,0 +1,5 @@
+feature(utm) {
+  libs += Geographic
+
+  macros += GAMS_UTM
+}
