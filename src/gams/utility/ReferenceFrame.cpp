@@ -123,6 +123,20 @@ namespace gams
       throw bad_coord_type<Rotation>(*this, "transform_rotation_from_origin");
     }
 
+    void ReferenceFrame::transform_pose_to_origin(
+                    double &x, double &y, double &z,
+                    double &rx, double &ry, double &rz) const
+    {
+      throw bad_coord_type<Rotation>(*this, "transform_pose_to_origin");
+    }
+
+    void ReferenceFrame::transform_pose_from_origin(
+                    double &x, double &y, double &z,
+                    double &rx, double &ry, double &rz) const
+    {
+      throw bad_coord_type<Rotation>(*this, "transform_pose_from_origin");
+    }
+
     double ReferenceFrame::calc_angle(
                 double, double, double, double, double, double) const
     {
@@ -132,7 +146,15 @@ namespace gams
     void ReferenceFrame::do_normalize_rotation(
                 double &, double &, double &) const {}
 
-    void AxisAngleFrame::rotate_location_vec(
+    void ReferenceFrame::do_normalize_pose(
+                    double &x, double &y, double &z,
+                    double &rx, double &ry, double &rz) const
+    {
+      do_normalize_location(x, y, z);
+      do_normalize_rotation(rx, ry, rz);
+    }
+
+    void SimpleRotateFrame::rotate_location_vec(
           double &x, double &y, double &z,
           const RotationVector &rot, bool reverse) const
     {
@@ -149,36 +171,42 @@ namespace gams
       locq.to_location_vector(x, y, z);
     }
 
-    void AxisAngleFrame::transform_rotation_to_origin(
+    void SimpleRotateFrame::transform_rotation_to_origin(
                                 double &rx, double &ry, double &rz) const
     {
-      GAMS_WITH_FRAME_TYPE(origin(), AxisAngleFrame, frame)
-      {
-        Quaternion in_quat(rx, ry, rz);
-        Quaternion origin_quat(origin().as_rotation_vec());
-        in_quat *= origin_quat;
-        in_quat.to_rotation_vector(rx, ry, rz);
-        return;
-      }
-      throw undefined_transform(*this, origin().frame(), true);
+      Quaternion in_quat(rx, ry, rz);
+      Quaternion origin_quat(origin().as_rotation_vec());
+      in_quat *= origin_quat;
+      in_quat.to_rotation_vector(rx, ry, rz);
     }
 
-    void AxisAngleFrame::transform_rotation_from_origin(
+    void SimpleRotateFrame::transform_rotation_from_origin(
                                 double &rx, double &ry, double &rz) const
     {
-      GAMS_WITH_FRAME_TYPE(origin(), AxisAngleFrame, frame)
-      {
-        Quaternion in_quat(rx, ry, rz);
-        Quaternion origin_quat(origin().as_rotation_vec());
-        origin_quat.conjugate();
-        in_quat *= origin_quat;
-        in_quat.to_rotation_vector(rx, ry, rz);
-        return;
-      }
-      throw undefined_transform(*this, origin().frame(), false);
+      Quaternion in_quat(rx, ry, rz);
+      Quaternion origin_quat(origin().as_rotation_vec());
+      origin_quat.conjugate();
+      in_quat *= origin_quat;
+      in_quat.to_rotation_vector(rx, ry, rz);
     }
 
-    inline double AxisAngleFrame::calc_angle(
+    void SimpleRotateFrame::transform_pose_to_origin(
+                    double &x, double &y, double &z,
+                    double &rx, double &ry, double &rz) const
+    {
+      transform_location_to_origin(x, y, z);
+      transform_rotation_to_origin(rx, ry, rz);
+    }
+
+    void SimpleRotateFrame::transform_pose_from_origin(
+                    double &x, double &y, double &z,
+                    double &rx, double &ry, double &rz) const
+    {
+      transform_location_from_origin(x, y, z);
+      transform_rotation_from_origin(rx, ry, rz);
+    }
+
+    inline double SimpleRotateFrame::calc_angle(
                 double rx1, double ry1, double rz1,
                 double rx2, double ry2, double rz2) const
     {

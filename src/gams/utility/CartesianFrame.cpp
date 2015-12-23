@@ -82,6 +82,17 @@ namespace gams
         frame->normalize_location(x, y, z);
         return;
       }
+#ifdef GAMS_UTM
+      GAMS_WITH_FRAME_TYPE(origin(), UTMFrame, frame)
+      {
+        rotate_location_vec(x, y, z, origin());
+
+        x += origin().x();
+        y += origin().y();
+        z += origin().z();
+        return;
+      }
+#endif
       throw undefined_transform(*this, origin().frame(), true);
     }
 
@@ -116,6 +127,17 @@ namespace gams
         x = ((x - origin().x()) * circumference) / 360.0;
         return;
       }
+#ifdef GAMS_UTM
+      GAMS_WITH_FRAME_TYPE(origin(), UTMFrame, frame)
+      {
+        rotate_location_vec(x, y, z, origin(), true);
+
+        x -= origin().x();
+        y -= origin().y();
+        z -= origin().z();
+        return;
+      }
+#endif
       throw undefined_transform(*this, origin().frame(), false);
     }
 

@@ -62,21 +62,102 @@ namespace gams
 {
   namespace utility
   {
+#ifdef CPP11
     inline ReferenceFrame::ReferenceFrame()
-      : origin_(new Pose(*this, 0, 0, 0, 0, 0, 0)),
-        destruct_origin_(true) {}
+      : extern_origin_(false)
+    {
+      new (&origin_) Pose(*this, 0, 0, 0, 0, 0, 0);
+    }
 
     inline ReferenceFrame::ReferenceFrame(const Pose &origin)
-      : origin_(new Pose(origin)),
-        destruct_origin_(true) {}
+      : extern_origin_(false)
+    {
+      new (&origin_) Pose(origin);
+    }
 
-    inline ReferenceFrame::ReferenceFrame(Pose *origin)
-      : origin_(origin),
-        destruct_origin_(false) {}
+    inline ReferenceFrame::ReferenceFrame(const Pose *origin)
+      : ptr_origin_(origin),
+        extern_origin_(true) {}
+
+    inline ReferenceFrame::ReferenceFrame(const ReferenceFrame &o)
+      : extern_origin_(o.origin_is_external())
+    {
+      if(extern_origin_)
+        ptr_origin_ = o.ptr_origin_;
+      else
+        new (&origin_) Pose(o.origin_);
+    }
+
+    inline ReferenceFrame &ReferenceFrame::operator=(const ReferenceFrame &o)
+    {
+      extern_origin_ = o.origin_is_external();
+      if(extern_origin_)
+        ptr_origin_ = o.ptr_origin_;
+      else
+        new (&origin_) Pose(o.origin_);
+    }
 
     inline ReferenceFrame::~ReferenceFrame()
     {
-      if(destruct_origin_)
+      if(!extern_origin_)
+        origin_.~Pose();
+    }
+
+    inline const Pose &ReferenceFrame::origin() const
+    {
+      return extern_origin_ ? *ptr_origin_ : origin_;
+    }
+
+    inline const Pose &ReferenceFrame::origin(const Pose &new_origin)
+    {
+      if(!extern_origin_)
+        origin_.~Pose();
+      extern_origin_ = false;
+      new (&origin_) Pose(new_origin);
+      return origin_;
+    }
+
+    inline void ReferenceFrame::bind_origin(const Pose *new_origin)
+    {
+      if(!extern_origin_)
+        origin_.~Pose();
+      extern_origin_ = true;
+      ptr_origin_ = new_origin;
+    }
+#else
+    inline ReferenceFrame::ReferenceFrame()
+      : origin_(new Pose(*this, 0, 0, 0, 0, 0, 0)),
+        extern_origin_(false) {}
+
+    inline ReferenceFrame::ReferenceFrame(const Pose &origin)
+      : origin_(new Pose(origin)),
+        extern_origin_(false) {}
+
+    inline ReferenceFrame::ReferenceFrame(const Pose *origin)
+      : origin_(origin),
+        extern_origin_(true) {}
+
+    inline ReferenceFrame::ReferenceFrame(const ReferenceFrame &o)
+      : extern_origin_(o.origin_is_external())
+    {
+      if(extern_origin_)
+        origin_ = o.origin_;
+      else
+        origin_ = new Pose(*o.origin_);
+    }
+
+    inline ReferenceFrame &ReferenceFrame::operator=(const ReferenceFrame &o)
+    {
+      extern_origin_ = o.origin_is_external();
+      if(extern_origin_)
+        origin_ = o.origin_;
+      else
+        origin_ = new Pose(*o.origin_);
+    }
+
+    inline ReferenceFrame::~ReferenceFrame()
+    {
+      if(!extern_origin_)
       {
         delete origin_;
       }
@@ -89,24 +170,25 @@ namespace gams
 
     inline const Pose &ReferenceFrame::origin(const Pose &new_origin)
     {
-      if(destruct_origin_)
+      if(!extern_origin_)
         delete origin_;
       origin_ = nullptr;
-      destruct_origin_ = true;
+      extern_origin_ = false;
       return *(origin_ = new Pose(new_origin));
     }
 
-    inline const ReferenceFrame &ReferenceFrame::origin_frame() const {
-      return origin().frame();
-    }
-
-    inline void ReferenceFrame::bind_origin(Pose *new_origin)
+    inline void ReferenceFrame::bind_origin(const Pose *new_origin)
     {
-      if(destruct_origin_)
+      if(!extern_origin_)
         delete origin_;
       origin_ = nullptr;
-      destruct_origin_ = false;
+      extern_origin_ = true;
       origin_ = new_origin;
+    }
+#endif
+
+    inline const ReferenceFrame &ReferenceFrame::origin_frame() const {
+      return origin().frame();
     }
 
     inline bool ReferenceFrame::operator==(const ReferenceFrame &other) const
@@ -278,8 +360,8 @@ namespace gams
     template<>
     inline void ReferenceFrame::transform_to_origin<>(Pose &in)
     {
-      in.frame().transform_location_to_origin(in.x_, in.y_, in.z_);
-      in.frame().transform_rotation_to_origin(in.rx_, in.ry_, in.rz_);
+      in.frame().transform_pose_to_origin(in.x_, in.y_, in.z_,
+                                          in.rx_, in.ry_, in.rz_);
     }
 
     template<>
@@ -300,8 +382,8 @@ namespace gams
     inline void ReferenceFrame::transform_from_origin<>(
       Pose &in, const ReferenceFrame &to_frame)
     {
-      to_frame.transform_location_from_origin(in.x_, in.y_, in.z_);
-      to_frame.transform_rotation_from_origin(in.rx_, in.ry_, in.rz_);
+      to_frame.transform_pose_from_origin(in.x_, in.y_, in.z_,
+                                          in.rx_, in.ry_, in.rz_);
     }
 
     template<>
@@ -340,6 +422,13 @@ namespace gams
       do_normalize_rotation(rx, ry, rz);
     }
 
+    inline void ReferenceFrame::normalize_pose(
+                                      double &x, double &y, double &z,
+                                      double &rx, double &ry, double &rz) const
+    {
+      do_normalize_pose(x, y, z, rx, ry, rz);
+    }
+
     template<>
     inline void ReferenceFrame::normalize<>(Location &loc)
     {
@@ -355,10 +444,9 @@ namespace gams
     template<>
     inline void ReferenceFrame::normalize<>(Pose &pose)
     {
-      pose.frame().normalize_location(pose.x_, pose.y_, pose.z_);
-      pose.frame().normalize_rotation(pose.rx_, pose.ry_, pose.rz_);
+      pose.frame().normalize_pose(pose.x_, pose.y_, pose.z_,
+                                  pose.rx_, pose.ry_, pose.rz_);
     }
-
 
 // Make Visual Studio Intellisense ignore these definitions; it gets confused
 // and thinks they're declarations for some reason.
@@ -393,7 +481,7 @@ namespace gams
       frame().normalize(as_coord_type());
     }
 
-#endif // ndef __INTELLISENSE
+#endif // ifndef __INTELLISENSE__
 
     inline std::ostream &operator<<(std::ostream &o, const Location &loc)
     {
@@ -414,12 +502,12 @@ namespace gams
     }
 
 
-    inline AxisAngleFrame::AxisAngleFrame() : ReferenceFrame() {}
+    inline SimpleRotateFrame::SimpleRotateFrame() : ReferenceFrame() {}
 
-    inline AxisAngleFrame::AxisAngleFrame(const Pose &origin)
+    inline SimpleRotateFrame::SimpleRotateFrame(const Pose &origin)
       : ReferenceFrame(origin) {}
 
-    inline AxisAngleFrame::AxisAngleFrame(Pose *origin)
+    inline SimpleRotateFrame::SimpleRotateFrame(Pose *origin)
       : ReferenceFrame(origin) {}
 
 

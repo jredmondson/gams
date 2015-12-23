@@ -73,5 +73,36 @@ int main(int argc, char *argv[])
 
   cout << polar << endl;
   cout << upolar << endl;
+
+  {
+    Pose p(gps, 0, 86);
+    LOG(p);
+    Pose up(utm, p);
+    LOG(up);
+    p.lng(45);
+    LOG(p);
+    Pose up2(utm, p);
+    LOG(up2);
+    Pose p2(gps, up2);
+    LOG(p2);
+    p.lng(90);
+    Pose up3(utm, p);
+    LOG(up3);
+  }
+  {
+    Pose p(gps, 0, -86);
+    LOG(p);
+    Pose up(utm, p);
+    LOG(up);
+    p.lng(45);
+    LOG(p);
+    Pose up2(utm, p);
+    LOG(up2);
+    Pose p2(gps, up2);
+    LOG(p2);
+    p.lng(90);
+    Pose up3(utm, p);
+    LOG(up3);
+  }
   return 0;
 }

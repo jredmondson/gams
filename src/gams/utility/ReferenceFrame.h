@@ -60,6 +60,10 @@
 #include <string>
 #include <stdexcept>
 
+#define GAMS_NO_INL
+#include "Pose.h"
+#undef GAMS_NO_INL
+
 /**
  * Following statement or block is executed only if the frame `coord` belongs
  * to is of type `type` (i.e., can be dynamic_cast to it). The casted frame
@@ -161,8 +165,6 @@ namespace gams
       bool unsupported_rotation;
     };
 
-    class Pose;
-
     /**
      * Base class for Reference Frames.
      * Inherit from this class if implementing a new reference frame.
@@ -182,14 +184,28 @@ namespace gams
 
       /**
        * Creates a copy of the origin Pose passed in.
+       *
+       * With C++11, the copy is stored within this object. Without, it is
+       * allocated onto the heap.
        **/
       explicit ReferenceFrame(const Pose &origin);
 
       /**
-       * Uses an existing Pose as origin, and maintains
-       * a pointer to it. Changes to it affect this frame
+       * Uses an existing Pose as origin, and maintains a pointer to it.
+       * Changes to it affect this frame, the the pose must outlive this
+       * object.
        **/
-      explicit ReferenceFrame(Pose *origin);
+      explicit ReferenceFrame(const Pose *origin);
+
+      /**
+       * Copy constructor
+       **/
+      ReferenceFrame(const ReferenceFrame &o);
+
+      /**
+       * Assignment operator
+       **/
+      ReferenceFrame &operator=(const ReferenceFrame &o);
 
       /**
        * Destructor. Frees the origin, if it was allocated in
@@ -227,7 +243,9 @@ namespace gams
        *
        * @param new_origin the new origin, which this frame will be bound to
        **/
-      void bind_origin(Pose *new_origin);
+      void bind_origin(const Pose *new_origin);
+
+      bool origin_is_external() const { return extern_origin_; }
 
       /**
        * Equality operator.
@@ -248,28 +266,27 @@ namespace gams
       bool operator!=(const ReferenceFrame &other) const;
 
       /**
-       * Normalizes any angular values in coord according to the conventions
-       * of the frame it belongs to. This is called automatically by any methods
-       * that require normalized angles.
-       *
-       * If adding a new composite coordinate type, specialize this template
-       * function accordingly.
-       * 
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
-       * @param coord the Coordinate to normalize
-       **/
-      template<typename CoordType>
-      static void normalize(CoordType &coord);
-
-      void normalize_location(double &x, double &y, double &z) const;
-      void normalize_rotation(double &rx, double &ry, double &rz) const;
-
-      /**
        * Returns a human-readable name for the reference frame type
        *
        * @return the name reference frame type (e.g., GPS, Cartesian)
        **/
       std::string name() const;
+
+      /**
+       * Normalizes individual doubles representing a location
+       **/
+      void normalize_location(double &x, double &y, double &z) const;
+
+      /**
+       * Normalizes individual doubles representing a rotation
+       **/
+      void normalize_rotation(double &rx, double &ry, double &rz) const;
+
+      /**
+       * Normalizes individual doubles representing a pose
+       **/
+      void normalize_pose(double &x, double &y, double &z,
+                          double &rx, double &ry, double &rz) const;
 
     protected:
       /**
@@ -328,9 +345,9 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param rx   x axis of rotation
-       * @param ry   y axis of rotation
-       * @param rz   z axis of rotation
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
        **/
       virtual void transform_rotation_to_origin(
                       double &rx, double &ry, double &rz) const;
@@ -338,11 +355,39 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param rx   x axis of rotation
-       * @param ry   y axis of rotation
-       * @param rz   z axis of rotation
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
        **/
       virtual void transform_rotation_from_origin(
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_pose_to_origin(
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Override for new coordinate systems. By default, throws bad_coord_type.
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_pose_from_origin(
+                      double &x, double &y, double &z,
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -370,6 +415,35 @@ namespace gams
        **/
       virtual void do_normalize_rotation(
                       double &rx, double &ry, double &rz) const;
+
+      /**
+       * Override for new coordinate systems that can require normalization of
+       * coordinates, e.g., angle-based systems. NOP by default.
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx   x axis of rotation
+       * @param ry   y axis of rotation
+       * @param rz   z axis of rotation
+       **/
+      virtual void do_normalize_pose(
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Normalizes any angular values in coord according to the conventions
+       * of the frame it belongs to. This is called automatically by any methods
+       * that require normalized angles.
+       *
+       * If adding a new composite coordinate type, specialize this template
+       * function accordingly.
+       * 
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
+       * @param coord the Coordinate to normalize
+       **/
+      template<typename CoordType>
+      static void normalize(CoordType &coord);
 
       /**
        * Transform input coordinates into their common parent. If no common
@@ -417,7 +491,6 @@ namespace gams
        * Transforms a coordinate into a frame's origin frame.
        * For coordinate types which can be expressed in terms of existing
        * coordinate types, specialize this function to express this fact
-       * For example, see the specialization for Pose.
        *
        * @tparam CoordType the type of Coordinate (e.g., Pose, Location)
        * @param in the Coordinate to transform. This object may be modified.
@@ -498,9 +571,16 @@ namespace gams
       friend class Coordinate;
 
     protected:
-      Pose *origin_;
-      bool destruct_origin_;
-      bool is_YXZ;
+#ifdef CPP11
+      union
+      {
+        const Pose *ptr_origin_;
+        Pose origin_;
+      };
+#else
+      const Pose *origin_;
+#endif
+      bool extern_origin_;
 
     public:
     };
@@ -508,24 +588,25 @@ namespace gams
     /**
      * For internal use.
      *
-     * Provides implementation of transforms between rotations represented using
-     * 3-value axis/angle notation.
+     * Provides implementation of rotation and pose transforms for frames
+     * where rotation transformation is independant of location. This applies
+     * to, for example, Cartesian and GPS frames, but not UTM frames.
      * Inherit from this to use this implementation.
      **/
-    class GAMSExport AxisAngleFrame : public ReferenceFrame
+    class GAMSExport SimpleRotateFrame : public ReferenceFrame
     {
     protected:
       /**
        * Default constructor. No parent frame.
        **/
-      AxisAngleFrame();
+      SimpleRotateFrame();
 
       /**
        * Creates a copy of the origin Pose passed in.
        *
        * @param origin the frame's origin
        **/
-      explicit AxisAngleFrame(const Pose &origin);
+      explicit SimpleRotateFrame(const Pose &origin);
 
       /**
        * Uses an existing Pose as origin, and maintains
@@ -533,7 +614,7 @@ namespace gams
        *
        * @param origin the origin to bind to
        **/
-      explicit AxisAngleFrame(Pose *origin);
+      explicit SimpleRotateFrame(Pose *origin);
 
     protected:
       /**
@@ -552,23 +633,53 @@ namespace gams
 
     private:
       /**
-       * Transforms RotationVector in-place into from its frame
+       * Transform RotationVector in-place into its origin frame from this frame
        *
-       * @param rx  the angle on x axis
-       * @param ry  the angle on y axis
-       * @param rz  the angle on z axis
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
        **/
       virtual void transform_rotation_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Transforms RotationVector in-place from its origin frame
+       * Transform RotationVector in-place from its origin frame
        *
-       * @param rx  the angle on x axis
-       * @param ry  the angle on y axis
-       * @param rz  the angle on z axis
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
        **/
       virtual void transform_rotation_from_origin(
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Transform pose in-place into its origin frame from this frame.
+       * Simply applies location and rotation transforms independantly
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_pose_to_origin(
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Transform pose in-place from its origin frame
+       * Simply applies location and rotation transforms independantly
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_pose_from_origin(
+                      double &x, double &y, double &z,
                       double &rx, double &ry, double &rz) const;
 
       /**

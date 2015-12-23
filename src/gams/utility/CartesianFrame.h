@@ -69,7 +69,7 @@ namespace gams
      * GPSFrame to a child CartesianFrame that is rotated w.r.t. the GPSFrame
      * Converting to GPSFrame from a rotated child Cartesian is supported.
      **/
-    class GAMSExport CartesianFrame : public AxisAngleFrame
+    class GAMSExport CartesianFrame : public SimpleRotateFrame
     {
     public:
       /**

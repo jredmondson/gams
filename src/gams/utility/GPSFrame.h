@@ -84,7 +84,7 @@ namespace gams
      * This frame can have cartesian frames embedded within it, but cannot
      * be embedded within any other frames at this time.
      **/
-    class GAMSExport GPSFrame : public AxisAngleFrame
+    class GAMSExport GPSFrame : public SimpleRotateFrame
     {
     public:
       static const double EARTH_RADIUS; /// Mean radius of the Earth

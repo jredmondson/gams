@@ -79,10 +79,13 @@ namespace gams
      *   Locations are converted to that frame, then distance measured according
      *   to the GPSFrame. If neither of the above apply, distance_to is NAN
      *
-     * Note: bearings are not adjusted when translating between UTM and GPS.
-     *       I.e., something facing grid north is treated as facing true north.
+     * Note: UTM's notion of bearing is not the same as GPS; the y axis does not
+     *       necessarily point in the north direction, especially for near-polar
+     *       UPS coordinates. For proper transformation of poses, be sure to
+     *       transform the entire pose as a single Pose object. Do not transform
+     *       Locations and Rotations individually if bearing is important.
      **/
-    class GAMSExport UTMFrame : public CartesianFrame
+    class GAMSExport UTMFrame : public ReferenceFrame
     {
     public:
       /**
@@ -135,10 +138,12 @@ namespace gams
 
     protected:
 
-      static const double ZONE_WIDTH;
-      static const double SOUTH_OFFSET;
-      static const double MAX_Y;
-      static const double MIN_Y;
+      static const int KM = 1000;
+      static const int ZONE_WIDTH = 1000 * KM;
+      static const int SOUTH_OFFSET = 10000 * KM;
+      static const int UPS_OFFSET = 4000 * KM;
+      static const int MAX_Y = 9600 * KM;
+      static const int MIN_Y = -9000 * KM;
 
       static constexpr int to_zone(double x);
 
@@ -180,6 +185,60 @@ namespace gams
                       double &x, double &y, double &z) const;
 
       /**
+       * Transform RotationVector in-place into its origin frame from this frame
+       *
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_rotation_to_origin(
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Transform RotationVector in-place from its origin frame
+       *
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_rotation_from_origin(
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Transform pose in-place into its origin frame from this frame.
+       * Rotations may transform differenly based on Location, so transformation
+       * of Poses might result in different values than transformation of the
+       * Location and Rotation parts separately.
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_pose_to_origin(
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz) const;
+
+      /**
+       * Transform pose in-place from its origin frame
+       * Rotations may transform differenly based on Location, so transformation
+       * of Poses might result in different values than transformation of the
+       * Location and Rotation parts separately.
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx  the x component of the axis-angle representation
+       * @param ry  the y component of the axis-angle representation
+       * @param rz  the z component of the axis-angle representation
+       **/
+      virtual void transform_pose_from_origin(
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz) const;
+
+      /**
       * Calculates distance from one point to another
       * @param x1   the x coordinate of the first point
       * @param y1   the y coordinate of the first point
@@ -193,13 +252,30 @@ namespace gams
                       double x2, double y2, double z2) const;
 
       /**
-      * Normalizes a location
-      * @param x   the x coordinate
-      * @param y   the y coordinate
-      * @param z   the z coordinate
-      **/
+       * Normalizes a Location; if zone is -1, ensure that the location is in
+       * the standard zone.
+       * @param x   the x coordinate
+       * @param y   the y coordinate
+       * @param z   the z coordinate
+       **/
       virtual void do_normalize_location(
                       double &x, double &y, double &z) const;
+
+      /**
+       * Normalizes a Pose; if zone is -1, ensure that the location is in
+       * the standard zone. If moving to a different zone is required, updates
+       * the rotation part accordingly as well.
+       *
+       * @param x the x axis for the coordinate to translate
+       * @param y the y axis for the coordinate to translate
+       * @param z the z axis for the coordinate to translate
+       * @param rx   x axis of rotation
+       * @param ry   y axis of rotation
+       * @param rz   z axis of rotation
+       **/
+      virtual void do_normalize_pose(
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz) const;
 
     private:
       int zone_;

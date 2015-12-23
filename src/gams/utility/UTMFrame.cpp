@@ -55,17 +55,13 @@
 
 #include "UTMFrame.h"
 #include "GPSFrame.h"
+#include "Quaternion.h"
 
 #include <GeographicLib/UTMUPS.hpp>
 
 using namespace gams::utility;
 
 using namespace GeographicLib;
-
-const double UTMFrame::ZONE_WIDTH = 1000000;
-const double UTMFrame::SOUTH_OFFSET = 10000000;
-const double UTMFrame::MAX_Y = 9600000;
-const double UTMFrame::MIN_Y = -9000000;
 
 char UTMFrame::nato_band(double x, double y)
 {
@@ -123,6 +119,66 @@ void UTMFrame::transform_location_from_origin(
   throw undefined_transform(*this, origin().frame(), true);
 }
 
+void UTMFrame::transform_rotation_to_origin(
+                            double &rx, double &ry, double &rz) const
+{
+  GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+  {
+    return;
+  }
+  throw undefined_transform(*this, origin().frame(), true);
+}
+
+void UTMFrame::transform_rotation_from_origin(
+                            double &rx, double &ry, double &rz) const
+{
+  GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+  {
+    return;
+  }
+  throw undefined_transform(*this, origin().frame(), false);
+}
+
+void UTMFrame::transform_pose_to_origin(
+                double &x, double &y, double &z,
+                double &rx, double &ry, double &rz) const
+{
+  GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+  {
+    double gamma, k;
+    UTMUPS::Reverse(to_zone(x), to_hemi(y),
+                    to_easting(x), to_northing(y), y, x, gamma, k);
+    Quaternion quat(rx, ry, rz);
+    Quaternion gquat(0, 0, -DEG_TO_RAD(gamma));
+    quat.pre_multiply(gquat);
+    quat.to_rotation_vector(rx, ry, rz);
+    return;
+  }
+  throw undefined_transform(*this, origin().frame(), true);
+}
+
+void UTMFrame::transform_pose_from_origin(
+                double &x, double &y, double &z,
+                double &rx, double &ry, double &rz) const
+{
+  GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+  {
+    int zone;
+    bool hemi;
+    double eas, nor;
+    double gamma, k;
+    UTMUPS::Forward(y, x, zone, hemi, eas, nor, gamma, k, zone_);
+    x = from_easting(eas, zone);
+    y = from_northing(nor, hemi);
+    Quaternion quat(rx, ry, rz);
+    Quaternion gquat(0, 0, DEG_TO_RAD(gamma));
+    quat.pre_multiply(gquat);
+    quat.to_rotation_vector(rx, ry, rz);
+    return;
+  }
+  throw undefined_transform(*this, origin().frame(), true);
+}
+
 double UTMFrame::calc_distance(
                   double x1, double y1, double z1,
                   double x2, double y2, double z2) const
@@ -150,6 +206,44 @@ double UTMFrame::calc_distance(
 
 void UTMFrame::do_normalize_location(
                   double &x, double &y, double &z) const
-{ }
+{
+  GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+  {
+    if(zone_ < 0)
+    {
+      Location loc(*this, x, y, 0);
+      loc.transform_this_to(*frame);
+      loc.transform_this_to(*this);
+      if(loc.zone() != to_zone(x) || loc.hemi() != to_hemi(y))
+      {
+        x = loc.x();
+        y = loc.y();
+      }
+    }
+  }
+}
+
+void UTMFrame::do_normalize_pose(
+                double &x, double &y, double &z,
+                double &rx, double &ry, double &rz) const
+{
+  GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
+  {
+    if(zone_ < 0)
+    {
+      Pose pose(*this, x, y, 0, rx, ry, rz);
+      pose.transform_this_to(*frame);
+      pose.transform_this_to(*this);
+      if(pose.zone() != to_zone(x) || pose.hemi() != to_hemi(y))
+      {
+        x = pose.x();
+        y = pose.y();
+        rx = pose.rx();
+        ry = pose.ry();
+        rz = pose.rz();
+      }
+    }
+  }
+}
 
 #endif

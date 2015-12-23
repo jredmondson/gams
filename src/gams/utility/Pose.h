@@ -495,9 +495,11 @@ namespace gams
   }
 }
 
-#include "Pose.inl"
-
 // Include if not already included
-#include <gams/utility/ReferenceFrame.h>
+//#include <gams/utility/ReferenceFrame.h>
 
+#endif
+
+#ifndef GAMS_NO_INL
+#include "Pose.inl"
 #endif

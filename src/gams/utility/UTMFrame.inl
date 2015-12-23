@@ -65,10 +65,10 @@ namespace gams
   namespace utility
   {
     inline UTMFrame::UTMFrame(int zone)
-        : CartesianFrame(), zone_(zone) {}
+        : ReferenceFrame(), zone_(zone) {}
 
     inline UTMFrame::UTMFrame(const ReferenceFrame &parent, int zone)
-      : CartesianFrame(Pose(parent, 0, 0)), zone_(zone) {}
+      : ReferenceFrame(Pose(parent, 0, 0)), zone_(zone) {}
 
     inline int UTMFrame::zone() { return zone_; }
 
@@ -93,7 +93,7 @@ namespace gams
 
     inline constexpr double UTMFrame::to_easting(double x)
     {
-      return x < 0 ? -x : x - ZONE_WIDTH * (to_zone(x) - 1);
+      return x < 0 ? x + UPS_OFFSET : x - ZONE_WIDTH * (to_zone(x) - 1);
     }
 
     inline constexpr bool UTMFrame::to_hemi(double y)
@@ -108,7 +108,7 @@ namespace gams
 
     inline constexpr double UTMFrame::from_easting(double e, int zone)
     {
-      return zone == 0 ? -e : e + (ZONE_WIDTH * ((zone - 1) % 60));
+      return zone == 0 ? e - UPS_OFFSET : e + (ZONE_WIDTH * ((zone - 1) % 60));
     }
 
     inline constexpr double UTMFrame::from_northing(double n, bool hemi)

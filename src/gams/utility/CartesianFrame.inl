@@ -62,13 +62,13 @@ namespace gams
 {
   namespace utility
   {
-    inline CartesianFrame::CartesianFrame() : AxisAngleFrame() {}
+    inline CartesianFrame::CartesianFrame() : SimpleRotateFrame() {}
 
     inline CartesianFrame::CartesianFrame(const Pose &origin)
-              : AxisAngleFrame(origin) {}
+              : SimpleRotateFrame(origin) {}
 
     inline CartesianFrame::CartesianFrame(Pose *origin)
-              : AxisAngleFrame(origin) {}
+              : SimpleRotateFrame(origin) {}
 
     inline std::string CartesianFrame::get_name() const
     {

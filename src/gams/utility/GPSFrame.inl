@@ -63,17 +63,17 @@ namespace gams
   namespace utility
   {
     inline GPSFrame::GPSFrame(double planet_radius)
-      : AxisAngleFrame(), planet_radius_(planet_radius) {}
+      : SimpleRotateFrame(), planet_radius_(planet_radius) {}
 
     inline GPSFrame::GPSFrame(
           const Pose &origin,
           double planet_radius)
-      : AxisAngleFrame(origin), planet_radius_(planet_radius) {}
+      : SimpleRotateFrame(origin), planet_radius_(planet_radius) {}
 
     inline GPSFrame::GPSFrame(
           Pose *origin,
           double planet_radius)
-      : AxisAngleFrame(origin), planet_radius_(planet_radius) {}
+      : SimpleRotateFrame(origin), planet_radius_(planet_radius) {}
 
     inline double GPSFrame::radius() const
     {
