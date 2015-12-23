@@ -71,7 +71,7 @@ namespace gams
       : LocationVector(0, 0, 0), RotationVector(rot) {}
 
     inline constexpr PoseVector::PoseVector(const LocationVector &loc,
-                                              const RotationVector &rot)
+                                            const RotationVector &rot)
       : LocationVector(loc), RotationVector(rot) {}
 
     inline constexpr PoseVector::PoseVector()

@@ -51,8 +51,8 @@
  * This file contains the base reference Frame class
  **/
 
-#ifndef _GAMS_UTILITY_GPS_FRAME_INL_
-#define _GAMS_UTILITY_GPS_FRAME_INL_
+#ifndef _GAMS_UTILITY_UTM_FRAME_INL_
+#define _GAMS_UTILITY_UTM_FRAME_INL_
 
 #ifdef GAMS_UTM
 
@@ -64,105 +64,103 @@ namespace gams
 {
   namespace utility
   {
+    inline UTMFrame::UTMFrame(int zone)
+        : CartesianFrame(), zone_(zone) {}
+
+    inline UTMFrame::UTMFrame(const ReferenceFrame &parent, int zone)
+      : CartesianFrame(Pose(parent, 0, 0)), zone_(zone) {}
+
+    inline int UTMFrame::zone() { return zone_; }
+
+    inline void UTMFrame::zone(int zone) { zone_ = zone; }
+
+    inline Location UTMFrame::mk_loc(double easting, int zone,
+                                     double northing, bool hemi)
+    {
+      return Location(*this, from_easting(easting, zone),
+                      from_northing(northing, hemi));
+    }
+
     inline std::string UTMFrame::get_name() const
     {
       return "UTM";
     }
 
-    /**
-     * Gets the UTM northing for this location.
-     * Will return arbitrary value if this location is not bound to a UTMFrame
-     **/
+    inline constexpr int UTMFrame::to_zone(double x)
+    {
+      return x < 0 ? 0 : 1 + int(x / ZONE_WIDTH);
+    }
+
+    inline constexpr double UTMFrame::to_easting(double x)
+    {
+      return x < 0 ? -x : x - ZONE_WIDTH * (to_zone(x) - 1);
+    }
+
+    inline constexpr bool UTMFrame::to_hemi(double y)
+    {
+      return y >= 0;
+    }
+
+    inline constexpr double UTMFrame::to_northing(double y)
+    {
+      return to_hemi(y) ? y : SOUTH_OFFSET + y;
+    }
+
+    inline constexpr double UTMFrame::from_easting(double e, int zone)
+    {
+      return zone == 0 ? -e : e + (ZONE_WIDTH * ((zone - 1) % 60));
+    }
+
+    inline constexpr double UTMFrame::from_northing(double n, bool hemi)
+    {
+      return hemi == true ? n : n - SOUTH_OFFSET;
+    }
+
     inline constexpr double LocationVector::northing() const
     {
       return UTMFrame::to_northing(y_);
     }
 
-    /**
-     * Gets the UTM easting for this location.
-     * Will return arbitrary value if this location is not bound to a UTMFrame
-     **/
     inline constexpr double LocationVector::easting() const
     {
       return UTMFrame::to_easting(x_);
     }
 
-    /**
-     * Gets the UTM zone (longitudinal) for this location: 0 if USP (near
-     * poles) otherwise in range [1, 60]
-     * Will return arbitrary value if this location is not bound to a UTMFrame
-     **/
     inline constexpr int LocationVector::zone() const
     {
       return UTMFrame::to_zone(x_);
     }
 
-    /**
-     * Gets the UTM hemisphere for this location. True if northern.
-     * Will return arbitrary value if this location is not bound to a UTMFrame
-     **/
     inline constexpr bool LocationVector::hemi() const
     {
-      return UTMFrame::to_hemi(x_);
+      return UTMFrame::to_hemi(y_);
     }
 
-    /**
-     * Set UTM northing and hemisphere (true is northern) simultaneously
-     *
-     * @param n the new northing
-     * @param h the new hemisphere
-     **/
     inline void LocationVector::northing(double n, bool h)
     {
       y_ = UTMFrame::from_northing(n, h);
     }
 
-    /**
-     * Set UTM northing only; do not change hemisphere
-     *
-     * @param n the new northing
-     **/
     inline void LocationVector::northing(double n)
     {
       northing(n, hemi());
     }
 
-    /**
-     * Set UTM hemisphere (true is northern) only; do not change northing
-     *
-     * @param h the new hemisphere
-     **/
     inline void LocationVector::hemi(bool h)
     {
       northing(northing(), h);
     }
 
-    /**
-     * Set UTM easting and zone simultaneously
-     *
-     * @param e the new easting
-     * @param z the new zone; 0 for USP (polar regions), otherwise [1,60]
-     **/
     inline void LocationVector::easting(double e, int z)
     {
       x_ = UTMFrame::from_easting(e, z);
     }
 
-    /**
-     * Set UTM easting only; do not change zone
-     *
-     * @param e the new easting
-     **/
     inline void LocationVector::easting(double e)
     {
       easting(e, zone());
     }
 
-    /**
-     * Set UTM zone only; do not change easting
-     *
-     * @param z the new zone; 0 for USP (polar regions), otherwise [1,60]
-     **/
     inline void LocationVector::zone(int z)
     {
       easting(easting(), z);

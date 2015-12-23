@@ -139,16 +139,13 @@ namespace gams
       if(rot.is_zero())
         return;
 
-      Quaternion locq(x, y, z);
+      Quaternion locq(x, y, z, 0);
       Quaternion rotq(rot);
 
       if(reverse)
         rotq.conjugate();
 
-      Quaternion::hamilton_product(locq, rotq, locq);
-      locq.pre_multiply(rotq);
-      rotq.conjugate();
-      locq *= rotq;
+      locq.rotate_by(rotq);
       locq.to_location_vector(x, y, z);
     }
 

@@ -370,7 +370,7 @@ namespace gams
        * Construct from individual Location and Rotation.
        * Frame is same as the input Location. No transformation is done.
        *
-       * @pre loc.frame() == rot.frame()
+       * The Rotation's frame is ignored; its values are taken directly
        *
        * @param loc the Location to copy location info from.
        * @param rot the Rotation to copy rotation info from.

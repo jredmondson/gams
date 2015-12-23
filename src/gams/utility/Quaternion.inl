@@ -197,6 +197,13 @@ namespace gams
       return *this;
     }
 
+    inline void Quaternion::rotate_by(Quaternion rot)
+    {
+      pre_multiply(rot);
+      rot.conjugate();
+      *this *= rot;
+    }
+
     inline constexpr Quaternion Quaternion::operator-() const
     {
       return Quaternion(-x_, -y_, -z_, w_);

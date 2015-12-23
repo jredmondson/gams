@@ -65,7 +65,35 @@ using namespace GeographicLib;
 const double UTMFrame::ZONE_WIDTH = 1000000;
 const double UTMFrame::SOUTH_OFFSET = 10000000;
 const double UTMFrame::MAX_Y = 9600000;
-const double UTMFrame::MIN_Y = -9600000;
+const double UTMFrame::MIN_Y = -9000000;
+
+char UTMFrame::nato_band(double x, double y)
+{
+  if(y > MAX_Y)
+  {
+    int zone = to_zone(x);
+    if(zone <= 30)
+      return 'Y';
+    else
+      return 'Z';
+  }
+  else if(y < MIN_Y)
+  {
+    int zone = to_zone(x);
+    if(zone <= 30)
+      return 'A';
+    else
+      return 'B';
+  }
+  else
+  {
+    y = (y - MIN_Y) / (MAX_Y - MIN_Y);
+    char ret =  'C' + int(y * 20);
+    if(ret >= 'I') ++ret;
+    if(ret >= 'O') ++ret;
+    return ret;
+  }
+}
 
 void UTMFrame::transform_location_to_origin(
                   double &x, double &y, double &z) const

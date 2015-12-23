@@ -168,6 +168,14 @@ namespace gams
       Quaternion &conjugate();
 
       /**
+       * Treat this quaternion as a location quaternion (w should be zero),
+       * and rotate it by the rotation represented by rot
+       *
+       * @param rot the Quaternion angle to rotate by
+       **/
+      void rotate_by(Quaternion rot);
+
+      /**
        * Copy and conjugate this quaternion
        *
        * @return a new Quaternion, holding the conjugation of this

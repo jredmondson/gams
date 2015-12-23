@@ -56,7 +56,7 @@
 
 #ifdef GAMS_UTM
 
-#include "ReferenceFrame.h"
+#include "CartesianFrame.h"
 
 namespace gams
 {
@@ -77,9 +77,12 @@ namespace gams
      *   If the two Locations are in the same zone, a simple cartesian distance
      *   is performed. Otherwise, if this frame is a child to a GPSFrame, the
      *   Locations are converted to that frame, then distance measured according
-     *   to the GPSFrame.
+     *   to the GPSFrame. If neither of the above apply, distance_to is NAN
+     *
+     * Note: bearings are not adjusted when translating between UTM and GPS.
+     *       I.e., something facing grid north is treated as facing true north.
      **/
-    class GAMSExport UTMFrame : public AxisAngleFrame
+    class GAMSExport UTMFrame : public CartesianFrame
     {
     public:
       /**
@@ -92,8 +95,7 @@ namespace gams
        *             The other pseudo-zones supported by that class can also be
        *             used here.
        **/
-      UTMFrame(int zone = -1)
-        : AxisAngleFrame(), zone_(zone) {}
+      UTMFrame(int zone = -1);
 
       /**
        * Constructs a new UTMFrame, which must be embedded in a GPS frame
@@ -107,12 +109,29 @@ namespace gams
        *             The other pseudo-zones supported by that class can also be
        *             used here.
        **/
-      UTMFrame(const ReferenceFrame &parent, int zone = -1)
-        : AxisAngleFrame(Pose(parent, 0, 0)), zone_(zone) {}
+      UTMFrame(const ReferenceFrame &parent, int zone = -1);
 
-      int zone() { return zone_; }
+      /**
+       * Get zone ID (or GeographicLib::UTMUPS pseudo-zone)
+       *
+       * @return the zone ID
+       **/
+      int zone();
 
-      void zone(int zone) { zone_ = zone; }
+      /**
+       * Set zone ID (or GeographicLib::UTMUPS pseudo-zone)
+       *
+       * @param zone the zone ID
+       **/
+      void zone(int zone);
+
+      /**
+       * Creates a Location in this reference frame with the given UTM
+       * parameters.
+       *
+       * @return a newly created Location
+       **/
+      Location mk_loc(double easting, int zone, double northing, bool hemi);
 
     protected:
 
@@ -121,64 +140,19 @@ namespace gams
       static const double MAX_Y;
       static const double MIN_Y;
 
-      static constexpr int to_zone(double x)
-      {
-        return x < 0 ? 0 : 1 + int(x / ZONE_WIDTH);
-      }
+      static constexpr int to_zone(double x);
 
-      static constexpr double to_easting(double x)
-      {
-        return x < 0 ? -x : x - ZONE_WIDTH * to_zone(x);
-      }
+      static constexpr double to_easting(double x);
 
-      static constexpr int to_hemi(double y)
-      {
-        return y >= 0;
-      }
+      static constexpr bool to_hemi(double y);
 
-      static constexpr int to_northing(double y)
-      {
-        return to_hemi(y) ? y : SOUTH_OFFSET + y;
-      }
+      static constexpr double to_northing(double y);
 
-      static constexpr double from_easting(double e, int zone)
-      {
-        return (zone == 0) ? -e :
-          e + (ZONE_WIDTH * ((zone - 1) % 60));
-      }
+      static constexpr double from_easting(double e, int zone);
 
-      static constexpr double from_northing(double n, bool hemi)
-      {
-        return (hemi == true) ? n : n - SOUTH_OFFSET;
-      }
+      static constexpr double from_northing(double n, bool hemi);
 
-      static char nato_band(double x, double y)
-      {
-        if(y > MAX_Y)
-        {
-          int zone = to_zone(x);
-          if(zone <= 30)
-            return 'Y';
-          else
-            return 'Z';
-        }
-        else if(y < MIN_Y)
-        {
-          int zone = to_zone(x);
-          if(zone <= 30)
-            return 'A';
-          else
-            return 'B';
-        }
-        else
-        {
-          y = (y - MIN_Y) / (MAX_Y - MIN_Y);
-          char ret =  'C' + int(y * 20);
-          if(ret >= 'I') ++ret;
-          if(ret >= 'O') ++ret;
-		  return ret;
-        }
-      }
+      static char nato_band(double x, double y);
 
       /**
        * Returns the name of this type of reference frame.

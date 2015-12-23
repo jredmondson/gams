@@ -46,6 +46,7 @@
 
 #include "CartesianFrame.h"
 #include "GPSFrame.h"
+#include "UTMFrame.h"
 
 namespace gams
 {
