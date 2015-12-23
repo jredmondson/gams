@@ -117,6 +117,7 @@ double UTMFrame::calc_distance(
 
     return l1.distance_to(l2);
   }
+  return NAN;
 }
 
 void UTMFrame::do_normalize_location(

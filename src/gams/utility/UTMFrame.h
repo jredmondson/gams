@@ -176,6 +176,7 @@ namespace gams
           char ret =  'C' + int(y * 20);
           if(ret >= 'I') ++ret;
           if(ret >= 'O') ++ret;
+		  return ret;
         }
       }
 
