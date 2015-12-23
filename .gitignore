@@ -32,5 +32,7 @@ test_arguments_parser
 test_coordinates
 test_formation_sync
 test_location
+test_euler
+test_utm
 
 bin/*
