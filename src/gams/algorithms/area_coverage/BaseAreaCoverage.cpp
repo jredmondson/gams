@@ -142,16 +142,17 @@ gams::algorithms::area_coverage::BaseAreaCoverage::execute ()
 int
 gams::algorithms::area_coverage::BaseAreaCoverage::plan ()
 {
-  double dist = platform_->get_position()->distance_to(next_position_);
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::algorithms::area_coverage::BaseAreaCoverage::plan:" \
-    " distance between points is %f (need %f accuracy)\n", dist, platform_->get_accuracy());
-
   utility::Location loc = platform_->get_location ();
   utility::Location next_loc(platform_->get_frame(),
     next_position_.longitude(), next_position_.latitude(),
     next_position_.altitude());
+
+  double dist = loc.distance_to(next_loc);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::algorithms::area_coverage::BaseAreaCoverage::plan:" \
+    " distance between points is %f (need %f accuracy)\n", dist, platform_->get_accuracy());
 
   if (loc.approximately_equal(next_loc, platform_->get_accuracy()))
   {

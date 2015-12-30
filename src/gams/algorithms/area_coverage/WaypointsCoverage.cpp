@@ -52,12 +52,14 @@
 
 #include "gams/loggers/GlobalLogger.h"
 
+#include "gams/utility/ArgumentParser.h"
+
 using std::string;
 using std::vector;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -66,8 +68,12 @@ gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
 {
   BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && self && args.size () >= 1)
+  if (knowledge && sensors && self && map.size () >= 1)
   {
+    // Use a dumb workaround for now; TODO: convert this algo to use the map
+    using namespace madara::knowledge;
+    KnowledgeVector args(utility::kmap2kvec(map));
+
     std::vector<utility::Position> waypoints;
     bool error = false;
 

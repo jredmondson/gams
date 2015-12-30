@@ -62,15 +62,18 @@
 #include <cmath>
 
 #include "gams/algorithms/AlgorithmFactory.h"
+#include "gams/utility/ArgumentParser.h"
 
 namespace engine = madara::knowledge;
 namespace containers = engine::containers;
+
+using namespace gams::utility;
 
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::GroupBarrierFactory::create (
-const madara::knowledge::KnowledgeVector & args,
+const madara::knowledge::KnowledgeMap & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
@@ -92,47 +95,74 @@ variables::Agents * agents)
     std::string barrier = "barrier.group_barrier";
     double interval = 1.0;
 
-    for (size_t i = 0; i < args.size (); ++i)
+    ArgumentParser argp(args);
+
+    for(ArgumentParser::const_iterator i = argp.begin();
+         i != argp.end(); i.next())
     {
-      if (args[i] == "group" && i + 1 < args.size ())
+      std::string name(i.name());
+      if(name.size() <= 0)
+        continue;
+      switch(name[0])
       {
-        group = args[i + 1].to_string ();
+      case 'g':
+        if(i.value() == "group")
+        {
+          group = i.value().to_string ();
 
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::GroupBarrierFactory:" \
+            " setting group to %s\n", group.c_str ());
+
+          std::string members_list_name = "group." + group + ".members";
+
+          containers::StringVector member_list (members_list_name, *knowledge);
+
+          member_list.copy_to (members);
+
+          continue;
+        }
+        goto unknown;
+      case 'i':
+        if(i.value() == "interval")
+        {
+          interval = i.value().to_double ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::GroupBarrierFactory:" \
+            " setting interval to %.2f\n", interval);
+
+          continue;
+        }
+        goto unknown;
+      case 'b':
+        if(i.value() == "barrier")
+        {
+          barrier = i.value().to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::GroupBarrierFactory:" \
+            " setting barrier to %s\n", barrier.c_str ());
+
+          continue;
+        }
+        goto unknown;
+      default:
+      unknown:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::GroupBarrierFactory:" \
-          " setting group to %s\n", group.c_str ());
-
-        std::string members_list_name = "group." + group + ".members";
-
-        containers::StringVector member_list (members_list_name, *knowledge);
-
-        member_list.copy_to (members);
-
-        ++i;
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::ZoneCoverageFactory:" \
+          " argument unknown: %s -> %s\n",
+          name.c_str(), i.value().to_string().c_str());
+        continue;
       }
-      else if (args[i] == "interval" && i + 1 < args.size ())
-      {
-        interval = args[i + 1].to_double ();
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::GroupBarrierFactory:" \
-          " setting interval to %.2f\n", interval);
-
-        ++i;
-      }
-      else if (args[i] == "barrier" && i + 1 < args.size ())
-      {
-        barrier = args[i + 1].to_string ();
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::GroupBarrierFactory:" \
-          " setting barrier to %s\n", barrier.c_str ());
-
-        ++i;
-      }
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverageFactory:" \
+        " argument: %s -> %s\n", name.c_str(), i.value().to_string().c_str());
     }
 
     // if group has not been set, use the swarm

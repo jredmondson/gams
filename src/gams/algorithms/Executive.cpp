@@ -58,12 +58,14 @@
 
 #include <iostream>
 
+#include "gams/utility/ArgumentParser.h"
+
 using std::cerr;
 using std::endl;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::ExecutiveFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -73,12 +75,16 @@ gams::algorithms::ExecutiveFactory::create (
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
      "gams::algorithms::ExecutiveFactory::create:" \
-    " creating Executive with %d args\n", args.size ());
+    " creating Executive with %d args\n", map.size ());
 
   BaseAlgorithm * result (0);
   
   if (knowledge && sensors && platform && self && agents)
   {
+    // Use a dumb workaround for now; TODO: convert this algo to use the map
+    using namespace madara::knowledge;
+    KnowledgeVector args(utility::kmap2kvec(map));
+
     if (args.size () % 2 == 0)
     {
       result = new Executive (args, knowledge, platform, sensors, self, agents);
@@ -121,8 +127,14 @@ gams::algorithms::Executive::Executive (
     v.set_name (args[i + 1].to_string (), *knowledge);
     v.resize ();
   
-    madara::knowledge::KnowledgeVector a;
-    v.copy_to (a);
+    madara::knowledge::KnowledgeMap a;
+    for(size_t j = 0; j < v.size(); ++j)
+    {
+      std::stringstream s;
+      s << j;
+      a[s.str()] = v[j];
+    }
+    //v.copy_to (a);
   
     AlgorithmInit init (args[i].to_string (), a);
 
@@ -235,7 +247,7 @@ gams::algorithms::Executive::AlgorithmInit::AlgorithmInit () :
 }
 
 gams::algorithms::Executive::AlgorithmInit::AlgorithmInit (
-  const std::string& a, const madara::knowledge::KnowledgeVector& v) :
+  const std::string& a, const madara::knowledge::KnowledgeMap& v) :
   algorithm (a), args (v)
 {
 }

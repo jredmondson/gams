@@ -95,7 +95,7 @@ namespace gams
         const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
         const std::string & modifier,
         const std::string & coverage,
-        const madara::knowledge::KnowledgeVector & cover_args,
+        const madara::knowledge::KnowledgeMap & cover_args,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -171,7 +171,7 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual BaseAlgorithm * create (
-        const madara::knowledge::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,

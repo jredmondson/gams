@@ -51,8 +51,8 @@
  * This file contains the ArgumentParser class
  **/
 
-#ifndef _GAMS_UTILITY_ARGUMENT_PARSER_H_
-#define _GAMS_UTILITY_ARGUMENT_PARSER_H_
+#ifndef GAMS_UTILITY_ARGUMENT_PARSER_H_
+#define GAMS_UTILITY_ARGUMENT_PARSER_H_
 
 #include <iostream>
 #include <string>
@@ -65,67 +65,131 @@ namespace gams
 {
   namespace utility
   {
+    /**
+     * Compare object suitable for use with standard library.
+     * Compares based on radix order: shorter strings always come before
+     * longer strings, and equal length strings are sorted in lexicographicaly
+     * order). Note that any strings containing only an integer of some length
+     * (with no leading zeros) will be sorted by numerical value implictly
+     **/
+    class RadixLess
+    {
+    public:
+      bool operator()(const std::string &lhs, const std::string &rhs)
+      {
+        size_t lsz = lhs.size(), rsz = rhs.size();
+        if(lsz < rsz)
+          return true;
+        else if(rsz < lsz)
+          return false;
+        else
+          return std::less<std::string>()(lhs, rhs);
+      }
+    };
+
+    /**
+     * Converts a knowledge map into a knowledge vector by adding the values
+     * from the map in numerical order (as defined by radix order: shorter
+     * strings always come before longer strings, and equal length strings
+     * are sorted in lexicographicaly order)
+     *
+     * keys which don't start with a digit are ignored
+     **/
+    inline madara::knowledge::KnowledgeVector kmap2kvec(
+      const madara::knowledge::KnowledgeMap &kmap)
+    {
+      using namespace madara::knowledge;
+      std::map<std::string, KnowledgeRecord,
+               RadixLess> map(kmap.begin(), kmap.end());
+      KnowledgeVector ret;
+      for(KnowledgeMap::const_iterator i = map.begin(); i != map.end(); ++i)
+      {
+        char c = i->first[0];
+        if(c >= '0' && c <= '9')
+          ret.push_back(i->second);
+      }
+      return ret;
+    }
+
     class ArgumentParser
     {
     public:
-      ArgumentParser(
-          const std::string &prefix,
-          const madara::knowledge::KnowledgeBase &kbase,
-          const madara::knowledge::KnowledgeVector &kvec)
-        : prefix_(prefix), kmap_(kbase.to_map(prefix)), kvec_(&kvec) {}
+      ArgumentParser() : kmap_() {}
 
-      ArgumentParser(
-          const std::string &prefix,
-          const madara::knowledge::KnowledgeBase &kbase)
-        : prefix_(prefix), kmap_(kbase.to_map(prefix)), kvec_(NULL) {}
-
-      ArgumentParser(const madara::knowledge::KnowledgeVector &kvec)
-        : prefix_(""), kmap_(), kvec_(&kvec) {}
+      ArgumentParser(const madara::knowledge::KnowledgeMap &kmap)
+        : kmap_(&kmap) {}
 
     private:
-      template<class map_iterator, class vec_iterator>
+      template<class map_iterator>
       class my_iterator : public std::iterator<
         std::input_iterator_tag, typename map_iterator::value_type >
       {
       public:
         typedef typename my_iterator::value_type value_type;
       private:
-        my_iterator() : parent_(NULL), cache_valid_(0) {}
+        my_iterator() : dummy_(0), parent_(nullptr), cache_valid_(0) {}
 
         my_iterator(const ArgumentParser &parent)
-          : parent_(&parent), map_i_(parent_->kmap_.begin()), cache_valid_(0)
+          : dummy_(0), parent_(&parent), it_k_(parent_->kmap_->begin()),
+            it_v_(it_k_), cache_valid_(0)
         {
-          if(parent_->kvec_ != NULL)
-            vec_i_ = parent_->kvec_->begin();
-          skip_invalid();
+          detect_old_style();
         }
-
-#ifdef CPP11
-        alignas(value_type)
-#endif
-        mutable char cache_[sizeof(value_type)];
-        mutable bool cache_valid_;
-
-        const ArgumentParser *parent_;
-        map_iterator map_i_;
-        vec_iterator vec_i_;
 
       public:
-        bool map_at_end() const
+        my_iterator(const my_iterator &o)
+          : dummy_(0), parent_(o.parent_), it_k_(o.it_k_), it_v_(it_v_),
+            cache_valid_(0) {}
+
+        my_iterator &operator=(const my_iterator &o)
         {
-          return map_i_ == parent_->kmap_.end();
+          parent_ = o.parent_;
+          it_k_ = o.it_k_;
+          it_v_ = o.it_v_;
+          clear_cache();
+          return *this;
         }
 
-        bool vec_at_end() const
-        {
-          return (parent_->kvec_ == NULL ||
-                  vec_i_ >= parent_->kvec_->end());
-        }
+        ~my_iterator() { clear_cache(); }
 
+      private:
+        union {
+#ifdef CPP11
+          mutable int dummy_; // initialize this by default
+          mutable value_type cache_;
+#else
+          mutable char cache_[sizeof(value_type)];
+          // Try to ensure that any possible alignment requirements are met:
+          mutable uint64_t dummy_;
+          mutable long double dummy2_;
+          mutable void * dummy3_;
+#endif
+        };
+
+#ifdef CPP11
+        value_type *cache() const
+        {
+          return cache_valid_ ? &cache_ : nullptr;
+        }
+#else
+        value_type *cache() const
+        {
+          return cache_valid_ ?
+                     reinterpret_cast<value_type*>(&cache_) :
+                     nullptr;
+        }
+#endif
+
+        const ArgumentParser *parent_;
+        map_iterator it_k_;
+        map_iterator it_v_;
+
+        mutable bool cache_valid_;
+      public:
         bool at_end() const
         {
-          return parent_ == NULL ||
-                 (map_at_end() && vec_at_end());
+          return parent_ == nullptr || parent_->kmap_ == nullptr ||
+                 it_k_ == parent_->kmap_->end();
         }
 
         bool operator==(const my_iterator &o) const
@@ -135,9 +199,7 @@ namespace gams
             return ae1 && ae2;
           else
             return parent_ == o.parent_ &&
-                   map_i_ == o.map_i_ &&
-                   (parent_->kvec_ == NULL ||
-                     vec_i_ == o.vec_i_);
+                   it_k_ == o.it_k_;
         }
 
         bool operator!=(const my_iterator &o) const
@@ -145,55 +207,53 @@ namespace gams
           return !(*this == o);
         }
 
-      private:
-        std::string trim_name(const std::string &name) const
-        {
-          return name.substr(parent_->prefix_.size());
-        }
-
       public:
         std::string name() const
         {
-          if(!map_at_end())
-            return trim_name(map_i_->first);
-          else
-            return vec_i_->to_string();
+          return (!is_old_style()) ?
+                      it_k_->first :
+                      it_k_->second.to_string();
         }
 
         typename value_type::second_type value() const
         {
-          if(!map_at_end())
-            return map_i_->second;
-          else
-            return *(vec_i_ + 1);
+          return it_v_->second;
+        }
+
+        bool is_old_style() const
+        {
+          return it_k_ != it_v_;
         }
 
       private:
-        bool map_name_is_valid() const
+        bool name_is_old_style() const
         {
-          ssize_t psz = parent_->prefix_.size();
-          const std::string &n = map_i_->first;
-          if(n.compare(psz, std::string::npos, "size") == 0)
-            return false;
-          char c = n[psz];
+          char c = it_k_->first[0];
           if(c >= '0' && c <= '9')
-            return false;
-          return true;
+            return true;
+          return false;
         }
 
-        void skip_invalid()
+        void detect_old_style()
         {
-          while(!map_at_end() && !map_name_is_valid())
+          if(at_end())
+            return;
+          if(it_k_->first == "size")
           {
-            ++map_i_;
+            ++it_k_;
+            ++it_v_;
           }
+          if(!at_end() && name_is_old_style() && !is_old_style())
+            ++it_v_;
+          if(it_v_ == parent_->kmap_->end())
+            it_k_ = it_v_;
         }
 
         void clear_cache()
         {
-          if(cache_valid_)
+          if(cache())
           {
-            reinterpret_cast<const value_type *>(&(cache_[0]))->~value_type();
+            cache()->~value_type();
             cache_valid_ = false;
           }
         }
@@ -201,21 +261,17 @@ namespace gams
       public:
         void next()
         {
-          if(!map_at_end())
-          {
-            ++map_i_;
-            skip_invalid();
-          }
-          else
-            vec_i_ += 2;
+          ++it_v_;
+          it_k_ = it_v_;
+          detect_old_style();
           clear_cache();
         }
 
         const value_type &operator*() const
         {
-          if(cache_valid_)
-            return *reinterpret_cast<const value_type *>(&(cache_[0]));
-          const value_type *ret = new((void*)cache_) value_type(name(),value());
+          if(cache())
+            return *cache();
+          value_type *ret = new((void*)&cache_) value_type(name(),value());
           cache_valid_ = true;
           return *ret;
         }
@@ -228,7 +284,7 @@ namespace gams
 
         my_iterator operator++(int)
         {
-          my_iterator<map_iterator, vec_iterator> ret(*this);
+          my_iterator ret(*this);
           next();
           return ret;
         }
@@ -238,19 +294,13 @@ namespace gams
           return &operator*();
         }
 
-        ~my_iterator()
-        {
-          clear_cache();
-        }
-
         friend class ArgumentParser;
       };
     public:
-      typedef my_iterator<madara::knowledge::KnowledgeMap::iterator,
-            madara::knowledge::KnowledgeVector::iterator> iterator;
+      typedef my_iterator<madara::knowledge::KnowledgeMap::iterator> iterator;
 
-      typedef my_iterator<madara::knowledge::KnowledgeMap::const_iterator,
-            madara::knowledge::KnowledgeVector::const_iterator> const_iterator;
+      typedef my_iterator<madara::knowledge::KnowledgeMap::const_iterator>
+        const_iterator;
 
       const_iterator begin() const
       {
@@ -263,9 +313,7 @@ namespace gams
       }
 
     private:
-      std::string prefix_;
-      madara::knowledge::KnowledgeMap kmap_;
-      const madara::knowledge::KnowledgeVector *kvec_;
+      const madara::knowledge::KnowledgeMap *kmap_;
     };
   }
 }

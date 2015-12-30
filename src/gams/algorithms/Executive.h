@@ -126,11 +126,11 @@ namespace gams
       struct AlgorithmInit
       {
         std::string algorithm;
-        madara::knowledge::KnowledgeVector args;
+        madara::knowledge::KnowledgeMap args;
 
         AlgorithmInit ();
         AlgorithmInit (const std::string& a,
-          const madara::knowledge::KnowledgeVector& v);
+          const madara::knowledge::KnowledgeMap& v);
       };
 
       /// algorithm actually being run
@@ -169,7 +169,7 @@ namespace gams
        *                    will be set by the controller in init_vars
        **/
       virtual BaseAlgorithm * create (
-        const madara::knowledge::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,

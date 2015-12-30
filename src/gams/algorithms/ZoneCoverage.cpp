@@ -72,7 +72,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::ZoneCoverageFactory::create (
-const madara::knowledge::KnowledgeVector & args,
+const madara::knowledge::KnowledgeMap & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
@@ -95,8 +95,7 @@ variables::Agents * agents)
     double buffer = 2;
     double distance = 0.5;
 
-    ArgumentParser argp(self_->agent.command.get_name() + ".",
-                                 *knowledge_, args);
+    ArgumentParser argp(args);
 
     for(ArgumentParser::const_iterator i = argp.begin();
          i != argp.end(); i.next())

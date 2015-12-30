@@ -112,7 +112,7 @@ namespace gams
        * @return  the new algorithm
        **/
       BaseAlgorithm * create (const std::string & type,
-        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
       
       /**
        * Sets list of agents participating in swarm

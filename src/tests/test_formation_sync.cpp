@@ -40,11 +40,9 @@ void test_defaults (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::knowledge::KnowledgeVector args;
-  args.push_back ("end");
-  args.push_back (end);
-  args.push_back ("start");
-  args.push_back (start);
+  madara::knowledge::KnowledgeMap args;
+  args["end"] = end;
+  args["start"] = start;
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
@@ -127,13 +125,10 @@ void test_triangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::knowledge::KnowledgeVector args;
-  args.push_back ("end");
-  args.push_back (end);
-  args.push_back ("start");
-  args.push_back (start);
-  args.push_back ("formation");
-  args.push_back ("triangle");
+  madara::knowledge::KnowledgeMap args;
+  args["end"] = (end);
+  args["start"] = (start);
+  args["formation"] = ("triangle");
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
@@ -216,13 +211,10 @@ void test_rectangle (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::knowledge::KnowledgeVector args;
-  args.push_back ("end");
-  args.push_back (end);
-  args.push_back ("start");
-  args.push_back (start);
-  args.push_back ("formation");
-  args.push_back ("rectangle");
+  madara::knowledge::KnowledgeMap args;
+  args["end"] = (end);
+  args["start"] = (start);
+  args["formation"] = ("rectangle");
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
@@ -331,13 +323,10 @@ void test_groups (void)
   end.push_back (40.436834);
   end.push_back (-79.947911);
 
-  madara::knowledge::KnowledgeVector args;
-  args.push_back ("end");
-  args.push_back (end);
-  args.push_back ("start");
-  args.push_back (start);
-  args.push_back ("group");
-  args.push_back ("3");
+  madara::knowledge::KnowledgeMap args;
+  args["end"] = (end);
+  args["start"] = (start);
+  args["group"] = ("3");
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);

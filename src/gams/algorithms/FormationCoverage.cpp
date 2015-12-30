@@ -62,6 +62,8 @@
 
 #include "gams/algorithms/AlgorithmFactory.h"
 
+#include "gams/utility/ArgumentParser.h"
+
 using std::string;
 using std::stringstream;
 using std::cerr;
@@ -69,7 +71,7 @@ using std::endl;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationCoverageFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -81,9 +83,9 @@ gams::algorithms::FormationCoverageFactory::create (
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::FormationCoverageFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", map.size ());
   
-  if (knowledge && sensors && platform && self && args.size () >= 6)
+  if (knowledge && sensors && platform && self && map.size () >= 6)
   {
     // store error value
     bool error = false;
@@ -94,6 +96,10 @@ gams::algorithms::FormationCoverageFactory::create (
     std::vector<madara::knowledge::KnowledgeRecord::Integer> members;
     std::string modifier ("default");
     std::string coverage;
+
+    // Use a dumb workaround for now; TODO: convert this algo to use the map
+    using namespace madara::knowledge;
+    KnowledgeVector args(utility::kmap2kvec(map));
 
     if (args[0].is_integer_type ())
     {
@@ -172,11 +178,13 @@ gams::algorithms::FormationCoverageFactory::create (
      "gams::algorithms::FormationCoverageFactory:" \
      " coverage arg is %s\n", coverage.c_str ());
 
-    madara::knowledge::KnowledgeVector cover_args;
+    madara::knowledge::KnowledgeMap cover_args;
     for(size_t i = 5; i < args.size(); ++i)
     {
-      cover_args.push_back (args[i]);
-      
+      std::stringstream s;
+      s << (i - 5);
+      cover_args[s.str()] = args[i];
+
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverageFactory:" \
@@ -205,7 +213,7 @@ gams::algorithms::FormationCoverage::FormationCoverage (
   const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
   const std::string & modifier,
   const std::string & coverage,
-  const madara::knowledge::KnowledgeVector & cover_args,
+  const madara::knowledge::KnowledgeMap & cover_args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,

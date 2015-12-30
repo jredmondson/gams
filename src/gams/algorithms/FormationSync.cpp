@@ -61,6 +61,8 @@
 
 #include "gams/algorithms/AlgorithmFactory.h"
 
+#include "gams/utility/ArgumentParser.h"
+
 namespace engine = madara::knowledge;
 namespace containers = engine::containers;
 
@@ -69,7 +71,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationSyncFactory::create (
-const madara::knowledge::KnowledgeVector & args,
+const madara::knowledge::KnowledgeMap & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
@@ -94,153 +96,178 @@ variables::Agents * agents)
     std::string group = "";
     std::string barrier = "barrier.formation_sync";
 
-    for (size_t i = 0; i < args.size (); ++i)
+    gams::utility::ArgumentParser argp(args);
+
+    for(gams::utility::ArgumentParser::const_iterator i = argp.begin();
+         i != argp.end(); i.next())
     {
-      // if a start position is being specified
-      if (args[i] == "start" && i + 1 < args.size ())
+      std::string name(i.name());
+      if(name.size() <= 0)
+        continue;
+      switch(name[0])
       {
-        std::vector <double> coords (args[i + 1].to_doubles ());
-
-        if (coords.size () >= 2)
+      case 'b':
+        if(name == "barrier")
         {
-          start.x = coords[0];
-          start.y = coords[1];
-        }
+          barrier = i.value().to_string ();
 
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting barrier to %s\n", barrier.c_str ());
+
+          continue;
+        }
+        if(name == "buffer")
+        {
+          buffer = i.value().to_double ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting buffer to %f\n", buffer);
+
+          continue;
+        }
+        goto unknown;
+      case 'e':
+        if(name == "end")
+        {
+          std::vector <double> coords (i.value().to_doubles ());
+
+          if (coords.size () >= 2)
+          {
+            end.x = coords[0];
+            end.y = coords[1];
+          }
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting end to %s\n", end.to_string ().c_str ());
+
+          continue;
+        }
+        goto unknown;
+      case 'f':
+        if(name == "formation")
+        {
+          std::string formation_str = i.value().to_string ();
+
+          madara::utility::upper (formation_str);
+
+          if (formation_str == "PYRAMID")
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to PYRAMID\n");
+
+            formation_type = FormationSync::PYRAMID;
+          }
+          else if (formation_str == "TRIANGLE")
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to TRIANGLE\n");
+
+            formation_type = FormationSync::TRIANGLE;
+          }
+          else if (formation_str == "RECTANGLE")
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to RECTANGLE\n");
+
+            formation_type = FormationSync::RECTANGLE;
+          }
+          else if (formation_str == "CIRCLE")
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to CIRCLE\n");
+
+            formation_type = FormationSync::CIRCLE;
+          }
+          else if (formation_str == "LINE")
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to LINE\n");
+
+            formation_type = FormationSync::LINE;
+          }
+          else if (formation_str == "WING")
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to WING\n");
+
+            formation_type = FormationSync::WING;
+          }
+          else if (i.value().is_integer_type ())
+          {
+            formation_type = (int)i.value().to_integer ();
+
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationSyncFactory:" \
+              " setting formation to %d\n", formation_type);
+          }
+
+          continue;
+        }
+        goto unknown;
+      case 'g':
+        if(name == "group")
+        {
+          group = i.value().to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting group to %s\n", group.c_str ());
+
+          std::string members_list_name = "group." + group + ".members";
+
+          containers::StringVector member_list (members_list_name, *knowledge);
+
+          member_list.copy_to (members);
+
+          continue;
+        }
+        goto unknown;
+      case 's':
+        if(name == "start")
+        {
+          std::vector <double> coords (i.value().to_doubles ());
+
+          if (coords.size () >= 2)
+          {
+            start.x = coords[0];
+            start.y = coords[1];
+          }
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting start to %s\n", start.to_string ().c_str ());
+          continue;
+        }
+        goto unknown;
+      default:
+      unknown:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
+          gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationSyncFactory:" \
-          " setting start to %s\n", start.to_string ().c_str ());
-
-        ++i;
-      }
-      else if (args[i] == "end" && i + 1 < args.size ())
-      {
-        std::vector <double> coords (args[i + 1].to_doubles ());
-
-        if (coords.size () >= 2)
-        {
-          end.x = coords[0];
-          end.y = coords[1];
-        }
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::FormationSyncFactory:" \
-          " setting end to %s\n", end.to_string ().c_str ());
-
-        ++i;
-      }
-      else if (args[i] == "group" && i + 1 < args.size ())
-      {
-        group = args[i + 1].to_string ();
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::FormationSyncFactory:" \
-          " setting group to %s\n", group.c_str ());
-
-        std::string members_list_name = "group." + group + ".members";
-
-        containers::StringVector member_list (members_list_name, *knowledge);
-
-        member_list.copy_to (members);
-
-        ++i;
-      }
-      else if (args[i] == "buffer" && i + 1 < args.size ())
-      {
-        buffer = args[i + 1].to_double ();
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::FormationSyncFactory:" \
-          " setting buffer to %f\n", buffer);
-
-        ++i;
-      }
-      else if (args[i] == "barrier" && i + 1 < args.size ())
-      {
-        barrier = args[i + 1].to_string ();
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
-          "gams::algorithms::FormationSyncFactory:" \
-          " setting barrier to %s\n", barrier.c_str ());
-
-        ++i;
-      }
-      else if (args[i] == "formation" && i + 1 < args.size ())
-      {
-        std::string formation_str = args[i + 1].to_string ();
-
-        madara::utility::upper (formation_str);
-
-        if (formation_str == "PYRAMID")
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to PYRAMID\n");
-
-          formation_type = FormationSync::PYRAMID;
-        }
-        else if (formation_str == "TRIANGLE")
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to TRIANGLE\n");
-
-          formation_type = FormationSync::TRIANGLE;
-        }
-        else if (formation_str == "RECTANGLE")
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to RECTANGLE\n");
-
-          formation_type = FormationSync::RECTANGLE;
-        }
-        else if (formation_str == "CIRCLE")
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to CIRCLE\n");
-
-          formation_type = FormationSync::CIRCLE;
-        }
-        else if (formation_str == "LINE")
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to LINE\n");
-
-          formation_type = FormationSync::LINE;
-        }
-        else if (formation_str == "WING")
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to WING\n");
-
-          formation_type = FormationSync::WING;
-        }
-        else if (args[i + 1].is_integer_type ())
-        {
-          formation_type = (int)args[i + 1].to_integer ();
-
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
-            " setting formation to %d\n", formation_type);
-        }
-
-        ++i;
+          " argument unknown: %s -> %s\n",
+          name.c_str(), i.value().to_string().c_str());
+        continue;
       }
     }
 

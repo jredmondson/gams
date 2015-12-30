@@ -62,10 +62,11 @@ using std::stringstream;
 #include "gams/utility/Position.h"
 #include "gams/utility/GPSPosition.h"
 
+#include "gams/utility/ArgumentParser.h"
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationFlyingFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -77,13 +78,17 @@ gams::algorithms::FormationFlyingFactory::create (
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::FormationFlyingFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", map.size ());
 
   // check args
-  if (knowledge && sensors && platform && self && args.size () >= 4)
+  if (knowledge && sensors && platform && self && map.size () >= 4)
   {
     // store error value
     bool error = false;
+
+    // Use a dumb workaround for now; TODO: convert this algo to use the map
+    using namespace madara::knowledge;
+    KnowledgeVector args(utility::kmap2kvec(map));
 
     // create arg types
     madara::knowledge::KnowledgeRecord::Integer target;

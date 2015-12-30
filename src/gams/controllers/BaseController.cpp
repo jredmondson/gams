@@ -163,27 +163,25 @@ gams::controllers::BaseController::system_analyze (void)
 
   if (self_.agent.command != "")
   {
-    madara::knowledge::KnowledgeVector args;
+    std::string prefix(self_.agent.command.get_name() + ".");
+    madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Processing agent command\n");
-
-    // check for args
-    self_.agent.command_args.resize ();
-    self_.agent.command_args.copy_to (args);
+      " Processing agent command: %s\n", (*self_.agent.command).c_str());
 
     init_algorithm (self_.agent.command.to_string (), args);
 
     self_.agent.last_command = self_.agent.command.to_string ();
-    self_.agent.last_command_args.resize (0);
-    self_.agent.command_args.transfer_to (self_.agent.last_command_args);
+    //self_.agent.last_command_args.resize (0);
+    //self_.agent.command_args.transfer_to (self_.agent.last_command_args);
 
     // reset the command
     self_.agent.command = "";
-    self_.agent.command_args.resize (0);
+    knowledge_.get_context().delete_prefix(prefix);
   }
+#if 0
   else if (swarm_.command != "")
   {
     madara::knowledge::KnowledgeVector args;
@@ -207,6 +205,7 @@ gams::controllers::BaseController::system_analyze (void)
     swarm_.command = "";
     swarm_.command_args.resize (0);
   }
+#endif
 
   if (self_.agent.madara_debug_level !=
     (Integer)madara::logger::global_logger->get_level ())
@@ -619,7 +618,7 @@ gams::controllers::BaseController::run (double loop_period,
 
 void
 gams::controllers::BaseController::init_accent (const std::string & algorithm,
-const madara::knowledge::KnowledgeVector & args)
+const madara::knowledge::KnowledgeMap & args)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -677,7 +676,7 @@ void gams::controllers::BaseController::clear_accents (void)
 }
 void
 gams::controllers::BaseController::init_algorithm (
-const std::string & algorithm, const madara::knowledge::KnowledgeVector & args)
+const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
 {
   // initialize the algorithm
 

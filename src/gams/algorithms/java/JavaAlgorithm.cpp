@@ -96,7 +96,7 @@ gams::algorithms::JavaAlgorithmFactory::~JavaAlgorithmFactory ()
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::JavaAlgorithmFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * /*platform*/,
   variables::Sensors * sensors,
@@ -130,17 +130,35 @@ gams::algorithms::JavaAlgorithmFactory::create (
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::JavaAlgorithmFactory::create:"
         " Java class has a create method.\n");
-      // create the list of args
 
-      jlongArray ret = jvm.env->NewLongArray ((jsize)args.size ());
-      jlong * tmp = new jlong[(jsize)args.size ()];
+      // convert args to vector form for backwards compatibility with Java
+      // TODO: Convert JAVA interface to use Map instead
 
-      for (unsigned int x = 0; x < args.size (); x++)
+      using namespace madara::knowledge;
+      KnowledgeVector vec;
+      for(KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
       {
-        tmp[x] = (jlong)args[x].clone ();
+        char c = i->first[0];
+        if(c >= '0' && c <= '9')
+        {
+          vec.push_back(i->second);
+        }
+        else
+        {
+          vec.push_back(KnowledgeRecord(i->first));
+          vec.push_back(i->second);
+        }
       }
 
-      jvm.env->SetLongArrayRegion (ret, 0, (jsize)args.size (), tmp);
+      jlongArray ret = jvm.env->NewLongArray ((jsize)vec.size ());
+      jlong * tmp = new jlong[(jsize)vec.size ()];
+
+      for (unsigned int x = 0; x < vec.size (); x++)
+      {
+        tmp[x] = (jlong)vec[x].clone ();
+      }
+
+      jvm.env->SetLongArrayRegion (ret, 0, (jsize)vec.size (), tmp);
       delete[] tmp;
 
       // create the KnowledgeList

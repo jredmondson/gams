@@ -47,13 +47,9 @@ int main(int argc, char *argv[])
   kbase.set("args.cname", "c val");
   kbase.set("args.dname", "d val");
 
-  knowledge::KnowledgeVector kvec;
+  knowledge::KnowledgeMap kmap(kbase.to_map_stripped("args."));
 
-  kbase.to_vector("args.", 0, 3, kvec);
-
-  std::cout << "Map and Vector together:" << std::endl;
-
-  ArgumentParser args("args.", kbase, kvec);
+  ArgumentParser args(kmap);
 
   for(ArgumentParser::const_iterator i = args.begin();
       i != args.end(); i.next())
@@ -61,27 +57,7 @@ int main(int argc, char *argv[])
     std::cout << i.name() << " -> " << i.value() << std::endl;
   }
 
-  std::cout << "Map only:" << std::endl;
-
-  ArgumentParser args2("args.", kbase);
-
-  for(ArgumentParser::const_iterator i = args2.begin();
-      i != args2.end(); i.next())
-  {
-    std::cout << i.name() << " -> " << i.value() << std::endl;
-  }
-
-  std::cout << "Vector only:" << std::endl;
-
-  ArgumentParser args3(kvec);
-
-  for(ArgumentParser::const_iterator i = args3.begin();
-      i != args3.end(); i.next())
-  {
-    std::cout << i.name() << " -> " << i.value() << std::endl;
-  }
-
-  std::cout << "Map and Vector together, with dereference:" << std::endl;
+  std::cout << "With dereference:" << std::endl;
 
   for(ArgumentParser::const_iterator i = args.begin(); i != args.end(); ++i)
   {
@@ -89,7 +65,7 @@ int main(int argc, char *argv[])
   }
 
 #ifdef CPP11
-  std::cout << "Map and Vector together, with C++11 foreach:" << std::endl;
+  std::cout << "With C++11 foreach:" << std::endl;
 
   for(const auto &i : args)
   {

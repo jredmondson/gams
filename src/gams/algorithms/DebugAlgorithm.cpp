@@ -51,7 +51,7 @@
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::DebugAlgorithmFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -62,7 +62,9 @@ gams::algorithms::DebugAlgorithmFactory::create (
 
   if (args.size () != 0)
   {
-    executions = args[0].to_string ();
+    madara::knowledge::KnowledgeMap::const_iterator i = args.find("0");
+    if(i != args.end())
+      executions = i->second.to_string ();
   }
 
   return new DebugAlgorithm (knowledge, platform, sensors, self, executions);

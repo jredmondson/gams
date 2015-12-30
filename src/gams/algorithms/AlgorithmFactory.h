@@ -93,7 +93,7 @@ namespace gams
        * @return  the new algorithm
        **/
       virtual BaseAlgorithm * create (
-        const madara::knowledge::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
         variables::Sensors * sensors,

@@ -65,13 +65,15 @@
 #include <set>
 #include <map>
 
+#include "gams/utility/ArgumentParser.h"
+
 using std::string;
 using std::cerr;
 using std::endl;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -82,6 +84,10 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
   
   if (knowledge && sensors && self && agents)
   {
+    // Use a dumb workaround for now; TODO: convert this algo to use the map
+    using namespace madara::knowledge;
+    KnowledgeVector args(utility::kmap2kvec(map));
+
     if (args.size () >= 1)
     {
       if (args[0].is_string_type ())

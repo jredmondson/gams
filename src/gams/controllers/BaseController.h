@@ -190,7 +190,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_accent (const std::string & algorithm,
-        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
 
       /**
        * Clears all accent algorithms
@@ -227,7 +227,7 @@ namespace gams
        * @param  args        vector of knowledge record arguments
        **/
       void init_algorithm (const std::string & algorithm,
-        const madara::knowledge::KnowledgeVector & args = madara::knowledge::KnowledgeVector ());
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
  
       /**
        * Initializes the controller with a user-provided algorithm. This

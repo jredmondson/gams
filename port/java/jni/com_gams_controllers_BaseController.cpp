@@ -152,17 +152,23 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAccent
     // get the name in C string format
     const char * str_name = env->GetStringUTFChars(name, 0);
 
-    // create a knowledge vector to hold the arguments
-    madara::knowledge::KnowledgeVector args (env->GetArrayLength (argslist));
+    int argsLen = env->GetArrayLength (argslist);
+
+    // create a knowledge map to hold the arguments
+    madara::knowledge::KnowledgeMap args;
     jlong * elements = env->GetLongArrayElements (argslist, 0);
 
     // iterate through arguments and copy the knowledge record for each arg
-    for (size_t i = 0; i < args.size (); ++i)
+    for (size_t i = 0; i < argsLen; ++i)
     {
       madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
       if (cur_record)
-        args[i] = madara::knowledge::KnowledgeRecord (*cur_record);
+      {
+        std::stringstream s;
+        s << i;
+        args[s.str()] = madara::knowledge::KnowledgeRecord (*cur_record);
+      }
     }
     
     // call the initialization method
@@ -188,7 +194,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
   {
     // get the name in C string format
     const char * str_name = env->GetStringUTFChars(name, 0);
-    madara::knowledge::KnowledgeVector args;
+    madara::knowledge::KnowledgeMap args;
 
     if (argslist)
     {
@@ -198,7 +204,8 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
         " initializing algorithm %s with %d args\n", str_name,
         (int)env->GetArrayLength (argslist));
 
-      args.resize (env->GetArrayLength (argslist));
+      int argsLen = env->GetArrayLength (argslist);
+      //args.resize (env->GetArrayLength (argslist));
 
       // create a knowledge vector to hold the arguments
       jlong * elements = env->GetLongArrayElements (argslist, 0);
@@ -210,12 +217,16 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
         (int)env->GetArrayLength (argslist));
 
       // iterate through arguments and copy the knowledge record for each arg
-      for (size_t i = 0; i < args.size (); ++i)
+      for (size_t i = 0; i < argsLen; ++i)
       {
         madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
         if (cur_record)
-          args[i] = madara::knowledge::KnowledgeRecord (*cur_record);
+        {
+          std::stringstream s;
+          s << i;
+          args[s.str()] = madara::knowledge::KnowledgeRecord (*cur_record);
+        }
       }
 
       env->ReleaseLongArrayElements (argslist, elements, 0);
