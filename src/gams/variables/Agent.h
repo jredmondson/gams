@@ -63,6 +63,7 @@
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/containers/Vector.h"
+#include "madara/knowledge/containers/Map.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "AccentStatus.h"
 
@@ -118,13 +119,13 @@ namespace gams
       madara::knowledge::containers::String command;
 
       /// number of arguments for command
-      madara::knowledge::containers::Vector command_args;
+      madara::knowledge::containers::Map command_args;
 
       /// Last command
       madara::knowledge::containers::String last_command;
 
       /// Last command args
-      madara::knowledge::containers::Vector last_command_args;
+      madara::knowledge::containers::Map last_command_args;
 
       /// agent specific command
       madara::knowledge::containers::String coverage_type;

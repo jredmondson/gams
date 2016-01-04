@@ -61,6 +61,7 @@
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/Vector.h"
+#include "madara/knowledge/containers/Map.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "AccentStatus.h"
 
@@ -110,7 +111,7 @@ namespace gams
       madara::knowledge::containers::String command;
       
       /// number of arguments for command
-      madara::knowledge::containers::Vector command_args;
+      madara::knowledge::containers::Map command_args;
       
       /// minimum altitude for swarm to use
       madara::knowledge::containers::Double min_alt;

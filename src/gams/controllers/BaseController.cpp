@@ -166,6 +166,8 @@ gams::controllers::BaseController::system_analyze (void)
     std::string prefix(self_.agent.command.get_name() + ".");
     madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
 
+    self_.agent.command_args.sync_keys();
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
@@ -174,38 +176,35 @@ gams::controllers::BaseController::system_analyze (void)
     init_algorithm (self_.agent.command.to_string (), args);
 
     self_.agent.last_command = self_.agent.command.to_string ();
-    //self_.agent.last_command_args.resize (0);
-    //self_.agent.command_args.transfer_to (self_.agent.last_command_args);
 
     // reset the command
     self_.agent.command = "";
-    knowledge_.get_context().delete_prefix(prefix);
+    self_.agent.last_command_args.clear(true);
+    self_.agent.command_args.exchange(self_.agent.last_command_args,
+                                      true, true);
   }
-#if 0
   else if (swarm_.command != "")
   {
-    madara::knowledge::KnowledgeVector args;
+    std::string prefix(swarm_.command.get_name() + ".");
+    madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
+
+    swarm_.command_args.sync_keys();
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Processing swarm command\n");
-
-    // check for args
-    swarm_.command_args.resize ();
-    swarm_.command_args.copy_to (args);
+      " Processing swarm command: %s\n", (*swarm_.command).c_str());
 
     init_algorithm (swarm_.command.to_string (), args);
 
     self_.agent.last_command = swarm_.command.to_string ();
-    self_.agent.last_command_args.resize (0);
-    swarm_.command_args.transfer_to (self_.agent.last_command_args);
 
     // reset the command
     swarm_.command = "";
-    swarm_.command_args.resize (0);
+    self_.agent.last_command_args.clear(true);
+    swarm_.command_args.exchange(self_.agent.last_command_args,
+                                 true, true);
   }
-#endif
 
   if (self_.agent.madara_debug_level !=
     (Integer)madara::logger::global_logger->get_level ())
