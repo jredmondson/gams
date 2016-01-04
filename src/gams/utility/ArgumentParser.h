@@ -238,11 +238,6 @@ namespace gams
         {
           if(at_end())
             return;
-          if(it_k_->first == "size")
-          {
-            ++it_k_;
-            ++it_v_;
-          }
           if(!at_end() && name_is_old_style() && !is_old_style())
             ++it_v_;
           if(it_v_ == parent_->kmap_->end())
