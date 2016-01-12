@@ -56,8 +56,6 @@
 
 #include "gams/variables/Sensor.h"
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 using std::endl;
 using std::cout;
 using std::string;

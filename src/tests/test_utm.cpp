@@ -1,5 +1,10 @@
+
+
 #include <iostream>
 #include <math.h>
+
+#ifdef GAMS_UTM
+
 #include <gams/utility/GPSFrame.h>
 #include <gams/utility/UTMFrame.h>
 #include <gams/utility/CartesianFrame.h>
@@ -38,8 +43,12 @@ double round_nearest(double in)
 using std::cout;
 using std::endl;
 
+#endif // GAMS_UTM
+
 int main(int argc, char *argv[])
 {
+#ifdef GAMS_UTM
+
   GPSFrame gps;
   UTMFrame utm(gps);
 
@@ -104,5 +113,7 @@ int main(int argc, char *argv[])
     Pose up3(utm, p);
     LOG(up3);
   }
+#endif // GAMS_UTM
+
   return 0;
 }

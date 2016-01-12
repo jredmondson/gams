@@ -146,13 +146,17 @@ namespace gams
         origin_ = new Pose(*o.origin_);
     }
 
-    inline ReferenceFrame &ReferenceFrame::operator=(const ReferenceFrame &o)
+    inline ReferenceFrame & ReferenceFrame::operator=(
+      const ReferenceFrame &o)
     {
       extern_origin_ = o.origin_is_external();
+
       if(extern_origin_)
         origin_ = o.origin_;
       else
         origin_ = new Pose(*o.origin_);
+
+      return *this;
     }
 
     inline ReferenceFrame::~ReferenceFrame()

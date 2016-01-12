@@ -202,7 +202,7 @@ namespace gams
         /**
          * Constructor to convert from a Rotation (or RotationVector)
          *
-         * @param o the rotation
+         * @param r the rotation
          **/
         explicit Euler(const RotationVector &r);
 
