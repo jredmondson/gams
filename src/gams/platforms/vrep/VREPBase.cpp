@@ -503,8 +503,14 @@ gams::platforms::VREPBase::move (const utility::Location & target,
     }
   }
 
+  VREP_LOCK
+  {
+    simxGetObjectPosition (client_id_, node_id_, -1, curr_arr,
+                           simx_opmode_oneshot_wait);
+  }
+  utility::Location vrep_node_loc(get_vrep_frame(), curr_arr);
   // return code
-  if (vrep_loc.distance_to (vrep_target) < epsilon)
+  if (vrep_node_loc.distance_to (vrep_target) < epsilon)
     return 2;
   else
     return 1;
@@ -540,25 +546,17 @@ gams::platforms::VREPBase::rotate (const utility::Rotation & target,
   if(do_rotate(vrep_target, vrep_rot, max_rotate_delta_.to_double()) == 0)
     return 0;
 
-  #if 0
-  simxFloat dest_arr[3];
-
-  // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
-  dest_arr[0] = 0;
-  dest_arr[1] = 0;
-
-  dest_arr[2] = vrep_target.rz();
-
-  // send movement command
   VREP_LOCK
   {
-    simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
-                           simx_opmode_oneshot_wait);
+    simxGetObjectOrientation (client_id_, node_id_, -1, curr_arr,
+                              simx_opmode_oneshot_wait);
   }
-  #endif
 
+  EulerVREP euler_node_curr(curr_arr[0], curr_arr[1], curr_arr[2]);
+
+  utility::Rotation vrep_node_rot(euler_node_curr.to_rotation(get_vrep_frame()));
   // return code
-  if (vrep_rot.distance_to (vrep_target) < epsilon)
+  if (vrep_node_rot.distance_to (vrep_target) < epsilon)
     return 2;
   else
     return 1;
