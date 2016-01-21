@@ -197,6 +197,13 @@ namespace gams
       return *this;
     }
 
+    inline Quaternion &Quaternion::negate()
+    {
+      w_ = -w_;
+      conjugate();
+      return *this;
+    }
+
     inline void Quaternion::rotate_by(Quaternion rot)
     {
       pre_multiply(rot);
@@ -212,6 +219,11 @@ namespace gams
     inline double Quaternion::inner_product(const Quaternion &o) const
     {
       return w_ * o.w_ + x_ * o.x_ + y_ * o.y_ + z_ * o.z_;
+    }
+
+    inline double Quaternion::dot_product(const Quaternion &o) const
+    {
+      return inner_product(o) / (mag() * o.mag());
     }
 
     inline double Quaternion::angle_to(const Quaternion &o) const
@@ -336,6 +348,9 @@ namespace gams
 
     inline void Quaternion::slerp_this(const Quaternion &o, double t)
     {
+      double inprod = inner_product(o);
+      if(inprod < 0)
+        negate();
       Quaternion tmp(*this);
       tmp.conjugate();
       tmp.pre_multiply(o);

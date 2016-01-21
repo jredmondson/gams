@@ -168,6 +168,14 @@ namespace gams
       Quaternion &conjugate();
 
       /**
+       * Flip the sign of all parts of the quaternion; equivalent to (but
+       * potentially faster than) this->scale(-1);
+       *
+       * @return *this, after negation
+       **/
+      Quaternion &negate();
+
+      /**
        * Treat this quaternion as a location quaternion (w should be zero),
        * and rotate it by the rotation represented by rot
        *
@@ -192,6 +200,16 @@ namespace gams
        * @return the scalar result.
        **/
       double inner_product(const Quaternion &rhs) const;
+
+      /**
+       * Calculates the Quaternion dot product between this, and the
+       * right-hand-side; this is the inner-product, over the product
+       * of the magnitude of both sides.
+       *
+       * @param rhs the Quaternion to dot-multiply with
+       * @return the scalar result.
+       **/
+      double dot_product(const Quaternion &rhs) const;
 
       /**
        * Calculates the angle between the rotations represented by
