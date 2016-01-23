@@ -125,7 +125,7 @@ void handle_arguments (int argc, char ** argv)
     else if (arg1 == "-d" || arg1 == "--domain")
     {
       if (i + 1 < argc)
-        settings.domains = argv[i + 1];
+        settings.write_domain = argv[i + 1];
 
       ++i;
     }
