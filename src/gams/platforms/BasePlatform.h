@@ -71,6 +71,7 @@ namespace gams
   namespace controllers
   {
     class BaseController;
+    class Multicontroller;
   }
 
   namespace platforms
@@ -112,6 +113,7 @@ namespace gams
     public:
       // allow Base controller to initialize our variables
       friend class controllers::BaseController;
+      friend class controllers::Multicontroller;
 
       /**
        * Constructor

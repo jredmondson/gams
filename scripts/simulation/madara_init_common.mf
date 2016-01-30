@@ -11,4 +11,4 @@
 // by vrep_move_thread_rate meters.
 .vrep_thread_move_speed=2;
 
-.platform="vrep-boat";
+.platform="vrep-uav";

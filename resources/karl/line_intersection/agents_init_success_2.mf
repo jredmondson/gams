@@ -1,0 +1,21 @@
+
+// setup the group names
+.enemies='enemies' ;>
+.protectors='protectors' ;>
+.assets='assets' ;>
+
+group.enemies.members.size=1;
+group.enemies.members.0="agent.attacker";
+group.assets.members.size=1;
+group.assets.members.0="agent.base";
+group.protectors.members.size=2;
+group.protectors.members.0="agent.prot0";
+group.protectors.members.1="agent.prot1";
+
+agent.base.location=[1,5,0];
+agent.prot0.location=[11,4,0];
+agent.prot1.location=[11,6,0];
+agent.attacker.location=[29,5,0];
+
+.attacker_range = 30;
+.protector_range = 2;

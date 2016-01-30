@@ -196,7 +196,7 @@ project (gams_controller) : using_gams, using_madara, using_ace, using_dronerk, 
   
   Build_Files {
     using_gams.mpb
-    tests.mpc
+    gams.mpc
   }
 
   Header_Files {

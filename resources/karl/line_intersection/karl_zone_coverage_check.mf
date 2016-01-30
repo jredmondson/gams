@@ -1,0 +1,114 @@
+/**
+ * PRECONDITIONS:
+ *   group.{.enemies}.members (including .size and members)
+ *   group.{.assets}.members (including .size and members)
+ *   group.{.protectors}.members (including .size and members)
+ * 
+ *   agent.{*}.location=[...] (agent location in [x, y, z])
+ *   
+ *   .attacker_range (range of attacker in map units);
+ *   .protector_range (range of protection in map units);
+ *
+ * These variables should be prepopulated in init files
+ **/
+
+.mission_success = 1 ;>
+.mission_failure = 0 ;>
+
+/**
+ * For now, we just assume one enemy and one asset. Also, we're being very verbose
+ * so that at each step of execution, debugging is simplified due to knowledge
+ * printouts with -k. For instance, the following doesn't have to be expanded
+ * into its own variables, but this allows us to inspect the knowledge printouts
+ * to determine if everything was setup correctly in the init file. It is faster
+ * to leave them out.
+ **/
+
+.a_expanded = #expand('{group.{.enemies}.members.0}.location') ;>
+.b_expanded = #expand('{group.{.assets}.members.0}.location') ;>
+
+.a = {.a_expanded} ;>
+.b = {.b_expanded} ;>
+
+/**
+ * calculate the distance between the attacker and the asset. The sim area
+ * is small enough that we should be able to get away with Pythagorean distance
+ **/
+
+.target_distance = #sqrt(#pow(.a[0]-.b[0],2) + #pow(.a[1]-.b[1],2)) ;>
+
+/**
+ * First check, if the attacker actually in range of the asset?
+ **/
+
+.target_distance <= .attacker_range =>
+(
+  // assume the mission is a failure if attacker is in range
+
+  .mission_success = 0 ;>
+  .mission_failure = 1 ;>
+
+
+   // setup the .tc array so it doesn't have to resize
+  .tc[group.{.protectors}.members.size - 1] = 0.0 ;>
+
+  // initialize debug numerator and denominator
+  .tc_num[group.{.protectors}.members.size - 1] = 0.0 ;>
+  .tc_denom[group.{.protectors}.members.size - 1] = 0.0 ;>
+
+  .size_expanded = #expand('group.{.protectors}.members.size') ;>
+  .n = {.size_expanded} ;>
+
+  .protector_range_squared = #pow(.protector_range, 2) ;>
+
+  /** 
+   * Next, check each protector position. This is a for loop in KaRL on
+   * the variable .i from 0 until .n (non-inclusive). For inclusiveness,
+   * we would specify .i[0 -> .n]
+   **/
+  .i[0 -> .n)
+  (
+    /**
+     * Provide debug information for each protector position .p.{.i}
+     **/
+    .p_expanded = #expand('{group.{.protectors}.members.{.i}}.location') ;
+    .p = {.p_expanded} ;
+    .p.{.i} = .p;
+
+    /**
+     * Expression for determining if protectors are between a and b
+     *
+     * ((xa - xp)(xa - xb) + (ya - yp)(ya - yb))/((xa - xb)(xa - xb) + (ya - yb)(ya - yb))
+     * For readability, we split this into a numerator and denominator.
+     * We can speed this up by making this a single expression without
+     * variable assignments, but again this is for debugging.
+     **/
+    .tc_num[.i] = (.a[0] - .p[0]) * (.a[0] - .b[0]) + (.a[1] - .p[1]) * (.a[1] - .b[1]);
+    .tc_denom[.i] = #pow(.a[0] - .b[0],2) + #pow(.a[1] - .b[1],2);
+    .tc[.i] = .tc_num[.i] / .tc_denom[.i];
+
+    // is the protector between base an attacker?
+    .tc[.i] >= 0 && .tc[.i] <= 1 =>
+    (
+      /**
+       * Distance squared to the .tc intersection point is given by
+       * d2 = ((xb - xa)t + xa - xp)^2 + ((yb - ya)t + ya - yp)^2
+       **/
+      .d2[.i] = #pow((.b[0] - .a[0])*.tc[.i] + .a[0] - .p[0], 2);
+      .d2[.i] += #pow((.b[1] - .a[1])*.tc[.i] + .a[1] - .p[1], 2);
+
+      // Check the d2 against the range of the protector
+      .d2[.i] <= .protector_range_squared =>
+      (
+        // successful block. get out of the loop.
+        .mission_success = 1;
+        .mission_failure = 0;
+        .i = group.{.protectors}.members.size
+      )
+    )
+  )
+) ;>
+
+// check is for mission failure being true (non-zero)
+
+.mission_failure
