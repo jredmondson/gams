@@ -43,7 +43,14 @@ HOW TO RUN
 
 LIMITATIONS
 
+  1 ATTACKER, 1 DEFENDER: 
   At the time of the writing of this document, the KaRL script was only
   setup to test for one attacker and one defender. This can be extended
   by making a for loop for the number of attackers and defenders within
   the karl_zone_coverage_check.mf, similar to the loop for the protectors.
+
+  UNITS ARE IN COORDINATE UNITS:
+  If using GPS, attacker_range and protector_range need to be set to the
+  appropriate coordinate spacing. For a general rule of thumb of conversion
+  between GPS distance and meters, 0.0001 == 11.1 m, according to
+  http://www.movable-type.co.uk/scripts/latlong.html.
