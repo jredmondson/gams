@@ -28,7 +28,7 @@
  *      University for the operation of the Software Engineering Institute, a
  *      federally funded research and development center. Any opinions,
  *      findings and conclusions or recommendations expressed in this material
- *      are those of the author(s) and do not necessarily reflect the views of
+ *      are those of the author (s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
@@ -151,15 +151,15 @@ namespace gams
 
       int index_;
 
-      typedef utility::Location (ZoneCoverage::*formation_func)() const;
+      typedef utility::Location (ZoneCoverage::*formation_func) () const;
 
       formation_func form_func_;
 
-      utility::Location line_formation() const;
-      utility::Location arc_formation() const;
-      utility::Location onion_formation() const;
+      utility::Location line_formation () const;
+      utility::Location arc_formation () const;
+      utility::Location onion_formation () const;
 
-      static formation_func get_form_func(const std::string &form_name);
+      static formation_func get_form_func (const std::string &form_name);
 
       typedef std::vector<madara::knowledge::containers::NativeDoubleArray> MadaraArrayVec;
 
@@ -171,12 +171,12 @@ namespace gams
       utility::Location next_loc_;
 
     private:
-      madara::knowledge::containers::StringVector get_group(const std::string &name) const;
-      void update_arrays(const madara::knowledge::containers::StringVector &names,
+      madara::knowledge::containers::StringVector get_group (const std::string &name) const;
+      void update_arrays (const madara::knowledge::containers::StringVector &names,
                          MadaraArrayVec &arrays) const;
-      void update_locs(const MadaraArrayVec &arrays,
+      void update_locs (const MadaraArrayVec &arrays,
                        std::vector<utility::Location> &locs) const;
-      int get_index() const;
+      int get_index () const;
     };
     
     /**

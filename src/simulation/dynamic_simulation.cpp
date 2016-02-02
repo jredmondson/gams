@@ -95,7 +95,7 @@ using std::map;
 #include <functional>
 using std::function;
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
+#define DEG_TO_RAD(x) ( (x) * M_PI / 180.0)
 
 // default transport settings
 std::string host ("");
@@ -158,7 +158,7 @@ void print_usage (string prog_name)
   cerr << "       use gps coords (instead of vrep)" << endl;
   cerr << "   [-l | --log-level <number>]" << endl;
   cerr << "       MADARA log level, 1-10" << endl;
-  cerr << "   [-m | --madara-file <file(s)>]" << endl;
+  cerr << "   [-m | --madara-file <file (s)>]" << endl;
   cerr << "       madara variable initialization files" << endl;
   cerr << "   [-n | --num-agents <number>]" << endl;
   cerr << "       number of agents that will be launched" << endl;
@@ -244,7 +244,7 @@ void handle_arguments (int argc, char** argv)
         char temp[50];
         char arg[500];
         strcpy (arg, argv[i + 1]);
-        while (sscanf(arg, "%[^,],%s", temp, arg) > 1)
+        while (sscanf (arg, "%[^,],%s", temp, arg) > 1)
           regions.push_back (temp);
         regions.push_back (temp);
       }
@@ -304,7 +304,7 @@ void get_dimensions (double &max_x, double &max_y,
   
   // assume the meters/degree longitude is constant throughout environment
   // convert the longitude/x coordinates
-  double r_prime = EARTH_RADIUS * cos (DEG_TO_RAD (sw_lat));
+  double r_prime = EARTH_RADIUS * cos (DEG_TO_RAD(sw_lat));
   double circumference = 2 * r_prime * M_PI;
   max_x = (ne_long - sw_long) / 360.0 * circumference;
 }
@@ -391,7 +391,7 @@ water_fix (const int& client_id,
   // load object
   int node_id;
   int error_num;
-  if ((error_num = simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
+  if ( (error_num = simxLoadModel (client_id, water_file.c_str (), 0, &node_id,
     simx_opmode_oneshot_wait)) != simx_error_noerror)
   {
     cerr << "failure loading floor model: " << water_file
@@ -400,7 +400,7 @@ water_fix (const int& client_id,
   }
 
   // set functional element visibility off
-  simxSetModelProperty(client_id, node_id, sim_modelproperty_not_visible,
+  simxSetModelProperty (client_id, node_id, sim_modelproperty_not_visible,
     simx_opmode_oneshot_wait);
 
   // functional water tile location
@@ -429,14 +429,14 @@ struct surface_type
 {
   string file;
   double size;
-  function<void(const int&, madara::knowledge::KnowledgeBase&)> pre_function;
-  function<void(const int&, madara::knowledge::KnowledgeBase&)> post_function;
+  function<void (const int&, madara::knowledge::KnowledgeBase&)> pre_function;
+  function<void (const int&, madara::knowledge::KnowledgeBase&)> post_function;
 
   surface_type () : file (""), size (0), pre_function (empty_fix), post_function (empty_fix) {}
 
   surface_type (string f, double s, 
-    function<void(const int&, madara::knowledge::KnowledgeBase&)> pre = empty_fix, 
-    function<void(const int&, madara::knowledge::KnowledgeBase&)> post = empty_fix) :
+    function<void (const int&, madara::knowledge::KnowledgeBase&)> pre = empty_fix, 
+    function<void (const int&, madara::knowledge::KnowledgeBase&)> post = empty_fix) :
     file (f), size (s), pre_function (pre), post_function (post) {}
 };
 
@@ -472,7 +472,7 @@ void create_environment (const int& client_id,
   simxCloseScene (client_id, simx_opmode_oneshot_wait);
   string scene (getenv ("GAMS_ROOT"));
   scene += "/resources/vrep/starting.ttt";
-  simxLoadScene (client_id, scene.c_str(), 0, simx_opmode_oneshot_wait);
+  simxLoadScene (client_id, scene.c_str (), 0, simx_opmode_oneshot_wait);
 
   // inform clients they can interact with scene now
   knowledge.set ("vrep_ready", Integer (1));
@@ -503,7 +503,7 @@ void create_environment (const int& client_id,
     int node_id;
     int error_num;
     cerr << "Loading surface " << i << endl;
-    if ((error_num = simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
+    if ( (error_num = simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
       simx_opmode_oneshot_wait)) != simx_error_noerror)
     {
       cerr << "failure loading surface model: " << model_file
@@ -616,7 +616,7 @@ time_to_full_coverage (madara::knowledge::KnowledgeBase& knowledge,
           ++num_not_covered;
       }
 
-      double coverage = double(valid_positions.size() - num_not_covered) / 
+      double coverage = double (valid_positions.size () - num_not_covered) / 
         valid_positions.size ();
       cout << "coverage: " << (coverage * 100) << "%" << endl;
     }
@@ -645,6 +645,12 @@ int main (int argc, char ** argv)
   // handle all user arguments
   handle_arguments (argc, argv);
 
+  /**
+   * Since this is a simulation, prepare for large numbers of agents and
+   * increase default queue size to 2MB
+   **/
+  settings.queue_length = 2000000;
+
   // create knowledge base
   settings.type = madara::transport::MULTICAST;
   if (settings.hosts.size () == 0)
@@ -652,6 +658,7 @@ int main (int argc, char ** argv)
     // setup default transport as multicast
     settings.hosts.push_back (default_multicast);
   }
+
   madara::knowledge::KnowledgeBase knowledge (host, settings);
   if (madara_commands != "")
     knowledge.evaluate (madara_commands,

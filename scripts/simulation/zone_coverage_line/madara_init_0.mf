@@ -1,0 +1,10 @@
+
+.vrep_port=19906;
+
+.initial_lat=40.443222;
+.initial_lon=-79.940334;
+.initial_alt=4;
+
+agent.0.command="null";
+agent.0.command.size=0;
+agent.0.hertz=.hertz;
