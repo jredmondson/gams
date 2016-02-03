@@ -577,7 +577,7 @@ gams::algorithms::ZoneCoverage::formation_func
 gams::algorithms::ZoneCoverage::get_form_func (const std::string &form_name)
 {
   // default formation
-  formation_func result = &line_formation;
+  formation_func result = &ZoneCoverage::line_formation;
 
   if (form_name.size () != 0)
   {
@@ -585,11 +585,11 @@ gams::algorithms::ZoneCoverage::get_form_func (const std::string &form_name)
     {
     case 'a':
       if (form_name == "arc")
-        result = &arc_formation;
+        result = &ZoneCoverage::arc_formation;
       break;
     case 'o':
       if (form_name == "onion")
-        result = &onion_formation;
+        result = &ZoneCoverage::onion_formation;
       break;
     default:
       break;
