@@ -13,3 +13,5 @@ agent.8.command.enemies="enemies";
 agent.8.command.buffer=.zone_coverage_buffer;
 agent.8.command.distance=.zone_coverage_distance;
 agent.8.hertz=.hertz;
+agent.8.gams_debug_level=7;
+agent.8.madara_debug_level=1;

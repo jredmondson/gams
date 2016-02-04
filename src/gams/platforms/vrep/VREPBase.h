@@ -66,6 +66,7 @@
 #include "madara/threads/Threader.h"
 #include "madara/threads/BaseThread.h"
 #include "madara/LockType.h"
+#include "madara/knowledge/containers/Integer.h"
 
 #include "gams/loggers/GlobalLogger.h"
 
@@ -87,12 +88,16 @@ namespace gams
     public:
       /**
        * Constructor
+       * @param  file         model file to load
+       * @param  client_side  0 if model is server side, 1 if client side
        * @param  knowledge  knowledge base
        * @param  sensors    map of sensor names to sensor information
        * @param  platforms  map of platform names to platform information
        * @param  self       agent variables that describe self state
        **/
       VREPBase (
+        std::string model_file,
+        simxUChar is_client_side,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Self * self);
@@ -186,6 +191,12 @@ namespace gams
         const simxUChar client_side) = 0;
 
       /**
+      * Prep VREP for agent introduction
+      * @return  if vrep and agent are ready, then true
+      **/
+      bool get_ready (void);
+
+      /**
        * Get node target handle
        */
       virtual void get_target_handle () = 0;
@@ -204,7 +215,17 @@ namespace gams
       /**
        * wait for go signal from controller
        */
-      void wait_for_go () const;
+      bool sim_is_running (void);
+
+      /**
+      * wait for signal from controller that vrep is initialized
+      */
+      bool vrep_is_ready (void);
+
+      /**
+      * signal for whether or not the agent has created self image in sim
+      */
+      bool agent_is_ready (void);
 
       /// flag for drone being airborne
       bool airborne_;
@@ -273,6 +294,40 @@ namespace gams
       mutable MADARA_LOCK_TYPE vrep_mutex_;
 
     private:
+
+      /**
+       * Create the conditions for checking is_ready
+       **/
+      void create_ready_conditions (void);
+
+      /// tracks if the agent itself is ready
+      bool agent_is_ready_;
+
+      /// tracks if vrep is ready for general use
+      bool vrep_is_ready_;
+
+      /// tracks if the sim has started
+      bool sim_is_running_;
+
+      /**
+      * VREP model file name
+      **/
+      std::string model_file_;
+
+      /**
+      * Flag for whether model is on server or client side
+      **/
+      simxUChar is_client_side_;
+
+      /// reference to knowledge record "begin_sim_"
+      madara::knowledge::containers::Integer begin_sim_;
+
+      /// reference to knowledge record "vrep_ready_"
+      madara::knowledge::containers::Integer vrep_ready_;
+
+      /// reference to knowledge record "S{.id}.init"
+      madara::knowledge::containers::Integer agent_ready_;
+
       utility::Pose get_sw_pose(const utility::ReferenceFrame &frame);
 
       int do_move (const utility::Location & target,
@@ -283,6 +338,8 @@ namespace gams
     }; // class VREPBase
   } // namespace platform
 } // namespace gams
+
+#include "VREPBase.inl"
 
 #endif // _GAMS_VREP_
 

@@ -569,6 +569,8 @@ void start_simulator (const int & client_id,
   knowledge.wait (compiled);
   cout << "done" << endl;
 
+  knowledge.evaluate ("vrep_ready=1");
+
   // start the simulation
   cout << "starting simulation...";
   simxSetBooleanParameter (client_id, sim_boolparam_hierarchy_visible, false, simx_opmode_oneshot);
@@ -579,6 +581,12 @@ void start_simulator (const int & client_id,
   // inform simulated control loops to begin
   cout << "informing agents to continue...";
   knowledge.set ("begin_sim", Integer (1));
+
+  // just make sure
+  knowledge.evaluate ("vrep_ready=1; begin_sim=1");
+  knowledge.evaluate ("vrep_ready=1; begin_sim=1");
+  knowledge.evaluate ("vrep_ready=1; begin_sim=1");
+
   cout << "done" << endl;
 }
 

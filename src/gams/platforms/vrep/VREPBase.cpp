@@ -75,12 +75,21 @@ using namespace gams::utility::euler;
 const std::string gams::platforms::VREPBase::TargetMover::NAME("move_thread");
 
 gams::platforms::VREPBase::VREPBase (
+  std::string model_file,
+  simxUChar is_client_side,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Self * self)
   : BasePlatform (knowledge, sensors, self), airborne_ (false),
     move_speed_ (0.8), sw_pose_ (get_sw_pose(get_frame())),
-    vrep_frame_ (sw_pose_), mover_ (NULL)
+    vrep_frame_ (sw_pose_), mover_ (NULL),
+    begin_sim_ ("begin_sim", *knowledge),
+    vrep_ready_ ("vrep_ready", *knowledge),
+    agent_ready_ ("S" + self->id.to_string () + ".init", *knowledge_),
+    sim_is_running_ (false),
+    agent_is_ready_ (false),
+    vrep_is_ready_ (false),
+    model_file_ (model_file), is_client_side_ (is_client_side)
 {
   if (sensors && knowledge)
   {
@@ -140,14 +149,15 @@ gams::platforms::VREPBase::VREPBase (
       "gams::platforms::VREPBase():" \
       " successfully connected to VREP at %s:%d\n",
       vrep_host.c_str (), vrep_port);
-    knowledge->wait ("vrep_ready == 1;");
+
+    get_ready ();
   }
 }
 
 gams::utility::Pose
 gams::platforms::VREPBase::get_sw_pose(const utility::ReferenceFrame &frame)
 {
-  if(knowledge_)
+  if (knowledge_)
   {
     // get vrep environment data
     string sw = knowledge_->get (".vrep_sw_position").to_string ();
@@ -222,28 +232,38 @@ gams::platforms::VREPBase::operator= (const VREPBase & rhs)
 int
 gams::platforms::VREPBase::sense (void)
 {
-  // get position
-  simxFloat curr_arr[3];
-  VREP_LOCK
+  if (get_ready ())
   {
-    simxGetObjectPosition (client_id_, node_id_, -1, curr_arr,
-                                   simx_opmode_oneshot_wait);
+    // get position
+    simxFloat curr_arr[3];
+    VREP_LOCK
+    {
+      simxGetObjectPosition (client_id_, node_id_, -1, curr_arr,
+                                     simx_opmode_oneshot_wait);
 
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::platforms::VREPBase:" \
+        " vrep position: %f,%f,%f\n", curr_arr[0], curr_arr[1], curr_arr[2]);
+
+      utility::Location vrep_loc(get_vrep_frame(), curr_arr);
+      utility::Location loc(get_frame(), vrep_loc);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::platforms::VREPBase:" \
+        " gps position: %f,%f,%f\n", loc.lat(), loc.lng(), loc.alt());
+
+      // set position in madara
+      loc.to_container<utility::order::GPS> (self_->agent.location);
+    }
+  }
+  else
+  {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::platforms::VREPBase:" \
-      " vrep position: %f,%f,%f\n", curr_arr[0], curr_arr[1], curr_arr[2]);
-
-    utility::Location vrep_loc(get_vrep_frame(), curr_arr);
-    utility::Location loc(get_frame(), vrep_loc);
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
-      "gams::algorithms::platforms::VREPBase:" \
-      " gps position: %f,%f,%f\n", loc.lat(), loc.lng(), loc.alt());
-
-    // set position in madara
-    loc.to_container<utility::order::GPS> (self_->agent.location);
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::sense:" \
+      " Unable to sense. Waiting on vrep_ready and begin_sim\n");
   }
 
   return 0;
@@ -252,12 +272,22 @@ gams::platforms::VREPBase::sense (void)
 int
 gams::platforms::VREPBase::analyze (void)
 {
-  // set position on coverage map
-  utility::Position* pos = get_position();
-  (*sensors_)["coverage"]->set_value (
-    utility::GPSPosition(*pos),
-    knowledge_->get_context ().get_clock ());
-  delete pos;
+  if (get_ready ())
+  {
+    // set position on coverage map
+    utility::Position* pos = get_position();
+    (*sensors_)["coverage"]->set_value (
+      utility::GPSPosition(*pos),
+      knowledge_->get_context ().get_clock ());
+    delete pos;
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::analyze:" \
+      " Unable to analyze. Waiting on vrep_ready and begin_sim\n");
+  }
 
   return 0;
 }
@@ -289,21 +319,33 @@ int
 gams::platforms::VREPBase::move (const utility::Position & position,
   const double & epsilon)
 {
-  const utility::GPSPosition *gps_pos =
-    dynamic_cast<const utility::GPSPosition *>(&position);
-
-  if(gps_pos != NULL)
+  if (get_ready ())
   {
-    return move(utility::Location(get_frame(),
-              gps_pos->longitude(), gps_pos->latitude(), gps_pos->altitude()),
-              epsilon);
+    const utility::GPSPosition *gps_pos =
+      dynamic_cast<const utility::GPSPosition *>(&position);
+
+    if (gps_pos != NULL)
+    {
+      return move (utility::Location (get_frame (),
+        gps_pos->longitude (), gps_pos->latitude (), gps_pos->altitude ()),
+        epsilon);
+    }
+    else
+    {
+      return move (utility::Location (get_vrep_frame (),
+        position.x, position.y, position.z),
+        epsilon);
+    }
   }
   else
   {
-    return move(utility::Location(get_vrep_frame(),
-              position.x, position.y, position.z),
-              epsilon);
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::move:" \
+      " Unable to move. Waiting on vrep_ready and begin_sim\n");
   }
+
+  return 0;
 }
 
 int
@@ -311,80 +353,93 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
                                     const utility::Location & current,
                                     double max_delta)
 {
-  simxFloat dest_arr[3];
-  target.to_array(dest_arr);
-
-  simxFloat curr_arr[3];
-  current.to_array(curr_arr);
-
-  double distance = target.distance_to(current);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::do_move:" \
-    " moving from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
-    current.x(), current.y(), current.z(),
-    target.x(), target.y(), target.z(), distance);
-
-  if (max_delta > 0)
+  if (get_ready ())
   {
-    // move quadrotor target closer to the desired position
-    if(distance < max_delta) // we can get to target in one step
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_TRACE,
-        "gams::platforms::VREPQuad::do_move:" \
-        " moving to target instantly\n");
+    simxFloat dest_arr[3];
+    target.to_array (dest_arr);
 
-      curr_arr[0] = dest_arr[0];
-      curr_arr[1] = dest_arr[1];
-      curr_arr[2] = dest_arr[2];
-    }
-    else // we cannot reach target in this step
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_TRACE,
-        "gams::platforms::VREPQuad::do_move:" \
-        " calculating new target location\n");
+    simxFloat curr_arr[3];
+    current.to_array (curr_arr);
 
-      // how far do we have to go in each dimension
-      double dist[3];
-      for (int i = 0; i < 3; ++i)
-        dist[i] = curr_arr[i] - dest_arr[i];
-
-      // update target position
-      for (int i = 0; i < 3; ++i)
-      {
-        curr_arr[i] -= dist[i] * max_delta / distance;
-      }
-    }
-
-    // send movement command
-    VREP_LOCK
-    {
-      simxSetObjectPosition (client_id_, node_target_, -1, curr_arr,
-                             simx_opmode_oneshot_wait);
-    }
+    double distance = target.distance_to (current);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPQuad::do_move:" \
-      " setting target to \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
+      "gams::platforms::VREPBase::do_move:" \
+      " moving from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
+      current.x (), current.y (), current.z (),
+      target.x (), target.y (), target.z (), distance);
+
+    if (max_delta > 0)
+    {
+      // move quadrotor target closer to the desired position
+      if (distance < max_delta) // we can get to target in one step
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_TRACE,
+          "gams::platforms::VREPBase::do_move:" \
+          " moving to target instantly\n");
+
+        curr_arr[0] = dest_arr[0];
+        curr_arr[1] = dest_arr[1];
+        curr_arr[2] = dest_arr[2];
+      }
+      else // we cannot reach target in this step
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_TRACE,
+          "gams::platforms::VREPBase::do_move:" \
+          " calculating new target location\n");
+
+        // how far do we have to go in each dimension
+        double dist[3];
+        for (int i = 0; i < 3; ++i)
+          dist[i] = curr_arr[i] - dest_arr[i];
+
+        // update target position
+        for (int i = 0; i < 3; ++i)
+        {
+          curr_arr[i] -= dist[i] * max_delta / distance;
+        }
+      }
+
+      // send movement command
+      VREP_LOCK
+      {
+        simxSetObjectPosition (client_id_, node_target_, -1, curr_arr,
+        simx_opmode_oneshot_wait);
+      }
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_TRACE,
+        "gams::platforms::VREPBase::do_move:" \
+        " setting target to \"%f,%f,%f\"\n",
+        curr_arr[0], curr_arr[1], curr_arr[2]);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_TRACE,
+        "gams::platforms::VREPBase::do_move:" \
+        " setting target to \"%f,%f,%f\"\n",
+        dest_arr[0], dest_arr[1], dest_arr[2]);
+
+      // send movement command
+      VREP_LOCK
+      {
+        simxSetObjectPosition (client_id_, node_target_, -1, dest_arr,
+        simx_opmode_oneshot_wait);
+      }
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPQuad::do_move:" \
-      " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
-
-    // send movement command
-    VREP_LOCK
-    {
-      simxSetObjectPosition (client_id_, node_target_, -1, dest_arr,
-                             simx_opmode_oneshot_wait);
-    }
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::do_move:" \
+      " Unable to move. Waiting on vrep_ready and begin_sim\n");
   }
+
   return 1;
 }
 
@@ -404,53 +459,64 @@ gams::platforms::VREPBase::do_rotate (utility::Rotation target,
   curr_arr[2] = euler_current.c();
   */
 
-  double distance = target.distance_to(current);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::do_rotate:" \
-    " rotating from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
-    current.rx(), current.ry(), current.rz(),
-    target.rx(), target.ry(), target.rz(), distance);
-
-  if(max_delta == 0 || distance < max_delta + 0.01) // we can get to target in one step
+  if (get_ready ())
   {
+    double distance = target.distance_to (current);
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPQuad::do_rotate:" \
-      " rotating to target instantly\n");
-  }
-  else // we cannot reach target in this step
-  {
-    double fraction = max_delta/distance;
+      "gams::platforms::VREPBase::do_rotate:" \
+      " rotating from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
+      current.rx (), current.ry (), current.rz (),
+      target.rx (), target.ry (), target.rz (), distance);
 
-    // move quadrotor target closer to the desired rotation
+    if (max_delta == 0 || distance < max_delta + 0.01)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_TRACE,
+        "gams::platforms::VREPBase::do_rotate:" \
+        " rotating to target instantly\n");
+    }
+    else // we cannot reach target in this step
+    {
+      double fraction = max_delta / distance;
+
+      // move quadrotor target closer to the desired rotation
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_TRACE,
+        "gams::platforms::VREPBase::do_rotate:" \
+        " calculating new target location %f / %f == %f\n",
+        max_delta, distance, fraction);
+
+      target.slerp_this (current, 1.0 - fraction);
+    }
+
+    EulerVREP euler_target (target);
+    simxFloat dest_arr[3];
+    dest_arr[0] = euler_target.a ();
+    dest_arr[1] = euler_target.b ();
+    dest_arr[2] = euler_target.c ();
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPQuad::do_rotate:" \
-      " calculating new target location %f / %f == %f\n",
-      max_delta, distance, fraction);
+      "gams::platforms::VREPBase::do_rotate:" \
+      " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
 
-    target.slerp_this(current, 1.0 - fraction);
+    // send movement command
+    VREP_LOCK
+    {
+      simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
+      simx_opmode_oneshot_wait);
+    }
   }
-
-  EulerVREP euler_target(target);
-  simxFloat dest_arr[3];
-  dest_arr[0] = euler_target.a();
-  dest_arr[1] = euler_target.b();
-  dest_arr[2] = euler_target.c();
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::do_rotate:" \
-    " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
-
-  // send movement command
-  VREP_LOCK
+  else
   {
-    simxSetObjectOrientation (client_id_, node_target_, -1, dest_arr,
-                              simx_opmode_oneshot_wait);
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::do_rotate:" \
+      " Unable to rotate. Waiting on vrep_ready and begin_sim\n");
   }
+
   return 1;
 }
 
@@ -458,108 +524,131 @@ int
 gams::platforms::VREPBase::move (const utility::Location & target,
   double epsilon)
 {
-  // update variables
-  BasePlatform::move (target);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::move:" \
-    " requested target \"%f,%f,%f\"\n", target.x(), target.y(), target.z());
-
-  // convert form input reference frame to vrep reference frame, if necessary
-  utility::Location vrep_target(get_vrep_frame(), target);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::move:" \
-    " vrep target \"%f,%f,%f\" rate %f\n", vrep_target.x(), vrep_target.y(), vrep_target.z(), thread_rate_.to_double());
-
-  // get current position in VREP frame
-  simxFloat curr_arr[3];
-  VREP_LOCK
+  if (get_ready ())
   {
-    simxGetObjectPosition (client_id_, node_target_, -1, curr_arr,
-                           simx_opmode_oneshot_wait);
-  }
-  utility::Location vrep_loc(get_vrep_frame(), curr_arr);
+    // update variables
+    BasePlatform::move (target);
 
-  if (thread_rate_.to_double() == 0)
-  {
-    if(mover_ != NULL)
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::platforms::VREPBase::move:" \
+      " requested target \"%f,%f,%f\"\n", target.x (), target.y (), target.z ());
+
+    // convert form input reference frame to vrep reference frame, if necessary
+    utility::Location vrep_target (get_vrep_frame (), target);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::platforms::VREPBase::move:" \
+      " vrep target \"%f,%f,%f\" rate %f\n", vrep_target.x (), vrep_target.y (), vrep_target.z (), thread_rate_.to_double ());
+
+    // get current position in VREP frame
+    simxFloat curr_arr[3];
+    VREP_LOCK
     {
-      threader_.terminate(TargetMover::NAME);
-      mover_ = NULL;
+      simxGetObjectPosition (client_id_, node_target_, -1, curr_arr,
+      simx_opmode_oneshot_wait);
+    }
+    utility::Location vrep_loc (get_vrep_frame (), curr_arr);
+
+    if (thread_rate_.to_double () == 0)
+    {
+      if (mover_ != NULL)
+      {
+        threader_.terminate (TargetMover::NAME);
+        mover_ = NULL;
+      }
+
+      if (do_move (vrep_target, vrep_loc, max_delta_.to_double ()) == 0)
+        return 0;
+    }
+    else
+    {
+      if (mover_ == NULL)
+      {
+        mover_ = new TargetMover (*this);
+        threader_.run (thread_rate_.to_double (), TargetMover::NAME, mover_);
+      }
     }
 
-    if(do_move(vrep_target, vrep_loc, max_delta_.to_double()) == 0)
-      return 0;
+    VREP_LOCK
+    {
+      simxGetObjectPosition (client_id_, node_id_, -1, curr_arr,
+      simx_opmode_oneshot_wait);
+    }
+
+    utility::Location vrep_node_loc(get_vrep_frame(), curr_arr);
+    // return code
+    if (vrep_node_loc.distance_to (vrep_target) < epsilon)
+      return 2;
   }
   else
   {
-    if(mover_ == NULL)
-    {
-      mover_ = new TargetMover(*this);
-      threader_.run(thread_rate_.to_double(), TargetMover::NAME, mover_);
-    }
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::move:" \
+      " Unable to move. Waiting on vrep_ready and begin_sim\n");
   }
-
-  VREP_LOCK
-  {
-    simxGetObjectPosition (client_id_, node_id_, -1, curr_arr,
-                           simx_opmode_oneshot_wait);
-  }
-  utility::Location vrep_node_loc(get_vrep_frame(), curr_arr);
-  // return code
-  if (vrep_node_loc.distance_to (vrep_target) < epsilon)
-    return 2;
-  else
-    return 1;
+  
+  return 1;
 }
 
 int
 gams::platforms::VREPBase::rotate (const utility::Rotation & target,
   double epsilon)
 {
-  // update variables
-  BasePlatform::rotate (target);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::rotate:" \
-    " requested target \"%f,%f,%f\"\n", target.rx(), target.ry(), target.rz());
-
-  // convert form input reference frame to vrep reference frame, if necessary
-  utility::Rotation vrep_target(get_vrep_frame(), target);
-
-  // get current position in VREP frame
-  simxFloat curr_arr[3];
-  VREP_LOCK
+  if (get_ready ())
   {
-    simxGetObjectOrientation (client_id_, node_target_, -1, curr_arr,
-                              simx_opmode_oneshot_wait);
+    // update variables
+    BasePlatform::rotate (target);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::platforms::VREPBase::rotate:" \
+      " requested target \"%f,%f,%f\"\n", target.rx (), target.ry (), target.rz ());
+
+    // convert form input reference frame to vrep reference frame, if necessary
+    utility::Rotation vrep_target (get_vrep_frame (), target);
+
+    // get current position in VREP frame
+    simxFloat curr_arr[3];
+    VREP_LOCK
+    {
+      simxGetObjectOrientation (client_id_, node_target_, -1, curr_arr,
+      simx_opmode_oneshot_wait);
+    }
+
+    EulerVREP euler_curr (curr_arr[0], curr_arr[1], curr_arr[2]);
+
+    utility::Rotation vrep_rot (euler_curr.to_rotation (get_vrep_frame ()));
+
+    if (do_rotate (vrep_target, vrep_rot, max_rotate_delta_.to_double ()) == 0)
+      return 0;
+
+    VREP_LOCK
+    {
+      simxGetObjectOrientation (client_id_, node_id_, -1, curr_arr,
+      simx_opmode_oneshot_wait);
+    }
+
+    EulerVREP euler_node_curr (curr_arr[0], curr_arr[1], curr_arr[2]);
+
+    utility::Rotation vrep_node_rot (
+      euler_node_curr.to_rotation (get_vrep_frame ()));
+
+    // return code
+    if (vrep_node_rot.distance_to (vrep_target) < epsilon)
+      return 2;
   }
-
-  EulerVREP euler_curr(curr_arr[0], curr_arr[1], curr_arr[2]);
-
-  utility::Rotation vrep_rot(euler_curr.to_rotation(get_vrep_frame()));
-
-  if(do_rotate(vrep_target, vrep_rot, max_rotate_delta_.to_double()) == 0)
-    return 0;
-
-  VREP_LOCK
-  {
-    simxGetObjectOrientation (client_id_, node_id_, -1, curr_arr,
-                              simx_opmode_oneshot_wait);
-  }
-
-  EulerVREP euler_node_curr(curr_arr[0], curr_arr[1], curr_arr[2]);
-
-  utility::Rotation vrep_node_rot(euler_node_curr.to_rotation(get_vrep_frame()));
-  // return code
-  if (vrep_node_rot.distance_to (vrep_target) < epsilon)
-    return 2;
   else
-    return 1;
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::rotate:" \
+      " Unable to rotate. Waiting on vrep_ready and begin_sim\n");
+  }
+
+  return 1;
 }
 
 void
@@ -630,25 +719,6 @@ gams::platforms::VREPBase::get_initial_z() const
     return 0.08;
 }
 
-void
-gams::platforms::VREPBase::wait_for_go () const
-{
-  // sync with other nodes; wait for all processes to get up
-  std::stringstream buffer, init_string;
-  init_string << "S";
-  init_string << self_->id.to_integer ();
-  init_string << ".init";
-
-  buffer << "(" << init_string.str () << " = 1)";
-  buffer << " && begin_sim";
-  std::string expression = buffer.str ();
-  madara::knowledge::WaitSettings wait_settings;
-  wait_settings.send_list [init_string.str ()] = true;
-  madara::knowledge::CompiledExpression compiled;
-  compiled = knowledge_->compile (expression);
-  knowledge_->wait (compiled, wait_settings);
-}
-
 gams::platforms::VREPBase::TargetMover::TargetMover (
   VREPBase &base)
   : base_(base)
@@ -663,7 +733,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::TargetMover::run:" \
+    "gams::platforms::VREPBase::TargetMover::run:" \
     " moving at speed %f\n", local_move_speed);
 
   // convert form input reference frame to vrep reference frame, if necessary
@@ -673,7 +743,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::TargetMover::run:" \
+    "gams::platforms::VREPBase::TargetMover::run:" \
     " vrep target \"%f,%f,%f\"\n", vrep_target.x(), vrep_target.y(), vrep_target.z());
 
   // get current target position in VREP frame
@@ -686,7 +756,7 @@ gams::platforms::VREPBase::TargetMover::run ()
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::platforms::VREPQuad::TargetMover::run:" \
+    "gams::platforms::VREPBase::TargetMover::run:" \
     " vrep target position \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
 
   utility::Location vrep_loc(base_.get_vrep_frame(), curr_arr);

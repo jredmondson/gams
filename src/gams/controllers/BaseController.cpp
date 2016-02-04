@@ -444,7 +444,7 @@ gams::controllers::BaseController::run_once_ (void)
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "%s\n",
+    "gams::controllers::BaseController::run: modifieds=%s\n",
     knowledge_.debug_modifieds ().c_str ());
 
   // unlock the context to allow external updates

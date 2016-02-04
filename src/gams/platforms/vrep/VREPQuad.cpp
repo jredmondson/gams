@@ -167,7 +167,7 @@ gams::platforms::VREPQuad::VREPQuad (
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self) :
-  VREPBase (knowledge, sensors, self)
+  VREPBase (model_file, is_client_side, knowledge, sensors, self)
 {
   if (knowledge && sensors && platforms && self)
   {
@@ -175,20 +175,9 @@ gams::platforms::VREPQuad::VREPQuad (
     status_ = (*platforms)[get_id ()];
 
     self->agent.desired_altitude = self->id.to_integer () + 1;
-    add_model_to_environment (model_file, is_client_side);
-    set_initial_position ();
-    get_target_handle ();
-    wait_for_go ();
-
-    /*
-    if(knowledge_->exists (".vrep_uav_move_speed"))
-    {
-      double move_speed = knowledge_->get (".vrep_uav_move_speed").to_double ();
-      max_delta_ = move_speed;
-    }
-    */
   }
 }
+
 
 void
 gams::platforms::VREPQuad::add_model_to_environment (const string &model_file, 

@@ -119,13 +119,13 @@ gams::platforms::VREPBoatFactory::create (
 }
 
 gams::platforms::VREPBoat::VREPBoat (
-  const std::string& file, 
+  const std::string& file,
   const simxUChar client_side,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : VREPBase (knowledge, sensors, self)
+  : VREPBase (file, client_side, knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
@@ -137,7 +137,6 @@ gams::platforms::VREPBoat::VREPBoat (
   add_model_to_environment (file, client_side);
   set_initial_position ();
   get_target_handle ();
-  wait_for_go ();
 }
 
 void

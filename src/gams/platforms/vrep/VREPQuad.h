@@ -113,6 +113,7 @@ namespace gams
       virtual std::string get_name () const;
 
     protected:
+
       /**
        * Add model to environment
        */
