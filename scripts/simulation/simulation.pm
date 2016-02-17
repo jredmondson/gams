@@ -65,7 +65,7 @@ sub run {
   }
  
   # launch simulation controller
-  my $cmd = "$gams_root/bin/dynamic_simulation -n $num --madara-file $gams_root/scripts/simulation/areas/$area.mf";
+  my $cmd = "$gams_root/bin/dynamic_simulation -t -1 --sim-time-poll-rate 2 -n $num --madara-file $gams_root/scripts/simulation/areas/$area.mf";
   if ($border)
   {
     $cmd = "$cmd -b $border";

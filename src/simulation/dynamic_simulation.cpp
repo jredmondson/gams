@@ -104,6 +104,7 @@ madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
 namespace engine = madara::knowledge;
+namespace containers = madara::knowledge::containers;
 typedef madara::knowledge::KnowledgeRecord Record;
 typedef Record::Integer Integer;
 
@@ -142,6 +143,15 @@ string madara_commands = "";
 // number of coverages
 unsigned int num_coverages = 1;
 
+static const char *vrep_sim_time_id = "gams_sim_time";
+
+static double max_sim_time = 0;
+
+static double sim_time_poll_rate;
+
+static containers::Double vrep_sim_time;
+static containers::Double vrep_wall_time;
+
 /**
  * Print out program usage
  **/
@@ -154,6 +164,10 @@ void print_usage (string prog_name)
   cerr << endl;
   cerr << "   [-c | --coverages <number>]" << endl;
   cerr << "       number of coverages to collect data for" << endl;
+  cerr << "   [-t | --sim-time <number>]" << endl;
+  cerr << "       number of seconds (in-simulation) to run for" << endl;
+  cerr << "   [--sim-time-poll-rate <number>]" << endl;
+  cerr << "       Hz rate for polling simulation time (default 1)" << endl;
   cerr << "   [-g | --gps]" << endl;
   cerr << "       use gps coords (instead of vrep)" << endl;
   cerr << "   [-l | --log-level <number>]" << endl;
@@ -185,6 +199,22 @@ void handle_arguments (int argc, char** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
         sscanf (argv[i + 1], "%u", &num_coverages);
+      else
+        print_usage (argv[0]);
+      ++i;
+    }
+    else if (arg1 == "-t" || arg1 == "--sim-time")
+    {
+      if (i + 1 < argc)
+        sscanf (argv[i + 1], "%lf", &max_sim_time);
+      else
+        print_usage (argv[0]);
+      ++i;
+    }
+    else if (arg1 == "--sim-time-poll-rate")
+    {
+      if (i + 1 < argc)
+        sscanf (argv[i + 1], "%lf", &sim_time_poll_rate);
       else
         print_usage (argv[0]);
       ++i;
@@ -590,6 +620,47 @@ void start_simulator (const int & client_id,
   cout << "done" << endl;
 }
 
+double get_wall_time()
+{
+  const uint64_t nano_per = 1000000000;
+  uint64_t int_time = madara::utility::get_time();
+  uint64_t secs = int_time / nano_per;
+  uint64_t nanos = int_time % nano_per;
+  return (double)secs + (((double)nanos) / nano_per);
+}
+
+void wait_for_sim_time (int client_id,
+  madara::knowledge::KnowledgeBase & knowledge,
+  double max_time)
+{
+  vrep_sim_time.set_name("vrep_sim_time", knowledge);
+  vrep_wall_time.set_name("vrep_wall_time", knowledge);
+
+  simxSetFloatSignal(client_id, vrep_sim_time_id, 0, simx_opmode_oneshot_wait);
+  double init_wall_time = get_wall_time();
+
+  double sleep_time = 1 / sim_time_poll_rate;
+  for(;;)
+  {
+    simxFloat cur_time;
+    simxGetFloatSignal(client_id, vrep_sim_time_id, &cur_time,
+                       simx_opmode_oneshot_wait);
+    vrep_sim_time = cur_time;
+
+    double cur_wall_time = get_wall_time();
+    double diff_wall_time = cur_wall_time - init_wall_time;
+    vrep_wall_time = diff_wall_time;
+
+    knowledge.send_modifieds();
+    cout << "SimTime: " << cur_time <<
+          "  WallTime: " << diff_wall_time << endl;
+    if(max_time >= 0 && cur_time >= max_time)
+      return;
+
+    madara::utility::sleep(sleep_time);
+  }
+}
+
 void
 time_to_full_coverage (madara::knowledge::KnowledgeBase& knowledge, 
   const SearchArea& search)
@@ -681,23 +752,31 @@ int main (int argc, char ** argv)
     cerr << "failure connecting to vrep" << endl;
     exit (-1);
   }
-  simxStopSimulation (client_id, simx_opmode_oneshot);
+  simxStopSimulation (client_id, simx_opmode_oneshot_wait);
   cout << "done" << endl;
+
+  madara::utility::sleep(2); // give it time to stop
 
   // create environment and start simulation
   create_environment (client_id, knowledge);
   if (num_agents > 0)
     start_simulator (client_id, knowledge);
 
+  if(max_sim_time != 0)
+    wait_for_sim_time(client_id, knowledge, max_sim_time);
+
   // close connection to vrep
   cout << "closing vrep connection...";
   simxFinish (client_id);
   cout << "done" << endl;
 
-  // data collection
-  SearchArea search;
-  search.from_container (knowledge, search_area_id);
-  time_to_full_coverage (knowledge, search);
+  if(max_sim_time == 0)
+  {
+    // data collection
+    SearchArea search;
+    search.from_container (knowledge, search_area_id);
+    time_to_full_coverage (knowledge, search);
+  }
 
   // exit
   return 0;
