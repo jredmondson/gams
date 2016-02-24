@@ -29,7 +29,7 @@ sub run {
       $cmd = "$cmd $gams_root/scripts/simulation/$sim/madara_init_common.mf";
       $cmd = "$cmd $gams_root/scripts/simulation/$sim/madara_init_$i.mf";
       $cmd = "$cmd --madara-level $madara_debug --gams-level $gams_debug";
-      $cmd = "$cmd --logfile gams_log_$i";
+      $cmd = "$cmd --logfile gams_log_$i.log";
       $cmd = "$cmd \"";
       if ($term_prefix)
       {
