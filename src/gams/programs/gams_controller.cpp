@@ -268,9 +268,13 @@ void handle_arguments (int argc, char ** argv)
       ++i;
       for (;i < argc && argv[i][0] != '-'; ++i)
       {
-        madara_commands += madara::utility::file_to_string (argv[i]);
-        madara_commands += ";\r\n";
-        files = true;
+        std::string filename = argv[i];
+        if (madara::utility::file_exists (filename))
+        {
+          madara_commands += madara::utility::file_to_string (filename);
+          madara_commands += ";\r\n";
+          files = true;
+        }
       }
       --i;
 

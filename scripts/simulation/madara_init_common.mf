@@ -1,14 +1,34 @@
+/**
+ * Type of platform to use. Options include:
+ * vrep-quad       : A VREP quadcopter
+ * vrep-quad-laser : A VREP quadcopter
+ * vrep-boat       : A VREP boat
+ * vrep-ant        : A VREP ant-like ground robot
+ * vrep-summit     : A VREP Summit robot
+ * 
+ * Specialty options (must be compiled with more than just vrep feature)
+ * ros-p3dx        : A ROS Pioneer 3DX robot
+ **/
+.platform="vrep-quad";
+
+/**
+ * The host information where VREP is running
+ **/
 .vrep_host="127.0.0.1";
 
-// Max distance (meters) to move target when VREPBase::move is invoked,
-// if no move thread is being used (vrep_move_thread_rate = 0)
+/**
+ * Max distance (meters) to move target when VREPBase::move is invoked,
+ * if no move thread is being used (vrep_move_thread_rate = 0)
+ **/
 .vrep_max_delta=1;
 
-// Hertz rate to run VREPBase move thread. Set to zero to disable thread
+/**
+ * Hertz rate to run VREPBase move thread. Set to zero to disable thread
+ **/
 .vrep_move_thread_rate=10;
 
-// Each thread tick, target will move at most vrep_thread_move_speed divided
-// by vrep_move_thread_rate meters.
+/**
+ * Each thread tick, target will move at most vrep_thread_move_speed divided
+ * by vrep_move_thread_rate meters.
+ **/
 .vrep_thread_move_speed=2;
-
-.platform="vrep-uav";
