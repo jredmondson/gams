@@ -5,6 +5,7 @@
 #include <memory>
 #include "gams/GAMSExport.h"
 #include "madara/logger/Logger.h"
+#include "madara/utility/Refcounter.h"
 
 namespace gams
 {
@@ -26,7 +27,8 @@ namespace gams
       LOG_MAX = 6
     };
 
-    extern GAMSExport std::auto_ptr <madara::logger::Logger> global_logger;
+    extern GAMSExport madara::utility::Refcounter <madara::logger::Logger>
+      global_logger;
   }
 }
 

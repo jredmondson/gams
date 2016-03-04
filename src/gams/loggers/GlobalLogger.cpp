@@ -1,4 +1,4 @@
 #include "GlobalLogger.h"
 
-std::auto_ptr <madara::logger::Logger> gams::loggers::global_logger (
-  new madara::logger::Logger ());
+madara::utility::Refcounter <madara::logger::Logger>
+  gams::loggers::global_logger (new madara::logger::Logger ());
