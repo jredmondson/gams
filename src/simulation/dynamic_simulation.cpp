@@ -47,12 +47,14 @@
 /**
  * @file dynamic_simulation.cpp
  * @author Anton Dukeman <anton.dukeman@gmail.com>
+ * @author James Edmondson <jedmondson@gmail.com>
  *
  * Sets up a vrep simulation environment
  **/
 
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/utility/Utility.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 #include "gams/utility/Region.h"
 using gams::utility::Region;
@@ -66,6 +68,9 @@ using gams::utility::Position;
 using gams::utility::GPSPosition;
 #include "gams/variables/Sensor.h"
 using gams::variables::Sensor;
+
+namespace knowledge = madara::knowledge;
+namespace containers = knowledge::containers;
 
 extern "C" {
 #include "extApi.h"
@@ -162,6 +167,8 @@ void print_usage (string prog_name)
   cerr << "   Creates VREP simulation environment of specific size and" << endl;
   cerr << "   launches simulated gams agents" << endl;
   cerr << endl;
+  cerr << "   [-b | --broadcast <ip:port>" << endl;
+  cerr << "       add transport using broadcast ip" << endl;
   cerr << "   [-c | --coverages <number>]" << endl;
   cerr << "       number of coverages to collect data for" << endl;
   cerr << "   [-t | --sim-time <number>]" << endl;
@@ -172,16 +179,20 @@ void print_usage (string prog_name)
   cerr << "       use gps coords (instead of vrep)" << endl;
   cerr << "   [-l | --log-level <number>]" << endl;
   cerr << "       MADARA log level, 1-10" << endl;
-  cerr << "   [-m | --madara-file <file (s)>]" << endl;
+  cerr << "   [-m | --multicast <ip:port>" << endl;
+  cerr << "       add transport using multicast ip" << endl;
+  cerr << "   [-M | --madara-file <file (s)>]" << endl;
   cerr << "       madara variable initialization files" << endl;
   cerr << "   [-n | --num-agents <number>]" << endl;
   cerr << "       number of agents that will be launched" << endl;
   cerr << "   [--north-east <coords>]" << endl;
   cerr << "       northeast corner coordinates, ex. \"40,-72\"" << endl;
-  cerr << "   [-b | --border]" << endl;
+  cerr << "   [--border]" << endl;
   cerr << "       place border model as region outline markers" << endl;
   cerr << "   [--south-west <coords>]" << endl;
   cerr << "       southwest corner coordinates, ex. \"40,-72\"" << endl;
+  cerr << "   [-u | --udp <ip:port>" << endl;
+  cerr << "       add transport using UDP ip (one at a time)" << endl;
   cerr << "   [-v | --vrep <ip_address> <port>]" << endl;
   cerr << "       vrep connection information" << endl;
 
@@ -195,7 +206,19 @@ void handle_arguments (int argc, char** argv)
   {
     std::string arg1 (argv[i]);
 
-    if (arg1 == "-c" || arg1 == "--coverages")
+    if (arg1 == "-b" || arg1 == "--broadcast")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::BROADCAST;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == "-c" || arg1 == "--coverages")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
         sscanf (argv[i + 1], "%u", &num_coverages);
@@ -236,7 +259,7 @@ void handle_arguments (int argc, char** argv)
         print_usage (argv[0]);
       ++i;
     }
-    else if (arg1 == "-m" || arg1 == "--madara-file")
+    else if (arg1 == "-M" || arg1 == "--madara-file")
     {
       madara_commands = "";
       bool files = false;
@@ -249,6 +272,18 @@ void handle_arguments (int argc, char** argv)
 
       if (!files)
         print_usage (argv[0]);
+    }
+    else if (arg1 == "-m" || arg1 == "--multicast")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::MULTICAST;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
     }
     else if (arg1 == "-n" || arg1 == "--num-agents")
     {
@@ -266,7 +301,7 @@ void handle_arguments (int argc, char** argv)
         print_usage (argv[0]);
       ++i;
     }
-    else if (arg1 == "-b" || arg1 == "--border")
+    else if (arg1 == "--border")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
@@ -286,6 +321,18 @@ void handle_arguments (int argc, char** argv)
         sscanf (argv[i + 1], "%lf,%lf", &sw_lat, &sw_long);
       else
         print_usage (argv[0]);
+      ++i;
+    }
+    else if (arg1 == "-u" || arg1 == "--udp")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::UDP;
+      }
+      else
+        print_usage (argv[0]);
+
       ++i;
     }
     else if (arg1 == "-v" || arg1 == "--vrep")
@@ -316,14 +363,18 @@ void handle_arguments (int argc, char** argv)
 void get_dimensions (double &max_x, double &max_y,
   madara::knowledge::KnowledgeBase& knowledge)
 {
-  // check knowledge base
-  string sw_position = knowledge.get (".vrep_sw_position").to_string ();
-  string ne_position = knowledge.get (".vrep_ne_position").to_string ();
-  if (sw_position != "0")
-  {
-    sscanf (sw_position.c_str (), "%lf,%lf", &sw_lat, &sw_long);
-    sscanf (ne_position.c_str (), "%lf,%lf", &ne_lat, &ne_long);
-  }
+  // obtain vrep viewable bounding box
+  containers::NativeDoubleVector sw (".vrep_sw_position", knowledge);
+  containers::NativeDoubleVector ne (".vrep_ne_position", knowledge);
+
+  sw_lat = sw[0];
+  sw_long = sw[1];
+
+  ne_lat = ne[0];
+  ne_long = ne[1];
+
+  cerr << "VREP window: sw [" << sw_lat << ", " << sw_long << "], ne ["
+    << ne_lat << ", " << ne_long << "]\n";
   
   // assume the Earth is a perfect sphere
   const double EARTH_RADIUS = 6371000.0;
@@ -349,13 +400,14 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
   string model_file = getenv ("GAMS_ROOT");
   model_file += "/resources/vrep/border.ttm";
 
+  containers::NativeDoubleVector sw (".vrep_sw_position", knowledge);
+
   for (size_t j = 0; j < reg.vertices.size (); ++j)
   {
     size_t next = (j + 1) % reg.vertices.size ();
-    string sw_position = knowledge.get (".vrep_sw_position").to_string ();
+
     gams::utility::GPSPosition origin;
-    double latitude, longitude;
-    sscanf (sw_position.c_str (), "%lf,%lf", &latitude, &longitude);
+    double latitude (sw[0]), longitude (sw[1]);
     origin.latitude (latitude); origin.longitude (longitude);
 
     const gams::utility::GPSPosition gps_pos_1 = reg.vertices[j];
@@ -731,10 +783,10 @@ int main (int argc, char ** argv)
   settings.queue_length = 2000000;
 
   // create knowledge base
-  settings.type = madara::transport::MULTICAST;
   if (settings.hosts.size () == 0)
   {
     // setup default transport as multicast
+    settings.type = madara::transport::MULTICAST;
     settings.hosts.push_back (default_multicast);
   }
 

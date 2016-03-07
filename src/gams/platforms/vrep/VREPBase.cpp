@@ -52,6 +52,7 @@
 #include <cmath>
 
 #include "madara/knowledge/containers/DoubleVector.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 #include "gams/variables/Sensor.h"
 
@@ -71,6 +72,8 @@ using std::cout;
 using std::string;
 
 using namespace gams::utility::euler;
+
+namespace containers = madara::knowledge::containers;
 
 const std::string gams::platforms::VREPBase::TargetMover::NAME("move_thread");
 
@@ -160,11 +163,12 @@ gams::platforms::VREPBase::get_sw_pose(const utility::ReferenceFrame &frame)
   if (knowledge_)
   {
     // get vrep environment data
-    string sw = knowledge_->get (".vrep_sw_position").to_string ();
-    double lat, lon;
-    if(sscanf(sw.c_str (), "%lf,%lf", &lat, &lon) == 2)
-      return utility::Pose(frame, lon, lat);
+    containers::NativeDoubleVector sw (".vrep_sw_position", *knowledge_);
+
+    // VREP apparently has weird lat/lon x/y stuff going on. Reverse order.
+    return utility::Pose (frame, sw[1], sw[0]);
   }
+
   return utility::Pose(frame, 0, 0);
 }
 

@@ -1,6 +1,6 @@
 // small test area
-.vrep_sw_position="40.443077,-79.940570";
-.vrep_ne_position="40.443387,-79.940098";
+.vrep_sw_position=[40.443077,-79.940570];
+.vrep_ne_position=[40.443387,-79.940098];
 
 .surface="water";
 
@@ -90,6 +90,4 @@ region.5.1[1]=-79.9401;
 region.5.2[0]=40.4431;
 region.5.2[1]=-79.9403;
 
-sensor.coverage.origin[2]=0.0;
-sensor.coverage.origin[0]=40.44;
-sensor.coverage.origin[1]=-79.95;
+sensor.coverage.origin=[40.44, -79.95, 0.0]

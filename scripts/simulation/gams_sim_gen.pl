@@ -24,23 +24,29 @@ my @borders = ();
 my $help;
 my $verbose;
 my $force;
-my $starting_port = 19906;
+my $vrep_start_port = 19906;
 my $platform = 'vrep-quad';
+my $multicast;
+my $broadcast;
+my @udp;
 
 # setup options parser
 GetOptions(
   'agents|a=i' => \$agents,
-  'border|b=s' => \@borders,
+  'border=s' => \@borders,
+  'broadcast|b=s' => \$broadcast,
   'duration|t=i' => \$duration,
   'force|f' => \$force,
-  'gams_debug|g=i' => \$gams_debug,
+  'gams_debug|gd=i' => \$gams_debug,
   'help|h' => \$help,
   'hz|z=i' => \$hz,
-  'madara_debug|m=i' => \$madara_debug,
+  'madara_debug|md=i' => \$madara_debug,
+  'multicast|m=s' => \$multicast,
   'name|n=s' => \$name,
   'path|p=s' => \$path,
   'platform|l=s' => \$platform,
-  'starting_port|s' => \$starting_port,
+  'vrep_start_port|s' => \$vrep_start_port,
+  'udp|u=s' => \@udp,
   'verbose|v' => \$verbose
   ) or $help = "yes";
 
@@ -53,48 +59,63 @@ $script purpose:
   Generates a new GAMS simulation
 
 options:
-  --agents|-a num       the number of agents
-  --border|-b name      name of region to draw border
-  --duration|-t sec     max duration of simulation in secs
-  --force|-f            overwrite sim if already exists
-  --gams_debug|-g level log level for GAMS
-  --help|-h             print guidance information
-  --hz|-z hertz         periodic execution rate for agents
-  --madara_debug|-m lev log level for MADARA
-  --name|-n name        sim name for directory creation
-  --path|-p directory   directory path to create sim in
-  --platform|-l model   GAMS platform model. Options are:
+  --agents|-a num        the number of agents
+  --border name          name of region to draw border, can be multiple
+  --broadcast|b host     broadcast ip/host to use for network transport
+  --duration|-t sec      max duration of simulation in secs
+  --force|-f             overwrite sim if already exists
+  --gams_debug|-gd lev   log level for GAMS
+  --help|-h              print guidance information
+  --hz|-z hertz          periodic execution rate for agents
+  --madara_debug|-md lev log level for MADARA
+  --multicast|m host     multicast ip/host to use for network transport
+  --name|-n name         sim name for directory creation
+  --path|-p directory    directory path to create sim in
+  --platform|-l model    GAMS platform model. Options are:
   
-                        vrep-quad | vrep-uav : quadcopter
-                        vrep-boat            : boat
-                        vrep-ant             : ant robot
-                        vrep-summit          : Summit robot
+                         vrep-quad | vrep-uav : quadcopter
+                         vrep-boat            : boat
+                         vrep-ant             : ant robot
+                         vrep-summit          : Summit robot
 						
-  --starting_port|-s #  VREP port number to start from
-  --verbose|-v          print detailed debug info\n";
+  --vrep_start_port|-s # VREP port number to start from
+  --udp|u self h1 ...    udp ip/hosts to use for network transport
+  --verbose|-v           print detailed debug info\n";
   
   print("$output\n");
 }
 else
 {
+  if (!$multicast and !$broadcast and scalar @udp == 0)
+  {
+    # if no transport, then specify default multicast
+    $multicast = "239.255.0.1:4150";
+  }
+
   if ($verbose)
   {
     my $output = "
 $script will generate a sim with following params:
   agents = $agents
-  border = @borders
+  border = " . (scalar @borders > 0 ?
+    ("\n" . join ("\n    ", @borders)) : 'no') . "
+  broadcast = " . ($broadcast ? $broadcast : 'no') . "
   duration = $duration
+  force = " . ($force ? 'yes' : 'no') . "
   gams_debug = $gams_debug
   hz = $hz
   madara_debug = $madara_debug
+  multicast = " . ($multicast ? $multicast : 'no') . "
   name = $name
   path = $path
   platform = $platform
-  starting_port = $starting_port\n";
+  vrep_start_port = $vrep_start_port
+  udp = " . (scalar @udp > 0 ? ("\n" . join ("\n    ", @udp)) : 'no') . "
+";
 	
-	print("$output\n");
+    print("$output\n");
 	
-	print("Creating $path/$name...\n");
+    print("Creating $path/$name...\n");
   }
   
   my $common_contents = "
@@ -102,6 +123,8 @@ $script will generate a sim with following params:
  * Common algorithm for all agents
  **/
 .algorithm = 'null';
+
+sensor.coverage.origin=[40.443077,-79.940570, 0.0];
 
 /**
  * Type of platform to use. Options include:
@@ -142,9 +165,13 @@ $script will generate a sim with following params:
   my $env_contents = "
 /**
  * Set VREP view area GPS mapping
-**/
-.vrep_sw_position = '40.443077,-79.940570';
-.vrep_ne_position = '40.443387,-79.940098';
+ **/
+.vrep_sw_position = [40.443077,-79.940570];
+.vrep_ne_position = [40.443387,-79.940098];
+
+/**
+ * Surface can be concrete or water 
+ **/
 .surface = 'water';
 
 /**
@@ -156,6 +183,7 @@ search_area.1.0 = 'region.0';
 
 region.0.object_type = 1;
 region.0.type = 0;
+region.0.priority = 0;
 region.0.size = 4;
 region.0.0 = [40.443237, -79.940570];
 region.0.1 = [40.443387, -79.940270];
@@ -173,7 +201,7 @@ region.0.3 = [40.443077, -79.940398];\n";
   
   if ($verbose)
   {
-	print("Creating area environment file...\n");
+	  print("Creating area environment file...\n");
   }
   
   # create the environment file
@@ -183,7 +211,7 @@ region.0.3 = [40.443077, -79.940398];\n";
   
   if ($verbose)
   {
-	print("Creating common initialization file...\n");
+	  print("Creating common initialization file...\n");
   }
   
   # create the common file
@@ -198,7 +226,7 @@ region.0.3 = [40.443077, -79.940398];\n";
   }
   
   # create the individual agent initialization
-  for (my $i = 0, my $port = $starting_port; $i < $agents; ++$i, ++$port)
+  for (my $i = 0, my $port = $vrep_start_port; $i < $agents; ++$i, ++$port)
   {
     my $agent_contents = "
 // Setup VREP port for agent
@@ -225,7 +253,7 @@ agent.$i.command = .algorithm;\n";
   
   if ($verbose)
   {
-	print("Creating simulation perl script...\n");
+	  print("Creating simulation perl script...\n");
   }
   
   my $period = 1 / $hz;
@@ -237,29 +265,65 @@ use File::Basename;
 
 # Create core variables for simulation
 \$dir = dirname(\$0);
-\$time = $duration;
+\$duration = $duration;
 \$madara_debug = $madara_debug;
 \$gams_debug = $gams_debug;
 \$period = $period;
-\$num = $agents;
-\$border = (" . join(",", @borders) . ");
+\$agents = $agents;
+\@border = (" . join(",", @borders) . ");
 \$num_coverages = 0;
 \$launch_controllers = 1;
+\@hosts = ";
 
-# Rotate logs for comparisons\n";
+
+  if ($broadcast)
+  {
+    $run_contents .= "('$broadcast');\n";
+  }
+  elsif (scalar @udp > 0)
+  {
+    $run_contents .= "('" . join ("', '", @udp) .  "');\n";
+  }
+  else
+  {
+    $run_contents .= "('$multicast');\n";
+  }
+  
+
+  $run_contents .= "\n# Rotate logs for comparisons\n";
 
   # rotate logs
   for (my $i = 0; $i < $agents; ++$i)
   {
     $run_contents .= "rename \"\$dir/agent_$i.log\", ";
-	$run_contents .= "\"\$dir/agent_$i.prev.log\";\n";
+	  $run_contents .= "\"\$dir/agent_$i.prev.log\";\n";
   }
 
   $run_contents .= "
 # Run simulation
-user_simulation::run(\$num, \$time, \$period,
-  \$dir, \$madara_debug, \$gams_debug, 
-  \$border, \$num_coverages, \$launch_controllers);\n";
+user_simulation::run(
+  agents => \$agents,
+  duration => \$duration,
+  period => \$period,
+  dir => \$dir,
+  madara_debug => \$madara_debug,
+  gams_debug => \$gams_debug,\n";
+
+  if ($broadcast)
+  {
+    $run_contents .= "  broadcast => \\\@hosts,";
+  }
+  elsif (scalar @udp > 0)
+  {
+    $run_contents .= "  udp => \\\@hosts,";
+  }
+  else
+  {
+    $run_contents .= "  multicast => \\\@hosts,";
+  }
+  
+  $run_contents .= "
+  border => \\\@border);\n";
 
   # create the run script
   open (my $run_file, '>', "$path/$name/run.pl");
