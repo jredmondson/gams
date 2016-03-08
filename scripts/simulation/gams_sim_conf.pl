@@ -20,12 +20,12 @@ my $broadcast;
 my $duration;
 my $equidistant;
 my $buffer = 5;
-my $first = 0;
+my $first;
 my $gams_debug;
 my $help;
 my $hz;
 my $invert;
-my $last = 0;
+my $last;
 my $madara_debug;
 my $max_lat;
 my $max_lon;
@@ -163,12 +163,12 @@ $script is using the following configuration:
   broadcast = " . ($broadcast ? $broadcast : 'no') . "
   buffer = $buffer meters
   equidistant = " . ($equidistant ? 'yes' : 'no') . "
-  first = $first
+  first = " . ($first ? $first : 'default') . "
   gams_debug = " . ($gams_debug ? $gams_debug : 'no change') . "
   height_diff = $height_diff
   hz = " . ($hz ? $hz : 'no change') . "
   invert = " . ($invert ? 'yes' : 'no') . "
-  last = $last
+  last = " . ($last ? $last : 'default') . "
   madara_debug = " . ($madara_debug ? $madara_debug : 'no change') . "
   max_lat = " . ($max_lat ? $max_lat : 'no change') . "
   max_lon = " . ($max_lon ? $max_lon : 'no change') . "
@@ -575,6 +575,66 @@ agent.$i.command = .algorithm;\n";
       print ("ERROR: Couldn't find agents info in $path/run.pl\n");
     }
   }  
+  
+  if (!$first || !$last)
+  {
+    # if we have not defined agents, read the agent number or use default of 1
+    if (!$agents)
+    {
+      my $run_contents;
+      open run_file, "$path/run.pl" or
+        die "ERROR: Couldn't open $path/run.pl\n"; 
+        $run_contents = join("", <run_file>); 
+      close run_file;
+      
+      if ($run_contents =~ m{agents\s*=\s*(\d+)})
+      {
+        $agents = $1;
+      }
+      else
+      {
+        $agents = 1;
+      }
+    }
+    
+    # default first is the first agent (0)
+    if (!$first)
+    {
+      $first = 0;
+    }
+    
+    # default last is $agents - 1
+    if (!$last)
+    {
+      $last = $agents - 1;
+    }
+    
+    if ($verbose)
+    {
+      print ("Defaults init: first = $first, last = $last, agents=$agents\n");
+    }
+  }
+  
+  # check for default init for region
+  if (($randomize or $equidistant) and !$region)
+  {
+    # read the contents of the $path/env.mf file
+    my $env_contents;
+    open env_file, "$path/env.mf" or
+      die "ERROR: Couldn't open $path/env.mf\n"; 
+      $env_contents = join("", <env_file>); 
+    close env_file;
+    
+    # if we find region size, we should find the region points, so just match
+    if ($env_contents =~ m{(region\.[^\.]+)\.size})
+    {
+      $region = $1;
+      if ($verbose)
+      {
+        print ("Defaults init: region = $1\n");
+      }
+    }
+  }
   
   if ($update_vrep)
   {
