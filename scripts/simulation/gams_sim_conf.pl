@@ -1964,6 +1964,9 @@ int main (int argc, char ** argv)
   madara::knowledge::KnowledgeBase knowledge (host, settings);
   controllers::BaseController controller (knowledge);
 
+  // initialize variables and function stubs
+  controller.init_vars (settings.id, num_agents);
+  
   // add the custom algorithm factory to the controller  
   std::vector <std::string> aliases;
   aliases.push_back (\"$algorithm\");
@@ -1971,10 +1974,6 @@ int main (int argc, char ** argv)
   controller.add_algorithm_factory (aliases,
     new custom::algorithms::${algorithm}Factory ());
 
-
-  // initialize variables and function stubs
-  controller.init_vars (settings.id, num_agents);
-  
   // read madara initialization
   if (madara_commands != \"\")
   {
