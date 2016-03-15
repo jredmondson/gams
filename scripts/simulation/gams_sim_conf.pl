@@ -2025,7 +2025,7 @@ HOW TO:
   COMPILE ON LINUX:
   
     mwc.pl -type gnuace workspace.mwc
-    make
+    make vrep=1
     
   COMPILE ON WINDOWS:
   
