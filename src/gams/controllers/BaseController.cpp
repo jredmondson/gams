@@ -71,8 +71,8 @@ typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 gams::controllers::BaseController::BaseController (
   madara::knowledge::KnowledgeBase & knowledge)
   : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
-  algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &agents_),
-  platform_factory_ (&knowledge, &sensors_, &platforms_, 0)
+  algorithm_factory_ (&knowledge, &sensors_, platform_, &self_, &agents_),
+  platform_factory_ (&knowledge, &sensors_, &platforms_, &self_)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -807,26 +807,41 @@ gams::controllers::BaseController::init_platform (
       " deleting old platform\n");
 
     delete platform_;
-    platforms::ControllerPlatformFactory factory (&knowledge_, &sensors_, &platforms_, &self_);
-
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::init_platform:" \
       " factory is creating platform %s\n", platform.c_str ());
 
-    platform_ = factory.create (platform, args);
+    platform_ = platform_factory_.create (platform, args);
 
-    init_vars (*platform_);
+    if (platform_)
+    {
+      init_vars (*platform_);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::init_platform:" \
+        " platform creation failed.\n");
+    }
 
     if (algorithm_)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::controllers::BaseController::init_platform:" \
-        " algorithm is already initialized. Updating to new platform\n");
+        " algorithm is initialized. Updating to platform\n");
 
       algorithm_->set_platform (platform_);
     }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::init_platform:" \
+      " Updating algorithm factory's platform\n");
+
+    algorithm_factory_.set_platform (platform_);
   }
 }
 
@@ -951,17 +966,31 @@ void gams::controllers::BaseController::init_platform (jobject platform)
       " initializing vars for platform\n");
 
     init_vars (*platform_);
-
-    if (algorithm_)
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
-        "gams::controllers::BaseController::init_platform (java):" \
-        " Algorithm exists. Updating its platform.\n");
-
-      algorithm_->set_platform (platform_);
-    }
   }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::init_platform (java):" \
+      " platform creation failed.\n");
+  }
+
+  if (algorithm_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::init_platform (java):" \
+      " algorithm is initialized. Updating to platform\n");
+
+    algorithm_->set_platform (platform_);
+  }
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::BaseController::init_platform (java):" \
+    " Updating algorithm factory's platform\n");
+
+  algorithm_factory_.set_platform (platform_);
 }
 
 #endif
@@ -993,6 +1022,8 @@ gams::controllers::BaseController::init_vars (platforms::BasePlatform & platform
   platform.knowledge_ = &knowledge_;
   platform.self_ = &self_;
   platform.sensors_ = &sensors_;
+
+  algorithm_factory_.set_platform (&platform);
 }
 
 

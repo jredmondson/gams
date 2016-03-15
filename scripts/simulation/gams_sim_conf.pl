@@ -1449,7 +1449,8 @@ namespace custom
         madara::knowledge::KnowledgeBase * knowledge = 0,
         gams::platforms::BasePlatform * platform = 0,
         gams::variables::Sensors * sensors = 0,
-        gams::variables::Self * self = 0);
+        gams::variables::Self * self = 0,
+        gams::variables::Agents * agents = 0);
 
       /**
        * Destructor
@@ -1536,8 +1537,8 @@ custom::algorithms::${algorithm}Factory::create (
       gams::loggers::LOG_MAJOR,
       \"custom::algorithms::${algorithm}Factory::create:\" \
       \" failed to create due to invalid pointers. \" \
-      \" knowledge=%p, sensors=%p, platform=%p, self=%p\\n\",
-      knowledge, sensors, platform, self);
+      \" knowledge=%p, sensors=%p, platform=%p, self=%p, agents=%p\\n\",
+      knowledge, sensors, platform, self, agents);
   }
 
   /**
@@ -1567,8 +1568,9 @@ custom::algorithms::${algorithm}::${algorithm} (
   madara::knowledge::KnowledgeBase * knowledge,
   gams::platforms::BasePlatform * platform,
   gams::variables::Sensors * sensors,
-  gams::variables::Self * self)
-  : gams::algorithms::BaseAlgorithm (knowledge, platform, sensors, self)
+  gams::variables::Self * self,
+  gams::variables::Agents * agents)
+  : gams::algorithms::BaseAlgorithm (knowledge, platform, sensors, self, agents)
 {
   status_.init_vars (*knowledge, \"${algorithm}\", self->id.to_integer ());
   status_.init_variable_values ();
