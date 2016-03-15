@@ -67,7 +67,10 @@ namespace gams
 {
   namespace algorithms
   {
-    typedef std::map <std::string, AlgorithmFactory *>  FactoryMap;
+    /**
+     * Convenience typedef for a map of aliases to factories
+     **/
+    typedef std::map <std::string, AlgorithmFactory *>  AlgorithmFactoryMap;
 
     /**
      * The controller's algorithm factory
@@ -167,7 +170,7 @@ namespace gams
       variables::Sensors * sensors_;
 
       /// a map of all aliases to factories
-      FactoryMap  factory_map_;
+      AlgorithmFactoryMap  factory_map_;
     };
   }
 }

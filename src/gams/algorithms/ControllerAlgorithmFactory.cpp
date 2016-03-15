@@ -97,6 +97,10 @@ algorithms::ControllerAlgorithmFactory::ControllerAlgorithmFactory (
 
 algorithms::ControllerAlgorithmFactory::~ControllerAlgorithmFactory ()
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_EMERGENCY,
+    "gams::algorithms::~ControllerAlgorithmFactory:" \
+    " Deleting all factories.\n");
 }
 
 void
@@ -114,6 +118,11 @@ algorithms::ControllerAlgorithmFactory::add (
     factory->set_platform (platform_);
     factory->set_self (self_);
     factory->set_sensors (sensors_);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ControllerAlgorithmFactory:add" \
+      " Adding %s factory.\n", alias.c_str ());
 
     factory_map_[alias] = factory;
   }
@@ -289,7 +298,10 @@ algorithms::ControllerAlgorithmFactory::create (
   
   if (type != "")
   {
-    FactoryMap::iterator it = factory_map_.find (type);
+    std::string lowercased_type (type);
+    madara::utility::lower (lowercased_type);
+
+    AlgorithmFactoryMap::iterator it = factory_map_.find (lowercased_type);
     if (it != factory_map_.end ())
     {
       result = it->second->create (args, knowledge_, platform_,
@@ -301,7 +313,7 @@ algorithms::ControllerAlgorithmFactory::create (
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ALWAYS,
         "gams::algorithms::ControllerAlgorithmFactory::create:" \
-        " could not find \"%s\" algorithm.\n", type.c_str ());
+        " could not find \"%s\" algorithm.\n", lowercased_type.c_str ());
     }
   }
 

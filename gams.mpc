@@ -65,6 +65,12 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
     Maps {
       src/gams/maps
     }
+    
+    Models {
+      src/gams/formations
+      src/gams/groups
+      src/gams/time
+    }
 
     Platforms {
       src/gams/platforms
@@ -104,6 +110,12 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
     Maps {
       src/gams/maps
     }
+    
+    Models {
+      src/gams/formations
+      src/gams/groups
+      src/gams/time
+    }
 
     Platforms {
       src/gams/platforms
@@ -140,6 +152,12 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
 
     Maps {
       src/gams/maps
+    }
+    
+    Models {
+      src/gams/formations
+      src/gams/groups
+      src/gams/time
     }
 
     Platforms {

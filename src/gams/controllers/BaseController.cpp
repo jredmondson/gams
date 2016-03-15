@@ -635,15 +635,13 @@ const madara::knowledge::KnowledgeMap & args)
   {
     // create new accent pointer and algorithm factory
     algorithms::BaseAlgorithm * new_accent (0);
-    algorithms::ControllerAlgorithmFactory factory (&knowledge_, &sensors_,
-      platform_, &self_, &agents_);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::init_accent:" \
       " factory is creating accent %s\n", algorithm.c_str ());
 
-    new_accent = factory.create (algorithm, args);
+    new_accent = algorithm_factory_.create (algorithm, args);
 
     if (new_accent)
     {
@@ -703,15 +701,13 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
       " deleting old algorithm\n");
 
     delete algorithm_;
-    algorithms::ControllerAlgorithmFactory factory (&knowledge_, &sensors_,
-      platform_, &self_, &agents_);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::init_algorithm:" \
       " factory is creating algorithm %s\n", algorithm.c_str ());
 
-    algorithm_ = factory.create (algorithm, args);
+    algorithm_ = algorithm_factory_.create (algorithm, args);
 
     if (algorithm_ == 0)
     {

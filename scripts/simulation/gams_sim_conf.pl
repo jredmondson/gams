@@ -11,10 +11,12 @@ use warnings;
 use Getopt::Long qw(GetOptions);
 use File::Path qw(make_path);
 use File::Basename;
+use File::Copy qw(copy);
 use POSIX;
 
 my $script = fileparse($0);
 my $agents;
+my $algorithm;
 my @border = ();
 my $broadcast;
 my $duration;
@@ -51,9 +53,13 @@ my $unique;
 my $update_vrep;
 my $verbose;
 my $vrep_start_port;
+my $sim_path;
+my $src_path;
+my $bin_path;
 
 # setup options parser
 GetOptions(
+  'algorithm|alg=s' => \$algorithm,
   'agents|a=i' => \$agents,
   'buffer=i' => \$buffer,
   'border=s' => \@border,
@@ -101,6 +107,7 @@ $script purpose:
   Configures GAMS agent settings for a simulation
 
 options:
+  --algorithm|alg name   create infrastructure for custom algorithm
   --agents|-a num        number of agents that need to be in simulation
   --buffer|-m meters     buffer in meters between agents
   --border r0 r1 ...     regions to put a border around
@@ -196,6 +203,10 @@ $script is using the following configuration:
   # recursively create path/name
   my $create_result = make_path("$path");
   
+  $sim_path = "$path/sim";
+  $src_path = "$path/src";
+  $bin_path = "$path/bin";
+  
   if ($create_result)
   {
     $agents = $agents ? $agents : 1;
@@ -211,6 +222,10 @@ $script is using the following configuration:
     {
       print("Directory $path had not been created. Populating...\n");
     }
+    
+    make_path("$sim_path");
+    make_path("$src_path");
+    make_path("$bin_path");
     
   my $common_contents = "
 /**
@@ -293,7 +308,7 @@ region.0.3 = [40.443077, -79.940398];\n";
     }
     
     # create the environment file
-    open (env_file, '>', "$path/env.mf");
+    open (env_file, '>', "$sim_path/env.mf");
       print env_file $env_contents;
     close (env_file);
     
@@ -303,7 +318,7 @@ region.0.3 = [40.443077, -79.940398];\n";
     }
     
     # create the common file
-    open (common_file, '>', "$path/common.mf");
+    open (common_file, '>', "$sim_path/common.mf");
       print common_file $common_contents;
     close (common_file);
     
@@ -334,7 +349,7 @@ region.0.3 = [40.443077, -79.940398];\n";
  **/
 agent.$i.command = .algorithm;\n";
     
-      open (agent_file, '>', "$path/agent_$i.mf");
+      open (agent_file, '>', "$sim_path/agent_$i.mf");
         print agent_file $agent_contents;
       close (agent_file);
     }
@@ -353,6 +368,7 @@ use File::Basename;
 
 # Create core variables for simulation
 \$dir = dirname(\$0);
+\$controller = \"\$ENV{GAMS_ROOT}/bin/gams_controller\";
 \$duration = $duration;
 \$madara_debug = $madara_debug;
 \$gams_debug = $gams_debug;
@@ -381,13 +397,14 @@ use File::Basename;
     # rotate logs
     for (my $i = 0; $i < $agents; ++$i)
     {
-      $run_contents .= "rename \"\$path/agent_$i.log\", ";
-      $run_contents .= "\"\$path/agent_$i.prev.log\";\n";
+      $run_contents .= "rename \"\$dir/agent_$i.log\", ";
+      $run_contents .= "\"\$dir/agent_$i.prev.log\";\n";
     }
 
     $run_contents .= "
 # Run simulation
 user_simulation::run(
+  controller => \$controller,
   agents => \$agents,
   duration => \$duration,
   period => \$period,
@@ -412,7 +429,7 @@ user_simulation::run(
   border => \\\@border);\n";
 
     # create the run script
-    open (run_file, '>', "$path/run.pl");
+    open (run_file, '>', "$sim_path/run.pl");
       print run_file $run_contents;
     close (run_file);
   } # end create directory
@@ -430,12 +447,12 @@ user_simulation::run(
     
     if ($verbose)
     {
-      print ("Reading agents info from $path/run.pl\n");
+      print ("Reading agents info from $sim_path/run.pl\n");
     }
     
     my $run_contents;
-    open run_file, "$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl\n"; 
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -458,7 +475,7 @@ user_simulation::run(
         
         my $agent_contents;
         my $first_port;
-        if (open run_file, "$path/agent_0.mf")
+        if (open run_file, "$sim_path/agent_0.mf")
         {
           $agent_contents = join("", <run_file>); 
           close run_file;
@@ -524,14 +541,14 @@ user_simulation::run(
  **/
 agent.$i.command = .algorithm;\n";
 
-	        if (open (my $agent_file, '>', "$path/agent_$i.mf"))
+	        if (open (my $agent_file, '>', "$sim_path/agent_$i.mf"))
           {
 	          print $agent_file $agent_contents;
 	          close ($agent_file);
           }
           else
           {
-            print ("ERROR: Unable to write to file $path/agent_$i.mf");
+            print ("ERROR: Unable to write to file $sim_path/agent_$i.mf");
           }
         }
       }
@@ -544,35 +561,35 @@ agent.$i.command = .algorithm;\n";
           {
             if ($verbose)
             {
-              print ("  Deleting $path/agent_$i.mf...\n");
+              print ("  Deleting $sim_path/agent_$i.mf...\n");
             }
     
-            unlink "$path/agent_$i.mf";
+            unlink "$sim_path/agent_$i.mf";
           }
           if ($remove_logs)
           {
             if ($verbose)
             {
-              print ("  Deleting $path/agent_$i.*.log...\n");
+              print ("  Deleting $sim_path/agent_$i.*.log...\n");
             }
     
-            unlink "$path/agent_$i.log";
-            unlink "$path/agent_$i.prev.log";
+            unlink "$sim_path/agent_$i.log";
+            unlink "$sim_path/agent_$i.prev.log";
           }
         }
       }
       
       $run_contents =~ s/(agents\s*=\s*)\d+/$1$agents/;
       
-      open run_file, ">$path/run.pl" or
-        die "ERROR: Couldn't open $path/run.pl for writing\n";
+      open run_file, ">$sim_path/run.pl" or
+        die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
         print run_file  $run_contents; 
       close run_file;
           
     }
     else
     {
-      print ("ERROR: Couldn't find agents info in $path/run.pl\n");
+      print ("ERROR: Couldn't find agents info in $sim_path/run.pl\n");
     }
   }  
   
@@ -582,8 +599,8 @@ agent.$i.command = .algorithm;\n";
     if (!$agents)
     {
       my $run_contents;
-      open run_file, "$path/run.pl" or
-        die "ERROR: Couldn't open $path/run.pl\n"; 
+      open run_file, "$sim_path/run.pl" or
+        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
         $run_contents = join("", <run_file>); 
       close run_file;
       
@@ -618,10 +635,10 @@ agent.$i.command = .algorithm;\n";
   # check for default init for region
   if (($randomize or $equidistant) and !$region)
   {
-    # read the contents of the $path/env.mf file
+    # read the contents of the $sim_path/env.mf file
     my $env_contents;
-    open env_file, "$path/env.mf" or
-      die "ERROR: Couldn't open $path/env.mf\n"; 
+    open env_file, "$sim_path/env.mf" or
+      die "ERROR: Couldn't open $sim_path/env.mf\n"; 
       $env_contents = join("", <env_file>); 
     close env_file;
     
@@ -644,10 +661,10 @@ agent.$i.command = .algorithm;\n";
       print ("Updating the VREP bounding box in env.mf\n");
     }
   
-    # read the contents of the $path/env.mf file
+    # read the contents of the $sim_path/env.mf file
     my $env_contents;
-    open env_file, "$path/env.mf" or
-      die "ERROR: Couldn't open $path/env.mf\n"; 
+    open env_file, "$sim_path/env.mf" or
+      die "ERROR: Couldn't open $sim_path/env.mf\n"; 
       $env_contents = join("", <env_file>); 
     close env_file;
     
@@ -690,7 +707,7 @@ agent.$i.command = .algorithm;\n";
     }
   
     # Update the environment file 
-    open (env_file, '>', "$path/env.mf");
+    open (env_file, '>', "$sim_path/env.mf");
       print env_file $env_contents;
     close (env_file);
   }
@@ -700,13 +717,13 @@ agent.$i.command = .algorithm;\n";
     # A region has been specified
     if ($verbose)
     {
-      print ("Reading $path/env.mf for $region information\n");
+      print ("Reading $sim_path/env.mf for $region information\n");
     }
   
-    # read the contents of the $path/env.mf file
+    # read the contents of the $sim_path/env.mf file
     my $env_contents;
-    open env_file, "$path/env.mf" or
-      die "ERROR: Couldn't open $path/env.mf\n"; 
+    open env_file, "$sim_path/env.mf" or
+      die "ERROR: Couldn't open $sim_path/env.mf\n"; 
       $env_contents = join("", <env_file>); 
     close env_file;
     
@@ -827,7 +844,7 @@ $region.3 = [$max_lat, $min_lon];\n";
       }
       
       # Update the environment file if we added region info
-      open (env_file, '>', "$path/env.mf");
+      open (env_file, '>', "$sim_path/env.mf");
         print env_file $env_contents;
       close (env_file);
     }
@@ -961,8 +978,8 @@ $region.3 = [$max_lat, $min_lon];\n";
           
           # we have a valid point. Change the agent's init file.
           my $agent_contents;
-          open agent_file, "$path/agent_$i.mf" or
-            die "ERROR: Couldn't open $path/agent_$i.mf for reading\n";
+          open agent_file, "$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
             $agent_contents = join("", <agent_file>); 
           close agent_file;
       
@@ -975,8 +992,8 @@ $region.3 = [$max_lat, $min_lon];\n";
           $agent_contents =~ s/(\.initial_lat\s*=\s*)\-?\d+\.\d+/$1$lat/;
           $agent_contents =~ s/(\.initial_lon\s*=\s*)\-?\d+\.\d+/$1$lon/;
           
-          open agent_file, ">$path/agent_$i.mf" or
-            die "ERROR: Couldn't open $path/agent_$i.mf for writing\n";
+          open agent_file, ">$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
             print agent_file  $agent_contents; 
           close agent_file;
           
@@ -1034,8 +1051,8 @@ $region.3 = [$max_lat, $min_lon];\n";
           
           # we have a valid point. Change the agent's init file.
           my $agent_contents;
-          open agent_file, "$path/agent_$i.mf" or
-            die "ERROR: Couldn't open $path/agent_$i.mf for reading\n";
+          open agent_file, "$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
             $agent_contents = join("", <agent_file>); 
           close agent_file;
       
@@ -1048,8 +1065,8 @@ $region.3 = [$max_lat, $min_lon];\n";
           $agent_contents =~ s/(\.initial_lat\s*=\s*)\-?\d+\.\d+/$1$lat/;
           $agent_contents =~ s/(\.initial_lon\s*=\s*)\-?\d+\.\d+/$1$lon/;
           
-          open agent_file, ">$path/agent_$i.mf" or
-            die "ERROR: Couldn't open $path/agent_$i.mf for writing\n";
+          open agent_file, ">$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
             print agent_file  $agent_contents; 
           close agent_file;
         } # end iterating over valid agents
@@ -1075,8 +1092,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     {
       # we have a valid point. Change the agent's init file.
       my $agent_contents;
-      open agent_file, "$path/agent_$i.mf" or
-        die "ERROR: Couldn't open $path/agent_$i.mf for reading\n";
+      open agent_file, "$sim_path/agent_$i.mf" or
+        die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
         $agent_contents = join("", <agent_file>); 
       close agent_file;
   
@@ -1093,8 +1110,8 @@ $region.3 = [$max_lat, $min_lon];\n";
         print ("  Writing change back to agent_$i.mf\n");
       }
       
-      open agent_file, ">$path/agent_$i.mf" or
-        die "ERROR: Couldn't open $path/agent_$i.mf for writing\n";
+      open agent_file, ">$sim_path/agent_$i.mf" or
+        die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
         print agent_file  $agent_contents; 
       close agent_file;
     } #end agent $first -> $last
@@ -1113,8 +1130,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     {
       # read the agent's init file.
       my $agent_contents;
-      open agent_file, "$path/agent_$i.mf" or
-        die "ERROR: Couldn't open $path/agent_$i.mf for reading\n";
+      open agent_file, "$sim_path/agent_$i.mf" or
+        die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
         $agent_contents = join("", <agent_file>); 
       close agent_file;
   
@@ -1131,8 +1148,8 @@ $region.3 = [$max_lat, $min_lon];\n";
         print ("  Writing change back to agent_$i.mf\n");
       }
       
-      open agent_file, ">$path/agent_$i.mf" or
-        die "ERROR: Couldn't open $path/agent_$i.mf for writing\n";
+      open agent_file, ">$sim_path/agent_$i.mf" or
+        die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
         print agent_file  $agent_contents; 
       close agent_file;
       
@@ -1160,8 +1177,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     my $found;
     
     # read the run file
-    open run_file, "$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl\n"; 
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -1197,12 +1214,12 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     if ($verbose)
     {
-      print ("  Writing back to $path/run.pl\n");
+      print ("  Writing back to $sim_path/run.pl\n");
     }
     
     # write the updated info to the run file
-    open run_file, ">$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl for writing\n";
+    open run_file, ">$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
       print run_file  $run_contents; 
     close run_file;
   }
@@ -1212,19 +1229,19 @@ $region.3 = [$max_lat, $min_lon];\n";
   {
     if ($verbose)
     {
-      print ("Changing duration of sim in $path/run.pl...\n");
+      print ("Changing duration of sim in $sim_path/run.pl...\n");
     }
     
     my $run_contents;
-    open run_file, "$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl\n"; 
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
     $run_contents =~ s/(duration\s*=\s*)\d+/$1$duration/;  
     
-    open run_file, ">$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl for writing\n";
+    open run_file, ">$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
       print run_file  $run_contents; 
     close run_file;
     
@@ -1243,8 +1260,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     my $transport;
     my $run_contents;
     
-    open run_file, "$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl\n"; 
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -1329,15 +1346,811 @@ $region.3 = [$max_lat, $min_lon];\n";
       
     if ($verbose)
     {
-      print ("  Writing back to $path/run.pl\n");
+      print ("  Writing back to $sim_path/run.pl\n");
     }
     
-    open run_file, ">$path/run.pl" or
-      die "ERROR: Couldn't open $path/run.pl for writing\n";
+    open run_file, ">$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
       print run_file  $run_contents; 
     close run_file;
   }
   
+  # 
+  if ($algorithm)
+  {
+  
+    if (not -f "$src_path/$algorithm.h")
+    {
+      if ($verbose)
+      {
+        print ("Adding infrastructure for algorithm $algorithm...\n");
+      }
+       
+      my $gamsroot = $ENV{GAMS_ROOT};
+      my $run_contents;
+    
+      if ($verbose)
+      {
+        print ("  Copying base projects from $gamsroot to $path...\n");
+      }
+       
+      copy "$gamsroot/using_vrep.mpb", "$path/";
+      copy "$gamsroot/using_ace.mpb", "$path/";
+      copy "$gamsroot/using_madara.mpb", "$path/";
+      copy "$gamsroot/using_gams.mpb", "$path/";
+
+      if ($verbose)
+      {
+        print ("  Making changes to $sim_path/run.pl...\n");
+      }
+           
+      # open files for reading 
+      open run_file, "$sim_path/run.pl" or
+        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        $run_contents = join("", <run_file>); 
+      close run_file;
+      
+      # replace the gams_controller with a custom controller
+      if ($run_contents =~ s/controller\s*=\s*\"[^\"]+\"/controller = \"\$dir\/..\/bin\/custom_controller\"/)
+      {
+        if ($verbose)
+        {
+          print ("  Replaced controller with \$dir/bin/custom_controller\n");
+        }
+      }
+      else
+      {
+        if ($verbose)
+        {
+          print ("  Unable to replace controller with \$dir/bin/custom_controller\n");
+        }
+      }
+      
+      # Create file contents for custom algorithms
+
+      if ($verbose)
+      {
+        print ("  Generating new file contents for $path...\n");
+      }
+               
+      my $alg_header_contents = "
+#ifndef   _CUSTOM_ALGORITHM_${algorithm}_H_
+#define   _CUSTOM_ALGORITHM_${algorithm}_H_
+
+#include <string>
+
+#include \"madara/knowledge/containers/Integer.h\"
+
+#include \"gams/variables/Sensor.h\"
+#include \"gams/platforms/BasePlatform.h\"
+#include \"gams/variables/AlgorithmStatus.h\"
+#include \"gams/variables/Self.h\"
+#include \"gams/algorithms/BaseAlgorithm.h\"
+#include \"gams/algorithms/AlgorithmFactory.h\"
+
+namespace custom
+{
+  namespace algorithms
+  {
+    /**
+    * A debug algorithm that prints detailed status information
+    **/
+    class $algorithm : public gams::algorithms::BaseAlgorithm
+    {
+    public:
+      /**
+       * Constructor
+       * \@param  knowledge    the context containing variables and values
+       * \@param  platform     the underlying platform the algorithm will use
+       * \@param  sensors      map of sensor names to sensor information
+       * \@param  self         self-referencing variables
+       **/
+      $algorithm (
+        madara::knowledge::KnowledgeBase * knowledge = 0,
+        gams::platforms::BasePlatform * platform = 0,
+        gams::variables::Sensors * sensors = 0,
+        gams::variables::Self * self = 0);
+
+      /**
+       * Destructor
+       **/
+      virtual ~$algorithm ();
+
+      /**
+       * Analyzes environment, platform, or other information
+       * \@return bitmask status of the platform. \@see Status.
+       **/
+      virtual int analyze (void);
+      
+      /**
+       * Plans the next execution of the algorithm
+       * \@return bitmask status of the platform. \@see Status.
+       **/
+      virtual int execute (void);
+
+      /**
+       * Plans the next execution of the algorithm
+       * \@return bitmask status of the platform. \@see Status.
+       **/
+      virtual int plan (void);
+    };
+
+    /**
+     * A factory class for creating Debug Algorithms
+     **/
+    class ${algorithm}Factory : public gams::algorithms::AlgorithmFactory
+    {
+    public:
+
+      /**
+       * Creates a Debug Algorithm.
+       * \@param   args      the args passed with the 
+       * \@param   knowledge the knowledge base to use
+       * \@param   platform  the platform. This will be set by the
+       *                     controller in init_vars.
+       * \@param   sensors   the sensor info. This will be set by the
+       *                     controller in init_vars.
+       * \@param   self      self-referencing variables. This will be
+       *                     set by the controller in init_vars
+       * \@param   agents    the list of agents, which is dictated by
+       *                     init_vars when a number of processes is set. This
+       *                     will be set by the controller in init_vars
+       **/
+      virtual gams::algorithms::BaseAlgorithm * create (
+        const madara::knowledge::KnowledgeMap & args,
+        madara::knowledge::KnowledgeBase * knowledge,
+        gams::platforms::BasePlatform * platform,
+        gams::variables::Sensors * sensors,
+        gams::variables::Self * self,
+        gams::variables::Agents * agents);
+    };
+  } // end algorithms namespace
+} // end custom namespace
+
+#endif // _CUSTOM_ALGORITHM_${algorithm}_H_
+";
+    
+      my $alg_source_contents = " 
+#include \"${algorithm}.h\"
+
+#include <iostream>
+
+gams::algorithms::BaseAlgorithm *
+custom::algorithms::${algorithm}Factory::create (
+  const madara::knowledge::KnowledgeMap & /*args*/,
+  madara::knowledge::KnowledgeBase * knowledge,
+  gams::platforms::BasePlatform * platform,
+  gams::variables::Sensors * sensors,
+  gams::variables::Self * self,
+  gams::variables::Agents * agents)
+{
+  gams::algorithms::BaseAlgorithm * result (0);
+  
+  if (knowledge && sensors && platform && self)
+  {
+    result = new ${algorithm} (knowledge, platform, sensors, self);
+  }
+
+  /**
+   * Note the usage of logger macros with the GAMS global logger. This
+   * is highly optimized and is just an integer check if the log level is
+   * not high enough to print the message
+   **/
+  if (result == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      \"custom::algorithms::${algorithm}Factory::create:\" \
+      \" unknown error creating ${algorithm} algorithm\\n\");
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      \"custom::algorithms::${algorithm}Factory::create:\" \
+      \" successfully created ${algorithm} algorithm\\n\");
+  }
+
+  return result;
+}
+
+custom::algorithms::${algorithm}::${algorithm} (
+  madara::knowledge::KnowledgeBase * knowledge,
+  gams::platforms::BasePlatform * platform,
+  gams::variables::Sensors * sensors,
+  gams::variables::Self * self)
+  : gams::algorithms::BaseAlgorithm (knowledge, platform, sensors, self)
+{
+  status_.init_vars (*knowledge, \"${algorithm}\", self->id.to_integer ());
+  status_.init_variable_values ();
+}
+
+custom::algorithms::${algorithm}::~${algorithm} ()
+{
+}
+
+int
+custom::algorithms::${algorithm}::analyze (void)
+{
+  return 0;
+}
+      
+
+int
+custom::algorithms::${algorithm}::execute (void)
+{
+  return 0;
+}
+
+
+int
+custom::algorithms::${algorithm}::plan (void)
+{
+  return 0;
+}
+";
+
+      my $project_contents = "
+project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
+  exeout = bin
+  exename = custom_controller
+  
+  macros +=  _USE_MATH_DEFINES
+
+  Documentation_Files {
+    README.txt
+  }
+  
+  Build_Files {
+    project.mpc
+    workspace.mpc
+  }
+
+  Header_Files {
+    src
+  }
+
+  Source_Files {
+    src
+  }
+}
+";
+   
+      my $workspace_contents = "
+workspace {
+  specific(make) {
+    cmdline += -value_template ccflags+=-std=c++11
+    cmdline += -value_template compile_flags+=-Wextra
+    cmdline += -value_template compile_flags+=-pedantic
+  }
+
+  specific(gnuace) {
+    cmdline += -value_template \"compile_flags+=-std=c++11 -g -Og\"
+    cmdline += -value_template compile_flags+=-Wextra
+    cmdline += -value_template compile_flags+=-pedantic
+  }
+
+  project.mpc
+}
+
+";
+    
+      my $controller_contents = "
+
+#include \"madara/knowledge/KnowledgeBase.h\"
+#include \"gams/controllers/BaseController.h\"
+#include \"gams/loggers/GlobalLogger.h\"
+#include \"gams/loggers/GlobalLogger.h\"
+
+#include \"$algorithm.h\"
+
+const std::string default_broadcast (\"192.168.1.255:15000\");
+// default transport settings
+std::string host (\"\");
+const std::string default_multicast (\"239.255.0.1:4150\");
+madara::transport::QoSTransportSettings settings;
+
+// create shortcuts to MADARA classes and namespaces
+namespace engine = madara::knowledge;
+namespace controllers = gams::controllers;
+typedef madara::knowledge::KnowledgeRecord   Record;
+typedef Record::Integer Integer;
+
+const std::string KNOWLEDGE_BASE_PLATFORM_KEY (\".platform\");
+bool plat_set = false;
+std::string platform (\"debug\");
+std::string algorithm (\"$algorithm\");
+std::vector <std::string> accents;
+
+// controller variables
+double period (1.0);
+double loop_time (50.0);
+
+// madara commands from a file
+std::string madara_commands = \"\";
+
+// number of agents in the swarm
+Integer num_agents (-1);
+
+// file path to save received files to
+std::string file_path;
+
+void print_usage (char * prog_name)
+{
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_ALWAYS,
+\"\\nProgram summary for %s:\\n\\n\" \
+\"     Loop controller setup for gams\\n\" \
+\" [-A |--algorithm type]        algorithm to start with\\n\" \
+\" [-a |--accent type]           accent algorithm to start with\\n\" \
+\" [-b |--broadcast ip:port]     the broadcast ip to send and listen to\\n\" \
+\" [-d |--domain domain]         the knowledge domain to send and listen to\\n\" \
+\" [-e |--rebroadcasts num]      number of hops for rebroadcasting messages\\n\" \
+\" [-f |--logfile file]          log to a file\\n\" \
+\" [-i |--id id]                 the id of this agent (should be non-negative)\\n\" \
+\" [--madara-level level]        the MADARA logger level (0+, higher is higher detail)\\n\" \
+\" [--gams-level level]          the GAMS logger level (0+, higher is higher detail)\\n\" \
+\" [-L |--loop-time time]        time to execute loop\\n\"\
+\" [-m |--multicast ip:port]     the multicast ip to send and listen to\\n\" \
+\" [-M |--madara-file <file>]    file containing madara commands to execute\\n\" \
+\"                               multiple space-delimited files can be used\\n\" \
+\" [-n |--num_agents <number>]   the number of agents in the swarm\\n\" \
+\" [-o |--host hostname]         the hostname of this process (def:localhost)\\n\" \
+\" [-p |--platform type]         platform for loop (vrep, dronerk)\\n\" \
+\" [-P |--period period]         time, in seconds, between control loop executions\\n\" \
+\" [-q |--queue-length length]   length of transport queue in bytes\\n\" \
+\" [-r |--reduced]               use the reduced message header\\n\" \
+\" [-t |--target path]           file system location to save received files (NYI)\\n\" \
+\" [-u |--udp ip:port]           a udp ip to send to (first is self to bind to)\\n\" \
+\"\\n\",
+        prog_name);
+  exit (0);
+}
+
+// handle command line arguments
+void handle_arguments (int argc, char ** argv)
+{
+  for (int i = 1; i < argc; ++i)
+  {
+    std::string arg1 (argv[i]);
+
+    if (arg1 == \"-A\" || arg1 == \"--algorithm\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+        algorithm = argv[i + 1];
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-a\" || arg1 == \"--accent\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+        accents.push_back (argv[i + 1]);
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-b\" || arg1 == \"--broadcast\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::BROADCAST;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-d\" || arg1 == \"--domain\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+        settings.write_domain = argv[i + 1];
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-e\" || arg1 == \"--rebroadcasts\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        int hops;
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> hops;
+
+        settings.set_rebroadcast_ttl (hops);
+        settings.enable_participant_ttl (hops);
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-f\" || arg1 == \"--logfile\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        madara::logger::global_logger->add_file (argv[i + 1]);
+        gams::loggers::global_logger->add_file (argv[i + 1]);
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+
+    else if (arg1 == \"-i\" || arg1 == \"--id\")
+    {
+      if (i + 1 < argc && argv[i +1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> settings.id;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"--madara-level\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        int level;
+        buffer >> level;
+        madara::logger::global_logger->set_level (level);
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"--gams-level\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        int level;
+        buffer >> level;
+        gams::loggers::global_logger->set_level (level);
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-L\" || arg1 == \"--loop-time\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> loop_time;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-m\" || arg1 == \"--multicast\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::MULTICAST;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-M\" || arg1 == \"--madara-file\")
+    {
+      bool files = false;
+      ++i;
+      for (;i < argc && argv[i][0] != '-'; ++i)
+      {
+        std::string filename = argv[i];
+        if (madara::utility::file_exists (filename))
+        {
+          madara_commands += madara::utility::file_to_string (filename);
+          madara_commands += \";\\n\";
+          files = true;
+        }
+      }
+      --i;
+
+      if (!files)
+        print_usage (argv[0]);
+    }
+    else if (arg1 == \"-n\" || arg1 == \"--num_agents\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> num_agents;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-o\" || arg1 == \"--host\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+        host = argv[i + 1];
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-p\" || arg1 == \"--platform\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        platform = argv[i + 1];
+        plat_set = true;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-P\" || arg1 == \"--period\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> period;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-q\" || arg1 == \"--queue-length\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> settings.queue_length;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-r\" || arg1 == \"--reduced\")
+    {
+      settings.send_reduced_message_header = true;
+    }
+    else if (arg1 == \"-t\" || arg1 == \"--target\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+        file_path = argv[i + 1];
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-u\" || arg1 == \"--udp\")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::UDP;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else
+    {
+      print_usage (argv[0]);
+    }
+  }
+}
+
+// perform main logic of program
+int main (int argc, char ** argv)
+{
+  // handle all user arguments
+  handle_arguments (argc, argv);
+  
+  // create knowledge base and a control loop
+  madara::knowledge::KnowledgeBase knowledge (host, settings);
+  controllers::BaseController controller (knowledge);
+
+  // add the custom algorithm factory to the controller  
+  std::vector <std::string> aliases;
+  aliases.push_back (\"$algorithm\");
+
+  controller.add_algorithm_factory (aliases,
+    new custom::algorithms::${algorithm}Factory ());
+
+
+  // initialize variables and function stubs
+  controller.init_vars (settings.id, num_agents);
+  
+  // read madara initialization
+  if (madara_commands != \"\")
+  {
+    knowledge.evaluate (madara_commands,
+      madara::knowledge::EvalSettings(false, true));
+  }
+  
+  // initialize the platform and algorithm
+  // default to platform in knowledge base if platform not set in command line
+  if (!plat_set && knowledge.exists (KNOWLEDGE_BASE_PLATFORM_KEY))
+    platform = knowledge.get (KNOWLEDGE_BASE_PLATFORM_KEY).to_string ();
+  controller.init_platform (platform);
+  controller.init_algorithm (algorithm);
+
+  // add any accents
+  for (unsigned int i = 0; i < accents.size (); ++i)
+  {
+    controller.init_accent (accents[i]);
+  }
+
+  // run a mape loop every 1s for 50s
+  controller.run (period, loop_time);
+
+  // print all knowledge values
+  knowledge.print ();
+
+  return 0;
+}
+
+";
+
+      my $readme_contents = "
+INTRO:
+
+  This directory has been created by the gams_sim_conf.pl script and contains
+  a custom simulation, GAMS controller, and algorithm ($algorithm).
+  
+HOW TO:
+
+  EDIT YOUR ALGORITHM:
+  
+    Open $algorithm.cpp|h with your favorite programming environment / editor.
+    Each method in your algorithm should be non-blocking or the call will
+    block the controller. It is in your best interest to poll information from
+    the environment and knowledge base, rather than blocking on an operating
+    system call.
+
+  COMPILE ON LINUX:
+  
+    mwc.pl -type gnuace workspace.mwc
+    make
+    
+  COMPILE ON WINDOWS:
+  
+    mwc.pl -type vc12 workspace.mwc 
+    
+    <Open Visual Studio and compile project>. Note that you should compile the
+    solution in the same settings you used for ACE, MADARA, and GAMS. For most
+    users, this is probably Release mode for x64. However, whatever you use
+    make sure that you have compiled ACE, MADARA, and GAMS in those settings.
+    
+  RUN THE SIMULATION:
+    open VREP simulator
+    perl sim/run.pl 
+    
+";
+
+      if ($verbose)
+      {
+        print ("  Writing updates to $sim_path/run.pl...\n");
+      }
+               
+      # write changes to simulation run script     
+      open run_file, ">$sim_path/run.pl" or
+        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        print run_file $run_contents;
+      close run_file;
+      
+      # write changes to the freshly created files
+
+      if ($verbose)
+      {
+        print ("  Writing new source and project files...\n");
+      }
+                  
+      # open files for writing
+      open alg_header, ">$src_path/$algorithm.h" or 
+        die "ERROR: Couldn't open $src_path/$algorithm.h for writing\n";
+        print alg_header $alg_header_contents;
+      close alg_header;
+        
+      open alg_source, ">$src_path/$algorithm.cpp" or 
+        die "ERROR: Couldn't open $src_path/$algorithm.cpp for writing\n";
+        print alg_source $alg_source_contents;
+      close alg_source;
+        
+      open controller_file, ">$src_path/controller.cpp" or 
+        die "ERROR: Couldn't open $src_path/controller.cpp for writing\n";
+        print controller_file $controller_contents;
+      close controller_file;
+        
+      open project_file, ">$path/project.mpc" or 
+        die "ERROR: Couldn't open $path/project.mpc for writing\n";
+        print project_file $project_contents;
+      close project_file;
+        
+      open workspace_file, ">$path/workspace.mwc" or 
+        die "ERROR: Couldn't open $path/workspace.mwc for writing\n";
+        print workspace_file $workspace_contents;
+      close workspace_file;
+        
+      open readme_file, ">$path/README.txt" or 
+        die "ERROR: Couldn't open $path/README.txt for writing\n";
+        print readme_file $readme_contents;
+      close readme_file;
+       
+       
+      # open the individual agent files and update them with the algorithm
+
+      if ($verbose)
+      {
+        print ("  Replacing agent[$first - $last] algorithms with $algorithm\n");
+      }
+          
+      for (my $i = $first; $i <= $last; ++$i)
+      {
+        if ($verbose)
+        {
+          print ("    Replacing agent[$i] algorithm with $algorithm\n");
+        }
+        
+        my $agent_contents;
+        open agent_file, "$sim_path/agent_$i.mf" or
+          die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
+          $agent_contents = join("", <agent_file>); 
+        close agent_file;
+      
+        # replace lat and lon with our new points
+        $agent_contents =~ s/(\.command\s*=\s*)\-?[^;]+/$1\"$algorithm\"/;
+          
+        if ($verbose)
+        {
+          print ("    Writing agent_$i.mf\n");
+        }
+        
+        open agent_file, ">$sim_path/agent_$i.mf" or
+          die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
+          print agent_file  $agent_contents; 
+        close agent_file;
+      }
+          
+    }
+  
+  }
+  
+  if (not -f "$path/README.txt")
+  {
+  
+      my $readme_contents = "
+INTRO:
+
+  This directory has been created by the gams_sim_conf.pl script and contains
+  a custom simulation.
+  
+HOW TO:
+
+  RUN THE SIMULATION:
+    open VREP simulator
+    perl sim/run.pl 
+";
+     
+    open readme_file, ">$path/README.txt" or 
+      die "ERROR: Couldn't open $path/README.txt for writing\n";
+      print readme_file $readme_contents;
+    close readme_file;
+  }
 } #end !$help
 
 

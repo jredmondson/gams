@@ -51,10 +51,6 @@
  * This file contains a test driver for the GAMS controller loop.
  **/
 
-#include <iostream>
-using std::cerr;
-using std::endl;
-
 #include "madara/knowledge/KnowledgeBase.h"
 #include "gams/controllers/BaseController.h"
 #include "gams/loggers/GlobalLogger.h"

@@ -9,16 +9,12 @@ feature (vrep) {
   includes += $(VREP_ROOT)/programming/include
 
   Header_Files {
-    Platforms {
-      $(VREP_ROOT)/programming/remoteApi/extApi.h
-      $(VREP_ROOT)/programming/remoteApi/extApiPlatform.h
-    }
+    $(VREP_ROOT)/programming/remoteApi/extApi.h
+    $(VREP_ROOT)/programming/remoteApi/extApiPlatform.h
   }
 
   Source_Files {
-    Platforms {
-      $(VREP_ROOT)/programming/remoteApi/extApi.c
-      $(VREP_ROOT)/programming/remoteApi/extApiPlatform.c
-    }
+    $(VREP_ROOT)/programming/remoteApi/extApi.c
+    $(VREP_ROOT)/programming/remoteApi/extApiPlatform.c
   }
 }

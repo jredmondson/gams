@@ -11,10 +11,13 @@ sub run {
   my %args = @_;
 
   my ($agents, $duration, $period, $dir, $madara_debug, $gams_debug,
-      @border, $coverages, $launch, $num_udps);
-      
-  print Dumper \%args;
-
+      @border, $coverages, $launch, $num_udps, $controller);
+    
+  # get environment variables
+  my $osname = $^O;
+  my $vreproot = $ENV{"VREP_ROOT"};
+  my $gamsroot = $ENV{"GAMS_ROOT"};
+  
   $agents = $args{agents};
   
   $duration = $args{duration} ? $args{duration} : 300;
@@ -22,6 +25,9 @@ sub run {
   $period = $args{period} ? $args{period} : 1;
   
   $dir = $args{dir} ? $args{dir} : '.';
+  
+  $controller = $args{controller} ?
+    $args{controller} : "$gamsroot/bin/gams_controller";
   
   $madara_debug = $args{madara_debug} ? $args{madara_debug} : 1;
   $gams_debug = $args{gams_debug} ? $args{gams_debug} : 1;
@@ -43,11 +49,6 @@ sub run {
   
   $launch = 1;
     
-  # get environment variables
-  my $osname = $^O;
-  my $vreproot = $ENV{"VREP_ROOT"};
-  my $gamsroot = $ENV{"GAMS_ROOT"};
-
   if ($launch == 1)
   {
     for (my $i=0; $i < $agents; $i++)
@@ -55,7 +56,7 @@ sub run {
 	    my $common_args = "";
 	  
 	    #args common to all operating systems
-      $common_args = "$gamsroot/bin/gams_controller ";
+      $common_args = "$controller ";
 	    $common_args .= "-i $i -n $agents ";
       
       if ($args{multicast})
@@ -127,8 +128,8 @@ sub run {
         $cmd = $common_args;
 		    $cmd =~ s{/}{\\}g;
 		
-        print("start \"Device$i\" /REALTIME $cmd\n\n");
-        system("start \"Device$i\" /REALTIME $cmd");
+        print("start \"Agent$i\" /REALTIME $cmd\n\n");
+        system("start \"Agent$i\" /REALTIME $cmd");
       }
       elsif ($osname eq "linux") # linux default
       {
