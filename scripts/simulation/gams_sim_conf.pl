@@ -1530,6 +1530,15 @@ custom::algorithms::${algorithm}Factory::create (
   {
     result = new ${algorithm} (knowledge, platform, sensors, self);
   }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      \"custom::algorithms::${algorithm}Factory::create:\" \
+      \" failed to create due to invalid pointers. \" \
+      \" knowledge=%p, sensors=%p, platform=%p, self=%p\\n\",
+      knowledge, sensors, platform, self);
+  }
 
   /**
    * Note the usage of logger macros with the GAMS global logger. This
