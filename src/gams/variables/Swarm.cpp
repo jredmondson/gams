@@ -51,10 +51,6 @@ using std::string;
 
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
-const string gams::variables::Swarm::SWARM_COMMAND = "swarm.command";
-const string gams::variables::Swarm::SWARM_MIN_ALT = "swarm.min_alt";
-const string gams::variables::Swarm::SWARM_SIZE = "swarm.size";
-
 gams::variables::Swarm::Swarm ()
 {
 }
@@ -69,8 +65,8 @@ gams::variables::Swarm::operator= (const Swarm & rhs)
   if (this != &rhs)
   {
     this->accents = rhs.accents;
-    this->command = rhs.command;
-    this->command_args = rhs.command_args;
+    this->algorithm = rhs.algorithm;
+    this->algorithm_args = rhs.algorithm_args;
     this->min_alt = rhs.min_alt;
     this->size = rhs.size;
   }
@@ -84,10 +80,10 @@ gams::variables::Swarm::init_vars (
 {
   // initialize the variable containers
   variables::init_vars (accents, knowledge, "swarm");
-  min_alt.set_name (SWARM_MIN_ALT, knowledge);
-  command.set_name (SWARM_COMMAND, knowledge);
-  command_args.set_name (SWARM_COMMAND, knowledge);
-  size.set_name (SWARM_SIZE, knowledge);
+  min_alt.set_name ("swarm.min_alt", knowledge);
+  algorithm.set_name ("swarm.algorithm", knowledge);
+  algorithm_args.set_name ("swarm.algorithm.args", knowledge);
+  size.set_name ("swarm.size", knowledge);
 
   init_vars (swarm_size);
 }
@@ -99,10 +95,10 @@ gams::variables::Swarm::init_vars (
 {
   // initialize the variable containers
   variables::init_vars (accents, knowledge, "swarm");
-  min_alt.set_name (SWARM_MIN_ALT, knowledge);
-  command.set_name (SWARM_COMMAND, knowledge);
-  command_args.set_name (SWARM_COMMAND, knowledge);
-  size.set_name (SWARM_SIZE, knowledge);
+  min_alt.set_name ("swarm.min_alt", knowledge);
+  algorithm.set_name ("swarm.algorithm", knowledge);
+  algorithm_args.set_name ("swarm.algorithm.args", knowledge);
+  size.set_name ("swarm.size", knowledge);
 
   init_vars (swarm_size);
 }
@@ -114,8 +110,9 @@ void gams::variables::Swarm::init_vars (
   madara::knowledge::KnowledgeUpdateSettings keep_local (true);
 
   // keep certain varaible changes as local only
-  command.set_settings (keep_local);
-  command_args.set_settings (keep_local);
+  min_alt.set_settings (keep_local);
+  algorithm.set_settings (keep_local);
+  algorithm_args.set_settings (keep_local);
   size.set_settings (keep_local);
 
   // update swarm size

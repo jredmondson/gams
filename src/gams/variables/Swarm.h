@@ -108,10 +108,10 @@ namespace gams
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
 
       /// the current command given to the swarm
-      madara::knowledge::containers::String command;
+      madara::knowledge::containers::String algorithm;
       
       /// number of arguments for command
-      madara::knowledge::containers::Map command_args;
+      madara::knowledge::containers::Map algorithm_args;
       
       /// minimum altitude for swarm to use
       madara::knowledge::containers::Double min_alt;
@@ -123,15 +123,6 @@ namespace gams
       AccentStatuses accents;
 
     protected:
-      /// swarm command variable
-      static const std::string SWARM_COMMAND;
-
-      /// swarm min altitude variable
-      static const std::string SWARM_MIN_ALT;
-
-      /// swarm size variable
-      static const std::string SWARM_SIZE;
-
       /**
        * Variable setup
        * @param  swarm_size   number of participating agents

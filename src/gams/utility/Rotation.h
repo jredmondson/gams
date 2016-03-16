@@ -96,7 +96,6 @@ namespace gams
        * @param rx length of rotation vector in x-axis direction
        * @param ry length of rotation vector in y-axis direction
        * @param rz length of rotation vector in z-axis direction
-       * @param u units to use (default radians)
        **/
       constexpr RotationVector(double rx, double ry, double rz);
 
@@ -441,6 +440,7 @@ namespace gams
        * Copy constructor, but also convert to a new frame
        *
        * @param new_frame the new frame to convert to
+       * @param origin the origin of the rotation
        **/
       Rotation(const ReferenceFrame &new_frame, const Rotation &orig);
 

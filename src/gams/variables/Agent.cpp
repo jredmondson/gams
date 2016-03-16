@@ -63,6 +63,9 @@ gams::variables::Agent::operator= (const Agent & agent)
 {
   if (this != &agent)
   {
+    this->algorithm = agent.algorithm;
+    this->algorithm_changed = agent.algorithm_changed;
+    this->algorithm_args = agent.algorithm_args;
     this->battery_remaining = agent.battery_remaining;
     this->bridge_id = agent.bridge_id;
     this->coverage_type = agent.coverage_type;
@@ -78,8 +81,8 @@ gams::variables::Agent::operator= (const Agent & agent)
     this->temperature = agent.temperature;
     this->command = agent.command;
     this->command_args = agent.command_args;
-    this->last_command = agent.last_command;
-    this->last_command_args = agent.last_command_args;
+    this->last_algorithm = agent.last_algorithm;
+    this->last_algorithm_args = agent.last_algorithm_args;
     this->accents = agent.accents;
     this->madara_debug_level = agent.madara_debug_level;
     this->gams_debug_level = agent.gams_debug_level;
@@ -109,13 +112,16 @@ gams::variables::Agent::init_vars (
     knowledge);
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
   command.set_name (agent_name + ".command", knowledge);
-  last_command.set_name (agent_name + ".last_command", knowledge);
+  algorithm.set_name (agent_name + ".algorithm", knowledge);
+  algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
+  algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
+  last_algorithm.set_name (agent_name + ".last_algorithm", knowledge);
   variables::init_vars (accents, knowledge, agent_name);
   home.set_name (agent_name + ".home", knowledge);
   source.set_name (agent_name + ".source", knowledge);
   dest.set_name (agent_name + ".dest", knowledge);
   command_args.set_name (agent_name + ".command", knowledge);
-  last_command_args.set_name (agent_name + ".last_command", knowledge);
+  last_algorithm_args.set_name (agent_name + ".last_algorithm", knowledge);
   temperature.set_name (agent_name + ".temperature", knowledge);
   madara_debug_level.set_name (agent_name + ".madara_debug_level", knowledge);
   gams_debug_level.set_name (agent_name + ".gams_debug_level", knowledge);
@@ -150,13 +156,16 @@ gams::variables::Agent::init_vars (
     knowledge);
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
   command.set_name (agent_name + ".command", knowledge);
-  last_command.set_name (agent_name + ".last_command", knowledge);
+  command_args.set_name (agent_name + ".command", knowledge);
+  algorithm.set_name (agent_name + ".algorithm", knowledge);
+  algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
+  algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
+  last_algorithm.set_name (agent_name + ".algorithm.last", knowledge);
+  last_algorithm_args.set_name (agent_name + ".algorithm.last.args", knowledge);
   variables::init_vars (accents, knowledge, agent_name);
   home.set_name (agent_name + ".home", knowledge);
   source.set_name (agent_name + ".source", knowledge);
   dest.set_name (agent_name + ".dest", knowledge);
-  command_args.set_name (agent_name + ".command", knowledge);
-  last_command_args.set_name (agent_name + ".last_command", knowledge);
   temperature.set_name (agent_name + ".temperature", knowledge);
   madara_debug_level.set_name (agent_name + ".madara_debug_level", knowledge);
   gams_debug_level.set_name (agent_name + ".gams_debug_level", knowledge);
@@ -207,6 +216,6 @@ gams::variables::Agent::init_variable_settings ()
   madara::knowledge::KnowledgeUpdateSettings keep_local (true);
   command.set_settings (keep_local);
   command_args.set_settings (keep_local);
-  //madara_debug_level.set_settings (keep_local);
-  //gams_debug_level.set_settings (keep_local);
+  madara_debug_level.set_settings (keep_local);
+  gams_debug_level.set_settings (keep_local);
 }

@@ -98,7 +98,7 @@ namespace gams
        * Construct a PoseVector from a RotationVector. Location info will
        * be all zeros (is_location_zero() == true)
        *
-       * @param loc the RotationVector to get location info from.
+       * @param rot the RotationVector to get location info from.
        **/
       constexpr PoseVector(const RotationVector &rot);
 

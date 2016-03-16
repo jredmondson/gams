@@ -175,34 +175,34 @@ gams::controllers::Multicontroller::system_analyze (void)
 
     init_algorithm (self_.agent.command.to_string (), args);
 
-    self_.agent.last_command = self_.agent.command.to_string ();
+    self_.agent.last_algorithm = self_.agent.command.to_string ();
 
     // reset the command
     self_.agent.command = "";
-    self_.agent.last_command_args.clear(true);
-    self_.agent.command_args.exchange(self_.agent.last_command_args,
+    self_.agent.last_algorithm_args.clear(true);
+    self_.agent.command_args.exchange(self_.agent.last_algorithm_args,
                                       true, true);
   }
-  else if (swarm_.command != "")
+  else if (swarm_.algorithm != "")
   {
-    std::string prefix(swarm_.command.get_name() + ".");
+    std::string prefix(swarm_.algorithm.get_name() + ".");
     madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
 
-    swarm_.command_args.sync_keys();
+    swarm_.algorithm_args.sync_keys();
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::Multicontroller::system_analyze:" \
-      " Processing swarm command: %s\n", (*swarm_.command).c_str());
+      " Processing swarm command: %s\n", (*swarm_.algorithm).c_str());
 
-    init_algorithm (swarm_.command.to_string (), args);
+    init_algorithm (swarm_.algorithm.to_string (), args);
 
-    self_.agent.last_command = swarm_.command.to_string ();
+    self_.agent.last_algorithm = swarm_.algorithm.to_string ();
 
     // reset the command
-    swarm_.command = "";
-    self_.agent.last_command_args.clear(true);
-    swarm_.command_args.exchange(self_.agent.last_command_args,
+    swarm_.algorithm = "";
+    self_.agent.last_algorithm_args.clear(true);
+    swarm_.algorithm_args.exchange(self_.agent.last_algorithm_args,
                                  true, true);
   }
 

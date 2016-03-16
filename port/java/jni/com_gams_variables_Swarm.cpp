@@ -90,7 +90,7 @@ jlong JNICALL Java_com_gams_variables_Swarm_jni_1getCommand
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
 
-  return (jlong) &current->command;
+  return (jlong) &current->algorithm;
 }
 
 /*
@@ -103,7 +103,7 @@ jlong JNICALL Java_com_gams_variables_Swarm_jni_1getArgs
 {
   variables::Swarm * current = (variables::Swarm *) cptr;
 
-  return (jlong) &current->command_args;
+  return (jlong) &current->algorithm_args;
 }
 
 /*

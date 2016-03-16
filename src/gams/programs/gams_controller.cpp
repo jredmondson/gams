@@ -268,7 +268,7 @@ void handle_arguments (int argc, char ** argv)
         if (madara::utility::file_exists (filename))
         {
           madara_commands += madara::utility::file_to_string (filename);
-          madara_commands += ";\r\n";
+          madara_commands += ";\n";
           files = true;
         }
       }

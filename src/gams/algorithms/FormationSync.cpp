@@ -67,11 +67,11 @@ namespace engine = madara::knowledge;
 namespace containers = engine::containers;
 
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
-
+typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationSyncFactory::create (
-const madara::knowledge::KnowledgeMap & args,
+const KnowledgeMap & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
@@ -96,44 +96,40 @@ variables::Agents * agents)
     std::string group = "";
     std::string barrier = "barrier.formation_sync";
 
-    gams::utility::ArgumentParser argp(args);
-
-    for(gams::utility::ArgumentParser::const_iterator i = argp.begin();
-         i != argp.end(); i.next())
+    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
     {
-      std::string name(i.name());
-      if(name.size() <= 0)
+      if (i->first.size () <= 0)
         continue;
-      switch(name[0])
+
+      switch (i->first[0])
       {
       case 'b':
-        if(name == "barrier")
+        if (i->first == "barrier")
         {
-          barrier = i.value().to_string ();
+          barrier = i->second.to_string ();
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting barrier to %s\n", barrier.c_str ());
 
-          continue;
+          break;
         }
-        if(name == "buffer")
+        if (i->first == "buffer")
         {
-          buffer = i.value().to_double ();
+          buffer = i->second.to_double ();
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting buffer to %f\n", buffer);
 
-          continue;
+          break;
         }
-        goto unknown;
       case 'e':
-        if(name == "end")
+        if (i->first == "end")
         {
-          std::vector <double> coords (i.value().to_doubles ());
+          std::vector <double> coords (i->second.to_doubles ());
 
           if (coords.size () >= 2)
           {
@@ -146,13 +142,12 @@ variables::Agents * agents)
             "gams::algorithms::FormationSyncFactory:" \
             " setting end to %s\n", end.to_string ().c_str ());
 
-          continue;
+          break;
         }
-        goto unknown;
       case 'f':
-        if(name == "formation")
+        if (i->first == "formation")
         {
-          std::string formation_str = i.value().to_string ();
+          std::string formation_str = i->second.to_string ();
 
           madara::utility::upper (formation_str);
 
@@ -210,9 +205,9 @@ variables::Agents * agents)
 
             formation_type = FormationSync::WING;
           }
-          else if (i.value().is_integer_type ())
+          else if (i->second.is_integer_type ())
           {
-            formation_type = (int)i.value().to_integer ();
+            formation_type = (int)i->second.to_integer ();
 
             madara_logger_ptr_log (gams::loggers::global_logger.get (),
               gams::loggers::LOG_DETAILED,
@@ -220,13 +215,12 @@ variables::Agents * agents)
               " setting formation to %d\n", formation_type);
           }
 
-          continue;
+          break;
         }
-        goto unknown;
       case 'g':
-        if(name == "group")
+        if(i->first == "group")
         {
-          group = i.value().to_string ();
+          group = i->second.to_string ();
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
@@ -239,13 +233,12 @@ variables::Agents * agents)
 
           member_list.copy_to (members);
 
-          continue;
+          break;
         }
-        goto unknown;
       case 's':
-        if(name == "start")
+        if(i->first == "start")
         {
-          std::vector <double> coords (i.value().to_doubles ());
+          std::vector <double> coords (i->second.to_doubles ());
 
           if (coords.size () >= 2)
           {
@@ -257,17 +250,15 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting start to %s\n", start.to_string ().c_str ());
-          continue;
+          break;
         }
-        goto unknown;
       default:
-      unknown:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationSyncFactory:" \
           " argument unknown: %s -> %s\n",
-          name.c_str(), i.value().to_string().c_str());
-        continue;
+          i->first.c_str(), i->second.to_string().c_str());
+        break;
       }
     }
 

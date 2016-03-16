@@ -342,7 +342,7 @@ namespace gams
        * This does not modify this Coordinate's reference frame binding.
        * The new coordinate will be within this Coordinate's reference frame.
        *
-       * @param the input string, as specified above
+       * @param in the input string, as specified above
        **/
       void from_string(const std::string &in);
 
@@ -411,7 +411,7 @@ namespace gams
        * The MADARA DoubleVector and NativeDoubleVector types are supported.
        *
        * @tparam ContainType the type of the container; must support "set"
-       * @param container the container to put this Coordinate's values into.
+       * @param out the container to put this Coordinate's values into.
        **/
       template<typename ContainType>
       void to_array(ContainType &out) const;
@@ -426,7 +426,7 @@ namespace gams
        * extra elements are ignored.
        *
        * @tparam ContainType the type of the container; must support operator[]
-       * @param container the container to pull new values from.
+       * @param in the container to pull new values from.
        **/
       template<typename ContainType>
       void from_array(const ContainType &in);
