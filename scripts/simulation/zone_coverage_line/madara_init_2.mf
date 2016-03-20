@@ -6,7 +6,7 @@
 .initial_lon=-79.940570;
 .initial_alt=4;
 
-agent.2.command="ppac";
-agent.2.command.size=1;
-agent.2.command.0="region.0";
+agent.2.algorithm="ppac";
+
+agent.2.algorithm.args.0="region.0";
 agent.2.hertz=.hertz;

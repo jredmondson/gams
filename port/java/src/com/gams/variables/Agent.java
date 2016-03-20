@@ -64,8 +64,8 @@ public class Agent extends GamsJNI
   private native java.lang.String jni_toString(long cptr);
   private native long jni_getBatteryRemaining(long cptr);
   private native long jni_getBridgeId(long cptr);
-  private native long jni_getCommand(long cptr);
-  private native long jni_getArgs(long cptr);
+  private native long jni_getAlgorithm(long cptr);
+  private native long jni_getAlgorithmArgs(long cptr);
   private native long jni_getCoverageType(long cptr);
   private native long jni_getDest(long cptr);
   private native long jni_getHome(long cptr);
@@ -138,10 +138,10 @@ public class Agent extends GamsJNI
       jni_getBatteryRemaining (getCPtr ()),false);
     bridgeId = com.madara.containers.Integer.fromPointer (
       jni_getBridgeId (getCPtr ()),false);
-    command = com.madara.containers.String.fromPointer (
-      jni_getCommand (getCPtr ()),false);
-    args = com.madara.containers.Vector.fromPointer (
-      jni_getArgs (getCPtr ()),false);
+    algorithm = com.madara.containers.String.fromPointer (
+      jni_getAlgorithm (getCPtr ()),false);
+    algorithmArgs = com.madara.containers.Map.fromPointer (
+      jni_getAlgorithmArgs (getCPtr ()),false);
     coverageType = com.madara.containers.String.fromPointer (
       jni_getCoverageType (getCPtr ()),false);
     dest = com.madara.containers.NativeDoubleVector.fromPointer (
@@ -201,12 +201,12 @@ public class Agent extends GamsJNI
   /**
    * The current device command
    */
-  public com.madara.containers.String command;
+  public com.madara.containers.String algorithm;
 
   /**
    * The current device command args
    */
-  public com.madara.containers.Vector args;
+  public com.madara.containers.Map algorithmArgs;
 
   /**
    * The current device coverage type

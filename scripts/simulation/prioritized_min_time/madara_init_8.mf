@@ -4,6 +4,5 @@
 .initial_y=15;
 .initial_alt=4;
 
-agent.8.command="pmtac";
-agent.8.command.size=1;
-agent.8.command.0="search_area.2";
+agent.8.algorithm="pmtac";
+agent.8.algorithm.args.area="search_area.2";

@@ -4,10 +4,9 @@
 .initial_y=18;
 .initial_alt=4;
 
-agent.8.command="formation";
-agent.8.command.size=5;
-agent.8.command.0=0;
-agent.8.command.1="2.5,5.495,0";
-agent.8.command.2="40.443387,-79.940270,2";
-agent.8.command.3="9,0,1,2,3,4,5,6,7,8";
-agent.8.command.4="rotate";
+agent.8.algorithm="formation";
+agent.8.algorithm.args.0=0;
+agent.8.algorithm.args.1=[2.5,5.495,0];
+agent.8.algorithm.args.2=[40.443387,-79.940270,2];
+agent.8.algorithm.args.3=[9,0,1,2,3,4,5,6,7,8];
+agent.8.algorithm.args.4="rotate";

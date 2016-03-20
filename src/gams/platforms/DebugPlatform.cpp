@@ -48,7 +48,7 @@
 
 gams::platforms::BasePlatform *
 gams::platforms::DebugPlatformFactory::create (
-  const madara::knowledge::KnowledgeVector & /*args*/,
+  const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,

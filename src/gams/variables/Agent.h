@@ -115,9 +115,6 @@ namespace gams
       /// indicator for whether or not the agent is busy with a mission
       madara::knowledge::containers::Integer bridge_id;
 
-      /// agent specific command (DEPRECATED. @see algorithm)
-      madara::knowledge::containers::String command;
-
       /// agent specific command 
       madara::knowledge::containers::String algorithm;
 
@@ -126,9 +123,6 @@ namespace gams
 
       /// arguments for algorithm
       madara::knowledge::containers::Map algorithm_args;
-
-      /// number of arguments for command. (DEPRECATED. @see algorithm_args)
-      madara::knowledge::containers::Map command_args;
 
       /// Last command
       madara::knowledge::containers::String last_algorithm;

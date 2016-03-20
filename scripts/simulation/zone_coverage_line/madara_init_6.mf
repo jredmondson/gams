@@ -4,12 +4,12 @@
 .initial_lon=-79.940470;
 .initial_alt=4;
 
-agent.6.command="zone coverage";
-agent.6.command.size=0;
-agent.6.command.formation=.zone_coverage_formation;
-agent.6.command.assets="assets";
-agent.6.command.protectors="protectors";
-agent.6.command.enemies="enemies";
-agent.6.command.buffer=.zone_coverage_buffer;
-agent.6.command.distance=.zone_coverage_distance;
+agent.6.algorithm="zone coverage";
+
+agent.6.algorithm.formation=.zone_coverage_formation;
+agent.6.algorithm.assets="assets";
+agent.6.algorithm.protectors="protectors";
+agent.6.algorithm.enemies="enemies";
+agent.6.algorithm.buffer=.zone_coverage_buffer;
+agent.6.algorithm.distance=.zone_coverage_distance;
 agent.6.hertz=.hertz;

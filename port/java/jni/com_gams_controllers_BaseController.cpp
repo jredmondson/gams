@@ -297,18 +297,24 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_
     const char * str_name = env->GetStringUTFChars(name, 0);
 
     // create a knowledge vector to hold the arguments
-    madara::knowledge::KnowledgeVector args (env->GetArrayLength (argslist));
     jlong * elements = env->GetLongArrayElements (argslist, 0);
 
+    int argsLen = env->GetArrayLength (argslist);
+
+    madara::knowledge::KnowledgeMap args;
+
     // iterate through arguments and copy the knowledge record for each arg
-    for (size_t i = 0; i < args.size (); ++i)
+    for (size_t i = 0; i < argsLen; ++i)
     {
       madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
       if (cur_record)
-        args[i] = madara::knowledge::KnowledgeRecord (*cur_record);
+      {
+        std::stringstream s;
+        s << i;
+        args[s.str ()] = madara::knowledge::KnowledgeRecord (*cur_record);
+      }
     }
-
     // call the initialization method
     current->init_platform (str_name, args);
 

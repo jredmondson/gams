@@ -4,11 +4,10 @@
 .initial_y=10;
 .initial_alt=4;
 
-agent.1.command="formation coverage";
-agent.1.command.size=6;
-agent.1.command.0=0;
-agent.1.command.1="4,1.57,0";
-agent.1.command.2="4,0,1,2,3";
-agent.1.command.3="default";
-agent.1.command.4="urec";
-agent.1.command.5="region.0";
+agent.1.algorithm="formation coverage";
+agent.1.algorithm.args.0=0;
+agent.1.algorithm.args.1="4,1.57,0";
+agent.1.algorithm.args.2="4,0,1,2,3";
+agent.1.algorithm.args.3="default";
+agent.1.algorithm.args.4="urec";
+agent.1.algorithm.args.5="region.0";

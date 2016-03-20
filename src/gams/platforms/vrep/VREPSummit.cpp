@@ -74,7 +74,7 @@ const string gams::platforms::VREPSummit::DEFAULT_SUMMIT_MODEL (
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPSummitFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -110,15 +110,30 @@ gams::platforms::VREPSummitFactory::create (
 
     string model_file;
     simxUChar client_side;
-    if (args.size () >= 1)
+
+
+    madara::knowledge::KnowledgeMap::const_iterator client_side_found =
+      args.find ("client_side");
+    madara::knowledge::KnowledgeMap::const_iterator model_file_found =
+      args.find ("model_file");
+
+    if (client_side_found != args.end () &&
+      client_side_found->second.to_integer () == 1)
     {
-      model_file = args[0].to_string ();
       client_side = 1;
     }
     else
     {
-      model_file = VREPSummit::DEFAULT_SUMMIT_MODEL;
       client_side = 0;
+    }
+
+    if (args.size () >= 1)
+    {
+      model_file = model_file_found->second.to_string ();
+    }
+    else
+    {
+      model_file = VREPSummit::DEFAULT_SUMMIT_MODEL;
     }
 
     result = new VREPSummit (model_file, client_side, knowledge, sensors, 

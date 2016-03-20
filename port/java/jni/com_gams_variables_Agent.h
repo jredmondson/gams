@@ -69,7 +69,7 @@ GAMSExport jlong JNICALL Java_com_gams_variables_Agent_jni_1getBridgeId
  * Method:    jni_getCommand
  * Signature: (J)J
  */
-GAMSExport jlong JNICALL Java_com_gams_variables_Agent_jni_1getCommand
+GAMSExport jlong JNICALL Java_com_gams_variables_Agent_jni_1getAlgorithm
   (JNIEnv *, jobject, jlong);
 
 /*
@@ -77,7 +77,7 @@ GAMSExport jlong JNICALL Java_com_gams_variables_Agent_jni_1getCommand
  * Method:    jni_getArgs
  * Signature: (J)J
  */
-GAMSExport jlong JNICALL Java_com_gams_variables_Agent_jni_1getArgs
+GAMSExport jlong JNICALL Java_com_gams_variables_Agent_jni_1getAlgorithmArgs
   (JNIEnv *, jobject, jlong);
 
 /*

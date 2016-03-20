@@ -79,8 +79,6 @@ gams::variables::Agent::operator= (const Agent & agent)
     this->next_coverage_type = agent.next_coverage_type;
     this->search_area_id = agent.search_area_id;
     this->temperature = agent.temperature;
-    this->command = agent.command;
-    this->command_args = agent.command_args;
     this->last_algorithm = agent.last_algorithm;
     this->last_algorithm_args = agent.last_algorithm_args;
     this->accents = agent.accents;
@@ -111,7 +109,6 @@ gams::variables::Agent::init_vars (
   next_coverage_type.set_name (agent_name + ".next_area_coverage_type",
     knowledge);
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
-  command.set_name (agent_name + ".command", knowledge);
   algorithm.set_name (agent_name + ".algorithm", knowledge);
   algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
   algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
@@ -120,7 +117,6 @@ gams::variables::Agent::init_vars (
   home.set_name (agent_name + ".home", knowledge);
   source.set_name (agent_name + ".source", knowledge);
   dest.set_name (agent_name + ".dest", knowledge);
-  command_args.set_name (agent_name + ".command", knowledge);
   last_algorithm_args.set_name (agent_name + ".last_algorithm", knowledge);
   temperature.set_name (agent_name + ".temperature", knowledge);
   madara_debug_level.set_name (agent_name + ".madara_debug_level", knowledge);
@@ -155,8 +151,6 @@ gams::variables::Agent::init_vars (
   next_coverage_type.set_name (agent_name + ".next_area_coverage_type",
     knowledge);
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
-  command.set_name (agent_name + ".command", knowledge);
-  command_args.set_name (agent_name + ".command", knowledge);
   algorithm.set_name (agent_name + ".algorithm", knowledge);
   algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
   algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
@@ -214,8 +208,8 @@ gams::variables::Agent::init_variable_settings ()
 {
   // keep certain varaible changes as local only
   madara::knowledge::KnowledgeUpdateSettings keep_local (true);
-  command.set_settings (keep_local);
-  command_args.set_settings (keep_local);
+  algorithm.set_settings (keep_local);
+  algorithm_args.set_settings (keep_local);
   madara_debug_level.set_settings (keep_local);
   gams_debug_level.set_settings (keep_local);
 }

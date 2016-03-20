@@ -4,11 +4,11 @@
 .initial_lon=-79.940270;
 .initial_alt=4;
 
-agent.12.command="zone coverage";
-agent.12.command.size=0;
-agent.12.command.formation=.zone_coverage_formation;
-agent.12.command.assets="assets";
-agent.12.command.protectors="protectors";
-agent.12.command.enemies="enemies";
-agent.12.command.buffer=.zone_coverage_buffer;
-agent.12.command.distance=.zone_coverage_distance;
+agent.12.algorithm="zone coverage";
+
+agent.12.algorithm.formation=.zone_coverage_formation;
+agent.12.algorithm.assets="assets";
+agent.12.algorithm.protectors="protectors";
+agent.12.algorithm.enemies="enemies";
+agent.12.algorithm.buffer=.zone_coverage_buffer;
+agent.12.algorithm.distance=.zone_coverage_distance;

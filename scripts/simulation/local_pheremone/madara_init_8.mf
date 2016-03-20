@@ -4,6 +4,5 @@
 .initial_y=15;
 .initial_alt=4;
 
-agent.8.command="local pheremone";
-agent.8.command.size=1;
-agent.8.command.0="search_area.1";
+agent.8.algorithm="local pheremone";
+agent.8.algorithm.args.area="search_area.1";

@@ -184,7 +184,7 @@ platforms::ControllerPlatformFactory::add (
 platforms::BasePlatform *
 platforms::ControllerPlatformFactory::create (
   const std::string & type,
-  const madara::knowledge::KnowledgeVector & args)
+  const madara::knowledge::KnowledgeMap & args)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,

@@ -4,9 +4,9 @@
 .initial_y=15;
 .initial_alt=15;
 
-agent.12.command="formation";
-agent.12.command.size=4;
-agent.12.command.0=0;
-agent.12.command.1="6,4.71,0";
-agent.12.command.2="40.443387,-79.940270,2";
-agent.12.command.3="17,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+agent.12.algorithm="formation";
+
+agent.12.algorithm.args.0=0;
+agent.12.algorithm.args.1="6,4.71,0";
+agent.12.algorithm.args.2="40.443387,-79.940270,2";
+agent.12.algorithm.args.3="17,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";

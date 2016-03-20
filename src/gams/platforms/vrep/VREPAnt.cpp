@@ -73,7 +73,7 @@ const string gams::platforms::VREPAnt::DEFAULT_ANT_MODEL (
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPAntFactory::create (
-        const madara::knowledge::KnowledgeVector & args,
+const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
@@ -107,9 +107,12 @@ gams::platforms::VREPAntFactory::create (
 
     string file;
     simxUChar client_side;
-    if (args.size () >= 1)
+
+    madara::knowledge::KnowledgeMap::const_iterator found =
+      args.find ("client_side");
+
+    if (found != args.end () && found->second.to_integer () == 1)
     {
-      file = args[0].to_string ();
       client_side = 1;
     }
     else

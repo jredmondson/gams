@@ -102,6 +102,7 @@ namespace gams
       PLATFORM_ERROR = 0,
       PLATFORM_IN_PROGRESS = 1,
       PLATFORM_MOVING = 1,
+      PLATFORM_OK = 1,
       PLATFORM_ARRIVED = 2
     };
 

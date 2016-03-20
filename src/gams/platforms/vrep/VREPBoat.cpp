@@ -74,7 +74,7 @@ const string gams::platforms::VREPBoat::DEFAULT_BOAT_MODEL (
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPBoatFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -100,9 +100,12 @@ gams::platforms::VREPBoatFactory::create (
 
     string file;
     simxUChar is_client_side;
-    if (args.size () >= 1)
+
+    madara::knowledge::KnowledgeMap::const_iterator found =
+      args.find ("client_side");
+
+    if (found != args.end () && found->second.to_integer () == 1)
     {
-      file = args[0].to_string ();
       is_client_side = 1;
     }
     else

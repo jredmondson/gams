@@ -44,13 +44,10 @@
  *      distribution.
  **/
 
-namespace platforms = gams::platforms;
-namespace variables = gams::variables;
-
 inline gams::platforms::BasePlatform::BasePlatform (
   madara::knowledge::KnowledgeBase * knowledge,
-  variables::Sensors * sensors,
-  variables::Self * self)
+  gams::variables::Sensors * sensors,
+  gams::variables::Self * self)
   : knowledge_ (knowledge), self_ (self), sensors_ (sensors)
 {
 }
@@ -90,25 +87,25 @@ gams::platforms::BasePlatform::get_knowledge_base (void) const
   return knowledge_;
 }
 
-inline variables::Self *
+inline gams::variables::Self *
 gams::platforms::BasePlatform::get_self (void) const
 {
   return self_;
 }
 
-inline variables::Sensors *
+inline gams::variables::Sensors *
 gams::platforms::BasePlatform::get_sensors (void) const
 {
   return sensors_;
 }
 
-inline const variables::PlatformStatus *
+inline const gams::variables::PlatformStatus *
 gams::platforms::BasePlatform::get_platform_status (void) const
 {
   return &status_;
 }
 
-inline variables::PlatformStatus *
+inline gams::variables::PlatformStatus *
 gams::platforms::BasePlatform::get_platform_status (void)
 {
   return &status_;

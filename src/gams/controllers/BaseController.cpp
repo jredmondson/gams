@@ -161,26 +161,26 @@ gams::controllers::BaseController::system_analyze (void)
     "gams::controllers::BaseController::system_analyze:" \
     " checking agent and swarm commands\n");
 
-  if (self_.agent.command != "")
+  if (self_.agent.algorithm != "")
   {
-    std::string prefix(self_.agent.command.get_name() + ".");
+    std::string prefix(self_.agent.algorithm_args.get_name() + ".");
     madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
 
-    self_.agent.command_args.sync_keys();
+    self_.agent.algorithm_args.sync_keys();
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Processing agent command: %s\n", (*self_.agent.command).c_str());
+      " Processing agent command: %s\n", (*self_.agent.algorithm).c_str());
 
-    init_algorithm (self_.agent.command.to_string (), args);
+    init_algorithm (self_.agent.algorithm.to_string (), args);
 
-    self_.agent.last_algorithm = self_.agent.command.to_string ();
+    self_.agent.last_algorithm = self_.agent.algorithm.to_string ();
 
     // reset the command
-    self_.agent.command = "";
+    self_.agent.algorithm = "";
     self_.agent.last_algorithm_args.clear(true);
-    self_.agent.command_args.exchange(self_.agent.last_algorithm_args,
+    self_.agent.algorithm_args.exchange(self_.agent.last_algorithm_args,
                                       true, true);
   }
   else if (swarm_.algorithm != "")
@@ -780,7 +780,7 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
 void
 gams::controllers::BaseController::init_platform (
   const std::string & platform,
-  const madara::knowledge::KnowledgeVector & args)
+  const madara::knowledge::KnowledgeMap & args)
 {
   // initialize the platform
 

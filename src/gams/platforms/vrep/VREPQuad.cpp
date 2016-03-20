@@ -76,7 +76,7 @@ gams::platforms::VREPQuadFactory::get_default_model()
 
 gams::platforms::BasePlatform *
 gams::platforms::VREPQuadFactory::create (
-  const madara::knowledge::KnowledgeVector & args,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -114,15 +114,29 @@ gams::platforms::VREPQuadFactory::create (
     // specify the model file
     string model_file;
     simxUChar is_client_side; // file is on server
-    if (args.size () >= 1)
+
+    madara::knowledge::KnowledgeMap::const_iterator client_side_found =
+      args.find ("client_side");
+    madara::knowledge::KnowledgeMap::const_iterator model_file_found =
+      args.find ("model_file");
+
+    if (client_side_found != args.end () &&
+        client_side_found->second.to_integer () == 1)
     {
-      model_file = args[0].to_string ();
       is_client_side = 1;
     }
     else
     {
-      model_file = get_default_model();
       is_client_side = 0;
+    }
+
+    if (args.size () >= 1)
+    {
+      model_file = model_file_found->second.to_string ();
+    }
+    else
+    {
+      model_file = get_default_model();
     }
 
     result = create_quad(model_file, is_client_side, knowledge, sensors, 

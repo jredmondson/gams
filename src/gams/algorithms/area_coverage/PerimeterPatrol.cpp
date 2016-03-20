@@ -65,12 +65,18 @@
 
 #include "gams/utility/ArgumentParser.h"
 
+namespace engine = madara::knowledge;
+namespace containers = engine::containers;
+
+typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
+typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
+
 using std::vector;
 using std::string;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
-  const madara::knowledge::KnowledgeMap & map,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -78,80 +84,84 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
   variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
-  
-  if (knowledge && sensors && self && agents)
-  {
-    // Use a dumb workaround for now; TODO: convert this algo to use the map
-    using namespace madara::knowledge;
-    KnowledgeVector args(utility::kmap2kvec(map));
 
-    for(auto &c : args)
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::PerimeterPatrolFactory:" \
+    " entered create with %u args\n", args.size ());
+
+  if (knowledge && sensors && platform && self)
+  {
+    std::string search_area;
+    double time = 360;
+
+    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    {
+      if (i->first.size () <= 0)
+        continue;
+
+      switch (i->first[0])
+      {
+      case 'a':
+        if (i->first == "area")
+        {
+          search_area = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting search_area to %s\n", search_area.c_str ());
+
+          break;
+        }
+      case 's':
+        if (i->first == "search_area")
+        {
+          search_area = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting search_area to %s\n", search_area.c_str ());
+
+          break;
+        }
+      case 't':
+        if (i->first == "time")
+        {
+          time = i->second.to_double ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting time to %f\n", time);
+
+          break;
+        }
+      default:
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::FormationSyncFactory:" \
+          " argument unknown: %s -> %s\n",
+          i->first.c_str (), i->second.to_string ().c_str ());
+        break;
+      }
+    }
+
+    // if group has not been set, use the swarm
+    if (search_area == "")
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-         "gams::algorithms::PerimeterPatrolFactory::create:" \
-        " arg: %s\n", c.to_string().c_str());
-    }
-
-    if (args.size () >= 1)
-    {
-      if (args[0].is_string_type ())
-      {
-        if (args.size () == 2)
-        {
-          if (args[1].is_double_type () || args[1].is_integer_type ())
-          {
-            result = new area_coverage::PerimeterPatrol (
-              args[0].to_string () /* search area id*/,
-              ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, agents);
-          }
-          else
-          {
-            madara_logger_ptr_log (gams::loggers::global_logger.get (),
-              gams::loggers::LOG_ERROR,
-               "gams::algorithms::PerimeterPatrolFactory::create:" \
-              " invalid second arg, expected double\n");
-          }
-        }
-        else
-        {
-          result = new area_coverage::PerimeterPatrol (
-            args[0].to_string () /* search area id*/,
-            ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, agents);
-        }
-      }
-      else
-      {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-           "gams::algorithms::PerimeterPatrolFactory::create:" \
-          " invalid first arg, expected string\n");
-      }
+        "gams::algorithms::area_coverage::PerimeterPatrolFactory::create:" \
+        " No search area specified. Returning null.\n");
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-         "gams::algorithms::PerimeterPatrolFactory::create:" \
-        " expected 1 or 2 args\n");
+      result = new area_coverage::PerimeterPatrol (
+        search_area, ACE_Time_Value (time),
+        knowledge, platform, sensors, self, agents);
     }
-  }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-       "gams::algorithms::PerimeterPatrolFactory::create:" \
-      " invalid knowledge, sensors, self, or agents parameters\n");
-  }
-
-  if (result == 0)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-       "gams::algorithms::PerimeterPatrolFactory::create:" \
-      " unknown error creating algorithm\n");
   }
 
   return result;

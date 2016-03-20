@@ -15,8 +15,8 @@ use File::Copy qw(copy);
 use POSIX;
 
 my $script = fileparse($0);
-my $agents;
 my $algorithm;
+my $agents;
 my @border = ();
 my $broadcast;
 my $duration;
@@ -36,6 +36,9 @@ my $min_lat;
 my $min_lon;
 my $multicast;
 my $height_diff = 1;
+my @new_algorithm;
+my @new_platform;
+my @new_thread;
 my $ordered;
 my $path = '.';
 my $permute;
@@ -43,11 +46,13 @@ my $platform;
 my @points;
 my $priority;
 my $randomize;
+my $range_specified;
 my $region;
 my $remove_files;
 my $remove_logs;
 my $rotate;
 my $surface;
+my $thread_hz;
 my @udp;
 my $unique;
 my $update_vrep;
@@ -55,7 +60,13 @@ my $verbose;
 my $vrep_start_port;
 my $sim_path;
 my $src_path;
+my $algs_path;
+my $plats_path;
+my $threads_path;
 my $bin_path;
+my @algorithms = ();
+my @platforms = ();
+my @threads = ();
 
 # setup options parser
 GetOptions(
@@ -80,6 +91,9 @@ GetOptions(
   'min_lat|min-lat=f' => \$min_lat,
   'min_lon|min-lon=f' => \$min_lon,
   'multicast|m=s' => \$multicast,
+  'new-algorithm|new_algorithm|new_alg|na=s' => \@new_algorithm,
+  'new-platform|new_platform|new_plat|np=s' => \@new_platform,
+  'new-thread|new_thread|nt=s' => \@new_thread,
   'ordered|o' => \$ordered,
   'path|dir|p=s' => \$path,
   'permute|u=s' => \$permute,
@@ -91,6 +105,7 @@ GetOptions(
   'remove_logs|remove-logs' => \$remove_logs,
   'rotate|t' => \$rotate,
   'surface|s=s' => \$surface,
+  'thread_hz|thread-hz|thz=f' => \$thread_hz,
   'vrep_start_port|s=i' => \$vrep_start_port,
   'unique' => \$unique,
   'udp|u=s' => \@udp,
@@ -107,7 +122,7 @@ $script purpose:
   Configures GAMS agent settings for a simulation
 
 options:
-  --algorithm|alg name   create infrastructure for custom algorithm
+  --algorithm|-alg alg   configures agent files to use a specific algorithm
   --agents|-a num        number of agents that need to be in simulation
   --buffer|-m meters     buffer in meters between agents
   --border r0 r1 ...     regions to put a border around
@@ -129,6 +144,9 @@ options:
   --min_lat|min-lat x    defines the minimum latitude, generally for a region
   --min_lon|min-lon x    defines the minimum longitude, generally for a region
   --multicast|m host     multicast ip/host to use for network transport
+  --new_algorithm|na name create infrastructure for custom algorithm
+  --new_platform|np name create infrastructure for custom platform
+  --new_thread|nt name   create infrastructure for custom thread
   --ordered              order distribution by agent id l->r, t->b
   --path|-p|--dir dir    the directory path to a simulation
   --permute|-u           permute existing locations or heights 
@@ -150,6 +168,7 @@ options:
                          concrete   : generic land model
                          water      : water model (e.g., for boats)
                          
+  --thread_hz|-thz hz    the hertz to run threads at  
   --vrep_start_port|-s # VREP port number to start from  
   --udp|u self h1 ...    udp ip/hosts to use for network transport 
   --unique|-u            requires unique attribute (e.g., height)
@@ -164,6 +183,7 @@ else
   {
     my $output = "
 $script is using the following configuration:
+  algorithm = " . ($algorithm ? $algorithm : 'no change') . "
   agents = " . ($agents ? $agents : 'no change') . "
   border = " . (scalar @border > 0 ?
     ("\n    " . join ("\n    ", @border)) : 'no') . "
@@ -183,6 +203,12 @@ $script is using the following configuration:
   min_lat = " . ($min_lat ? $min_lat : 'no change') . "
   min_lon = " . ($min_lon ? $min_lon : 'no change') . "
   multicast = " . ($multicast ? $multicast : 'no') . "
+  new_algorithm = " . (scalar @new_algorithm > 0 ?
+    ("\n    " . join ("\n    ", @new_algorithm)) : 'no') . "
+  new_platform = " . (scalar @new_platform > 0 ?
+    ("\n    " . join ("\n    ", @new_platform)) : 'no') . "
+  new_thread = " . (scalar @new_thread > 0 ?
+    ("\n    " . join ("\n    ", @new_thread)) : 'no') . "
   ordered = " . ($ordered ? 'yes' : 'no') . "
   path = $path
   platform = " . ($platform ? $platform : 'no change') . "
@@ -193,6 +219,7 @@ $script is using the following configuration:
   rotate = " . ($rotate ? 'yes' : 'no') . "
   region = " . ($region ? $region : 'none specified') . "
   surface = " . ($surface ? $surface : 'none specified') . "
+  thread_hz = " . ($thread_hz ? $thread_hz : 'none specified') . "
   vrep_start_port = " . ($vrep_start_port ? $vrep_start_port : 'no change') . "
   udp = " . (scalar @udp > 0 ? ("\n    " . join ("\n    ", @udp)) : 'no') . "
   unique = " . ($unique ? 'yes' : 'no') . "\n";
@@ -205,10 +232,14 @@ $script is using the following configuration:
   
   $sim_path = "$path/sim";
   $src_path = "$path/src";
+  $algs_path = "$path/src/algorithms";
+  $plats_path = "$path/src/platforms";
+  $threads_path = "$path/src/threads";
   $bin_path = "$path/bin";
   
   if ($create_result)
   {
+    $algorithm = $algorithm ? $algorithm : "null";
     $agents = $agents ? $agents : 1;
     $hz = $hz ? $hz : 1;
     $duration = $duration ? $duration : 300;
@@ -224,14 +255,16 @@ $script is using the following configuration:
     }
     
     make_path("$sim_path");
-    make_path("$src_path");
+    make_path("$algs_path");
+    make_path("$plats_path");
+    make_path("$threads_path");
     make_path("$bin_path");
     
   my $common_contents = "
 /**
- * Common algorithm for all agents
+ * Common algorithm that may be used to initialize agent algorithms
  **/
-.algorithm = 'null';
+.algorithm = '$algorithm';
 
 /**
  * Type of platform to use. Options include:
@@ -344,8 +377,7 @@ region.0.3 = [40.443077, -79.940398];\n";
 .initial_alt = 4;
 
 /**
- * Set to .algorithm variable from common.mf
- * Feel free to change this to whatever you like
+ * Set the algorithm for the agent
  **/
 agent.$i.command = .algorithm;\n";
     
@@ -593,6 +625,13 @@ agent.$i.command = .algorithm;\n";
     }
   }  
   
+  # some operations need a hint on whether or not the user specified a range
+  if ($first || $last)
+  {
+    $range_specified = 1;
+  }
+
+  # if either first or last has not been specified, create an agent range.  
   if (!$first || !$last)
   {
     # if we have not defined agents, read the agent number or use default of 1
@@ -1355,30 +1394,897 @@ $region.3 = [$max_lat, $min_lon];\n";
     close run_file;
   }
   
-  # 
+  # if the user has asked for an algorithm to be specified
   if ($algorithm)
   {
-  
-    if (not -f "$src_path/$algorithm.h")
+    # if we're working with a subset
+    if ($range_specified)
     {
-      if ($verbose)
-      {
-        print ("Adding infrastructure for algorithm $algorithm...\n");
-      }
-       
+    }
+    else
+    {
+    }
+  }
+  
+  if (scalar @new_algorithm > 0 or scalar @new_platform > 0
+      or scalar @new_thread > 0)
+  {
+    if (not -f "$path/using_vrep.mpb")
+    {
       my $gamsroot = $ENV{GAMS_ROOT};
-      my $run_contents;
-    
+      
       if ($verbose)
       {
         print ("  Copying base projects from $gamsroot to $path...\n");
       }
-       
+      
       copy "$gamsroot/using_vrep.mpb", "$path/";
       copy "$gamsroot/using_ace.mpb", "$path/";
       copy "$gamsroot/using_madara.mpb", "$path/";
       copy "$gamsroot/using_gams.mpb", "$path/";
+    }
+  
+    foreach my $new_alg (@new_algorithm)
+    {
+      if ($new_alg and not -f "$algs_path/$new_alg.h")
+      {
+        my $new_alg_uc = uc $new_alg;
+      
+        if ($verbose)
+        {
+          print ("Adding infrastructure for algorithm $new_alg...\n");
+        }
+         
+        # Create file contents for custom algorithms
+       
+        my $alg_header_contents = "
+#ifndef   _ALGORITHM_${new_alg_uc}_H_
+#define   _ALGORITHM_${new_alg_uc}_H_
 
+#include <string>
+
+#include \"madara/knowledge/containers/Integer.h\"
+
+#include \"gams/variables/Sensor.h\"
+#include \"gams/platforms/BasePlatform.h\"
+#include \"gams/variables/AlgorithmStatus.h\"
+#include \"gams/variables/Self.h\"
+#include \"gams/algorithms/BaseAlgorithm.h\"
+#include \"gams/algorithms/AlgorithmFactory.h\"
+
+namespace algorithms
+{
+  /**
+  * A custom algorithm generated by gams_sim_conf.pl
+  **/
+  class $new_alg : public gams::algorithms::BaseAlgorithm
+  {
+  public:
+    /**
+     * Constructor
+     * \@param  knowledge    the context containing variables and values
+     * \@param  platform     the underlying platform the algorithm will use
+     * \@param  sensors      map of sensor names to sensor information
+     * \@param  self         self-referencing variables
+     **/
+    $new_alg (
+      madara::knowledge::KnowledgeBase * knowledge = 0,
+      gams::platforms::BasePlatform * platform = 0,
+      gams::variables::Sensors * sensors = 0,
+      gams::variables::Self * self = 0,
+      gams::variables::Agents * agents = 0);
+
+    /**
+     * Destructor
+     **/
+    virtual ~$new_alg ();
+
+    /**
+     * Analyzes environment, platform, or other information
+     * \@return bitmask status of the platform. \@see Status.
+     **/
+    virtual int analyze (void);
+      
+    /**
+     * Plans the next execution of the algorithm
+     * \@return bitmask status of the platform. \@see Status.
+     **/
+    virtual int execute (void);
+
+    /**
+     * Plans the next execution of the algorithm
+     * \@return bitmask status of the platform. \@see Status.
+     **/
+    virtual int plan (void);
+  };
+
+  /**
+   * A factory class for creating Debug Algorithms
+   **/
+  class ${new_alg}Factory : public gams::algorithms::AlgorithmFactory
+  {
+  public:
+     /**
+     * Creates a ${new_alg} algorithm.
+     * \@param   args      the args passed with the 
+     * \@param   knowledge the knowledge base to use
+     * \@param   platform  the platform. This will be set by the
+     *                     controller in init_vars.
+     * \@param   sensors   the sensor info. This will be set by the
+     *                     controller in init_vars.
+     * \@param   self      self-referencing variables. This will be
+     *                     set by the controller in init_vars
+     * \@param   agents    the list of agents, which is dictated by
+     *                     init_vars when a number of processes is set. This
+     *                     will be set by the controller in init_vars
+     **/
+    virtual gams::algorithms::BaseAlgorithm * create (
+      const madara::knowledge::KnowledgeMap & args,
+      madara::knowledge::KnowledgeBase * knowledge,
+      gams::platforms::BasePlatform * platform,
+      gams::variables::Sensors * sensors,
+      gams::variables::Self * self,
+      gams::variables::Agents * agents);
+  };
+} // end algorithms namespace
+
+#endif // _ALGORITHM_${new_alg_uc}_H_
+";
+      
+        my $alg_source_contents = " 
+#include \"${new_alg}.h\"
+
+#include <iostream>
+
+gams::algorithms::BaseAlgorithm *
+algorithms::${new_alg}Factory::create (
+  const madara::knowledge::KnowledgeMap & /*args*/,
+  madara::knowledge::KnowledgeBase * knowledge,
+  gams::platforms::BasePlatform * platform,
+  gams::variables::Sensors * sensors,
+  gams::variables::Self * self,
+  gams::variables::Agents * agents)
+{
+  gams::algorithms::BaseAlgorithm * result (0);
+  
+  if (knowledge && sensors && platform && self)
+  {
+    result = new ${new_alg} (knowledge, platform, sensors, self);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      \"algorithms::${new_alg}Factory::create:\" \
+      \" failed to create due to invalid pointers. \" \
+      \" knowledge=%p, sensors=%p, platform=%p, self=%p, agents=%p\\n\",
+      knowledge, sensors, platform, self, agents);
+  }
+
+  /**
+   * Note the usage of logger macros with the GAMS global logger. This
+   * is highly optimized and is just an integer check if the log level is
+   * not high enough to print the message
+   **/
+  if (result == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      \"algorithms::${new_alg}Factory::create:\" \
+      \" unknown error creating ${new_alg} algorithm\\n\");
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      \"algorithms::${new_alg}Factory::create:\" \
+      \" successfully created ${new_alg} algorithm\\n\");
+  }
+
+  return result;
+}
+
+algorithms::${new_alg}::${new_alg} (
+  madara::knowledge::KnowledgeBase * knowledge,
+  gams::platforms::BasePlatform * platform,
+  gams::variables::Sensors * sensors,
+  gams::variables::Self * self,
+  gams::variables::Agents * agents)
+  : gams::algorithms::BaseAlgorithm (knowledge, platform, sensors, self, agents)
+{
+  status_.init_vars (*knowledge, \"${new_alg}\", self->id.to_integer ());
+  status_.init_variable_values ();
+}
+
+algorithms::${new_alg}::~${new_alg} ()
+{
+}
+
+int
+algorithms::${new_alg}::analyze (void)
+{
+  return 0;
+}
+      
+
+int
+algorithms::${new_alg}::execute (void)
+{
+  return 0;
+}
+
+
+int
+algorithms::${new_alg}::plan (void)
+{
+  return 0;
+}
+";
+           
+        # open files for writing
+        open alg_header, ">$algs_path/$new_alg.h" or 
+          die "ERROR: Couldn't open $algs_path/$new_alg.h for writing\n";
+          print alg_header $alg_header_contents;
+        close alg_header;
+          
+        open alg_source, ">$algs_path/$new_alg.cpp" or 
+          die "ERROR: Couldn't open $algs_path/$new_alg.cpp for writing\n";
+          print alg_source $alg_source_contents;
+        close alg_source;
+          
+         
+        # open the individual agent files and update them with the algorithm
+
+        if ($verbose)
+        {
+          print ("  Replacing agent[$first - $last] algorithms with $new_alg\n");
+        }
+            
+        for (my $i = $first; $i <= $last; ++$i)
+        {
+          if ($verbose)
+          {
+            print ("    Replacing agent[$i] algorithm with $new_alg\n");
+          }
+          
+          my $agent_contents;
+          open agent_file, "$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
+            $agent_contents = join("", <agent_file>); 
+          close agent_file;
+        
+          # replace lat and lon with our new points
+          $agent_contents =~ s/(\.command\s*=\s*)\-?[^;]+/$1\"$new_alg\"/;
+            
+          if ($verbose)
+          {
+            print ("    Writing agent_$i.mf\n");
+          }
+          
+          open agent_file, ">$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
+            print agent_file  $agent_contents; 
+          close agent_file;
+        } # end for range from first to last    
+      } # end if new algorithm and the source files don't exist
+    } #end foreach new algorithm
+    
+    foreach my $new_plat (@new_platform)
+    {
+      if ($new_plat and not -f "$plats_path/$new_plat.h")
+      {
+        my $new_plat_uc = uc $new_plat;
+        if ($verbose)
+        {
+          print ("Adding infrastructure for thread $new_plat...\n");
+        }
+         
+        # Create file contents for custom platform
+       
+        my $header_contents = "
+#ifndef   _PLATFORM_${new_plat_uc}_H_
+#define   _PLATFORM_${new_plat_uc}_H_
+
+#include \"gams/platforms/BasePlatform.h\"
+#include \"gams/platforms/PlatformFactory.h\"
+
+namespace platforms
+{        
+  /**
+  * A custom platform generated by gams_sim_conf.pl
+  **/
+  class ${new_plat} : public gams::platforms::BasePlatform
+  {
+  public:
+    /**
+     * Constructor
+     * \@param  knowledge  context containing variables and values
+     * \@param  sensors    map of sensor names to sensor information
+     * \@param  self       self referencing variables for the agent
+     **/
+    ${new_plat} (
+      madara::knowledge::KnowledgeBase * knowledge = 0,
+      gams::variables::Sensors * sensors = 0,
+      gams::variables::Self * self = 0);
+
+    /**
+     * Destructor
+     **/
+    virtual ~${new_plat} ();
+
+    /**
+     * Polls the sensor environment for useful information. Required.
+     * \@return number of sensors updated/used
+     **/
+    virtual int sense (void);
+
+    /**
+     * Analyzes platform information. Required.
+     * \@return bitmask status of the platform. \@see PlatformAnalyzeStatus.
+     **/
+    virtual int analyze (void);
+
+    /**
+     * Gets the name of the platform. Required.
+     **/
+    virtual std::string get_name () const;
+
+    /**
+     * Gets the unique identifier of the platform. This should be an
+     * alphanumeric identifier that can be used as part of a MADARA
+     * variable (e.g. vrep_ant, autonomous_snake, etc.) Required.
+     **/
+    virtual std::string get_id () const;
+
+    /**
+     * Gets the position accuracy in meters. Optional.
+     * \@return position accuracy
+     **/
+    virtual double get_accuracy (void) const;
+
+    /**
+     * Gets Location of platform, within its parent frame. Optional.
+     * \@return Location of platform
+     **/
+    gams::utility::Location get_location () const;
+
+    /**
+     * Gets Rotation of platform, within its parent frame. Optional.
+     * \@return Location of platform
+     **/
+    gams::utility::Rotation get_rotation () const;
+
+    /**
+     * Gets sensor radius. Optional.
+     * \@return minimum radius of all available sensors for this platform
+     **/
+    virtual double get_min_sensor_range () const;
+
+    /**
+     * Gets move speed. Optional.
+     * \@return speed in meters per second
+     **/
+    virtual double get_move_speed () const;
+
+    /**
+     * Instructs the agent to return home. Optional.
+     * \@return the status of the home operation, \@see PlatformReturnValues
+     **/
+    virtual int home (void);
+
+    /**
+     * Instructs the agent to land. Optional.
+     * \@return the status of the land operation, \@see PlatformReturnValues
+     **/
+    virtual int land (void);
+
+    /**
+     * Moves the platform to a location. Optional.
+     * \@param   target    the coordinates to move to
+     * \@param   epsilon   approximation value
+     * \@return the status of the move operation, \@see PlatformReturnValues
+     **/
+    virtual int move (const gams::utility::Location & location,
+      double epsilon = 0.1);
+
+    /**
+     * Rotates the platform to match a given angle. Optional.
+     * \@param   target    the rotation to move to
+     * \@param   epsilon   approximation value
+     * \@return the status of the rotate, \@see PlatformReturnValues
+     **/
+    virtual int rotate (const gams::utility::Rotation & target,
+      double epsilon = M_PI/16);
+
+    /**
+     * Moves the platform to a pose (location and rotation). Optional.
+     *
+     * This default implementation calls move and rotate with the
+     * Location and Rotation portions of the target Pose. The return value
+     * is composed as follows: if either call returns ERROR (0), this call
+     * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
+     * this call also returns ARRIVED (2). Otherwise, this call returns
+     * MOVING (1)
+     *
+     * Overrides might function differently.
+     *
+     * \@param   target        the coordinates to move to
+     * \@param   loc_epsilon   approximation value for the location
+     * \@param   rot_epsilon   approximation value for the rotation
+     * \@return the status of the operation, \@see PlatformReturnValues
+     **/
+    virtual int pose (const gams::utility::Pose & target,
+      double loc_epsilon = 0.1, double rot_epsilon = M_PI/16);
+
+    /**
+     * Pauses movement, keeps source and dest at current values. Optional.
+     **/
+    virtual void pause_move (void);
+
+    /**
+     * Set move speed. Optional.
+     * \@param speed new speed in meters/second
+     **/
+    virtual void set_move_speed (const double& speed);
+
+    /**
+     * Stops movement, resetting source and dest to current location.
+     * Optional.
+     **/
+    virtual void stop_move (void);
+
+    /**
+     * Instructs the agent to take off. Optional.
+     * \@return the status of the takeoff, \@see PlatformReturnValues
+     **/
+    virtual int takeoff (void);
+  }; // end ${new_plat} class
+    
+
+  /**
+   * A factory class for creating ${new_plat} platforms
+   **/
+  class ${new_plat}Factory : public gams::platforms::PlatformFactory
+  {
+  public:
+    /**
+     * Creates a ${new_plat} platform.
+     * \@param   args      no arguments are necessary for this platform
+     * \@param   knowledge the knowledge base. This will be set by the
+     *                    controller in init_vars.
+     * \@param   sensors   the sensor info. This will be set by the
+     *                    controller in init_vars.
+     * \@param   platforms status inform for all known agents. This
+     *                    will be set by the controller in init_vars
+     * \@param   self      self-referencing variables. This will be
+     *                    set by the controller in init_vars
+     **/
+    virtual gams::platforms::BasePlatform * create (
+      const madara::knowledge::KnowledgeVector & args,
+      madara::knowledge::KnowledgeBase * knowledge,
+      gams::variables::Sensors * sensors,
+      gams::variables::Platforms * platforms,
+      gams::variables::Self * self);
+  };
+    
+} // end platforms namespace
+
+#endif // _PLATFORM_${new_plat_uc}_H_
+"; 
+        
+        my $source_contents = "
+#include \"madara/knowledge/containers/NativeDoubleVector.h\"
+#include \"${new_plat}.h\"
+
+// factory class for creating a ${new_plat} 
+gams::platforms::BasePlatform *
+platforms::${new_plat}Factory::create (
+        const madara::knowledge::KnowledgeVector & args,
+        madara::knowledge::KnowledgeBase * knowledge,
+        gams::variables::Sensors * sensors,
+        gams::variables::Platforms * platforms,
+        gams::variables::Self * self)
+{
+  return new ${new_plat} (knowledge, sensors, self);
+}
+        
+// Constructor
+platforms::${new_plat}::${new_plat} (
+  madara::knowledge::KnowledgeBase * knowledge,
+  gams::variables::Sensors * sensors,
+  gams::variables::Self * self)
+: gams::platforms::BasePlatform (knowledge, sensors, self)
+{
+  // as an example of what to do here, create a coverage sensor
+  if (knowledge && sensors)
+  {
+    // create a coverage sensor
+    gams::variables::Sensors::iterator it = sensors->find (\"coverage\");
+    if (it == sensors->end ()) // create coverage sensor
+    {
+      // get origin
+      gams::utility::GPSPosition origin;
+      madara::knowledge::containers::NativeDoubleArray origin_container;
+      origin_container.set_name (\"sensor.coverage.origin\", *knowledge, 3);
+      origin.from_container (origin_container);
+
+      // establish sensor
+      gams::variables::Sensor* coverage_sensor =
+        new gams::variables::Sensor (\"coverage\", knowledge, 2.5, origin);
+      (*sensors)[\"coverage\"] = coverage_sensor;
+    }
+    (*sensors_)[\"coverage\"] = (*sensors)[\"coverage\"];
+  }
+}
+
+
+// Destructor
+platforms::${new_plat}::~${new_plat} ()
+{
+}
+
+
+// Polls the sensor environment for useful information. Required.
+int platforms::${new_plat}::sense (void)
+{
+  return gams::platforms::PLATFORM_OK;
+}
+
+
+// Analyzes platform information. Required.
+int
+platforms::${new_plat}::analyze (void)
+{
+  return gams::platforms::PLATFORM_OK;
+}
+
+
+// Gets the name of the platform. Required.
+std::string
+platforms::${new_plat}::get_name () const
+{
+  return \"${new_plat}\";
+}
+
+
+// Gets the unique identifier of the platform.
+std::string
+platforms::${new_plat}::get_id () const
+{
+  return \"${new_plat}\";
+}
+
+
+// Gets the position accuracy in meters. Optional.
+double
+platforms::${new_plat}::get_accuracy (void) const
+{
+  // will depend on your localization capabilities for robotics
+  return 0.0;
+}
+
+// Gets Location of platform, within its parent frame. Optional.
+gams::utility::Location
+platforms::${new_plat}::get_location () const
+{
+  gams::utility::Location result;
+  
+  return result;
+}
+
+
+// Gets Rotation of platform, within its parent frame. Optional.
+gams::utility::Rotation
+platforms::${new_plat}::get_rotation () const
+{
+  gams::utility::Rotation result;
+  
+  return result;
+}
+
+
+// Gets sensor radius. Optional.
+double
+platforms::${new_plat}::get_min_sensor_range () const
+{
+  // should be in square meters
+  return 0.0;
+}
+
+// Gets move speed. Optional.
+double
+platforms::${new_plat}::get_move_speed () const
+{
+  // should be in meters/s
+  return 0.0;
+}
+
+// Instructs the agent to return home. Optional.
+int
+platforms::${new_plat}::home (void)
+{
+  /**
+   * Movement functions work in a polling manner. In a real implementation,
+   * we would want to check a finite state machine, external thread or
+   * platform status to determine what to return. For now, we will simply
+   * return that we are in the process of moving to the final pose.
+   **/
+  return gams::platforms::PLATFORM_IN_PROGRESS;
+}
+
+
+// Instructs the agent to land. Optional.
+int
+platforms::${new_plat}::land (void)
+{
+  /**
+   * Movement functions work in a polling manner. In a real implementation,
+   * we would want to check a finite state machine, external thread or
+   * platform status to determine what to return. For now, we will simply
+   * return that we are in the process of moving to the final pose.
+   **/
+  return gams::platforms::PLATFORM_IN_PROGRESS;
+}
+
+
+// Moves the platform to a location. Optional.
+int
+platforms::${new_plat}::move (
+  const gams::utility::Location & location,
+  double epsilon)
+{
+  /**
+   * Movement functions work in a polling manner. In a real implementation,
+   * we would want to check a finite state machine, external thread or
+   * platform status to determine what to return. For now, we will simply
+   * return that we are in the process of moving to the final pose.
+   **/
+  return gams::platforms::PLATFORM_MOVING;
+}
+
+
+// Rotates the platform to match a given angle. Optional.
+int
+platforms::${new_plat}::rotate (
+  const gams::utility::Rotation & target,
+  double epsilon)
+{
+  /**
+   * Movement functions work in a polling manner. In a real implementation,
+   * we would want to check a finite state machine, external thread or
+   * platform status to determine what to return. For now, we will simply
+   * return that we are in the process of moving to the final pose.
+   **/
+  return gams::platforms::PLATFORM_MOVING;
+}
+
+
+// Moves the platform to a pose (location and rotation). Optional.
+int
+platforms::${new_plat}::pose (const gams::utility::Pose & target,
+  double loc_epsilon, double rot_epsilon)
+{
+  /**
+   * Movement functions work in a polling manner. In a real implementation,
+   * we would want to check a finite state machine, external thread or
+   * platform status to determine what to return. For now, we will simply
+   * return that we are in the process of moving to the final pose.
+   **/
+  return gams::platforms::PLATFORM_MOVING;
+}
+
+// Pauses movement, keeps source and dest at current values. Optional.
+void
+platforms::${new_plat}::pause_move (void)
+{
+}
+
+
+// Set move speed. Optional.
+void
+platforms::${new_plat}::set_move_speed (const double& speed)
+{
+}
+
+
+// Stops movement, resetting source and dest to current location. Optional.
+void
+platforms::${new_plat}::stop_move (void)
+{
+}
+
+// Instructs the agent to take off. Optional.
+int
+platforms::${new_plat}::takeoff (void)
+{
+  return gams::platforms::PLATFORM_OK;
+}
+";
+      
+        # open files for writing
+        open platform_header, ">$plats_path/$new_plat.h" or 
+          die "ERROR: Couldn't open $plats_path/$new_plat.h for writing\n";
+          print platform_header $header_contents;
+        close platform_header;
+          
+        open platform_source, ">$plats_path/$new_plat.cpp" or 
+          die "ERROR: Couldn't open $plats_path/$new_plat.cpp for writing\n";
+          print platform_source $source_contents;
+        close platform_source;
+      } # end if platform does not exist yet
+    } # end foreach new platform
+    
+    foreach my $new_thr (@new_thread)
+    {
+      if ($new_thr and not -f "$threads_path/$new_thr.h")
+      {
+        my $new_thr_uc = uc $new_thr;
+      
+        if ($verbose)
+        {
+          print ("Adding infrastructure for thread $new_thr...\n");
+        }
+         
+        # Create file contents for custom thread
+       
+        my $header_contents = "
+#ifndef   _THREAD_${new_thr_uc}_H_
+#define   _THREAD_${new_thr_uc}_H_
+
+#include <string>
+
+#include \"madara/threads/BaseThread.h\"
+
+namespace threads
+{
+  /**
+  * A custom thread generated by gams_sim_conf.pl
+  **/
+  class ${new_thr} : public madara::threads::BaseThread
+  {
+  public:
+    /**
+     * Default constructor
+     **/
+    ${new_thr} ();
+    
+    /**
+     * Destructor
+     **/
+    virtual ~${new_thr} ();
+    
+    /**
+      * Initializes thread with MADARA context
+      * \@param   context   context for querying current program state
+      **/
+    virtual void init (madara::knowledge::KnowledgeBase & knowledge);
+
+    /**
+      * Executes the main thread logic
+      **/
+    virtual void run (void);
+
+  private:
+    /// data plane if we want to access the knowledge base
+    madara::knowledge::KnowledgeBase data;
+  };
+} // end namespace threads
+
+#endif // _THREAD_${new_thr_uc}_H_
+";
+        my $source_contents = "
+#include \"gams/loggers/GlobalLogger.h\"
+#include \"${new_thr}.h\"
+
+namespace knowledge = madara::knowledge;
+
+// constructor
+threads::${new_thr}::${new_thr} ()
+{
+}
+
+// destructor
+threads::${new_thr}::~${new_thr} ()
+{
+}
+
+/**
+ * Initialization to a knowledge base. If you don't actually need access
+ * to the knowledge base, just scheduling things in madara::threads::Threader,
+ * then you can decide to delete this function or simply do nothing inside of
+ * the function.
+ **/
+void
+threads::${new_thr}::init (knowledge::KnowledgeBase & knowledge)
+{
+  // point our data plane to the knowledge base initializing the thread
+  data = knowledge;
+}
+
+/**
+ * Executes the actual thread logic. Best practice is to simply do one loop
+ * iteration. If you want a long running thread that executes something
+ * frequently, see the madara::threads::Threader::runHz method in your
+ * controller.
+ **/
+void
+threads::${new_thr}::run (void)
+{
+  /**
+   * the MADARA logger is thread-safe, fast, and allows for specifying
+   * various options like output files and multiple output targets (
+   * e.g., std::cerr, a system log, and a thread_output.txt file). You
+   * can create your own custom log levels or loggers as well.
+   **/
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    \"threads::${new_thr}Factory::run:\" \
+    \" executing\\n\");
+}
+";
+    
+        # open files for writing
+        open thread_header, ">$threads_path/$new_thr.h" or 
+          die "ERROR: Couldn't open $threads_path/$new_thr.h for writing\n";
+          print thread_header $header_contents;
+        close thread_header;
+          
+        open thread_source, ">$threads_path/$new_thr.cpp" or 
+          die "ERROR: Couldn't open $threads_path/$new_thr.cpp for writing\n";
+          print thread_source $source_contents;
+        close thread_source;
+      }
+    }
+    
+    # get a list of all algorithms
+    @algorithms = glob "$algs_path/*.cpp";
+    for (my $i = 0; $i < scalar @algorithms; ++$i)
+    {
+      my ($file, $dir, $suffix) = fileparse($algorithms[$i], qr/\.[^.]*/);
+      $algorithms[$i] = $file;
+    }
+    
+    # get a list of all custom platforms
+    @platforms = glob "$plats_path/*.cpp";
+    for (my $i = 0; $i < scalar @platforms; ++$i)
+    {
+      my ($file, $dir, $suffix) = fileparse($platforms[$i], qr/\.[^.]*/);
+      $platforms[$i] = $file;
+    }
+    
+    # get a list of all custom threads
+    @threads = glob "$threads_path/*.cpp";
+    for (my $i = 0; $i < scalar @threads; ++$i)
+    {
+      my ($file, $dir, $suffix) = fileparse($threads[$i], qr/\.[^.]*/);
+      $threads[$i] = $file;
+    }
+    
+    if ($verbose)
+    {
+      print "  Custom algorithms in $algs_path:\n";
+      for (0..$#algorithms)
+      {
+        print "    " . $algorithms[$_] . "\n";
+      }
+      
+      print "  Custom platforms in $plats_path:\n";
+      for (0..$#platforms)
+      {
+        print "    " . $platforms[$_] . "\n";
+      }
+      
+      print "  Custom threads in $threads_path:\n";
+      for (0..$#threads)
+      {
+        print "    " . $threads[$_] . "\n";
+      }
+    }
+    
+    if (not -f "$src_path/controller.cpp")
+    {
+      my $run_contents;
+    
       if ($verbose)
       {
         print ("  Making changes to $sim_path/run.pl...\n");
@@ -1405,202 +2311,18 @@ $region.3 = [$max_lat, $min_lon];\n";
           print ("  Unable to replace controller with \$dir/bin/custom_controller\n");
         }
       }
-      
-      # Create file contents for custom algorithms
-
+  
       if ($verbose)
       {
-        print ("  Generating new file contents for $path...\n");
+        print ("  Writing updates to $sim_path/run.pl...\n");
       }
                
-      my $alg_header_contents = "
-#ifndef   _CUSTOM_ALGORITHM_${algorithm}_H_
-#define   _CUSTOM_ALGORITHM_${algorithm}_H_
-
-#include <string>
-
-#include \"madara/knowledge/containers/Integer.h\"
-
-#include \"gams/variables/Sensor.h\"
-#include \"gams/platforms/BasePlatform.h\"
-#include \"gams/variables/AlgorithmStatus.h\"
-#include \"gams/variables/Self.h\"
-#include \"gams/algorithms/BaseAlgorithm.h\"
-#include \"gams/algorithms/AlgorithmFactory.h\"
-
-namespace custom
-{
-  namespace algorithms
-  {
-    /**
-    * A debug algorithm that prints detailed status information
-    **/
-    class $algorithm : public gams::algorithms::BaseAlgorithm
-    {
-    public:
-      /**
-       * Constructor
-       * \@param  knowledge    the context containing variables and values
-       * \@param  platform     the underlying platform the algorithm will use
-       * \@param  sensors      map of sensor names to sensor information
-       * \@param  self         self-referencing variables
-       **/
-      $algorithm (
-        madara::knowledge::KnowledgeBase * knowledge = 0,
-        gams::platforms::BasePlatform * platform = 0,
-        gams::variables::Sensors * sensors = 0,
-        gams::variables::Self * self = 0,
-        gams::variables::Agents * agents = 0);
-
-      /**
-       * Destructor
-       **/
-      virtual ~$algorithm ();
-
-      /**
-       * Analyzes environment, platform, or other information
-       * \@return bitmask status of the platform. \@see Status.
-       **/
-      virtual int analyze (void);
+      # write changes to simulation run script     
+      open run_file, ">$sim_path/run.pl" or
+        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        print run_file $run_contents;
+      close run_file;   
       
-      /**
-       * Plans the next execution of the algorithm
-       * \@return bitmask status of the platform. \@see Status.
-       **/
-      virtual int execute (void);
-
-      /**
-       * Plans the next execution of the algorithm
-       * \@return bitmask status of the platform. \@see Status.
-       **/
-      virtual int plan (void);
-    };
-
-    /**
-     * A factory class for creating Debug Algorithms
-     **/
-    class ${algorithm}Factory : public gams::algorithms::AlgorithmFactory
-    {
-    public:
-
-      /**
-       * Creates a Debug Algorithm.
-       * \@param   args      the args passed with the 
-       * \@param   knowledge the knowledge base to use
-       * \@param   platform  the platform. This will be set by the
-       *                     controller in init_vars.
-       * \@param   sensors   the sensor info. This will be set by the
-       *                     controller in init_vars.
-       * \@param   self      self-referencing variables. This will be
-       *                     set by the controller in init_vars
-       * \@param   agents    the list of agents, which is dictated by
-       *                     init_vars when a number of processes is set. This
-       *                     will be set by the controller in init_vars
-       **/
-      virtual gams::algorithms::BaseAlgorithm * create (
-        const madara::knowledge::KnowledgeMap & args,
-        madara::knowledge::KnowledgeBase * knowledge,
-        gams::platforms::BasePlatform * platform,
-        gams::variables::Sensors * sensors,
-        gams::variables::Self * self,
-        gams::variables::Agents * agents);
-    };
-  } // end algorithms namespace
-} // end custom namespace
-
-#endif // _CUSTOM_ALGORITHM_${algorithm}_H_
-";
-    
-      my $alg_source_contents = " 
-#include \"${algorithm}.h\"
-
-#include <iostream>
-
-gams::algorithms::BaseAlgorithm *
-custom::algorithms::${algorithm}Factory::create (
-  const madara::knowledge::KnowledgeMap & /*args*/,
-  madara::knowledge::KnowledgeBase * knowledge,
-  gams::platforms::BasePlatform * platform,
-  gams::variables::Sensors * sensors,
-  gams::variables::Self * self,
-  gams::variables::Agents * agents)
-{
-  gams::algorithms::BaseAlgorithm * result (0);
-  
-  if (knowledge && sensors && platform && self)
-  {
-    result = new ${algorithm} (knowledge, platform, sensors, self);
-  }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      \"custom::algorithms::${algorithm}Factory::create:\" \
-      \" failed to create due to invalid pointers. \" \
-      \" knowledge=%p, sensors=%p, platform=%p, self=%p, agents=%p\\n\",
-      knowledge, sensors, platform, self, agents);
-  }
-
-  /**
-   * Note the usage of logger macros with the GAMS global logger. This
-   * is highly optimized and is just an integer check if the log level is
-   * not high enough to print the message
-   **/
-  if (result == 0)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-      \"custom::algorithms::${algorithm}Factory::create:\" \
-      \" unknown error creating ${algorithm} algorithm\\n\");
-  }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      \"custom::algorithms::${algorithm}Factory::create:\" \
-      \" successfully created ${algorithm} algorithm\\n\");
-  }
-
-  return result;
-}
-
-custom::algorithms::${algorithm}::${algorithm} (
-  madara::knowledge::KnowledgeBase * knowledge,
-  gams::platforms::BasePlatform * platform,
-  gams::variables::Sensors * sensors,
-  gams::variables::Self * self,
-  gams::variables::Agents * agents)
-  : gams::algorithms::BaseAlgorithm (knowledge, platform, sensors, self, agents)
-{
-  status_.init_vars (*knowledge, \"${algorithm}\", self->id.to_integer ());
-  status_.init_variable_values ();
-}
-
-custom::algorithms::${algorithm}::~${algorithm} ()
-{
-}
-
-int
-custom::algorithms::${algorithm}::analyze (void)
-{
-  return 0;
-}
-      
-
-int
-custom::algorithms::${algorithm}::execute (void)
-{
-  return 0;
-}
-
-
-int
-custom::algorithms::${algorithm}::plan (void)
-{
-  return 0;
-}
-";
-
       my $project_contents = "
 project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
   exeout = bin
@@ -1618,11 +2340,17 @@ project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
   }
 
   Header_Files {
-    src
+    src/
+    src/algorithms
+    src/platforms
+    src/threads
   }
 
   Source_Files {
     src
+    src/algorithms
+    src/platforms
+    src/threads
   }
 }
 ";
@@ -1645,15 +2373,62 @@ workspace {
 }
 
 ";
+      
+      open project_file, ">$path/project.mpc" or 
+        die "ERROR: Couldn't open $path/project.mpc for writing\n";
+        print project_file $project_contents;
+      close project_file;
+          
+      open workspace_file, ">$path/workspace.mwc" or 
+        die "ERROR: Couldn't open $path/workspace.mwc for writing\n";
+        print workspace_file $workspace_contents;
+      close workspace_file;
+    }
+        
+    if (not $thread_hz)
+    {
+      $thread_hz = 1.0;
+    }
     
+    if (not -f "$src_path/controller.cpp")
+    {    
       my $controller_contents = "
 
 #include \"madara/knowledge/KnowledgeBase.h\"
+#include \"madara/threads/Threader.h\"
 #include \"gams/controllers/BaseController.h\"
 #include \"gams/loggers/GlobalLogger.h\"
-#include \"gams/loggers/GlobalLogger.h\"
 
-#include \"$algorithm.h\"
+// DO NOT DELETE THIS SECTION
+
+// begin algorithm includes\n";
+
+      for my $new_alg (@new_algorithm)
+      {
+        $controller_contents .= "#include \"algorithms/$new_alg.h\"\n";
+      }
+
+      $controller_contents .= "// end algorithm includes
+
+// begin platform includes\n";
+
+      for my $new_plat (@new_platform)
+      {
+        $controller_contents .= "#include \"platforms/$new_plat.h\"\n";
+      }
+
+      $controller_contents .= "// end platform includes
+
+// begin thread includes\n";
+
+      for my $new_thr (@new_thread)
+      {
+        $controller_contents .= "#include \"threads/$new_thr.h\"\n";
+      }
+
+      $controller_contents .= "// end thread includes
+
+// END DO NOT DELETE THIS SECTION
 
 const std::string default_broadcast (\"192.168.1.255:15000\");
 // default transport settings
@@ -1670,7 +2445,7 @@ typedef Record::Integer Integer;
 const std::string KNOWLEDGE_BASE_PLATFORM_KEY (\".platform\");
 bool plat_set = false;
 std::string platform (\"debug\");
-std::string algorithm (\"$algorithm\");
+std::string algorithm (\"debug\");
 std::vector <std::string> accents;
 
 // controller variables
@@ -1974,17 +2749,43 @@ int main (int argc, char ** argv)
   // create knowledge base and a control loop
   madara::knowledge::KnowledgeBase knowledge (host, settings);
   controllers::BaseController controller (knowledge);
+  madara::threads::Threader threader (knowledge);
 
   // initialize variables and function stubs
   controller.init_vars (settings.id, num_agents);
   
-  // add the custom algorithm factory to the controller  
   std::vector <std::string> aliases;
-  aliases.push_back (\"$algorithm\");
-
+  
+  // begin adding custom algorithm factories";
+  
+  foreach my $new_alg (@new_algorithm)
+  {
+    $controller_contents .= "
+  // add $new_alg factory
+  aliases.clear ();
+  aliases.push_back (\"$new_alg\");
   controller.add_algorithm_factory (aliases,
-    new custom::algorithms::${algorithm}Factory ());
+    new algorithms::${new_alg}Factory ());\n";
+  }
 
+    $controller_contents .= "
+  // end adding custom algorithm factories
+
+  // begin adding custom platform factories";
+
+  foreach my $new_plat (@new_platform)
+  {
+    $controller_contents .= "
+  // add $new_plat factory
+  aliases.clear ();
+  aliases.push_back (\"$new_plat\");
+  controller.add_platform_factory (aliases,
+    new platforms::${new_plat}Factory ());\n";
+  }
+  
+    $controller_contents .= "
+  // end adding custom platform factories
+  
   // read madara initialization
   if (madara_commands != \"\")
   {
@@ -2005,7 +2806,18 @@ int main (int argc, char ** argv)
     controller.init_accent (accents[i]);
   }
 
-  // run a mape loop every 1s for 50s
+  // begin thread creation";
+
+  foreach my $new_thr (@new_thread)
+  {
+    $controller_contents .= "
+  threader.run (${thread_hz}, \"${new_thr}\", new threads::${new_thr}());";
+  }
+  
+    $controller_contents .= "
+  // end thread creation
+  
+  // run a mape loop for algorithm and platform control
   controller.run (period, loop_time);
 
   // print all knowledge values
@@ -2015,23 +2827,219 @@ int main (int argc, char ** argv)
 }
 
 ";
+      # write changes to the freshly created files
 
-      my $readme_contents = "
+      if ($verbose)
+      {
+        print ("  Writing new source and project files...\n");
+      }
+         
+      open controller_file, ">$src_path/controller.cpp" or 
+        die "ERROR: Couldn't open $src_path/controller.cpp for writing\n";
+        print controller_file $controller_contents;
+      close controller_file;
+      
+    } # end if custom controller does not exist
+    else # begin custom controller already exists
+    {
+      # custom controller already exists so read it in
+      
+      if ($verbose)
+      {
+        print ("Updating controller with custom class usage...\n");
+      }
+         
+      my $controller_contents;
+      my ($algorithm_includes, $platform_includes, $thread_includes);
+      my ($algorithm_creation, $platform_creation, $thread_creation);
+      
+      # read the controller source file
+      open controller_file, "$src_path/controller.cpp" or 
+        die "ERROR: Couldn't open $src_path/controller.cpp for writing\n";
+        $controller_contents = join("", <controller_file>); 
+      close controller_file;
+      
+      if (scalar @algorithms > 0)
+      {
+        if ($verbose)
+        {
+          print ("  Custom algorithms detected. Updating...\n");
+        }
+       
+        for (my $i = 0; $i < scalar @algorithms; ++$i)
+        {
+          $algorithm_includes .= "\n#include \"algorithms/" .
+            $algorithms[$i] . ".h\"";
+          $algorithm_creation .= "\n
+  // add ${algorithms[$i]} factory
+  std::vector <std::string> aliases;
+  aliases.push_back (\"${algorithms[$i]}\");\n
+  controller.add_algorithm_factory (aliases,
+    new algorithms::${algorithms[$i]}Factory ());";
+        } 
+       
+        if ($verbose)
+        {
+          print ("  Custom algorithms detected. Updating...\n");
+        }
+        
+        # change the includes         
+    $controller_contents =~
+      s/\/\/ begin algorithm includes(.|\s)*\/\/ end algorithm includes/\/\/ begin algorithm includes${algorithm_includes}\n\/\/ end algorithm includes/;
+        
+        # change the creation process
+    $controller_contents =~
+      s/\/\/ begin adding custom algorithm factories(.|\s)*\/\/ end adding custom algorithm factories/\/\/ begin adding custom algorithm factories${algorithm_creation}\n  \/\/ end adding custom algorithm factories/;
+      } # end if there are custom algorithms
+
+      if (scalar @platforms > 0)
+      {
+        if ($verbose)
+        {
+          print ("  Custom platforms detected. Updating...\n");
+        }
+       
+        for (my $i = 0; $i < scalar @platforms; ++$i)
+        {
+          $platform_includes .= "\n#include \"platforms/" .
+            $platforms[$i] . ".h\"";
+          
+          # insert extra space in between platform creations
+          $platform_creation .= "\n
+  // add ${platforms[$i]} factory
+  std::vector <std::string> aliases;
+  aliases.push_back (\"${platforms[$i]}\");\n
+  controller.add_platform_factory (aliases,
+    new platforms::${platforms[$i]}Factory ());";
+        } 
+        
+        # change the includes         
+    $controller_contents =~
+      s/\/\/ begin platform includes(.|\s)*\/\/ end platform includes/\/\/ begin platform includes${platform_includes}\n\/\/ end platform includes/;
+        
+        # change the creation process
+    $controller_contents =~
+      s/\/\/ begin adding custom platform factories(.|\s)*\/\/ end adding custom platform factories/\/\/ begin adding custom platform factories${platform_creation}\n  \/\/ end adding custom platform factories/;
+      } # end if there are custom platforms
+
+      if (scalar @threads > 0)
+      {
+        if ($verbose)
+        {
+          print ("  Custom threads detected. Updating...\n");
+        }
+       
+        for (my $i = 0; $i < scalar @threads; ++$i)
+        {
+          $thread_includes .= "\n#include \"threads/" .
+            $threads[$i] . ".h\"";            
+          $thread_creation .= "
+  threader.run (${thread_hz}, \"${threads[$i]}\", new threads::${threads[$i]} ());";
+        }
+        
+        # change the includes         
+    $controller_contents =~
+      s/\/\/ begin thread includes(.|\s)*\/\/ end thread includes/\/\/ begin thread includes${thread_includes}\n\/\/ end thread includes/;
+        
+        # change the creation process
+    $controller_contents =~
+      s/\/\/ begin thread creation(.|\s)*\/\/ end thread creation/\/\/ begin thread creation${thread_creation}\n  \/\/ end thread creation/;
+      } # end if there are custom threads
+      
+      if ($verbose)
+      {
+        print ("  Writing updates to $src_path/controller.cpp...\n");
+      }
+        
+      # write the controller source file
+      open controller_file, ">$src_path/controller.cpp" or 
+        die "ERROR: Couldn't open $src_path/controller.cpp for writing\n";
+        print controller_file $controller_contents;
+      close controller_file;
+    
+    } #end if custom controller already existed
+
+    
+  } # end if new algorithm or new platform or new thread
+  
+  if (not -f "$path/README.txt")
+  {
+    my @custom_type_list = ();
+    my $readme_contents = "
 INTRO:
 
   This directory has been created by the gams_sim_conf.pl script and contains
-  a custom simulation, GAMS controller, and algorithm ($algorithm).
+  a custom simulation";
   
-HOW TO:
+    if (scalar @algorithms > 0)
+    {
+      push @custom_type_list, "algorithms";
+    }
+  
+    if (scalar @platforms > 0)
+    {
+      push @custom_type_list, "platforms";
+    }
+  
+    if (scalar @threads > 0)
+    {
+      push @custom_type_list, "threads";
+    }
+  
+    if (scalar @custom_type_list > 0)
+    {
+      my $i;
+      
+      unshift @custom_type_list, "GAMS controller";
+      for ($i = 0; $i < scalar @custom_type_list - 1; ++$i)
+      {
+        $readme_contents .= ", ${custom_type_list[$i]}";
+      }
+      
+      $readme_contents .= " and ${custom_type_list[$i]}.";
+    }
+    else
+    {
+      $readme_contents .= ".";
+    }
+  
+  
+    $readme_contents .= "\n
+HOW TO:\n";
 
-  EDIT YOUR ALGORITHM:
+    if (scalar @algorithms > 0)
+    {
+      $readme_contents .= "
+  EDIT YOUR ALGORITHMS:
   
-    Open $algorithm.cpp|h with your favorite programming environment / editor.
+    Open " . $algorithms[0] . ".cpp|h with your favorite programming environment / editor.
     Each method in your algorithm should be non-blocking or the call will
     block the controller. It is in your best interest to poll information from
     the environment and knowledge base, rather than blocking on an operating
-    system call.
+    system call.\n";
+    }
 
+    if (scalar @platforms > 0)
+    {
+      $readme_contents .= "
+  EDIT YOUR PLATFORMS:
+  
+    Open " . $platforms[0] . ".cpp|h with your favorite programming environment / editor.
+    Each method in your platform should be non-blocking or the call will
+    block the controller. It is in your best interest to poll information from
+    the environment and knowledge base, rather than blocking on an operating
+    system call.\n";
+    }
+
+    if (scalar @threads > 0)
+    {
+      $readme_contents .= "
+  EDIT YOUR THREADS:
+  
+    Open " . $threads[0] . ".cpp|h with your favorite programming environment / editor.\n";
+    }
+
+    $readme_contents .= "
   COMPILE ON LINUX:
   
     mwc.pl -type gnuace workspace.mwc
@@ -2052,117 +3060,109 @@ HOW TO:
     
 ";
 
-      if ($verbose)
-      {
-        print ("  Writing updates to $sim_path/run.pl...\n");
-      }
-               
-      # write changes to simulation run script     
-      open run_file, ">$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
-        print run_file $run_contents;
-      close run_file;
-      
-      # write changes to the freshly created files
-
-      if ($verbose)
-      {
-        print ("  Writing new source and project files...\n");
-      }
-                  
-      # open files for writing
-      open alg_header, ">$src_path/$algorithm.h" or 
-        die "ERROR: Couldn't open $src_path/$algorithm.h for writing\n";
-        print alg_header $alg_header_contents;
-      close alg_header;
-        
-      open alg_source, ">$src_path/$algorithm.cpp" or 
-        die "ERROR: Couldn't open $src_path/$algorithm.cpp for writing\n";
-        print alg_source $alg_source_contents;
-      close alg_source;
-        
-      open controller_file, ">$src_path/controller.cpp" or 
-        die "ERROR: Couldn't open $src_path/controller.cpp for writing\n";
-        print controller_file $controller_contents;
-      close controller_file;
-        
-      open project_file, ">$path/project.mpc" or 
-        die "ERROR: Couldn't open $path/project.mpc for writing\n";
-        print project_file $project_contents;
-      close project_file;
-        
-      open workspace_file, ">$path/workspace.mwc" or 
-        die "ERROR: Couldn't open $path/workspace.mwc for writing\n";
-        print workspace_file $workspace_contents;
-      close workspace_file;
-        
-      open readme_file, ">$path/README.txt" or 
-        die "ERROR: Couldn't open $path/README.txt for writing\n";
-        print readme_file $readme_contents;
-      close readme_file;
-       
-       
-      # open the individual agent files and update them with the algorithm
-
-      if ($verbose)
-      {
-        print ("  Replacing agent[$first - $last] algorithms with $algorithm\n");
-      }
-          
-      for (my $i = $first; $i <= $last; ++$i)
-      {
-        if ($verbose)
-        {
-          print ("    Replacing agent[$i] algorithm with $algorithm\n");
-        }
-        
-        my $agent_contents;
-        open agent_file, "$sim_path/agent_$i.mf" or
-          die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
-          $agent_contents = join("", <agent_file>); 
-        close agent_file;
-      
-        # replace lat and lon with our new points
-        $agent_contents =~ s/(\.command\s*=\s*)\-?[^;]+/$1\"$algorithm\"/;
-          
-        if ($verbose)
-        {
-          print ("    Writing agent_$i.mf\n");
-        }
-        
-        open agent_file, ">$sim_path/agent_$i.mf" or
-          die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
-          print agent_file  $agent_contents; 
-        close agent_file;
-      }
-          
-    }
-  
-  }
-  
-  if (not -f "$path/README.txt")
-  {
-  
-      my $readme_contents = "
-INTRO:
-
-  This directory has been created by the gams_sim_conf.pl script and contains
-  a custom simulation.
-  
-HOW TO:
-
-  RUN THE SIMULATION:
-    open VREP simulator
-    perl sim/run.pl 
-";
-     
     open readme_file, ">$path/README.txt" or 
       die "ERROR: Couldn't open $path/README.txt for writing\n";
       print readme_file $readme_contents;
     close readme_file;
-  }
-} #end !$help
+  } #end README does not exist
+  elsif (scalar @new_algorithm > 0 or scalar @new_platform > 0
+         or scalar @new_thread > 0)
+  {
+    if ($verbose)
+    {
+      print ("Updating readme file with any custom types...\n");
+    }
+         
+    my $readme_contents;
+    my @custom_type_list;
+    my $custom_intro;
+    my $custom_howto;
 
+    # read the controller source file
+    open readme_file, "$path/README.txt" or 
+      die "ERROR: Couldn't open $path/README.txt for writing\n";
+      $readme_contents = join("", <readme_file>); 
+    close readme_file;
+  
+    # build a list of all the types of custom types being used
+    if (scalar @algorithms > 0)
+    {
+      if ($verbose)
+      {
+        print ("  Found custom algorithms...\n");
+      }
+         
+      push @custom_type_list, "algorithms";
+      $custom_howto .= "
+  EDIT YOUR ALGORITHMS:
+  
+    Open " . $algorithms[0] .
+    ".cpp|h with your favorite programming environment / editor.
+    Each method in your algorithm should be non-blocking or the call will
+    block the controller. It is in your best interest to poll information from
+    the environment and knowledge base, rather than blocking on an operating
+    system call.\n";
+    }
+    if (scalar @platforms > 0)
+    {
+      if ($verbose)
+      {
+        print ("  Found custom platforms...\n");
+      }
+         
+      push @custom_type_list, "platforms";
+      $custom_howto .= "
+  EDIT YOUR PLATFORMS:
+  
+    Open " . $platforms[0] . 
+    ".cpp|h with your favorite programming environment / editor.
+    Each method in your platform should be non-blocking or the call will
+    block the controller. It is in your best interest to poll information from
+    the environment and knowledge base, rather than blocking on an operating
+    system call.\n";
+    }
+    if (scalar @threads > 0)
+    {
+      if ($verbose)
+      {
+        print ("  Found custom threads...\n");
+      }
+         
+      push @custom_type_list, "threads";
+      $custom_howto .= "
+  EDIT YOUR THREADS:
+  
+    Open " . $threads[0] .
+      ".cpp|h with your favorite programming environment / editor.\n";
+    }
+    
+    # build a string for the intro referencing the custom elements in diretory
+    
+    if (scalar @custom_type_list > 0)
+    {
+      my $i;
+      
+      unshift @custom_type_list, "GAMS controller";
+      for ($i = 0; $i < scalar @custom_type_list - 1; ++$i)
+      {
+        $custom_intro .= ", ${custom_type_list[$i]}";
+      }
+      
+      $custom_intro .= " and ${custom_type_list[$i]}";
+    }
+  
+    $readme_contents =~
+      s/custom simulation[^\.\n]*/custom simulation${custom_intro}/;
+  
+    $readme_contents =~
+      s/HOW TO(.|\s)*COMPILE ON LINUX/HOW TO:\n${custom_howto}\n  COMPILE ON LINUX/;
+  
+    open readme_file, ">$path/README.txt" or 
+      die "ERROR: Couldn't open $path/README.txt for writing\n";
+      print readme_file $readme_contents;
+    close readme_file;
+  } # end readme does exist
+} #end !$help
 
 #########################
 # Returns true if point is inside polygon, false otherwise

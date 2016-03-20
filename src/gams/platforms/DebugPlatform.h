@@ -206,7 +206,7 @@ namespace gams
        *                    set by the controller in init_vars
        **/
       virtual BasePlatform * create (
-        const madara::knowledge::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,

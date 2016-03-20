@@ -112,12 +112,12 @@ jlong JNICALL Java_com_gams_variables_Agent_jni_1getBridgeId
  * Method:    jni_getCommand
  * Signature: (J)J
  */
-jlong JNICALL Java_com_gams_variables_Agent_jni_1getCommand
+jlong JNICALL Java_com_gams_variables_Agent_jni_1getAlgorithm
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->command;
+  return (jlong) &current->algorithm;
 }
 
 /*
@@ -125,12 +125,12 @@ jlong JNICALL Java_com_gams_variables_Agent_jni_1getCommand
  * Method:    jni_getArgs
  * Signature: (J)J
  */
-jlong JNICALL Java_com_gams_variables_Agent_jni_1getArgs
+jlong JNICALL Java_com_gams_variables_Agent_jni_1getAlgorithmArgs
   (JNIEnv * , jobject, jlong cptr)
 {
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->command_args;
+  return (jlong) &current->algorithm_args;
 }
 
 /*

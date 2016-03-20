@@ -4,8 +4,7 @@
 .initial_y=10;
 .initial_alt=12;
 
-agent.11.command="perimeter patrol";
-agent.11.command.size=1;
-agent.11.command.0="region.0";
+agent.11.algorithm="perimeter patrol";
+agent.11.algorithm.args.area="region.0";
 
 .platform="vrep-uav";

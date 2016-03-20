@@ -4,6 +4,6 @@
 .initial_y=POSY;
 .initial_alt=4;
 
-agent.IND.command="urec";
-agent.IND.command.size=1;
-agent.IND.command.0="region.0";
+agent.IND.algorithm="urec";
+
+agent.IND.algorithm.args.0="region.0";

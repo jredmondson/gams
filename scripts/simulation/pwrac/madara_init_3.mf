@@ -4,6 +4,5 @@
 .initial_y=13;
 .initial_alt=4;
 
-agent.3.command="pwrac";
-agent.3.command.size=1;
-agent.3.command.0="search_area.2";
+agent.3.algorithm="pwrac";
+agent.3.algorithm.args.area="search_area.2";

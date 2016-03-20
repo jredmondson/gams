@@ -71,9 +71,15 @@ using std::string;
 using std::cerr;
 using std::endl;
 
+namespace engine = madara::knowledge;
+namespace containers = engine::containers;
+
+typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
+typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
+
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
-  const madara::knowledge::KnowledgeMap & map,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -81,72 +87,84 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
   variables::Agents * agents)
 {
   BaseAlgorithm * result (0);
-  
-  if (knowledge && sensors && self && agents)
-  {
-    // Use a dumb workaround for now; TODO: convert this algo to use the map
-    using namespace madara::knowledge;
-    KnowledgeVector args(utility::kmap2kvec(map));
 
-    if (args.size () >= 1)
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::MinTimeAreaCoverageFactory:" \
+    " entered create with %u args\n", args.size ());
+
+  if (knowledge && sensors && platform && self)
+  {
+    std::string search_area;
+    double time = 360;
+
+    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
     {
-      if (args[0].is_string_type ())
+      if (i->first.size () <= 0)
+        continue;
+
+      switch (i->first[0])
       {
-        if (args.size () == 2)
+      case 'a':
+        if (i->first == "area")
         {
-          if (args[1].is_double_type () || args[1].is_integer_type ())
-          {
-            result = new area_coverage::MinTimeAreaCoverage (
-              args[0].to_string () /* search area id*/,
-              ACE_Time_Value (args[1].to_double ()) /* exec time */,
-              knowledge, platform, sensors, self, agents);
-          }
-          else
-          {
-            madara_logger_ptr_log (gams::loggers::global_logger.get (),
-              gams::loggers::LOG_ERROR,
-               "gams::algorithms::MinTimeAreaCoverageFactory::create:" \
-              " invalid second arg, expected double\n");
-          }
+          search_area = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting search_area to %s\n", search_area.c_str ());
+
+          break;
         }
-        else
+      case 's':
+        if (i->first == "search_area")
         {
-          result = new area_coverage::MinTimeAreaCoverage (
-            args[0].to_string () /* search area id*/,
-            ACE_Time_Value (0.0) /* run forever */,
-            knowledge, platform, sensors, self, agents);
+          search_area = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting search_area to %s\n", search_area.c_str ());
+
+          break;
         }
-      }
-      else
-      {
+      case 't':
+        if (i->first == "time")
+        {
+          time = i->second.to_double ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationSyncFactory:" \
+            " setting time to %f\n", time);
+
+          break;
+        }
+      default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-           "gams::algorithms::MinTimeAreaCoverageFactory::create:" \
-          " invalid first arg, expected string\n");
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::FormationSyncFactory:" \
+          " argument unknown: %s -> %s\n",
+          i->first.c_str (), i->second.to_string ().c_str ());
+        break;
       }
     }
-    else
+
+    // if group has not been set, use the swarm
+    if (search_area == "")
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-         "gams::algorithms::MinTimeAreaCoverageFactory::create:" \
-        " expected 1 or 2 args\n");
+        "gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create:" \
+        " No search area specified. Returning null.\n");
     }
-  }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-       "gams::algorithms::MinTimeAreaCoverageFactory::create:" \
-      " invalid knowledge, sensors, self, or agents parameters\n");
-  }
-
-  if (result == 0)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-       "gams::algorithms::MinTimeAreaCoverageFactory::create:" \
-      " unknown error creating algorithm\n");
+    else
+    {
+      result = new area_coverage::MinTimeAreaCoverage (
+        search_area, ACE_Time_Value (time),
+        knowledge, platform, sensors, self, agents);
+    }
   }
 
   return result;

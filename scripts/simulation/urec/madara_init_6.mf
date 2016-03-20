@@ -4,6 +4,5 @@
 .initial_y=20;
 .initial_alt=4;
 
-agent.6.command="urec";
-agent.6.command.size=1;
-agent.6.command.0="region.0";
+agent.6.algorithm="urec";
+agent.6.algorithm.args.area="region.0";
