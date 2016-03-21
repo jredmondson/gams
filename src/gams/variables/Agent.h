@@ -118,6 +118,9 @@ namespace gams
       /// agent specific command 
       madara::knowledge::containers::String algorithm;
 
+      /// agent specific command 
+      madara::knowledge::containers::Integer algorithm_id;
+
       /// agent specific command has changed
       madara::knowledge::containers::Integer algorithm_changed;
 
@@ -126,6 +129,9 @@ namespace gams
 
       /// Last command
       madara::knowledge::containers::String last_algorithm;
+
+      /// Last command
+      madara::knowledge::containers::Integer last_algorithm_id;
 
       /// Last command args
       madara::knowledge::containers::Map last_algorithm_args;

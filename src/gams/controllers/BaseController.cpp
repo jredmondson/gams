@@ -163,47 +163,82 @@ gams::controllers::BaseController::system_analyze (void)
 
   if (self_.agent.algorithm != "")
   {
-    std::string prefix(self_.agent.algorithm_args.get_name() + ".");
-    madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
+    if (swarm_.algorithm_id != 0 &&
+        self_.agent.last_algorithm_id == self_.agent.algorithm_id)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::system_analyze:" \
+        " agent.algorithm already analyzed (last_algorithm=%d, cur_algorithm=%d)\n",
+        (int)*self_.agent.last_algorithm_id,
+        (int)*self_.agent.algorithm_id);
+    }
+    else
+    {
+      std::string prefix (self_.agent.algorithm_args.get_name () + ".");
+      madara::knowledge::KnowledgeMap args (knowledge_.to_map_stripped (prefix));
 
-    self_.agent.algorithm_args.sync_keys();
+      self_.agent.algorithm_args.sync_keys ();
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::controllers::BaseController::system_analyze:" \
-      " Processing agent command: %s\n", (*self_.agent.algorithm).c_str());
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::system_analyze:" \
+        " Processing agent command: %s\n", (*self_.agent.algorithm).c_str ());
 
-    init_algorithm (self_.agent.algorithm.to_string (), args);
+      init_algorithm (self_.agent.algorithm.to_string (), args);
 
-    self_.agent.last_algorithm = self_.agent.algorithm.to_string ();
+      self_.agent.last_algorithm = self_.agent.algorithm.to_string ();
+      if (self_.agent.algorithm_id.is_true ())
+      {
+        self_.agent.last_algorithm_id = *self_.agent.algorithm_id;
+      }
 
-    // reset the command
-    self_.agent.algorithm = "";
-    self_.agent.last_algorithm_args.clear(true);
-    self_.agent.algorithm_args.exchange(self_.agent.last_algorithm_args,
-                                      true, true);
+      // reset the command
+      self_.agent.algorithm = "";
+      self_.agent.algorithm_id = 0;
+      self_.agent.last_algorithm_args.clear (true);
+      self_.agent.algorithm_args.exchange (self_.agent.last_algorithm_args,
+        true, true);
+    }
   }
   else if (swarm_.algorithm != "")
   {
-    std::string prefix(swarm_.algorithm_args.get_name() + ".");
-    madara::knowledge::KnowledgeMap args(knowledge_.to_map_stripped(prefix));
+    if (swarm_.algorithm_id != 0 && self_.agent.last_algorithm_id == swarm_.algorithm_id)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::system_analyze:" \
+        " swarm.algorithm already analyzed (last_algorithm=%d, cur_algorithm=%d)\n",
+        (int) *self_.agent.last_algorithm_id,
+        (int)*swarm_.algorithm_id);
+    }
+    else
+    {
+      std::string prefix (swarm_.algorithm_args.get_name () + ".");
+      madara::knowledge::KnowledgeMap args (knowledge_.to_map_stripped (prefix));
 
-    swarm_.algorithm_args.sync_keys();
+      swarm_.algorithm_args.sync_keys ();
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::controllers::BaseController::system_analyze:" \
-      " Processing swarm command: %s\n", (*swarm_.algorithm).c_str());
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::system_analyze:" \
+        " Processing swarm command: %s\n", (*swarm_.algorithm).c_str ());
 
-    init_algorithm (swarm_.algorithm.to_string (), args);
+      init_algorithm (swarm_.algorithm.to_string (), args);
 
-    self_.agent.last_algorithm = swarm_.algorithm.to_string ();
+      self_.agent.last_algorithm = swarm_.algorithm.to_string ();
+      if (self_.agent.algorithm_id.is_true ())
+      {
+        self_.agent.last_algorithm_id = *swarm_.algorithm_id;
+      }
 
-    // reset the command
-    swarm_.algorithm = "";
-    self_.agent.last_algorithm_args.clear(true);
-    swarm_.algorithm_args.exchange(self_.agent.last_algorithm_args,
-                                 true, true);
+      // reset the command
+      swarm_.algorithm = "";
+      self_.agent.last_algorithm_args.clear (true);
+      self_.agent.algorithm_id = 0;
+      swarm_.algorithm_args.exchange (self_.agent.last_algorithm_args,
+        true, true);
+    }
   }
 
   if (self_.agent.madara_debug_level !=

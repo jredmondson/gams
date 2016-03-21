@@ -24,6 +24,7 @@ my $equidistant;
 my $buffer = 5;
 my $first;
 my $gams_debug;
+my $group;
 my $help;
 my $hz;
 my $invert;
@@ -79,6 +80,7 @@ GetOptions(
   'equidistant|distributed' => \$equidistant,
   'first|f=i' => \$first,
   'gams_debug|gd=i' => \$gams_debug,
+  'group=s' => \$group,
   'help|h' => \$help,
   'height_diff=i' => \$height_diff,
   'hz|z=i' => \$hz,
@@ -132,6 +134,7 @@ options:
   --equidistant          alias to --distributed
   --first|-f num         first agent number (e.g 0, 1, 2, etc.)
   --gams_debug|-gd lev   log level for GAMS
+  --group  prefix        group to change
   --help|-h              print guidance information
   --height_diff meters   height difference in meters when paired with unique
   --hz|-z hertz          periodic execution rate for agents
@@ -190,12 +193,13 @@ $script is using the following configuration:
   broadcast = " . ($broadcast ? $broadcast : 'no') . "
   buffer = $buffer meters
   equidistant = " . ($equidistant ? 'yes' : 'no') . "
-  first = " . ($first ? $first : 'default') . "
+  first = " . (defined $first ? $first : 'default') . "
   gams_debug = " . ($gams_debug ? $gams_debug : 'no change') . "
+  group = " . ($group ? $group : 'none specified') . "
   height_diff = $height_diff
   hz = " . ($hz ? $hz : 'no change') . "
   invert = " . ($invert ? 'yes' : 'no') . "
-  last = " . ($last ? $last : 'default') . "
+  last = " . (defined $last ? $last : 'default') . "
   madara_debug = " . ($madara_debug ? $madara_debug : 'no change') . "
   max_lat = " . ($max_lat ? $max_lat : 'no change') . "
   max_lon = " . ($max_lon ? $max_lon : 'no change') . "
@@ -301,7 +305,7 @@ sensor.coverage.origin=[40.443077,-79.940570, 0.0];
  * Each thread tick, target will move at most vrep_thread_move_speed divided
  * by vrep_move_thread_rate meters.
  **/
-.vrep_thread_move_speed = 2;";
+.vrep_thread_move_speed = 2;\n";
 
   
   my $env_contents = "
@@ -626,13 +630,13 @@ agent.$i.command = .algorithm;\n";
   }  
   
   # some operations need a hint on whether or not the user specified a range
-  if ($first || $last)
+  if (defined $first || defined $last)
   {
     $range_specified = 1;
   }
 
   # if either first or last has not been specified, create an agent range.  
-  if (!$first || !$last)
+  if (not defined $first || not defined $last)
   {
     # if we have not defined agents, read the agent number or use default of 1
     if (!$agents)
@@ -654,13 +658,13 @@ agent.$i.command = .algorithm;\n";
     }
     
     # default first is the first agent (0)
-    if (!$first)
+    if (not defined $first)
     {
       $first = 0;
     }
     
     # default last is $agents - 1
-    if (!$last)
+    if (not defined $last)
     {
       $last = $agents - 1;
     }
@@ -1394,16 +1398,67 @@ $region.3 = [$max_lat, $min_lon];\n";
     close run_file;
   }
   
-  # if the user has asked for an algorithm to be specified
-  if ($algorithm)
-  {
-    # if we're working with a subset
-    if ($range_specified)
+  # if the user has asked for a group to be created/modified/used
+  if ($group)
+  { 
+    if ($verbose)
     {
+      print ("Updating group $group...\n");
+    }
+    
+    my $common_contents;
+  
+    open common_file, "$sim_path/common.mf" or
+      die "ERROR: Couldn't open $sim_path/common.mf\n"; 
+      $common_contents = join("", <common_file>); 
+    close common_file;
+    
+    if ($verbose)
+    {
+      print ("  Building group string for $sim_path/common.mf\n");
+    }
+    
+    my $replacement;
+    
+    $replacement .= "\n// Defining group $group\n";
+    
+    $replacement .= "$group.members.size = " . ($last - $first + 1) . "\n";
+    
+    my $index = 0;
+    for (my $i = $first; $i <= $last; ++$i, ++$index)
+    {
+      $replacement .= "$group.members.$index = agent.$i;\n";
+    }
+    
+    if ($verbose)
+    {
+      print ("  Group string built\n");
+    }
+    
+    # check if the group exists
+    if ($common_contents =~ m{$group})
+    {
+      if ($verbose)
+      {
+        print ("  Group already exists. Replacing group definition in common.mf.\n");
+      }
+    
+      $common_contents =~ s/(\/\/ Defining group\s+)?($group[^\n]*\s*)+/$replacement/;
     }
     else
     {
+      if ($verbose)
+      {
+        print ("  Group does not exists. Adding group definition in common.mf.\n");
+      }
+    
+      $common_contents .= "$replacement\n";
     }
+    
+    open common_file, ">$sim_path/common.mf" or
+      die "ERROR: Couldn't open $sim_path/common.mf for writing\n";
+      print common_file  $common_contents; 
+    close common_file;
   }
   
   if (scalar @new_algorithm > 0 or scalar @new_platform > 0

@@ -306,7 +306,8 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_
     // iterate through arguments and copy the knowledge record for each arg
     for (size_t i = 0; i < argsLen; ++i)
     {
-      madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
+      madara::knowledge::KnowledgeRecord * cur_record =
+        (madara::knowledge::KnowledgeRecord *)elements[i];
 
       if (cur_record)
       {

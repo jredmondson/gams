@@ -109,7 +109,10 @@ namespace gams
 
       /// the current command given to the swarm
       madara::knowledge::containers::String algorithm;
-      
+
+      /// the current command given to the swarm
+      madara::knowledge::containers::Integer algorithm_id;
+
       /// number of arguments for command
       madara::knowledge::containers::Map algorithm_args;
       

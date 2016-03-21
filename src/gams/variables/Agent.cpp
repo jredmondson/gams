@@ -64,6 +64,7 @@ gams::variables::Agent::operator= (const Agent & agent)
   if (this != &agent)
   {
     this->algorithm = agent.algorithm;
+    this->algorithm_id = agent.algorithm_id;
     this->algorithm_changed = agent.algorithm_changed;
     this->algorithm_args = agent.algorithm_args;
     this->battery_remaining = agent.battery_remaining;
@@ -80,6 +81,7 @@ gams::variables::Agent::operator= (const Agent & agent)
     this->search_area_id = agent.search_area_id;
     this->temperature = agent.temperature;
     this->last_algorithm = agent.last_algorithm;
+    this->last_algorithm_id = agent.last_algorithm_id;
     this->last_algorithm_args = agent.last_algorithm_args;
     this->accents = agent.accents;
     this->madara_debug_level = agent.madara_debug_level;
@@ -110,9 +112,12 @@ gams::variables::Agent::init_vars (
     knowledge);
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
   algorithm.set_name (agent_name + ".algorithm", knowledge);
+  algorithm_id.set_name (agent_name + ".algorithm.id", knowledge);
   algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
   algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
-  last_algorithm.set_name (agent_name + ".last_algorithm", knowledge);
+  last_algorithm.set_name (agent_name + ".algorithm.last", knowledge);
+  last_algorithm_id.set_name (agent_name + ".algorithm.last.id", knowledge);
+  last_algorithm_args.set_name (agent_name + ".algorithm.last.args", knowledge);
   variables::init_vars (accents, knowledge, agent_name);
   home.set_name (agent_name + ".home", knowledge);
   source.set_name (agent_name + ".source", knowledge);
@@ -152,9 +157,11 @@ gams::variables::Agent::init_vars (
     knowledge);
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
   algorithm.set_name (agent_name + ".algorithm", knowledge);
+  algorithm_id.set_name (agent_name + ".algorithm.id", knowledge);
   algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
   algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
   last_algorithm.set_name (agent_name + ".algorithm.last", knowledge);
+  last_algorithm_id.set_name (agent_name + ".algorithm.last.id", knowledge);
   last_algorithm_args.set_name (agent_name + ".algorithm.last.args", knowledge);
   variables::init_vars (accents, knowledge, agent_name);
   home.set_name (agent_name + ".home", knowledge);

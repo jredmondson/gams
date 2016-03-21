@@ -66,6 +66,7 @@ gams::variables::Swarm::operator= (const Swarm & rhs)
   {
     this->accents = rhs.accents;
     this->algorithm = rhs.algorithm;
+    this->algorithm_id = rhs.algorithm_id;
     this->algorithm_args = rhs.algorithm_args;
     this->min_alt = rhs.min_alt;
     this->size = rhs.size;
@@ -82,6 +83,7 @@ gams::variables::Swarm::init_vars (
   variables::init_vars (accents, knowledge, "swarm");
   min_alt.set_name ("swarm.min_alt", knowledge);
   algorithm.set_name ("swarm.algorithm", knowledge);
+  algorithm_id.set_name ("swarm.algorithm.id", knowledge);
   algorithm_args.set_name ("swarm.algorithm.args", knowledge);
   size.set_name ("swarm.size", knowledge);
 
@@ -97,6 +99,7 @@ gams::variables::Swarm::init_vars (
   variables::init_vars (accents, knowledge, "swarm");
   min_alt.set_name ("swarm.min_alt", knowledge);
   algorithm.set_name ("swarm.algorithm", knowledge);
+  algorithm_id.set_name ("swarm.algorithm.id", knowledge);
   algorithm_args.set_name ("swarm.algorithm.args", knowledge);
   size.set_name ("swarm.size", knowledge);
 
@@ -112,6 +115,7 @@ void gams::variables::Swarm::init_vars (
   // keep certain varaible changes as local only
   min_alt.set_settings (keep_local);
   algorithm.set_settings (keep_local);
+  algorithm_id.set_settings (keep_local);
   algorithm_args.set_settings (keep_local);
   size.set_settings (keep_local);
 
