@@ -680,7 +680,26 @@ agent.$i.algorithm = .algorithm;\n";
   }
   else
   {
-      print ("User-defined init: first = $first, last = $last, agents=$agents\n");
+    # if we have not defined agents, read the agent number or use default of 1
+    if (!$agents)
+    {
+      my $run_contents;
+      open run_file, "$sim_path/run.pl" or
+        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        $run_contents = join("", <run_file>); 
+      close run_file;
+      
+      if ($run_contents =~ m{agents\s*=\s*(\d+)})
+      {
+        $agents = $1;
+      }
+      else
+      {
+        $agents = 1;
+      }
+    }
+    
+    print ("User-defined init: first = $first, last = $last, agents=$agents\n");
   }
   
   
