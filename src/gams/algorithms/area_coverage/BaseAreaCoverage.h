@@ -140,6 +140,9 @@ namespace gams
 
         /// end time
         ACE_Time_Value end_time_;
+
+        /// indicates whether the algorithm is initialized
+        bool initialized_;
       };
     } // namespace area_coverage
   } // namespace algorithms

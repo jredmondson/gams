@@ -63,7 +63,8 @@ gams::algorithms::area_coverage::BaseAreaCoverage::BaseAreaCoverage (
   variables::Agents * agents,
   const ACE_Time_Value& e_time) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
-  exec_time_ (e_time), end_time_(ACE_OS::gettimeofday () + e_time)
+  exec_time_ (e_time), end_time_(ACE_OS::gettimeofday () + e_time),
+  initialized_ (false)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -117,7 +118,9 @@ gams::algorithms::area_coverage::BaseAreaCoverage::analyze ()
 int
 gams::algorithms::area_coverage::BaseAreaCoverage::execute ()
 {
-  if (status_.finished != 1)
+  if (initialized_ && 
+      platform_ && *platform_->get_platform_status ()->movement_available
+      && status_.finished != 1)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
@@ -125,12 +128,28 @@ gams::algorithms::area_coverage::BaseAreaCoverage::execute ()
       " calling platform->move(\"%s\")\n", next_position_.to_string ().c_str ());
     platform_->move(next_position_);
   }
-  else
+  else if (!initialized_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::BaseAreaCoverage::execute:" \
+      " algorithm is not initialized. Generating new position.\n");
+
+    generate_new_position ();
+  }
+  else if (status_.finished == 1)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::area_coverage::BaseAreaCoverage::execute:" \
       " algorithm is finished\n");
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::area_coverage::BaseAreaCoverage::execute:" \
+      " platform is not ready\n");
   }
   return 0;
 }
@@ -142,27 +161,30 @@ gams::algorithms::area_coverage::BaseAreaCoverage::execute ()
 int
 gams::algorithms::area_coverage::BaseAreaCoverage::plan ()
 {
-  utility::Location loc = platform_->get_location ();
-  utility::Location next_loc(platform_->get_frame(),
-    next_position_.longitude(), next_position_.latitude(),
-    next_position_.altitude());
-
-  double dist = loc.distance_to(next_loc);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::algorithms::area_coverage::BaseAreaCoverage::plan:" \
-    " distance between points is %f (need %f accuracy)\n", dist, platform_->get_accuracy());
-
-  if (loc.approximately_equal(next_loc, platform_->get_accuracy()))
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
+    utility::Location loc = platform_->get_location ();
+    utility::Location next_loc (platform_->get_frame (),
+      next_position_.longitude (), next_position_.latitude (),
+      next_position_.altitude ());
+
+    double dist = loc.distance_to (next_loc);
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::area_coverage::BaseAreaCoverage::plan:" \
-      " generating new position\n");
-    generate_new_position();
-  }
+      " distance between points is %f (need %f accuracy)\n",
+      dist, platform_->get_accuracy ());
 
+    if (loc.approximately_equal (next_loc, platform_->get_accuracy ()))
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::area_coverage::BaseAreaCoverage::plan:" \
+        " generating new position\n");
+      generate_new_position ();
+    }
+  }
   return 0;
 }
 

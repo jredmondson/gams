@@ -213,76 +213,81 @@ void
 gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
   generate_new_position ()
 {
-  // get current location
-  utility::GPSPosition cur_gps;
-  cur_gps.from_container (self_->agent.location);
-
-  // create possible next positions
-  const int num_possible = 12;
-  utility::Position possible[num_possible];
-  utility::Position cur = pheremone_.get_index_from_gps (cur_gps);
-  vector<unsigned int> selection;
-  for (unsigned int i = 0; i < num_possible; ++i)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    possible[i] = cur;
-    selection.push_back (i);
-  }
-  ++possible[0].x; ++possible[0].y;
-  ++possible[1].x;
-  ++possible[2].x; --possible[2].y;
-  --possible[3].y;
-  --possible[4].x; --possible[4].y;
-  --possible[5].x;
-  --possible[6].x; ++possible[6].y;
-  ++possible[7].y;
+    // get current location
+    utility::GPSPosition cur_gps;
+    cur_gps.from_container (self_->agent.location);
 
-  /**
-   * We consider the possibility that the agent drifts outside the actual area
-   * of operation. A more robust way to do this would be to find the closest 
-   * cell in the area and go to that, however, this is simpler and has not
-   * failed in simulation. Real-world experiments are likely to differ and may 
-   * require the more robust solution. 
-   */
-  possible[8].x += 2;
-  possible[9].y += 2;
-  possible[10].x -= 2;
-  possible[11].y -= 2;
-
-  // find lowest pheremone concentration of possible coords in search_area
-  utility::GPSPosition lowest = cur_gps;
-  utility::Position s;
-  double concentration = DBL_MAX;
-  std::random_shuffle (selection.begin (), selection.end ());
-  for (unsigned int i = 0; i < num_possible; ++i)
-  {
-    const int index = selection[i]; // get randomized index
-
-    // update executions value if necessary
-    const double my_concentration = pheremone_.get_value (possible[index]);
-    if (my_concentration > executions_)
-      executions_ = my_concentration;
-
-    // check if new min found and update if necessary
-    if (concentration > my_concentration)
+    // create possible next positions
+    const int num_possible = 12;
+    utility::Position possible[num_possible];
+    utility::Position cur = pheremone_.get_index_from_gps (cur_gps);
+    vector<unsigned int> selection;
+    for (unsigned int i = 0; i < num_possible; ++i)
     {
-      utility::GPSPosition possible_gps =
-        pheremone_.get_gps_from_index (possible[index]);
-      if (search_area_.contains (possible_gps))
+      possible[i] = cur;
+      selection.push_back (i);
+    }
+    ++possible[0].x; ++possible[0].y;
+    ++possible[1].x;
+    ++possible[2].x; --possible[2].y;
+    --possible[3].y;
+    --possible[4].x; --possible[4].y;
+    --possible[5].x;
+    --possible[6].x; ++possible[6].y;
+    ++possible[7].y;
+
+    /**
+     * We consider the possibility that the agent drifts outside the actual area
+     * of operation. A more robust way to do this would be to find the closest
+     * cell in the area and go to that, however, this is simpler and has not
+     * failed in simulation. Real-world experiments are likely to differ and may
+     * require the more robust solution.
+     */
+    possible[8].x += 2;
+    possible[9].y += 2;
+    possible[10].x -= 2;
+    possible[11].y -= 2;
+
+    // find lowest pheremone concentration of possible coords in search_area
+    utility::GPSPosition lowest = cur_gps;
+    utility::Position s;
+    double concentration = DBL_MAX;
+    std::random_shuffle (selection.begin (), selection.end ());
+    for (unsigned int i = 0; i < num_possible; ++i)
+    {
+      const int index = selection[i]; // get randomized index
+
+      // update executions value if necessary
+      const double my_concentration = pheremone_.get_value (possible[index]);
+      if (my_concentration > executions_)
+        executions_ = my_concentration;
+
+      // check if new min found and update if necessary
+      if (concentration > my_concentration)
       {
+        utility::GPSPosition possible_gps =
+          pheremone_.get_gps_from_index (possible[index]);
+        if (search_area_.contains (possible_gps))
         {
-          concentration = my_concentration;
-          lowest = possible_gps;
-          s = possible[index];
+          {
+            concentration = my_concentration;
+            lowest = possible_gps;
+            s = possible[index];
+          }
         }
       }
     }
+
+    // update pheremone value
+    pheremone_.set_value (lowest, executions_ + 1);
+
+    // assign new next
+    // TODO: fix with proper altitude
+    lowest.altitude (self_->agent.desired_altitude.to_double ());
+    next_position_ = lowest;
+
+    initialized_ = true;
   }
-
-  // update pheremone value
-  pheremone_.set_value (lowest, executions_ + 1);
-
-  // assign new next
-  // TODO: fix with proper altitude
-  lowest.altitude (self_->agent.desired_altitude.to_double ());
-  next_position_ = lowest;
 }

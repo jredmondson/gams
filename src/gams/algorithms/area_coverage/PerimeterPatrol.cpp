@@ -176,60 +176,76 @@ gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time)
+  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
+  region_id_ (region_id)
 {
   // initialize some status variables
   status_.init_vars (*knowledge, "ppac", self->id.to_integer ());
   status_.init_variable_values ();
 
-  // get waypoints
-  utility::SearchArea sa;
-  sa.from_container (*knowledge, region_id);
-  utility::Region reg = sa.get_convex_hull ();
-  vector<utility::GPSPosition> vertices = reg.vertices;
-
-  // find closest waypoint as starting point
-  size_t closest = 0;
-  utility::GPSPosition current;
-  current.from_container (self_->agent.location);
-  double min_distance = current.distance_to (vertices[0]);
-  for (size_t i = 1; i < vertices.size (); ++i)
+  if (*platform->get_platform_status ()->ok)
   {
-    double dist = current.distance_to (vertices[i]);
-    if (min_distance > dist)
-    {
-      dist = min_distance;
-      closest = i;
-    }
+    generate_positions ();
   }
-
-  // add some intermediate points
-  const size_t NUM_INTERMEDIATE_PTS = 1;
-  for (size_t i = 0; i < vertices.size(); ++i)
-  {
-    utility::GPSPosition start = vertices[(i + closest) % vertices.size ()];
-    utility::GPSPosition end = vertices[(i + closest + 1) % vertices.size ()];
-    double lat_dif = start.latitude () - end.latitude ();
-    double lon_dif = start.longitude () - end.longitude ();
-
-    for (size_t j = 0; j < NUM_INTERMEDIATE_PTS; ++j)
-    {
-      utility::GPSPosition temp (
-        start.latitude () - lat_dif * j / NUM_INTERMEDIATE_PTS,
-        start.longitude () - lon_dif * j / NUM_INTERMEDIATE_PTS,
-        self_->agent.desired_altitude.to_double ());
-      waypoints_.push_back (temp);
-    }
-  }
-
-  // set next_position_
-  cur_waypoint_ = 0;
-  next_position_ = waypoints_[cur_waypoint_];
 }
 
 gams::algorithms::area_coverage::PerimeterPatrol::~PerimeterPatrol ()
 {
 }
+
+void
+gams::algorithms::area_coverage::PerimeterPatrol::generate_positions (void)
+{
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  {
+    // get waypoints
+    utility::SearchArea sa;
+    sa.from_container (*knowledge_, region_id_);
+    utility::Region reg = sa.get_convex_hull ();
+    vector<utility::GPSPosition> vertices = reg.vertices;
+
+    // find closest waypoint as starting point
+    size_t closest = 0;
+    utility::GPSPosition current;
+    current.from_container (self_->agent.location);
+    double min_distance = current.distance_to (vertices[0]);
+    for (size_t i = 1; i < vertices.size (); ++i)
+    {
+      double dist = current.distance_to (vertices[i]);
+      if (min_distance > dist)
+      {
+        dist = min_distance;
+        closest = i;
+      }
+    }
+
+    // add some intermediate points
+    const size_t NUM_INTERMEDIATE_PTS = 1;
+    for (size_t i = 0; i < vertices.size (); ++i)
+    {
+      utility::GPSPosition start = vertices[(i + closest) % vertices.size ()];
+      utility::GPSPosition end = vertices[(i + closest + 1) % vertices.size ()];
+      double lat_dif = start.latitude () - end.latitude ();
+      double lon_dif = start.longitude () - end.longitude ();
+
+      for (size_t j = 0; j < NUM_INTERMEDIATE_PTS; ++j)
+      {
+        utility::GPSPosition temp (
+          start.latitude () - lat_dif * j / NUM_INTERMEDIATE_PTS,
+          start.longitude () - lon_dif * j / NUM_INTERMEDIATE_PTS,
+          self_->agent.desired_altitude.to_double ());
+        waypoints_.push_back (temp);
+      }
+    }
+
+    // set next_position_
+    cur_waypoint_ = 0;
+    next_position_ = waypoints_[cur_waypoint_];
+
+    initialized_ = true;
+  }
+}
+
 
 void
 gams::algorithms::area_coverage::PerimeterPatrol::operator= (
@@ -247,8 +263,15 @@ gams::algorithms::area_coverage::PerimeterPatrol::operator= (
  * The next destination is the next vertex in the list
  */
 void
-gams::algorithms::area_coverage::PerimeterPatrol::generate_new_position ()
+gams::algorithms::area_coverage::PerimeterPatrol::generate_new_position (void)
 {
-  cur_waypoint_ = (cur_waypoint_ + 1) % waypoints_.size ();
-  next_position_ = waypoints_[cur_waypoint_];
+  if (initialized_)
+  {
+    cur_waypoint_ = (cur_waypoint_ + 1) % waypoints_.size ();
+    next_position_ = waypoints_[cur_waypoint_];
+  }
+  else
+  {
+    generate_positions ();
+  }
 }

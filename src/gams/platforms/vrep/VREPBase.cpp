@@ -260,6 +260,9 @@ gams::platforms::VREPBase::sense (void)
 
       // set position in madara
       loc.to_container<utility::order::GPS> (self_->agent.location);
+
+      // now that location is set, make sure movement_available is enabled
+      status_.movement_available = 1;
     }
   }
   else
@@ -268,6 +271,9 @@ gams::platforms::VREPBase::sense (void)
       gams::loggers::LOG_MAJOR,
       "gams::platforms::VREPBase::sense:" \
       " Unable to sense. Waiting on vrep_ready and begin_sim\n");
+
+    // now that location is set, make sure movement_available is enabled
+    status_.movement_available = 0;
   }
 
   return 0;

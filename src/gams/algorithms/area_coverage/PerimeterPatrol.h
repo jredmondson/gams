@@ -109,13 +109,19 @@ namespace gams
         /**
          * Generate new next position
          */
-        virtual void generate_new_position ();
+        virtual void generate_new_position (void);
         
+        /// generates all positions to patrol
+        void generate_positions (void);
+
         /// waypoints
         std::vector<utility::GPSPosition> waypoints_;
   
         /// current waypoint
         unsigned int cur_waypoint_;
+
+        /// indicates the region to patrol the border of
+        std::string region_id_;
       }; // class PerimeterPatrol
       
       /**

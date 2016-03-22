@@ -13,6 +13,8 @@ use File::Path qw(make_path);
 use File::Basename;
 use File::Copy qw(copy);
 use POSIX;
+use Scalar::Util qw(looks_like_number);
+
 
 my $script = fileparse($0);
 my $algorithm;
@@ -68,6 +70,8 @@ my $bin_path;
 my @algorithms = ();
 my @platforms = ();
 my @threads = ();
+my $gams_root = $ENV{"GAMS_ROOT"};
+my $algs_templates = "$gams_root/scripts/simulation/templates/algorithms";
 
 # setup options parser
 GetOptions(
@@ -383,7 +387,7 @@ region.0.3 = [40.443077, -79.940398];\n";
 /**
  * Set the algorithm for the agent
  **/
-agent.$i.command = .algorithm;\n";
+agent.$i.algorithm = .algorithm;\n";
     
       open (agent_file, '>', "$sim_path/agent_$i.mf");
         print agent_file $agent_contents;
@@ -575,7 +579,7 @@ user_simulation::run(
  * Set to .algorithm variable from common.mf
  * Feel free to change this to whatever you like
  **/
-agent.$i.command = .algorithm;\n";
+agent.$i.algorithm = .algorithm;\n";
 
 	        if (open (my $agent_file, '>', "$sim_path/agent_$i.mf"))
           {
@@ -630,13 +634,13 @@ agent.$i.command = .algorithm;\n";
   }  
   
   # some operations need a hint on whether or not the user specified a range
-  if (defined $first || defined $last)
+  if (defined $first or defined $last)
   {
     $range_specified = 1;
   }
 
   # if either first or last has not been specified, create an agent range.  
-  if (not defined $first || not defined $last)
+  if (not defined $first or not defined $last)
   {
     # if we have not defined agents, read the agent number or use default of 1
     if (!$agents)
@@ -674,6 +678,275 @@ agent.$i.command = .algorithm;\n";
       print ("Defaults init: first = $first, last = $last, agents=$agents\n");
     }
   }
+  else
+  {
+      print ("User-defined init: first = $first, last = $last, agents=$agents\n");
+  }
+  
+  
+  if ($algorithm)
+  {
+    if ($verbose)
+    {
+      print ("Changing algorithm to $algorithm for agent[$first, $last]\n");
+    }
+    
+    my $alg_dir = $algorithm;
+    
+    if ($verbose)
+    {
+      print ("  Checking for $algs_templates/$alg_dir directory\n");
+    }
+    
+    if (not -d "$algs_templates/$alg_dir")
+    {
+      if ($verbose)
+      {
+        print ("  Dir $algs_templates/$alg_dir exists\n");
+      }
+    
+      my $aliases_contents;
+      
+      if ($verbose)
+      {
+        print ("  Opening $algs_templates/$alg_dir exists\n");
+      }
+    
+      open aliases_file, "$algs_templates/aliases.conf" or
+        die "ERROR: Couldn't open $algs_templates/aliases.conf\n"; 
+        $aliases_contents = join("", <aliases_file>); 
+      close aliases_file;
+      
+      if ($aliases_contents =~ m{$algorithm\s+=\s+(.*)})
+      {
+        $alg_dir = $1;
+      }
+      else
+      {
+        $alg_dir = undef;
+      }
+    }
+    else
+    {
+      $alg_dir = $algorithm;
+    }
+    
+    if ($alg_dir)
+    {
+      if ($verbose)
+      {
+        print ("  Opening $algs_templates/$alg_dir/args.conf\n");
+      }
+    
+      my @args_list;
+      my @groups_list;
+      
+      if (open args_file, "$algs_templates/$alg_dir/args.conf")
+      {
+        if ($verbose)
+        {
+          print ("  Reading $algs_templates/$alg_dir/args.conf\n");
+        }
+    
+        my $replacement = "agent.0.algorithm = \"$algorithm\";\n\n";
+        @args_list = <args_file>; 
+        close args_file;
+        
+        # iterate over the args list to find args
+        for my $line (@args_list)
+        {
+          if ($verbose)
+          {
+            print ("  Parsing $line\n");
+          }
+          
+          # if this contains an actual arg variable = value
+          if ($line =~ m{([^\s]+)\s+=\s+(.*)})
+          {
+            my ($key, $value) = ($1, $2);
+            $replacement .= "agent.0.$key = $value\n";
+            if ($verbose)
+            {
+              print ("  Parsed agent.0.$key = $value\n");
+            }
+          }
+          else
+          {
+            if ($verbose)
+            {
+              print ("  Parsed comment or blank line\n");
+            }
+            $replacement .= $line;
+          }
+        }
+        
+        
+        # Try to replace all algorithm arguments and comments
+        for (my $i = $first; $i <= $last; ++$i)
+        {
+          # we have a valid point. Change the agent's init file.
+          my $agent_contents;
+          open agent_file, "$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
+            $agent_contents = join("", <agent_file>); 
+          close agent_file;
+      
+          if ($verbose)
+          {
+            print ("  Replacing agent_$i.mf algorithm initialization\n");
+          }
+          
+          # replace old algorithm stuff with new
+          
+          $replacement =~ s/agent.\d+/agent.$i/g;
+          
+          if ($agent_contents =~ m{agent\.\d+\.algorithm})
+          {
+            if ($verbose)
+            {
+              print ("  Agent.algorithm exists. Replacing.\n");
+            }
+          
+            if ($agent_contents =~ s/((\/\/[^\n]*\s+)?agent\..*\s+)+/$replacement/)
+            {
+              if ($verbose)
+              {
+                print ("    Algorithm information successfully replaced.\n");
+              }
+            }
+            else
+            {
+              if ($verbose)
+              {
+                print ("    Algorithm information was NOT replaced.\n");
+              }
+            }
+          }
+          else
+          {
+            if ($verbose)
+            {
+              print ("  Agent.algorithm does not exist. Appending.\n");
+            }
+          
+            $agent_contents .= $replacement;
+          }
+          
+          if ($verbose)
+          {
+            print ("  Writing contents to $sim_path/agent_$i.mf\n");
+          }
+          
+          open agent_file, ">$sim_path/agent_$i.mf" or
+            die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
+            print agent_file  $agent_contents; 
+          close agent_file;
+          
+        }
+        
+      } # end if open args_file
+      
+      if (open groups_file, "$algs_templates/$alg_dir/groups.conf")
+      {
+        if ($verbose)
+        {
+          print ("  Reading $algs_templates/$alg_dir/groups.conf...\n");
+        }
+            
+        @groups_list = <groups_file>; 
+        close groups_file;
+        
+        # iterate over the groups list to find group names to create
+        for my $line (@groups_list)
+        {
+          if ($verbose)
+          {
+            print ("  Parsing $line...\n");
+          }
+          
+          if ($line =~ m{([^\s]+)\s*=\s*\[(\d+)\s*(,|->)\s*([0-9a-zA-Z]+)})
+          {
+            my ($groupname, $groupfirst, $grouplast) = ($1, $2, $4);
+          
+            if ($verbose)
+            {
+              print ("  Initially found $1 with agents $2 to $4...\n");
+            }
+            
+            if (not looks_like_number($grouplast))
+            {
+              $grouplast = $agents - 1;
+            }
+          
+            if (not $groupname =~ m{^group\.})
+            {
+              $groupname = "group.$groupname";
+            }
+          
+            if ($verbose)
+            {
+              print ("  Updating group $groupname with agents $2 to $grouplast...\n");
+            }
+            
+            my $common_contents;
+          
+            open common_file, "$sim_path/common.mf" or
+              die "ERROR: Couldn't open $sim_path/common.mf\n"; 
+              $common_contents = join("", <common_file>); 
+            close common_file;
+            
+            if ($verbose)
+            {
+              print ("  Building group string for $sim_path/common.mf\n");
+            }
+            
+            my $replacement;
+            
+            $replacement .= "\n// Defining group $groupname\n";
+            
+            $replacement .= "$groupname.members.size = " . ($grouplast - $groupfirst + 1) . "\n";
+            
+            my $index = 0;
+            for (my $i = $groupfirst; $i <= $grouplast; ++$i, ++$index)
+            {
+              $replacement .= "$groupname.members.$index = agent.$i;\n";
+            }
+            
+            if ($verbose)
+            {
+              print ("  Group string built\n");
+            }
+            
+            # check if the group exists
+            if ($common_contents =~ m{$groupname})
+            {
+              if ($verbose)
+              {
+                print ("  Group already exists. Replacing group definition in common.mf.\n");
+              }
+            
+              $common_contents =~ s/\s*(\/\/ Defining group\s+)?($groupname[^\n]*\s*)+/\n$replacement/;
+            }
+            else
+            {
+              if ($verbose)
+              {
+                print ("  Group does not exists. Adding group definition in common.mf.\n");
+              }
+            
+              $common_contents .= "$replacement\n";
+            }
+            
+            open common_file, ">$sim_path/common.mf" or
+              die "ERROR: Couldn't open $sim_path/common.mf for writing\n";
+              print common_file  $common_contents; 
+            close common_file;
+          } # end if line matches the group entry
+        } # end for loop over group lines
+      } #end if we can read from group file      
+    } #end if alg_dir exists
+  } #end if algorithm specified
+  
   
   # check for default init for region
   if (($randomize or $equidistant) and !$region)
@@ -1709,7 +1982,7 @@ algorithms::${new_alg}::plan (void)
           close agent_file;
         
           # replace lat and lon with our new points
-          $agent_contents =~ s/(\.command\s*=\s*)\-?[^;]+/$1\"$new_alg\"/;
+          $agent_contents =~ s/(\.algorithm\s*=\s*)\-?[^;]+/$1\"$new_alg\"/;
             
           if ($verbose)
           {

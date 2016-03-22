@@ -275,8 +275,9 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
   add (aliases, new GroupBarrierFactory ());
 
   // zone coverage
-  aliases.resize (1);
+  aliases.resize (2);
   aliases[0] = "zone coverage";
+  aliases[1] = "zone defense";
 
   add (aliases, new ZoneCoverageFactory ());
 

@@ -120,6 +120,9 @@ namespace gams
   
         /// current waypoint
         unsigned int cur_waypoint_;
+
+        /// the region description
+        std::string region_id_;
       }; // class SnakeAreaCoverage
 
       /**

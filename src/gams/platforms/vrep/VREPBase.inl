@@ -110,6 +110,15 @@ gams::platforms::VREPBase::get_ready (void)
     result = this->sim_is_running ();
   }
 
+  if (result)
+  {
+    status_.ok = 1;
+  }
+  else
+  {
+    status_.ok = 0;
+  }
+
   return result;
 }
 

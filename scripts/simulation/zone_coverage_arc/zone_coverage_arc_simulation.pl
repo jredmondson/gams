@@ -4,8 +4,8 @@ use simulation;
 
 $gams_root = $ENV{GAMS_ROOT};
 $time = 3600;
-$madara_debug = 3;
-$gams_debug = 3;
+$madara_debug = 1;
+$gams_debug = 1;
 $period = 1;
 $num = 9;
 $sim = "zone_coverage_arc";

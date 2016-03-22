@@ -273,42 +273,47 @@ void
 gams::algorithms::area_coverage::MinTimeAreaCoverage::
   generate_new_position ()
 {
-  // perform check for actually hitting cells
-  review_last_move ();
-  last_generation_ = executions_;
-
-  // check each possible destination for max utility
-  double max_util = -DBL_MAX;
-  std::set<utility::Position> online;
-  utility::GPSPosition current;
-  current.from_container (self_->agent.location);
-  next_position_ = current;
-  utility::Position cur_index = min_time_.get_index_from_gps (current);
-  for (std::set<utility::Position>::const_iterator it = valid_positions_.begin ();
-    it != valid_positions_.end (); ++it)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    std::set<utility::Position> cur_online;
-    double util = get_utility (cur_index, *it, cur_online);
-    if (util > max_util)
+    // perform check for actually hitting cells
+    review_last_move ();
+    last_generation_ = executions_;
+
+    // check each possible destination for max utility
+    double max_util = -DBL_MAX;
+    std::set<utility::Position> online;
+    utility::GPSPosition current;
+    current.from_container (self_->agent.location);
+    next_position_ = current;
+    utility::Position cur_index = min_time_.get_index_from_gps (current);
+    for (std::set<utility::Position>::const_iterator it = valid_positions_.begin ();
+      it != valid_positions_.end (); ++it)
     {
-      max_util = util;
-      next_position_ = min_time_.get_gps_from_index (*it);
-      next_position_.altitude (self_->agent.desired_altitude.to_double ());
-      online.swap (cur_online);
+      std::set<utility::Position> cur_online;
+      double util = get_utility (cur_index, *it, cur_online);
+      if (util > max_util)
+      {
+        max_util = util;
+        next_position_ = min_time_.get_gps_from_index (*it);
+        next_position_.altitude (self_->agent.desired_altitude.to_double ());
+        online.swap (cur_online);
+      }
     }
-  }
 
-  /**
-   * Here we 0 out the cells along the line from our current cell to our
-   * destination cell. Importantly, we also store the values that we are 
-   * clearing. Once the move is complete, we will check if we actually hit the 
-   * cells and update them if we did not.
-   */
-  for (std::set<utility::Position>::iterator it = online.begin ();
-    it != online.end (); ++it)
-  {
-    position_value_map_[*it] = min_time_.get_value (*it);
-    min_time_.set_value (*it, 0.0);
+    /**
+     * Here we 0 out the cells along the line from our current cell to our
+     * destination cell. Importantly, we also store the values that we are
+     * clearing. Once the move is complete, we will check if we actually hit the
+     * cells and update them if we did not.
+     */
+    for (std::set<utility::Position>::iterator it = online.begin ();
+      it != online.end (); ++it)
+    {
+      position_value_map_[*it] = min_time_.get_value (*it);
+      min_time_.set_value (*it, 0.0);
+    }
+
+    initialized_ = true;
   }
 }
 

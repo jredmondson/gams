@@ -6,4 +6,4 @@
 
 agent.0.algorithm="sac";
 
-agent.0.algorithm.args.0="region.0";
+agent.0.algorithm.args.area="region.0";

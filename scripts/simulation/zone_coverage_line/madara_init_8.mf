@@ -12,6 +12,3 @@ agent.8.algorithm.protectors="protectors";
 agent.8.algorithm.enemies="enemies";
 agent.8.algorithm.buffer=.zone_coverage_buffer;
 agent.8.algorithm.distance=.zone_coverage_distance;
-agent.8.hertz=.hertz;
-agent.8.gams_debug_level=3;
-agent.8.madara_debug_level=0;

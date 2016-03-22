@@ -220,33 +220,36 @@ void
 gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverage::
   generate_new_position ()
 {
-  // select region
-  double selected_rand = madara::utility::rand_double (0.0, total_priority_);
-  const utility::PrioritizedRegion* selected_region = 0;
-  for (unsigned int i = 0; i < search_area_.get_regions ().size (); ++i)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    if (priority_total_by_region_[i] > selected_rand)
+    // select region
+    double selected_rand = madara::utility::rand_double (0.0, total_priority_);
+    const utility::PrioritizedRegion* selected_region = 0;
+    for (unsigned int i = 0; i < search_area_.get_regions ().size (); ++i)
     {
-      selected_region = &((search_area_.get_regions ())[i]);
-      break;
+      if (priority_total_by_region_[i] > selected_rand)
+      {
+        selected_region = &((search_area_.get_regions ())[i]);
+        break;
+      }
     }
-  }
 
-  // select point in region
-  do
-  {
-    next_position_.latitude (madara::utility::rand_double (selected_region->min_lat_,
-      selected_region->max_lat_));
-    next_position_.longitude (madara::utility::rand_double (selected_region->min_lon_,
-      selected_region->max_lon_));
-    next_position_.altitude (madara::utility::rand_double (selected_region->min_alt_,
-      selected_region->max_alt_));
-  }
-  while (!selected_region->contains (next_position_));
+    // select point in region
+    do
+    {
+      next_position_.latitude (madara::utility::rand_double (selected_region->min_lat_,
+        selected_region->max_lat_));
+      next_position_.longitude (madara::utility::rand_double (selected_region->min_lon_,
+        selected_region->max_lon_));
+      next_position_.altitude (madara::utility::rand_double (selected_region->min_alt_,
+        selected_region->max_alt_));
+    } while (!selected_region->contains (next_position_));
 
-  // found an acceptable position, so set it as next
-  utility::GPSPosition current;
-  current.from_container (self_->agent.location);
-  next_position_.altitude (current.altitude ());
-  // TODO: update when altitude is handled
+    // found an acceptable position, so set it as next
+    utility::GPSPosition current;
+    current.from_container (self_->agent.location);
+    next_position_.altitude (current.altitude ());
+
+    initialized_ = true;
+  }
 }
