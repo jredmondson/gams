@@ -1,0 +1,7 @@
+
+group.formation.members.size=5;
+group.formation.members.0="agent.0";
+group.formation.members.1="agent.1";
+group.formation.members.2="agent.2";
+group.formation.members.3="agent.3";
+group.formation.members.4="agent.4";

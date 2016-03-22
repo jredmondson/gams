@@ -122,7 +122,6 @@ gams::variables::Agent::init_vars (
   home.set_name (agent_name + ".home", knowledge);
   source.set_name (agent_name + ".source", knowledge);
   dest.set_name (agent_name + ".dest", knowledge);
-  last_algorithm_args.set_name (agent_name + ".last_algorithm", knowledge);
   temperature.set_name (agent_name + ".temperature", knowledge);
   madara_debug_level.set_name (agent_name + ".madara_debug_level", knowledge);
   gams_debug_level.set_name (agent_name + ".gams_debug_level", knowledge);

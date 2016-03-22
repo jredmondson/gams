@@ -84,8 +84,8 @@ namespace gams
        * @param  self       self-referencing variables
        **/
       Follow (
-        const madara::knowledge::KnowledgeRecord& id,
-        const madara::knowledge::KnowledgeRecord& delay,
+        const std::string & id,
+        madara::knowledge::KnowledgeRecord::Integer delay,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -143,8 +143,8 @@ namespace gams
 
       /**
        * Creates a Follow Algorithm.
-       * @param   args      arg[0] = the target to follow
-       *                    arg[1] = the time step delay
+       * @param   args      target = the target to follow
+       *                    delay = the time step delay
        * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.

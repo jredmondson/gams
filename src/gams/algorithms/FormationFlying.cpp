@@ -64,9 +64,18 @@ using std::stringstream;
 
 #include "gams/utility/ArgumentParser.h"
 
+
+namespace engine = madara::knowledge;
+namespace containers = engine::containers;
+namespace groups = gams::groups;
+
+typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
+typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
+typedef groups::AgentVector  AgentVector;
+
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FormationFlyingFactory::create (
-  const madara::knowledge::KnowledgeMap & map,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -76,132 +85,125 @@ gams::algorithms::FormationFlyingFactory::create (
   BaseAlgorithm * result (0);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::algorithms::FormationFlyingFactory:" \
-    " entered create with %u args\n", map.size ());
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::area_coverage::FormationFlyingFactory:" \
+    " entered create with %u args\n", args.size ());
 
-  // check args
-  if (knowledge && sensors && platform && self && map.size () >= 4)
+  if (knowledge && sensors && platform && self)
   {
-    // store error value
-    bool error = false;
-
-    // Use a dumb workaround for now; TODO: convert this algo to use the map
-    using namespace madara::knowledge;
-    KnowledgeVector args(utility::kmap2kvec(map));
-
-    // create arg types
-    madara::knowledge::KnowledgeRecord::Integer target;
-    std::vector<double> offset, destination;
-    std::vector<madara::knowledge::KnowledgeRecord::Integer> members;
+    std::string head;
+    std::vector <double> offset;
+    std::vector <double> destination;
+    std::string group;
     std::string modifier ("default");
 
-    if (args[0].is_integer_type ())
+    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
     {
-      target = args[0].to_integer ();
+      if (i->first.size () <= 0)
+        continue;
+
+      switch (i->first[0])
+      {
+      case 'd':
+        if (i->first == "destination")
+        {
+          destination = i->second.to_doubles ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlyingFactory:" \
+            " %d size destination set\n", (int)destination.size ());
+
+          break;
+        }
+      case 'g':
+        if (i->first == "group")
+        {
+          group = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlyingFactory:" \
+            " setting group to %s\n", group.c_str ());
+
+          break;
+        }
+      case 'h':
+        if (i->first == "head")
+        {
+          head = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlyingFactory:" \
+            " setting formation head to %s\n", head.c_str ());
+
+          break;
+        }
+      case 'm':
+        if (i->first == "modifier")
+        {
+          modifier = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlyingFactory:" \
+            " setting modifier to %s\n", modifier.c_str ());
+
+          break;
+        }
+      case 'o':
+        if (i->first == "offset")
+        {
+          offset = i->second.to_doubles ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlyingFactory:" \
+            " %d size offset set\n", (int)offset.size ());
+
+          break;
+        }
+      case 't':
+        if (i->first == "target")
+        {
+          head = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlyingFactory:" \
+            " setting formation head/target to %s\n", head.c_str ());
+
+          break;
+        }
+      default:
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::FormationFlyingFactory:" \
+          " argument unknown: %s -> %s\n",
+          i->first.c_str (), i->second.to_string ().c_str ());
+        break;
+      }
     }
-    else
+
+    // if group has not been set, use the swarm
+    if (head == "" || offset.size () == 0 || destination.size () == 0 ||
+      group == "")
     {
-      error = true;
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::FormationFlyingFactory:" \
-        " invalid target argument\n");
-    }
-
-    if (args[1].is_double_type () || args[1].is_integer_type ())
-    {
-      offset = args[1].to_doubles ();
-      if (offset.size () < 2 || offset.size () > 3)
-      {
-        error = true;
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-          "gams::algorithms::FormationFlyingFactory:" \
-          " invalid offset size (expected 2 or 3, got %u)\n", offset.size ());
-      }
+        "gams::algorithms::FormationFlyingFactory::create:" \
+        " Invalid args. head = %s, group = %s, " \
+        " offset.size = %d, destination.size = %d. Returning null.\n",
+        head.c_str (), group.c_str (),
+        (int)offset.size (), (int)destination.size ());
     }
     else
-    {
-      error = true;
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-        "gams::algorithms::FormationFlyingFactory:" \
-        " invalid offset argument type (expected doubles)\n");
-    }
-
-    if (args[2].is_double_type ())
-    {
-      destination = args[2].to_doubles ();
-      if (destination.size () < 2 || destination.size () > 3)
-      {
-        error = true;
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-          "gams::algorithms::FormationFlyingFactory:" \
-          " invalid destination size (expected 2 or 3, got %u)\n", 
-          destination.size ());
-      }
-    }
-    else
-    {
-      error = true;
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-        "gams::algorithms::FormationFlyingFactory:" \
-        " invalid destination argument type (expected doubles)\n");
-    }
-
-    if (args[3].is_integer_type ())
-    {
-      members = args[3].to_integers ();
-      if (members.size () == 0)
-      {
-        error = true;
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-          "gams::algorithms::FormationFlyingFactory:" \
-          " invalid members argument size (did not receive any)\n");
-      }
-    }
-    else
-    {
-      error = true;
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-        "gams::algorithms::FormationFlyingFactory:" \
-        " invalid members argument type (expected integers)\n");
-    }
-
-    if (args.size () == 5)
-    {
-      if (args[4].is_string_type ())
-      {
-        modifier = args[4].to_string ();
-      }
-      else
-      {
-        error = true;
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-          "gams::algorithms::FormationFlyingFactory:" \
-          " invalid modifier argument\n");
-      }
-    }
-
-    if (!error)
     {
       result = new FormationFlying (
-        target, offset, destination, members, modifier,
+        head, offset, destination, group, modifier,
         knowledge, platform, sensors, self);
     }
-  }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-      "gams::algorithms::FormationFlyingFactory:" \
-      " invalid knowledge, sensors, platform, self, or arg count\n");
   }
 
   return result;
@@ -216,10 +218,10 @@ gams::algorithms::FormationFlyingFactory::create (
  * is either NONE or ROTATE (rotate the formation).
  */
 gams::algorithms::FormationFlying::FormationFlying (
-  const madara::knowledge::KnowledgeRecord::Integer & head_id,
+  const std::string & head_id,
   const std::vector<double> & offset,
   const std::vector<double> & destination,
-  const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
+  const std::string & group_name,
   const std::string & modifier,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -231,13 +233,16 @@ gams::algorithms::FormationFlying::FormationFlying (
   status_.init_vars (*knowledge, "formation", self->id.to_integer ());
   status_.init_variable_values ();
 
+  std::string my_id = "agent.";
+  my_id += self->id.to_string ();
+
   // am i the head agent?
-  head_ = (head_id == self->id.to_integer ());
+  head_ = (head_id == my_id);
 
   // set madara containers
   stringstream in_formation_str;
   in_formation_str << "formation." << head_id;
-  in_formation_str << "." << *(self->id) << ".ready";
+  in_formation_str << "." << my_id << ".ready";
   in_formation_.set_name (in_formation_str.str (), *knowledge);
 
   stringstream formation_ready_str;
@@ -246,11 +251,11 @@ gams::algorithms::FormationFlying::FormationFlying (
   formation_ready_.set_name (formation_ready_str.str (), *knowledge);
 
   stringstream head_location_str;
-  head_location_str << "agent." << head_id << ".location";
+  head_location_str << head_id << ".location";
   head_location_.set_name (head_location_str.str (), *knowledge, 3);
 
   stringstream head_destination_str;
-  head_destination_str << "agent." << head_id << ".destination";
+  head_destination_str << head_id << ".destination";
   string dest_str = head_destination_str.str ();
   head_destination_.set_name(dest_str, *knowledge, 3);
 
@@ -269,14 +274,19 @@ gams::algorithms::FormationFlying::FormationFlying (
   // construct wait for in formation string
   if (head_)
   {
+    // create group interface and obtain member list
+    groups::GroupFactoryRepository factory (knowledge_);
+    groups::GroupBase * group = factory.create (group_name);
+    groups::AgentVector members;
+    group->get_members (members);
+
     // construct actual string
-    for (std::vector<madara::knowledge::KnowledgeRecord::Integer>::const_reference m : 
-      members)
+    for (AgentVector::const_reference m : members)
     {
-      if (m != self->id.to_integer ())
+      if (m != my_id)
       {
         std::stringstream formation_expr;
-        formation_expr << "formation." << self->id.to_integer ();
+        formation_expr << "formation." << my_id;
         formation_expr << "." << m << ".ready";
   
         Compiled temp;
@@ -344,104 +354,108 @@ gams::algorithms::FormationFlying::analyze (void)
 {
   int ret_val (UNKNOWN);
 
-  // split logic by role
-  if (head_)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    // broadcast destination
-    destination_.to_container (head_destination_);
-
-    // head considers itself in formation when everybody else gets in formation
-    if (in_formation_ == 0)
+    // split logic by role
+    if (head_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::algorithms::FormationFlying:" \
-        " head is checking if everybody is in_formation_\n");
+      // broadcast destination
+      destination_.to_container (head_destination_);
 
-      int in_formation = 1;
-      for (size_t i = 0; i < compiled_formation_.size (); ++i)
-      {
-        in_formation &= knowledge_->evaluate (compiled_formation_[i].ref).to_integer ();
-        if (knowledge_->evaluate (compiled_formation_[i].ref).to_integer () == 0)
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlying::analyze:" \
-            " agent %u not ready\n", compiled_formation_[i].agent);
-        }
-        else
-        {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlying::analyze:" \
-            " agent %u ready\n", compiled_formation_[i].agent);
-        }
-      }
-      in_formation_ = in_formation;
-    }
-    // everybody is in formation (due to getting to this else), so inform we are ready to move
-    else if (formation_ready_ == 0)
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::algorithms::FormationFlying:" \
-        " head is setting formation_ready_\n");
-      formation_ready_ = 1;
-      ret_val = OK;
-    }
-  }
-  else // follower
-  {
-    if (in_formation_ == 0) // if not yet in formation...
-    {
-      // calculate offset
-      utility::GPSPosition start;
-      start.from_container (head_location_);
-      start.direction_to (get_destination (), phi_dir_);
-
-      utility::GPSPosition location;
-      location.from_container (self_->agent.location);
-
-      // check if in formation
-      if (location.approximately_equal (next_position_,
-        platform_->get_accuracy ()))
+      // head considers itself in formation when everybody else gets in formation
+      if (in_formation_ == 0)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
           "gams::algorithms::FormationFlying:" \
-          " follower is setting in_formation_\n");
-        in_formation_ = 1; // inform in formation
+          " head is checking if everybody is in_formation_\n");
+
+        int in_formation = 1;
+        for (size_t i = 0; i < compiled_formation_.size (); ++i)
+        {
+          in_formation &= knowledge_->evaluate (compiled_formation_[i].ref).to_integer ();
+          if (knowledge_->evaluate (compiled_formation_[i].ref).to_integer () == 0)
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationFlying::analyze:" \
+              " agent %s not ready\n", compiled_formation_[i].agent.c_str ());
+          }
+          else
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_DETAILED,
+              "gams::algorithms::FormationFlying::analyze:" \
+              " agent %s ready\n", compiled_formation_[i].agent.c_str ());
+          }
+        }
+        in_formation_ = in_formation;
       }
-    }
-    else
-    {
-      if (formation_ready_ == 0)
+      // everybody is in formation (due to getting to this else), so inform we are ready to move
+      else if (formation_ready_ == 0)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
           "gams::algorithms::FormationFlying:" \
-          " follower is rebroadcasting that it's in formation\n");
-        in_formation_ = 1;
+          " head is setting formation_ready_\n");
+        formation_ready_ = 1;
+        ret_val = OK;
       }
-
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::algorithms::FormationFlying:" \
-        " follower is moving into formation\n");
-
-      utility::GPSPosition ref_location;
-      ref_location.from_container (head_location_);
-      double dist = ref_location.distance_to (get_destination ());
-      // TODO: tune the movement parameter
-      if (dist > platform_->get_move_speed () * 3)
+    }
+    else // follower
+    {
+      if (in_formation_ == 0) // if not yet in formation...
       {
         // calculate offset
         utility::GPSPosition start;
         start.from_container (head_location_);
         start.direction_to (get_destination (), phi_dir_);
+
+        utility::GPSPosition location;
+        location.from_container (self_->agent.location);
+
+        // check if in formation
+        if (location.approximately_equal (next_position_,
+          platform_->get_accuracy ()))
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlying:" \
+            " follower is setting in_formation_\n");
+          in_formation_ = 1; // inform in formation
+        }
+      }
+      else
+      {
+        if (formation_ready_ == 0)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::FormationFlying:" \
+            " follower is rebroadcasting that it's in formation\n");
+          in_formation_ = 1;
+        }
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::FormationFlying:" \
+          " follower is moving into formation\n");
+
+        utility::GPSPosition ref_location;
+        ref_location.from_container (head_location_);
+        double dist = ref_location.distance_to (get_destination ());
+        // TODO: tune the movement parameter
+        if (dist > platform_->get_move_speed () * 3)
+        {
+          // calculate offset
+          utility::GPSPosition start;
+          start.from_container (head_location_);
+          start.direction_to (get_destination (), phi_dir_);
+        }
       }
     }
   }
+
   return ret_val;
 }
 
@@ -451,8 +465,12 @@ gams::algorithms::FormationFlying::analyze (void)
 int
 gams::algorithms::FormationFlying::execute (void)
 {
-  if (need_to_move_)
-    platform_->move (next_position_);
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  {
+    if (need_to_move_)
+      platform_->move (next_position_);
+  }
+
   return 0;
 }
 
@@ -464,37 +482,39 @@ gams::algorithms::FormationFlying::execute (void)
 int
 gams::algorithms::FormationFlying::plan (void)
 {
-  // increment executions, only used by rotation formation for now
-  ++executions_;
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  {
+    // increment executions, only used by rotation formation for now
+    ++executions_;
 
-  need_to_move_ = false;
-  if (head_)
-  {
-    // head only has to wait for everybody, and then move to destination
-    if (formation_ready_ == 1)
+    need_to_move_ = false;
+    if (head_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::algorithms::FormationFlying:" \
-        " head is getting destination\n");
-      next_position_ = get_destination ();
-      need_to_move_ = true;
+      // head only has to wait for everybody, and then move to destination
+      if (formation_ready_ == 1)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::FormationFlying:" \
+          " head is getting destination\n");
+        next_position_ = get_destination ();
+        need_to_move_ = true;
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::FormationFlying:" \
+          " head formation not ready\n");
+      }
     }
-    else
+    else // !head_
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::algorithms::FormationFlying:" \
-        " head formation not ready\n");
-    }
-  }
-  else // !head_
-  {
-    switch (modifier_)
-    {
-      /**
-       * Rotation formation keys off of head location at all times
-       */
+      switch (modifier_)
+      {
+        /**
+         * Rotation formation keys off of head location at all times
+         */
       case ROTATE:
       {
         const double OMEGA = M_PI / 30;
@@ -505,7 +525,7 @@ gams::algorithms::FormationFlying::plan (void)
         reference.from_container (head_location_);
         next_position_ = utility::GPSPosition::to_gps_position (
           offset, reference);
-        
+
         need_to_move_ = true;
 
         break;
@@ -559,6 +579,7 @@ gams::algorithms::FormationFlying::plan (void)
           }
         }
         need_to_move_ = true;
+      }
       }
     }
   }

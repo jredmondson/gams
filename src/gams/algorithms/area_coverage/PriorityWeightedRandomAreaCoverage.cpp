@@ -105,7 +105,7 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
 
           break;
@@ -117,7 +117,7 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
 
           break;
@@ -129,7 +129,7 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
             " setting time to %f\n", time);
 
           break;
@@ -137,7 +137,7 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationSyncFactory:" \
+          "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
           " argument unknown: %s -> %s\n",
           i->first.c_str (), i->second.to_string ().c_str ());
         break;

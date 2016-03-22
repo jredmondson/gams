@@ -5,8 +5,9 @@
 .initial_alt=6;
 
 agent.3.algorithm="formation";
-agent.3.algorithm.args.0=0;
-agent.3.algorithm.args.1=[2.5,3.14,0];
-agent.3.algorithm.args.2=[40.443387,-79.940270,2];
-agent.3.algorithm.args.3=[0,1,2,3,4];
-agent.3.algorithm.args.4="rotate";
+agent.3.algorithm.args.head="agent.0";
+agent.3.algorithm.args.offset=[2.5,3.14,0];
+agent.3.algorithm.args.destination=[40.443387,-79.940270,2];
+agent.3.algorithm.args.group="group.formation";
+agent.3.algorithm.args.modifier="rotate";
+

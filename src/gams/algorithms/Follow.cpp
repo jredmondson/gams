@@ -65,9 +65,14 @@ using std::endl;
 
 using std::stringstream;
 
+namespace knowledge = madara::knowledge;
+typedef knowledge::KnowledgeRecord  KnowledgeRecord;
+typedef KnowledgeRecord::Integer   Integer;
+typedef knowledge::KnowledgeMap    KnowledgeMap;
+
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::FollowFactory::create (
-  const madara::knowledge::KnowledgeMap & map,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -77,42 +82,82 @@ gams::algorithms::FollowFactory::create (
   BaseAlgorithm * result (0);
 
   // set defaults
-  madara::knowledge::KnowledgeRecord target;
-  madara::knowledge::KnowledgeRecord delay (madara::knowledge::KnowledgeRecord::Integer (5));
+  std::string target;
+  Integer delay (Integer (5));
 
-  if (map.size () >= 1 && knowledge && sensors && self)
+  if (knowledge && platform && self)
   {
-    // Use a dumb workaround for now; TODO: convert this algo to use the map
-    using namespace madara::knowledge;
-    KnowledgeVector args(utility::kmap2kvec(map));
+  for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+  {
+    if (i->first.size () <= 0)
+      continue;
 
-    target = args[0];
+    switch (i->first[0])
+    {
+    case 'd':
+      if (i->first == "delay")
+      {
+        delay = i->second.to_double ();
 
-    if (args.size () >= 2)
-      delay = args[1];
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::FollowFactory:" \
+          " setting delay to %d\n", (int)delay);
 
-    if (target.is_integer_type () && delay.is_integer_type ())
-      result = new Follow (target, delay, knowledge, platform, sensors, self);
+        break;
+      }
+    case 't':
+      if (i->first == "target")
+      {
+        target = i->second.to_string ();
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::FollowFactory:" \
+          " setting target to %s\n", target.c_str ());
+
+        break;
+      }
+    default:
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::FollowFactory:" \
+        " argument unknown: %s -> %s\n",
+        i->first.c_str (), i->second.to_string ().c_str ());
+      break;
+    }
   }
 
-  return result;
+  // if group has not been set, use the swarm
+  if (target == "")
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::FollowFactory::create:" \
+      " No target specified. Returning null.\n");
+  }
+  else
+  {
+    result = new Follow (target, delay, knowledge, platform, sensors, self);
+  }
+}
+
+return result;
 }
 
 gams::algorithms::Follow::Follow (
-  const madara::knowledge::KnowledgeRecord& id,
-  const madara::knowledge::KnowledgeRecord& delay,
+  const std::string & id,
+  madara::knowledge::KnowledgeRecord::Integer delay,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self), next_position_ (DBL_MAX),
-  delay_ (delay.to_integer ())
+  delay_ ((size_t)delay)
 {
   status_.init_vars (*knowledge, "follow", self->id.to_integer ());
   status_.init_variable_values ();
 
-  stringstream location_string;
-  location_string << "agent." << id.to_integer () << ".location";
-  target_location_.set_name (location_string.str (), *knowledge, 3);
+  target_location_.set_name (id + ".location", *knowledge, 3);
 }
 
 gams::algorithms::Follow::~Follow ()
@@ -139,18 +184,33 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
 int
 gams::algorithms::Follow::analyze (void)
 {
-  static utility::GPSPosition prev;
-  utility::GPSPosition current;
-  current.from_container (target_location_);
-
-  // if target agent has moved
-  if (current.distance_to (prev) > 1.0)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    previous_locations_.push (current);
-    prev = current;
-  }
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Follow::analyze:" \
+      " Platform initialized. Calculating distances.\n");
 
-  ++executions_;
+    static utility::GPSPosition prev;
+    utility::GPSPosition current;
+    current.from_container (target_location_);
+
+    // if target agent has moved
+    if (current.distance_to (prev) > 1.0)
+    {
+      previous_locations_.push (current);
+      prev = current;
+    }
+
+    ++executions_;
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Follow::analyze:" \
+      " Platform not initialized. Unable to analyze.\n");
+  }
   return OK;
 }
       
@@ -160,9 +220,23 @@ gams::algorithms::Follow::analyze (void)
 int
 gams::algorithms::Follow::execute (void)
 {
-  if (next_position_.latitude () != DBL_MAX)
-    platform_->move (next_position_);
-  
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Follow::execute:" \
+      " Platform initialized. Executing next movement.\n");
+
+    if (next_position_.latitude () != DBL_MAX)
+      platform_->move (next_position_);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Follow::execute:" \
+      " Platform not initialized. Unable to execute.\n");
+  }
   return 0;
 }
 
@@ -172,10 +246,25 @@ gams::algorithms::Follow::execute (void)
 int
 gams::algorithms::Follow::plan (void)
 {
-  if (previous_locations_.size () == delay_)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    next_position_ = previous_locations_.front ();
-    previous_locations_.pop ();
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Follow::plan:" \
+      " Platform initialized. Plotting next position.\n");
+
+    if (previous_locations_.size () == delay_)
+    {
+      next_position_ = previous_locations_.front ();
+      previous_locations_.pop ();
+    }
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Follow::plan:" \
+      " Platform not initialized. Unable to plan.\n");
   }
   return 0;
 }

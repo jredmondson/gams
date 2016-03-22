@@ -5,4 +5,4 @@
 .initial_alt=3;
 
 agent.2.algorithm="follow";
-agent.2.algorithm.args.0=1;
+agent.2.algorithm.args.target="agent.1";

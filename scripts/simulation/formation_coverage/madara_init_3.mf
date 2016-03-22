@@ -5,9 +5,10 @@
 .initial_alt=4;
 
 agent.3.algorithm="formation coverage";
-agent.3.algorithm.args.0=0;
-agent.3.algorithm.args.1="4,3.14,0";
-agent.3.algorithm.args.2="4,0,1,2,3";
-agent.3.algorithm.args.3="default";
-agent.3.algorithm.args.4="urec";
-agent.3.algorithm.args.5="region.0";
+agent.3.algorithm.args.head="agent.0";
+agent.3.algorithm.args.offset=[4,3.14,0];
+agent.3.algorithm.args.destination=[4,0,1,2,3];
+agent.3.algorithm.args.modifier="default";
+agent.3.algorithm.args.group="group.formation";
+agent.3.algorithm.args.coverage="urec";
+agent.3.algorithm.args.coverage.args.area="region.0";

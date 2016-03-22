@@ -78,10 +78,11 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  head_id      target of the formation
-       * @param  offset       offset of formation
-       * @param  members      number of members
-       * @param  modifier     modifier that influences the formation
+       * @param  head_id        target of the formation
+       * @param  offset         offset of formation
+       * @param  destination    destination of the formation
+       * @param  group_name     group identifier (e.g. group.group1)
+       * @param  modifier       modifier that influences the formation
        * @param  coverage     area coverage algorithm to run
        * @param  cover_args   args for area coverage algorithm
        * @param  knowledge    the context containing variables and values
@@ -90,9 +91,10 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       FormationCoverage (
-        const madara::knowledge::KnowledgeRecord::Integer & head_id,
+        const std::string & head_id,
         const std::vector<double> & offset,
-        const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
+        const std::vector<double> & destination,
+        const std::string & group_name,
         const std::string & modifier,
         const std::string & coverage,
         const madara::knowledge::KnowledgeMap & cover_args,

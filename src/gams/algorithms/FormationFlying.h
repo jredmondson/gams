@@ -61,6 +61,7 @@
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/utility/GPSPosition.h"
 #include "gams/algorithms/AlgorithmFactory.h"
+#include "gams/groups/GroupFactoryRepository.h"
 
 namespace gams
 {
@@ -77,7 +78,7 @@ namespace gams
        * @param  head_id        target of the formation
        * @param  offset         offset of formation
        * @param  destination    destination of the formation
-       * @param  members        number of members
+       * @param  group_name     group identifier (e.g. group.group1)
        * @param  modifier       modifier that influences the formation
        * @param  knowledge      the context containing variables and values
        * @param  platform       the underlying platform the algorithm will use
@@ -85,10 +86,10 @@ namespace gams
        * @param  self           self-referencing variables
        **/
       FormationFlying (
-        const madara::knowledge::KnowledgeRecord::Integer & head_id,
+        const std::string & head_id,
         const std::vector<double> & offset,
         const std::vector<double> & destination,
-        const std::vector<madara::knowledge::KnowledgeRecord::Integer> & members,
+        const std::string & group_name,
         const std::string & modifier,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
@@ -146,7 +147,7 @@ namespace gams
       struct Compiled
       {
         madara::knowledge::CompiledExpression ref;
-        size_t agent;
+        std::string agent;
       };
       std::vector<Compiled> compiled_formation_;
 
