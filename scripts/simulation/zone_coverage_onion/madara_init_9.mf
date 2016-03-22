@@ -6,9 +6,9 @@
 
 agent.9.algorithm="zone coverage";
 
-agent.9.algorithm.formation=.zone_coverage_formation;
-agent.9.algorithm.assets="assets";
-agent.9.algorithm.protectors="protectors";
-agent.9.algorithm.enemies="enemies";
-agent.9.algorithm.buffer=.zone_coverage_buffer;
-agent.9.algorithm.distance=.zone_coverage_distance;
+agent.9.algorithm.args.formation=.zone_coverage_formation;
+agent.9.algorithm.args.assets="assets";
+agent.9.algorithm.args.protectors="protectors";
+agent.9.algorithm.args.enemies="enemies";
+agent.9.algorithm.args.buffer=.zone_coverage_buffer;
+agent.9.algorithm.args.distance=.zone_coverage_distance;

@@ -7,4 +7,3 @@
 
 agent.0.algorithm="null";
 
-agent.0.hertz=.hertz;

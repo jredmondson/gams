@@ -6,10 +6,9 @@
 
 agent.5.algorithm="zone coverage";
 
-agent.5.algorithm.formation=.zone_coverage_formation;
-agent.5.algorithm.assets="assets";
-agent.5.algorithm.protectors="protectors";
-agent.5.algorithm.enemies="enemies";
-agent.5.algorithm.buffer=.zone_coverage_buffer;
-agent.5.algorithm.distance=.zone_coverage_distance;
-agent.5.hertz=.hertz;
+agent.5.algorithm.args.formation=.zone_coverage_formation;
+agent.5.algorithm.args.assets="assets";
+agent.5.algorithm.args.protectors="protectors";
+agent.5.algorithm.args.enemies="enemies";
+agent.5.algorithm.args.buffer=.zone_coverage_buffer;
+agent.5.algorithm.args.distance=.zone_coverage_distance;

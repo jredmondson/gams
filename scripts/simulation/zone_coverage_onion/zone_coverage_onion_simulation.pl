@@ -4,10 +4,10 @@ use simulation;
 
 $gams_root = $ENV{GAMS_ROOT};
 $time = 3600;
-$madara_debug = 1;
-$gams_debug = 1;
+$madara_debug = 0;
+$gams_debug = 6;
 $period = 1;
-$num = 16;
+$num = 9;
 $sim = "zone_coverage_onion";
 $area = "small";
 $border = "region.0";

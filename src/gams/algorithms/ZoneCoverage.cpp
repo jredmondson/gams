@@ -60,7 +60,6 @@
 #include <cmath>
 
 #include "gams/algorithms/AlgorithmFactory.h"
-#include "gams/utility/ArgumentParser.h"
 #include "gams/utility/CartesianFrame.h"
 
 namespace engine = madara::knowledge;
@@ -69,6 +68,7 @@ namespace containers = engine::containers;
 using namespace gams::utility;
 
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
+typedef madara::knowledge::KnowledgeMap   KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::ZoneCoverageFactory::create (
@@ -95,71 +95,87 @@ variables::Agents * agents)
     double buffer = 2;
     double distance = 0.5;
 
-    ArgumentParser argp (args);
-
-    for (ArgumentParser::const_iterator i = argp.begin ();
-         i != argp.end (); i.next ())
+    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
     {
-      std::string name (i.name ());
-      if (name.size () <= 0)
+      if (i->first.size () <= 0)
         continue;
-      switch (name[0])
+
+      switch (i->first[0])
       {
       case 'a':
-        if ("assets" == name)
+        if (i->first == "assets")
         {
-          assets = i.value ().to_string ();
-          break;
+          assets = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set assets group to %s\n", assets.c_str ());
         }
-        goto unknown;
+        break;
       case 'b':
-        if ("buffer" == name)
+        if (i->first == "buffer")
         {
-          buffer = i.value ().to_double ();
-          break;
+          buffer = i->second.to_double ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set buffer to %f\n", buffer);
         }
-        goto unknown;
+        break;
       case 'd':
-        if ("distance" == name)
+        if (i->first == "distance")
         {
-          distance = i.value ().to_double ();
-          break;
+          distance = i->second.to_double ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set distance to %f\n", distance);
         }
-        goto unknown;
+        break;
       case 'e':
-        if ("enemies" == name)
+        if (i->first == "enemies")
         {
-          enemies = i.value ().to_string ();
-          break;
+          enemies = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set enemies group to %s\n", enemies.c_str ());
         }
-        goto unknown;
+        break;
       case 'f':
-        if ("formation" == name)
+        if (i->first == "formation")
         {
-          formation = i.value ().to_string ();
-          break;
+          formation = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set formation to %s\n", formation.c_str ());
         }
-        goto unknown;
+        break;
       case 'p':
-        if ("protectors" == name)
+        if (i->first == "protectors")
         {
-          protectors = i.value ().to_string ();
-          break;
+          protectors = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set protectors group to %s\n", protectors.c_str ());
         }
-        goto unknown;
+        break;
       default:
-      unknown:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::ZoneCoverageFactory:" \
+          "gams::algorithms::FormationFlyingFactory:" \
           " argument unknown: %s -> %s\n",
-          name.c_str (), i.value ().to_string ().c_str ());
-        continue;
+          i->first.c_str (), i->second.to_string ().c_str ());
+        break;
       }
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
-        "gams::algorithms::ZoneCoverageFactory:" \
-        " argument: %s -> %s\n", name.c_str (), i.value ().to_string ().c_str ());
     }
 
     result = new ZoneCoverage (

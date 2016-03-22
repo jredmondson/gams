@@ -114,9 +114,8 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
-
-          break;
         }
+        break;
       case 's':
         if (i->first == "search_area")
         {
@@ -126,9 +125,8 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
-
-          break;
         }
+        break;
       case 't':
         if (i->first == "time")
         {
@@ -138,9 +136,8 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting time to %f\n", time);
-
-          break;
         }
+        break;
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

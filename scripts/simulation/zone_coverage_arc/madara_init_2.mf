@@ -10,3 +10,4 @@ agent.2.algorithm="ppac";
 
 agent.2.algorithm.args.area="region.0";
 
+agent.2.gams_level = 5;

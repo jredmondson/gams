@@ -112,9 +112,8 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting barrier to %s\n", barrier.c_str ());
-
-          break;
         }
+        break;
         if (i->first == "buffer")
         {
           buffer = i->second.to_double ();
@@ -123,9 +122,8 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting buffer to %f\n", buffer);
-
-          break;
         }
+        break;
       case 'e':
         if (i->first == "end")
         {
@@ -141,9 +139,8 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting end to %s\n", end.to_string ().c_str ());
-
-          break;
         }
+        break;
       case 'f':
         if (i->first == "formation")
         {
@@ -214,9 +211,8 @@ variables::Agents * agents)
               "gams::algorithms::FormationSyncFactory:" \
               " setting formation to %d\n", formation_type);
           }
-
-          break;
         }
+        break;
       case 'g':
         if(i->first == "group")
         {
@@ -232,9 +228,8 @@ variables::Agents * agents)
           containers::StringVector member_list (members_list_name, *knowledge);
 
           member_list.copy_to (members);
-
-          break;
         }
+        break;
       case 's':
         if(i->first == "start")
         {
