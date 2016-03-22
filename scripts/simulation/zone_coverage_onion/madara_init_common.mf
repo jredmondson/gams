@@ -1,6 +1,6 @@
 group.assets.members.size=1;
 group.assets.members.0="agent.0";
-group.protectors.members.size=8;
+group.protectors.members.size=14;
 group.protectors.members.0="agent.1";
 group.protectors.members.1="agent.3";
 group.protectors.members.2="agent.4";
