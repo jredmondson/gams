@@ -828,10 +828,10 @@ agent.$i.algorithm = .algorithm;\n";
           if ($line =~ m{([^\s]+)\s+=\s+(.*)})
           {
             my ($key, $value) = ($1, $2);
-            $replacement .= "agent.0.$key = $value\n";
+            $replacement .= "agent.0.algorithm.args.$key = $value\n";
             if ($verbose)
             {
-              print ("  Parsed agent.0.$key = $value\n");
+              print ("  Parsed agent.0.algorithm.args.$key = $value\n");
             }
           }
           else
