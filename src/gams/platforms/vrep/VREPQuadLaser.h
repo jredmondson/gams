@@ -82,10 +82,29 @@ namespace gams
       virtual double get_range() const = 0;
     };
 
+    class GAMSExport HasAltitudeSensor
+    {
+    public:
+      virtual double get_altitude() const = 0;
+    };
+
+    class GAMSExport HasColorSensor
+    {
+    public:
+      virtual uint32_t get_color() const = 0;
+    };
+
+    class GAMSExport HasColor
+    {
+    public:
+      virtual void set_color(uint32_t color) const = 0;
+    };
+
     /**
     * A VREP platform for an autonomous aerial quadcopter w/ Laser ranger
     **/
-    class GAMSExport VREPQuadLaser : public VREPQuad, public HasRangeSensor
+    class GAMSExport VREPQuadLaser : public VREPQuad, public HasRangeSensor,
+      public HasAltitudeSensor, public HasColorSensor, public HasColor
     {
     public:
       const static std::string DEFAULT_MODEL;
@@ -120,11 +139,16 @@ namespace gams
       virtual std::string get_name () const;
 
       virtual double get_range () const;
+      virtual uint32_t get_color () const;
+      virtual void set_color (uint32_t color) const;
+      virtual double get_altitude () const;
 
     protected:
-      void get_laser_sensor_handle ();
+      void get_sensor_handles ();
+      double read_sensor (simxInt handle, double range) const;
 
       simxInt laser_sensor_;
+      simxInt sonar_sensor_;
     }; // class VREPQuad
 
     /**
