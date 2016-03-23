@@ -761,7 +761,7 @@ agent.$i.algorithm = .algorithm;\n";
       print ("  Checking for $algs_templates/$alg_dir directory\n");
     }
     
-    if (not -d "$algs_templates/$alg_dir")
+    if (-d "$algs_templates/$alg_dir")
     {
       if ($verbose)
       {
@@ -772,7 +772,7 @@ agent.$i.algorithm = .algorithm;\n";
       
       if ($verbose)
       {
-        print ("  Opening $algs_templates/$alg_dir exists\n");
+        print ("  Opening $algs_templates/$alg_dir.conf\n");
       }
     
       open aliases_file, "$algs_templates/aliases.conf" or
@@ -804,6 +804,8 @@ agent.$i.algorithm = .algorithm;\n";
       my @args_list;
       my @groups_list;
       
+      my $replacement = "agent.0.algorithm = \"$algorithm\";\n\n";
+      
       if (open args_file, "$algs_templates/$alg_dir/args.conf")
       {
         if ($verbose)
@@ -811,7 +813,6 @@ agent.$i.algorithm = .algorithm;\n";
           print ("  Reading $algs_templates/$alg_dir/args.conf\n");
         }
     
-        my $replacement = "agent.0.algorithm = \"$algorithm\";\n\n";
         @args_list = <args_file>; 
         close args_file;
         
@@ -842,72 +843,69 @@ agent.$i.algorithm = .algorithm;\n";
             $replacement .= $line;
           }
         }
+      } # end if open args_file
         
-        
-        # Try to replace all algorithm arguments and comments
-        for (my $i = $first; $i <= $last; ++$i)
+      # Try to replace all algorithm arguments and comments
+      for (my $i = $first; $i <= $last; ++$i)
+      {
+        # we have a valid point. Change the agent's init file.
+        my $agent_contents;
+        open agent_file, "$sim_path/agent_$i.mf" or
+          die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
+          $agent_contents = join("", <agent_file>); 
+        close agent_file;
+     
+        if ($verbose)
         {
-          # we have a valid point. Change the agent's init file.
-          my $agent_contents;
-          open agent_file, "$sim_path/agent_$i.mf" or
-            die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
-            $agent_contents = join("", <agent_file>); 
-          close agent_file;
-      
+          print ("  Replacing agent_$i.mf algorithm initialization\n");
+        }
+          
+        # replace old algorithm stuff with new
+          
+        $replacement =~ s/agent.\d+/agent.$i/g;
+          
+        if ($agent_contents =~ m{agent\.\d+\.algorithm})
+        {
           if ($verbose)
           {
-            print ("  Replacing agent_$i.mf algorithm initialization\n");
+            print ("  Agent.algorithm exists. Replacing.\n");
           }
           
-          # replace old algorithm stuff with new
-          
-          $replacement =~ s/agent.\d+/agent.$i/g;
-          
-          if ($agent_contents =~ m{agent\.\d+\.algorithm})
+          if ($agent_contents =~ s/((\/\/[^\n]*\s+)?agent\..*\s+)+/$replacement/)
           {
             if ($verbose)
             {
-              print ("  Agent.algorithm exists. Replacing.\n");
-            }
-          
-            if ($agent_contents =~ s/((\/\/[^\n]*\s+)?agent\..*\s+)+/$replacement/)
-            {
-              if ($verbose)
-              {
-                print ("    Algorithm information successfully replaced.\n");
-              }
-            }
-            else
-            {
-              if ($verbose)
-              {
-                print ("    Algorithm information was NOT replaced.\n");
-              }
+              print ("    Algorithm information successfully replaced.\n");
             }
           }
           else
           {
             if ($verbose)
             {
-              print ("  Agent.algorithm does not exist. Appending.\n");
+              print ("    Algorithm information was NOT replaced.\n");
             }
-          
-            $agent_contents .= $replacement;
           }
-          
+        }
+        else
+        {
           if ($verbose)
           {
-            print ("  Writing contents to $sim_path/agent_$i.mf\n");
+            print ("  Agent.algorithm does not exist. Appending.\n");
           }
-          
-          open agent_file, ">$sim_path/agent_$i.mf" or
-            die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
-            print agent_file  $agent_contents; 
-          close agent_file;
-          
-        }
         
-      } # end if open args_file
+          $agent_contents .= $replacement;
+        }
+          
+        if ($verbose)
+        {
+          print ("  Writing contents to $sim_path/agent_$i.mf\n");
+        }
+          
+        open agent_file, ">$sim_path/agent_$i.mf" or
+          die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
+          print agent_file  $agent_contents; 
+        close agent_file;
+      }
       
       if (open groups_file, "$algs_templates/$alg_dir/groups.conf")
       {
