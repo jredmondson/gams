@@ -67,6 +67,7 @@ my $src_path;
 my $algs_path;
 my $plats_path;
 my $threads_path;
+my $transient;
 my $bin_path;
 my @algorithms = ();
 my @platforms = ();
@@ -116,6 +117,7 @@ GetOptions(
   'rotate|t' => \$rotate,
   'surface|s=s' => \$surface,
   'thread_hz|thread-hz|thz=f' => \$thread_hz,
+  'transient' => \$transient,
   'vrep_start_port|s=i' => \$vrep_start_port,
   'unique' => \$unique,
   'udp|u=s' => \@udp,
@@ -182,6 +184,7 @@ options:
                          water      : water model (e.g., for boats)
                          
   --thread_hz|-thz hz    the hertz to run threads at  
+  --transient            indicates a transient group should be created/used
   --vrep_start_port|-s # VREP port number to start from  
   --udp|u self h1 ...    udp ip/hosts to use for network transport 
   --unique|-u            requires unique attribute (e.g., height)
@@ -235,6 +238,7 @@ $script is using the following configuration:
   region = " . ($region ? $region : 'none specified') . "
   surface = " . ($surface ? $surface : 'none specified') . "
   thread_hz = " . ($thread_hz ? $thread_hz : 'none specified') . "
+  transient = " . ($transient ? 'yes' : 'no') . "
   vrep_start_port = " . ($vrep_start_port ? $vrep_start_port : 'no change') . "
   udp = " . (scalar @udp > 0 ? ("\n    " . join ("\n    ", @udp)) : 'no') . "
   unique = " . ($unique ? 'yes' : 'no') . "\n";
@@ -996,12 +1000,31 @@ agent.$i.algorithm = .algorithm;\n";
             
           $replacement .= "\n// Defining group $groupname\n";
             
-          $replacement .= "$groupname.members.size = " . ($grouplast - $groupfirst + 1) . "\n";
-            
+          if ($transient)
+          {
+            if ($verbose)
+            {
+              print ("  Creating transient group for $groupname...\n");
+            }
+          
+            $replacement .= "$groupname.type = 1;\n";
+          }
+          else 
+          {
+            $replacement .= "$groupname.members.size = " . ($grouplast - $groupfirst + 1) . "\n";
+          }
+          
           my $index = 0;
           for (my $i = $groupfirst; $i <= $grouplast; ++$i, ++$index)
           {
-            $replacement .= "$groupname.members.$index = agent.$i;\n";
+            if ($transient)
+            {
+              $replacement .= "$groupname.members.agent.$i = 1;\n"
+            }
+            else
+            {
+              $replacement .= "$groupname.members.$index = agent.$i;\n";
+            }
           }
             
           if ($verbose)
@@ -1786,12 +1809,31 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     $replacement .= "\n// Defining group $group\n";
     
-    $replacement .= "$group.members.size = " . ($last - $first + 1) . "\n";
-    
+    if ($transient)
+    {
+      if ($verbose)
+      {
+        print ("  Creating transient group for $group...\n");
+      }
+          
+      $replacement .= "$group.type = 1;\n";
+    }
+    else 
+    {
+      $replacement .= "$group.members.size = " . ($last - $first + 1) . "\n";
+    }
+          
     my $index = 0;
     for (my $i = $first; $i <= $last; ++$i, ++$index)
     {
-      $replacement .= "$group.members.$index = agent.$i;\n";
+      if ($transient)
+      {
+        $replacement .= "$group.members.agent.$i = 1;\n"
+      }
+      else
+      {
+        $replacement .= "$group.members.$index = agent.$i;\n";
+      }
     }
     
     if ($verbose)
