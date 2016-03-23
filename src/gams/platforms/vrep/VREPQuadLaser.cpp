@@ -93,11 +93,12 @@ gams::platforms::VREPQuadLaser::VREPQuadLaser (
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self) :
-  VREPQuad (model_file, is_client_side, knowledge, sensors, platforms, self)
+  VREPQuad (model_file, is_client_side, knowledge, sensors, platforms, self),
+  laser_sensor_(-1), sonar_sensor_(-1)
 {
   if (knowledge && sensors && platforms && self)
   {
-    get_laser_sensor_handle();
+    get_sensor_handles();
   }
 }
 
@@ -111,22 +112,83 @@ std::string gams::platforms::VREPQuadLaser::get_name () const
   return "VREP Laser Quadcopter";
 }
 
-double gams::platforms::VREPQuadLaser::get_range() const
+double
+gams::platforms::VREPQuadLaser::read_sensor(simxInt handle, double range) const
 {
   simxUChar detectionState;
   simxFloat detectedPoint[3];
-  simxInt ret = simxReadProximitySensor(client_id_, laser_sensor_,
+  simxInt ret = simxReadProximitySensor(client_id_, handle,
     &detectionState, detectedPoint, NULL, NULL, simx_opmode_oneshot_wait);
   if(detectionState == 0)
-    return -2;
+    return -range;
   else
     return sqrt(detectedPoint[0] * detectedPoint[0] +
                 detectedPoint[1] * detectedPoint[1] +
                 detectedPoint[2] * detectedPoint[2]);
 }
 
+double gams::platforms::VREPQuadLaser::get_range() const
+{
+  return read_sensor(laser_sensor_, 2);
+}
+
+uint32_t gams::platforms::VREPQuadLaser::get_color() const
+{
+  std::ostringstream ss;
+  ss << "sig_laser_" << node_id_;
+  simxUChar *msg;
+  simxInt len;
+  simxInt result = simxGetStringSignal(client_id_, ss.str().c_str(), &msg, &len,
+                                       simx_opmode_oneshot_wait);
+  if(result == simx_return_ok)
+  {
+    uint32_t ret = 0;
+    bool started = false;
+    for(int i = 0; i < len; ++i)
+    {
+      if(started)
+      {
+        char c = msg[i];
+        if(c == ':' || c == '\n')
+          break;
+        ret <<= 4;
+        if(c >= '0' && c <= '9')
+          c |= c - '0';
+        else if(c >= 'A' && c <= 'F')
+          c |= c - 'A' + 10;
+        else if(c >= 'a' && c <= 'f')
+          c |= c - 'a' + 10;
+      }
+      else if(msg[i] = '#')
+        started = true;
+    }
+    return ret;
+  }
+  return 0x000000;
+}
+
+void gams::platforms::VREPQuadLaser::set_color(uint32_t color) const
+{
+  std::ostringstream ss_val;
+  ss_val << "#" << color;
+
+  std::ostringstream ss_name;
+  ss_name << "sig_bodyColor_" << node_id_;
+
+  std::string name = ss_name.str();
+  std::string val = ss_val.str();
+  simxInt result = simxSetStringSignal(client_id_, (const char *) name.c_str(),
+                     (const unsigned char *) val.c_str(), val.size(),
+                     simx_opmode_oneshot_wait);
+}
+
+double gams::platforms::VREPQuadLaser::get_altitude() const
+{
+  return read_sensor(sonar_sensor_, 1);
+}
+
 void
-gams::platforms::VREPQuadLaser::get_laser_sensor_handle ()
+gams::platforms::VREPQuadLaser::get_sensor_handles ()
 {
   //find the dummy base sub-object
   simxInt handlesCount = 0,*handles = NULL;
@@ -135,13 +197,24 @@ gams::platforms::VREPQuadLaser::get_laser_sensor_handle ()
     &handles, &parentsCount, &parents, NULL, NULL, NULL, NULL,
     simx_opmode_oneshot_wait);
 
-  // find sensor
+  int count = 0;
+  // find sensors; first is laser, second is sonar
   for(simxInt i = 0; i < handlesCount; ++i)
   {
     if(parents[i] == node_id_)
     {
-      laser_sensor_ = handles[i];
-      break;
+      switch(count)
+      {
+        case 0:
+          laser_sensor_ = handles[i];
+          break;
+        case 1:
+          sonar_sensor_ = handles[i];
+          break;
+        default:
+          continue;
+      }
+      ++count;
     }
   }
 }
