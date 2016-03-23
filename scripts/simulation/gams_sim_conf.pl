@@ -31,6 +31,7 @@ my $help;
 my $hz;
 my $invert;
 my $last;
+my $location;
 my $madara_debug;
 my $max_lat;
 my $max_lon;
@@ -90,6 +91,7 @@ GetOptions(
   'hz|z=i' => \$hz,
   'invert|i' => \$invert,
   'last|l=i' => \$last,
+  'location|position=s' => \$location,
   'madara_debug|md=i' => \$madara_debug,
   'max_lat|max-lat=f' => \$max_lat,
   'max_lon|max-lon=f' => \$max_lon,
@@ -144,6 +146,8 @@ options:
   --hz|-z hertz          periodic execution rate for agents
   --invert|-i            invert the x and y axis in a formation
   --last|-l num          last agent number (e.g. 1, 2, 3, etc.)
+  --location|--position p specifies a specific position in the format [x, y],
+                         where x and y should be doubles
   --madara_debug|-md lev log level for MADARA
   --max_lat|max-lat x    defines the maximum latitude, generally for a region
   --max_lon|max-lon x    defines the maximum longitude, generally for a region
@@ -204,6 +208,7 @@ $script is using the following configuration:
   hz = " . ($hz ? $hz : 'no change') . "
   invert = " . ($invert ? 'yes' : 'no') . "
   last = " . (defined $last ? $last : 'default') . "
+  location = " . ($location ? $location : 'no change') . "
   madara_debug = " . ($madara_debug ? $madara_debug : 'no change') . "
   max_lat = " . ($max_lat ? $max_lat : 'no change') . "
   max_lon = " . ($max_lon ? $max_lon : 'no change') . "
@@ -699,9 +704,48 @@ agent.$i.algorithm = .algorithm;\n";
       }
     }
     
-    print ("User-defined init: first = $first, last = $last, agents=$agents\n");
+    if ($verbose)
+    {
+      print ("User-defined init: first = $first, last = $last, agents=$agents\n");
+    }
   }
-  
+
+  if ($location)
+  {
+    if ($verbose)
+    {
+      print ("Changing location of agent $first to $last to $location\n");
+    }
+    
+    my ($lat, $lon);
+    
+    if ($location =~ m{(-?\d*\.\d*)+\s*,\s*(-\d*\.\d*)+})
+    {
+      $lat = $1;
+      $lon = $2;
+      
+      # Try to replace all algorithm arguments and comments
+      for (my $i = $first; $i <= $last; ++$i)
+      {
+        # we have a valid point. Change the agent's init file.
+        my $agent_contents;
+        open agent_file, "$sim_path/agent_$i.mf" or
+          die "ERROR: Couldn't open $sim_path/agent_$i.mf for reading\n";
+          $agent_contents = join("", <agent_file>); 
+        close agent_file;
+        
+        # replace lat and lon with our new points
+        $agent_contents =~ s/(\.initial_lat\s*=\s*)\-?\d+\.\d+/$1$lat/;
+        $agent_contents =~ s/(\.initial_lon\s*=\s*)\-?\d+\.\d+/$1$lon/;
+           
+        open agent_file, ">$sim_path/agent_$i.mf" or
+          die "ERROR: Couldn't open $sim_path/agent_$i.mf for writing\n";
+          print agent_file  $agent_contents; 
+        close agent_file;
+      
+      }
+    }
+  }  
   
   if ($algorithm)
   {
