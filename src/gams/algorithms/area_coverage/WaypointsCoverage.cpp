@@ -177,6 +177,13 @@ gams::algorithms::area_coverage::WaypointsCoverage::analyze ()
       status_.finished = 1;
     }
   }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "WaypointCoverage:analyze" \
+      " platform has not set movement_available to 1.\n");
+  }
 
   return ret_val;
 }
@@ -195,5 +202,12 @@ gams::algorithms::area_coverage::WaypointsCoverage::generate_new_position ()
     else
       cur_waypoint_ = waypoints_.size (); // prevent overflow to become valid again
     initialized_ = true;
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "WaypointCoverage:generate_new_position" \
+      " platform has not set movement_available to 1. Cannot move.\n");
   }
 }
