@@ -196,12 +196,20 @@ gams::algorithms::area_coverage::WaypointsCoverage::generate_new_position ()
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    ++cur_waypoint_;
-    if (cur_waypoint_ < waypoints_.size ())
+    if (!initialized_)
+    {
+      cur_waypoint_ = 0;
       next_position_ = waypoints_[cur_waypoint_];
+      initialized_ = true;
+    }
     else
-      cur_waypoint_ = waypoints_.size (); // prevent overflow to become valid again
-    initialized_ = true;
+    {
+      ++cur_waypoint_;
+      if (cur_waypoint_ < waypoints_.size ())
+        next_position_ = waypoints_[cur_waypoint_];
+      else
+        cur_waypoint_ = waypoints_.size (); // prevent overflow to become valid again
+    }
   }
   else
   {

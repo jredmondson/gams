@@ -199,6 +199,7 @@ gams::controllers::BaseController::system_analyze (void)
       self_.agent.last_algorithm_args.clear (true);
       self_.agent.algorithm_args.exchange (self_.agent.last_algorithm_args,
         true, true);
+      self_.agent.algorithm_args.clear ();
     }
   }
   else if (swarm_.algorithm != "")
@@ -238,6 +239,7 @@ gams::controllers::BaseController::system_analyze (void)
       self_.agent.algorithm_id = 0;
       swarm_.algorithm_args.exchange (self_.agent.last_algorithm_args,
         true, true);
+      self_.agent.algorithm_args.clear ();
     }
   }
 
