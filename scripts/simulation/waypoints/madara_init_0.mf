@@ -6,11 +6,7 @@
 
 agent.0.algorithm="waypoints";
 
-agent.0.algorithm.0[0]=40.443237;
-agent.0.algorithm.0[1]=-79.940570;
-agent.0.algorithm.1[0]=40.443387;
-agent.0.algorithm.1[1]=-79.940270;
-agent.0.algorithm.2[0]=40.443187;
-agent.0.algorithm.2[1]=-79.940098;
-agent.0.algorithm.3[0]=40.443077;
-agent.0.algorithm.3[1]=-79.940398;
+agent.0.algorithm.args.0=[40.443237,-79.940570];
+agent.0.algorithm.args.1=[40.443387,-79.940270];
+agent.0.algorithm.args.2=[40.443187,-79.940098];
+agent.0.algorithm.args.3=[40.443077,-79.940398];

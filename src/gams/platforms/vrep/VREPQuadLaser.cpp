@@ -177,9 +177,10 @@ void gams::platforms::VREPQuadLaser::set_color(uint32_t color) const
 
   std::string name = ss_name.str();
   std::string val = ss_val.str();
-  simxInt result = simxSetStringSignal(client_id_, (const char *) name.c_str(),
-                     (const unsigned char *) val.c_str(), val.size(),
-                     simx_opmode_oneshot_wait);
+  simxInt result = (simxInt) simxSetStringSignal(
+    client_id_, (const char *) name.c_str(),
+    (const unsigned char *) val.c_str(), (simxInt)val.size(),
+    simx_opmode_oneshot_wait);
 }
 
 double gams::platforms::VREPQuadLaser::get_altitude() const

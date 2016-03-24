@@ -197,19 +197,23 @@ void
 gams::algorithms::area_coverage::UniformRandomAreaCoverage::
   generate_new_position ()
 {
-  do
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    next_position_.latitude (madara::utility::rand_double (region_.min_lat_,
-      region_.max_lat_));
-    next_position_.longitude (madara::utility::rand_double (region_.min_lon_,
-      region_.max_lon_));
-    next_position_.altitude (madara::utility::rand_double (region_.min_alt_,
-      region_.max_alt_));
-  }
-  while (!region_.contains (next_position_));
+    do
+    {
+      next_position_.latitude (madara::utility::rand_double (region_.min_lat_,
+        region_.max_lat_));
+      next_position_.longitude (madara::utility::rand_double (region_.min_lon_,
+        region_.max_lon_));
+      next_position_.altitude (madara::utility::rand_double (region_.min_alt_,
+        region_.max_alt_));
+    } while (!region_.contains (next_position_));
 
-  // found an acceptable position, so set it as next
-  utility::GPSPosition current;
-  current.from_container (self_->agent.location);
-  next_position_.altitude (current.altitude ()); // TODO: update when altitude is handled
+    // found an acceptable position, so set it as next
+    utility::GPSPosition current;
+    current.from_container (self_->agent.location);
+    next_position_.altitude (current.altitude ()); // TODO: update when altitude is handled
+
+    initialized_ = true;
+  }
 }

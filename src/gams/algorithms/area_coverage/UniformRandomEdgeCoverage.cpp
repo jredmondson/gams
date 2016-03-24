@@ -216,39 +216,42 @@ gams::algorithms::area_coverage::UniformRandomEdgeCoverage::operator= (
 void
 gams::algorithms::area_coverage::UniformRandomEdgeCoverage::generate_new_position ()
 {
-  // select new edge
-  int num_edges = int (region_.vertices.size());
-  int target_edge = madara::utility::rand_int (0, num_edges-1);
-
-  // get endpoints
-  const utility::GPSPosition & pos_1 = region_.vertices[target_edge];
-  const utility::GPSPosition & pos_2 = 
-    region_.vertices[(target_edge + 1) % num_edges];
-
-  // get random point on line
-  double delta_lat = pos_2.latitude () - pos_1.latitude ();
-  double delta_lon = pos_2.longitude () - pos_1.longitude ();
-  if (delta_lon == 0) // north/south line
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    const double & min = pos_1.latitude () < pos_2.latitude () ? pos_1.latitude () : pos_2.latitude ();
-    const double & max = pos_1.latitude () > pos_2.latitude () ? pos_1.latitude () : pos_2.latitude ();
-    next_position_.latitude (madara::utility::rand_double(min, max));
-    next_position_.longitude (pos_1.longitude ());
-  }
-  else if (delta_lat == 0) // east/west line
-  {
-    const double & min = pos_1.longitude () < pos_2.longitude () ? pos_1.longitude () : pos_2.longitude ();
-    const double & max = pos_1.longitude () > pos_2.longitude () ? pos_1.longitude () : pos_2.longitude ();
-    next_position_.longitude (madara::utility::rand_double(min, max));
-    next_position_.latitude (pos_1.latitude ());
-  }
-  else // other arbitrary line
-  {
-    const double slope = delta_lon / delta_lat;
-    next_position_.latitude (madara::utility::rand_double(pos_1.latitude (), pos_2.latitude ()));
-    next_position_.longitude (pos_1.longitude () + slope * (next_position_.latitude () - pos_1.latitude ()));
-  }
+    // select new edge
+    int num_edges = int (region_.vertices.size ());
+    int target_edge = madara::utility::rand_int (0, num_edges - 1);
 
-  // fill in altitude on waypoint
-  next_position_.altitude (self_->agent.desired_altitude.to_double ());
+    // get endpoints
+    const utility::GPSPosition & pos_1 = region_.vertices[target_edge];
+    const utility::GPSPosition & pos_2 =
+      region_.vertices[(target_edge + 1) % num_edges];
+
+    // get random point on line
+    double delta_lat = pos_2.latitude () - pos_1.latitude ();
+    double delta_lon = pos_2.longitude () - pos_1.longitude ();
+    if (delta_lon == 0) // north/south line
+    {
+      const double & min = pos_1.latitude () < pos_2.latitude () ? pos_1.latitude () : pos_2.latitude ();
+      const double & max = pos_1.latitude () > pos_2.latitude () ? pos_1.latitude () : pos_2.latitude ();
+      next_position_.latitude (madara::utility::rand_double (min, max));
+      next_position_.longitude (pos_1.longitude ());
+    }
+    else if (delta_lat == 0) // east/west line
+    {
+      const double & min = pos_1.longitude () < pos_2.longitude () ? pos_1.longitude () : pos_2.longitude ();
+      const double & max = pos_1.longitude () > pos_2.longitude () ? pos_1.longitude () : pos_2.longitude ();
+      next_position_.longitude (madara::utility::rand_double (min, max));
+      next_position_.latitude (pos_1.latitude ());
+    }
+    else // other arbitrary line
+    {
+      const double slope = delta_lon / delta_lat;
+      next_position_.latitude (madara::utility::rand_double (pos_1.latitude (), pos_2.latitude ()));
+      next_position_.longitude (pos_1.longitude () + slope * (next_position_.latitude () - pos_1.latitude ()));
+    }
+
+    // fill in altitude on waypoint
+    next_position_.altitude (self_->agent.desired_altitude.to_double ());
+  }
 }
