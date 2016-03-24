@@ -170,7 +170,7 @@ uint32_t gams::platforms::VREPQuadLaser::get_color() const
 void gams::platforms::VREPQuadLaser::set_color(uint32_t color) const
 {
   std::ostringstream ss_val;
-  ss_val << "#" << color;
+  ss_val << "#" << std::hex << std::setfill('0') << std::setw(6) << color;
 
   std::ostringstream ss_name;
   ss_name << "sig_bodyColor_" << node_id_;
