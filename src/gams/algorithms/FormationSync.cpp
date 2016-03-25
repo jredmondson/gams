@@ -803,27 +803,38 @@ gams::algorithms::FormationSync::analyze (void)
     "gams::algorithms::FormationSync::analyze:" \
     " entering analyze method\n");
 
-  if (position_ >= 0)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    int round = barrier_.get_round ();
-
-    barrier_.modify ();
-
-    if (round < (int)plan_.size () && barrier_.is_done ())
+    if (position_ >= 0)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MINOR,
-        "gams::algorithms::FormationSync::analyze:" \
-        " %d: Round %d of %d: Proceeding to next barrier round\n",
-        position_, round, (int)plan_.size ());
+      int round = barrier_.get_round ();
 
-      utility::GPSPosition current;
-      current.from_container (self_->agent.location);
+      barrier_.modify ();
 
-      // for some reason, we have divergent functions for distance equality
-      if (plan_[round].approximately_equal (current, platform_->get_accuracy ()))
+      if (round < (int)plan_.size () && barrier_.is_done ())
       {
-        barrier_.next ();
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::FormationSync::analyze:" \
+          " %d: Round %d of %d: Proceeding to next barrier round\n",
+          position_, round, (int)plan_.size ());
+
+        utility::GPSPosition current;
+        current.from_container (self_->agent.location);
+
+        // for some reason, we have divergent functions for distance equality
+        if (plan_[round].approximately_equal (current, platform_->get_accuracy ()))
+        {
+          barrier_.next ();
+        }
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::FormationSync::analyze:" \
+          " %d: Round %d of %d: NOT proceeding to next barrier round\n",
+          position_, round, (int)plan_.size ());
       }
     }
     else
@@ -831,18 +842,17 @@ gams::algorithms::FormationSync::analyze (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::FormationSync::analyze:" \
-        " %d: Round %d of %d: NOT proceeding to next barrier round\n",
-        position_, round, (int)plan_.size ());
+        " agent.%d does not have a position in group algorithm." \
+        " Nothing to analyze.\n",
+        (int)self_->id.to_integer ());
     }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::algorithms::FormationSync::analyze:" \
-      " agent.%d does not have a position in group algorithm." \
-      " Nothing to analyze.\n",
-      (int)self_->id.to_integer ());
+      gams::loggers::LOG_DETAILED,
+      "FormationSync:analyze" \
+      " platform has not set movement_available to 1.\n");
   }
 
   return OK;
@@ -856,46 +866,69 @@ gams::algorithms::FormationSync::execute (void)
     "gams::algorithms::FormationSync::execute:" \
     " entering execute method\n");
 
-  if (position_ >= 0)
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    int move = (int)barrier_.get_round ();
-
-    if (move < (int)plan_.size ())
+    if (position_ >= 0)
     {
-      if (move < move_pivot_)
+      int move = (int)barrier_.get_round ();
+
+      if (move < (int)plan_.size ())
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationSync::execute:" \
-          " %d: Round %d: Moving along latitude to %s\n", position_,
-          move, plan_[move].to_string ().c_str ());
+        if (move < move_pivot_)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::FormationSync::execute:" \
+            " %d: Round %d: Moving along latitude to %s\n", position_,
+            move, plan_[move].to_string ().c_str ());
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::FormationSync::execute:" \
+            " %d: Round %d: Moving along longitude to %s\n", position_,
+            move, plan_[move].to_string ().c_str ());
+        }
+
+        if (platform_->move (plan_[move], platform_->get_accuracy ()) ==
+          gams::platforms::PLATFORM_ARRIVED &&
+          move < (int)plan_.size () && barrier_.is_done ())
+        {
+          barrier_.next ();
+        }
       }
       else
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationSync::execute:" \
-          " %d: Round %d: Moving along longitude to %s\n", position_,
-          move, plan_[move].to_string ().c_str ());
-      }
+          " %d: Round %d: Algorithm appears to have finished\n", position_,
+          move);
 
-      if (platform_->move (plan_[move], platform_->get_accuracy ()) ==
-        gams::platforms::PLATFORM_ARRIVED &&
-        move < (int)plan_.size () && barrier_.is_done ())
-      {
-        barrier_.next ();
+        status_.finished = 1;
       }
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::execute:" \
+        " agent.%d does not have a position in group algorithm." \
+        " Nothing to execute.\n",
+        (int)self_->id.to_integer ());
+
+      status_.finished = 1;
     }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::algorithms::FormationSync::execute:" \
-      " agent.%d does not have a position in group algorithm." \
-      " Nothing to execute.\n",
-      (int)self_->id.to_integer ());
+      gams::loggers::LOG_DETAILED,
+      "FormationSync:execute" \
+      " platform has not set movement_available to 1.\n");
   }
+
   return 0;
 }
 
