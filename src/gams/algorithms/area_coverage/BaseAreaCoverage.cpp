@@ -96,7 +96,7 @@ gams::algorithms::area_coverage::BaseAreaCoverage::operator= (
  * with sensor analysis.
  */
 int
-gams::algorithms::area_coverage::BaseAreaCoverage::analyze ()
+gams::algorithms::area_coverage::BaseAreaCoverage::analyze (void)
 {
   ++executions_;
   int ret_val = check_if_finished (OK);
@@ -116,7 +116,7 @@ gams::algorithms::area_coverage::BaseAreaCoverage::analyze ()
  * moving to their destination.
  */
 int
-gams::algorithms::area_coverage::BaseAreaCoverage::execute ()
+gams::algorithms::area_coverage::BaseAreaCoverage::execute (void)
 {
   if (initialized_ && 
       platform_ && *platform_->get_platform_status ()->movement_available
@@ -159,7 +159,7 @@ gams::algorithms::area_coverage::BaseAreaCoverage::execute ()
  * enough to their destination. If so, they generate a new destination.
  */
 int
-gams::algorithms::area_coverage::BaseAreaCoverage::plan ()
+gams::algorithms::area_coverage::BaseAreaCoverage::plan (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {

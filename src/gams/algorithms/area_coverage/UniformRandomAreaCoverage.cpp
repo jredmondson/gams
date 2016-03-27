@@ -195,7 +195,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::operator= (
  */
 void
 gams::algorithms::area_coverage::UniformRandomAreaCoverage::
-  generate_new_position ()
+  generate_new_position (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {

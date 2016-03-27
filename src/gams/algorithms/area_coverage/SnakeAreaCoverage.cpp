@@ -205,7 +205,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::operator= (
  * The next destination is simply the next point in the list
  */
 void
-gams::algorithms::area_coverage::SnakeAreaCoverage::generate_new_position ()
+gams::algorithms::area_coverage::SnakeAreaCoverage::generate_new_position (void)
 {
   if (initialized_)
   {

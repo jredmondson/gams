@@ -52,8 +52,8 @@
 #include "ace/High_Res_Timer.h"
 #include "ace/OS_NS_sys_time.h"
 #include "madara/utility/Utility.h"
-#include "gams/platforms/PlatformFactory.h"
-#include "gams/algorithms/AlgorithmFactory.h"
+#include "gams/algorithms/AlgorithmFactoryRepository.h"
+#include "gams/platforms/PlatformFactoryRepository.h"
 #include "gams/loggers/GlobalLogger.h"
 
 // Java-specific header includes
@@ -70,9 +70,7 @@ typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::controllers::Multicontroller::Multicontroller (
   madara::knowledge::KnowledgeBase & knowledge)
-  : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
-  algorithm_factory_ (&knowledge, &sensors_, platform_, 0, &agents_),
-  platform_factory_ (&knowledge, &sensors_, &platforms_, 0)
+  : algorithm_ (0), knowledge_ (knowledge), platform_ (0)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -109,14 +107,14 @@ void gams::controllers::Multicontroller::add_platform_factory (
   const std::vector <std::string> & aliases,
   platforms::PlatformFactory * factory)
 {
-  this->platform_factory_.add (aliases, factory);
+  gams::platforms::global_platform_factory->add (aliases, factory);
 }
 
 void gams::controllers::Multicontroller::add_algorithm_factory (
   const std::vector <std::string> & aliases,
   algorithms::AlgorithmFactory * factory)
 {
-  this->algorithm_factory_.add (aliases, factory);
+  gams::algorithms::global_algorithm_factory->add (aliases, factory);
 }
 
 int
@@ -635,15 +633,12 @@ const madara::knowledge::KnowledgeMap & args)
   {
     // create new accent pointer and algorithm factory
     algorithms::BaseAlgorithm * new_accent (0);
-    algorithms::ControllerAlgorithmFactory factory (&knowledge_, &sensors_,
-      platform_, &self_, &agents_);
-
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::Multicontroller::init_accent:" \
       " factory is creating accent %s\n", algorithm.c_str ());
 
-    new_accent = factory.create (algorithm, args);
+    new_accent = algorithms::global_algorithm_factory->create (algorithm, args);
 
     if (new_accent)
     {
@@ -703,15 +698,14 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
       " deleting old algorithm\n");
 
     delete algorithm_;
-    algorithms::ControllerAlgorithmFactory factory (&knowledge_, &sensors_,
-      platform_, &self_, &agents_);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::Multicontroller::init_algorithm:" \
       " factory is creating algorithm %s\n", algorithm.c_str ());
 
-    algorithm_ = factory.create (algorithm, args);
+    algorithm_ = algorithms::global_algorithm_factory->create (
+      algorithm, args);
 
     if (algorithm_ == 0)
     {
@@ -811,7 +805,7 @@ gams::controllers::Multicontroller::init_platform (
       " deleting old platform\n");
 
     delete platform_;
-    platforms::ControllerPlatformFactory factory (&knowledge_, &sensors_, &platforms_, &self_);
+    platforms::PlatformFactoryRepository factory (&knowledge_, &sensors_, &platforms_, &self_);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,

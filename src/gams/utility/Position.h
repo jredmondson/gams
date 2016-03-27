@@ -235,6 +235,13 @@ namespace gams
       static Position from_string (const std::string & delimiter = ",");
 
       /**
+      * Helper function for creating a Position from a KnowledgeRecord
+      * @param record  a record containing a double array
+      * @return  the Position equivalent of the record
+      **/
+      static Position from_record (const madara::knowledge::KnowledgeRecord & record);
+
+      /**
        * Helper function for copying values to a MADARA double array
        * @param target     target container to copy values to
        **/

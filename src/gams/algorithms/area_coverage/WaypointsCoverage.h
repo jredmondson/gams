@@ -106,13 +106,13 @@ namespace gams
          * Analyzes environment, platform, or other information
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int analyze ();
+        virtual int analyze (void);
         
       protected:
         /**
          * Generate new next position
          */
-        void generate_new_position ();
+        void generate_new_position (void);
         
         /// waypoints
         std::vector<utility::Position> waypoints_;

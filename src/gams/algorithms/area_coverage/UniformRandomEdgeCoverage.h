@@ -107,7 +107,7 @@ namespace gams
         /**
          * Generate new next position
          */
-        virtual void generate_new_position ();
+        virtual void generate_new_position (void);
   
         /// convex hull of coverage region
         utility::Region region_;

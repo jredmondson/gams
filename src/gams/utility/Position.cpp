@@ -47,6 +47,7 @@
 #include <sstream>
 #include "gams/utility/Position.h"
 #include "gams/utility/GPSPosition.h"
+#include "gams/loggers/GlobalLogger.h"
 
 #define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
 
@@ -280,6 +281,50 @@ gams::utility::Position::to_container (
   target.set (0, x);
   target.set (1, y);
   target.set (2, z);
+}
+
+gams::utility::Position
+gams::utility::Position::from_record (
+  const madara::knowledge::KnowledgeRecord & record)
+{
+  Position result;
+
+  std::vector <double> values = record.to_doubles ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "Position::from_record" \
+    " reading from record [%s]\n",
+    record.to_string ().c_str ());
+
+  if (values.size () >= 2)
+  {
+    result.x = values[0];
+    result.y = values[1];
+
+    if (values.size () >= 3)
+    {
+      result.z = values[2];
+    }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "Position::from_record" \
+      " x = %f, y = %f, z = %f\n",
+      result.x, result.y, result.z);
+
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "Position::from_record" \
+      " record was not the appropriate array size (%d instead of >= 2)\n",
+      (int)values.size ());
+
+  }
+
+  return result;
 }
 
 void

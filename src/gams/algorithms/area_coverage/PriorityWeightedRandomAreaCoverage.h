@@ -100,7 +100,7 @@ namespace gams
         /**
          * Generate new next position
          */
-        void generate_new_position ();
+        void generate_new_position (void);
   
         /// Search Area to cover
         utility::SearchArea search_area_;

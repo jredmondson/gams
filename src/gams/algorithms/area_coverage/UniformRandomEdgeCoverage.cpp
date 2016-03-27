@@ -214,7 +214,7 @@ gams::algorithms::area_coverage::UniformRandomEdgeCoverage::operator= (
  * selected at uniform random.
  */
 void
-gams::algorithms::area_coverage::UniformRandomEdgeCoverage::generate_new_position ()
+gams::algorithms::area_coverage::UniformRandomEdgeCoverage::generate_new_position (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {

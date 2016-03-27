@@ -274,6 +274,12 @@ gams::algorithms::FormationFlying::FormationFlying (
     groups::AgentVector members;
     group->get_members (members);
 
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::algorithms::FormationFlying:" \
+      " head is creating formation ready checks for %d agents\n",
+      (int)members.size ());
+
     // construct actual string
     for (AgentVector::const_reference m : members)
     {
@@ -282,7 +288,13 @@ gams::algorithms::FormationFlying::FormationFlying (
         std::stringstream formation_expr;
         formation_expr << "formation." << my_id;
         formation_expr << "." << m << ".ready";
-  
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "gams::algorithms::FormationFlying:" \
+          " head is creating formation ready check for agent %s\n",
+          formation_expr.str ().c_str ());
+
         Compiled temp;
         temp.ref = knowledge_->compile (formation_expr.str ());
         temp.agent = m;
@@ -362,7 +374,8 @@ gams::algorithms::FormationFlying::analyze (void)
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
           "gams::algorithms::FormationFlying:" \
-          " head is checking if everybody is in_formation_\n");
+          " head is checking if %d agents are in_formation_\n",
+          (int)compiled_formation_.size ());
 
         int in_formation = 1;
         for (size_t i = 0; i < compiled_formation_.size (); ++i)

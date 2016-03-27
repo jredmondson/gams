@@ -108,7 +108,7 @@ namespace gams
         /**
          * Generate new next position
          */
-        void generate_new_position ();
+        void generate_new_position (void);
         
         /**
          * Compute waypoints

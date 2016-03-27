@@ -52,7 +52,6 @@
 #include "ace/High_Res_Timer.h"
 #include "ace/OS_NS_sys_time.h"
 #include "gams/algorithms/GroupBarrier.h"
-#include "gams/algorithms/ControllerAlgorithmFactory.h"
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/utility/Utility.h"
 

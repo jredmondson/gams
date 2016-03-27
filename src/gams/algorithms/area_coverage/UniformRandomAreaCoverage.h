@@ -106,7 +106,7 @@ namespace gams
         /**
          * Generate new next position
          */
-        virtual void generate_new_position ();
+        virtual void generate_new_position (void);
 
         /// region to cover
         utility::Region region_;

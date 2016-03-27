@@ -85,6 +85,7 @@ gams::groups::GroupTransient::GroupTransient (const std::string & prefix,
   if (knowledge && prefix != "")
   {
     members_.set_name (prefix + ".members", *knowledge);
+    sync ();
   }
 }
 
@@ -186,6 +187,7 @@ gams::groups::GroupTransient::set_prefix (const std::string & prefix,
   if (knowledge && prefix != "")
   {
     members_.set_name (prefix + ".members", *knowledge);
+    sync ();
   }
 }
 

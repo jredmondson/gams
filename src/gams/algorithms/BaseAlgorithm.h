@@ -128,19 +128,19 @@ namespace gams
        * Analyzes environment, platform, or other information
        * @return bitmask status of the algorithm. @see AlgorithmAnalyzeStatus
        **/
-      virtual int analyze () = 0;
+      virtual int analyze (void) = 0;
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the algorithm. @see AlgorithmAnalyzeStatus
        **/
-      virtual int execute () = 0;
+      virtual int execute (void) = 0;
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see AlgorithmAnalyzeStatus
        **/
-      virtual int plan () = 0;
+      virtual int plan (void) = 0;
       
       /**
        * Sets the list of agents in the swarm

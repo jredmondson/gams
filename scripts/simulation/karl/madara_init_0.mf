@@ -1,0 +1,10 @@
+.vrep_port=19906;
+
+.initial_x=7;
+.initial_y=7;
+.initial_alt=4;
+
+agent.0.algorithm="karl";
+agent.0.algorithm.args.logic="never_true";
+agent.0.algorithm.args.wait_time=10.0;
+agent.0.algorithm.args.store_result="eval_result";

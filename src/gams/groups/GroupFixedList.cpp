@@ -82,6 +82,7 @@ gams::groups::GroupFixedList::GroupFixedList (const std::string & prefix,
   if (knowledge && prefix != "")
   {
     members_.set_name (prefix + ".members", *knowledge);
+    sync ();
   }
 }
 
@@ -136,7 +137,7 @@ gams::groups::GroupFixedList::get_members (AgentVector & members) const
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupFixedList:get_members" \
-    " retrieving member list\n", (int)members.size ());
+    " retrieving member list (%d members)\n", (int)fast_members_.size ());
 
   members.clear ();
 
@@ -166,6 +167,7 @@ madara::knowledge::KnowledgeBase * knowledge)
   if (knowledge && prefix != "")
   {
     members_.set_name (prefix + ".members", *knowledge);
+    sync ();
   }
 }
 

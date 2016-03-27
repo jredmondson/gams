@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file Executive.h
- * @author Anton Dukeman <anton.dukeman@gmail.com>
+ * @file Executor.h
+ * @author James Edmondson <jedmondson@gmail.com>
  *
- * Declaration of Executive class
+ * Implementation of the Executor algorithm
  **/
 
-#ifndef _GAMS_ALGORITHMS_EXECUTIVE_H_
-#define _GAMS_ALGORITHMS_EXECUTIVE_H_
+#ifndef _GAMS_ALGORITHMS_EXECUTOR_H_
+#define _GAMS_ALGORITHMS_EXECUTOR_H_
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/BasePlatform.h"
@@ -61,7 +61,7 @@
 #include "gams/variables/Self.h"
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/algorithms/AlgorithmFactory.h"
-#include "gams/algorithms/ControllerAlgorithmFactory.h"
+#include "gams/algorithms/AlgorithmFactoryRepository.h"
 
 namespace gams
 {
@@ -70,20 +70,20 @@ namespace gams
     /**
     * An algorithm capable of executing other algorithms
     **/
-    class GAMSExport Executive : public BaseAlgorithm
+    class GAMSExport Executor : public BaseAlgorithm
     {
     public:
       /**
        * Constructor
-       * @param  args         plan information
+       * @param  args         arguments to the Executor
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
-       * @param  agents      variables referencing agents
+       * @param  agents       variables referencing agents
        **/
-      Executive (
-        const madara::knowledge::KnowledgeVector & args,
+      Executor (
+        const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -93,70 +93,44 @@ namespace gams
       /**
        * Destructor
        **/
-      ~Executive ();
+      ~Executor ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (Executive & rhs);
-      
+      void operator= (Executor & rhs);
+
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int analyze (void);
-      
+
       /**
-       * Plans the next execution of the algorithm
+       * Executes the next step
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int execute (void);
 
       /**
-       * Plans the next execution of the algorithm
+       * Plans the next execution
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int plan (void);
-      
+
     protected:
-      /**
-       * AlgorithmInit data keeps track of algorithm information
-       */
-      struct AlgorithmInit
-      {
-        std::string algorithm;
-        madara::knowledge::KnowledgeMap args;
-
-        AlgorithmInit ();
-        AlgorithmInit (const std::string& a,
-          const madara::knowledge::KnowledgeMap& v);
-      };
-
-      /// algorithm actually being run
-      BaseAlgorithm* algo_;
-
-      /// index into plan
-      size_t plan_index_;
-
-      /// plan vector
-      std::vector<AlgorithmInit> plan_;
-
-      /// Subalgorithm constructor
-      ControllerAlgorithmFactory algo_factory_;
     };
     
     /**
-     * A factory class for creating Executive algorithms
+     * A factory class for creating Executor algorithms
      **/
-    class GAMSExport ExecutiveFactory : public AlgorithmFactory
+    class GAMSExport ExecutorFactory : public AlgorithmFactory
     {
     public:
       /**
-       * Creates an Executive Algorithm.
-       * @param   args      n sets of args
-       *                    args[i] = algorithm to run
-       *                    args[i+1] = madara variable with arguments for the algorithm
+       * Creates an Executor Algorithm.
+       * @param   args      arguments to the executor algorithm
        * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
@@ -179,4 +153,4 @@ namespace gams
   }
 }
 
-#endif // _GAMS_ALGORITHMS_EXECUTIVE_H_
+#endif // _GAMS_ALGORITHMS_EXECUTOR_H_

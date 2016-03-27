@@ -79,7 +79,8 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  target       the target of the move
+       * @param  locations    a list of targets to move to
+       * @param  repeat       number of times to repeat (-1 for indefinite)
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
@@ -87,48 +88,13 @@ namespace gams
        * @param  agents      variables referencing agents
        **/
       Move (
-        const utility::Position & target,
+        const std::vector <utility::Position> & locations,
+        int repeat,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0,
         variables::Agents * agents = 0);
-
-      /**
-       * Constructor
-       * @param  type         the type of move
-       * @param  max_executions  number of loop executions to move
-       * @param  max_execution_time  wall clock time to execute move in seconds
-       * @param  knowledge    the context containing variables and values
-       * @param  platform     the underlying platform the algorithm will use
-       * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables
-       **/
-      Move (
-        const std::string & type,
-        unsigned int max_executions = 0,
-        double max_execution_time = 5.0,
-        madara::knowledge::KnowledgeBase * knowledge = 0,
-        platforms::BasePlatform * platform = 0,
-        variables::Sensors * sensors = 0,
-        variables::Self * self = 0);
-      
-      /**
-       * Constructor
-       * @param  type         the type of move
-       * @param  target       the target of the move
-       * @param  knowledge    the context containing variables and values
-       * @param  platform     the underlying platform the algorithm will use
-       * @param  sensors      map of sensor names to sensor information
-       * @param  self         self-referencing variables
-       **/
-      Move (
-        const std::string & type,
-        const utility::Position & target,
-        madara::knowledge::KnowledgeBase * knowledge = 0,
-        platforms::BasePlatform * platform = 0,
-        variables::Sensors * sensors = 0,
-        variables::Self * self = 0);
 
       /**
        * Destructor
@@ -160,29 +126,18 @@ namespace gams
       virtual int plan (void);
       
     protected:
-      /// the end time
-      ACE_Time_Value end_time_;  
 
-      /// maximum number of consecutive executions allowed
-      unsigned int max_execution_time_;
+      /// the locations to visit
+      std::vector <utility::Position> locations_;
 
-      /// maximum number of consecutive executions allowed
-      unsigned int max_executions_;
+      /// number of times to repeat
+      int repeat_;
 
-      /// mode of execution (EXECUTIONS, TIMED, TARGET)
-      enum MODE
-      {
-        EXECUTIONS = 0,
-        TIMED = 1,
-        TARGET = 2
-      };
-      MODE mode_;
+      /// current location to move to
+      size_t move_index_;
 
-      /// the target of the move
-      utility::Position target_;
-
-      /// type of movement being executed
-      std::string type_;
+      /// tracks the number of cycles completed through locations
+      int cycles_;
     };
 
     /**

@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file ControllerAlgorithmFactory.h
+ * @file AlgorithmFactoryRepository.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the algorithm factory
@@ -54,6 +54,7 @@
 #ifndef   _GAMS_ALGORITHMS_CONTROLLER_ALGORITHM_FACTORY_H_
 #define   _GAMS_ALGORITHMS_CONTROLLER_ALGORITHM_FACTORY_H_
 
+#include "madara/utility/Refcounter.h"
 #include "gams/GAMSExport.h"
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/variables/PlatformStatus.h"
@@ -75,7 +76,7 @@ namespace gams
     /**
      * The controller's algorithm factory
      **/
-    class GAMSExport ControllerAlgorithmFactory
+    class GAMSExport AlgorithmFactoryRepository
     {
     public:
       /**
@@ -86,7 +87,7 @@ namespace gams
        * @param  self       self-referencing variables
        * @param  agents    agents of the swarm
        **/
-      ControllerAlgorithmFactory (
+      AlgorithmFactoryRepository (
         madara::knowledge::KnowledgeBase * knowledge = 0,
         variables::Sensors * sensors = 0,
         platforms::BasePlatform * platform = 0,
@@ -96,7 +97,7 @@ namespace gams
       /**
        * Destructor
        **/
-      ~ControllerAlgorithmFactory ();
+      ~AlgorithmFactoryRepository ();
       
       /**
        * Adds an algorithm factory
@@ -172,6 +173,14 @@ namespace gams
       /// a map of all aliases to factories
       AlgorithmFactoryMap  factory_map_;
     };
+
+    /**
+     * A globally accessible algorithm factory. The algorithm factory should
+     * have all new algorithms added to it before new threads that might access
+     * the factory are started. This is not currently thread safe.
+     **/
+    extern GAMSExport madara::utility::Refcounter <AlgorithmFactoryRepository>
+      global_algorithm_factory;
   }
 }
 

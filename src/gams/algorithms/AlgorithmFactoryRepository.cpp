@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014-2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@
 
 #include "gams/loggers/GlobalLogger.h"
 
-#include "gams/algorithms/ControllerAlgorithmFactory.h"
+#include "gams/algorithms/AlgorithmFactoryRepository.h"
 #include "gams/algorithms/Land.h"
 #include "gams/algorithms/Move.h"
 #include "gams/algorithms/DebugAlgorithm.h"
@@ -56,11 +56,12 @@
 #include "gams/algorithms/FormationFlying.h"
 #include "gams/algorithms/FormationCoverage.h"
 #include "gams/algorithms/FormationSync.h"
+#include "gams/algorithms/KarlEvaluator.h"
 #include "gams/algorithms/ZoneCoverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/MessageProfiling.h"
-#include "gams/algorithms/Executive.h"
+#include "gams/algorithms/Executor.h"
 #include "gams/algorithms/Wait.h"
 #include "gams/algorithms/PerformanceProfiling.h"
 #include "gams/algorithms/GroupBarrier.h"
@@ -75,15 +76,18 @@
 #include "gams/algorithms/area_coverage/PerimeterPatrol.h"
 #include "gams/algorithms/area_coverage/WaypointsCoverage.h"
 
-#include "gams/loggers/GlobalLogger.h"
-
 #include <iostream>
 
 namespace algorithms = gams::algorithms;
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
-algorithms::ControllerAlgorithmFactory::ControllerAlgorithmFactory (
+/// globally accessible algorithm factory
+madara::utility::Refcounter <algorithms::AlgorithmFactoryRepository>
+  algorithms::global_algorithm_factory (
+    new algorithms::AlgorithmFactoryRepository ());
+
+algorithms::AlgorithmFactoryRepository::AlgorithmFactoryRepository (
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   platforms::BasePlatform * platform,
@@ -92,19 +96,14 @@ algorithms::ControllerAlgorithmFactory::ControllerAlgorithmFactory (
 : agents_ (agents), knowledge_ (knowledge), platform_ (platform),
   self_ (self), sensors_ (sensors)
 {
-  initialize_default_mappings ();
 }
 
-algorithms::ControllerAlgorithmFactory::~ControllerAlgorithmFactory ()
+algorithms::AlgorithmFactoryRepository::~AlgorithmFactoryRepository ()
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_EMERGENCY,
-    "gams::algorithms::~ControllerAlgorithmFactory:" \
-    " Deleting all factories.\n");
 }
 
 void
-algorithms::ControllerAlgorithmFactory::add (
+algorithms::AlgorithmFactoryRepository::add (
   const std::vector <std::string> & aliases,
   AlgorithmFactory * factory)
 {
@@ -121,18 +120,24 @@ algorithms::ControllerAlgorithmFactory::add (
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::algorithms::ControllerAlgorithmFactory:add" \
+      "gams::algorithms::AlgorithmFactoryRepository:add" \
       " Adding %s factory.\n", alias.c_str ());
 
     factory_map_[alias] = factory;
   }
 }
 
-void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
+void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
   void)
 {
   std::vector <std::string> aliases;
-  
+
+  // the performance profiler
+  aliases.resize (1);
+  aliases[0] = "barrier";
+
+  add (aliases, new GroupBarrierFactory ());
+
   // the debug algorithm
   aliases.resize (3);
   aliases[0] = "debug";
@@ -140,6 +145,13 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
   aliases[2] = "printer";
 
   add (aliases, new DebugAlgorithmFactory ());
+
+  // the executor
+  aliases.resize (2);
+  aliases[0] = "exec";
+  aliases[1] = "executor";
+
+  add (aliases, new ExecutorFactory ());
 
   // the follow algorithm
   aliases.resize (1);
@@ -158,10 +170,42 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
   aliases[0] = "formation";
 
   add (aliases, new FormationFlyingFactory ());
-  
-  // the move algorithm
+
+  // the performance profiler
   aliases.resize (1);
+  aliases[0] = "formation sync";
+
+  add (aliases, new FormationSyncFactory ());
+
+  // the karl evaluator algorithm
+  aliases.resize (1);
+  aliases[0] = "karl";
+
+  add (aliases, new KarlEvaluatorFactory ());
+
+  // the local pheromone coverage algorithm
+  aliases.resize (1);
+  aliases[0] = "local pheremone";
+
+  add (aliases, new area_coverage::LocalPheremoneAreaCoverageFactory ());
+
+  // the message profiling algorithm
+  aliases.resize (1);
+  aliases[0] = "message profiling";
+
+  add (aliases, new MessageProfilingFactory ());
+
+  // the minimum time coverage algorithm
+  aliases.resize (2);
+  aliases[0] = "min time";
+  aliases[1] = "mtac";
+
+  add (aliases, new area_coverage::MinTimeAreaCoverageFactory ());
+
+  // the move algorithm
+  aliases.resize (2);
   aliases[0] = "move";
+  aliases[1] = "waypoints";
 
   add (aliases, new MoveFactory ());
   
@@ -170,39 +214,39 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
   aliases[0] = "null";
 
   add (aliases, new NullAlgorithmFactory ());
-  
-  // the takeoff algorithm
+
+  // the performance profiler
   aliases.resize (1);
-  aliases[0] = "takeoff";
+  aliases[0] = "performance profiling";
 
-  add (aliases, new TakeoffFactory ());
-  
-  // the local pheromone coverage algorithm
-  aliases.resize (1);
-  aliases[0] = "local pheremone";
+  add (aliases, new PerformanceProfilingFactory ());
 
-  add (aliases, new area_coverage::LocalPheremoneAreaCoverageFactory ());
-  
-  // the minimum time coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "min time";
-  aliases[1] = "mtac";
-
-  add (aliases, new area_coverage::MinTimeAreaCoverageFactory ());
-  
-  // the minimum time coverage algorithm
+  // the perimeter patrol algorithm
   aliases.resize (2);
   aliases[0] = "perimeter patrol";
   aliases[1] = "ppac";
 
   add (aliases, new area_coverage::PerimeterPatrolFactory ());
-  
+
+  // the prioritized min time area coverage
+  aliases.resize (2);
+  aliases[0] = "prioritized min time area coverage";
+  aliases[1] = "pmtac";
+
+  add (aliases, new area_coverage::PrioritizedMinTimeAreaCoverageFactory ());
+
   // the priority-weighted coverage algorithm
   aliases.resize (2);
   aliases[0] = "priority weighted random area coverage";
   aliases[1] = "pwrac";
 
   add (aliases, new area_coverage::PriorityWeightedRandomAreaCoverageFactory ());
+
+  // the takeoff algorithm
+  aliases.resize (1);
+  aliases[0] = "takeoff";
+
+  add (aliases, new TakeoffFactory ());
   
   // the snake area coverage algorithm
   aliases.resize (2);
@@ -225,54 +269,18 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
 
   add (aliases, new area_coverage::UniformRandomEdgeCoverageFactory ());
 
-  // the prioritized min time area coverage
-  aliases.resize (2);
-  aliases[0] = "prioritized min time area coverage";
-  aliases[1] = "pmtac";
-
-  add (aliases, new area_coverage::PrioritizedMinTimeAreaCoverageFactory ());
-
-  // the message profiling algorithm
-  aliases.resize (1);
-  aliases[0] = "message profiling";
-
-  add (aliases, new MessageProfilingFactory ());
-
   // the waypoints coverage algorithm
-  aliases.resize (1);
-  aliases[0] = "waypoints";
+  aliases.resize (2);
+  aliases[0] = "waypoints coverage";
+  aliases[1] = "waypoints_coverage";
 
   add (aliases, new area_coverage::WaypointsCoverageFactory ());
-
-  // the executive
-  aliases.resize (1);
-  aliases[0] = "executive";
-
-  add (aliases, new ExecutiveFactory ());
 
   // the wait
   aliases.resize (1);
   aliases[0] = "wait";
 
   add (aliases, new WaitFactory ());
-
-  // the performance profiler
-  aliases.resize (1);
-  aliases[0] = "performance profiling";
-
-  add (aliases, new PerformanceProfilingFactory ());
-
-  // the performance profiler
-  aliases.resize (1);
-  aliases[0] = "formation sync";
-
-  add (aliases, new FormationSyncFactory ());
-
-  // the performance profiler
-  aliases.resize (1);
-  aliases[0] = "barrier";
-
-  add (aliases, new GroupBarrierFactory ());
 
   // zone coverage
   aliases.resize (2);
@@ -284,7 +292,7 @@ void algorithms::ControllerAlgorithmFactory::initialize_default_mappings (
 }
 
 algorithms::BaseAlgorithm *
-algorithms::ControllerAlgorithmFactory::create (
+algorithms::AlgorithmFactoryRepository::create (
   const std::string & type,
   const madara::knowledge::KnowledgeMap & args)
 {
@@ -293,7 +301,7 @@ algorithms::ControllerAlgorithmFactory::create (
   // the user is going to expect this kind of error to be printed immediately
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::ControllerAlgorithmFactory::create:" \
+    "gams::algorithms::AlgorithmFactoryRepository::create:" \
     " creating \"%s\" algorithm.\n", type.c_str ());
 
   
@@ -313,7 +321,7 @@ algorithms::ControllerAlgorithmFactory::create (
       // the user is going to expect this kind of error to be printed immediately
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ALWAYS,
-        "gams::algorithms::ControllerAlgorithmFactory::create:" \
+        "gams::algorithms::AlgorithmFactoryRepository::create:" \
         " could not find \"%s\" algorithm.\n", lowercased_type.c_str ());
     }
   }
@@ -322,35 +330,35 @@ algorithms::ControllerAlgorithmFactory::create (
 }
 
 void
-algorithms::ControllerAlgorithmFactory::set_agents (
+algorithms::AlgorithmFactoryRepository::set_agents (
   variables::Agents * agents)
 {
   agents_ = agents;
 }
 
 void
-algorithms::ControllerAlgorithmFactory::set_knowledge (
+algorithms::AlgorithmFactoryRepository::set_knowledge (
   madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-algorithms::ControllerAlgorithmFactory::set_platform (
+algorithms::AlgorithmFactoryRepository::set_platform (
   platforms::BasePlatform * platform)
 {
   platform_ = platform;
 }
 
 void
-algorithms::ControllerAlgorithmFactory::set_self (
+algorithms::AlgorithmFactoryRepository::set_self (
   variables::Self * self)
 {
   self_ = self;
 }
 
 void
-algorithms::ControllerAlgorithmFactory::set_sensors (
+algorithms::AlgorithmFactoryRepository::set_sensors (
   variables::Sensors * sensors)
 {
   sensors_ = sensors;

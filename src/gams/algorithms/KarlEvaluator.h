@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,49 +45,51 @@
  **/
 
 /**
- * @file JavaAlgorithm.h
+ * @file Karl.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the java algorithm abstraction
+ * Implementation of the Karl logic evaluator algorithm
  **/
 
-#ifndef   _GAMS_ALGORITHM_JAVA_H_
-#define   _GAMS_ALGORITHM_JAVA_H_
+#ifndef _GAMS_ALGORITHMS_KARL_H_
+#define _GAMS_ALGORITHMS_KARL_H_
 
-#include "gams/variables/Self.h"
-#include "gams/variables/Sensor.h"
-#include "gams/variables/PlatformStatus.h"
 #include "gams/algorithms/BaseAlgorithm.h"
-#include "gams/utility/GPSPosition.h"
-#include "madara/knowledge/KnowledgeBase.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
-#ifdef _GAMS_JAVA_
-#include <jni.h>
-#include "gams_jni.h"
-#endif
+#include "ace/High_Res_Timer.h"
+#include "ace/OS_NS_sys_time.h"
 
 namespace gams
 {
   namespace algorithms
   {
     /**
-    * A facade for Java algorithms
+    * An algorithm capable of executing other algorithms
     **/
-    class GAMSExport JavaAlgorithm : public BaseAlgorithm
+    class GAMSExport KarlEvaluator : public BaseAlgorithm
     {
     public:
       /**
        * Constructor
-       * @param  obj        the Java object to call methods on
-       * @param  knowledge  knowledge base
-       * @param  platform   the platform to use
-       * @param  sensors    map of sensor names to sensor information
-       * @param  self       agent variables that describe self state
-       * @param  agents    list of participating agents
+       * @param  logic        a KaRL logic to evaluate
+       * @param  store_result location in knowledge base to store result.
+       *                      if empty, do not store the result
+       * @param  is_wait      indicates if KaRL should wait for logic to
+       *                      be true
+       * @param  wait_time    maximum time to wait for logic to be true. -1
+       *                      will wait forever.
+       * @param  knowledge    the context containing variables and values
+       * @param  platform     the underlying platform the algorithm will use
+       * @param  sensors      map of sensor names to sensor information
+       * @param  self         self-referencing variables
+       * @param  agents       variables referencing agents
        **/
-      JavaAlgorithm (
-        jobject obj,
+      KarlEvaluator (
+        const std::string & logic,
+        const std::string & store_result,
+        bool is_wait,
+        double wait_time,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -97,20 +99,20 @@ namespace gams
       /**
        * Destructor
        **/
-      ~JavaAlgorithm ();
+      ~KarlEvaluator ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const JavaAlgorithm & rhs);
-      
+      void operator= (KarlEvaluator & rhs);
+
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int analyze (void);
-      
+
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
@@ -122,68 +124,48 @@ namespace gams
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int plan (void);
-      
-      /**
-       * Gets the unique identifier of the algorithm. This should be an
-       * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. rac, follow_leader, etc.)
-       **/
-      virtual std::string get_id () const;
-
-      /**
-       * Gets the name of the algorithm
-       **/
-      virtual std::string get_name () const;
-      
-      /**
-       * Returns the Java instance that derives from
-       * BaseAlgorithm.
-       **/
-      jobject get_java_instance (void);
 
     protected:
-      /// the Java object with callable methods
-      jobject obj_;
 
-      /// the class of the Java object obj_
-      jclass class_;
+      /// the compiled logic
+      madara::knowledge::CompiledExpression  compiled_logic_;
+
+      /// the evaluation settings
+      madara::knowledge::EvalSettings settings_;
+
+      /// original logic for debugging purposes
+      std::string logic_;
+
+      /// indicates if the logic should be evaluated as a wait statement
+      bool is_wait_;
+
+      /// indicates the time to wait. -1 means wait forever.
+      double wait_time_;
+
+      /// the end time
+      ACE_Time_Value end_time_;
     };
-
-
+    
     /**
-    * A factory class for creating Java Algorithms
-    **/
-    class GAMSExport JavaAlgorithmFactory : public AlgorithmFactory
+     * A factory class for creating KarlEvaluator algorithms
+     **/
+    class GAMSExport KarlEvaluatorFactory : public AlgorithmFactory
     {
     public:
-
       /**
-       * Constructor
-       * @param obj  the Java object that implements AlgorithmFactory
+       * Creates an KarlEvaluator Algorithm.
+       * @param   args      arguments to the executor algorithm
+       * @param   knowledge the knowledge base to use
+       * @param   platform  the platform. This will be set by the
+       *                    controller in init_vars.
+       * @param   sensors   the sensor info. This will be set by the
+       *                    controller in init_vars.
+       * @param   self      self-referencing variables. This will be
+       *                    set by the controller in init_vars
+       * @param   agents   the list of agents, which is dictated by
+       *                    init_vars when a number of processes is set. This
+       *                    will be set by the controller in init_vars
        **/
-      JavaAlgorithmFactory (jobject obj);
-
-      /**
-       * Destructor
-       **/
-      virtual ~JavaAlgorithmFactory ();
-
-      /**
-      * Creates a Java Algorithm.
-      * @param   args    first arg is where to store the executions tracker in
-      *                  the knowledge base. Default is ".executions" when no
-      *                  args are provided.
-      * @param   knowledge the knowledge base to use
-      * @param   platform  the platform. This will be set by the
-      *                    controller in init_vars.
-      * @param   sensors   the sensor info. This will be set by the
-      *                    controller in init_vars.
-      * @param   self      self-referencing variables. This will be
-      *                    set by the controller in init_vars
-      * @param   agents   the list of agents, which is dictated by
-      *                    init_vars when a number of processes is set. This
-      *                    will be set by the controller in init_vars
-      **/
       virtual BaseAlgorithm * create (
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
@@ -191,18 +173,8 @@ namespace gams
         variables::Sensors * sensors,
         variables::Self * self,
         variables::Agents * agents);
-
-      /**
-      * Returns the Java instance that implements from
-      * AlgorithmFactory.
-      **/
-      jobject get_java_instance (void);
-
-      protected:
-        /// the Java object with callable methods
-        jobject obj_;
     };
   }
 }
 
-#endif // _GAMS_ALGORITHM_JAVA_H_
+#endif // _GAMS_ALGORITHMS_KARL_H_

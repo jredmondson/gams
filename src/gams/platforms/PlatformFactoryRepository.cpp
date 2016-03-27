@@ -46,7 +46,7 @@
 
 #include "madara/utility/Utility.h"
 
-#include "ControllerPlatformFactory.h"
+#include "PlatformFactoryRepository.h"
 #include "DebugPlatform.h"
 #include "NullPlatform.h"
 
@@ -73,8 +73,14 @@
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
+/// globally accessible algorithm factory
+madara::utility::Refcounter <platforms::PlatformFactoryRepository>
+  platforms::global_platform_factory (
+    new platforms::PlatformFactoryRepository ());
 
-platforms::ControllerPlatformFactory::ControllerPlatformFactory (
+
+
+platforms::PlatformFactoryRepository::PlatformFactoryRepository (
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
@@ -82,15 +88,14 @@ platforms::ControllerPlatformFactory::ControllerPlatformFactory (
 : knowledge_ (knowledge), platforms_ (platforms), self_ (self),
   sensors_ (sensors)
 {
-  initialize_default_mappings ();
 }
 
-platforms::ControllerPlatformFactory::~ControllerPlatformFactory ()
+platforms::PlatformFactoryRepository::~PlatformFactoryRepository ()
 {
 }
 
 void
-platforms::ControllerPlatformFactory::initialize_default_mappings (void)
+platforms::PlatformFactoryRepository::initialize_default_mappings (void)
 {
   std::vector <std::string> aliases;
   
@@ -163,7 +168,7 @@ platforms::ControllerPlatformFactory::initialize_default_mappings (void)
 }
 
 void
-platforms::ControllerPlatformFactory::add (
+platforms::PlatformFactoryRepository::add (
   const std::vector <std::string> & aliases,
   PlatformFactory * factory)
 {
@@ -182,13 +187,13 @@ platforms::ControllerPlatformFactory::add (
 }
 
 platforms::BasePlatform *
-platforms::ControllerPlatformFactory::create (
+platforms::PlatformFactoryRepository::create (
   const std::string & type,
   const madara::knowledge::KnowledgeMap & args)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
-    "gams::platforms::ControllerPlatformFactory::create(" \
+    "gams::platforms::PlatformFactoryRepository::create(" \
     "%s,...)\n", type.c_str ());
 
   BasePlatform * result (0);
@@ -205,7 +210,7 @@ platforms::ControllerPlatformFactory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ALWAYS,
-        "gams::platforms::ControllerPlatformFactory::create:" \
+        "gams::platforms::PlatformFactoryRepository::create:" \
         " could not find \"%s\" platform.\n", type.c_str ());
     }
   }
@@ -214,27 +219,27 @@ platforms::ControllerPlatformFactory::create (
 }
 
 void
-platforms::ControllerPlatformFactory::set_knowledge (
+platforms::PlatformFactoryRepository::set_knowledge (
   madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-platforms::ControllerPlatformFactory::set_platforms (
+platforms::PlatformFactoryRepository::set_platforms (
   variables::Platforms * platforms)
 {
   platforms_ = platforms;
 }
 
 void
-platforms::ControllerPlatformFactory::set_self (variables::Self * self)
+platforms::PlatformFactoryRepository::set_self (variables::Self * self)
 {
   self_ = self;
 }
 
 void
-platforms::ControllerPlatformFactory::set_sensors (
+platforms::PlatformFactoryRepository::set_sensors (
   variables::Sensors * sensors)
 {
   sensors_ = sensors;

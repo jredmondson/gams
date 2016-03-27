@@ -106,11 +106,11 @@ namespace gams
         /**
          * Increment sensor values
          */
-        virtual int analyze ();
+        virtual int analyze (void);
 
       protected:
         /// generate new next position
-        virtual void generate_new_position ();
+        virtual void generate_new_position (void);
   
         /**
          * A better way to manage this would probably be to take a function

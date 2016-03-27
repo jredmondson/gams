@@ -67,10 +67,6 @@
 
 #include "gams/utility/ArgumentParser.h"
 
-using std::string;
-using std::cerr;
-using std::endl;
-
 namespace engine = madara::knowledge;
 namespace containers = engine::containers;
 
@@ -90,7 +86,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::area_coverage::MinTimeAreaCoverageFactory:" \
+    "MinTimeAreaCoverageFactory::create" \
     " entered create with %u args\n", args.size ());
 
   if (knowledge && sensors && platform && self)
@@ -112,7 +108,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "MinTimeAreaCoverageFactory::create:" \
             " setting search_area to %s\n", search_area.c_str ());
         }
         break;
@@ -123,7 +119,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "MinTimeAreaCoverageFactory::create:" \
             " setting search_area to %s\n", search_area.c_str ());
         }
         break;
@@ -134,14 +130,14 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "MinTimeAreaCoverageFactory::create:" \
             " setting time to %f\n", time);
         }
         break;
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationSyncFactory:" \
+          "MinTimeAreaCoverageFactory::create:" \
           " argument unknown: %s -> %s\n",
           i->first.c_str (), i->second.to_string ().c_str ());
         break;
@@ -153,7 +149,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create:" \
+        "MinTimeAreaCoverageFactory::create:" \
         " No search area specified. Returning null.\n");
     }
     else
@@ -169,11 +165,11 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 
 gams::algorithms::area_coverage::MinTimeAreaCoverage::
   MinTimeAreaCoverage (
-  const string& search_id, const ACE_Time_Value& e_time, 
+  const std::string & search_id, const ACE_Time_Value & e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents,
-  const string& algo_name) :
+  const std::string & algo_name) :
   BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
   min_time_ (search_id + "." + algo_name, knowledge)
 {
@@ -232,7 +228,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::operator= (
 }
 
 int
-gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze ()
+gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze (void)
 {
   ++executions_;
 
@@ -268,7 +264,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze ()
 
 void
 gams::algorithms::area_coverage::MinTimeAreaCoverage::
-  generate_new_position ()
+  generate_new_position (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {

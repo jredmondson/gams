@@ -69,15 +69,39 @@ gams::groups::GroupFactoryRepository::create (const std::string & prefix)
 {
   gams::groups::GroupBase * result (0);
 
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "GroupFactoryRepository::create" \
+    " reading group at prefix %s\n",
+    prefix.c_str ());
+
   if (knowledge_)
   {
     madara::knowledge::containers::Integer type (prefix + ".type", *knowledge_);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "GroupFactoryRepository::create" \
+      " group type is %d\n",
+      (int)*type);
 
     GroupFactoryMap::iterator found = factory_map_.find (*type);
 
     if (found != factory_map_.end ())
     {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "GroupFactoryRepository::create" \
+        " group type found. Populating member list and group.\n");
+
       result = found->second->create (prefix, knowledge_);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "GroupFactoryRepository::create" \
+        " group type not found. Returning null.\n");
     }
   }
 

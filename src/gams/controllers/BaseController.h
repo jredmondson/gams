@@ -63,8 +63,6 @@
 #include "gams/variables/PlatformStatus.h"
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/platforms/BasePlatform.h"
-#include "gams/algorithms/ControllerAlgorithmFactory.h"
-#include "gams/platforms/ControllerPlatformFactory.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/platforms/PlatformFactory.h"
 
@@ -336,12 +334,6 @@ namespace gams
 
       /// Containers for swarm-related variables
       variables::Swarm swarm_;
-
-      /// Factory for creating new algorithms
-      algorithms::ControllerAlgorithmFactory algorithm_factory_;
-
-      /// Factory for creating new platforms
-      platforms::ControllerPlatformFactory platform_factory_;
 
     private:
 

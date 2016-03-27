@@ -50,7 +50,7 @@
  **/
 
 #include "gams/algorithms/FormationSync.h"
-#include "gams/algorithms/ControllerAlgorithmFactory.h"
+#include "gams/algorithms/AlgorithmFactoryRepository.h"
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/utility/Utility.h"
 
@@ -223,7 +223,16 @@ variables::Agents * agents)
             "gams::algorithms::FormationSyncFactory:" \
             " setting group to %s\n", group.c_str ());
 
-          std::string members_list_name = "group." + group + ".members";
+          std::string members_list_name;
+          
+          if (madara::utility::begins_with (group, "group"))
+          {
+            members_list_name = group + ".members";
+          }
+          else
+          {
+            members_list_name = "group." + group + ".members";
+          }
 
           containers::StringVector member_list (members_list_name, *knowledge);
 
@@ -245,8 +254,8 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting start to %s\n", start.to_string ().c_str ());
-          break;
         }
+        break;
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

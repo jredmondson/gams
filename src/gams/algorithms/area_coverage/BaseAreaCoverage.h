@@ -101,31 +101,31 @@ namespace gams
          * Analyzes environment, platform, or other information
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int analyze ();
+        virtual int analyze (void);
         
         /**
          * Plans the next execution of the algorithm
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int execute ();
+        virtual int execute (void);
   
         /**
          * Plans the next execution of the algorithm
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int plan ();
+        virtual int plan (void);
 
         /**
          * Get next position
          * @return next_position_ member
          **/
-        utility::GPSPosition get_next_position() const;
+        utility::GPSPosition get_next_position (void) const;
 
       protected:
         /**
          * Generate new next position
          */
-        virtual void generate_new_position () = 0;
+        virtual void generate_new_position (void) = 0;
 
         /**
          * Check if finished based on time

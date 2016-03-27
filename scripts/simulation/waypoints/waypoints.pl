@@ -4,7 +4,7 @@ use simulation;
 
 $gams_root = $ENV{GAMS_ROOT};
 $time = 3600;
-$madara_debug = 6;
+$madara_debug = 0;
 $gams_debug = 6;
 $period = 0.5;
 $num = 1;

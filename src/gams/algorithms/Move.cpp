@@ -53,15 +53,16 @@
 
 #include "gams/utility/ArgumentParser.h"
 
-using std::vector;
-using std::stringstream;
-using std::string;
-using std::cerr;
-using std::endl;
+namespace knowledge = madara::knowledge;
+namespace containers = knowledge::containers;
+
+typedef knowledge::KnowledgeRecord KnowledgeRecord;
+typedef KnowledgeRecord::Integer   Integer;
+typedef knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::MoveFactory::create (
-  const madara::knowledge::KnowledgeMap & map,
+  const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -72,87 +73,123 @@ gams::algorithms::MoveFactory::create (
   
   if (knowledge && sensors && platform && self)
   {
-    // Use a dumb workaround for now; TODO: convert this algo to use the map
-    using namespace madara::knowledge;
-    KnowledgeVector args(utility::kmap2kvec(map));
+    std::vector <utility::Position> locations;
+    int repeat_times (0);
 
-    if (args.size () == 1)
+    KnowledgeMap::const_iterator locations_size_found =
+      args.find ("locations.size");
+
+    KnowledgeMap::const_iterator repeat_found = args.find ("repeat");
+
+    if (repeat_found != args.end ())
     {
-      if (args[0].is_integer_type () || args[1].is_double_type ())
+      repeat_times = repeat_found->second.to_integer ();
+
+      if (repeat_times < 0)
       {
-        vector<double> targ (args[0].to_doubles ());
-        cerr << "vector size: " << targ.size () << endl;
-        utility::Position target;
-        if (targ.size () > 0)
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "MoveFactory::create" \
+          " Setting repeat to forever\n");
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "MoveFactory::create" \
+          " Setting repeat to %d times\n", repeat_times);
+      }
+    }
+
+    if (locations_size_found != args.end ())
+    {
+      Integer num_locations = locations_size_found->second.to_integer ();
+      if (num_locations > 0)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "MoveFactory::create" \
+          " using locations.size of %d\n", (int)num_locations);
+
+        locations.resize ((size_t)num_locations);
+
+        /**
+         * fastest way to iterate through this is to find the locations
+         * iterator and then just put the position in the right place.
+         * locations.0 is at the absolute lowest position possible in
+         * the args map, see ASCII table for reason.
+         **/
+        KnowledgeMap::const_iterator next = args.find ("locations.0");
+
+        /**
+         * iterate over all locations (note we assume locations.size is
+         * the only other legitimate variable with locations. prefix)
+         **/
+        for (; next != locations_size_found; ++next)
         {
-          target.x = targ[0];
-          if (targ.size () > 1)
-          {
-            target.y = targ[1];
-            if (targ.size () > 2)
-              target.z = targ[2];
-          }
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MINOR,
+            "MoveFactory::create" \
+            " processing arg %s = %s\n",
+            next->first.c_str (), next->second.to_string ().c_str ());
+
+          // We have already resized the array, so set the location
+          KnowledgeRecord k_index (madara::utility::strip_prefix (
+            next->first, "locations."));
+          int index = (int)k_index.to_integer ();
+
+          locations[index] = utility::Position::from_record (next->second);
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MINOR,
+            "MoveFactory::create" \
+            " setting location[%d] with [%s]\n",
+            index, locations[index].to_string ().c_str (), next->first);
         }
-        result = new Move (target, knowledge, platform, sensors, self, agents);
+
+        if (locations.size () > 0)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "MoveFactory::create" \
+            " creating Move algorithm with %d locations and %d repeats\n",
+            (int)locations.size (), repeat_times);
+
+          result = new Move (locations, repeat_times,
+            knowledge, platform, sensors, self, agents);
+        }
       }
       else
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
-           "gams::algorithms::MoveFactory::create:" \
-          " bad arguments");
+          "MoveFactory::create" \
+          " ERROR: locations.size must be a positive number\n");
       }
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "MoveFactory::create" \
+        " ERROR: locations.size needs to be set to the number of waypoints\n");
     }
   }
 
   return result;
 }
 
-gams::algorithms::Move::Move (const utility::Position & target, 
+gams::algorithms::Move::Move (
+  const std::vector <utility::Position> & locations,
+  int repeat,
   madara::knowledge::KnowledgeBase * knowledge, 
   platforms::BasePlatform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
-  end_time_(0.0), max_execution_time_(0), max_executions_(0), mode_(TARGET), 
-  target_ (target), type_("target")
+  locations_ (locations), repeat_ (repeat), move_index_ (0)
 {
-  cerr << "MOVE TARGET: " << target_.to_string () << endl;
-}
-
-gams::algorithms::Move::Move (
-  const string & type,
-  unsigned int max_executions,
-  double max_execution_time,
-  madara::knowledge::KnowledgeBase * knowledge,
-  platforms::BasePlatform * platform,
-  variables::Sensors * sensors,
-  variables::Self * self) :
-  BaseAlgorithm (knowledge, platform, sensors, self),
-  end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (max_execution_time),
-  max_executions_ (max_executions), mode_ (TARGET), target_ (), type_ (type)
-{
-  // init status vars
   status_.init_vars (*knowledge, "move", self->id.to_integer ());
   status_.init_variable_values ();
-
-//  if (max_executions > 0)
-//    mode_ = EXECUTIONS;
-//  else
-//    mode_ = TIMED;
-}
-
-gams::algorithms::Move::Move (
-  const string & type,
-  const utility::Position & target,
-  madara::knowledge::KnowledgeBase * knowledge,
-  platforms::BasePlatform * platform,
-  variables::Sensors * sensors,
-  variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self),
-  end_time_ (ACE_OS::gettimeofday ()), max_execution_time_ (-1),
-  max_executions_ (0), mode_ (TARGET), target_ (target), type_ (type)
-{
-  status_.init_vars (*knowledge, "move", self->id.to_integer ());
 }
 
 gams::algorithms::Move::~Move ()
@@ -164,12 +201,9 @@ gams::algorithms::Move::operator= (const Move & rhs)
 {
   if (this != &rhs)
   {
-    this->end_time_ = rhs.end_time_;
-    this->max_execution_time_ = rhs.max_execution_time_;
-    this->max_executions_ = rhs.max_executions_;
-    this->mode_ = rhs.mode_;
-    this->target_ = rhs.target_;
-    this->type_ = rhs.type_;
+    this->locations_ = rhs.locations_;
+    this->repeat_ = rhs.repeat_;
+    this->move_index_ = rhs.move_index_;
 
     this->BaseAlgorithm::operator=(rhs);
   }
@@ -178,43 +212,157 @@ gams::algorithms::Move::operator= (const Move & rhs)
 int
 gams::algorithms::Move::analyze (void)
 {
-  int ret_val (UNKNOWN);
-  if (mode_ == TARGET)
+  int result (OK);
+
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    ret_val = OK;
-    cerr << "position: " << platform_->get_position()->to_string() << endl;
-    cerr << "target: " << target_.to_string () << endl;
-    if (platform_->get_position ()->approximately_equal (target_, 2))
+    if (status_.finished.is_false ())
     {
-      ret_val = FINISHED;
-      cerr << "move finished" << endl;
-    }
+      if (move_index_ < locations_.size ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "Move::analyze:" \
+          " currently moving to location %d -> [%s].\n",
+          (int)move_index_,
+          locations_[move_index_].to_string ().c_str ());
+
+        // check our distance to the next location
+        utility::Location loc = platform_->get_location ();
+        utility::Location next_loc (platform_->get_frame (),
+          locations_[move_index_].y, locations_[move_index_].x,
+          locations_[move_index_].z);
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_DETAILED,
+          "Move::analyze:" \
+          " distance between points is %f (need %f accuracy)\n",
+          loc.distance_to (next_loc), platform_->get_accuracy ());
+
+        if (loc.approximately_equal (next_loc, platform_->get_accuracy ()))
+        {
+          // if we are at the end of the location list
+          if (move_index_ == locations_.size () - 1)
+          {
+            ++cycles_;
+
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MAJOR,
+              "Move::analyze:" \
+              " finished waypoints cycle number %d of %d target cycles\n",
+              cycles_, repeat_);
+
+            if (cycles_ >= repeat_ && repeat_ >= 0)
+            {
+              madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                gams::loggers::LOG_MAJOR,
+                "Move::analyze:" \
+                " algorithm is finished after %d cycles\n",
+                cycles_);
+
+              result |= FINISHED;
+              status_.finished = 1;
+            } // end if finished
+            else
+            {
+              // reset the move index if we are supposed to cycle
+              move_index_ = 0;
+
+              madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                gams::loggers::LOG_MAJOR,
+                "Move::analyze:" \
+                " proceeding to location 0 in next cycle.\n");
+
+            } // end if not finished
+          } // end if move_index_ == end of locations
+          else
+          {
+            // go to the next location
+            ++move_index_;
+
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MAJOR,
+              "Move::analyze:" \
+              " proceeding to location %d at [%s].\n",
+              (int)move_index_,
+              locations_[move_index_].to_string ().c_str ());
+
+          } // if not the end of the list
+        } // end if location is approximately equal to next location
+      } // end next move is within the locations list
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "Move::analyze:" \
+          " ERROR: move_index_ is greater than possible locations.\n");
+
+        result |= FINISHED;
+
+        status_.finished.modify ();
+      } // end is not in the locations list
+    } // end is not finished
     else
     {
-      cerr << "still moving" << endl;
-    }
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "Move::analyze:" \
+        " Algorithm has finished previously. Rebroadcasting status.finished.\n");
+
+      result |= FINISHED;
+
+      status_.finished.modify ();
+    } // end is finished
   }
-  return ret_val;
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "Move:analyze:" \
+      " platform has not set movement_available to 1.\n");
+  }
+
+  return result;
 }
 
 int
 gams::algorithms::Move::execute (void)
 {
-//  if (mode_ == EXECUTIONS)
-//  {
-//  }
-//  else if (mode_ == TIMED)
-//  {
-//  }
-  if (mode_ == TARGET)
-    platform_->move(target_);
+  int result (OK);
 
-  ++executions_;
-  return 0;
+  bool is_finished = status_.finished == 1;
+
+  if (platform_ && *platform_->get_platform_status ()->movement_available
+    && !is_finished)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "Move::execute:" \
+      " calling platform->move(\"%s\")\n",
+      locations_[move_index_].to_string ().c_str ());
+
+    // allow GPSPosition to do the conversion for lat/lon
+    utility::GPSPosition next = locations_[move_index_];
+
+    platform_->move (next);
+  }
+  else if (is_finished)
+  {
+    result |= OK;
+  }
+
+  return result;
 }
 
 int
 gams::algorithms::Move::plan (void)
 {
-  return 0;
+  int result (OK);
+
+  if (status_.finished.is_false ())
+  {
+    result |= FINISHED;
+  }
+
+  return result;
 }

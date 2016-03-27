@@ -50,7 +50,6 @@
  **/
 
 #include "gams/algorithms/ZoneCoverage.h"
-#include "gams/algorithms/ControllerAlgorithmFactory.h"
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/utility/Utility.h"
 

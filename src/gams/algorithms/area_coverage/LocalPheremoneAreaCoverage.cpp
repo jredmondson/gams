@@ -208,7 +208,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::operator= (
 
 void
 gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
-  generate_new_position ()
+  generate_new_position (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {

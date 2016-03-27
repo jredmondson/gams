@@ -52,8 +52,8 @@
 #include "ace/High_Res_Timer.h"
 #include "ace/OS_NS_sys_time.h"
 #include "madara/utility/Utility.h"
-#include "gams/platforms/PlatformFactory.h"
-#include "gams/algorithms/AlgorithmFactory.h"
+#include "gams/algorithms/AlgorithmFactoryRepository.h"
+#include "gams/platforms/PlatformFactoryRepository.h"
 #include "gams/loggers/GlobalLogger.h"
 
 // Java-specific header includes
@@ -70,10 +70,23 @@ typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::controllers::BaseController::BaseController (
   madara::knowledge::KnowledgeBase & knowledge)
-  : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
-  algorithm_factory_ (&knowledge, &sensors_, platform_, &self_, &agents_),
-  platform_factory_ (&knowledge, &sensors_, &platforms_, &self_)
+  : algorithm_ (0), knowledge_ (knowledge), platform_ (0)
 {
+  // setup the platform and algorithm global repositories
+  platforms::global_platform_factory->set_knowledge (&knowledge);
+  platforms::global_platform_factory->set_platforms (&platforms_);
+  platforms::global_platform_factory->set_self (&self_);
+
+  algorithms::global_algorithm_factory->set_agents (&agents_);
+  algorithms::global_algorithm_factory->set_knowledge (&knowledge_);
+  algorithms::global_algorithm_factory->set_self (&self_);
+  algorithms::global_algorithm_factory->set_sensors (&sensors_);
+  algorithms::global_algorithm_factory->set_platform (platform_);
+
+  // initialize the repository default mappings
+  platforms::global_platform_factory->initialize_default_mappings ();
+  algorithms::global_algorithm_factory->initialize_default_mappings ();
+
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::constructor:" \
@@ -109,14 +122,14 @@ void gams::controllers::BaseController::add_platform_factory (
   const std::vector <std::string> & aliases,
   platforms::PlatformFactory * factory)
 {
-  this->platform_factory_.add (aliases, factory);
+  platforms::global_platform_factory->add (aliases, factory);
 }
 
 void gams::controllers::BaseController::add_algorithm_factory (
   const std::vector <std::string> & aliases,
   algorithms::AlgorithmFactory * factory)
 {
-  this->algorithm_factory_.add (aliases, factory);
+  algorithms::global_algorithm_factory->add (aliases, factory);
 }
 
 int
@@ -678,7 +691,13 @@ const madara::knowledge::KnowledgeMap & args)
       "gams::controllers::BaseController::init_accent:" \
       " factory is creating accent %s\n", algorithm.c_str ());
 
-    new_accent = algorithm_factory_.create (algorithm, args);
+    algorithms::global_algorithm_factory->set_agents (&agents_);
+    algorithms::global_algorithm_factory->set_knowledge (&knowledge_);
+    algorithms::global_algorithm_factory->set_self (&self_);
+    algorithms::global_algorithm_factory->set_sensors (&sensors_);
+    algorithms::global_algorithm_factory->set_platform (platform_);
+
+    new_accent = algorithms::global_algorithm_factory->create (algorithm, args);
 
     if (new_accent)
     {
@@ -744,7 +763,13 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
       "gams::controllers::BaseController::init_algorithm:" \
       " factory is creating algorithm %s\n", algorithm.c_str ());
 
-    algorithm_ = algorithm_factory_.create (algorithm, args);
+    algorithms::global_algorithm_factory->set_agents (&agents_);
+    algorithms::global_algorithm_factory->set_knowledge (&knowledge_);
+    algorithms::global_algorithm_factory->set_self (&self_);
+    algorithms::global_algorithm_factory->set_sensors (&sensors_);
+    algorithms::global_algorithm_factory->set_platform (platform_);
+
+    algorithm_ = algorithms::global_algorithm_factory->create (algorithm, args);
 
     if (algorithm_ == 0)
     {
@@ -849,7 +874,12 @@ gams::controllers::BaseController::init_platform (
       "gams::controllers::BaseController::init_platform:" \
       " factory is creating platform %s\n", platform.c_str ());
 
-    platform_ = platform_factory_.create (platform, args);
+    platforms::global_platform_factory->set_knowledge (&knowledge_);
+    platforms::global_platform_factory->set_platforms (&platforms_);
+    platforms::global_platform_factory->set_self (&self_);
+    platforms::global_platform_factory->set_sensors (&sensors_);
+
+    platform_ = platforms::global_platform_factory->create (platform, args);
 
     if (platform_)
     {
@@ -878,7 +908,7 @@ gams::controllers::BaseController::init_platform (
       "gams::controllers::BaseController::init_platform:" \
       " Updating algorithm factory's platform\n");
 
-    algorithm_factory_.set_platform (platform_);
+    algorithms::global_algorithm_factory->set_platform (platform_);
   }
 }
 
@@ -929,16 +959,6 @@ void gams::controllers::BaseController::init_platform (platforms::BasePlatform *
       " initializing vars in platform\n");
 
     init_vars (*platform_);
-
-    if (algorithm_)
-    {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
-        "gams::controllers::BaseController::init_platform:" \
-        " algorithm is already initialized. Updating to new platform\n");
-
-      algorithm_->set_platform (platform_);
-    }
   }
   else
   {
@@ -947,6 +967,23 @@ void gams::controllers::BaseController::init_platform (platforms::BasePlatform *
       "gams::controllers::BaseController::init_platform:" \
       " platform was reset to none\n");
   }
+
+  if (algorithm_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::init_platform:" \
+      " algorithm is already initialized. Updating to new platform\n");
+
+    algorithm_->set_platform (platform_);
+  }
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::BaseController::init_platform:" \
+    " Updating algorithm factory's platform\n");
+
+  algorithms::global_algorithm_factory->set_platform (platform_);
 }
 
 #ifdef _GAMS_JAVA_
@@ -1027,7 +1064,7 @@ void gams::controllers::BaseController::init_platform (jobject platform)
     "gams::controllers::BaseController::init_platform (java):" \
     " Updating algorithm factory's platform\n");
 
-  algorithm_factory_.set_platform (platform_);
+  algorithms::global_algorithm_factory->set_platform (platform_);
 }
 
 #endif
@@ -1060,7 +1097,7 @@ gams::controllers::BaseController::init_vars (platforms::BasePlatform & platform
   platform.self_ = &self_;
   platform.sensors_ = &sensors_;
 
-  algorithm_factory_.set_platform (&platform);
+  algorithms::global_algorithm_factory->set_platform (&platform);
 }
 
 

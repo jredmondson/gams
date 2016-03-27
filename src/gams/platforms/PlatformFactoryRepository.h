@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file ControllerPlatformFactory.h
+ * @file PlatformFactoryRepository.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Platform factory for the controller
  **/
 
-#ifndef   _GAMS_PLATFORMS_CONTROLLER_PLATFORM_FACTORY_H_
-#define   _GAMS_PLATFORMS_CONTROLLER_PLATFORM_FACTORY_H_
+#ifndef   _GAMS_PLATFORMS_PLATFORM_FACTORY_REPOSITORY_H_
+#define   _GAMS_PLATFORMS_PLATFORM_FACTORY_REPOSITORY_H_
 
 #include "gams/GAMSExport.h"
 #include "gams/platforms/BasePlatform.h"
@@ -72,7 +72,7 @@ namespace gams
     /**
      * The controller's platform factory
      **/
-    class GAMSExport ControllerPlatformFactory
+    class GAMSExport PlatformFactoryRepository
     {
     public:
       /**
@@ -82,16 +82,16 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       agent variables that describe self state
        **/
-      ControllerPlatformFactory (
-        madara::knowledge::KnowledgeBase * knowledge,
-        variables::Sensors * sensors,
-        variables::Platforms * platforms,
-        variables::Self * self);
+      PlatformFactoryRepository (
+        madara::knowledge::KnowledgeBase * knowledge = 0,
+        variables::Sensors * sensors = 0,
+        variables::Platforms * platforms = 0,
+        variables::Self * self = 0);
 
       /**
        * Destructor
        **/
-      ~ControllerPlatformFactory ();
+      ~PlatformFactoryRepository ();
       
       /**
        * Adds an algorithm factory
@@ -158,7 +158,16 @@ namespace gams
       /// a map of all aliases to factories
       FactoryMap  factory_map_;
     };
+
+    /**
+    * A globally accessible platform factory. The platform factory should
+    * have all new platforms added to it before new threads that might access
+    * the factory are started. This is not currently thread safe when adding
+    * new platforms.
+    **/
+    extern GAMSExport madara::utility::Refcounter <PlatformFactoryRepository>
+      global_platform_factory;
   }
 }
 
-#endif // _GAMS_PLATFORMS_CONTROLLER_PLATFORM_FACTORY_H_
+#endif // _GAMS_PLATFORMS_PLATFORM_FACTORY_REPOSITORY_H_
