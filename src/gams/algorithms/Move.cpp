@@ -144,7 +144,7 @@ gams::algorithms::MoveFactory::create (
             gams::loggers::LOG_MINOR,
             "MoveFactory::create" \
             " setting location[%d] with [%s]\n",
-            index, locations[index].to_string ().c_str (), next->first);
+            index, locations[index].to_string ().c_str (), next->first.c_str ());
         }
 
         if (locations.size () > 0)
