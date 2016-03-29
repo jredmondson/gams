@@ -68,6 +68,28 @@ namespace gams
   namespace algorithms
   {
     /**
+     * A helper class for algorithm information
+     **/
+    class GAMSExport AlgorithmMetaData
+    {
+    public:
+      /// a KaRL precondition
+      std::string precond;
+
+      /// the id of the algorithm to create
+      std::string id;
+
+      /// arguments to the algorithm
+      madara::knowledge::KnowledgeMap args;
+
+      /// maximum time to run the algorithm
+      double max_time;
+    };
+
+    /// helper typdef for collection of AlgorithMetaData
+    typedef  std::vector <AlgorithmMetaData> AlgorithmMetaDatas;
+
+    /**
     * An algorithm capable of executing other algorithms
     **/
     class GAMSExport Executor : public BaseAlgorithm
@@ -75,7 +97,8 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  args         arguments to the Executor
+       * @param  algorithms   list of algorithms to execute
+       * @param  repeat       number of times to repeat. -1 is infinite
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
@@ -83,7 +106,8 @@ namespace gams
        * @param  agents       variables referencing agents
        **/
       Executor (
-        const madara::knowledge::KnowledgeMap & args,
+        AlgorithmMetaDatas algorithms,
+        int repeat,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -120,6 +144,27 @@ namespace gams
       virtual int plan (void);
 
     protected:
+
+      /// for keeping track of algorithms
+      AlgorithmMetaDatas algorithms_;
+
+      /// number of times to repeat
+      int repeat_;
+
+      /// current algorithm
+      size_t alg_index_;
+
+      /// tracks the number of cycles completed through algorithms
+      int cycles_;
+
+      /// current executing algorithm
+      BaseAlgorithm * current_;
+
+      /// the end time
+      ACE_Time_Value end_time_;
+
+      /// indicates if the precondition has been met for current algorithm
+      bool precond_met_;
     };
     
     /**

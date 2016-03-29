@@ -186,7 +186,7 @@ gams::algorithms::Move::Move (
   platforms::BasePlatform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
-  locations_ (locations), repeat_ (repeat), move_index_ (0)
+  locations_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0)
 {
   status_.init_vars (*knowledge, "move", self->id.to_integer ());
   status_.init_variable_values ();
@@ -204,6 +204,7 @@ gams::algorithms::Move::operator= (const Move & rhs)
     this->locations_ = rhs.locations_;
     this->repeat_ = rhs.repeat_;
     this->move_index_ = rhs.move_index_;
+    this->cycles_ = rhs.cycles_;
 
     this->BaseAlgorithm::operator=(rhs);
   }
