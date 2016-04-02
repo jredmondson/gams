@@ -212,7 +212,7 @@ gams::utility::SearchArea::get_convex_hull () const
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
         "gams::utility::SearchArea::get_convex_hull:" \
-        " point %u is \"%f,%f,%f\"\n", idx++,
+        " point %d is \"%f,%f,%f\"\n", (int)idx++,
         regions_[i].vertices[j].x, regions_[i].vertices[j].y, regions_[i].vertices[j].z);
     }
   }
@@ -260,13 +260,13 @@ gams::utility::SearchArea::get_convex_hull () const
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::SearchArea::get_convex_hull:" \
-    " sort %u points\n", N);
+    " sort %d points\n", (int)N);
   for (size_t i = 2; i < N + 1; ++i)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
       "gams::utility::SearchArea::get_convex_hull:" \
-      " point %u: \"%f,%f,%f\"\n", i, points[i].x, points[i].y, points[i].z);
+      " point %d: \"%f,%f,%f\"\n", (int)i, points[i].x, points[i].y, points[i].z);
   }
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

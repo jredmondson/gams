@@ -301,6 +301,9 @@ namespace gams
        **/
       Position operator* (const double& scale) const;
     };
+
+    // helpful typedef for vector of positions
+    typedef std::vector <Position>    Positions;
   }
 }
 

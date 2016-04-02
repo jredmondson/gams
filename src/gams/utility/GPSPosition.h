@@ -264,6 +264,9 @@ namespace gams
       inline void altitude (double input) { z = input; }
 
     }; // class GPSPosition
+
+    // helpful typedef for vector of positions
+    typedef std::vector <GPSPosition>    GpsPositions;
   } // namespace utility
 } // namespace gams
 
