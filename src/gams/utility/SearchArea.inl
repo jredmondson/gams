@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
+ * 3. The names Carnegie Mellon University, "SEI and/or Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN AS-IS BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -44,49 +44,24 @@
  *      distribution.
  **/
 
-#include "gams/algorithms/AlgorithmFactory.h"
+/**
+ * @file SearchArea.inl
+ * @author James Edmondson <jedmondson@gmail.com>
+ *
+ * Inlined functions for SearchArea
+ **/
 
-#include <iostream>
+#ifndef  _GAMS_UTILITY_SEARCH_AREA_INL_
+#define  _GAMS_UTILITY_SEARCH_AREA_INL_
 
-using std::cerr;
-using std::endl;
+#include "gams/utility/SearchArea.h"
 
-gams::algorithms::AlgorithmFactory::AlgorithmFactory ()
-  : knowledge_ (0), agents_ (0), platform_ (0), self_ (0), sensors_ (0)
+inline double
+gams::utility::SearchArea::cross (
+  const GPSPosition& o, const GPSPosition& a,
+  const GPSPosition& b) const
 {
+  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 }
 
-gams::algorithms::AlgorithmFactory::~AlgorithmFactory ()
-{
-}
-
-void
-gams::algorithms::AlgorithmFactory::set_agents (variables::Agents * agents)
-{
-  agents_ = agents;
-}
-
-void
-gams::algorithms::AlgorithmFactory::set_knowledge (
-  madara::knowledge::KnowledgeBase * knowledge)
-{
-  knowledge_ = knowledge;
-}
-
-void
-gams::algorithms::AlgorithmFactory::set_platform (platforms::BasePlatform * platform)
-{
-  platform_ = platform;
-}
-
-void
-gams::algorithms::AlgorithmFactory::set_self (variables::Self * self)
-{
-  self_ = self;
-}
-
-void
-gams::algorithms::AlgorithmFactory::set_sensors (variables::Sensors * sensors)
-{
-  sensors_ = sensors;
-}
+#endif // _GAMS_UTILITY_SEARCH_AREA_INL_

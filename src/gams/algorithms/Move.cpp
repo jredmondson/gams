@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014-2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -349,7 +349,7 @@ gams::algorithms::Move::execute (void)
   }
   else if (is_finished)
   {
-    result |= OK;
+    result |= FINISHED;
   }
 
   return result;
@@ -360,7 +360,7 @@ gams::algorithms::Move::plan (void)
 {
   int result (OK);
 
-  if (status_.finished.is_false ())
+  if (status_.finished.is_true ())
   {
     result |= FINISHED;
   }

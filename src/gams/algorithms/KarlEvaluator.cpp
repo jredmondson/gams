@@ -106,8 +106,9 @@ gams::algorithms::KarlEvaluatorFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::KarlEvaluatorFactory::create:" \
             " setting is_wait to %s\n", is_wait ? "true" : "false");
+          break;
         }
-        break;
+        goto unknown;
       case 'l':
         if (i->first == "logic")
         {
@@ -117,8 +118,9 @@ gams::algorithms::KarlEvaluatorFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::KarlEvaluatorFactory::create:" \
             " setting logic to %s\n", logic.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 's':
         if (i->first == "store_result" || i->first == "store")
         {
@@ -128,8 +130,9 @@ gams::algorithms::KarlEvaluatorFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::KarlEvaluatorFactory::create:" \
             " setting store_result to %s\n", store_result.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'w':
         if (i->first == "wait" || i->first == "wait_time")
         {
@@ -140,8 +143,10 @@ gams::algorithms::KarlEvaluatorFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::KarlEvaluatorFactory::create:" \
             " setting wait_time to %f\n", wait_time);
+          break;
         }
-        break;
+        goto unknown;
+      unknown:
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

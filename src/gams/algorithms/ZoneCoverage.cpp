@@ -110,8 +110,9 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::ZoneCoverageFactory:" \
             " set assets group to %s\n", assets.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'b':
         if (i->first == "buffer")
         {
@@ -121,8 +122,9 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::ZoneCoverageFactory:" \
             " set buffer to %f\n", buffer);
+          break;
         }
-        break;
+        goto unknown;
       case 'd':
         if (i->first == "distance")
         {
@@ -132,8 +134,9 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::ZoneCoverageFactory:" \
             " set distance to %f\n", distance);
+          break;
         }
-        break;
+        goto unknown;
       case 'e':
         if (i->first == "enemies")
         {
@@ -143,8 +146,9 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::ZoneCoverageFactory:" \
             " set enemies group to %s\n", enemies.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'f':
         if (i->first == "formation")
         {
@@ -154,8 +158,9 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::ZoneCoverageFactory:" \
             " set formation to %s\n", formation.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'p':
         if (i->first == "protectors")
         {
@@ -165,8 +170,10 @@ variables::Agents * agents)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::ZoneCoverageFactory:" \
             " set protectors group to %s\n", protectors.c_str ());
+          break;
         }
-        break;
+        goto unknown;
+      unknown:
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

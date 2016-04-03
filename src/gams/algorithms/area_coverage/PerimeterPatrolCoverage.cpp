@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file PerimeterPatrol.cpp
+ * @file PerimeterPatrolCoverage.cpp
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * Defines a Perimeter Patrol path for agents to follow. Used as tutorial for
@@ -54,7 +54,7 @@
  */
 
 #include "gams/loggers/GlobalLogger.h"
-#include "gams/algorithms/area_coverage/PerimeterPatrol.h"
+#include "gams/algorithms/area_coverage/PerimeterPatrolCoverage.h"
 
 #include <vector>
 
@@ -75,7 +75,7 @@ using std::vector;
 using std::string;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
+gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -87,7 +87,7 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::area_coverage::PerimeterPatrolFactory:" \
+    "gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory:" \
     " entered create with %u args\n", args.size ());
 
   if (knowledge && sensors && platform && self)
@@ -111,8 +111,9 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 's':
         if (i->first == "search_area")
         {
@@ -122,8 +123,9 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 't':
         if (i->first == "time")
         {
@@ -133,8 +135,10 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting time to %f\n", time);
+          break;
         }
-        break;
+        goto unknown;
+      unknown:
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
@@ -150,12 +154,12 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::area_coverage::PerimeterPatrolFactory::create:" \
+        "gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create:" \
         " No search area specified. Returning null.\n");
     }
     else
     {
-      result = new area_coverage::PerimeterPatrol (
+      result = new area_coverage::PerimeterPatrolCoverage (
         search_area, ACE_Time_Value (time),
         knowledge, platform, sensors, self, agents);
     }
@@ -168,8 +172,8 @@ gams::algorithms::area_coverage::PerimeterPatrolFactory::create (
  * Perimeter patrol is a precomputed algorithm. The agent traverses the vertices
  * of the region in order
  */
-gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
-  const string& region_id, const ACE_Time_Value& e_time, 
+gams::algorithms::area_coverage::PerimeterPatrolCoverage::PerimeterPatrolCoverage (
+  const string & region_id, const ACE_Time_Value & e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
@@ -186,12 +190,12 @@ gams::algorithms::area_coverage::PerimeterPatrol::PerimeterPatrol (
   }
 }
 
-gams::algorithms::area_coverage::PerimeterPatrol::~PerimeterPatrol ()
+gams::algorithms::area_coverage::PerimeterPatrolCoverage::~PerimeterPatrolCoverage ()
 {
 }
 
 void
-gams::algorithms::area_coverage::PerimeterPatrol::generate_positions (void)
+gams::algorithms::area_coverage::PerimeterPatrolCoverage::generate_positions (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
@@ -245,8 +249,8 @@ gams::algorithms::area_coverage::PerimeterPatrol::generate_positions (void)
 
 
 void
-gams::algorithms::area_coverage::PerimeterPatrol::operator= (
-  const PerimeterPatrol& rhs)
+gams::algorithms::area_coverage::PerimeterPatrolCoverage::operator= (
+  const PerimeterPatrolCoverage& rhs)
 {
   if (this != &rhs)
   {
@@ -260,7 +264,7 @@ gams::algorithms::area_coverage::PerimeterPatrol::operator= (
  * The next destination is the next vertex in the list
  */
 void
-gams::algorithms::area_coverage::PerimeterPatrol::generate_new_position (void)
+gams::algorithms::area_coverage::PerimeterPatrolCoverage::generate_new_position (void)
 {
   if (initialized_)
   {

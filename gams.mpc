@@ -54,8 +54,25 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/algorithms/area_coverage
     }
 
+    Auctions {
+      src/gams/auctions
+    }
+    
     Controllers {
       src/gams/controllers
+    }
+
+    Elections {
+      src/gams/elections
+    }
+
+    Future {
+      src/gams/formations
+      src/gams/time
+    }
+
+    Groups {
+      src/gams/groups
     }
     
     Loggers {
@@ -66,12 +83,6 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/maps
     }
     
-    Models {
-      src/gams/formations
-      src/gams/groups
-      src/gams/time
-    }
-
     Platforms {
       src/gams/platforms
     }
@@ -99,10 +110,27 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/algorithms/area_coverage
     }
 
+    Auctions {
+      src/gams/auctions
+    }
+    
     Controllers {
       src/gams/controllers
     }
+
+    Elections {
+      src/gams/elections
+    }
     
+    Future {
+      src/gams/formations
+      src/gams/time
+    }
+
+    Groups {
+      src/gams/groups
+    }
+
     Loggers {
       src/gams/loggers
     }
@@ -111,12 +139,6 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/maps
     }
     
-    Models {
-      src/gams/formations
-      src/gams/groups
-      src/gams/time
-    }
-
     Platforms {
       src/gams/platforms
     }
@@ -142,8 +164,25 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/algorithms/area_coverage
     }
 
+    Auctions {
+      src/gams/auctions
+    }
+    
     Controllers {
       src/gams/controllers
+    }
+
+    Elections {
+      src/gams/elections
+    }
+    
+    Future {
+      src/gams/formations
+      src/gams/time
+    }
+
+    Groups {
+      src/gams/groups
     }
     
     Loggers {
@@ -154,12 +193,6 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/maps
     }
     
-    Models {
-      src/gams/formations
-      src/gams/groups
-      src/gams/time
-    }
-
     Platforms {
       src/gams/platforms
     }

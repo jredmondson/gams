@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,14 +45,16 @@
  **/
 
 /**
- * @file Move.h
+ * @file PerimeterPatrol.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the move/waypoints class
+ * This file contains the definition of the perimeter patrol class. This
+ * class is a rewrite of the PerimeterPatrolCoverage class with some
+ * optimizations and options, and no baggage from BaseAreaCoverage
  **/
 
-#ifndef   _GAMS_ALGORITHMS_MOVE_H_
-#define   _GAMS_ALGORITHMS_MOVE_H_
+#ifndef   _GAMS_ALGORITHMS_PERIMETER_PATROL_H_
+#define   _GAMS_ALGORITHMS_PERIMETER_PATROL_H_
 
 #include "gams/algorithms/BaseAlgorithm.h"
 
@@ -72,24 +74,26 @@ namespace gams
   namespace algorithms
   {
     /**
-    * An algorithm for moving to a location
+    * An algorithm for patrolling a region
     **/
-    class GAMSExport Move : public BaseAlgorithm
+    class GAMSExport PerimeterPatrol : public BaseAlgorithm
     {
     public:
       /**
        * Constructor
-       * @param  locations    a list of targets to move to
-       * @param  repeat       number of times to repeat (-1 for indefinite)
+       * @param  area         the region or search area to patrol
+       * @param  max_time     the max time to run in secs (-1 for indefinite)
+       * @param  counter      indicates if patrol should be counter clockwise
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
-       * @param  agents      variables referencing agents
+       * @param  agents       variables referencing agents
        **/
-      Move (
-        const std::vector <utility::Position> & locations,
-        int repeat,
+      PerimeterPatrol (
+        const std::string & area,
+        double max_time,
+        bool counter,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -99,13 +103,13 @@ namespace gams
       /**
        * Destructor
        **/
-      ~Move ();
+      ~PerimeterPatrol ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Move & rhs);
+      void operator= (const PerimeterPatrol & rhs);
       
       /**
        * Analyzes environment, platform, or other information
@@ -127,28 +131,42 @@ namespace gams
       
     protected:
 
-      /// the locations to visit
-      std::vector <utility::Position> locations_;
+      /**
+       * Generates locations from region information
+       **/
+      void generate_locations (void);
 
-      /// number of times to repeat
-      int repeat_;
+      /// the region/area to patrol
+      std::string area_;
+
+      /// the amount of time to spend patrolling in seconds
+      double max_time_;
+
+      /// patrol counter clockwise
+      bool counter_;
+
+      /// the end time
+      ACE_Time_Value end_time_;
+
+      /// the locations to visit
+      utility::GpsPositions locations_;
 
       /// current location to move to
       size_t move_index_;
 
-      /// tracks the number of cycles completed through locations
-      int cycles_;
+      /// indicates whether or not generate_locations has been succeeded
+      bool initialized_;
     };
 
     /**
-     * A factory class for creating Move algorithms
+     * A factory class for creating PerimeterPatrol algorithms
      **/
-    class GAMSExport MoveFactory : public AlgorithmFactory
+    class GAMSExport PerimeterPatrolFactory : public AlgorithmFactory
     {
     public:
 
       /**
-       * Creates a Move Algorithm.
+       * Creates a PerimeterPatrol Algorithm.
        * @param   args      args[0] = type of movement
        *                    args[1] = number of move executions
        *                    args[2] = time to move in seconds
@@ -174,4 +192,4 @@ namespace gams
   }
 }
 
-#endif // _GAMS_ALGORITHMS_MOVE_H_
+#endif // _GAMS_ALGORITHMS_PERIMETER_PATROL_H_

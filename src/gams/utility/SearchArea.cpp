@@ -167,164 +167,171 @@ gams::utility::SearchArea::add_prioritized_region (const PrioritizedRegion& r)
 gams::utility::Region
 gams::utility::SearchArea::get_convex_hull () const
 {
-  // sort points by angle with point, for use in get_convex_hull
-  struct sort_by_angle
+  /**
+   * completely rewritten by James Edmondson on 4/3/2016.
+   * old version harder to maintain, more computationally
+   * expensive and unlikely to produce convex hulls consistently
+   * due to modifications made using arbitrary insertion of
+   * [0,0,0] origins with cross products.
+   *
+   * The new convex hull uses Andrew's Monotone Chain Algorithm
+   * rather than Graham scan and also inlines the cross
+   **/
+
+  class SortXThenY
   {
-    const gams::utility::GPSPosition anchor;
-  
-    sort_by_angle (const gams::utility::GPSPosition& p) : anchor (p) {}
-  
-    bool operator() (const gams::utility::GPSPosition& gp1,
-      const gams::utility::GPSPosition& gp2)
+  public:
+    bool operator () (const gams::utility::GPSPosition & first,
+      const gams::utility::GPSPosition & second)
     {
-      gams::utility::Position p1 = gp1.to_position (anchor);
-      gams::utility::Position p2 = gp2.to_position (anchor);
-  
-      double angle1 = atan2 (p1.x, p1.y) + 2 * M_PI;
-      double angle2 = atan2 (p2.x, p2.y) + 2 * M_PI;
-      
-      if (angle1 == angle2)
-        return (anchor.distance_to(gp1) < anchor.distance_to(gp2));
-      else
-        return (angle1 < angle2);
+      // prefer left-most x or if tie, bottom-most left-most x
+      return first.x < second.x || (first.x == second.x && first.y < second.y);
     }
   };
 
   /**
-   * Use Graham Scan algorithm
-   * Time complexity is O(n * log n)
-   * pseudocode at https://en.wikipedia.org/wiki/Graham_scan
-   */
-  // get all points, filter out duplicates
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
-    " get all points, filter out duplicates\n");
+   * memory allocation is expensive, so only do that once when creating the list
+   * of all points
+   **/
 
-  set<GPSPosition> s_points;
-  size_t idx = 0;
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::utility::SearchArea::get_convex_hull:" \
+    " building a convex hull\n");
+
+  Region result;
+  GpsPositions positions;
+  GpsPositions & hull (result.vertices);
+  size_t num_points (0), current (0), k (0);
+
+  // iterate over all regions 
   for (size_t i = 0; i < regions_.size (); ++i)
   {
-    for (size_t j = 0; j < regions_[i].vertices.size (); ++j)
-    {
-      s_points.insert (regions_[i].vertices[j]);
-
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::utility::SearchArea::get_convex_hull:" \
-        " point %d is \"%f,%f,%f\"\n", (int)idx++,
-        regions_[i].vertices[j].x, regions_[i].vertices[j].y, regions_[i].vertices[j].z);
-    }
+    num_points += regions_[i].vertices.size ();
   }
-  const size_t N = s_points.size ();
 
-  // create array of points
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::SearchArea::get_convex_hull:" \
-    " create points array\n");
+    " total region vertices is %d. Resizing list.\n",
+    (int)num_points);
 
-  vector <GPSPosition> points (N + 1);
-  vector <GPSPosition>::iterator start = points.begin ();
-  ++start;
-  copy (s_points.begin (), s_points.end (), start);
-//  for (int i = 0; i < N+1; ++i)
-//    cerr << std::setprecision(10) << points[i].latitude() << " " << points[i].longitude() << endl;
+  // resize the positions array
+  positions.resize (num_points);
 
-  // find point with lowest y/lat coord...
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
-    " find lowest y/lat coord\n");
-  size_t lowest = 1;
-  double min_lat = points[1].latitude (); 
-  for (size_t i = 2; i <= N; ++i)
+  // fill the positions array
+  for (size_t i = 0; i < regions_.size (); ++i)
   {
-    if (points[i].latitude () < min_lat)
+    for (size_t j = 0; j < regions_[i].vertices.size (); ++j, ++current)
     {
-      lowest = i;
-      min_lat = points[i].latitude ();
-    }
-    else if (points[i].latitude () == min_lat)
-    {
-      // select western-most point
-      if (points[i].longitude () < points[lowest].longitude ())
-        lowest = i;
+      positions[current] = regions_[i].vertices[j];
     }
   }
 
-  // ...and swap with points[1]
-  swap (points[lowest], points[1]);
-  //cerr << "selected " << points[1].latitude() << " " << points[1].longitude() << " as lowest" << endl;
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::SearchArea::get_convex_hull:" \
+    " sorting vertices.\n");
+
+  // sort by x and then y
+  std::sort (positions.begin (), positions.end (), SortXThenY ());
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::SearchArea::get_convex_hull:" \
-    " sort %d points\n", (int)N);
-  for (size_t i = 2; i < N + 1; ++i)
+    " removing duplicate vertices.\n");
+
+  // get rid of duplicates
+  if (positions.size () > 2)
   {
+    size_t vacant = 1;
+    for (size_t i = 1; i < positions.size (); ++i)
+    {
+      // do we have a duplicate?
+      if (positions[i] != positions[vacant - 1])
+      {
+        // yes, shift 
+        if (i != vacant)
+        {
+          positions[vacant] = positions[i];
+        }
+        ++vacant;
+      }
+    }
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
       "gams::utility::SearchArea::get_convex_hull:" \
-      " point %d: \"%f,%f,%f\"\n", (int)i, points[i].x, points[i].y, points[i].z);
+      " after duplicates check, positions size set to %d.\n",
+      (int)vacant);
+
+    // resize positions to just past unique entries
+    positions.resize (vacant);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_DETAILED,
+      "gams::utility::SearchArea::get_convex_hull:" \
+      " allocating %d vertices for potential hull.\n",
+      (int)vacant * 2);
+
+    // make hull twice as big for speed in constructing upper and lower hull
+    hull.resize (vacant * 2);
   }
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::SearchArea::get_convex_hull:" \
-    " anchor point is \"%f,%f,%f\"\n", points[1].x, points[1].y, points[1].z);
+    " building lower hull.\n");
 
-  // sort positions
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
-    " sort points\n");
-  sort (&points[2], &points[N + 1], sort_by_angle (points[1]));
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
-    " done sorting\n");
-//  cerr << "sorting points" << endl;
-//  for (int i = 0; i < N+1; ++i)
-//    cerr << points[i].latitude() << " " << points[i].longitude() << endl;
-
-  // copy sentinel point
-  points[0] = points[N];
-
-  // find convex hull
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
-    " find convex hull\n");
-  unsigned int M = 1;
-  for (unsigned int i = 2; i <= N; ++i)
+  // build lower hull
+  for (int i = 0; i < positions.size (); ++i)
   {
-    // find next valid point on convex hull
-    while (cross (points[M - 1], points[M], points[i]) <= 0)
-    {
-      if (M > 1)
-        M -= 1;
-      else if (i == N)
-        break;
-      else
-        i += 1;
-    }
+    while (k >= 2 && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
+      k--;
 
-    // update M and swap points to the correct place
-    M += 1;
-    swap (points[M], points[i]);
+    hull[k++] = positions[i];
   }
 
-  // fill vector of points
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::utility::SearchArea::get_convex_hull:" \
-    " fill vector of points\n");
-  vector<GPSPosition> temp (M);
-  copy (&points[1], &points[M + 1], temp.begin ());
-//  for (vector<GPSPosition>::iterator it = temp.begin(); it != temp.end(); ++it)
-//    cerr << "\t" << it->latitude () << " " << it->longitude () << endl;
-  return Region (temp);
+    " lower hull construction used %d points.\n", (int)k);
+
+  if (positions.size () >= 2)
+  {
+    // build upper hull
+    for (int i = (int)positions.size () - 2, t = (int)k + 1;
+         i >= 0; i--)
+    {
+      while (k >= t && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
+        k--;
+
+      hull[k++] = positions[i];
+    }
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::utility::SearchArea::get_convex_hull:" \
+      " ERROR: not enough vertices in region for bounding box creation.\n");
+  }
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_DETAILED,
+    "gams::utility::SearchArea::get_convex_hull:" \
+    " upper hull construction finished hull with %d points.\n", (int)k - 1);
+
+  if (k > 0)
+  {
+    hull.resize (k - 1);
+  }
+  else
+  {
+    hull.resize (0);
+  }
+
+  return result;
 }
 
 const vector<gams::utility::PrioritizedRegion>&
@@ -381,17 +388,6 @@ gams::utility::SearchArea::calculate_bounding_box ()
     max_lon_ = (max_lon_ < regions_[i].max_lon_) ? regions_[i].max_lon_ : max_lon_;
     max_alt_ = (max_alt_ < regions_[i].max_alt_) ? regions_[i].max_alt_ : max_alt_;
   }
-}
-
-double
-gams::utility::SearchArea::cross (const GPSPosition& gp1, const GPSPosition& gp2,
-  const GPSPosition& gp3) const
-{
-  Position p1 = gp1.to_position (gp3);
-  Position p2 = gp2.to_position (gp3);
-  // p3 is (0,0) as it is the reference for p1 and p2
-  return (p2.y - p1.y) * (0 - p1.x) -
-    (p2.x- p1.x) * (0 - p1.y);
 }
 
 bool

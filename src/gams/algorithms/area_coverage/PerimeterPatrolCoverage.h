@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file PerimeterPatrol.h
+ * @file PerimeterPatrolCoverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * This file contains the definition of the PerimeterPatrol area coverage. 
@@ -72,7 +72,7 @@ namespace gams
   {
     namespace area_coverage
     {
-      class GAMSExport PerimeterPatrol : public BaseAreaCoverage
+      class GAMSExport PerimeterPatrolCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -85,7 +85,7 @@ namespace gams
          * @param  self       self-referencing variables
          * @param  agents    a list of agents
          **/
-        PerimeterPatrol (
+        PerimeterPatrolCoverage (
           const std::string& region_id,
           const ACE_Time_Value& e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -97,13 +97,13 @@ namespace gams
         /**
          * Destructor
          **/
-        ~PerimeterPatrol ();
+        ~PerimeterPatrolCoverage ();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const PerimeterPatrol & rhs);
+        void operator= (const PerimeterPatrolCoverage & rhs);
         
       protected:
         /**
@@ -122,12 +122,12 @@ namespace gams
 
         /// indicates the region to patrol the border of
         std::string region_id_;
-      }; // class PerimeterPatrol
+      }; // class PerimeterPatrolCoverage
       
       /**
        * A factory class for creating perimeter patrol algorithms
        **/
-      class GAMSExport PerimeterPatrolFactory
+      class GAMSExport PerimeterPatrolCoverageFactory
         : public AlgorithmFactory
       {
       public:

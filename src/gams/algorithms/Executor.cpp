@@ -54,6 +54,8 @@
 
 #include <sstream>
 
+#include "ace/OS_NS_sys_time.h"
+
 #include "gams/algorithms/Executor.h"
 
 #include "gams/algorithms/AlgorithmFactoryRepository.h"

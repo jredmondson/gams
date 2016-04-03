@@ -113,8 +113,9 @@ gams::algorithms::FormationFlyingFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlyingFactory:" \
             " %d size destination set\n", (int)destination.size ());
+          break;
         }
-        break;
+        goto unknown;
       case 'g':
         if (i->first == "group")
         {
@@ -124,8 +125,9 @@ gams::algorithms::FormationFlyingFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlyingFactory:" \
             " setting group to %s\n", group.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'h':
         if (i->first == "head")
         {
@@ -135,8 +137,9 @@ gams::algorithms::FormationFlyingFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlyingFactory:" \
             " setting formation head to %s\n", head.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'm':
         if (i->first == "modifier")
         {
@@ -146,8 +149,9 @@ gams::algorithms::FormationFlyingFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlyingFactory:" \
             " setting modifier to %s\n", modifier.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 'o':
         if (i->first == "offset")
         {
@@ -157,8 +161,9 @@ gams::algorithms::FormationFlyingFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlyingFactory:" \
             " %d size offset set\n", (int)offset.size ());
+          break;
         }
-        break;
+        goto unknown;
       case 't':
         if (i->first == "target")
         {
@@ -168,8 +173,10 @@ gams::algorithms::FormationFlyingFactory::create (
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlyingFactory:" \
             " setting formation head/target to %s\n", head.c_str ());
+          break;
         }
-        break;
+        goto unknown;
+      unknown:
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

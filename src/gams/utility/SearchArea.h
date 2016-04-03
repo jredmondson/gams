@@ -207,4 +207,6 @@ namespace gams
   } // namespace utility
 } // namespace gams
 
+#include "SearchArea.inl"
+
 #endif // _GAMS_UTILITY_SEARCH_AREA_H_

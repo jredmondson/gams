@@ -107,8 +107,9 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 's':
         if (i->first == "search_area")
         {
@@ -118,8 +119,9 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
+          break;
         }
-        break;
+        goto unknown;
       case 't':
         if (i->first == "time")
         {
@@ -129,8 +131,10 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory::crea
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverageFactory:" \
             " setting time to %f\n", time);
+          break;
         }
-        break;
+        goto unknown;
+      unknown:
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

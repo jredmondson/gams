@@ -61,6 +61,7 @@
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/MessageProfiling.h"
+#include "gams/algorithms/PerimeterPatrol.h"
 #include "gams/algorithms/Executor.h"
 #include "gams/algorithms/Wait.h"
 #include "gams/algorithms/PerformanceProfiling.h"
@@ -73,7 +74,7 @@
 #include "gams/algorithms/area_coverage/SnakeAreaCoverage.h"
 #include "gams/algorithms/area_coverage/MinTimeAreaCoverage.h"
 #include "gams/algorithms/area_coverage/PrioritizedMinTimeAreaCoverage.h"
-#include "gams/algorithms/area_coverage/PerimeterPatrol.h"
+#include "gams/algorithms/area_coverage/PerimeterPatrolCoverage.h"
 #include "gams/algorithms/area_coverage/WaypointsCoverage.h"
 
 #include <iostream>
@@ -222,11 +223,19 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
   add (aliases, new PerformanceProfilingFactory ());
 
   // the perimeter patrol algorithm
+  aliases.resize (3);
+  aliases[0] = "patrol";
+  aliases[1] = "perimeter patrol";
+  aliases[2] = "pp";
+
+  add (aliases, new PerimeterPatrolFactory ());
+
+  // the perimeter patrol algorithm
   aliases.resize (2);
-  aliases[0] = "perimeter patrol";
+  aliases[0] = "perimeter patrol area coverage";
   aliases[1] = "ppac";
 
-  add (aliases, new area_coverage::PerimeterPatrolFactory ());
+  add (aliases, new area_coverage::PerimeterPatrolCoverageFactory ());
 
   // the prioritized min time area coverage
   aliases.resize (2);

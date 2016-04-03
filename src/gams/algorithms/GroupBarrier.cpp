@@ -149,8 +149,8 @@ variables::Agents * agents)
           continue;
         }
         goto unknown;
-      default:
       unknown:
+      default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::ZoneCoverageFactory:" \
