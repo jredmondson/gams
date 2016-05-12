@@ -83,7 +83,8 @@ ACE=0
 MADARA=0
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_3_0_64_Linux.tar.gz"
-INSTALL_DIR=`dirname $0`
+INSTALL_DIR=`pwd`
+SCRIPTS_DIR=`dirname $0`
 
 for var in "$@"
 do
@@ -137,11 +138,31 @@ do
   fi
 done
 
+if [ -z $ACE_ROOT ] ; then
+  export ACE_ROOT=$INSTALL_DIR/ace/ACE_wrappers
+fi
+
 # echo build information
+echo "INSTALL_DIR will be $INSTALL_DIR"
 echo "Using $CORES build jobs"
+
+echo "ACE_ROOT is set to $ACE_ROOT"
+if [ $ACE -eq 0 ]; then
+  echo "ACE will not be built"
+else
+  echo "ACE will be built"
+fi
+
 echo "MADARA will be built from $MADARA_ROOT"
-echo "ACE will be built from $ACE_ROOT"
-echo "GAMS will be built from $GAMS_ROOT"
+if [ $MADARA -eq 0 ]; then
+  echo "MADARA will not be built"
+else
+  echo "MADARA will be built"
+fi
+
+echo "GAMS_ROOT is set to $GAMS_ROOT"
+
+echo "ODROID has been set to $ODROID"
 echo "TESTS has been set to $TESTS"
 echo "ROS has been set to $ROS"
 echo "STRIP has been set to $STRIP"
@@ -169,12 +190,10 @@ echo ""
 if [ $ACE -eq 1 ]; then
 
   # build ACE, all build information (compiler and options) will be set here
-  echo "Building ACE"
-  if [ ! $ACE_ROOT ] ; then
-    export $ACE_ROOT = $INSTALL_DIR/ace/ACE_wrappers
-  fi
   if [ ! -d $ACE_ROOT ] ; then
+    echo "DOWNLOADING ACE"
     svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $INSTALL_DIR/ace
+    echo "CONFIGURING ACE"
     if [ $ANDROID -eq 1 ]; then
       # use the android specific files, we use custom config file for android due to build bug in ACE
       echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
@@ -188,65 +207,91 @@ if [ $ACE -eq 1 ]; then
     fi
   fi
   
+  echo "ENTERING $ACE_ROOT"
   cd $ACE_ROOT/ace
+  echo "GENERATING ACE PROJECT"
   perl $ACE_ROOT/bin/mwc.pl -type gnuace ace.mwc
+  echo "CLEANING ACE OBJECTS"
   make realclean -j $CORES
+  echo "BUILDING ACE"
   make -j $CORES
   if [ $STRIP -eq 1 ]; then
+    echo "STRIPPING ACE"
     $STRIP_EXE libACE.so*
   fi
 fi
 
 if [ $MADARA -eq 1 ]; then
   # build MADARA
-  echo "Building MADARA"
-  if [ ! $MADARA_ROOT ] ; then
-    export $MADARA_ROOT = $INSTALL_DIR/madara
+  if [ -z $MADARA_ROOT ] ; then
+    export MADARA_ROOT=$INSTALL_DIR/madara
+    echo "SETTING MADARA_ROOT to $MADARA_ROOT"
   fi
   if [ ! -d $MADARA_ROOT ] ; then
+    echo "DOWNLOADING MADARA"
     git clone http://git.code.sf.net/p/madara/code $MADARA_ROOT
   else
+    echo "UPDATING MADARA"
     cd $MADARA_ROOT
     git pull
+    echo "CLEANING MADARA OBJECTS"
+    make realclean -j $CORES
+
   fi
   cd $MADARA_ROOT
+  echo "GENERATING MADARA PROJECT"
   perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS MADARA.mwc
-  make realclean -j $CORES
-  make android=$ANDROID java=$JAVA tests=$TESTS -j $CORES
+
   if [ $JAVA -eq 1 ]; then
+    echo "DELETING MADARA JAVA CLASSES"
     # sometimes the jar'ing will occur before all classes are actually built when performing
     # multi-job builds, fix by deleting class files and recompiling with single build job
     find . -name "*.class" -delete
-    make android=$ANDROID java=$JAVA tests=$TESTS -j $CORES
   fi
+
+  echo "BUILDING MADARA"
+  make android=$ANDROID java=$JAVA tests=$TESTS -j $CORES
+
   if [ $STRIP -eq 1 ]; then
+    echo "STRIPPING MADARA"
     $STRIP_EXE libMADARA.so*
   fi
 fi
 
 # build GAMS
-echo "Updating GAMS"
-if [ ! $GAMS_ROOT ] ; then
-  export $GAMS_ROOT = $INSTALL_DIR/gams
+if [ -z $GAMS_ROOT ] ; then
+  export GAMS_ROOT=$INSTALL_DIR/gams
+  echo "SETTING GAMS_ROOT to $GAMS_ROOT"
 fi
 if [ ! -d $GAMS_ROOT ] ; then
+  echo "DOWNLOADING GAMS"
   git clone -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
   
 else
+  echo "UPDATING GAMS"
   cd $GAMS_ROOT
   git pull
+
+  echo "CLEANING GAMS OBJECTS"
+  make realclean -j $CORES
+
 fi
 
 if [ $VREP -eq 1 ]; then
-  echo "Building VREP"
   if [ ! $VREP_ROOT ] ; then
-    export $VREP_ROOT = $INSTALL_DIR/vrep
+    export VREP_ROOT=$INSTALL_DIR/vrep
+    echo "SETTING VREP_ROOT to $VREP_ROOT"
   fi
   if [ ! -d $VREP_ROOT ]; then 
     cd $INSTALL_DIR
-    wget http://coppeliarobotics.com/$VREP_PKG
+    echo "DOWNLOADING VREP"
+    wget http://coppeliarobotics.com/$VREP_INSTALLER
     mkdir vrep
+
+    echo "UNPACKING VREP"
     tar xfz $VREP_INSTALLER -C vrep  --strip-components 1
+
+    echo "CHANGING VREP OPTIONS"
     if [ -f vrep/system/usrset.txt ]; then
       for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
         cat vrep/system/usrset.txt | sed "s/$i = false/$i = true/g" > vrep/system/usrset.txt1
@@ -257,23 +302,42 @@ if [ $VREP -eq 1 ]; then
         echo "$i = true" >> vrep/system/usrset.txt
       done
     fi
+
+    echo "CONFIGURING 20 VREP PORTS"
+    $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+
+
+    echo "PATCHING VREP"
     patch -b -d $VREP_ROOT -p1 -i $GAMS_ROOT/scripts/linux/patches/00_VREP_extApi_readPureDataFloat_alignment.patch
+  else
+    echo "NO CHANGE TO VREP"
   fi
 fi
 
   
-echo "Building GAMS"
 cd $GAMS_ROOT
 
+echo "GENERATING GAMS PROJECT"
 perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID gams.mwc
-make realclean -j $CORES
-make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID -j $CORES
+
 if [ $JAVA -eq 1 ]; then
   # sometimes the jar'ing will occur before all classes are actually built when performing
   # multi-job builds, fix by deleting class files and recompiling with single build job
   find . -name "*.class" -delete
-  make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID
 fi
+
+echo "BUILDING GAMS"
+make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID -j $CORES
+
 if [ $STRIP -eq 1 ]; then
+  echo "STRIPPING GAMS"
   $STRIP_EXE libGAMS.so*
 fi
+
+echo "BUILD COMPLETE"
+echo "Make sure to update your environment variables to the following"
+echo "export ACE_ROOT=$ACE_ROOT"
+echo "export MADARA_ROOT=$MADARA_ROOT"
+echo "export GAMS_ROOT=$GAMS_ROOT"
+echo "export VREP_ROOT=$VREP_ROOT"
+
