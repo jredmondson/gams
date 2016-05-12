@@ -1,0 +1,19 @@
+--- V-REP_PRO_EDU_V3_3_0_64_Linux/programming/remoteApi/extApi.c	2016-02-19 20:09:13.000000000 +0000
++++ vrep/programming/remoteApi/extApi.c	2016-04-27 12:20:58.120018564 +0000
+@@ -1109,7 +1109,16 @@
+ 			stringCnt--;
+ 		}
+ 		additionalOffset+=byteOffset;
++#if 1
++		/*
++		 * works on ARM and X86* arch. On ARM, the alternative causes a BUS ERROR
++		 * due to alignment error for float.
++		 */
++		memcpy (&retVal, commandPointer+SIMX_SUBHEADER_SIZE+additionalOffset, sizeof(simxFloat));
++		retVal=extApi_endianConversionFloat(retVal);
++#else
+ 		retVal=extApi_endianConversionFloat(((simxFloat*)(commandPointer+SIMX_SUBHEADER_SIZE+additionalOffset))[0]);
++#endif
+ 	}
+ 	return(retVal);
+ }
