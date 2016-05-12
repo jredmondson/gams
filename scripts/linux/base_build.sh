@@ -170,9 +170,11 @@ if [ $ACE -eq 1 ]; then
 
   # build ACE, all build information (compiler and options) will be set here
   echo "Building ACE"
+  if [ ! $ACE_ROOT ] ; then
+    export $ACE_ROOT = $INSTALL_DIR/ace/ACE_wrappers
+  fi
   if [ ! -d $ACE_ROOT ] ; then
-    export ACE_ROOT=$INSTALL_DIR/ACE_wrappers
-    svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $INSTALL_DIR
+    svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $INSTALL_DIR/ace
     if [ $ANDROID -eq 1 ]; then
       # use the android specific files, we use custom config file for android due to build bug in ACE
       echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
