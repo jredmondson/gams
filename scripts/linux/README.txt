@@ -31,7 +31,7 @@ GAMS or its prerequisites as simple as possible.
   The default build for GAMS include ACE, MADARA, and C++ support. To install
   this very of GAMS, do the following (arguments can be in any order):
   
-  base_build.sh prereqs ace madara gams tests
+  base_build.sh prereqs ace madara gams vrep tests
   
 1.4) JAVA BUILD
 
@@ -64,11 +64,11 @@ GAMS or its prerequisites as simple as possible.
   
   base_build.sh madara 
   
-  UPDATE MADARA AND GAMS ONLY
+  UPDATE MADARA AND GAMS WITH VREP SUPPORT
   
-  base_build.sh madara gams 
+  base_build.sh madara gams vrep
   
-  UPDATE MADARA WITH TESTS SUPPORT
+  UPDATE MADARA ONLY WITH TESTS SUPPORT
   
   base_build.sh madara tests
   
