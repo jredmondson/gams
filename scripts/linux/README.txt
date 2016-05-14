@@ -53,5 +53,26 @@ GAMS or its prerequisites as simple as possible.
   If you do not want tests to be built, feel free to leave "tests" out of the 
   arguments to any of the previous base_build.sh examples.
   
+1.7) UPDATING GAMS, ACE, MADARA, etc.
+
+  The base_build.sh checks the installations at GAMS_ROOT, ACE_ROOT, etc. to 
+  see if a fresh git clone is necessary or if a git pull can be used.
+  If you simply need to rebuild certain installations, you can specify them
+  via the command line. For instance,
+  
+  UPDATE MADARA ONLY
+  
+  base_build.sh madara 
+  
+  UPDATE MADARA AND GAMS ONLY
+  
+  base_build.sh madara gams 
+  
+  UPDATE MADARA WITH TESTS SUPPORT
+  
+  base_build.sh madara tests
+  
+  
+  
 
   
