@@ -81,6 +81,8 @@ STRIP=0
 ODROID=0
 ACE=0
 MADARA=0
+GAMS=0
+PREREQS=0
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_3_0_64_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -90,6 +92,8 @@ for var in "$@"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
+  elif [ "$var" = "prereqs" ]; then
+    PREREQS=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
   elif [ "$var" = "java" ]; then
@@ -116,9 +120,11 @@ do
     echo "  args can be zero or more of the following, space delimited"
     echo "  ace             build ACE"
     echo "  android         build android libs, turns on java"
+    echo "  gams            build GAMS"
     echo "  java            build java jar"
-    echo "  ace             build MADARA"
+    echo "  madara          build MADARA"
     echo "  odroid          target ODROID computing platform"
+    echo "  prereqs         use apt-get to install prereqs"
     echo "  ros             build ROS platform classes"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
@@ -145,6 +151,12 @@ fi
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
 echo "Using $CORES build jobs"
+
+if [ $PREREQS -eq 0 ]; then
+  echo "No pre-requisites will be installed"
+else
+  echo "Pre-requisites will be installed"
+fi
 
 echo "ACE_ROOT is set to $ACE_ROOT"
 if [ $ACE -eq 0 ]; then
@@ -187,6 +199,17 @@ fi
 
 echo ""
 
+if [ $PREREQS -eq 1 ]; then
+  sudo apt-get install build-essential subversion git-core perl
+  
+  if [ $JAVA -eq 1 ]; then
+    sudo add-apt-repository ppa:webupd8team/java
+    sudo apt-get update
+    sudo apt-get install oracle-java8-set-default
+    echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
+  fi
+fi
+
 if [ $ACE -eq 1 ]; then
 
   # build ACE, all build information (compiler and options) will be set here
@@ -219,6 +242,8 @@ if [ $ACE -eq 1 ]; then
     echo "STRIPPING ACE"
     $STRIP_EXE libACE.so*
   fi
+else
+  echo "NOT BUILDING ACE"
 fi
 
 if [ $MADARA -eq 1 ]; then
@@ -256,84 +281,93 @@ if [ $MADARA -eq 1 ]; then
     echo "STRIPPING MADARA"
     $STRIP_EXE libMADARA.so*
   fi
-fi
-
-# build GAMS
-if [ -z $GAMS_ROOT ] ; then
-  export GAMS_ROOT=$INSTALL_DIR/gams
-  echo "SETTING GAMS_ROOT to $GAMS_ROOT"
-fi
-if [ ! -d $GAMS_ROOT ] ; then
-  echo "DOWNLOADING GAMS"
-  git clone -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
-  
 else
-  echo "UPDATING GAMS"
-  cd $GAMS_ROOT
-  git pull
-
-  echo "CLEANING GAMS OBJECTS"
-  make realclean -j $CORES
-
+  echo "NOT BUILDING MADARA"
 fi
 
-if [ $VREP -eq 1 ]; then
-  if [ ! $VREP_ROOT ] ; then
-    export VREP_ROOT=$INSTALL_DIR/vrep
-    echo "SETTING VREP_ROOT to $VREP_ROOT"
+if [ $GAMS -eq 1 ]; then
+
+  # build GAMS
+  if [ -z $GAMS_ROOT ] ; then
+    export GAMS_ROOT=$INSTALL_DIR/gams
+    echo "SETTING GAMS_ROOT to $GAMS_ROOT"
   fi
-  if [ ! -d $VREP_ROOT ]; then 
-    cd $INSTALL_DIR
-    echo "DOWNLOADING VREP"
-    wget http://coppeliarobotics.com/$VREP_INSTALLER
-    mkdir vrep
-
-    echo "UNPACKING VREP"
-    tar xfz $VREP_INSTALLER -C vrep  --strip-components 1
-
-    echo "CHANGING VREP OPTIONS"
-    if [ -f vrep/system/usrset.txt ]; then
-      for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
-        cat vrep/system/usrset.txt | sed "s/$i = false/$i = true/g" > vrep/system/usrset.txt1
-          mv vrep/system/usrset.txt1 vrep/system/usrset.txt
-      done
-    else
-      for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
-        echo "$i = true" >> vrep/system/usrset.txt
-      done
-    fi
-
-    echo "CONFIGURING 20 VREP PORTS"
-    $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
-
-
-    echo "PATCHING VREP"
-    patch -b -d $VREP_ROOT -p1 -i $GAMS_ROOT/scripts/linux/patches/00_VREP_extApi_readPureDataFloat_alignment.patch
+  if [ ! -d $GAMS_ROOT ] ; then
+    echo "DOWNLOADING GAMS"
+    git clone -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    
   else
-    echo "NO CHANGE TO VREP"
+    echo "UPDATING GAMS"
+    cd $GAMS_ROOT
+    git pull
+
+    echo "CLEANING GAMS OBJECTS"
+    make realclean -j $CORES
+
   fi
-fi
 
+  if [ $VREP -eq 1 ]; then
+    if [ ! $VREP_ROOT ] ; then
+      export VREP_ROOT=$INSTALL_DIR/vrep
+      echo "SETTING VREP_ROOT to $VREP_ROOT"
+    fi
+    if [ ! -d $VREP_ROOT ]; then 
+      cd $INSTALL_DIR
+      echo "DOWNLOADING VREP"
+      wget http://coppeliarobotics.com/$VREP_INSTALLER
+      mkdir vrep
+
+      echo "UNPACKING VREP"
+      tar xfz $VREP_INSTALLER -C vrep  --strip-components 1
+
+      echo "CHANGING VREP OPTIONS"
+      if [ -f vrep/system/usrset.txt ]; then
+        for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
+          cat vrep/system/usrset.txt | sed "s/$i = false/$i = true/g" > vrep/system/usrset.txt1
+            mv vrep/system/usrset.txt1 vrep/system/usrset.txt
+        done
+      else
+        for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
+          echo "$i = true" >> vrep/system/usrset.txt
+        done
+      fi
+
+      echo "CONFIGURING 20 VREP PORTS"
+      $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+
+
+      echo "PATCHING VREP"
+      patch -b -d $VREP_ROOT -p1 -i $GAMS_ROOT/scripts/linux/patches/00_VREP_extApi_readPureDataFloat_alignment.patch
+    else
+      echo "NO CHANGE TO VREP"
+    fi
+  else
+    echo "NOT DOWNLOADING VREP"
+  fi
+
+    
+  cd $GAMS_ROOT
+
+  echo "GENERATING GAMS PROJECT"
+  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID gams.mwc
+
+  if [ $JAVA -eq 1 ]; then
+    # sometimes the jar'ing will occur before all classes are actually built when performing
+    # multi-job builds, fix by deleting class files and recompiling with single build job
+    find . -name "*.class" -delete
+  fi
+
+  echo "BUILDING GAMS"
+  make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID -j $CORES
+
+  if [ $STRIP -eq 1 ]; then
+    echo "STRIPPING GAMS"
+    $STRIP_EXE libGAMS.so*
+  fi
+else
+  echo "NOT BUILDING GAMS"
+fi
   
-cd $GAMS_ROOT
-
-echo "GENERATING GAMS PROJECT"
-perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID gams.mwc
-
-if [ $JAVA -eq 1 ]; then
-  # sometimes the jar'ing will occur before all classes are actually built when performing
-  # multi-job builds, fix by deleting class files and recompiling with single build job
-  find . -name "*.class" -delete
-fi
-
-echo "BUILDING GAMS"
-make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID -j $CORES
-
-if [ $STRIP -eq 1 ]; then
-  echo "STRIPPING GAMS"
-  $STRIP_EXE libGAMS.so*
-fi
-
 echo "BUILD COMPLETE"
 echo "Make sure to update your environment variables to the following"
 echo "export ACE_ROOT=$ACE_ROOT"
