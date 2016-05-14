@@ -200,12 +200,12 @@ fi
 echo ""
 
 if [ $PREREQS -eq 1 ]; then
-  sudo apt-get install build-essential subversion git-core perl
+  sudo apt-get install -f build-essential subversion git-core perl
   
   if [ $JAVA -eq 1 ]; then
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
-    sudo apt-get install oracle-java8-set-default
+    sudo apt-get install -f oracle-java8-set-default
     echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
   fi
 fi
