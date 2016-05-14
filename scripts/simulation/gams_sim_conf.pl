@@ -2739,7 +2739,7 @@ namespace transports
      **/
     ${new_trans} (const std::string & id,
       madara::transport::TransportSettings & new_settings,
-      madara::knowledge::ThreadSafeContext & context);
+      madara::knowledge::KnowledgeBase & context);
 
     /**
      * Destructor
@@ -2753,7 +2753,7 @@ namespace transports
      *          been updated and could be sent.
      * \@return  result of operation or -1 if we are shutting down
      **/
-    long send_data (const madara::knowledge::KnowledgeRecords & modifieds) = 0;
+    long send_data (const madara::knowledge::KnowledgeRecords & modifieds);
     
   protected:
     /// threads for monitoring knowledge updates
@@ -2774,12 +2774,13 @@ namespace knowledge = madara::knowledge;
 transports::${new_trans}::${new_trans} (
   const std::string & id,
   madara::transport::TransportSettings & new_settings,
-  knowledge::ThreadSafeContext & context)
-: madara::transport::Base (id, new_settings, context)
+  knowledge::KnowledgeBase & knowledge)
+: madara::transport::Base (id, new_settings, knowledge.get_context ())
 {
-  // create a reference to the knowledge base for threading
-  knowledge::KnowledgeBase knowledge;
-  knowledge.use (context);
+  // populate variables like buffer_ based on transport settings
+  Base::setup ();
+  
+  // set the data plane for read threads
   read_threads_.set_data_plane (knowledge);
   
   // check the read hz settings to see if the user has passed something weird
@@ -2891,8 +2892,14 @@ namespace transports
     const std::string id_;
     
     /// the transport settings being used
-    madara::transport::TransportSettings settings_;
+    madara::transport::QoSTransportSettings settings_;
     
+    /// buffer for sending
+    madara::utility::ScopedArray <char>      buffer_;
+
+    /// data received rules, defined in Transport settings
+    madara::knowledge::CompiledExpression  on_data_received_;
+      
     /// monitor the bandwidth used for sending
     madara::transport::BandwidthMonitor & send_monitor_;
     
@@ -2938,6 +2945,10 @@ transports::${new_trans}ReadThread::init (knowledge::KnowledgeBase & knowledge)
 {
   // grab the context so we have access to update_from_external  
   context_ = &(knowledge.get_context ());
+  
+  // setup the receive buffer
+  if (settings_.queue_length > 0)
+    buffer_ = new char [settings_.queue_length];
 }
 
 /**
@@ -2946,6 +2957,9 @@ transports::${new_trans}ReadThread::init (knowledge::KnowledgeBase & knowledge)
 void
 transports::${new_trans}ReadThread::run (void)
 {
+  // prefix for logging purposes
+  char * print_prefix = \"transports::${new_trans}ReadThread\";
+
   /**
    * the MADARA logger is thread-safe, fast, and allows for specifying
    * various options like output files and multiple output targets (
@@ -2954,8 +2968,40 @@ transports::${new_trans}ReadThread::run (void)
    **/
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    \"transports::${new_trans}ReadThread::run:\" \
-    \" executing\\n\");
+    \"%s::run: executing\\n\", print_prefix);
+
+  /**
+   * this should store the number of bytes read into the buffer after your
+   * network, socket, serial port or shared memory read
+   **/
+  uint32_t bytes_read = 0;
+
+  // header for buffer
+  madara::transport::MessageHeader * header = 0;
+
+  /**
+   * remote host identifier, often available from socket recvs. This 
+   * information can be used with trusted/banned host lists in the
+   * process_received_update function later. You would have to fill
+   * this in with info from whatever transport you are using for this
+   * to be effective.
+   **/
+  char * remote_host = \"\";
+  
+  // will be filled with rebroadcast records after applying filters
+  knowledge::KnowledgeMap rebroadcast_records;
+
+  /**
+   * Calls filters on buffered data, updates throughput calculations
+   **/
+  process_received_update (buffer_.get_ptr (), bytes_read, id_, *context_,
+    settings_, send_monitor_, receive_monitor_, rebroadcast_records,
+    on_data_received_, print_prefix, remote_host, header);
+    
+  /**
+   * The next run of this method will be determined by read_thread_hertz
+   * in the QoSTransportSettings class that is passed in.
+   **/
 }
 ";
 
@@ -2999,6 +3045,14 @@ transports::${new_trans}ReadThread::run (void)
       $threads[$i] = $file;
     }
     
+    # get a list of all custom threads
+    @transports = glob "$trans_path/*ReadThread.cpp";
+    for (my $i = 0; $i < scalar @transports; ++$i)
+    {
+      my ($file, $dir, $suffix) = fileparse($transports[$i], qr/ReadThread\.[^.]*/);
+      $transports[$i] = $file;
+    }
+    
     if ($verbose)
     {
       print "  Custom algorithms in $algs_path:\n";
@@ -3017,6 +3071,12 @@ transports::${new_trans}ReadThread::run (void)
       for (0..$#threads)
       {
         print "    " . $threads[$_] . "\n";
+      }
+      
+      print "  Custom transports in $trans_path:\n";
+      for (0..$#transports)
+      {
+        print "    " . $transports[$_] . "\n";
       }
     }
     
@@ -3169,6 +3229,15 @@ workspace {
 
       $controller_contents .= "// end thread includes
 
+// begin transport includes\n";
+
+      for my $new_trans (@new_transport)
+      {
+        $controller_contents .= "#include \"transports/$new_trans.h\"\n";
+      }
+
+      $controller_contents .= "// end transport includes
+
 // END DO NOT DELETE THIS SECTION
 
 const std::string default_broadcast (\"192.168.1.255:15000\");
@@ -3178,7 +3247,6 @@ const std::string default_multicast (\"239.255.0.1:4150\");
 madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
-namespace engine = madara::knowledge;
 namespace controllers = gams::controllers;
 typedef madara::knowledge::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
@@ -3488,7 +3556,24 @@ int main (int argc, char ** argv)
   handle_arguments (argc, argv);
   
   // create knowledge base and a control loop
-  madara::knowledge::KnowledgeBase knowledge (host, settings);
+  madara::knowledge::KnowledgeBase knowledge;
+  
+  // if you only want to use custom transports, delete following
+  knowledge.attach_transport (host, settings);
+  
+  // begin transport creation ";
+  
+  foreach my $new_trans (@new_transport)
+  {
+    $controller_contents .= "
+  // add $new_trans factory
+  knowledge.attach_transport (new transports::$new_trans (
+    knowledge.get_id (), settings, knowledge));";
+  }
+  
+    $controller_contents .= "
+  // end transport creation
+  
   controllers::BaseController controller (knowledge);
   madara::threads::Threader threader (knowledge);
 
@@ -3591,8 +3676,10 @@ int main (int argc, char ** argv)
       }
          
       my $controller_contents;
-      my ($algorithm_includes, $platform_includes, $thread_includes);
-      my ($algorithm_creation, $platform_creation, $thread_creation);
+      my ($algorithm_includes, $platform_includes,
+      $thread_includes, $transport_includes);
+      my ($algorithm_creation, $platform_creation,
+      $thread_creation, $transport_creation);
       
       # read the controller source file
       open controller_file, "$src_path/controller.cpp" or 
@@ -3685,6 +3772,31 @@ int main (int argc, char ** argv)
         # change the creation process
     $controller_contents =~
       s/\/\/ begin thread creation(.|\s)*\/\/ end thread creation/\/\/ begin thread creation${thread_creation}\n  \/\/ end thread creation/;
+      } # end if there are custom threads
+      
+      if (scalar @transports > 0)
+      {
+        if ($verbose)
+        {
+          print ("  Custom transports detected. Updating...\n");
+        }
+       
+        for (my $i = 0; $i < scalar @transports; ++$i)
+        {
+          $transport_includes .= "\n#include \"transports/" .
+            $transports[$i] . ".h\"";            
+          $transport_creation .= "
+  knowledge.attach_transport (new transports::${transports[$i]} (
+    knowledge.get_id (), settings, knowledge));";
+        }
+        
+        # change the includes         
+    $controller_contents =~
+      s/\/\/ begin transport includes(.|\s)*\/\/ end transport includes/\/\/ begin transport includes${transport_includes}\n\/\/ end transport includes/;
+        
+        # change the creation process
+    $controller_contents =~
+      s/\/\/ begin transport creation(.|\s)*\/\/ end transport creation/\/\/ begin transport creation${transport_creation}\n  \/\/ end transport creation/;
       } # end if there are custom threads
       
       if ($verbose)
