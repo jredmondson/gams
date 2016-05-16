@@ -3646,6 +3646,12 @@ int main (int argc, char ** argv)
   // run a mape loop for algorithm and platform control
   controller.run (period, loop_time);
 
+  // terminate all threads after the controller
+  threader.terminate ();
+  
+  // wait for all threads
+  threader.wait ();
+  
   // print all knowledge values
   knowledge.print ();
 
