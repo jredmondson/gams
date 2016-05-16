@@ -3700,7 +3700,7 @@ int main (int argc, char ** argv)
             $algorithms[$i] . ".h\"";
           $algorithm_creation .= "\n
   // add ${algorithms[$i]} factory
-  std::vector <std::string> aliases;
+  aliases.clear ();
   aliases.push_back (\"${algorithms[$i]}\");\n
   controller.add_algorithm_factory (aliases,
     new algorithms::${algorithms[$i]}Factory ());";
@@ -3735,7 +3735,7 @@ int main (int argc, char ** argv)
           # insert extra space in between platform creations
           $platform_creation .= "\n
   // add ${platforms[$i]} factory
-  std::vector <std::string> aliases;
+  aliases.clear ();
   aliases.push_back (\"${platforms[$i]}\");\n
   controller.add_platform_factory (aliases,
     new platforms::${platforms[$i]}Factory ());";
