@@ -2330,7 +2330,7 @@ namespace platforms
      *                    set by the controller in init_vars
      **/
     virtual gams::platforms::BasePlatform * create (
-      const madara::knowledge::KnowledgeVector & args,
+      const madara::knowledge::KnowledgeMap & args,
       madara::knowledge::KnowledgeBase * knowledge,
       gams::variables::Sensors * sensors,
       gams::variables::Platforms * platforms,
@@ -2349,7 +2349,7 @@ namespace platforms
 // factory class for creating a ${new_plat} 
 gams::platforms::BasePlatform *
 platforms::${new_plat}Factory::create (
-        const madara::knowledge::KnowledgeVector & args,
+        const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         gams::variables::Sensors * sensors,
         gams::variables::Platforms * platforms,
@@ -2668,7 +2668,7 @@ void
 threads::${new_thr}::init (knowledge::KnowledgeBase & knowledge)
 {
   // point our data plane to the knowledge base initializing the thread
-  data = knowledge;
+  data_ = knowledge;
 }
 
 /**
