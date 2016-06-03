@@ -3264,6 +3264,10 @@ double loop_time (50.0);
 // madara commands from a file
 std::string madara_commands = \"\";
 
+// for setting debug levels through command line
+int madara_debug_level (-1);
+int gams_debug_level (-1);
+
 // number of agents in the swarm
 Integer num_agents (-1);
 
@@ -3394,9 +3398,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
-        int level;
-        buffer >> level;
-        madara::logger::global_logger->set_level (level);
+        buffer >> madara_debug_level;
       }
       else
         print_usage (argv[0]);
@@ -3408,9 +3410,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
-        int level;
-        buffer >> level;
-        gams::loggers::global_logger->set_level (level);
+        buffer >> gams_debug_level;
       }
       else
         print_usage (argv[0]);
@@ -3555,6 +3555,12 @@ int main (int argc, char ** argv)
   // handle all user arguments
   handle_arguments (argc, argv);
   
+  // set this once to allow for debugging knowledge base creation
+  if (madara_debug_level >= 0)
+  {
+    madara::logger::global_logger->set_level (madara_debug_level);
+  }
+
   // create knowledge base and a control loop
   madara::knowledge::KnowledgeBase knowledge;
   
@@ -3574,6 +3580,12 @@ int main (int argc, char ** argv)
     $controller_contents .= "
   // end transport creation
   
+  // set this once to allow for debugging controller creation
+  if (gams_debug_level >= 0)
+  {
+    gams::loggers::global_logger->set_level (gams_debug_level);
+  }
+
   controllers::BaseController controller (knowledge);
   madara::threads::Threader threader (knowledge);
 
@@ -3619,6 +3631,33 @@ int main (int argc, char ** argv)
       madara::knowledge::EvalSettings(false, true));
   }
   
+  // set debug levels if they have been set through command line
+  if (madara_debug_level >= 0)
+  {
+    std::stringstream temp_buffer;
+    temp_buffer << \"agent.\" << settings.id << \".madara_debug_level = \";
+    temp_buffer << madara_debug_level;
+
+    madara::logger::global_logger->set_level (madara_debug_level);
+
+    // modify the debug level being used but don't send out to others
+    knowledge.evaluate (temp_buffer.str (),
+      madara::knowledge::EvalSettings (true, true));
+  }
+
+  if (gams_debug_level >= 0)
+  {
+    std::stringstream temp_buffer;
+    temp_buffer << \"agent.\" << settings.id << \".gams_debug_level = \";
+    temp_buffer << gams_debug_level;
+
+    gams::loggers::global_logger->set_level (gams_debug_level);
+
+    // modify the debug level being used but don't send out to others
+    knowledge.evaluate (temp_buffer.str (),
+      madara::knowledge::EvalSettings (true, true));
+  }
+
   // initialize the platform and algorithm
   // default to platform in knowledge base if platform not set in command line
   if (!plat_set && knowledge.exists (KNOWLEDGE_BASE_PLATFORM_KEY))
@@ -3632,6 +3671,14 @@ int main (int argc, char ** argv)
     controller.init_accent (accents[i]);
   }
 
+  /**
+   * WARNING: the following section will be regenerated whenever new threads
+   * are added via this tool. So, you can adjust hertz rates and change how
+   * the thread is initialized, but the entire section will be regenerated
+   * with all threads in the threads directory, whenever you use the new
+   * thread option with the gams_sim_conf.pl script.
+   **/
+
   // begin thread creation";
 
   foreach my $new_thr (@new_thread)
@@ -3642,6 +3689,10 @@ int main (int argc, char ** argv)
   
     $controller_contents .= "
   // end thread creation
+  
+  /**
+   * END WARNING
+   **/
   
   // run a mape loop for algorithm and platform control
   controller.run (period, loop_time);

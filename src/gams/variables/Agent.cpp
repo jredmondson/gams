@@ -130,9 +130,6 @@ gams::variables::Agent::init_vars (
 
   // init settings
   init_variable_settings ();
-
-  madara_debug_level = madara::logger::global_logger->get_level ();
-  gams_debug_level = gams::loggers::global_logger->get_level ();
 }
 
 void
