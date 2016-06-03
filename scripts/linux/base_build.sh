@@ -215,7 +215,7 @@ if [ $ACE -eq 1 ]; then
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $ACE_ROOT ] ; then
     echo "DOWNLOADING ACE"
-    svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $INSTALL_DIR/ace
+    svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $ACE_ROOT/../../ace
     echo "CONFIGURING ACE"
     if [ $ANDROID -eq 1 ]; then
       # use the android specific files, we use custom config file for android due to build bug in ACE
