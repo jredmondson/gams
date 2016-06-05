@@ -315,20 +315,20 @@ if [ $GAMS -eq 1 ]; then
       cd $INSTALL_DIR
       echo "DOWNLOADING VREP"
       wget http://coppeliarobotics.com/$VREP_INSTALLER
-      mkdir vrep
+      mkdir $VREP_ROOT
 
       echo "UNPACKING VREP"
-      tar xfz $VREP_INSTALLER -C vrep  --strip-components 1
+      tar xfz $VREP_INSTALLER -C $VREP_ROOT  --strip-components 1
 
       echo "CHANGING VREP OPTIONS"
-      if [ -f vrep/system/usrset.txt ]; then
+      if [ -f $VREP_ROOT/system/usrset.txt ]; then
         for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
-          cat vrep/system/usrset.txt | sed "s/$i = false/$i = true/g" > vrep/system/usrset.txt1
-            mv vrep/system/usrset.txt1 vrep/system/usrset.txt
+          cat $VREP_ROOT/system/usrset.txt | sed "s/$i = false/$i = true/g" > $VREP_ROOT/system/usrset.txt1
+            mv $VREP_ROOT/system/usrset.txt1 $VREP_ROOT/system/usrset.txt
         done
       else
         for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
-          echo "$i = true" >> vrep/system/usrset.txt
+          echo "$i = true" >> $VREP_ROOT/system/usrset.txt
         done
       fi
 
