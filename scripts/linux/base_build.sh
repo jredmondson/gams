@@ -88,6 +88,13 @@ VREP_INSTALLER="V-REP_PRO_EDU_V3_3_0_64_Linux.tar.gz"
 INSTALL_DIR=`pwd`
 SCRIPTS_DIR=`dirname $0`
 
+if [ -z $CORES ] ; then
+  echo "CORES unset, so setting it to default of 1"
+  echo "  If you have more than one CPU core, try export CORES=<num cores>"
+  echo "  CORES=1 (the default) will be much slower than CORES=<num cores>"
+  export CORES=1  
+fi
+
 for var in "$@"
 do
   if [ "$var" = "tests" ]; then
