@@ -90,7 +90,7 @@ GetOptions(
   'duration|d|t=i' => \$duration,
   'equidistant|distributed' => \$equidistant,
   'first|f=i' => \$first,
-  'gams_debug|gd=i' => \$gams_debug,
+  'gams-debug|gams_debug|gd=i' => \$gams_debug,
   'group=s' => \$group,
   'help|h' => \$help,
   'height_diff=i' => \$height_diff,
@@ -98,7 +98,7 @@ GetOptions(
   'invert|i' => \$invert,
   'last|l=i' => \$last,
   'location|position=s' => \$location,
-  'madara_debug|md=i' => \$madara_debug,
+  'madara-debug|madara_debug|md=i' => \$madara_debug,
   'max_lat|max-lat=f' => \$max_lat,
   'max_lon|max-lon=f' => \$max_lon,
   'min_height|e=i' => \$min_height,
@@ -122,10 +122,10 @@ GetOptions(
   'surface|s=s' => \$surface,
   'thread_hz|thread-hz|thz=f' => \$thread_hz,
   'transient' => \$transient,
-  'vrep_start_port|s=i' => \$vrep_start_port,
+  'vrep-start-port|vrep_start_port|s=i' => \$vrep_start_port,
   'unique' => \$unique,
   'udp|u=s' => \@udp,
-  'update_vrep|vrep' => \$update_vrep,
+  'update-vrep|update_vrep|vrep' => \$update_vrep,
   'verbose|v' => \$verbose
   ) or $help = "yes";
 
@@ -1678,6 +1678,45 @@ $region.3 = [$max_lat, $min_lon];\n";
     close run_file;
     
     $run_contents =~ s/(duration\s*=\s*)\d+/$1$duration/;  
+    
+    open run_file, ">$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      print run_file  $run_contents; 
+    close run_file;
+    
+  }
+  
+  # check if the user wants to change debug levels
+  if ($madara_debug or $gams_debug)
+  {
+    if ($verbose)
+    {
+      print ("Changing debug levels in $sim_path/run.pl...\n");
+    }
+    
+    my $run_contents;
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      $run_contents = join("", <run_file>); 
+    close run_file;
+    
+    if ($madara_debug)
+    {
+      if ($verbose)
+      {
+        print ("  Changing MADARA debug level to $madara_debug\n");
+      }
+      $run_contents =~ s/(madara_debug\s*=\s*)\d+/$1$madara_debug/;  
+    }
+    
+    if ($gams_debug)
+    {
+      if ($verbose)
+      {
+        print ("  Changing GAMS debug level to $gams_debug\n");
+      }
+      $run_contents =~ s/(gams_debug\s*=\s*)\d+/$1$gams_debug/; 
+    }
     
     open run_file, ">$sim_path/run.pl" or
       die "ERROR: Couldn't open $sim_path/run.pl for writing\n";

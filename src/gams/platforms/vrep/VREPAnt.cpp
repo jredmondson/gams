@@ -165,6 +165,11 @@ void
 gams::platforms::VREPAnt::add_model_to_environment (const std::string& file, 
   const simxUChar client_side)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::platforms::VREPAnt::add_model_to_environment(" \
+    "%s, %d)\n", file.c_str (), (int)client_side);
+
   if (simxLoadModel (client_id_, file.c_str (), client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {

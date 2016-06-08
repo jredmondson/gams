@@ -143,16 +143,27 @@ void
 gams::platforms::VREPBoat::add_model_to_environment (const std::string& file,
   const simxUChar client_side)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::platforms::VREPBoat::add_model_to_environment(" \
+    "%s, %d)\n", file.c_str (), (int)client_side);
+
   if (simxLoadModel (client_id_, file.c_str (), client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
-    cerr << "error loading VREPBoat model in vrep" << endl;
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::platforms::VREPBoat::add_model_to_environment:" \
+      " error loading model in vrep\n");
     exit (-1);
   }
 
   if (node_id_ < 0)
   {
-    cerr << "invalid handle id for VREPBoat base" << endl;
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::platforms::VREPBoat::add_model_to_environment:" \
+      " invalid handle id\n");
     exit (-1);
   }
 }

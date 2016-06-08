@@ -198,9 +198,10 @@ gams::platforms::VREPQuad::add_model_to_environment (const string &model_file,
   const simxUChar is_client_side)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_ERROR,
+    gams::loggers::LOG_MAJOR,
     "gams::platforms::VREPQuad::add_model_to_environment(" \
-    "%s, %u)\n", model_file.c_str (), is_client_side);
+    "%s, %d)\n", model_file.c_str (), (int)is_client_side);
+
   if (simxLoadModel (client_id_, model_file.c_str (), is_client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
