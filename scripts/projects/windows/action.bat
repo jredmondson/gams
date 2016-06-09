@@ -93,10 +93,18 @@ IF %compile% EQU 1 (
   "%ACE_ROOT%\bin\mwc.pl" -type vc12 workspace.mwc
 
   IF %debug% EQU 1 (
-    echo Building debug-mode controller
+  
+    IF %verbose% EQU 1 (
+      echo Building debug-mode controller
+    )
+    
     msbuild "workspace.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64
   ) ELSE (
-    echo Building release-mode controller
+  
+    IF %verbose% EQU 1 (
+      echo Building release-mode controller
+    )
+    
     msbuild "workspace.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
   )
 )
