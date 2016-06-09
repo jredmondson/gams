@@ -3916,7 +3916,7 @@ int main (int argc, char ** argv)
   if (not -f "$path/action.sh" or not -f "$path/action.bat")
   {
     copy "$script_dir/windows/action.bat", "$path/";
-    copy "$script_dir/windows/action.sh", "$path/";
+    copy "$script_dir/linux/action.sh", "$path/";
   }
   
   if (not -f "$path/README.txt")
