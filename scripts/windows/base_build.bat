@@ -38,7 +38,15 @@ FOR %%x in (%*) do (
    ) ELSE (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of 
-     echo   ace gams java madara tests tutorials vrep
+     echo     ace         Build ACE
+     echo     gams        Build GAMS
+     echo     java        Enable Java support
+     echo     madara      Build MADARA
+     echo     tests       Build tests
+     echo     tutorials   Build tutorials
+     echo     vrep        Enable VREP support
+
+     GOTO  END_OF_SCRIPT
    )
 )
 
@@ -81,6 +89,8 @@ IF %gams% EQU 1 (
   echo Building GAMS for Release target with tests=%tests% and vrep=%vrep%
   msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
 )
+
+:END_OF_SCRIPT
 
 endlocal
 

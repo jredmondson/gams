@@ -81,6 +81,10 @@ double loop_time (50.0);
 // madara commands from a file
 std::string madara_commands = "";
 
+// for setting debug levels through command line
+int madara_debug_level (-1);
+int gams_debug_level (-1);
+
 // number of agents in the swarm
 Integer num_agents (-1);
 
@@ -211,9 +215,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
-        int level;
-        buffer >> level;
-        madara::logger::global_logger->set_level (level);
+        buffer >> madara_debug_level;
       }
       else
         print_usage (argv[0]);
@@ -225,9 +227,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         std::stringstream buffer (argv[i + 1]);
-        int level;
-        buffer >> level;
-        gams::loggers::global_logger->set_level (level);
+        buffer >> gams_debug_level;
       }
       else
         print_usage (argv[0]);
@@ -371,9 +371,22 @@ int main (int argc, char ** argv)
 {
   // handle all user arguments
   handle_arguments (argc, argv);
-  
+
+  // set this once to allow for debugging knowledge base creation
+  if (madara_debug_level >= 0)
+  {
+    madara::logger::global_logger->set_level (madara_debug_level);
+  }
+
   // create knowledge base and a control loop
   madara::knowledge::KnowledgeBase knowledge (host, settings);
+
+  // set this once to allow for debugging controller creation
+  if (gams_debug_level >= 0)
+  {
+    gams::loggers::global_logger->set_level (gams_debug_level);
+  }
+
   controllers::BaseController loop (knowledge);
 
   // initialize variables and function stubs
@@ -384,6 +397,33 @@ int main (int argc, char ** argv)
   {
     knowledge.evaluate (madara_commands,
       madara::knowledge::EvalSettings(false, true));
+  }
+
+  // command line logging levels override madara commands from files
+  if (madara_debug_level >= 0)
+  {
+    std::stringstream temp_buffer;
+    temp_buffer << "agent." << settings.id << ".madara_debug_level = ";
+    temp_buffer << madara_debug_level;
+
+    madara::logger::global_logger->set_level (madara_debug_level);
+
+    // modify the debug level being used but don't send out to others
+    knowledge.evaluate (temp_buffer.str (),
+      madara::knowledge::EvalSettings (true, true));
+  }
+
+  if (gams_debug_level >= 0)
+  {
+    std::stringstream temp_buffer;
+    temp_buffer << "agent." << settings.id << ".gams_debug_level = ";
+    temp_buffer << gams_debug_level;
+
+    gams::loggers::global_logger->set_level (gams_debug_level);
+
+    // modify the debug level being used but don't send out to others
+    knowledge.evaluate (temp_buffer.str (),
+      madara::knowledge::EvalSettings (true, true));
   }
 
   // initialize the platform and algorithm

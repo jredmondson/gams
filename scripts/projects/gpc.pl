@@ -16,7 +16,7 @@ use POSIX;
 use Scalar::Util qw(looks_like_number);
 
 
-my $script = fileparse($0);
+my ($script, $script_dir) = fileparse($0);
 my $algorithm;
 my $agents;
 my @border = ();
@@ -3910,6 +3910,14 @@ int main (int argc, char ** argv)
 
     
   } # end if new algorithm or new platform or new thread
+  
+  
+  # copy appropriate script to the workspace
+  if (not -f "$path/action.sh" or not -f "$path/action.bat")
+  {
+    copy "$script_dir/windows/action.bat", "$path/";
+    copy "$script_dir/windows/action.sh", "$path/";
+  }
   
   if (not -f "$path/README.txt")
   {
