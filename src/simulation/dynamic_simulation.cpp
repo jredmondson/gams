@@ -171,6 +171,8 @@ void print_usage (string prog_name)
   cerr << "       add transport using broadcast ip" << endl;
   cerr << "   [-c | --coverages <number>]" << endl;
   cerr << "       number of coverages to collect data for" << endl;
+  cerr << "   [-d | --domain <domain_name>" << endl;
+  cerr << "       a domain partition of the network transport" << endl;
   cerr << "   [-t | --sim-time <number>]" << endl;
   cerr << "       number of seconds (in-simulation) to run for" << endl;
   cerr << "   [--sim-time-poll-rate <number>]" << endl;
@@ -224,6 +226,15 @@ void handle_arguments (int argc, char** argv)
         sscanf (argv[i + 1], "%u", &num_coverages);
       else
         print_usage (argv[0]);
+      ++i;
+    }
+    else if (arg1 == "-d" || arg1 == "--domain")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+        settings.write_domain = argv[i + 1];
+      else
+        print_usage (argv[0]);
+
       ++i;
     }
     else if (arg1 == "-t" || arg1 == "--sim-time")

@@ -158,6 +158,7 @@ sub run {
   # create command for dynamic simulation launch
   my $cmd = "$gamsroot/bin/dynamic_simulation -t -1 --sim-time-poll-rate 2 ";
   $cmd .= "-n $agents ";
+	$cmd .= "--domain $domain ";
   $cmd .= "--madara-file $dir/env.mf ";
   
   if ($args{multicast})
