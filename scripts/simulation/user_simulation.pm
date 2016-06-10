@@ -12,7 +12,7 @@ sub run {
   my %args = @_;
 
   my ($agents, $duration, $period, $dir, $madara_debug, $gams_debug,
-      @border, $coverages, $launch, $num_udps, $controller);
+      @border, $coverages, $launch, $num_udps, $controller, $domain);
     
   # get environment variables
   my $osname = $^O;
@@ -22,6 +22,8 @@ sub run {
   $agents = $args{agents};
   
   $duration = $args{duration} ? $args{duration} : 300;
+  
+  $domain = $args{domain} ? $args{domain} : "gams_sims";
   
   $period = $args{period} ? $args{period} : 1;
   
@@ -101,6 +103,7 @@ sub run {
         }
       }
       
+	    $common_args .= "--domain $domain ";
 	    $common_args .= "--loop-time $duration --period $period ";
 	    $common_args .= "--queue-length 2000000 ";
       $common_args .= "--madara-level $madara_debug ";

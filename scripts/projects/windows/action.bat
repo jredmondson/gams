@@ -131,7 +131,8 @@ IF %run% EQU 1 (
     echo Running simulation
   )
 
-  "%SCRIPTS_DIR%\sim\run.pl"
+  cd "%SCRIPTS_DIR%\sim"
+  perl run.pl
 )
 
 :END_OF_SCRIPT

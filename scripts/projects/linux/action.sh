@@ -148,7 +148,8 @@ if [ $RUN -eq 1 ]; then
     echo "Running simulation..."
   fi
 
-  $SCRIPTS_DIR/sim/run.pl
+  cd $SCRIPTS_DIR/sim
+  perl run.pl
 fi
 
 echo "Script finished"

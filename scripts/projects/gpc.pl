@@ -21,6 +21,7 @@ my $algorithm;
 my $agents;
 my @border = ();
 my $broadcast;
+my $domain;
 my $duration;
 my $equidistant;
 my $buffer = 5;
@@ -87,6 +88,7 @@ GetOptions(
   'buffer=i' => \$buffer,
   'border=s' => \@border,
   'broadcast|b=s' => \$broadcast,
+  'domain=s' => \$domain,
   'duration|d|t=i' => \$duration,
   'equidistant|distributed' => \$equidistant,
   'first|f=i' => \$first,
@@ -143,6 +145,7 @@ options:
   --buffer|-m meters     buffer in meters between agents
   --border r0 r1 ...     regions to put a border around
   --broadcast|b host     broadcast ip/host to use for network transport
+  --domain domain        domain of the network (to separate network traffic)
   --distributed          for positions in region, distribute uniformly
   --duration|-t sec      max duration of simulation in secs
   --equidistant          alias to --distributed
@@ -210,6 +213,7 @@ $script is using the following configuration:
     ("\n    " . join ("\n    ", @border)) : 'no') . "
   broadcast = " . ($broadcast ? $broadcast : 'no') . "
   buffer = $buffer meters
+  domain = " . (defined $domain ? $domain : 'default') . "
   equidistant = " . ($equidistant ? 'yes' : 'no') . "
   first = " . (defined $first ? $first : 'default') . "
   gams_debug = " . ($gams_debug ? $gams_debug : 'no change') . "
@@ -269,6 +273,7 @@ $script is using the following configuration:
     $algorithm = $algorithm ? $algorithm : "null";
     $agents = $agents ? $agents : 1;
     $hz = $hz ? $hz : 1;
+    $domain = $domain ? $domain : "gams_sims";
     $duration = $duration ? $duration : 300;
     $madara_debug = $madara_debug ? $madara_debug : 3;
     $gams_debug = $gams_debug ? $gams_debug : 3;
@@ -437,6 +442,7 @@ use File::Basename;
 \@border = (" . join(",", @border) . ");
 \$num_coverages = 0;
 \$launch_controllers = 1;
+\$domain = \"$domain\";
 \@hosts = ";
 
     if ($broadcast)
@@ -469,6 +475,7 @@ user_simulation::run(
   duration => \$duration,
   period => \$period,
   dir => \$dir,
+  domain => \$domain,
   madara_debug => \$madara_debug,
   gams_debug => \$gams_debug,\n";
 
@@ -638,8 +645,18 @@ agent.$i.algorithm = .algorithm;\n";
           }
         }
       }
-      
+
       $run_contents =~ s/(agents\s*=\s*)\d+/$1$agents/;
+      
+      my $log_rotate_commands = "";
+      # rotate logs
+      for (my $i = 0; $i < $agents; ++$i)
+      {
+        $log_rotate_commands .= "rename \"\$dir/agent_$i.log\", ";
+        $log_rotate_commands .= "\"\$dir/agent_$i.prev.log\";\n";
+      }
+
+      $run_contents =~ s/Rotate logs for comparisons(.|\s)*# Run simulation/Rotate logs for comparisons\n${log_rotate_commands}\n# Run simulation/;
       
       open run_file, ">$sim_path/run.pl" or
         die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
@@ -1684,6 +1701,32 @@ $region.3 = [$max_lat, $min_lon];\n";
       print run_file  $run_contents; 
     close run_file;
     
+  }
+  
+  # check if the user wants to change the domain
+  if ($domain)
+  {
+    if ($verbose)
+    {
+      print ("Changing domain in $sim_path/run.pl...\n");
+    }
+    
+    my $run_contents;
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      $run_contents = join("", <run_file>); 
+    close run_file;
+    
+    if ($verbose)
+    {
+      print ("  Changing network domain to $domain\n");
+    }
+    $run_contents =~ s/(domain\s*=\s*)['"][^'"]+['"]/$1\"$domain\"/;  
+  
+    open run_file, ">$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      print run_file  $run_contents; 
+    close run_file;
   }
   
   # check if the user wants to change debug levels
