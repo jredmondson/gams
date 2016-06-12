@@ -43,6 +43,7 @@ my $multicast;
 my $height_diff = 1;
 my @new_algorithm;
 my @new_platform;
+my @new_platform_thread;
 my @new_thread;
 my @new_transport;
 my $ordered;
@@ -68,12 +69,14 @@ my $sim_path;
 my $src_path;
 my $algs_path;
 my $plats_path;
+my $plats_threads_path;
 my $threads_path;
 my $trans_path;
 my $transient;
 my $bin_path;
 my @algorithms = ();
 my @platforms = ();
+my @platform_threads = ();
 my @threads = ();
 my @transports = ();
 my $gams_root = $ENV{"GAMS_ROOT"};
@@ -95,7 +98,7 @@ GetOptions(
   'gams-debug|gams_debug|gd=i' => \$gams_debug,
   'group=s' => \$group,
   'help|h' => \$help,
-  'height_diff=i' => \$height_diff,
+  'height_diff|height-diff=i' => \$height_diff,
   'hz|z=i' => \$hz,
   'invert|i' => \$invert,
   'last|l=i' => \$last,
@@ -103,12 +106,13 @@ GetOptions(
   'madara-debug|madara_debug|md=i' => \$madara_debug,
   'max_lat|max-lat=f' => \$max_lat,
   'max_lon|max-lon=f' => \$max_lon,
-  'min_height|e=i' => \$min_height,
+  'min_height|min-height|e=i' => \$min_height,
   'min_lat|min-lat=f' => \$min_lat,
   'min_lon|min-lon=f' => \$min_lon,
   'multicast|m=s' => \$multicast,
   'new-algorithm|new_algorithm|new_alg|na=s' => \@new_algorithm,
   'new-platform|new_platform|new_plat|np=s' => \@new_platform,
+  'new-platform-thread|new_platform_thread|npt=s' => \@new_platform_thread,
   'new-thread|new_thread|nt=s' => \@new_thread,
   'new-transport|new_transport|nr=s' => \@new_transport,
   'ordered|o' => \$ordered,
@@ -150,26 +154,28 @@ options:
   --duration|-t sec      max duration of simulation in secs
   --equidistant          alias to --distributed
   --first|-f num         first agent number (e.g 0, 1, 2, etc.)
-  --gams_debug|-gd lev   log level for GAMS
+  --gams-debug|-gd lev   log level for GAMS
   --group  prefix        group to change
   --help|-h              print guidance information
-  --height_diff meters   height difference in meters when paired with unique
+  --height-diff meters   height difference in meters when paired with unique
   --hz|-z hertz          periodic execution rate for agents
   --invert|-i            invert the x and y axis in a formation
   --last|-l num          last agent number (e.g. 1, 2, 3, etc.)
   --location|--position p specifies a specific position in the format [x, y],
                          where x and y should be doubles
-  --madara_debug|-md lev log level for MADARA
-  --max_lat|max-lat x    defines the maximum latitude, generally for a region
-  --max_lon|max-lon x    defines the maximum longitude, generally for a region
-  --min_height|-e num    height in meters
-  --min_lat|min-lat x    defines the minimum latitude, generally for a region
-  --min_lon|min-lon x    defines the minimum longitude, generally for a region
+  --madara-debug|-md lev log level for MADARA
+  --max-lat|max-lat x    defines the maximum latitude, generally for a region
+  --max-lon|max-lon x    defines the maximum longitude, generally for a region
+  --min-height|-e num    height in meters
+  --min-lat|min-lat x    defines the minimum latitude, generally for a region
+  --min-lon|min-lon x    defines the minimum longitude, generally for a region
   --multicast|m host     multicast ip/host to use for network transport
-  --new_algorithm|na name create infrastructure for custom algorithm
-  --new_platform|np name create infrastructure for custom platform
-  --new_thread|nt name   create infrastructure for custom thread
-  --new_transport|nr name create infrastructure for custom network transport
+  --new-algorithm|na name create infrastructure for custom algorithm
+  --new-platform|np name create infrastructure for custom platform
+  --new-platform--thread|ntp name 
+                         create infrastructure for a custom platform thread
+  --new-thread|nt name   create infrastructure for custom thread
+  --new-transport|nr name create infrastructure for custom network transport
   --ordered              order distribution by agent id l->r, t->b
   --path|-p|--dir dir    the directory path to a simulation
   --permute|-u           permute existing locations or heights 
@@ -191,13 +197,13 @@ options:
                          concrete   : generic land model
                          water      : water model (e.g., for boats)
                          
-  --thread_hz|-thz hz    the hertz to run threads at  
+  --thread-hz|-thz hz    the hertz to run threads at  
   --transient            indicates a transient group should be created/used
-  --vrep_start_port|-s # VREP port number to start from  
   --udp|u self h1 ...    udp ip/hosts to use for network transport 
   --unique|-u            requires unique attribute (e.g., height)
-  --update_vrep|vrep     updates the VREP bounding box with a min|max-lat|lon
-  --verbose|-v           print detailed debug info\n";
+  --update-vrep|vrep     updates the VREP bounding box with a min|max-lat|lon
+  --verbose|-v           print detailed debug info
+  --vrep-start-port|-s # VREP port number to start from\n";
   
   print("$output\n");
 }
@@ -234,9 +240,11 @@ $script is using the following configuration:
     ("\n    " . join ("\n    ", @new_algorithm)) : 'no') . "
   new_platform = " . (scalar @new_platform > 0 ?
     ("\n    " . join ("\n    ", @new_platform)) : 'no') . "
+  new_platform_thread = " . (scalar @new_platform_thread > 0 ?
+    ("\n    " . join ("\n    ", @new_platform_thread)) : 'no') . "
   new_thread = " . (scalar @new_thread > 0 ?
     ("\n    " . join ("\n    ", @new_thread)) : 'no') . "
-  new_thread = " . (scalar @new_transport > 0 ?
+  new_transport = " . (scalar @new_transport > 0 ?
     ("\n    " . join ("\n    ", @new_transport)) : 'no') . "
   ordered = " . ($ordered ? 'yes' : 'no') . "
   path = $path
@@ -264,6 +272,7 @@ $script is using the following configuration:
   $src_path = "$path/src";
   $algs_path = "$path/src/algorithms";
   $plats_path = "$path/src/platforms";
+  $plats_threads_path = "$path/src/platforms/threads";
   $threads_path = "$path/src/threads";
   $trans_path = "$path/src/transports";
   $bin_path = "$path/bin";
@@ -289,6 +298,7 @@ $script is using the following configuration:
     make_path("$sim_path");
     make_path("$algs_path");
     make_path("$plats_path");
+    make_path("$plats_threads_path");
     make_path("$threads_path");
     make_path("$trans_path");
     make_path("$bin_path");
@@ -1959,7 +1969,8 @@ $region.3 = [$max_lat, $min_lon];\n";
   }
   
   if (scalar @new_algorithm > 0 or scalar @new_platform > 0
-      or scalar @new_thread > 0 or scalar @new_transport > 0)
+      or scalar @new_thread > 0 or scalar @new_transport > 0
+      or scalar @new_platform_thread > 0)
   {
     if (not -f "$path/using_vrep.mpb")
     {
@@ -2221,6 +2232,139 @@ algorithms::${new_alg}::plan (void)
       } # end if new algorithm and the source files don't exist
     } #end foreach new algorithm
     
+    foreach my $new_thr (@new_platform_thread)
+    {
+      if ($new_thr and not -f "$plats_threads_path/$new_thr.h")
+      {
+        my $new_thr_uc = uc $new_thr;
+      
+        if ($verbose)
+        {
+          print ("Adding infrastructure for thread $new_thr...\n");
+        }
+         
+        # Create file contents for custom thread
+       
+        my $header_contents = "
+#ifndef   _PLATFORM_THREAD_${new_thr_uc}_H_
+#define   _PLATFORM_THREAD_${new_thr_uc}_H_
+
+#include <string>
+
+#include \"madara/threads/BaseThread.h\"
+
+namespace platforms
+{
+  namespace threads
+  {
+    /**
+    * A custom thread generated by gpc.pl
+    **/
+    class ${new_thr} : public madara::threads::BaseThread
+    {
+    public:
+      /**
+       * Default constructor
+       **/
+      ${new_thr} ();
+      
+      /**
+       * Destructor
+       **/
+      virtual ~${new_thr} ();
+      
+      /**
+        * Initializes thread with MADARA context
+        * \@param   context   context for querying current program state
+        **/
+      virtual void init (madara::knowledge::KnowledgeBase & knowledge);
+
+      /**
+        * Executes the main thread logic
+        **/
+      virtual void run (void);
+
+    private:
+      /// data plane if we want to access the knowledge base
+      madara::knowledge::KnowledgeBase data_;
+    };
+  } // end namespace threads
+} // end namespace platforms
+
+#endif // _PLATFORM_THREAD_${new_thr_uc}_H_
+";
+        my $source_contents = "
+#include \"gams/loggers/GlobalLogger.h\"
+#include \"${new_thr}.h\"
+
+namespace knowledge = madara::knowledge;
+
+// constructor
+platforms::threads::${new_thr}::${new_thr} ()
+{
+}
+
+// destructor
+platforms::threads::${new_thr}::~${new_thr} ()
+{
+}
+
+/**
+ * Initialization to a knowledge base. If you don't actually need access
+ * to the knowledge base, just scheduling things in madara::threads::Threader,
+ * then you can decide to delete this function or simply do nothing inside of
+ * the function.
+ **/
+void
+platforms::threads::${new_thr}::init (knowledge::KnowledgeBase & knowledge)
+{
+  // point our data plane to the knowledge base initializing the thread
+  data_ = knowledge;
+}
+
+/**
+ * Executes the actual thread logic. Best practice is to simply do one loop
+ * iteration. If you want a long running thread that executes something
+ * frequently, see the madara::threads::Threader::runHz method in your
+ * controller.
+ **/
+void
+platforms::threads::${new_thr}::run (void)
+{
+  /**
+   * the MADARA logger is thread-safe, fast, and allows for specifying
+   * various options like output files and multiple output targets (
+   * e.g., std::cerr, a system log, and a thread_output.txt file). You
+   * can create your own custom log levels or loggers as well.
+   **/
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    \"platforms::threads::${new_thr}::run:\" \
+    \" executing\\n\");
+}
+";
+    
+        # open files for writing
+        open thread_header, ">$plats_threads_path/$new_thr.h" or 
+          die "ERROR: Couldn't open $plats_threads_path/$new_thr.h for writing\n";
+          print thread_header $header_contents;
+        close thread_header;
+          
+        open thread_source, ">$plats_threads_path/$new_thr.cpp" or 
+          die "ERROR: Couldn't open $plats_threads_path/$new_thr.cpp for writing\n";
+          print thread_source $source_contents;
+        close thread_source;
+      }
+    }
+
+    # get a list of all custom platform threads
+    @platform_threads = glob "$plats_threads_path/*.cpp";
+    for (my $i = 0; $i < scalar @platform_threads; ++$i)
+    {
+      my ($file, $dir, $suffix) = fileparse($platform_threads[$i], qr/\.[^.]*/);
+      $platform_threads[$i] = $file;
+    }
+    
     foreach my $new_plat (@new_platform)
     {
       if ($new_plat and not -f "$plats_path/$new_plat.h")
@@ -2239,6 +2383,7 @@ algorithms::${new_alg}::plan (void)
 
 #include \"gams/platforms/BasePlatform.h\"
 #include \"gams/platforms/PlatformFactory.h\"
+#include \"madara/threads/Threader.h\"
 
 namespace platforms
 {        
@@ -2390,6 +2535,10 @@ namespace platforms
      * \@return the status of the takeoff, \@see PlatformReturnValues
      **/
     virtual int takeoff (void);
+    
+  private:
+    // a threader for managing platform threads
+    madara::threads::Threader threader_;    
   }; // end ${new_plat} class
     
 
@@ -2426,8 +2575,15 @@ namespace platforms
         
         my $source_contents = "
 #include \"madara/knowledge/containers/NativeDoubleVector.h\"
-#include \"${new_plat}.h\"
+#include \"${new_plat}.h\"\n";
 
+
+        for my $new_thr (@platform_threads)
+        {
+          $source_contents .= "#include \"threads/$new_thr.h\"\n";
+        }
+
+        $source_contents .= "
 // factory class for creating a ${new_plat} 
 gams::platforms::BasePlatform *
 platforms::${new_plat}Factory::create (
@@ -2450,6 +2606,9 @@ platforms::${new_plat}::${new_plat} (
   // as an example of what to do here, create a coverage sensor
   if (knowledge && sensors)
   {
+    // set the data plane for the threader
+    threader_.set_data_plane (*knowledge);
+  
     // create a coverage sensor
     gams::variables::Sensors::iterator it = sensors->find (\"coverage\");
     if (it == sensors->end ()) // create coverage sensor
@@ -2466,6 +2625,16 @@ platforms::${new_plat}::${new_plat} (
       (*sensors)[\"coverage\"] = coverage_sensor;
     }
     (*sensors_)[\"coverage\"] = (*sensors)[\"coverage\"];
+    
+    // create threads";
+    
+        for my $new_thr (@platform_threads)
+        {
+          $source_contents .= "
+    threader_.run(1.0, \"${new_thr}\", new threads::${new_thr}());";
+        }
+        $source_contents .= "
+    // end create threads"
   }
 }
 
@@ -2473,6 +2642,8 @@ platforms::${new_plat}::${new_plat} (
 // Destructor
 platforms::${new_plat}::~${new_plat} ()
 {
+  threader_.terminate ();
+  threader_.wait ();
 }
 
 
@@ -3119,6 +3290,14 @@ transports::${new_trans}ReadThread::run (void)
       $platforms[$i] = $file;
     }
     
+    # get a list of all custom platform threads
+    @platform_threads = glob "$plats_threads_path/*.cpp";
+    for (my $i = 0; $i < scalar @platform_threads; ++$i)
+    {
+      my ($file, $dir, $suffix) = fileparse($platform_threads[$i], qr/\.[^.]*/);
+      $platform_threads[$i] = $file;
+    }
+    
     # get a list of all custom threads
     @threads = glob "$threads_path/*.cpp";
     for (my $i = 0; $i < scalar @threads; ++$i)
@@ -3147,6 +3326,12 @@ transports::${new_trans}ReadThread::run (void)
       for (0..$#platforms)
       {
         print "    " . $platforms[$_] . "\n";
+      }
+      
+      print "  Custom platform threads in $plats_threads_path:\n";
+      for (0..$#platform_threads)
+      {
+        print "    " . $platform_threads[$_] . "\n";
       }
       
       print "  Custom threads in $threads_path:\n";
@@ -3224,6 +3409,7 @@ project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
     src/
     src/algorithms
     src/platforms
+    src/platforms/threads
     src/threads
     src/transports
   }
@@ -3232,6 +3418,7 @@ project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
     src
     src/algorithms
     src/platforms
+    src/platforms/threads
     src/threads
     src/transports
   }
@@ -4029,6 +4216,14 @@ HOW TO:\n";
     block the controller. It is in your best interest to poll information from
     the environment and knowledge base, rather than blocking on an operating
     system call.\n";
+    }
+
+    if (scalar @platform_threads > 0)
+    {
+      $readme_contents .= "
+  EDIT YOUR PLATFORM THREADS:
+  
+    Open " . $platform_threads[0] . ".cpp|h with your favorite programming environment / editor.\n";
     }
 
     if (scalar @threads > 0)
