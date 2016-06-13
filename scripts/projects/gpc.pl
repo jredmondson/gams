@@ -2634,7 +2634,7 @@ platforms::${new_plat}::${new_plat} (
     threader_.run(1.0, \"${new_thr}\", new threads::${new_thr}());";
         }
         $source_contents .= "
-    // end create threads"
+    // end create threads
   }
 }
 
