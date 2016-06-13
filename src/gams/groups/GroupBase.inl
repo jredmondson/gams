@@ -51,7 +51,7 @@
 #include "gams/loggers/GlobalLogger.h"
 
 inline const std::string &
-gams::groups::GroupBase::get_prefix (void)
+gams::groups::GroupBase::get_prefix (void) const
 {
   return prefix_;
 }

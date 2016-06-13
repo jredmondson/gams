@@ -92,7 +92,15 @@ namespace gams
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer & id);
-      
+
+      /**
+      * Initializes variable containers
+      * @param   knowledge   the knowledge base that houses the variables
+      * @param   self_prefix the prefix of the agent's data in knowledge base
+      **/
+      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+        const std::string & self_prefix);
+
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
@@ -103,7 +111,10 @@ namespace gams
 
       /// the id of this agent
       madara::knowledge::containers::Integer id;
-      
+
+      /// the id of this agent
+      madara::knowledge::containers::String prefix;
+
       /// the agent-specific variables
       Agent agent;
     };
@@ -117,6 +128,16 @@ namespace gams
     GAMSExport void init_vars (Self & container,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer & id);
+
+    /**
+    * Initializes a self container
+    * @param   container   the variables to initialize
+    * @param   knowledge   the knowledge base that houses the variables
+    * @param   self_prefix prefix of variables in the knowledge base
+    **/
+    GAMSExport void init_vars (Self & container,
+      madara::knowledge::KnowledgeBase & knowledge,
+      const std::string & self_prefix);
   }
 }
 

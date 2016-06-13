@@ -55,6 +55,7 @@
 #include "gams/algorithms/AlgorithmFactoryRepository.h"
 #include "gams/platforms/PlatformFactoryRepository.h"
 #include "gams/loggers/GlobalLogger.h"
+#include "gams/groups/GroupFactoryRepository.h"
 
 // Java-specific header includes
 #ifdef _GAMS_JAVA_
@@ -1068,6 +1069,55 @@ void gams::controllers::BaseController::init_platform (jobject platform)
 }
 
 #endif
+
+void
+gams::controllers::BaseController::init_vars (
+  const std::string & self_prefix,
+  const std::string group_name)
+{
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::BaseController::init_vars:" \
+    " %s self, %s group\n",
+    self_prefix.c_str (), group_name.c_str ());
+
+  groups::GroupFactoryRepository factory (&knowledge_);
+  groups::GroupBase * group = factory.create (group_name);
+
+  init_vars (self_prefix, group);
+
+  delete group;
+}
+
+void
+gams::controllers::BaseController::init_vars (
+  const std::string & self_prefix,
+  const groups::GroupBase * group)
+{
+  if (group)
+  {
+    madara_logger_ptr_log (
+      gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::init_vars:" \
+      " %s self, %s group\n",
+      self_prefix.c_str (), group->get_prefix ().c_str ());
+
+    variables::init_vars (agents_, knowledge_, *group);
+  }
+  else
+  {
+    madara_logger_ptr_log (
+      gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::init_vars:" \
+      " %s self, no group\n",
+      self_prefix.c_str ());
+  }
+
+  self_.init_vars (knowledge_, self_prefix);
+  swarm_.init_vars (knowledge_);
+}
 
 void
 gams::controllers::BaseController::init_vars (

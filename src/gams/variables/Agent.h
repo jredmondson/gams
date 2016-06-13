@@ -66,6 +66,7 @@
 #include "madara/knowledge/containers/Map.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "AccentStatus.h"
+#include "gams/groups/GroupBase.h"
 
 namespace gams
 {
@@ -92,6 +93,14 @@ namespace gams
        * @param  agent   agent to copy
        **/
       void operator= (const Agent & agent);
+
+      /**
+      * Initializes variable containers
+      * @param   knowledge  the variable context
+      * @param   prefix     the prefix of the agent in the knowledge base
+      **/
+      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+        const std::string & prefix);
 
       /**
        * Initializes variable containers
@@ -193,6 +202,9 @@ namespace gams
       /// the rate to process the algorithm and platform MAPE loop
       madara::knowledge::containers::Double loop_hz;
 
+      /// the prefix for this agent
+      std::string prefix;
+
     protected:
       /**
        * Create agent/local agent name
@@ -222,6 +234,16 @@ namespace gams
     GAMSExport void init_vars (Agents & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer& processes);
+
+    /**
+    * Initializes agent containers
+    * @param   variables  the variables to initialize
+    * @param   knowledge  the knowledge base that houses the variables
+    * @param   group      a group containing all agents of interest
+    **/
+    GAMSExport void init_vars (Agents & variables,
+      madara::knowledge::KnowledgeBase & knowledge,
+      const groups::GroupBase & group);
   }
 }
 

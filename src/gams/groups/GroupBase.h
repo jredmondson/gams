@@ -152,7 +152,7 @@ namespace gams
       * Gets the prefix for the group in the knowledge base
       * @return  the name of the group (e.g. group.protectors)
       **/
-      const std::string & get_prefix (void);
+      const std::string & get_prefix (void) const;
 
     protected:
 

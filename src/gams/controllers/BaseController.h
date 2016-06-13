@@ -65,6 +65,7 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/platforms/PlatformFactory.h"
+#include "gams/groups/GroupBase.h"
 
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Vector.h"
@@ -274,7 +275,24 @@ namespace gams
        **/
       void init_vars (const madara::knowledge::KnowledgeRecord::Integer & id = 0,
         const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
-      
+
+      /**
+      * Initializes global variable containers
+      * @param   self_prefix  the prefix of the agent in the knowledge base
+      * @param   group_name   the name of the group that the agent listing
+      *                       should come from
+      **/
+      void init_vars (const std::string & self_prefix,
+        const std::string group_name = "");
+
+      /**
+      * Initializes global variable containers
+      * @param   self_prefix  the prefix of the agent in the knowledge base
+      * @param   group        the group that should populate agents
+      **/
+      void init_vars (const std::string & self_prefix,
+        const groups::GroupBase * group);
+
       /**
        * Initializes containers and knowledge base in a platform
        * This is usually the first thing a developer should do with

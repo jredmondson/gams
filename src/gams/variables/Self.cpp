@@ -71,11 +71,25 @@ gams::variables::Self::operator= (const Self & rhs)
 void
 gams::variables::Self::init_vars (
   madara::knowledge::KnowledgeBase & knowledge,
+  const std::string & self_prefix)
+{
+  this->id.set_name (".id", knowledge);
+  this->id = -1;
+  this->prefix.set_name (".prefix", knowledge);
+  this->prefix = self_prefix;
+  this->agent.init_vars (knowledge, self_prefix);
+}
+
+void
+gams::variables::Self::init_vars (
+  madara::knowledge::KnowledgeBase & knowledge,
   const Integer & id)
 {
   // initialize the variable containers
   this->id.set_name (".id", knowledge);
   this->id = id;
+  this->prefix.set_name (".prefix", knowledge);
+  this->prefix = "agent." + this->id.to_string ();
   this->agent.init_vars (knowledge, id);
 }
 
@@ -89,9 +103,17 @@ gams::variables::Self::init_vars (
   this->agent.init_vars (knowledge, id);
 }
 
-void gams::variables::init_vars (Self & variables,
+void gams::variables::init_vars (Self & container,
   madara::knowledge::KnowledgeBase & knowledge,
   const Integer & id)
 {
-  variables.init_vars (knowledge, id);
+  container.init_vars (knowledge, id);
+}
+
+
+void gams::variables::init_vars (Self & container,
+  madara::knowledge::KnowledgeBase & knowledge,
+  const std::string & self_prefix)
+{
+  container.init_vars (knowledge, self_prefix);
 }
