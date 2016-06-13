@@ -8,6 +8,7 @@ SET RUN_LOCATION=%CD%
 setlocal enableDelayedExpansion
 
 SET compile=0
+SET compile_vrep=0
 SET debug=0
 SET run=0
 SET vrep=0
@@ -22,6 +23,11 @@ FOR %%x in (%*) do (
      )
 
      SET compile=1
+   ) ELSE IF "%%x" == "compile-vrep" (
+
+     echo Script will compile with vrep support
+
+     SET compile_vrep=1
    ) ELSE IF "%%x" == "debug" (
 
      IF !verbose! EQU 1 (
@@ -63,10 +69,11 @@ FOR %%x in (%*) do (
    ) ELSE (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of:
-     echo     compile   compile the custom controller
-     echo     sim^|run   run the simulation
-     echo     vrep      start vrep simulator
-     echo     verbose   verbose output during this script
+     echo     compile       compile the custom controller
+     echo     compile-vrep  compile with vrep support
+     echo     sim^|run      run the simulation
+     echo     vrep          start vrep simulator
+     echo     verbose       verbose output during this script
      echo.
 
      GOTO END_OF_SCRIPT
@@ -90,7 +97,7 @@ IF %compile% EQU 1 (
   )
 
   cd "%SCRIPTS_DIR%"
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 workspace.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features vrep=%compile_vrep% workspace.mwc
 
   IF %debug% EQU 1 (
   

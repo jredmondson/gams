@@ -58,6 +58,7 @@
 
 
 COMPILE=0
+COMPILE_VREP=0
 RUN=0
 VERBOSE=0
 VREP=0
@@ -75,6 +76,8 @@ for var in "$@"
 do
   if [ "$var" = "compile" ]; then
     COMPILE=1
+  elif [ "$var" = "compile-vrep" ]; then
+    COMPILE_VREP=1
   elif [ "$var" = "run" ]; then
     RUN=1
   elif [ "$var" = "sim" ]; then
@@ -87,6 +90,7 @@ do
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
     echo "  compile         build the custom project"
+    echo "  compile-vrep    compile with vrep support"
     echo "  run|sim         run the simulation"
     echo "  verbose         print verbose information during this script"
     echo "  vrep            start vrep before running the simulation"
@@ -112,7 +116,7 @@ if [ $COMPILE -eq 1 ]; then
   fi
 
   cd $SCRIPTS_DIR
-  $ACE_ROOT/bin/mwc.pl -type gnuace workspace.mwc
+  $ACE_ROOT/bin/mwc.pl -type gnuace vrep=$COMPILE_VREP workspace.mwc
   
   
   if [ $VERBOSE -eq 1 ]; then
@@ -126,7 +130,8 @@ if [ $COMPILE -eq 1 ]; then
     echo "Building project..."
   fi
 
-  make -j $CORES
+  make -j vrep=$COMPILE_VREP $CORES
+  
 fi
   
 if [ $VREP -eq 1 ]; then
