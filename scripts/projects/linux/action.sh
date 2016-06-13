@@ -116,7 +116,7 @@ if [ $COMPILE -eq 1 ]; then
   fi
 
   cd $SCRIPTS_DIR
-  $ACE_ROOT/bin/mwc.pl -type gnuace vrep=$COMPILE_VREP workspace.mwc
+  $ACE_ROOT/bin/mwc.pl -type gnuace -features vrep=$COMPILE_VREP,tests=0 workspace.mwc
   
   
   if [ $VERBOSE -eq 1 ]; then
