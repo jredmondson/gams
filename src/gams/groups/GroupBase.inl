@@ -60,7 +60,7 @@ gams::groups::GroupBase::get_prefix (void) const
 inline int gams::groups::find_member_index (
   const std::string & prefix, const AgentVector & members)
 {
-  int index = 0;
+  int index = -1;
 
   for (size_t i = 0; i < members.size (); ++i)
   {
