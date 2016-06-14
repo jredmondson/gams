@@ -75,6 +75,16 @@ namespace gams
       madara::knowledge::KnowledgeRecord::Integer> AgentMap;
 
     /**
+     * Finds the index of the member prefix in a member listing
+     * @param prefix   the prefix of the agent (e.g. "agent.0")
+     * @param members  the listing of all members in the group
+     * @return 0+ is the index of the prefix in the list. If member does
+     *            not exist in the member listing, then -1 is returned.
+     **/
+    int find_member_index (const std::string & prefix,
+      const AgentVector & members);
+
+    /**
     * Base class for a group of agents
     **/
     class GAMSExport GroupBase
