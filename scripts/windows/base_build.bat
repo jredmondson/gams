@@ -12,12 +12,16 @@ SET gams=0
 SET madara=0
 SET tests=0
 SET tutorials=0
+SET docs=0
 
 FOR %%x in (%*) do (
    
    IF "%%x" == "ace" (
      echo Build will enable ACE
      SET ace=1
+   ) ELSE IF "%%x" == "docs" (
+     echo Build will enable doxygen documentation
+     SET docs=1
    ) ELSE IF "%%x" == "gams" (
      echo Build will enable GAMS
      SET gams=1
@@ -46,6 +50,7 @@ FOR %%x in (%*) do (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of 
      echo     ace         Build ACE
+     echo     docs        Enable doxygen documentation generation
      echo     gams        Build GAMS
      echo     java        Enable Java support
      echo     madara      Build MADARA
@@ -60,6 +65,7 @@ FOR %%x in (%*) do (
 
 echo Building options are:
 echo   ace=%ace%
+echo   docs=%docs%
 echo   gams=%gams%
 echo   madara=%madara%
 echo   tests=%tests%
@@ -78,9 +84,9 @@ IF %ace% EQU 1 (
 )
 IF %madara% EQU 1 (
   echo.
-  echo Generating MADARA project with java=%java%, tests=%tests% and tutorials=%tutorials%
+  echo Generating MADARA project with docs=%docs%, java=%java%, tests=%tests% and tutorials=%tutorials%
   cd "%MADARA_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features tests=%tests%,tutorials=%tutorials%,java=%java% MADARA.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features tests=%tests%,tutorials=%tutorials%,java=%java%,docs=%docs% MADARA.mwc
   echo Building MADARA library for Debug target with tests=%tests%
   msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:Madara
   echo Building MADARA for Release target with tests=%tests%
@@ -89,9 +95,9 @@ IF %madara% EQU 1 (
 
 IF %gams% EQU 1 (
   echo.
-  echo Generating GAMS project with java=%java%, tests=%tests% and vrep=%vrep%
+  echo Generating GAMS project with docs=%docs%, java=%java%, tests=%tests% and vrep=%vrep%
   cd "%GAMS_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features vrep=%vrep%,tests=%tests%,java=%java% gams.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features docs=%docs%,vrep=%vrep%,tests=%tests%,java=%java% gams.mwc
   echo Building GAMS library for Debug target with tests=%tests% and vrep=%vrep%
   msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:gams
   echo Building GAMS for Release target with tests=%tests% and vrep=%vrep%

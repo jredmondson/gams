@@ -1,15 +1,15 @@
-MADARA HELP DOCUMENTATION INFORMATION
+GAMS HELP DOCUMENTATION INFORMATION
 
 0. INTRODUCTION
 
-  VERSION: 0.4.4
+  VERSION: 1.0.0
   CONTACT: James Edmondson <jedmondson@gmail.com>
-  WEBSITE: http://gams-cmu.googlecode.com
+  WEBSITE: http://jredmondson.github.io/gams/
 
   This file provides general overviews about the help documentation in this
   directory and where to find additional help documentation where applicable.
   The other files in this directory are input for the Doxygen program to 
-  generate the latest documentation for all of the MADARA tools.
+  generate the latest documentation for all of the GAMS tools.
 
 1. OBTAINING PREREQUISITES
 
@@ -37,6 +37,8 @@ MADARA HELP DOCUMENTATION INFORMATION
   
   cd $GAMS_ROOT
   mwc.pl -type gnuace -features docs=1 gams.mwc
+
+  Can also use the base_build.bat|sh system with gams and docs options enabled
 
 3 COMMITTING DEVELOPER DOCUMENTATION
 
