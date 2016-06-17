@@ -83,6 +83,7 @@ ACE=0
 MADARA=0
 GAMS=0
 PREREQS=0
+DOCS=0
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_3_0_64_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -99,6 +100,8 @@ for var in "$@"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
+  elif [ "$var" = "docs" ]; then
+    DOCS=1
   elif [ "$var" = "prereqs" ]; then
     PREREQS=1
   elif [ "$var" = "vrep" ]; then
@@ -127,6 +130,7 @@ do
     echo "  args can be zero or more of the following, space delimited"
     echo "  ace             build ACE"
     echo "  android         build android libs, turns on java"
+    echo "  docs            generate API documentation"
     echo "  gams            build GAMS"
     echo "  java            build java jar"
     echo "  madara          build MADARA"
@@ -204,6 +208,10 @@ if [ $ANDROID -eq 1 ]; then
   echo "CROSS_COMPILE is set to $LOCAL_CROSS_PREFIX"
 fi
 
+if [ $DOCS -eq 1 ]; then
+  echo "DOCS is set to $DOCS"
+fi
+
 echo ""
 
 if [ $PREREQS -eq 1 ]; then
@@ -272,7 +280,7 @@ if [ $MADARA -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS MADARA.mwc
+  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -282,7 +290,7 @@ if [ $MADARA -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  make android=$ANDROID java=$JAVA tests=$TESTS -j $CORES
+  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS -j $CORES
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING MADARA"
@@ -356,7 +364,7 @@ if [ $GAMS -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID gams.mwc
+  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS gams.mwc
 
   if [ $JAVA -eq 1 ]; then
     # sometimes the jar'ing will occur before all classes are actually built when performing
@@ -365,7 +373,7 @@ if [ $GAMS -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID -j $CORES
+  make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING GAMS"
