@@ -68,7 +68,7 @@ namespace gams
   namespace auctions
   {
     /**
-    * An auction where the winner is the highest bidder
+    * An auction where the winner is the lowest bidder
     **/
     class GAMSExport AuctionMinimumBid : public AuctionBase
     {
