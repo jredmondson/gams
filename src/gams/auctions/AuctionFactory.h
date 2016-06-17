@@ -83,13 +83,14 @@ namespace gams
 
       /**
       * Creates a auction
-      * @param  prefix       the name of the auction (e.g. auction.protectors)
-      * @param  knowledge    the knowledge base of variables and values
+      * @param auction_prefix the name of the auction (e.g. auction.position)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
       * @return  the new auction
       **/
-      virtual AuctionBase * create (
-        const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge) = 0;
+      virtual AuctionBase * create (const std::string & auction_prefix,
+        const std::string & agent_prefix,
+        madara::knowledge::KnowledgeBase * knowledge ) = 0;
 
       /**
       * Sets the knowledge base
@@ -97,7 +98,18 @@ namespace gams
       **/
       void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
 
+      /**
+      * Sets the prefix for the current bidding agent
+      * @param prefix   the name of the agent (e.g. agent.0)
+      **/
+      void set_agent_prefix (const std::string & prefix);
+
     protected:
+
+      /**
+      * self prefix of the agent
+      **/
+      std::string agent_prefix_;
 
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;

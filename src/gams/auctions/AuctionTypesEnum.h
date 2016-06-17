@@ -44,86 +44,42 @@
 *      distribution.
 **/
 
-#include "AuctionBase.h"
-#include <sstream>
+/**
+* @file AuctionTypesEnum.h
+* @author James Edmondson <jedmondson@gmail.com>
+*
+* This file contains the known auction types
+**/
 
-gams::auctions::AuctionBase::AuctionBase (const std::string & auction_prefix,
-  const std::string & agent_prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
-  : knowledge_ (knowledge),
-    auction_prefix_ (auction_prefix),
-    agent_prefix_ (agent_prefix),
-    round_ (0)
+#ifndef   _GAMS_AUCTIONS_AUCTION_TYPES_ENUM_H_
+#define   _GAMS_AUCTIONS_AUCTION_TYPES_ENUM_H_
+
+#include <vector>
+#include <string>
+#include <map>
+
+#include "madara/knowledge/KnowledgeBase.h"
+
+#include "gams/GAMSExport.h"
+
+namespace gams
 {
-  reset_bids_pointer ();
-}
-
-gams::auctions::AuctionBase::~AuctionBase ()
-{
-}
-
-void
-gams::auctions::AuctionBase::add_group (groups::GroupBase * group)
-{
-  groups::AgentVector members;
-  group->get_members (members);
-
-  for (groups::AgentVector::iterator i = members.begin ();
-    i != members.end (); ++i)
+  namespace auctions
   {
-    bids_.set (*i, 0.0);
+    /**
+     * Known group types
+     **/
+    enum AuctionTypes
+    {
+      // fixed list is default
+      AUCTION_MAXIMUM_BID = 0,
+      AUCTION_MINIMUM_BID = 1,
+      NUM_AUCTION_TYPES = 2
+    };
+
+    /// convenience typedef for AuctionType
+    typedef madara::knowledge::KnowledgeRecord::Integer  AuctionType;
   }
 }
 
-bool
-gams::auctions::AuctionBase::is_member (const std::string & agent_prefix)
-{
-  return bids_.exists (agent_prefix);
-}
-
-madara::knowledge::KnowledgeRecord
-gams::auctions::AuctionBase::get_bid (
-  const std::string & id)
-{
-  return bids_[id];
-}
-
-void
-gams::auctions::AuctionBase::set_auction_prefix (const std::string & prefix)
-{
-  auction_prefix_ = prefix;
-  reset_bids_pointer ();
-}
-
-void
-gams::auctions::AuctionBase::set_knowledge_base (
-  madara::knowledge::KnowledgeBase * knowledge)
-{
-  knowledge_ = knowledge;
-  reset_bids_pointer ();
-}
-
-void
-gams::auctions::AuctionBase::sync (void)
-{
-  bids_.sync_keys ();
-}
-
-void
-gams::auctions::AuctionBase::bid (std::string agent,
-  const madara::knowledge::KnowledgeRecord & amount)
-{
-  bids_.set (agent, amount.to_double ());
-}
-
-void gams::auctions::AuctionBase::advance_round (void)
-{
-  ++round_;
-  reset_bids_pointer ();
-}
-
-void gams::auctions::AuctionBase::reset_round (void)
-{
-  round_ = 0;
-  reset_bids_pointer ();
-}
+#endif // _GAMS_AUCTIONS_AUCTION_TYPES_ENUM_H_

@@ -63,228 +63,87 @@ gams::auctions::AuctionMinimumBidFactory::~AuctionMinimumBidFactory ()
 
 gams::auctions::AuctionBase *
 gams::auctions::AuctionMinimumBidFactory::create (
-  const std::string & prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBidFactory:" \
-    " creating auction from %s\n", prefix.c_str ());
-
-  return new AuctionMinimumBid (prefix, knowledge);
-}
-
-
-gams::auctions::AuctionMinimumBid::AuctionMinimumBid (const std::string & prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
-  : AuctionBase (prefix, knowledge)
-{
-  if (knowledge && prefix != "")
-  {
-    members_.set_name (prefix + ".members", *knowledge);
-    sync ();
-  }
-}
-
-gams::auctions::AuctionMinimumBid::~AuctionMinimumBid ()
-{
-}
-
-void
-gams::auctions::AuctionMinimumBid::add_members (const AgentVector & members)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:add_members" \
-    " adding %d members\n", (int)members.size ());
-
-  // add the members to the fast list
-  fast_members_.insert (
-    fast_members_.end (), members.begin (), members.end ());
-
-  // add the members to the underlying knowledge base
-  for (size_t i = 0; i < members.size (); ++i)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::auctions::AuctionMinimumBid:add_members" \
-      " adding member %s to %s\n", members[i].c_str (), prefix_.c_str ());
-
-    members_.push_back (members[i]);
-  }
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MINOR,
-    "gams::auctions::AuctionMinimumBid:add_members" \
-    " resulting member list has %d members\n", (int)fast_members_.size ());
-}
-
-void
-gams::auctions::AuctionMinimumBid::clear_members (void)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:clear_members" \
-    " clearing all %d members\n", (int)fast_members_.size ());
-
-  fast_members_.clear ();
-  members_.resize (0);
-}
-
-void
-gams::auctions::AuctionMinimumBid::get_members (AgentVector & members) const
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:get_members" \
-    " retrieving member list (%d members)\n", (int)fast_members_.size ());
-
-  members.clear ();
-
-  members = fast_members_;
-}
-
-bool
-gams::auctions::AuctionMinimumBid::is_member (const std::string & id) const
-{
-  AgentVector::const_iterator found =
-    std::find (fast_members_.begin (), fast_members_.end (), id);
-
-  return found != fast_members_.end ();
-}
-
-void
-gams::auctions::AuctionMinimumBid::set_prefix (const std::string & prefix,
+const std::string & auction_prefix,
+const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:set_prefix" \
-    " setting prefix to %s\n", prefix.c_str ());
+    "gams::auctions::AuctionMinimumBidFactory:" \
+    " creating auction from %s\n", auction_prefix.c_str ());
 
-  AuctionBase::set_prefix (prefix, knowledge);
-
-  if (knowledge && prefix != "")
-  {
-    members_.set_name (prefix + ".members", *knowledge);
-    sync ();
-  }
+  return new AuctionMinimumBid (auction_prefix, agent_prefix, knowledge);
 }
 
-size_t
-gams::auctions::AuctionMinimumBid::size (void)
+gams::auctions::AuctionMinimumBid::AuctionMinimumBid (
+  const std::string & auction_prefix,
+  const std::string & agent_prefix,
+  madara::knowledge::KnowledgeBase * knowledge)
+  : AuctionBase (auction_prefix, agent_prefix, knowledge)
 {
-  return fast_members_.size ();
 }
 
-void
-gams::auctions::AuctionMinimumBid::sync (void)
+/**
+* Constructor
+**/
+gams::auctions::AuctionMinimumBid::~AuctionMinimumBid ()
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:sync" \
-    " syncing with %s source\n", prefix_.c_str ());
 
-  members_.resize ();
-
-  // check our size information
-  size_t old_size = fast_members_.size ();
-  size_t new_size = members_.size ();
-
-  // if new size is not the same, resize fast_members
-  if (old_size != new_size)
-  {
-    fast_members_.resize (new_size);
-  }
-
-  // iterate over the new members and update if necessary
-  for (size_t i = 0; i < new_size; ++i)
-  {
-    /**
-     * we optimize for the expected situation that any resize
-     * will be growing the list and leaving earlier elements the same.
-     * A string check is much faster than a string mutate.
-     **/
-    if (fast_members_[i] != members_[i])
-    {
-      fast_members_[i] = members_[i];
-    }
-  }
 }
 
-void
-gams::auctions::AuctionMinimumBid::write (const std::string & prefix,
-madara::knowledge::KnowledgeBase * knowledge) const
+std::string
+gams::auctions::AuctionMinimumBid::get_leader (void)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:write" \
-    " performing initialization checks\n");
+    "gams::auctions::AuctionMinimumBid:" \
+    " getting leader from %s\n", auction_prefix_.c_str ());
 
-  std::string location;
-  bool is_done (false);
+  std::string leader;
 
-  // set location in knowledge base to write to
-  if (prefix == "")
+  if (knowledge_)
   {
-    if (prefix_ != "")
-    {
-      location = prefix_;
-    }
-    else
-    {
-      is_done = true;
-    }
-  }
-  else
-  {
-    location = prefix;
-  }
+    madara::knowledge::ContextGuard guard (*knowledge_);
 
-  // set knowledge base to write to
-  if (!is_done && !knowledge)
-  {
-    if (knowledge_)
-    {
-      knowledge = knowledge_;
-    }
-    else
-    {
-      is_done = true;
-    }
-  }
+    std::vector <std::string> keys;
+    bids_.keys (keys);
 
-  // if we have a valid location and knowledge base, continue
-  if (!is_done)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::auctions::AuctionMinimumBid:write" \
-      " writing auction information to %s\n", location.c_str ());
+    double leader_bid = -1;
 
-    // create members and type. Note we set type to 1.
-    containers::StringVector members (location + ".members", *knowledge);
-    containers::Integer type (location + ".type", *knowledge, 0);
+    if (keys.size () > 0)
+    {
+      leader_bid = bids_[keys[0]].to_double ();
+    }
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::auctions::AuctionMinimumBid:write" \
-      " writing %d members to %s.members\n",
-      (int)fast_members_.size (), location.c_str ());
+      gams::loggers::LOG_MINOR,
+      "gams::auctions::AuctionMinimumBid:" \
+      " iterating through bids from %s\n",
+      auction_prefix_.c_str ());
 
-    members.resize ((int)fast_members_.size ());
-
-    // iterate through the fast members list and set members at location
-    for (size_t i = 0; i < fast_members_.size (); ++i)
+    for (size_t i = 0; i < keys.size (); ++i)
     {
-      members.set (i, fast_members_[i]);
+      double current_bid = bids_[keys[i]].to_double ();
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::auctions::AuctionMinimumBid:" \
+        " %s: bid from %s is %f\n",
+        auction_prefix_.c_str (), keys[i].c_str (), current_bid);
+
+      if (current_bid < leader_bid)
+      {
+        leader_bid = current_bid;
+        leader = keys[i];
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::auctions::AuctionMinimumBid:" \
+          " %s: %s is new leader of auction\n",
+          auction_prefix_.c_str (), keys[i].c_str ());
+      }
     }
   }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::auctions::AuctionMinimumBid:write" \
-      " no valid prefix to write to. No work to do.\n");
-  }
+
+  return leader;
 }
