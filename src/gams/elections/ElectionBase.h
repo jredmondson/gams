@@ -69,8 +69,12 @@ namespace gams
 {
   namespace elections
   {
-    /// convenience typedef for list of candidates
+    /// list of candidates
     typedef  std::vector<std::string> CandidateList;
+
+    /// candidate vote tally
+    typedef std::map <std::string,
+      madara::knowledge::KnowledgeRecord::Integer> CandidateVotes;
 
     /**
     * Base class for an election
@@ -94,12 +98,6 @@ namespace gams
       virtual ~ElectionBase ();
 
       /**
-      * Adds a group of voters
-      * @param  group  a group of bidders joining the election
-      **/
-      virtual void add_voters (groups::GroupBase * group);
-
-      /**
       * Checks if the agent has voted in this round
       * @param  agent_prefix  the participating agent's prefix (e.g. agent.0)
       * @return  true if the agent is a member of the election
@@ -107,12 +105,18 @@ namespace gams
       virtual bool has_voted (const std::string & agent_prefix);
 
       /**
-      * Checks if the agent is a  member of the action participants
-      * @param  voter  the agent id (e.g. agent.0 or agent.leader). If null,
-      *                uses the current agent's id
-      * @return the Candidates that the voter 
+      * Gets the votes cast in the election
+      * @param  results  the results of the vote
       **/
-      virtual CandidateList get_votes (const std::string & voter);
+      virtual void get_votes (CandidateVotes & results);
+
+      /**
+      * Gets the votes cast in the election by a specific group of agents
+      * @param  group    the group that is of interest
+      * @param  results  the results of the vote
+      **/
+      virtual void get_votes (
+        groups::GroupBase * group, CandidateVotes & results);
 
       /**
       * Sets the prefix for the current bidding agent

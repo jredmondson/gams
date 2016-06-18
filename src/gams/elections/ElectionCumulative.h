@@ -45,41 +45,93 @@
 **/
 
 /**
-* @file ElectionTypesEnum.h
+* @file ElectionCumulative.h
 * @author James Edmondson <jedmondson@gmail.com>
 *
-* This file contains the known election types
+* This file contains the definition of the minimum bid election
 **/
 
-#ifndef   _GAMS_ELECTIONS_ELECTION_TYPES_ENUM_H_
-#define   _GAMS_ELECTIONS_ELECTION_TYPES_ENUM_H_
+#ifndef   _GAMS_ELECTIONS_CUMULATIVE_ELECTION_H_
+#define   _GAMS_ELECTIONS_CUMULATIVE_ELECTION_H_
 
 #include <vector>
 #include <string>
 #include <map>
 
-#include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/containers/StringVector.h"
 
-#include "gams/GAMSExport.h"
+#include "ElectionBase.h"
+#include "ElectionFactory.h"
 
 namespace gams
 {
   namespace elections
   {
     /**
-     * Known group types
-     **/
-    enum ElectionTypes
+    * An election that implements cumulative voting. Allows multiple
+    * votes from each voter.
+    **/
+    class GAMSExport ElectionCumulative : public ElectionBase
     {
-      // fixed list is default
-      ELECTION_PLURALITY = 0,
-      ELECTION_CUMULATIVE = 1,
-      NUM_ELECTION_TYPES = 2
+    public:
+      /**
+      * Constructor.
+      * @param election_prefix the name of the election (e.g. election.leader)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
+      **/
+      ElectionCumulative (const std::string & election_prefix = "",
+        const std::string & agent_prefix = "",
+        madara::knowledge::KnowledgeBase * knowledge = 0);
+
+      /**
+      * Constructor
+      **/
+      virtual ~ElectionCumulative ();
+
+      /**
+      * Returns the leaders of the election in order of popularity
+      * or whatever conditions constitute winning the election
+      * @param  num_leaders maximum leaders to return
+      * @return the leaders of the election up to num_leaders
+      **/
+      virtual CandidateList get_leaders (int num_leaders = 1);
+
+      /**
+       * Returns the leader of the voting
+       **/
+      std::string get_leader (void);
     };
 
-    /// convenience typedef for ElectionType
-    typedef madara::knowledge::KnowledgeRecord::Integer  ElectionType;
+    /**
+    * Factory for creating plurality elections
+    **/
+    class GAMSExport ElectionCumulativeFactory : public ElectionFactory
+    {
+    public:
+
+      /**
+      * Constructor
+      **/
+      ElectionCumulativeFactory ();
+
+      /**
+      * Destructor
+      **/
+      virtual ~ElectionCumulativeFactory ();
+
+      /**
+      * Creates a plurality election
+      * @param election_prefix the name of the election (e.g. election.leader)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
+      * @return  the new group
+      **/
+      virtual ElectionBase * create (const std::string & election_prefix = "",
+        const std::string & agent_prefix = "",
+        madara::knowledge::KnowledgeBase * knowledge = 0);
+    };
   }
 }
 
-#endif // _GAMS_ELECTIONS_ELECTION_TYPES_ENUM_H_
+#endif // _GAMS_ELECTIONS_CUMULATIVE_ELECTION_H_

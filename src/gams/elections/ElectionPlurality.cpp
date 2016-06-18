@@ -53,6 +53,8 @@
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
+typedef  knowledge::KnowledgeRecord  KnowledgeRecord;
+
 gams::elections::ElectionPluralityFactory::ElectionPluralityFactory ()
 {
 }
@@ -103,10 +105,54 @@ gams::elections::ElectionPlurality::get_leaders (int num_leaders)
 
   if (knowledge_)
   {
-    madara::knowledge::ContextGuard guard (*knowledge_);
+    knowledge::ContextGuard guard (*knowledge_);
 
-    std::vector <std::string> keys;
-    votes_.keys (keys);
+    // create a list of votes for quick reference
+    knowledge::VariableReferences votes;
+    knowledge_->get_matches (votes_.get_name (), "", votes);
+
+    typedef std::map <KnowledgeRecord::Integer, CandidateList> Leaderboard;
+
+    CandidateVotes candidates;
+    Leaderboard leaderboard;
+    std::string last_voter;
+
+    // tally the votes
+    for (knowledge::VariableReferences::const_iterator i = votes.begin ();
+      i != votes.end (); ++i)
+    {
+      std::string ballot_string = i->get_name ();
+      std::string::size_type delimiter_pos = ballot_string.find ("->");
+
+      if (delimiter_pos != std::string::npos)
+      {
+        std::string candidate = ballot_string.substr (delimiter_pos + 2);
+        std::string voter = ballot_string.substr (
+          votes_.get_name ().size () + 1, delimiter_pos);
+
+        // plurality votes only allow one vote per voter
+        if (voter != last_voter)
+        {
+          candidates[candidate] += 1;
+          last_voter = voter;
+        }
+      }
+    }
+
+    // construct the leaderboard
+    for (CandidateVotes::iterator i = candidates.begin ();
+      i != candidates.end (); ++i)
+    {
+      leaderboard[i->second].push_back (i->first);
+    }
+
+    // leaderboard is in ascending order, so grab from the back
+    for (Leaderboard::reverse_iterator i = leaderboard.rbegin ();
+      i != leaderboard.rend () && (int) leaders.size () < num_leaders; ++i)
+    {
+      // if it is a tie, we could provide more than num_leaders
+      leaders.insert (leaders.end (), i->second.begin (), i->second.end ());
+    }
   }
 
   return leaders;

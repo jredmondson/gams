@@ -47,8 +47,9 @@
 #include "ElectionBase.h"
 #include <sstream>
 
-// create shortcut to refer to KnowledgeRecord
-typedef   madara::knowledge::KnowledgeRecord  KnowledgeRecord;
+// create shortcuts
+namespace  knowledge = madara::knowledge;
+typedef    knowledge::KnowledgeRecord  KnowledgeRecord;
 
 gams::elections::ElectionBase::ElectionBase (
   const std::string & election_prefix,
@@ -66,30 +67,88 @@ gams::elections::ElectionBase::~ElectionBase ()
 {
 }
 
-void
-gams::elections::ElectionBase::add_voters (groups::GroupBase * group)
-{
-  groups::AgentVector members;
-  group->get_members (members);
-
-  for (groups::AgentVector::iterator i = members.begin ();
-    i != members.end (); ++i)
-  {
-    votes_.set (*i, "");
-  }
-}
-
 bool
 gams::elections::ElectionBase::has_voted (const std::string & agent_prefix)
 {
-  return votes_.has_prefix (agent_prefix);
+  bool result (false);
+
+  if (knowledge_)
+  {
+    knowledge::ContextGuard guard (*knowledge_);
+
+    // create a list of votes for quick reference
+    knowledge::VariableReferences votes;
+    knowledge_->get_matches (
+      votes_.get_name () + "." + agent_prefix + "->", "", votes);
+
+    result = votes.size () != 0;
+  }
+
+  return result;
 }
 
-gams::elections::CandidateList
-gams::elections::ElectionBase::get_votes (
-const std::string & id)
+void
+gams::elections::ElectionBase::get_votes (CandidateVotes & results)
 {
-  return CandidateList ();
+  results.clear ();
+
+  if (knowledge_ && election_prefix_ != "")
+  {
+    // create a list of votes for quick reference
+    knowledge::VariableReferences votes;
+    knowledge_->get_matches (votes_.get_name (), "", votes);
+
+    // tally the votes
+    for (knowledge::VariableReferences::const_iterator i = votes.begin ();
+      i != votes.end (); ++i)
+    {
+      std::string ballot_string = i->get_name ();
+      std::string::size_type delimiter_pos = ballot_string.find ("->");
+
+      if (delimiter_pos != std::string::npos)
+      {
+        std::string candidate = ballot_string.substr (delimiter_pos + 2);
+
+        // add the votes to the results
+        results[candidate] += knowledge_->get (*i).to_integer ();
+      }
+    }
+  }
+}
+
+void
+gams::elections::ElectionBase::get_votes (
+  groups::GroupBase * group, CandidateVotes & results)
+{
+  results.clear ();
+
+  if (knowledge_ && election_prefix_ != "")
+  {
+    // create a list of votes for quick reference
+    knowledge::VariableReferences votes;
+    knowledge_->get_matches (votes_.get_name (), "", votes);
+
+    // tally the votes
+    for (knowledge::VariableReferences::const_iterator i = votes.begin ();
+      i != votes.end (); ++i)
+    {
+      std::string ballot_string = i->get_name ();
+      std::string::size_type delimiter_pos = ballot_string.find ("->");
+
+      if (delimiter_pos != std::string::npos)
+      {
+        std::string candidate = ballot_string.substr (delimiter_pos + 2);
+        std::string voter = ballot_string.substr (
+          votes_.get_name ().size () + 1, delimiter_pos);
+
+        if (group->is_member (voter))
+        {
+          // add the votes to the results
+          results[candidate] += knowledge_->get (*i).to_integer ();
+        }
+      }
+    }
+  }
 }
 
 void

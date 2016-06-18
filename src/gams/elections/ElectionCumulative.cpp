@@ -46,112 +46,108 @@
 
 #include <algorithm>
 
-#include "AuctionMinimumBid.h"
+#include "ElectionCumulative.h"
 #include "gams/loggers/GlobalLogger.h"
 #include "madara/knowledge/containers/Integer.h"
 
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
-gams::auctions::AuctionMinimumBidFactory::AuctionMinimumBidFactory ()
+typedef  knowledge::KnowledgeRecord  KnowledgeRecord;
+
+gams::elections::ElectionCumulativeFactory::ElectionCumulativeFactory ()
 {
 }
 
-gams::auctions::AuctionMinimumBidFactory::~AuctionMinimumBidFactory ()
+gams::elections::ElectionCumulativeFactory::~ElectionCumulativeFactory ()
 {
 }
 
-gams::auctions::AuctionBase *
-gams::auctions::AuctionMinimumBidFactory::create (
-const std::string & auction_prefix,
+gams::elections::ElectionBase *
+gams::elections::ElectionCumulativeFactory::create (
+const std::string & election_prefix,
 const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBidFactory::create:" \
-    " creating auction from %s\n", auction_prefix.c_str ());
+    "gams::elections::ElectionCumulativeFactory:" \
+    " creating election from %s\n", election_prefix.c_str ());
 
-  return new AuctionMinimumBid (auction_prefix, agent_prefix, knowledge);
+  return new ElectionCumulative (election_prefix, agent_prefix, knowledge);
 }
 
-gams::auctions::AuctionMinimumBid::AuctionMinimumBid (
-  const std::string & auction_prefix,
+gams::elections::ElectionCumulative::ElectionCumulative (
+  const std::string & election_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : AuctionBase (auction_prefix, agent_prefix, knowledge)
+  : ElectionBase (election_prefix, agent_prefix, knowledge)
 {
 }
 
 /**
 * Constructor
 **/
-gams::auctions::AuctionMinimumBid::~AuctionMinimumBid ()
+gams::elections::ElectionCumulative::~ElectionCumulative ()
 {
 
 }
 
-std::string
-gams::auctions::AuctionMinimumBid::get_leader (void)
+gams::elections::CandidateList
+gams::elections::ElectionCumulative::get_leaders (int num_leaders)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid::get_leader:" \
-    " getting leader from %s\n", auction_prefix_.c_str ());
+    "gams::elections::ElectionCumulative:get_leaders" \
+    " getting leaders from %s\n", election_prefix_.c_str ());
 
-  std::string leader;
+  CandidateList leaders;
 
   if (knowledge_)
   {
-    madara::knowledge::ContextGuard guard (*knowledge_);
+    knowledge::ContextGuard guard (*knowledge_);
 
-    madara::knowledge::VariableReferences bids;
-    knowledge_->get_matches (auction_prefix_, "", bids);
+    typedef std::map <KnowledgeRecord::Integer, CandidateList> Leaderboard;
 
-    double leader_bid = -1;
+    CandidateVotes candidates;
+    Leaderboard leaderboard;
 
-    if (bids.size () > 0)
+    get_votes (candidates);
+
+    // construct the leaderboard
+    for (CandidateVotes::iterator i = candidates.begin ();
+      i != candidates.end (); ++i)
     {
-      leader_bid = knowledge_->get (bids[0]).to_double ();
-      leader = bids[0].get_name ();
+      leaderboard[i->second].push_back (i->first);
     }
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::auctions::AuctionMinimumBid::get_leader:" \
-      " iterating through bids from %s\n",
-      auction_prefix_.c_str ());
-
-    for (size_t i = 1; i < bids.size (); ++i)
+    // leaderboard is in ascending order, so grab from the back
+    for (Leaderboard::reverse_iterator i = leaderboard.rbegin ();
+      i != leaderboard.rend () && (int) leaders.size () < num_leaders; ++i)
     {
-      double current_bid = knowledge_->get (bids[i]).to_double ();
-
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_DETAILED,
-        "gams::auctions::AuctionMinimumBid::get_leader:" \
-        " %s: bid from %s is %f\n",
-        auction_prefix_.c_str (), bids[i].get_name (), current_bid);
-
-      if (current_bid < leader_bid)
-      {
-        leader_bid = current_bid;
-        leader = bids[i].get_name ();
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_MINOR,
-          "gams::auctions::AuctionMinimumBid::get_leader:" \
-          " %s: %s is new leader of auction\n",
-          auction_prefix_.c_str (), bids[i].get_name ());
-      }
+      // if it is a tie, we could provide more than num_leaders
+      leaders.insert (leaders.end (), i->second.begin (), i->second.end ());
     }
   }
 
-  leader = leader.substr (bids_.get_name ().size () + 1);
+  return leaders;
+}
 
+std::string
+gams::elections::ElectionCumulative::get_leader (void)
+{
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid::get_leader:" \
-    " final leader is %s\n", leader.c_str ());
+    "gams::elections::ElectionCumulative:get_leader" \
+    " getting leader from %s\n", election_prefix_.c_str ());
+
+  std::string leader;
+  CandidateList leaders = get_leaders ();
+
+  if (leaders.size () > 0)
+  {
+    leader = leaders[0];
+  }
 
   return leader;
 }

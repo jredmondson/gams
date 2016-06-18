@@ -121,9 +121,9 @@ project (test_auctions) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_voting) : using_gams, using_madara, using_ace {
+project (test_elections) : using_gams, using_madara, using_ace {
   exeout = $(GAMS_ROOT)/bin
-  exename = test_voting
+  exename = test_elections
 
   macros +=  _USE_MATH_DEFINES
 
@@ -141,7 +141,7 @@ project (test_voting) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    tests/test_voting.cpp
+    tests/test_elections.cpp
   }
 }
 

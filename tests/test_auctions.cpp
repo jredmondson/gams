@@ -126,7 +126,9 @@ void test_minimum_auction (void)
       loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
   }
 
-  if (auction.get_leader () == "agent.2")
+  std::string leader = auction.get_leader ();
+
+  if (leader == "agent.2")
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == agent.2: SUCCESS\n");
@@ -134,7 +136,8 @@ void test_minimum_auction (void)
   else
   {
     loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == agent.2: FAIL\n");
+      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
+      leader.c_str ());
   }
 }
 
@@ -202,7 +205,9 @@ void test_maximum_auction (void)
       loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
   }
 
-  if (auction.get_leader () == "agent.3")
+  std::string leader = auction.get_leader ();
+
+  if (leader == "agent.3")
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == agent.3: SUCCESS\n");
@@ -210,7 +215,8 @@ void test_maximum_auction (void)
   else
   {
     loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == agent.3: FAIL\n");
+      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
+      leader.c_str ());
   }
 }
 

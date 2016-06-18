@@ -105,10 +105,16 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
   {
     madara::knowledge::ContextGuard guard (*knowledge_);
 
-    std::vector <std::string> keys;
-    bids_.keys (keys);
+    madara::knowledge::VariableReferences bids;
+    knowledge_->get_matches (auction_prefix_, "", bids);
 
     double leader_bid = -1;
+
+    if (bids.size () > 0)
+    {
+      leader_bid = knowledge_->get (bids[0]).to_double ();
+      leader = bids[0].get_name ();
+    }
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
@@ -116,29 +122,36 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
       " iterating through bids from %s\n",
       auction_prefix_.c_str ());
 
-    for (size_t i = 0; i < keys.size (); ++i)
+    for (size_t i = 1; i < bids.size (); ++i)
     {
-      double current_bid = bids_[keys[i]].to_double ();
+      double current_bid = knowledge_->get (bids[i]).to_double ();
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
         "gams::auctions::AuctionMaximumBid::get_leader:" \
         " %s: bid from %s is %f\n",
-        auction_prefix_.c_str (), keys[i].c_str (), current_bid);
+        auction_prefix_.c_str (), bids[i].get_name (), current_bid);
 
       if (current_bid > leader_bid)
       {
         leader_bid = current_bid;
-        leader = keys[i];
+        leader = bids[i].get_name ();
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "gams::auctions::AuctionMaximumBid::get_leader:" \
           " %s: %s is new leader of auction\n",
-          auction_prefix_.c_str (), keys[i].c_str ());
+          auction_prefix_.c_str (), bids[i].get_name ());
       }
     }
   }
+
+  leader = leader.substr (bids_.get_name ().size () + 1);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::auctions::AuctionMaximumBid::get_leader:" \
+    " final leader is %s\n", leader.c_str ());
 
   return leader;
 }
