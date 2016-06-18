@@ -44,89 +44,41 @@
 *      distribution.
 **/
 
-#include <algorithm>
-
-#include "ElectionPlurality.h"
-#include "gams/loggers/GlobalLogger.h"
-#include "madara/knowledge/containers/Integer.h"
-
-namespace knowledge = madara::knowledge;
-namespace containers = knowledge::containers;
-
-gams::elections::ElectionPluralityFactory::ElectionPluralityFactory ()
-{
-}
-
-gams::elections::ElectionPluralityFactory::~ElectionPluralityFactory ()
-{
-}
-
-gams::elections::ElectionBase *
-gams::elections::ElectionPluralityFactory::create (
-const std::string & election_prefix,
-const std::string & agent_prefix,
-madara::knowledge::KnowledgeBase * knowledge)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPluralityFactory:" \
-    " creating election from %s\n", election_prefix.c_str ());
-
-  return new ElectionPlurality (election_prefix, agent_prefix, knowledge);
-}
-
-gams::elections::ElectionPlurality::ElectionPlurality (
-  const std::string & election_prefix,
-  const std::string & agent_prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
-  : ElectionBase (election_prefix, agent_prefix, knowledge)
-{
-}
-
 /**
-* Constructor
+* @file ElectionTypesEnum.h
+* @author James Edmondson <jedmondson@gmail.com>
+*
+* This file contains the known election types
 **/
-gams::elections::ElectionPlurality::~ElectionPlurality ()
+
+#ifndef   _GAMS_ELECTIONS_ELECTION_TYPES_ENUM_H_
+#define   _GAMS_ELECTIONS_ELECTION_TYPES_ENUM_H_
+
+#include <vector>
+#include <string>
+#include <map>
+
+#include "madara/knowledge/KnowledgeBase.h"
+
+#include "gams/GAMSExport.h"
+
+namespace gams
 {
-
-}
-
-gams::elections::CandidateList
-gams::elections::ElectionPlurality::get_leaders (int num_leaders)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:get_leaders" \
-    " getting leaders from %s\n", election_prefix_.c_str ());
-
-  CandidateList leaders;
-
-  if (knowledge_)
+  namespace elections
   {
-    madara::knowledge::ContextGuard guard (*knowledge_);
+    /**
+     * Known group types
+     **/
+    enum ElectionTypes
+    {
+      // fixed list is default
+      ELECTION_PLURALITY = 0,
+      NUM_ELECTION_TYPES = 1
+    };
 
-    std::vector <std::string> keys;
-    votes_.keys (keys);
+    /// convenience typedef for ElectionType
+    typedef madara::knowledge::KnowledgeRecord::Integer  ElectionType;
   }
-
-  return leaders;
 }
 
-std::string
-gams::elections::ElectionPlurality::get_leader (void)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:get_leader" \
-    " getting leader from %s\n", election_prefix_.c_str ());
-
-  std::string leader;
-  CandidateList leaders = get_leaders ();
-
-  if (leaders.size () > 0)
-  {
-    leader = leaders[0];
-  }
-
-  return leader;
-}
+#endif // _GAMS_ELECTIONS_ELECTION_TYPES_ENUM_H_

@@ -69,7 +69,7 @@ gams::auctions::AuctionMaximumBidFactory::create (
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMaximumBidFactory:" \
+    "gams::auctions::AuctionMaximumBidFactory::create:" \
     " creating auction from %s\n", auction_prefix.c_str ());
 
   return new AuctionMaximumBid (auction_prefix, agent_prefix, knowledge);
@@ -96,7 +96,7 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMaximumBid:" \
+    "gams::auctions::AuctionMaximumBid::get_leader:" \
     " getting leader from %s\n", auction_prefix_.c_str ());
 
   std::string leader;
@@ -112,7 +112,7 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
-      "gams::auctions::AuctionMaximumBid:" \
+      "gams::auctions::AuctionMaximumBid::get_leader:" \
       " iterating through bids from %s\n",
       auction_prefix_.c_str ());
 
@@ -122,7 +122,7 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
-        "gams::auctions::AuctionMaximumBid:" \
+        "gams::auctions::AuctionMaximumBid::get_leader:" \
         " %s: bid from %s is %f\n",
         auction_prefix_.c_str (), keys[i].c_str (), current_bid);
 
@@ -133,7 +133,7 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
-          "gams::auctions::AuctionMaximumBid:" \
+          "gams::auctions::AuctionMaximumBid::get_leader:" \
           " %s: %s is new leader of auction\n",
           auction_prefix_.c_str (), keys[i].c_str ());
       }

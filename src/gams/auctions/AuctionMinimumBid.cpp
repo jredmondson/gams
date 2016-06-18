@@ -69,7 +69,7 @@ madara::knowledge::KnowledgeBase * knowledge)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBidFactory:" \
+    "gams::auctions::AuctionMinimumBidFactory::create:" \
     " creating auction from %s\n", auction_prefix.c_str ());
 
   return new AuctionMinimumBid (auction_prefix, agent_prefix, knowledge);
@@ -96,7 +96,7 @@ gams::auctions::AuctionMinimumBid::get_leader (void)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::auctions::AuctionMinimumBid:" \
+    "gams::auctions::AuctionMinimumBid::get_leader:" \
     " getting leader from %s\n", auction_prefix_.c_str ());
 
   std::string leader;
@@ -117,7 +117,7 @@ gams::auctions::AuctionMinimumBid::get_leader (void)
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
-      "gams::auctions::AuctionMinimumBid:" \
+      "gams::auctions::AuctionMinimumBid::get_leader:" \
       " iterating through bids from %s\n",
       auction_prefix_.c_str ());
 
@@ -127,7 +127,7 @@ gams::auctions::AuctionMinimumBid::get_leader (void)
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
-        "gams::auctions::AuctionMinimumBid:" \
+        "gams::auctions::AuctionMinimumBid::get_leader:" \
         " %s: bid from %s is %f\n",
         auction_prefix_.c_str (), keys[i].c_str (), current_bid);
 
@@ -138,7 +138,7 @@ gams::auctions::AuctionMinimumBid::get_leader (void)
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
-          "gams::auctions::AuctionMinimumBid:" \
+          "gams::auctions::AuctionMinimumBid::get_leader:" \
           " %s: %s is new leader of auction\n",
           auction_prefix_.c_str (), keys[i].c_str ());
       }

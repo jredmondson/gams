@@ -92,7 +92,7 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param name   the name of the group (e.g. group.protectors)
+       * @param prefix    the name of the group (e.g. group.protectors)
        * @param knowledge the knowledge base to use for syncing
        **/
       GroupBase (const std::string & prefix = "",

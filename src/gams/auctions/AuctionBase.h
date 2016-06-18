@@ -172,7 +172,7 @@ namespace gams
       *         as parseable strings though that might be a constraint
       *         or a structured bid.
       **/
-      virtual void bid (std::string agent,
+      virtual void bid (const std::string & agent,
         const madara::knowledge::KnowledgeRecord & amount);
 
       /**
@@ -184,7 +184,6 @@ namespace gams
       /**
       * Proceeds to the next auction round in a multi-round
       * auction
-      * @return the agent prefix of the leader of the auction
       **/
       virtual void advance_round (void);
 

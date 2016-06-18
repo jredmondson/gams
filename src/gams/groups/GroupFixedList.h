@@ -77,7 +77,7 @@ namespace gams
        * Constructor. Note that if you do not specify prefix and
        * knowledge base, then you are essentially just working with
        * a local group with no connection to other agents.
-       * @param name   the name of the group (e.g. group.protectors)
+       * @param prefix    the name of the group (e.g. group.protectors)
        * @param knowledge the knowledge base to use for syncing
        **/
       GroupFixedList (const std::string & prefix = "",

@@ -45,11 +45,20 @@
 **/
 
 #include "ElectionBase.h"
+#include <sstream>
 
-gams::elections::ElectionBase::ElectionBase (const std::string & prefix,
+// create shortcut to refer to KnowledgeRecord
+typedef   madara::knowledge::KnowledgeRecord  KnowledgeRecord;
+
+gams::elections::ElectionBase::ElectionBase (const std::string & election_prefix,
+  const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : knowledge_ (knowledge), prefix_ (prefix)
+  : knowledge_ (knowledge),
+  election_prefix_ (election_prefix),
+  agent_prefix_ (agent_prefix),
+  round_ (0)
 {
+  reset_votes_pointer ();
 }
 
 gams::elections::ElectionBase::~ElectionBase ()
@@ -57,9 +66,71 @@ gams::elections::ElectionBase::~ElectionBase ()
 }
 
 void
-gams::elections::ElectionBase::set_prefix (const std::string & prefix,
+gams::elections::ElectionBase::add_voters (groups::GroupBase * group)
+{
+  groups::AgentVector members;
+  group->get_members (members);
+
+  for (groups::AgentVector::iterator i = members.begin ();
+    i != members.end (); ++i)
+  {
+    votes_.set (*i, "");
+  }
+}
+
+bool
+gams::elections::ElectionBase::has_voted (const std::string & agent_prefix)
+{
+  return votes_.has_prefix (agent_prefix);
+}
+
+gams::elections::CandidateList
+gams::elections::ElectionBase::get_votes (
+const std::string & id)
+{
+  return CandidateList ();
+}
+
+void
+gams::elections::ElectionBase::set_election_prefix (const std::string & prefix)
+{
+  election_prefix_ = prefix;
+  reset_votes_pointer ();
+}
+
+void
+gams::elections::ElectionBase::set_knowledge_base (
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
-  prefix_ = prefix;
+  reset_votes_pointer ();
+}
+
+void
+gams::elections::ElectionBase::sync (void)
+{
+  votes_.sync_keys ();
+}
+
+void
+gams::elections::ElectionBase::vote (const std::string & agent,
+const std::string & candidate, int votes)
+{
+  std::stringstream buffer;
+  buffer << agent;
+  buffer << "->";
+  buffer << candidate;
+  votes_.set (buffer.str (), KnowledgeRecord::Integer (votes));
+}
+
+void gams::elections::ElectionBase::advance_round (void)
+{
+  ++round_;
+  reset_votes_pointer ();
+}
+
+void gams::elections::ElectionBase::reset_round (void)
+{
+  round_ = 0;
+  reset_votes_pointer ();
 }

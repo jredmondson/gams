@@ -48,11 +48,11 @@
 * @file ElectionPlurality.h
 * @author James Edmondson <jedmondson@gmail.com>
 *
-* This file contains the definition of the fixed list election
+* This file contains the definition of the minimum bid election
 **/
 
-#ifndef   _GAMS_ELECTIONS_ELECTION_FIXED_LIST_H_
-#define   _GAMS_ELECTIONS_ELECTION_FIXED_LIST_H_
+#ifndef   _GAMS_ELECTIONS_PLURALITY_ELECTION_H_
+#define   _GAMS_ELECTIONS_PLURALITY_ELECTION_H_
 
 #include <vector>
 #include <string>
@@ -68,19 +68,19 @@ namespace gams
   namespace elections
   {
     /**
-    * A fixed list of agent members
+    * An election that implements plurality voting (NOT IMPLEMENTED)
     **/
     class GAMSExport ElectionPlurality : public ElectionBase
     {
     public:
       /**
-       * Constructor. Note that if you do not specify prefix and
-       * knowledge base, then you are essentially just working with
-       * a local election with no connection to other agents.
-       * @param name   the name of the election (e.g. election.protectors)
-       * @param knowledge the knowledge base to use for syncing
-       **/
-      ElectionPlurality (const std::string & prefix = "",
+      * Constructor.
+      * @param election_prefix the name of the election (e.g. election.leader)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
+      **/
+      ElectionPlurality (const std::string & election_prefix = "",
+        const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
@@ -89,81 +89,22 @@ namespace gams
       virtual ~ElectionPlurality ();
 
       /**
-      * Adds the members to the election
-      * @param  members  list of members to add to formation
+      * Returns the leaders of the election in order of popularity
+      * or whatever conditions constitute winning the election
+      * @param  num_leaders maximum leaders to return
+      * @return the leaders of the election up to num_leaders
       **/
-      virtual void add_members (const AgentVector & members);
+      virtual CandidateList get_leaders (int num_leaders = 1);
 
       /**
-      * Clears the member list
-      **/
-      virtual void clear_members (void);
-
-      /**
-      * Retrieves the members from the election
-      * @param  members  a list of the members currently in the election
-      **/
-      virtual void get_members (AgentVector & members) const;
-
-      /**
-      * Checks if the agent is a  member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
-      *                uses the current agent's id
-      * @return  true if the agent is a member of the election
-      **/
-      virtual bool is_member (const std::string & id) const;
-
-      /**
-      * Writes the election information to a specified prefix
-      * in a knowledge base. If no knowledge base is specified, then
-      * saves in the original knowledge base. If no prefix is specified,
-      * then saves in the original prefix location
-      * @param prefix    the name of the election (e.g. election.protectors)
-      * @param knowledge the knowledge base to save into
-      **/
-      virtual void write (const std::string & prefix = "",
-        madara::knowledge::KnowledgeBase * knowledge = 0) const;
-
-      /**
-      * Sets the prefix for the election in the knowledge base
-      * @param prefix   the name of the election (e.g. election.protectors)
-      * @param knowledge the knowledge base to use for syncing
-      **/
-      virtual void set_prefix (const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge = 0);
-
-      /**
-      * Returns the number of members in the election
-      * @return  the number of members
-      **/
-      virtual size_t size (void);
-
-      /**
-      * Syncs the list to the knowledge base
-      **/
-      virtual void sync (void);
-
-    protected:
-
-      /**
-      * The knowledge base to use as a data plane
-      **/
-      madara::knowledge::KnowledgeBase * knowledge_;
-
-      /**
-       * The source member list in the knowledge base
+       * Returns the leader of the voting
        **/
-      madara::knowledge::containers::StringVector members_;
-
-      /**
-       * member list for fast access
-       **/
-      AgentVector fast_members_;
+      std::string get_leader (void);
     };
 
     /**
-     * Factory for creating ElectionPlurality elections
-     **/
+    * Factory for creating plurality elections
+    **/
     class GAMSExport ElectionPluralityFactory : public ElectionFactory
     {
     public:
@@ -179,16 +120,17 @@ namespace gams
       virtual ~ElectionPluralityFactory ();
 
       /**
-      * Creates a election
-      * @param  prefix       the name of the election (e.g. election.protectors)
-      * @param  knowledge    the knowledge base of variables and values
-      * @return  the new election
+      * Creates a plurality election
+      * @param election_prefix the name of the election (e.g. election.leader)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
+      * @return  the new group
       **/
-      virtual ElectionBase * create (
-        const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge);
+      virtual ElectionBase * create (const std::string & election_prefix = "",
+        const std::string & agent_prefix = "",
+        madara::knowledge::KnowledgeBase * knowledge = 0);
     };
   }
 }
 
-#endif // _GAMS_ELECTIONS_ELECTION_FIXED_LIST_H_
+#endif // _GAMS_ELECTIONS_PLURALITY_ELECTION_H_

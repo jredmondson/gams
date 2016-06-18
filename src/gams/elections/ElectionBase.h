@@ -59,19 +59,18 @@
 #include <map>
 
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/containers/Map.h"
 
+#include "ElectionTypesEnum.h"
+#include "gams/groups/GroupBase.h"
 #include "gams/GAMSExport.h"
 
 namespace gams
 {
   namespace elections
   {
-    /// A vector of agent names
-    typedef std::vector <std::string> AgentVector;
-
-    /// A map of agent names
-    typedef std::map <std::string,
-      madara::knowledge::KnowledgeRecord::Integer> AgentMap;
+    /// convenience typedef for list of candidates
+    typedef  std::vector<std::string> CandidateList;
 
     /**
     * Base class for an election
@@ -80,11 +79,13 @@ namespace gams
     {
     public:
       /**
-       * Constructor
-       * @param name   the name of the election (e.g. election.protectors)
-       * @param knowledge the knowledge base to use for syncing
-       **/
-      ElectionBase (const std::string & prefix = "",
+      * Constructor
+      * @param election_prefix the name of the election (e.g. election.leader)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
+      **/
+      ElectionBase (const std::string & election_prefix = "",
+        const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
@@ -93,67 +94,112 @@ namespace gams
       virtual ~ElectionBase ();
 
       /**
-      * Adds the members to the election
-      * @param  members  list of members to add
+      * Adds a group of voters
+      * @param  group  a group of bidders joining the election
       **/
-      virtual void add_members (const AgentVector & members) = 0;
+      virtual void add_voters (groups::GroupBase * group);
 
       /**
-      * Clears the member list
-      **/
-      virtual void clear_members (void) = 0;
-
-      /**
-      * Retrieves the members from the election
-      * @param  members  a list of the members currently in the election
-      **/
-      virtual void get_members (AgentVector & members) const = 0;
-
-      /**
-      * Checks if the agent is a  member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
-      *                uses the current agent's id
+      * Checks if the agent has voted in this round
+      * @param  agent_prefix  the participating agent's prefix (e.g. agent.0)
       * @return  true if the agent is a member of the election
       **/
-      virtual bool is_member (const std::string & id) const = 0;
+      virtual bool has_voted (const std::string & agent_prefix);
 
       /**
-      * Writes the election information to a specified prefix
-      * in a knowledge base. If no knowledge base is specified, then
-      * saves in the original knowledge base. If no prefix is specified,
-      * then saves in the original prefix location
-      * @param prefix    the name of the election (e.g. election.protectors)
-      * @param knowledge the knowledge base to save into
+      * Checks if the agent is a  member of the action participants
+      * @param  voter  the agent id (e.g. agent.0 or agent.leader). If null,
+      *                uses the current agent's id
+      * @return the Candidates that the voter 
       **/
-      virtual void write (const std::string & prefix = "",
-        madara::knowledge::KnowledgeBase * knowledge = 0) const = 0;
+      virtual CandidateList get_votes (const std::string & voter);
+
+      /**
+      * Sets the prefix for the current bidding agent
+      * @param prefix   the name of the agent (e.g. agent.0)
+      **/
+      virtual void set_agent_prefix (const std::string & prefix);
 
       /**
       * Sets the prefix for the election in the knowledge base
       * @param prefix   the name of the election (e.g. election.protectors)
+      **/
+      virtual void set_election_prefix (const std::string & prefix);
+
+      /**
+      * Sets the knowledge base
       * @param knowledge the knowledge base to use for syncing
       **/
-      virtual void set_prefix (const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge = 0);
+      virtual void set_knowledge_base (
+        madara::knowledge::KnowledgeBase * knowledge);
 
       /**
-      * Returns the number of members in the election
-      * @return  the number of members
+      * Syncs the election information from the knowledge base
       **/
-      virtual size_t size (void) = 0;
+      virtual void sync (void);
 
       /**
-      * Syncs the list to the knowledge base
+      * Gets the prefix for the current agent
+      * @return  the name of this bidding agent (e.g. agent.0)
       **/
-      virtual void sync (void) = 0;
+      const std::string & get_agent_prefix (void) const;
 
       /**
       * Gets the prefix for the election in the knowledge base
       * @return  the name of the election (e.g. election.protectors)
       **/
-      const std::string & get_prefix (void);
+      const std::string & get_election_prefix (void) const;
+
+      /**
+      * Votes in the election. Uses the agent prefix that has been
+      * set in this Election as the voter id.
+      * @param  candidate   the candidate receiving votes
+      * @param  votes       the number of votes cast
+      **/
+      void vote (const std::string & candidate, int votes = 1);
+
+      /**
+      * Bids in the election
+      * @param  agent  the agent prefix who is bidding
+      * @param  candidate   the candidate receiving votes
+      * @param  votes       the number of votes cast
+      **/
+      virtual void vote (const std::string & agent,
+        const std::string & candidate, int votes = 1);
+
+      /**
+      * Returns the leaders of the election in order of popularity
+      * or whatever conditions constitute winning the election
+      * @param  num_leaders maximum leaders to return
+      * @return the leaders of the election up to num_leaders
+      **/
+      virtual CandidateList get_leaders (int num_leaders = 1) = 0;
+
+      /**
+      * Proceeds to the next election round in a multi-round
+      * election
+      **/
+      virtual void advance_round (void);
+
+      /**
+      * Retrieves the round number, usually in a multi-round election
+      * @return the agent prefix of the leader of the election
+      **/
+      int get_round (void) const;
+
+      /**
+      * Resets the round
+      * @return the agent prefix of the leader of the election
+      **/
+      virtual void reset_round (void);
 
     protected:
+
+      /**
+      * calls a reset on the votes_ location in the knowledge base
+      * using election_prefix_ + "." + round_.
+      **/
+      void reset_votes_pointer (void);
 
       /**
       * The knowledge base to use as a data plane
@@ -161,9 +207,24 @@ namespace gams
       mutable madara::knowledge::KnowledgeBase * knowledge_;
 
       /**
-       * the prefix for the election
-       **/
-      std::string prefix_;
+      * the prefix for the election
+      **/
+      std::string election_prefix_;
+
+      /**
+      * self prefix of the agent
+      **/
+      std::string agent_prefix_;
+
+      /**
+      * the election round in a multi-round election
+      **/
+      int round_;
+
+      /**
+      * convenience class for bids
+      **/
+      madara::knowledge::containers::Map votes_;
     };
   }
 }

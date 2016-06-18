@@ -110,7 +110,7 @@ gams::auctions::AuctionBase::sync (void)
 }
 
 void
-gams::auctions::AuctionBase::bid (std::string agent,
+gams::auctions::AuctionBase::bid (const std::string & agent,
   const madara::knowledge::KnowledgeRecord & amount)
 {
   bids_.set (agent, amount.to_double ());

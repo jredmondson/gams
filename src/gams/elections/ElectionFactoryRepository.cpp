@@ -47,14 +47,10 @@
 #include "gams/elections/ElectionFactoryRepository.h"
 #include "gams/elections/ElectionPlurality.h"
 
-#include <iostream>
-
-using std::cerr;
-using std::endl;
-
 gams::elections::ElectionFactoryRepository::ElectionFactoryRepository (
+  const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-: knowledge_ (knowledge)
+  : agent_prefix_ (agent_prefix), knowledge_ (knowledge)
 {
   init ();
 }

@@ -71,7 +71,7 @@ gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "AuctionFactoryRepository::create" \
+    "gams::auctions::ElectionFactoryRepository::create" \
     " reading auction at prefix %s\n",
     prefix.c_str ());
 
@@ -81,7 +81,7 @@ gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "AuctionFactoryRepository::create" \
+      "gams::auctions::ElectionFactoryRepository::create" \
       " group type is %d\n",
       (int)*type);
 
@@ -91,7 +91,7 @@ gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
-        "AuctionFactoryRepository::create" \
+        "gams::auctions::ElectionFactoryRepository::create" \
         " group type found. Populating member list and group.\n");
 
       result = found->second->create (prefix, agent_prefix_, knowledge_);
@@ -100,7 +100,7 @@ gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
-        "AuctionFactoryRepository::create" \
+        "gams::auctions::ElectionFactoryRepository::create" \
         " group type not found. Returning null.\n");
     }
   }
