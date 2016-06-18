@@ -50,7 +50,8 @@
 // create shortcut to refer to KnowledgeRecord
 typedef   madara::knowledge::KnowledgeRecord  KnowledgeRecord;
 
-gams::elections::ElectionBase::ElectionBase (const std::string & election_prefix,
+gams::elections::ElectionBase::ElectionBase (
+  const std::string & election_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
   : knowledge_ (knowledge),
@@ -92,7 +93,8 @@ const std::string & id)
 }
 
 void
-gams::elections::ElectionBase::set_election_prefix (const std::string & prefix)
+gams::elections::ElectionBase::set_election_prefix (
+  const std::string & prefix)
 {
   election_prefix_ = prefix;
   reset_votes_pointer ();

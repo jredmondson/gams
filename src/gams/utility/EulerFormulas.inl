@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file EulerFormulas.h
+ * @file EulerFormulas.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains implementation details for the Euler class template.

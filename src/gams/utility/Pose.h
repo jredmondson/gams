@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Pose.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Location, Rotation, and Pose classes
@@ -381,6 +381,7 @@ namespace gams
        * Copy constructor, but also transform to the new frame.
        *
        * @param new_frame the frame to transform into
+       * @param orig      the origin of the pose
        **/
       Pose(const ReferenceFrame &new_frame, const Pose &orig);
 

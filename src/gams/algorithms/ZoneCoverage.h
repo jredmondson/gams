@@ -91,6 +91,8 @@ namespace gams
        * @param  assets       name of group of agents to protect
        * @param  enemies      name of group of attacking agents
        * @param  formation    name of formation
+       * @param  buffer       buffer between agents
+       * @param  distance     distance from the asset
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
