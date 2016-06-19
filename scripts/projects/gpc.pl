@@ -4147,6 +4147,7 @@ int main (int argc, char ** argv)
   {
     copy "$script_dir/windows/action.bat", "$path/";
     copy "$script_dir/linux/action.sh", "$path/";
+    chmod "a+x", "$path/action.sh";
   }
   
   if (not -f "$path/README.txt")
