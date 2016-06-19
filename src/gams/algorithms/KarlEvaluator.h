@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Karl.h
+ * @file KarlEvaluator.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * Implementation of the Karl logic evaluator algorithm

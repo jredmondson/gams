@@ -233,8 +233,8 @@ namespace gams
 
       /**
        * Moves the platform to a location
-       * @param   target    the coordinates to move to
-       * @param   epsilon   approximation value
+       * @param   location    the coordinates to move to
+       * @param   epsilon     approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
       virtual int move (const utility::Location & location,

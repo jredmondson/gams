@@ -53,6 +53,8 @@
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
+typedef  knowledge::KnowledgeRecord  KnowledgeRecord;
+
 gams::elections::ElectionPluralityFactory::ElectionPluralityFactory ()
 {
 }
@@ -63,228 +65,114 @@ gams::elections::ElectionPluralityFactory::~ElectionPluralityFactory ()
 
 gams::elections::ElectionBase *
 gams::elections::ElectionPluralityFactory::create (
-  const std::string & prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPluralityFactory:" \
-    " creating election from %s\n", prefix.c_str ());
-
-  return new ElectionPlurality (prefix, knowledge);
-}
-
-
-gams::elections::ElectionPlurality::ElectionPlurality (const std::string & prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
-  : ElectionBase (prefix, knowledge)
-{
-  if (knowledge && prefix != "")
-  {
-    members_.set_name (prefix + ".members", *knowledge);
-    sync ();
-  }
-}
-
-gams::elections::ElectionPlurality::~ElectionPlurality ()
-{
-}
-
-void
-gams::elections::ElectionPlurality::add_members (const AgentVector & members)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:add_members" \
-    " adding %d members\n", (int)members.size ());
-
-  // add the members to the fast list
-  fast_members_.insert (
-    fast_members_.end (), members.begin (), members.end ());
-
-  // add the members to the underlying knowledge base
-  for (size_t i = 0; i < members.size (); ++i)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::elections::ElectionPlurality:add_members" \
-      " adding member %s to %s\n", members[i].c_str (), prefix_.c_str ());
-
-    members_.push_back (members[i]);
-  }
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MINOR,
-    "gams::elections::ElectionPlurality:add_members" \
-    " resulting member list has %d members\n", (int)fast_members_.size ());
-}
-
-void
-gams::elections::ElectionPlurality::clear_members (void)
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:clear_members" \
-    " clearing all %d members\n", (int)fast_members_.size ());
-
-  fast_members_.clear ();
-  members_.resize (0);
-}
-
-void
-gams::elections::ElectionPlurality::get_members (AgentVector & members) const
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:get_members" \
-    " retrieving member list (%d members)\n", (int)fast_members_.size ());
-
-  members.clear ();
-
-  members = fast_members_;
-}
-
-bool
-gams::elections::ElectionPlurality::is_member (const std::string & id) const
-{
-  AgentVector::const_iterator found =
-    std::find (fast_members_.begin (), fast_members_.end (), id);
-
-  return found != fast_members_.end ();
-}
-
-void
-gams::elections::ElectionPlurality::set_prefix (const std::string & prefix,
+const std::string & election_prefix,
+const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:set_prefix" \
-    " setting prefix to %s\n", prefix.c_str ());
+    "gams::elections::ElectionPluralityFactory:" \
+    " creating election from %s\n", election_prefix.c_str ());
 
-  ElectionBase::set_prefix (prefix, knowledge);
-
-  if (knowledge && prefix != "")
-  {
-    members_.set_name (prefix + ".members", *knowledge);
-    sync ();
-  }
+  return new ElectionPlurality (election_prefix, agent_prefix, knowledge);
 }
 
-size_t
-gams::elections::ElectionPlurality::size (void)
+gams::elections::ElectionPlurality::ElectionPlurality (
+  const std::string & election_prefix,
+  const std::string & agent_prefix,
+  madara::knowledge::KnowledgeBase * knowledge)
+  : ElectionBase (election_prefix, agent_prefix, knowledge)
 {
-  return fast_members_.size ();
 }
 
-void
-gams::elections::ElectionPlurality::sync (void)
+/**
+* Constructor
+**/
+gams::elections::ElectionPlurality::~ElectionPlurality ()
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:sync" \
-    " syncing with %s source\n", prefix_.c_str ());
 
-  members_.resize ();
-
-  // check our size information
-  size_t old_size = fast_members_.size ();
-  size_t new_size = members_.size ();
-
-  // if new size is not the same, resize fast_members
-  if (old_size != new_size)
-  {
-    fast_members_.resize (new_size);
-  }
-
-  // iterate over the new members and update if necessary
-  for (size_t i = 0; i < new_size; ++i)
-  {
-    /**
-     * we optimize for the expected situation that any resize
-     * will be growing the list and leaving earlier elements the same.
-     * A string check is much faster than a string mutate.
-     **/
-    if (fast_members_[i] != members_[i])
-    {
-      fast_members_[i] = members_[i];
-    }
-  }
 }
 
-void
-gams::elections::ElectionPlurality::write (const std::string & prefix,
-madara::knowledge::KnowledgeBase * knowledge) const
+gams::elections::CandidateList
+gams::elections::ElectionPlurality::get_leaders (int num_leaders)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::elections::ElectionPlurality:write" \
-    " performing initialization checks\n");
+    "gams::elections::ElectionPlurality:get_leaders" \
+    " getting leaders from %s\n", election_prefix_.c_str ());
 
-  std::string location;
-  bool is_done (false);
+  CandidateList leaders;
 
-  // set location in knowledge base to write to
-  if (prefix == "")
+  if (knowledge_)
   {
-    if (prefix_ != "")
+    knowledge::ContextGuard guard (*knowledge_);
+
+    // create a list of votes for quick reference
+    knowledge::VariableReferences votes;
+    knowledge_->get_matches (votes_.get_name (), "", votes);
+
+    typedef std::map <KnowledgeRecord::Integer, CandidateList> Leaderboard;
+
+    CandidateVotes candidates;
+    Leaderboard leaderboard;
+    std::string last_voter;
+
+    // tally the votes
+    for (knowledge::VariableReferences::const_iterator i = votes.begin ();
+      i != votes.end (); ++i)
     {
-      location = prefix_;
+      std::string ballot_string = i->get_name ();
+      std::string::size_type delimiter_pos = ballot_string.find ("->");
+
+      if (delimiter_pos != std::string::npos)
+      {
+        std::string candidate = ballot_string.substr (delimiter_pos + 2);
+        std::string voter = ballot_string.substr (
+          votes_.get_name ().size () + 1, delimiter_pos);
+
+        // plurality votes only allow one vote per voter
+        if (voter != last_voter)
+        {
+          candidates[candidate] += 1;
+          last_voter = voter;
+        }
+      }
     }
-    else
+
+    // construct the leaderboard
+    for (CandidateVotes::iterator i = candidates.begin ();
+      i != candidates.end (); ++i)
     {
-      is_done = true;
+      leaderboard[i->second].push_back (i->first);
     }
-  }
-  else
-  {
-    location = prefix;
-  }
 
-  // set knowledge base to write to
-  if (!is_done && !knowledge)
-  {
-    if (knowledge_)
+    // leaderboard is in ascending order, so grab from the back
+    for (Leaderboard::reverse_iterator i = leaderboard.rbegin ();
+      i != leaderboard.rend () && (int) leaders.size () < num_leaders; ++i)
     {
-      knowledge = knowledge_;
-    }
-    else
-    {
-      is_done = true;
-    }
-  }
-
-  // if we have a valid location and knowledge base, continue
-  if (!is_done)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::elections::ElectionPlurality:write" \
-      " writing election information to %s\n", location.c_str ());
-
-    // create members and type. Note we set type to 1.
-    containers::StringVector members (location + ".members", *knowledge);
-    containers::Integer type (location + ".type", *knowledge, 0);
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::elections::ElectionPlurality:write" \
-      " writing %d members to %s.members\n",
-      (int)fast_members_.size (), location.c_str ());
-
-    members.resize ((int)fast_members_.size ());
-
-    // iterate through the fast members list and set members at location
-    for (size_t i = 0; i < fast_members_.size (); ++i)
-    {
-      members.set (i, fast_members_[i]);
+      // if it is a tie, we could provide more than num_leaders
+      leaders.insert (leaders.end (), i->second.begin (), i->second.end ());
     }
   }
-  else
+
+  return leaders;
+}
+
+std::string
+gams::elections::ElectionPlurality::get_leader (void)
+{
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::elections::ElectionPlurality:get_leader" \
+    " getting leader from %s\n", election_prefix_.c_str ());
+
+  std::string leader;
+  CandidateList leaders = get_leaders ();
+
+  if (leaders.size () > 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::elections::ElectionPlurality:write" \
-      " no valid prefix to write to. No work to do.\n");
+    leader = leaders[0];
   }
+
+  return leader;
 }

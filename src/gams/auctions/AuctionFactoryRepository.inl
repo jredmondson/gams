@@ -54,7 +54,7 @@
 #include "gams/auctions/AuctionMinimumBid.h"
 
 inline void
-gams::auctions::AuctionFactoryRepository::add (const std::string & type,
+gams::auctions::AuctionFactoryRepository::add (AuctionType type,
   AuctionFactory * factory)
 {
   if (factory)
@@ -65,14 +65,58 @@ gams::auctions::AuctionFactoryRepository::add (const std::string & type,
 }
 
 inline gams::auctions::AuctionBase *
-gams::auctions::AuctionFactoryRepository::create (const std::string & type)
+gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
 {
-  gams::auctions::AuctionBase * result (0);
+  AuctionBase * result (0);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::auctions::ElectionFactoryRepository::create" \
+    " reading auction at prefix %s\n",
+    prefix.c_str ());
+
+  if (knowledge_)
+  {
+    madara::knowledge::containers::Integer type (prefix + ".type", *knowledge_);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::auctions::ElectionFactoryRepository::create" \
+      " group type is %d\n",
+      (int)*type);
+
+    AuctionFactoryMap::iterator found = factory_map_.find (*type);
+
+    if (found != factory_map_.end ())
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::auctions::ElectionFactoryRepository::create" \
+        " group type found. Populating member list and group.\n");
+
+      result = found->second->create (prefix, agent_prefix_, knowledge_);
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::auctions::ElectionFactoryRepository::create" \
+        " group type not found. Returning null.\n");
+    }
+  }
+
+  return result;
+}
+
+inline gams::auctions::AuctionBase *
+gams::auctions::AuctionFactoryRepository::create (AuctionType type)
+{
+  AuctionBase * result (0);
   AuctionFactoryMap::iterator found = factory_map_.find (type);
 
   if (found != factory_map_.end ())
   {
-    result = found->second->create ("", knowledge_);
+    result = found->second->create ("", agent_prefix_, knowledge_);
   }
 
   return result;
@@ -96,6 +140,13 @@ gams::auctions::AuctionFactoryRepository::set_knowledge (
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
+}
+
+inline void
+gams::auctions::AuctionFactoryRepository::set_agent_prefix (
+  const std::string & prefix)
+{
+  agent_prefix_ = prefix;
 }
 
 #endif // _GAMS_AUCTIONS_AUCTION_FACTORY_REPOSITORY_INL_

@@ -68,7 +68,7 @@ namespace gams
     /**
     * Convenience typedef for a map of types to factories
     **/
-    typedef std::map <std::string, ElectionFactory *>  ElectionFactoryMap;
+    typedef std::map <ElectionType, ElectionFactory *>  ElectionFactoryMap;
 
     /**
     * A repository for election factories.
@@ -78,9 +78,12 @@ namespace gams
     public:
       /**
       * Constructor
-      * @param  knowledge  a knowledge base to look into for election prefixes
+      * @param  agent_prefix   the name of this voter (e.g. agent.0)
+      * @param  knowledge      a knowledge base where election info is
       **/
-      ElectionFactoryRepository (madara::knowledge::KnowledgeBase * knowledge = 0);
+      ElectionFactoryRepository (
+        const std::string & agent_prefix,
+        madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Destructor
@@ -93,21 +96,34 @@ namespace gams
       * @param  factory   the factory for creating an algorithm
       * @return  the new algorithm
       **/
-      void add (const std::string & type,
+      void add (ElectionType type,
         ElectionFactory * factory);
 
       /**
-      * Creates a election based on election type
-      * @param  type       the type of the election
+      * Creates an election based on type
+      * @param election_prefix the name of the election (e.g. election.position)
       * @return  the new election
       **/
-      ElectionBase * create (const std::string & type);
+      ElectionBase * create (const std::string & election_prefix);
+
+      /**
+      * Creates an election based on type
+      * @param  type     the type of the election (@see ElectionTypes)
+      * @return  the new election
+      **/
+      ElectionBase * create (ElectionType type);
 
       /**
       * Sets the knowledge base
       * @param  knowledge    the knowledge base to use
       **/
       void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+
+      /**
+      * Sets the prefix for the current voting agent
+      * @param prefix   the name of the agent (e.g. agent.0)
+      **/
+      void set_agent_prefix (const std::string & prefix);
 
     protected:
 
@@ -119,8 +135,14 @@ namespace gams
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;
 
+      /**
+      * self prefix of the agent
+      **/
+      std::string agent_prefix_;
+
       /// a mapping of types to election factories
       ElectionFactoryMap factory_map_;
+
     };
   }
 }

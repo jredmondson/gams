@@ -50,10 +50,48 @@
 #include "ElectionBase.h"
 #include "gams/loggers/GlobalLogger.h"
 
-inline const std::string &
-gams::elections::ElectionBase::get_prefix (void)
+inline int
+gams::elections::ElectionBase::get_round (void) const
 {
-  return prefix_;
+  return round_;
+}
+
+inline const std::string &
+gams::elections::ElectionBase::get_agent_prefix (void) const
+{
+  return agent_prefix_;
+}
+
+inline void
+gams::elections::ElectionBase::set_agent_prefix (const std::string & prefix)
+{
+  agent_prefix_ = prefix;
+}
+
+inline const std::string &
+gams::elections::ElectionBase::get_election_prefix (void) const
+{
+  return election_prefix_;
+}
+
+inline void
+gams::elections::ElectionBase::reset_votes_pointer (void)
+{
+  if (knowledge_ && election_prefix_ != "")
+  {
+    std::stringstream buffer;
+    buffer << election_prefix_;
+    buffer << ".";
+    buffer << round_;
+    votes_.set_name (buffer.str (), *knowledge_);
+  }
+}
+
+inline void
+gams::elections::ElectionBase::vote (const std::string & candidate,
+  int votes)
+{
+  vote (agent_prefix_, candidate, votes);
 }
 
 #endif // _GAMS_ELECTIONS_ELECTION_BASE_INL_

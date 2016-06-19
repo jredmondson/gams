@@ -93,7 +93,55 @@ project (test_utility) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_utility.cpp
+    tests/test_utility.cpp
+  }
+}
+
+project (test_auctions) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_auctions
+
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    tests/test_auctions.cpp
+  }
+}
+
+project (test_elections) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_elections
+
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    tests/test_elections.cpp
   }
 }
 
@@ -117,7 +165,7 @@ project (test_variables) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_variables.cpp
+    tests/test_variables.cpp
   }
 }
 
@@ -171,7 +219,7 @@ project (test_coordinates) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_coordinates.cpp
+    tests/test_coordinates.cpp
   }
 }
 
@@ -195,7 +243,7 @@ project (test_location) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_location.cpp
+    tests/test_location.cpp
   }
 }
 
@@ -219,7 +267,7 @@ project (test_euler) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_euler.cpp
+    tests/test_euler.cpp
   }
 }
 
@@ -243,7 +291,7 @@ project (test_utm) : using_gams, using_madara, using_ace, using_utm {
   }
 
   Source_Files {
-    src/tests/test_utm.cpp
+    tests/test_utm.cpp
   }
 }
 
@@ -267,7 +315,7 @@ project (test_arguments_parser) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_arguments_parser.cpp
+    tests/test_arguments_parser.cpp
   }
 }
 
@@ -291,7 +339,7 @@ project (test_formation_sync) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_formation_sync.cpp
+    tests/test_formation_sync.cpp
   }
 }
 
@@ -315,6 +363,6 @@ project (test_groups) : using_gams, using_madara, using_ace {
   }
 
   Source_Files {
-    src/tests/test_groups.cpp
+    tests/test_groups.cpp
   }
 }

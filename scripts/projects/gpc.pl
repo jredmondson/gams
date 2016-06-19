@@ -1047,7 +1047,7 @@ agent.$i.algorithm = .algorithm;\n";
           }
           else 
           {
-            $replacement .= "$groupname.members.size = " . ($grouplast - $groupfirst + 1) . "\n";
+            $replacement .= "$groupname.members.size = " . ($grouplast - $groupfirst + 1) . ";\n";
           }
           
           my $index = 0;
@@ -1059,7 +1059,7 @@ agent.$i.algorithm = .algorithm;\n";
             }
             else
             {
-              $replacement .= "$groupname.members.$index = agent.$i;\n";
+              $replacement .= "$groupname.members.$index = 'agent.$i';\n";
             }
           }
             
@@ -1921,7 +1921,7 @@ $region.3 = [$max_lat, $min_lon];\n";
     }
     else 
     {
-      $replacement .= "$group.members.size = " . ($last - $first + 1) . "\n";
+      $replacement .= "$group.members.size = " . ($last - $first + 1) . ";\n";
     }
           
     my $index = 0;
@@ -1933,7 +1933,7 @@ $region.3 = [$max_lat, $min_lon];\n";
       }
       else
       {
-        $replacement .= "$group.members.$index = agent.$i;\n";
+        $replacement .= "$group.members.$index = 'agent.$i';\n";
       }
     }
     

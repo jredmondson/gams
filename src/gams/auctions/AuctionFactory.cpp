@@ -62,3 +62,10 @@ madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
+
+void
+gams::auctions::AuctionFactory::set_agent_prefix (
+const std::string & prefix)
+{
+  agent_prefix_ = prefix;
+}

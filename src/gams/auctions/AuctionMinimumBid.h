@@ -74,13 +74,13 @@ namespace gams
     {
     public:
       /**
-       * Constructor. Note that if you do not specify prefix and
-       * knowledge base, then you are essentially just working with
-       * a local group with no connection to other agents.
-       * @param name   the name of the group (e.g. group.protectors)
-       * @param knowledge the knowledge base to use for syncing
-       **/
-      AuctionMinimumBid (const std::string & prefix = "",
+      * Constructor.
+      * @param auction_prefix the name of the auction (e.g. auction.position)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
+      **/
+      AuctionMinimumBid (const std::string & auction_prefix = "",
+        const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
@@ -89,81 +89,15 @@ namespace gams
       virtual ~AuctionMinimumBid ();
 
       /**
-      * Adds the members to the group
-      * @param  members  list of members to add to formation
+      * Returns the leader of the bidding process
+      * @return the agent prefix of the leader of the auction
       **/
-      virtual void add_members (const AgentVector & members);
-
-      /**
-      * Clears the member list
-      **/
-      virtual void clear_members (void);
-
-      /**
-      * Retrieves the members from the group
-      * @param  members  a list of the members currently in the group
-      **/
-      virtual void get_members (AgentVector & members) const;
-
-      /**
-      * Checks if the agent is a  member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
-      *                uses the current agent's id
-      * @return  true if the agent is a member of the group
-      **/
-      virtual bool is_member (const std::string & id) const;
-
-      /**
-      * Writes the group information to a specified prefix
-      * in a knowledge base. If no knowledge base is specified, then
-      * saves in the original knowledge base. If no prefix is specified,
-      * then saves in the original prefix location
-      * @param prefix    the name of the group (e.g. group.protectors)
-      * @param knowledge the knowledge base to save into
-      **/
-      virtual void write (const std::string & prefix = "",
-        madara::knowledge::KnowledgeBase * knowledge = 0) const;
-
-      /**
-      * Sets the prefix for the group in the knowledge base
-      * @param prefix   the name of the group (e.g. group.protectors)
-      * @param knowledge the knowledge base to use for syncing
-      **/
-      virtual void set_prefix (const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge = 0);
-
-      /**
-      * Returns the number of members in the group
-      * @return  the number of members
-      **/
-      virtual size_t size (void);
-
-      /**
-      * Syncs the list to the knowledge base
-      **/
-      virtual void sync (void);
-
-    protected:
-
-      /**
-      * The knowledge base to use as a data plane
-      **/
-      madara::knowledge::KnowledgeBase * knowledge_;
-
-      /**
-       * The source member list in the knowledge base
-       **/
-      madara::knowledge::containers::StringVector members_;
-
-      /**
-       * member list for fast access
-       **/
-      AgentVector fast_members_;
+      virtual std::string get_leader (void);
     };
 
     /**
-     * Factory for creating AuctionMinimumBid groups
-     **/
+    * Factory for creating minimum-bid auctions
+    **/
     class GAMSExport AuctionMinimumBidFactory : public AuctionFactory
     {
     public:
@@ -179,14 +113,15 @@ namespace gams
       virtual ~AuctionMinimumBidFactory ();
 
       /**
-      * Creates a group
-      * @param  prefix       the name of the group (e.g. group.protectors)
-      * @param  knowledge    the knowledge base of variables and values
+      * Creates a minimum-bid auction
+      * @param auction_prefix the name of the auction (e.g. auction.position)
+      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param knowledge      the knowledge base to use for syncing
       * @return  the new group
       **/
-      virtual AuctionBase * create (
-        const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge);
+      virtual AuctionBase * create (const std::string & auction_prefix = "",
+        const std::string & agent_prefix = "",
+        madara::knowledge::KnowledgeBase * knowledge = 0);
     };
   }
 }

@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file Coordinates.h
+ * @file Rotation.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains inline functions for the Rotation

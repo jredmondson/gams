@@ -50,10 +50,48 @@
 #include "AuctionBase.h"
 #include "gams/loggers/GlobalLogger.h"
 
-inline const std::string &
-gams::auctions::AuctionBase::get_prefix (void)
+inline int
+gams::auctions::AuctionBase::get_round (void) const
 {
-  return prefix_;
+  return round_;
+}
+
+inline const std::string &
+gams::auctions::AuctionBase::get_agent_prefix (void) const
+{
+  return agent_prefix_;
+}
+
+inline void
+gams::auctions::AuctionBase::set_agent_prefix (const std::string & prefix)
+{
+  agent_prefix_ = prefix;
+}
+
+inline const std::string &
+gams::auctions::AuctionBase::get_auction_prefix (void) const
+{
+  return auction_prefix_;
+}
+
+inline void
+gams::auctions::AuctionBase::reset_bids_pointer (void)
+{
+  if (knowledge_ && auction_prefix_ != "")
+  {
+    std::stringstream buffer;
+    buffer << auction_prefix_;
+    buffer << ".";
+    buffer << round_;
+    bids_.set_name (buffer.str (), *knowledge_);
+  }
+}
+
+inline void
+gams::auctions::AuctionBase::bid (
+  const madara::knowledge::KnowledgeRecord & amount)
+{
+  bid (agent_prefix_, amount);
 }
 
 #endif // _GAMS_AUCTIONS_AUCTION_BASE_INL_

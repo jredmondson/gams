@@ -68,7 +68,7 @@ namespace gams
     /**
     * Convenience typedef for a map of types to factories
     **/
-    typedef std::map <std::string, AuctionFactory *>  AuctionFactoryMap;
+    typedef std::map <AuctionType, AuctionFactory *>  AuctionFactoryMap;
 
     /**
     * A repository for auction factories.
@@ -78,9 +78,11 @@ namespace gams
     public:
       /**
       * Constructor
-      * @param  knowledge  a knowledge base to look into for auction prefixes
+      * @param  agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param  knowledge      a knowledge base where auction info is
       **/
       AuctionFactoryRepository (
+        const std::string & agent_prefix,
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
@@ -94,21 +96,34 @@ namespace gams
       * @param  factory   the factory for creating an algorithm
       * @return  the new algorithm
       **/
-      void add (const std::string & type,
+      void add (AuctionType type,
         AuctionFactory * factory);
 
       /**
       * Creates an auction based on type
-      * @param  type     the type of the auction
+      * @param auction_prefix the name of the auction (e.g. auction.position)
       * @return  the new auction
       **/
-      AuctionBase * create (const std::string & type);
+      AuctionBase * create (const std::string & auction_prefix);
+
+      /**
+      * Creates an auction based on type
+      * @param  type     the type of the auction (@see AuctionTypes)
+      * @return  the new auction
+      **/
+      AuctionBase * create (AuctionType type);
 
       /**
       * Sets the knowledge base
       * @param  knowledge    the knowledge base to use
       **/
       void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+
+      /**
+      * Sets the prefix for the current bidding agent
+      * @param prefix   the name of the agent (e.g. agent.0)
+      **/
+      void set_agent_prefix (const std::string & prefix);
 
     protected:
 
@@ -120,8 +135,14 @@ namespace gams
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;
 
+      /**
+      * self prefix of the agent
+      **/
+      std::string agent_prefix_;
+
       /// a mapping of types to auction factories
       AuctionFactoryMap factory_map_;
+
     };
   }
 }

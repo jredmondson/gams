@@ -59,20 +59,16 @@
 #include <map>
 
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/containers/Map.h"
 
+#include "AuctionTypesEnum.h"
+#include "gams/groups/GroupBase.h"
 #include "gams/GAMSExport.h"
 
 namespace gams
 {
   namespace auctions
   {
-    /// A vector of agent names
-    typedef std::vector <std::string> AgentVector;
-
-    /// A map of agent names
-    typedef std::map <std::string,
-      madara::knowledge::KnowledgeRecord::Integer> AgentMap;
-
     /**
     * Base class for an auction
     **/
@@ -81,10 +77,12 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param name   the name of the auction (e.g. auction.position)
-       * @param knowledge the knowledge base to use for syncing
+       * @param auction_prefix the name of the auction (e.g. auction.position)
+       * @param agent_prefix   the name of this bidder (e.g. agent.0)
+       * @param knowledge      the knowledge base to use for syncing
        **/
-      AuctionBase (const std::string & prefix = "",
+      AuctionBase (const std::string & auction_prefix = "",
+        const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
@@ -93,67 +91,121 @@ namespace gams
       virtual ~AuctionBase ();
 
       /**
-      * Adds the members to the auction
-      * @param  members  list of members to add
-      **/
-      virtual void add_members (const AgentVector & members) = 0;
+       * Adds a group of auction participants
+       * @param  group  a group of bidders joining the auction
+       **/
+      virtual void add_group (groups::GroupBase * group);
 
       /**
-      * Clears the member list
-      **/
-      virtual void clear_members (void) = 0;
-
-      /**
-      * Retrieves the members from the auction
-      * @param  members  a list of the members currently in the auction
-      **/
-      virtual void get_members (AgentVector & members) const = 0;
-
-      /**
-      * Checks if the agent is a  member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
-      *                uses the current agent's id
+      * Checks if the agent is a  member of the action participants
+      * @param  agent_prefix  the participating agent's prefix (e.g. agent.0)
       * @return  true if the agent is a member of the auction
       **/
-      virtual bool is_member (const std::string & id) const = 0;
+      virtual bool is_member (const std::string & agent_prefix);
 
       /**
-      * Writes the auction information to a specified prefix
-      * in a knowledge base. If no knowledge base is specified, then
-      * saves in the original knowledge base. If no prefix is specified,
-      * then saves in the original prefix location
-      * @param prefix    the name of the auction (e.g. auction.protectors)
-      * @param knowledge the knowledge base to save into
+      * Checks if the agent is a  member of the action participants
+      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
+      *                uses the current agent's id
+      * @return the bid of the agent. KnowledgeRecord is false/invalid if
+      *         no bid has been made or if the agent is not actually an
+      *         auction participant.
       **/
-      virtual void write (const std::string & prefix = "",
-        madara::knowledge::KnowledgeBase * knowledge = 0) const = 0;
+      virtual madara::knowledge::KnowledgeRecord get_bid (
+        const std::string & id);
+
+      /**
+      * Sets the prefix for the current bidding agent
+      * @param prefix   the name of the agent (e.g. agent.0)
+      **/
+      virtual void set_agent_prefix (const std::string & prefix);
 
       /**
       * Sets the prefix for the auction in the knowledge base
       * @param prefix   the name of the auction (e.g. auction.protectors)
-      * @param knowledge the knowledge base to use for syncing
       **/
-      virtual void set_prefix (const std::string & prefix,
-        madara::knowledge::KnowledgeBase * knowledge = 0);
+      virtual void set_auction_prefix (const std::string & prefix);
 
       /**
-      * Returns the number of members in the auction
-      * @return  the number of members
+      * Sets the knowledge base
+       * @param knowledge the knowledge base to use for syncing
       **/
-      virtual size_t size (void) = 0;
+      virtual void set_knowledge_base (
+        madara::knowledge::KnowledgeBase * knowledge);
 
       /**
-      * Syncs the list to the knowledge base
+      * Syncs the auction information from the knowledge base
       **/
-      virtual void sync (void) = 0;
+      virtual void sync (void);
+
+      /**
+      * Gets the prefix for the current agent
+      * @return  the name of this bidding agent (e.g. agent.0)
+      **/
+      const std::string & get_agent_prefix (void) const;
 
       /**
       * Gets the prefix for the auction in the knowledge base
       * @return  the name of the auction (e.g. auction.protectors)
       **/
-      const std::string & get_prefix (void);
+      const std::string & get_auction_prefix (void) const;
+
+      /**
+      * Bids in the auction. Uses the agent prefix that has been
+      * set in this Auction as the bidder id.
+      * @param  amount bidded amount. This is a very flexible amount
+      *         that allows for almost any type of MADARA data type.
+      *         Most auctions will probably use doubles and ints
+      *         though. This does allow for exotic auctions such
+      *         as parseable strings though that might be a constraint
+      *         or a structured bid.
+      **/
+      void bid (const madara::knowledge::KnowledgeRecord & amount);
+
+      /**
+      * Bids in the auction
+      * @param  agent  the agent prefix who is bidding
+      * @param  amount bidded amount. This is a very flexible amount
+      *         that allows for almost any type of MADARA data type.
+      *         Most auctions will probably use doubles and ints
+      *         though. This does allow for exotic auctions such
+      *         as parseable strings though that might be a constraint
+      *         or a structured bid.
+      **/
+      virtual void bid (const std::string & agent,
+        const madara::knowledge::KnowledgeRecord & amount);
+
+      /**
+       * Returns the leader of the bidding process
+       * @return the agent prefix of the leader of the auction
+       **/
+      virtual std::string get_leader (void) = 0;
+
+      /**
+      * Proceeds to the next auction round in a multi-round
+      * auction
+      **/
+      virtual void advance_round (void);
+
+      /**
+      * Retrieves the round number, usually in a multi-round auction
+      * @return the agent prefix of the leader of the auction
+      **/
+      int get_round (void) const;
+
+      /**
+      * Resets the round
+      * @return the agent prefix of the leader of the auction
+      **/
+      virtual void reset_round (void);
 
     protected:
+
+      /**
+       * calls a reset on the bids_ location in the knowledge base
+       * using auction_prefix_ + "." + round_.
+       **/
+      void reset_bids_pointer (void);
 
       /**
       * The knowledge base to use as a data plane
@@ -163,7 +215,22 @@ namespace gams
       /**
        * the prefix for the auction
        **/
-      std::string prefix_;
+      std::string auction_prefix_;
+
+      /**
+       * self prefix of the agent
+       **/
+      std::string agent_prefix_;
+
+      /**
+       * the auction round in a multi-round auction
+       **/
+      int round_;
+
+      /**
+       * convenience class for bids
+       **/
+      madara::knowledge::containers::Map bids_;
     };
   }
 }

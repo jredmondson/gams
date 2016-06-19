@@ -304,12 +304,6 @@ gams::controllers::BaseController::analyze (void)
       " Platform undefined. Unable to call platform_->analyze ()\n");
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::controllers::BaseController::analyze:" \
-    " calling system_analyze ()\n");
-  return_value |= system_analyze ();
-
   if (algorithm_)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -429,7 +423,7 @@ gams::controllers::BaseController::run_once_ (void)
     " calling monitor ()\n");
 
   // lock the context from any external updates
-  knowledge_.lock ();
+  madara::knowledge::ContextGuard guard (knowledge_);
 
   return_value |= monitor ();
 
@@ -498,9 +492,6 @@ gams::controllers::BaseController::run_once_ (void)
     "gams::controllers::BaseController::run: modifieds=%s\n",
     knowledge_.debug_modifieds ().c_str ());
 
-  // unlock the context to allow external updates
-  knowledge_.unlock ();
-
   return return_value;
 }
 
@@ -555,6 +546,12 @@ gams::controllers::BaseController::run (double loop_period,
     " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
     loop_period, max_runtime, send_period);
 
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::BaseController::run:" \
+    " calling system_analyze ()\n");
+  return_value |= system_analyze ();
+
   if (loop_period >= 0.0)
   {
     max_wait.set (max_runtime);
@@ -570,6 +567,12 @@ gams::controllers::BaseController::run (double loop_period,
     {
       // return value should be last return value of mape loop
       return_value = run_once_ ();
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::run:" \
+        " calling system_analyze ()\n");
+      return_value |= system_analyze ();
 
       // grab current time
       current = ACE_OS::gettimeofday ();

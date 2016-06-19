@@ -45,7 +45,6 @@
 **/
 
 #include "gams/elections/ElectionFactory.h"
-
 #include <iostream>
 
 gams::elections::ElectionFactory::ElectionFactory ()
@@ -62,4 +61,11 @@ gams::elections::ElectionFactory::set_knowledge (
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
+}
+
+void
+gams::elections::ElectionFactory::set_agent_prefix (
+const std::string & prefix)
+{
+  agent_prefix_ = prefix;
 }

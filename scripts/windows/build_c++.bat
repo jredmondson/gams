@@ -1,1 +1,1 @@
-call %GAMS_ROOT%\scripts\windows\base_build.bat ace madara gams vrep %*
+call %GAMS_ROOT%\scripts\windows\base_build.bat ace madara gams vrep vrep-config %*
