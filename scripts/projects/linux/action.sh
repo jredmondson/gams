@@ -78,6 +78,7 @@ do
     COMPILE=1
   elif [ "$var" = "compile-vrep" ]; then
     COMPILE_VREP=1
+    COMPILE=1
   elif [ "$var" = "run" ]; then
     RUN=1
   elif [ "$var" = "sim" ]; then
