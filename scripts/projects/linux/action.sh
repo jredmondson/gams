@@ -131,7 +131,7 @@ if [ $COMPILE -eq 1 ]; then
     echo "Building project..."
   fi
 
-  make -j vrep=$COMPILE_VREP $CORES
+  make vrep=$COMPILE_VREP -j $CORES
   
 fi
   

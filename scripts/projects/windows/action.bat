@@ -28,6 +28,10 @@ FOR %%x in (%*) do (
      echo Script will compile with vrep support
 
      SET compile_vrep=1
+
+     IF NOT %compile% EQU 1 (
+       SET compile=1
+     )
    ) ELSE IF "%%x" == "debug" (
 
      IF !verbose! EQU 1 (
