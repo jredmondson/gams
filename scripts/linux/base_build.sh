@@ -389,4 +389,5 @@ echo "export ACE_ROOT=$ACE_ROOT"
 echo "export MADARA_ROOT=$MADARA_ROOT"
 echo "export GAMS_ROOT=$GAMS_ROOT"
 echo "export VREP_ROOT=$VREP_ROOT"
-
+echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ACE_ROOT/lib:$MADARA_ROOT/lib:$GAMS_ROOT/lib"
+echo "export PATH=$PATH:$ACE_ROOT/bin:$VREP_ROOT"
