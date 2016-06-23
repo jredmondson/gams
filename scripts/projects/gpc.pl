@@ -2625,6 +2625,7 @@ platforms::${new_plat}::${new_plat} (
       (*sensors)[\"coverage\"] = coverage_sensor;
     }
     (*sensors_)[\"coverage\"] = (*sensors)[\"coverage\"];
+    status_.init_vars (*knowledge, get_id ());
     
     // create threads";
     
@@ -2635,6 +2636,17 @@ platforms::${new_plat}::${new_plat} (
         }
         $source_contents .= "
     // end create threads
+    
+    
+    /**
+    * the following should be set when movement is available in your
+    * platform. If on construction, movement should be possible, then
+    * feel free to keep this uncommented. Otherwise, set it somewhere else
+    * in analyze or somewhere else when appropriate to enable movement.
+    * If you never enable movement_available, movement based algorithms are
+    * unlikely to ever move with your platform.
+    **/
+    status_.movement_available = 1;
   }
 }
 

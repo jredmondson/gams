@@ -85,7 +85,11 @@ gams::variables::PlatformStatus::init_vars (
   const std::string & new_name)
 {
   name = new_name;
-  string prefix (make_variable_prefix ());
+  string prefix (".platform");
+
+  if (name != "")
+    prefix = make_variable_prefix ();
+
 
   // initialize the variable containers
   this->ok.set_name (prefix + ".ok", knowledge);
@@ -111,7 +115,10 @@ gams::variables::PlatformStatus::init_vars (
   const std::string & new_name)
 {
   name = new_name;
-  string prefix (make_variable_prefix ());
+  string prefix (".platform");
+  
+  if (name != "")
+    prefix = make_variable_prefix ();
   
   // initialize the variable containers
   this->ok.set_name (prefix + ".ok", knowledge);

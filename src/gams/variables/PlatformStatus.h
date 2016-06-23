@@ -95,7 +95,7 @@ namespace gams
        * @param   new_name   the name of the platform
        **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
-        const std::string & new_name);
+        const std::string & new_name = "");
       
       /**
        * Initializes variable containers
@@ -103,11 +103,14 @@ namespace gams
        * @param   new_name   the name of the platform
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const std::string & new_name);
+        const std::string & new_name = "");
 
       /// the id of this agent
       std::string name;
       
+      /// the prefix of the platform status variables in the knowledge base
+      std::string prefix;
+
       /// the agent-specific variables
       //Agent agent;
       
