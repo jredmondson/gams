@@ -84,6 +84,7 @@ MADARA=0
 GAMS=0
 PREREQS=0
 DOCS=0
+VREP_CONFIG=0
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_3_0_64_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -106,6 +107,8 @@ do
     PREREQS=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
+  elif [ "$var" = "vrep-config" ]; then
+    VREP_CONFIG=1
   elif [ "$var" = "java" ]; then
     JAVA=1
   elif [ "$var" = "ros" ]; then
@@ -140,6 +143,7 @@ do
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
     echo "  vrep            build with vrep support"
+    echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
@@ -381,6 +385,12 @@ if [ $GAMS -eq 1 ]; then
   fi
 else
   echo "NOT BUILDING GAMS"
+fi
+  
+
+if [ $VREP_CONFIG -eq 1 ]; then
+  echo "CONFIGURING 20 VREP PORTS"
+  $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
   
 echo "BUILD COMPLETE"

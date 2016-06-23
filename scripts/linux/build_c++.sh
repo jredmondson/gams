@@ -10,4 +10,4 @@ fi
 echo "Building ace madara gams vrep $@"
 echo "using GAMS_ROOT=$GAMS_ROOT"
 echo "Using SCRIPTS_DIR=$SCRIPTS_DIR"
-$SCRIPTS_DIR/base_build.sh vrep ace madara gams $@
+$SCRIPTS_DIR/base_build.sh vrep vrep-config ace madara gams $@
