@@ -152,8 +152,6 @@ gams::platforms::VREPBase::VREPBase (
       "gams::platforms::VREPBase():" \
       " successfully connected to VREP at %s:%d\n",
       vrep_host.c_str (), vrep_port);
-
-    get_ready ();
   }
 }
 
