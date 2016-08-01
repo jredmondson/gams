@@ -81,6 +81,7 @@ namespace gams
     class GAMSExport VREPQuad : public VREPBase
     {
     public:
+      const static std::string DEFAULT_MODEL_FILENAME;
       const static std::string DEFAULT_MODEL;
 
       /**
@@ -156,6 +157,11 @@ namespace gams
        * Return default model name
        **/
       virtual std::string get_default_model();
+
+      /**
+       * Return default model name, given resource directory
+       **/
+      virtual std::string get_default_model(std::string directory);
 
       /**
        * Call through to VREPQuad Constructor. Override for other types.

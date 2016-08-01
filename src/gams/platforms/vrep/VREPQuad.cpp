@@ -62,16 +62,25 @@ using std::string;
 using madara::knowledge::containers::NativeDoubleVector;
 using madara::knowledge::containers::Double;
 
+const string gams::platforms::VREPQuad::DEFAULT_MODEL_FILENAME (
+  "Quadricopter_NoCamera.ttm");
+
 const string gams::platforms::VREPQuad::DEFAULT_MODEL (
   (getenv ("GAMS_ROOT") == 0) ? 
-  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
-  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_NoCamera.ttm")
+  DEFAULT_MODEL_FILENAME : // if GAMS_ROOT is not defined, assume in working dir
+  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/" + DEFAULT_MODEL_FILENAME)
   );
 
 std::string
 gams::platforms::VREPQuadFactory::get_default_model()
 {
   return VREPQuad::DEFAULT_MODEL;
+}
+
+std::string
+gams::platforms::VREPQuadFactory::get_default_model(std::string directory)
+{
+  return directory + "/" + VREPQuad::DEFAULT_MODEL_FILENAME;
 }
 
 gams::platforms::BasePlatform *
@@ -119,6 +128,8 @@ gams::platforms::VREPQuadFactory::create (
       args.find ("client_side");
     madara::knowledge::KnowledgeMap::const_iterator model_file_found =
       args.find ("model_file");
+    madara::knowledge::KnowledgeMap::const_iterator resource_dir_found =
+      args.find ("resource_dir");
 
     if (client_side_found != args.end () &&
         client_side_found->second.to_integer () == 1)
@@ -130,9 +141,13 @@ gams::platforms::VREPQuadFactory::create (
       is_client_side = 0;
     }
 
-    if (args.size () >= 1)
+    if (model_file_found != args.end ())
     {
       model_file = model_file_found->second.to_string ();
+    }
+    else if (resource_dir_found != args.end ())
+    {
+      model_file = get_default_model(resource_dir_found->second.to_string());
     }
     else
     {

@@ -92,6 +92,7 @@ gams::platforms::VREPBase::VREPBase (
     sim_is_running_ (false),
     agent_is_ready_ (false),
     vrep_is_ready_ (false),
+    node_target_ (-1),
     model_file_ (model_file), is_client_side_ (is_client_side)
 {
   if (sensors && knowledge)
