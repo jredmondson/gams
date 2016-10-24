@@ -95,12 +95,7 @@ gams::platforms::VREPQuadLaser::VREPQuadLaser (
   variables::Self * self) :
   VREPQuad (model_file, is_client_side, knowledge, sensors, platforms, self),
   laser_sensor_(-1), sonar_sensor_(-1)
-{
-  if (knowledge && sensors && platforms && self)
-  {
-    get_sensor_handles();
-  }
-}
+{}
 
 std::string gams::platforms::VREPQuadLaser::get_id () const
 {
@@ -115,10 +110,17 @@ std::string gams::platforms::VREPQuadLaser::get_name () const
 double
 gams::platforms::VREPQuadLaser::read_sensor(simxInt handle, double range) const
 {
-  simxUChar detectionState;
+  simxUChar detectionState = 0;
   simxFloat detectedPoint[3];
   simxInt ret = simxReadProximitySensor(client_id_, handle,
     &detectionState, detectedPoint, NULL, NULL, simx_opmode_oneshot_wait);
+  if(ret != 0) {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::platforms::VREPQuadLaser::read_sensor:" \
+      " error reading laser sensor in vrep: %i\n", ret);
+    return NAN;
+  }
   if(detectionState == 0)
     return -range;
   else
@@ -218,6 +220,14 @@ gams::platforms::VREPQuadLaser::get_sensor_handles ()
       ++count;
     }
   }
+}
+
+void
+gams::platforms::VREPQuadLaser::add_model_to_environment (const string &model_file, 
+  const simxUChar is_client_side)
+{
+  VREPQuad::add_model_to_environment(model_file, is_client_side);
+  get_sensor_handles();
 }
 
 #endif // _GAMS_VREP_

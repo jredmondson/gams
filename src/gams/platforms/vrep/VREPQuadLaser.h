@@ -147,6 +147,12 @@ namespace gams
       void get_sensor_handles ();
       double read_sensor (simxInt handle, double range) const;
 
+      /**
+       * Add model to environment
+       */
+      virtual void add_model_to_environment (const std::string& file, 
+        const simxUChar client_side);
+
       simxInt laser_sensor_;
       simxInt sonar_sensor_;
     }; // class VREPQuad
