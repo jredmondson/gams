@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file VREPQuad.h
- * @author James Edmondson <jedmondson@gmail.com>
+ * @file VREPQuadCDRA.h
+ * @author Sagar Chaki <chaki@sei.cmu.edu>
  *
- * This file contains the definition of the VREPQuad simulator uav class
+ * This file contains the definition of the VREPQuadCDRA simulator uav class
  **/
 
-#ifndef   _GAMS_PLATFORM_VREP_QUAD_LASER_H_
-#define   _GAMS_PLATFORM_VREP_QUAD_LASER_H_
+#ifndef   _GAMS_PLATFORM_VREP_QUAD_CDRA_H_
+#define   _GAMS_PLATFORM_VREP_QUAD_CDRA_H_
 
 #include "gams/platforms/PlatformFactory.h"
 #include "gams/platforms/vrep/VREPBase.h"
@@ -76,35 +76,13 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMSExport HasRangeSensor
-    {
-    public:
-      virtual double get_range() const = 0;
-    };
-
-    class GAMSExport HasAltitudeSensor
-    {
-    public:
-      virtual double get_altitude() const = 0;
-    };
-
-    class GAMSExport HasColorSensor
-    {
-    public:
-      virtual uint32_t get_color() const = 0;
-    };
-
-    class GAMSExport HasColor
-    {
-    public:
-      virtual void set_color(uint32_t color) const = 0;
-    };
-
     /**
-    * A VREP platform for an autonomous aerial quadcopter w/ Laser ranger
+    * A VREP platform for an autonomous aerial quadcopter developed
+    * for the CDRA project. This has the ability to interface with a
+    * controller (Keyboard, XBOX360 etc.) and to send actuation
+    * commands to individual motors of the underlying VREP model.
     **/
-    class GAMSExport VREPQuadLaser : public VREPQuad, public HasRangeSensor,
-      public HasAltitudeSensor, public HasColorSensor, public HasColor
+    class GAMSExport VREPQuadCDRA : public VREPQuad
     {
     public:
       const static std::string DEFAULT_MODEL;
@@ -118,7 +96,7 @@ namespace gams
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
        **/
-      VREPQuadLaser (
+      VREPQuadCDRA (
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,
@@ -137,45 +115,27 @@ namespace gams
        * Gets the name of the platform
        **/
       virtual std::string get_name () const;
-
-      virtual double get_range () const;
-      virtual uint32_t get_color () const;
-      virtual void set_color (uint32_t color) const;
-      virtual double get_altitude () const;
-
-    protected:
-      void get_sensor_handles ();
-      double read_sensor (simxInt handle, double range) const;
-
-      /**
-       * Add model to environment
-       */
-      virtual void add_model_to_environment (const std::string& file, 
-        const simxUChar client_side);
-
-      simxInt laser_sensor_;
-      simxInt sonar_sensor_;
-    }; // class VREPQuad
+    }; // class VREPQuadCDRA
 
     /**
      * A factory class for creating VREP Quadcopter platforms
      **/
-    class GAMSExport VREPQuadLaserFactory : public VREPQuadFactory
+    class GAMSExport VREPQuadCDRAFactory : public VREPQuadFactory
     {
     protected:
       virtual std::string get_default_model();
 
       /**
-       * Call through to VREPQuadLaser Constructor
+       * Call through to VREPQuadCDRA Constructor
        * @param  file         model file to load
        * @param  client_side  0 if model is server side, 1 if client side
        * @param  knowledge    knowledge base
        * @param  sensors      map of sensor names to sensor information
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
-       * @return a new VREPQuadLaser
+       * @return a new VREPQuadCDRA
        **/
-      virtual VREPQuadLaser *create_quad (
+      virtual VREPQuadCDRA *create_quad (
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,
@@ -188,4 +148,4 @@ namespace gams
 
 #endif // _GAMS_VREP_
 
-#endif // _GAMS_PLATFORM_VREP_QUAD_LASER_H_
+#endif // _GAMS_PLATFORM_VREP_QUAD_CDRA_H_
