@@ -115,6 +115,16 @@ namespace gams
        * Gets the name of the platform
        **/
       virtual std::string get_name () const;
+
+      //-- read next user command. -1 means NONE, 0 = UP, 1 = DOWN, 2
+      //-- = LEFT, 3 = RIGHT
+      enum Command { NONE = -1, UP, DOWN, LEFT, RIGHT };      
+      int get_command();
+      
+    protected:
+      //-- the fifo from which user commands are read
+      int cmd_fd = -1;
+      
     }; // class VREPQuadCDRA
 
     /**
