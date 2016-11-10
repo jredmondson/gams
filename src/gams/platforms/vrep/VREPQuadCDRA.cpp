@@ -94,13 +94,7 @@ gams::platforms::VREPQuadCDRA::VREPQuadCDRA (
   variables::Platforms * platforms,
   variables::Self * self) :
   VREPQuad (model_file, is_client_side, knowledge, sensors, platforms, self)
-{
-  cmd_fd = open("/tmp/cdra", O_RDONLY|O_NONBLOCK);
-  if(cmd_fd == -1)
-    throw std::runtime_error("ERROR: could not open command fifo /tmp/cdra!!");
-  else
-    std::cerr << "command fifo opened successfully ...\n";
-}
+{}
 
 std::string gams::platforms::VREPQuadCDRA::get_id () const
 {
@@ -112,9 +106,19 @@ std::string gams::platforms::VREPQuadCDRA::get_name () const
   return "VREP CDRA Quadcopter";
 }
 
+//-- open the fifo file from which keyboard commands will be read
+int gams::platforms::VREPQuadCDRA::open_keyboard_fifo(const std::string &fifoName)
+{
+  cmd_fd = open(fifoName.c_str(), O_RDONLY|O_NONBLOCK);
+  if(cmd_fd == -1)
+    std::cerr << "ERROR: could not open command fifo /tmp/cdra!!\n";
+  else
+    std::cerr << "command fifo opened successfully ...\n";
+}
+
 //-- read next user command. -1 means NONE, 0 = UP, 1 = DOWN, 2 =
 //-- LEFT, 3 = RIGHT
-int gams::platforms::VREPQuadCDRA::get_command()
+int gams::platforms::VREPQuadCDRA::get_keyboard_command()
 {
   if(cmd_fd == -1) return NONE;
   

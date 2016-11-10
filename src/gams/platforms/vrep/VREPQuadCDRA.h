@@ -116,10 +116,12 @@ namespace gams
        **/
       virtual std::string get_name () const;
 
+      int open_keyboard_fifo(const std::string &fifoName);
+
       //-- read next user command. -1 means NONE, 0 = UP, 1 = DOWN, 2
       //-- = LEFT, 3 = RIGHT
       enum Command { NONE = -1, UP, DOWN, LEFT, RIGHT };      
-      int get_command();
+      int get_keyboard_command();
       
     protected:
       //-- the fifo from which user commands are read
