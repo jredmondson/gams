@@ -106,36 +106,4 @@ std::string gams::platforms::VREPQuadCDRA::get_name () const
   return "VREP CDRA Quadcopter";
 }
 
-//-- open the fifo file from which keyboard commands will be read
-int gams::platforms::VREPQuadCDRA::open_keyboard_fifo(const std::string &fifoName)
-{
-  cmd_fd = open(fifoName.c_str(), O_RDONLY|O_NONBLOCK);
-  if(cmd_fd == -1)
-    std::cerr << "ERROR: could not open command fifo /tmp/cdra!!\n";
-  else
-    std::cerr << "command fifo opened successfully ...\n";
-}
-
-//-- read next user command. -1 means NONE, 0 = UP, 1 = DOWN, 2 =
-//-- LEFT, 3 = RIGHT
-int gams::platforms::VREPQuadCDRA::get_keyboard_command()
-{
-  if(cmd_fd == -1) return NONE;
-  
-  Command lastCmd = NONE;
-  uint64_t cmd = 0;
-  ssize_t readRes = read(cmd_fd, (char*)(&cmd), 6);
-  if (readRes == 6 && ((cmd & 0xffffffffffff0000) == 11274462887936)) {
-    lastCmd = UP;
-  } else if (readRes == 6 && ((cmd & 0xffffffffffff0000) == 11278757855232)) {
-    lastCmd = DOWN;
-  } else if (readRes == 6 && ((cmd & 0xffffffffffff0000) == 11287347789824)) {
-    lastCmd = LEFT;
-  } else if (readRes == 6 && ((cmd & 0xffffffffffff0000) == 11283052822528)) {
-    lastCmd = RIGHT;
-  }
-
-  return lastCmd;
-}
-
 #endif // _GAMS_VREP_
