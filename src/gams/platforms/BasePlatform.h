@@ -311,6 +311,11 @@ namespace gams
       virtual void stop_move (void);
 
       /**
+       * Stops rotation, resetting source and dest angles to current angle
+       **/
+      virtual void stop_rotation (void);
+
+      /**
        * Instructs the agent to take off
        * @return the status of the takeoff, @see PlatformReturnValues
        **/
