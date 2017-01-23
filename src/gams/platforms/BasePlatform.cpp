@@ -293,4 +293,16 @@ gams::platforms::BasePlatform::stop_move (void)
   self_->agent.dest = self_->agent.location;
 }
 
+void
+gams::platforms::BasePlatform::stop_rotation (void)
+{
+  if (*status_.rotating)
+    status_.rotating = 0;
+  status_.paused_rotating = 0;
+
+  // set source and dest to current position
+  self_->agent.source_angle = self_->agent.angle;
+  self_->agent.dest_angle = self_->agent.angle;
+}
+
 gams::utility::GPSFrame gams::platforms::BasePlatform::frame_;
