@@ -213,7 +213,10 @@ platforms::PlatformFactoryRepository::create (
 
   if (type != "")
   {
-    FactoryMap::iterator it = factory_map_.find (type);
+    std::string alias (type);
+    madara::utility::lower (alias);
+
+    FactoryMap::iterator it = factory_map_.find (alias);
     if (it != factory_map_.end ())
     {
       result = it->second->create (args, knowledge_, sensors_, platforms_, 
@@ -224,7 +227,7 @@ platforms::PlatformFactoryRepository::create (
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ALWAYS,
         "gams::platforms::PlatformFactoryRepository::create:" \
-        " could not find \"%s\" platform.\n", type.c_str ());
+        " could not find \"%s\" platform.\n", alias.c_str ());
     }
   }
 
