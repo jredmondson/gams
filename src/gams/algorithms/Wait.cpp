@@ -51,13 +51,16 @@
 
 #include "gams/utility/ArgumentParser.h"
 
-using std::string;
-using std::cerr;
-using std::endl;
+namespace engine = madara::knowledge;
+namespace containers = engine::containers;
+
+typedef madara::knowledge::KnowledgeRecord  KnowledgeRecord;
+typedef KnowledgeRecord::Integer            Integer;
+typedef madara::knowledge::KnowledgeMap     KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::WaitFactory::create (
-  const madara::knowledge::KnowledgeMap & map,
+const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -65,27 +68,28 @@ gams::algorithms::WaitFactory::create (
   variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
+  double wait_time = 0.0;
   
   if (knowledge && sensors && platform && self)
   {
-    // Use a dumb workaround for now; TODO: convert this algo to use the map
-    using namespace madara::knowledge;
-    KnowledgeVector args(utility::kmap2kvec(map));
 
-    if (args.size () == 1 && 
-      (args[0].is_integer_type () || args[0].is_double_type ()))
+    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
     {
-      result = new Wait (args[0].to_double (), knowledge, platform, sensors, 
-        self);
-    }
-    else
-    {
+      if (i->first.size () <= 0)
+        continue;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_ERROR,
-         "gams::algorithms::WaitFactory::create:" \
-        " invalid arguments\n");
+      switch (i->first[0])
+      {
+      case 't':
+        if (i->first == "time")
+        {
+          wait_time = i->second.to_double ();
+        }
+      }
     }
+
+    result = new Wait (wait_time, knowledge, platform, sensors,
+      self);
   }
 
   return result;

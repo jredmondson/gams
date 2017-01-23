@@ -190,6 +190,11 @@ platforms::PlatformFactoryRepository::add (
     factory->set_sensors (sensors_);
     factory->set_platforms (platforms_);
 
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::PlatformFactoryRepository:add" \
+      " Adding %s factory.\n", alias.c_str ());
+
     factory_map_[alias] = factory;
   }
 }
