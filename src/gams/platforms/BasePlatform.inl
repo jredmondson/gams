@@ -73,7 +73,7 @@ gams::platforms::BasePlatform::get_location () const
 inline gams::utility::Rotation
 gams::platforms::BasePlatform::get_rotation () const
 {
-  utility::euler::YawPitchRoll euler;
+  utility::euler::RollPitchYaw euler;
 
   euler.a (self_->agent.orientation[0]);
   euler.b (self_->agent.orientation[1]);
@@ -85,7 +85,7 @@ gams::platforms::BasePlatform::get_rotation () const
 inline gams::utility::Pose
 gams::platforms::BasePlatform::get_pose () const
 {
-  utility::euler::YawPitchRoll euler;
+  utility::euler::RollPitchYaw euler;
 
   euler.a (self_->agent.orientation[0]);
   euler.b (self_->agent.orientation[1]);

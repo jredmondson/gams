@@ -267,11 +267,14 @@ namespace gams
       /** The Euler convention used by VREP */
       typedef EulerIntrXYZ EulerVREP;
 
-      /** The most commonly used Euler convention: Yaw-Pitch-Roll */
+      /** A commonly used Euler convention: Yaw-Pitch-Roll */
       typedef EulerIntrZYX EulerYPR;
 
-      /** The most commonly used Euler convention: Yaw-Pitch-Roll */
+      /** A commonly used Euler convention: Yaw-Pitch-Roll */
       typedef EulerYPR YawPitchRoll;
+
+      /** The most common vernacular usage of roll, pitch and yaw */
+      typedef EulerVREP RollPitchYaw;
 
       /** Stream operator for Euler angles */
       template<typename A, typename B, typename C, typename Conv>
