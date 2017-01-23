@@ -256,7 +256,13 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
   aliases[0] = "takeoff";
 
   add (aliases, new TakeoffFactory ());
-  
+
+  // the takeoff algorithm
+  aliases.resize (1);
+  aliases[0] = "land";
+
+  add (aliases, new LandFactory ());
+
   // the snake area coverage algorithm
   aliases.resize (2);
   aliases[0] = "snake";
