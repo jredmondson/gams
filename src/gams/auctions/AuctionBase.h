@@ -63,7 +63,10 @@
 
 #include "AuctionTypesEnum.h"
 #include "gams/groups/GroupBase.h"
+#include "gams/groups/GroupFixedList.h"
 #include "gams/GAMSExport.h"
+
+#include "gams/auctions/AuctionBid.h"
 
 namespace gams
 {
@@ -97,11 +100,16 @@ namespace gams
       virtual void add_group (groups::GroupBase * group);
 
       /**
+       * Clears the underlying auction participants group
+       **/
+      virtual void clear_group (void);
+
+      /**
       * Checks if the agent is a  member of the action participants
       * @param  agent_prefix  the participating agent's prefix (e.g. agent.0)
       * @return  true if the agent is a member of the auction
       **/
-      virtual bool is_member (const std::string & agent_prefix);
+      virtual bool is_member (const std::string & agent_prefix) const;
 
       /**
       * Checks if the agent is a  member of the action participants
@@ -151,6 +159,12 @@ namespace gams
       const std::string & get_auction_prefix (void) const;
 
       /**
+      * Gets participation rate in the group for this round
+      * @return  the percentage of participation (0.0-1.0)
+      **/
+      virtual double get_participation (void) const;
+
+      /**
       * Bids in the auction. Uses the agent prefix that has been
       * set in this Auction as the bidder id.
       * @param  amount bidded amount. This is a very flexible amount
@@ -182,6 +196,16 @@ namespace gams
       virtual std::string get_leader (void) = 0;
 
       /**
+       * Returns the list of bids in this round
+       * @param bids                the map of bidders to bid amount
+       * @param strip_prefix        if true, strips auction prefix from bidder 
+       * @param include_all_members if true, includes empty bids from  
+       **/
+      virtual void get_bids (AuctionBids & bids,
+        bool strip_prefix = true,
+        bool include_all_members = false) const;
+
+      /**
       * Proceeds to the next auction round in a multi-round
       * auction
       **/
@@ -195,9 +219,22 @@ namespace gams
 
       /**
       * Resets the round
-      * @return the agent prefix of the leader of the auction
       **/
       virtual void reset_round (void);
+
+      /**
+      * Explicitly sets the round number. Should only be used by
+      * advanced users
+      * @param  round  the round number for the auction
+      **/
+      void set_round (int round);
+
+      /**
+      * Returns the full auction prefix string, including round
+      * @return the actual prefix in the knowledge base corresponding to
+      *         the current round of this auction
+      **/
+      std::string get_auction_round_prefix (void) const;
 
     protected:
 
@@ -231,6 +268,11 @@ namespace gams
        * convenience class for bids
        **/
       madara::knowledge::containers::Map bids_;
+
+      /**
+       * the expected participant group
+       **/
+      groups::GroupFixedList group_;
     };
   }
 }

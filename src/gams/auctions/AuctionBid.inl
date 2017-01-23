@@ -44,61 +44,85 @@
 *      distribution.
 **/
 
-#ifndef   _GAMS_AUCTIONS_AUCTION_BASE_INL_
-#define   _GAMS_AUCTIONS_AUCTION_BASE_INL_
+/**
+* @file AuctionBid.inl
+* @author James Edmondson <jedmondson@gmail.com>
+*
+* This file contains the inline functions for an auction bid instance
+**/
 
-#include "AuctionBase.h"
-#include "gams/loggers/GlobalLogger.h"
+#ifndef   _GAMS_AUCTIONS_AUCTION_BID_INL_
+#define   _GAMS_AUCTIONS_AUCTION_BID_INL_
 
-inline int
-gams::auctions::AuctionBase::get_round (void) const
+#include "AuctionBid.h"
+
+#include "madara/utility/Utility.h"
+
+inline bool
+gams::auctions::AuctionBid::operator< (AuctionBid & rhs)
 {
-  return round_;
+  return amount < rhs.amount;
 }
 
-inline const std::string &
-gams::auctions::AuctionBase::get_agent_prefix (void) const
+inline bool
+gams::auctions::AuctionBid::operator== (AuctionBid & rhs)
 {
-  return agent_prefix_;
+  return amount == rhs.amount;
+}
+
+inline bool
+gams::auctions::AuctionBid::operator> (AuctionBid & rhs)
+{
+  return amount > rhs.amount;
+}
+
+inline bool
+gams::auctions::AuctionBidAscending::operator() (
+  AuctionBid & lhs, AuctionBid &rhs)
+{
+  return lhs < rhs;
+}
+
+inline bool
+gams::auctions::AuctionBidDescending::operator() (
+  AuctionBid & lhs, AuctionBid &rhs)
+{
+  return rhs < lhs;
 }
 
 inline void
-gams::auctions::AuctionBase::set_agent_prefix (const std::string & prefix)
+gams::auctions::sort_descending (AuctionBids & bids)
 {
-  agent_prefix_ = prefix;
-}
-
-inline const std::string &
-gams::auctions::AuctionBase::get_auction_prefix (void) const
-{
-  return auction_prefix_;
+  std::sort (bids.begin (), bids.end (), AuctionBidDescending ());
 }
 
 inline void
-gams::auctions::AuctionBase::reset_bids_pointer (void)
+gams::auctions::sort_ascending (AuctionBids & bids)
 {
-  if (knowledge_ && auction_prefix_ != "")
+  std::sort (bids.begin (), bids.end (), AuctionBidAscending ());
+}
+
+inline void
+gams::auctions::strip_prefix_fast (
+  const std::string & prefix, AuctionBids & bids)
+{
+  for (size_t i = 0; i < bids.size (); ++i)
   {
-    bids_.set_name (get_auction_round_prefix (), *knowledge_);
+    bids[i].bidder.erase (0, prefix.size ());
   }
 }
 
-inline std::string
-gams::auctions::AuctionBase::get_auction_round_prefix (void) const
-{
-  std::stringstream buffer;
-  buffer << auction_prefix_;
-  buffer << ".";
-  buffer << round_;
-
-  return buffer.str ();
-}
-
 inline void
-gams::auctions::AuctionBase::bid (
-  const madara::knowledge::KnowledgeRecord & amount)
+gams::auctions::strip_prefix_safe (
+const std::string & prefix, AuctionBids & bids)
 {
-  bid (agent_prefix_, amount);
+  for (size_t i = 0; i < bids.size (); ++i)
+  {
+    if (madara::utility::begins_with (bids[i].bidder, prefix))
+    {
+      bids[i].bidder.erase (0, prefix.size ());
+    }
+  }
 }
 
-#endif // _GAMS_AUCTIONS_AUCTION_BASE_INL_
+#endif // _GAMS_AUCTIONS_AUCTION_BID_H_

@@ -125,6 +125,8 @@ gams::variables::Agent::init_vars (
   loop_hz.set_name (prefix + ".loop_hz", knowledge);
   send_hz.set_name (prefix + ".send_hz", knowledge);
 
+  this->prefix = prefix;
+
   // init settings
   init_variable_settings ();
 }

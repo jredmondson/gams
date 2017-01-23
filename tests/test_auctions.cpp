@@ -55,19 +55,23 @@
 
 #include "gams/auctions/AuctionMaximumBid.h"
 #include "gams/auctions/AuctionMinimumBid.h"
+#include "gams/auctions/AuctionMinimumDistance.h"
 #include "gams/auctions/AuctionFactoryRepository.h"
+#include "gams/groups/GroupFixedList.h"
+#include "gams/platforms/NullPlatform.h"
 
 namespace loggers = gams::loggers;
 namespace auctions = gams::auctions;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
-void test_minimum_auction (void)
+void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
 {
   loggers::global_logger->log (
     loggers::LOG_ALWAYS, "Testing AuctionMinimumBid\n");
 
-  knowledge::KnowledgeBase knowledge;
+//  knowledge::KnowledgeBase knowledge;
+  knowledge.clear (true);
 
   containers::Double agent0bid ("auction.distances.0.agent.0", knowledge);
   containers::Double agent1bid ("auction.distances.0.agent.1", knowledge);
@@ -141,12 +145,13 @@ void test_minimum_auction (void)
   }
 }
 
-void test_maximum_auction (void)
+void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
 {
   loggers::global_logger->log (
     loggers::LOG_ALWAYS, "Testing AuctionMaximumBid\n");
 
-  knowledge::KnowledgeBase knowledge;
+  //knowledge::KnowledgeBase knowledge;
+  knowledge.clear (true);
 
   containers::Double agent0bid ("auction.distances.0.agent.0", knowledge);
   containers::Double agent1bid ("auction.distances.0.agent.1", knowledge);
@@ -220,10 +225,96 @@ void test_maximum_auction (void)
   }
 }
 
+void test_minimum_distance_auction (knowledge::KnowledgeBase & knowledge)
+{
+  loggers::global_logger->log (
+    loggers::LOG_ALWAYS, "Testing AuctionMinimumDistance\n");
+
+//  knowledge::KnowledgeBase knowledge;
+  knowledge.clear (true);
+
+  gams::groups::GroupFixedList group;
+  gams::groups::AgentVector members;
+  gams::variables::Platforms platforms;
+  gams::variables::Agents agents;
+  gams::utility::GPSPosition position;
+  gams::utility::Location target;
+  gams::platforms::NullPlatform platform (&knowledge, 0, &platforms, 0);
+
+  // add some members to the group
+  members.push_back ("agent.0");
+  members.push_back ("agent.1");
+  members.push_back ("agent.2");
+  members.push_back ("agent.3");
+  members.push_back ("agent.4");
+  group.add_members (members);
+
+  // initialize agent variables so we can manipulate them directly
+  gams::variables::init_vars (agents, knowledge, group);
+
+  // setup some handy references for referring to individual bids
+  containers::Double agent0bid ("auction.guard_duty.0.agent.0", knowledge);
+  containers::Double agent1bid ("auction.guard_duty.0.agent.1", knowledge);
+  containers::Double agent2bid ("auction.guard_duty.0.agent.2", knowledge);
+  containers::Double agent3bid ("auction.guard_duty.0.agent.3", knowledge);
+  containers::Double agent4bid ("auction.guard_duty.0.agent.4", knowledge);
+
+  // create some GPS locations
+  position.latitude (42.0600);
+  position.longitude (-72.0600);
+  position.to_container (agents[0].location);
+
+  position.latitude (42.0700);
+  position.longitude (-72.0700);
+  position.to_container (agents[1].location);
+
+  position.latitude (42.0800);
+  position.longitude (-72.0800);
+  position.to_container (agents[2].location);
+
+  position.latitude (42.0900);
+  position.longitude (-72.0900);
+  position.to_container (agents[3].location);
+
+  position.latitude (42.1000);
+  position.longitude (-72.1000);
+  position.to_container (agents[4].location);
+
+  auctions::AuctionMinimumDistance auction (
+    "auction.guard_duty", "agent.0", &knowledge, &platform);
+
+  auction.add_group (&group);
+
+  // set the target position
+
+  auction.set_target (position);
+  auction.calculate_bids ();
+
+  std::string closest = auction.get_leader ();
+
+  if (closest == "agent.4")
+  {
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  Leader == agent.3: SUCCESS\n");
+  }
+  else
+  {
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
+      closest.c_str ());
+  }
+
+  knowledge.print ();
+}
+
 int
 main (int, char **)
 {
-  test_minimum_auction ();
-  test_maximum_auction ();
+  knowledge::KnowledgeBase knowledge;
+
+  test_minimum_auction (knowledge);
+  test_maximum_auction (knowledge);
+  test_minimum_distance_auction (knowledge);
+
   return 0;
 }

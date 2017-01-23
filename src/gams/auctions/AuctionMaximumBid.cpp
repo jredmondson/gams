@@ -83,9 +83,6 @@ gams::auctions::AuctionMaximumBid::AuctionMaximumBid (
 {
 }
 
-/**
-* Constructor
-**/
 gams::auctions::AuctionMaximumBid::~AuctionMaximumBid ()
 {
 
@@ -106,7 +103,7 @@ gams::auctions::AuctionMaximumBid::get_leader (void)
     madara::knowledge::ContextGuard guard (*knowledge_);
 
     madara::knowledge::VariableReferences bids;
-    knowledge_->get_matches (auction_prefix_, "", bids);
+    knowledge_->get_matches (get_auction_round_prefix (), "", bids);
 
     double leader_bid = -1;
 

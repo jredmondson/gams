@@ -68,15 +68,17 @@ gams::auctions::AuctionBase::add_group (groups::GroupBase * group)
   groups::AgentVector members;
   group->get_members (members);
 
-  for (groups::AgentVector::iterator i = members.begin ();
-    i != members.end (); ++i)
-  {
-    bids_.set (*i, 0.0);
-  }
+  group_.add_members (members);
+}
+
+void
+gams::auctions::AuctionBase::clear_group (void)
+{
+  group_.clear_members ();
 }
 
 bool
-gams::auctions::AuctionBase::is_member (const std::string & agent_prefix)
+gams::auctions::AuctionBase::is_member (const std::string & agent_prefix) const
 {
   return bids_.exists (agent_prefix);
 }
@@ -86,6 +88,24 @@ gams::auctions::AuctionBase::get_bid (
   const std::string & id)
 {
   return bids_[id];
+}
+
+double
+gams::auctions::AuctionBase::get_participation (void) const
+{
+  double result = 1.0;
+  AuctionBids bids;
+  groups::AgentVector members;
+
+  get_bids (bids);
+  group_.get_members (members);
+
+  if (members.size () > 0)
+  {
+    result = (double)bids.size () / members.size ();
+  }
+
+  return result;
 }
 
 void
@@ -126,4 +146,50 @@ void gams::auctions::AuctionBase::reset_round (void)
 {
   round_ = 0;
   reset_bids_pointer ();
+}
+
+void gams::auctions::AuctionBase::set_round (int round)
+{
+  round_ = round;
+  reset_bids_pointer ();
+}
+
+void gams::auctions::AuctionBase::get_bids (
+  AuctionBids & bids, bool strip_prefix, bool include_all_members) const
+{
+  if (knowledge_)
+  {
+    // get all bids
+    madara::knowledge::VariableReferences bid_refs;
+    knowledge_->get_matches (get_auction_round_prefix (), "", bid_refs);
+
+    // the bids should be same size as bid references
+    bids.resize (bid_refs.size ());
+
+    // keep track of actual bids
+    size_t actuals = 0;
+
+    for (size_t i = 0; i < bid_refs.size (); ++i)
+    {
+      bids[actuals].amount = knowledge_->get (bid_refs[i]);
+
+      // if we're including all member bids or if the bid is real
+      if (include_all_members || bids[actuals].amount.is_valid ())
+      {
+        // set bidder to full name (includes round number)
+        bids[actuals].bidder = bid_refs[i].get_name ();
+        ++actuals;
+      }
+    } // end for loop over bid references
+
+    // resize the bids to smaller if necessary
+    if (actuals != bids.size ())
+      bids.resize (actuals);
+
+    // strip the prefixes if necessary
+    if (strip_prefix)
+    {
+      strip_prefix_fast (get_auction_round_prefix () + ".", bids);
+    }
+  } // end if knowledge base is valid
 }
