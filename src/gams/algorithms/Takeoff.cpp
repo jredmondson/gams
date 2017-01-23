@@ -119,6 +119,7 @@ gams::algorithms::Takeoff::execute (void)
     if (platform_)
     {
       platform_->takeoff ();
+      executions_++;
     }
     else
     {

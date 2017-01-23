@@ -109,7 +109,8 @@ gams::algorithms::Land::execute (void)
 
     if (platform_)
     {
-      platform_->takeoff ();
+      platform_->land ();
+      executions_++;
     }
     else
     {
