@@ -76,7 +76,7 @@ IF %ace% EQU 1 (
   echo.
   echo Generating ACE project
   cd "%ACE_ROOT%\ace"
-  echo "#include \"ace/config-win32.h\"" > config.h
+  echo #include "ace/config-win32.h" > config.h
   "%ACE_ROOT%\bin\mwc.pl" -type vc12 ace.mwc
   echo Building ACE library for Debug target
   msbuild "ace.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:ACE

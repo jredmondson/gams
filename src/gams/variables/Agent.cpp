@@ -72,6 +72,7 @@ gams::variables::Agent::operator= (const Agent & agent)
     this->coverage_type = agent.coverage_type;
     this->is_mobile = agent.is_mobile;
     this->location = agent.location;
+    this->orientation = agent.orientation;
     this->desired_altitude = agent.desired_altitude;
     this->source = agent.source;
     this->dest = agent.dest;
@@ -100,6 +101,7 @@ gams::variables::Agent::init_vars (
   // initialize the variable containers
   min_alt.set_name (prefix + ".min_alt", knowledge);
   location.set_name (prefix + ".location", knowledge);
+  orientation.set_name (prefix + ".orientation", knowledge);
   desired_altitude.set_name (prefix + ".desired_altitude", knowledge);
   is_mobile.set_name (prefix + ".mobile", knowledge);
   battery_remaining.set_name (prefix + ".battery", knowledge);
@@ -156,6 +158,7 @@ gams::variables::Agent::init_vars (
   // initialize the variable containers
   min_alt.set_name (agent_name + ".min_alt", knowledge);
   location.set_name (agent_name + ".location", knowledge, 3);
+  orientation.set_name (agent_name + ".orientation", knowledge, 3);
   desired_altitude.set_name (agent_name + ".desired_altitude", knowledge);
   is_mobile.set_name (agent_name + ".mobile", knowledge);
   battery_remaining.set_name (agent_name + ".battery", knowledge);

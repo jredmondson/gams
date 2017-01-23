@@ -155,7 +155,7 @@ namespace gams
       madara::knowledge::containers::NativeDoubleArray dest;
 
       /// the destination rotation
-      madara::knowledge::containers::NativeDoubleArray dest_angle;
+      madara::knowledge::containers::NativeDoubleArray dest_orientation;
       
       /// the home location
       madara::knowledge::containers::NativeDoubleArray home;
@@ -166,8 +166,8 @@ namespace gams
       /// the location, usually encoded in GPS, for this agent
       madara::knowledge::containers::NativeDoubleArray location;
 
-      /// the angle for this device
-      madara::knowledge::containers::NativeDoubleArray angle;
+      /// the angle for this device (roll, pitch, yaw)
+      madara::knowledge::containers::NativeDoubleArray orientation;
       
       /// the minimum altitude for this agent
       madara::knowledge::containers::Double min_alt;
@@ -182,7 +182,7 @@ namespace gams
       madara::knowledge::containers::NativeDoubleArray source;
 
       /// the source angle
-      madara::knowledge::containers::NativeDoubleArray source_angle;
+      madara::knowledge::containers::NativeDoubleArray source_orientation;
       
       /// indicator for temperature
       madara::knowledge::containers::Double temperature;

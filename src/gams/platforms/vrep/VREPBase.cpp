@@ -239,6 +239,7 @@ gams::platforms::VREPBase::sense (void)
   {
     // get position
     simxFloat curr_arr[3];
+    simxFloat curr_orientation[3];
     VREP_LOCK
     {
       simxGetObjectPosition (client_id_, node_id_, -1, curr_arr,
@@ -249,8 +250,24 @@ gams::platforms::VREPBase::sense (void)
         "gams::algorithms::platforms::VREPBase:" \
         " vrep position: %f,%f,%f\n", curr_arr[0], curr_arr[1], curr_arr[2]);
 
+      simxGetObjectOrientation (client_id_, node_id_, -1, curr_orientation,
+        simx_opmode_oneshot_wait);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_DETAILED,
+        "gams::algorithms::platforms::VREPBase:" \
+        " vrep orientation: %f,%f,%f\n",
+        curr_orientation[0], curr_orientation[1], curr_orientation[2]);
+
       utility::Location vrep_loc(get_vrep_frame(), curr_arr);
       utility::Location loc(get_frame(), vrep_loc);
+
+      utility::euler::EulerVREP vrep_euler (
+        curr_orientation[0], curr_orientation[1], curr_orientation[2]);
+
+      utility::Rotation vrep_orient (get_vrep_frame (), vrep_euler.to_quat ());
+
+      utility::euler::YawPitchRoll vrep_yawpitchroll (vrep_orient);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
@@ -259,6 +276,9 @@ gams::platforms::VREPBase::sense (void)
 
       // set position in madara
       loc.to_container<utility::order::GPS> (self_->agent.location);
+      self_->agent.orientation.set (2, vrep_yawpitchroll.c ());
+      self_->agent.orientation.set (0, vrep_yawpitchroll.a ());
+      self_->agent.orientation.set (1, vrep_yawpitchroll.b ());
 
       // now that location is set, make sure movement_available is enabled
       status_.movement_available = 1;

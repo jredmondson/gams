@@ -44,6 +44,8 @@
  *      distribution.
  **/
 
+#include "gams/utility/Euler.h"
+
 inline gams::platforms::BasePlatform::BasePlatform (
   madara::knowledge::KnowledgeBase * knowledge,
   gams::variables::Sensors * sensors,
@@ -71,14 +73,26 @@ gams::platforms::BasePlatform::get_location () const
 inline gams::utility::Rotation
 gams::platforms::BasePlatform::get_rotation () const
 {
-  return utility::Rotation(get_frame(), self_->agent.angle);
+  utility::euler::YawPitchRoll euler;
+
+  euler.a (self_->agent.orientation[0]);
+  euler.b (self_->agent.orientation[1]);
+  euler.c (self_->agent.orientation[2]);
+
+  return utility::Rotation(get_frame(), euler.to_quat ());
 }
 
 inline gams::utility::Pose
 gams::platforms::BasePlatform::get_pose () const
 {
-  return utility::Pose(get_frame(), self_->agent.location,
-                       self_->agent.angle);
+  utility::euler::YawPitchRoll euler;
+
+  euler.a (self_->agent.orientation[0]);
+  euler.b (self_->agent.orientation[1]);
+  euler.c (self_->agent.orientation[2]);
+
+  return utility::Pose (get_frame (), utility::LocationVector (self_->agent.location),
+    utility::RotationVector (euler.to_quat ()));
 }
 
 inline madara::knowledge::KnowledgeBase *
