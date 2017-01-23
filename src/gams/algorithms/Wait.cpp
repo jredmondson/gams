@@ -88,8 +88,7 @@ const madara::knowledge::KnowledgeMap & args,
       }
     }
 
-    result = new Wait (wait_time, knowledge, platform, sensors,
-      self);
+    result = new Wait (wait_time, knowledge, platform, sensors, self);
   }
 
   return result;

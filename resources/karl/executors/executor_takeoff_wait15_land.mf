@@ -1,0 +1,10 @@
+agent.0.algorithm="executor";
+agent.0.algorithm.args.size = 3;
+agent.0.algorithm.args.repeat = 0;
+agent.0.algorithm.args.0.algorithm = "takeoff";
+agent.0.algorithm.args.1.algorithm = "wait";
+agent.0.algorithm.args.1.algorithm.args.time = 15.0;
+
+//agent.0.algorithm.args.2.precond = "count > 15";
+
+agent.0.algorithm.args.2.algorithm = "land";
