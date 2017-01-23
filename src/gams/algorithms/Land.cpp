@@ -103,6 +103,8 @@ gams::algorithms::Land::analyze (void)
 int
 gams::algorithms::Land::execute (void)
 {
+  int result = 0;
+
   if (executions_ == 0)
   {
     std::cerr << "Landing...\n";
@@ -111,13 +113,15 @@ gams::algorithms::Land::execute (void)
     {
       platform_->land ();
       executions_++;
+      status_.finished = 1;
+      result |= FINISHED;
     }
     else
     {
       std::cerr << "ERROR: No platform. Landing aborted.\n";
     }
   }
-  return 0;
+  return result;
 }
 
 

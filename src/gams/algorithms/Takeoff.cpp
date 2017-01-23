@@ -112,6 +112,8 @@ gams::algorithms::Takeoff::analyze (void)
 int
 gams::algorithms::Takeoff::execute (void)
 {
+  int result = 0;
+
   if (executions_ == 0)
   {
     std::cerr << "Taking off..." << std::endl;
@@ -120,6 +122,8 @@ gams::algorithms::Takeoff::execute (void)
     {
       platform_->takeoff ();
       executions_++;
+      status_.finished = 1;
+      result |= FINISHED;
     }
     else
     {
@@ -127,7 +131,7 @@ gams::algorithms::Takeoff::execute (void)
     }
   }
 
-  return 0;
+  return result;
 }
 
 
