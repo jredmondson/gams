@@ -1,7 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <gams/utility/Euler.h>
-#include <gams/utility/Rotation.h>
+#include <gams/utility/Orientation.h>
 //#include <gams/utility/GPSFrame.h>
 
 using namespace gams::utility;
@@ -110,13 +110,13 @@ int main(int argc, char *argv[])
 
   {
     EulerExtrXYZ e(60, 45, 15, degrees);
-    Rotation r(e.to_rotation());
+    Orientation r(e.to_orientation());
 
     cout << r << endl;
   }
   {
     EulerExtrXYZ e(0, 0, 1, radians);
-    Rotation r(e.to_rotation());
+    Orientation r(e.to_orientation());
 
     cout << r << endl;
   }

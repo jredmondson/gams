@@ -70,8 +70,8 @@ gams::platforms::BasePlatform::get_location () const
   return ret;
 }
 
-inline gams::utility::Rotation
-gams::platforms::BasePlatform::get_rotation () const
+inline gams::utility::Orientation
+gams::platforms::BasePlatform::get_orientation () const
 {
   utility::euler::RollPitchYaw euler;
 
@@ -79,7 +79,7 @@ gams::platforms::BasePlatform::get_rotation () const
   euler.b (self_->agent.orientation[1]);
   euler.c (self_->agent.orientation[2]);
 
-  return utility::Rotation(get_frame(), euler.to_quat ());
+  return utility::Orientation(get_frame(), euler.to_quat ());
 }
 
 inline gams::utility::Pose
@@ -92,7 +92,7 @@ gams::platforms::BasePlatform::get_pose () const
   euler.c (self_->agent.orientation[2]);
 
   return utility::Pose (get_frame (), utility::LocationVector (self_->agent.location),
-    utility::RotationVector (euler.to_quat ()));
+    utility::OrientationVector (euler.to_quat ()));
 }
 
 inline madara::knowledge::KnowledgeBase *

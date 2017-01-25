@@ -64,6 +64,11 @@ namespace gams
                             double x, double y, double z)
       : x_(x), y_(y), z_(z) {}
 
+    inline constexpr LocationVector::LocationVector (const LocationVector & rhs)
+      : x_ (rhs.x_), y_ (rhs.y_), z_ (rhs.z_)
+    {
+    }
+
     inline constexpr LocationVector::LocationVector()
       : x_(INVAL_COORD), y_(INVAL_COORD), z_(INVAL_COORD) {}
 
@@ -81,9 +86,9 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
 
-    inline constexpr bool LocationVector::is_invalid() const
+    inline constexpr bool LocationVector::is_set() const
     {
-      return x_ == INVAL_COORD || y_ == INVAL_COORD || z_ == INVAL_COORD;
+      return x_ != INVAL_COORD || y_ != INVAL_COORD || z_ != INVAL_COORD;
     }
 
     inline constexpr bool
@@ -165,6 +170,33 @@ namespace gams
       return o;
     }
 
+    inline std::string Location::to_string (const std::string & delimiter,
+      const std::string & unset_identifier) const
+    {
+      std::stringstream buffer;
+
+      if (x () != DBL_MAX)
+        buffer << x ();
+      else
+        buffer << unset_identifier;
+
+      buffer << delimiter;
+
+      if (y () != DBL_MAX)
+        buffer << y ();
+      else
+        buffer << unset_identifier;
+
+      buffer << delimiter;
+
+      if (z () != DBL_MAX)
+        buffer << z ();
+      else
+        buffer << unset_identifier;
+
+      return buffer.str ();
+    }
+
     inline Location::Location(double x, double y, double z)
       : LocationVector(x, y, z), Coordinate() {}
 
@@ -182,6 +214,11 @@ namespace gams
       : LocationVector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);
+    }
+
+    inline Location::Location (const Location & rhs)
+      : LocationVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate (rhs.frame ())
+    {
     }
 
     inline Location::Location(const double array[])

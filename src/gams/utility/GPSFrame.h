@@ -66,7 +66,7 @@ namespace gams
      *    x is Latitude
      *    y is Longitude
      *    z is Altitude (above assumed perfectly spherical surface)
-     * Rotations represented in Axis Angle notation
+     * Orientations represented in Axis Angle notation
      *    Axis rx points towards north pole
      *    Axis ry points west at current location
      *    Axis rz points upwards (i.e, normal vector)

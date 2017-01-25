@@ -110,7 +110,7 @@ namespace gams
       }
       GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
       {
-        if(!origin().is_rotation_zero())
+        if(!origin().is_orientation_zero())
           throw undefined_transform(*this, origin().frame(), false, true);
         frame->normalize_location(x, y, z);
 

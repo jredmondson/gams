@@ -88,7 +88,7 @@ namespace gams
        * @param  agents      variables referencing agents
        **/
       Move (
-        const std::vector <utility::Position> & locations,
+        const std::vector <utility::Pose> & locations,
         int repeat,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
@@ -128,7 +128,7 @@ namespace gams
     protected:
 
       /// the locations to visit
-      std::vector <utility::Position> locations_;
+      std::vector <utility::Pose> poses_;
 
       /// number of times to repeat
       int repeat_;

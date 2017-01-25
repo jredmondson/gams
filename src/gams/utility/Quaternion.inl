@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_QUATERNION_INL_
 #define _GAMS_UTILITY_QUATERNION_INL_
 
-#include <gams/utility/Rotation.h>
+#include <gams/utility/Orientation.h>
 #include <gams/utility/Location.h>
 
 #include "Quaternion.h"
@@ -69,12 +69,12 @@ namespace gams
 
     inline Quaternion::Quaternion(double rx, double ry, double rz)
     {
-      from_rotation_vector(rx, ry, rz);
+      from_orientation_vector(rx, ry, rz);
     }
 
-    inline Quaternion::Quaternion(const RotationVector &rot)
+    inline Quaternion::Quaternion(const OrientationVector &rot)
     {
-      from_rotation_vector(rot);
+      from_orientation_vector(rot);
     }
 
     inline Quaternion::Quaternion(const LocationVector &loc)
@@ -108,7 +108,7 @@ namespace gams
       to_location_vector(loc.x_, loc.y_, loc.z_);
     }
 
-    inline void Quaternion::from_rotation_vector(
+    inline void Quaternion::from_orientation_vector(
                           double rx, double ry, double rz)
     {
       double magnitude = sqrt(rx * rx + ry * ry + rz * rz);
@@ -129,12 +129,12 @@ namespace gams
       }
     }
 
-    inline void Quaternion::from_rotation_vector(const RotationVector &rot)
+    inline void Quaternion::from_orientation_vector(const OrientationVector &rot)
     {
-      from_rotation_vector(rot.rx(), rot.ry(), rot.rz());
+      from_orientation_vector(rot.rx(), rot.ry(), rot.rz());
     }
 
-    inline void Quaternion::to_rotation_vector(
+    inline void Quaternion::to_orientation_vector(
                               double &rx, double &ry, double &rz) const
     {
       double norm = sqrt(x_ * x_ + y_ * y_ + z_ * z_);
@@ -152,9 +152,9 @@ namespace gams
       }
     }
 
-    inline void Quaternion::to_rotation_vector(RotationVector &rot) const
+    inline void Quaternion::to_orientation_vector(OrientationVector &rot) const
     {
-      to_rotation_vector(rot.rx_, rot.ry_, rot.rz_);
+      to_orientation_vector(rot.rx_, rot.ry_, rot.rz_);
     }
 
     inline void Quaternion::hamilton_product(
@@ -406,9 +406,9 @@ namespace gams
       return w_ * w_ - x_* x_ - y_ * y_ + z_ * z_;
     }
 
-    inline RotationVector::RotationVector(const Quaternion &quat)
+    inline OrientationVector::OrientationVector(const Quaternion &quat)
     {
-      quat.to_rotation_vector(rx_, ry_, rz_);
+      quat.to_orientation_vector(rx_, ry_, rz_);
     }
 
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)
@@ -420,20 +420,20 @@ namespace gams
       return o;
     }
 
-    inline Rotation Rotation::slerp(const Rotation &o, double t) const
+    inline Orientation Orientation::slerp(const Orientation &o, double t) const
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
-      return Rotation(q);
+      return Orientation(q);
     }
 
-    inline void Rotation::slerp_this(const Rotation &o, double t)
+    inline void Orientation::slerp_this(const Orientation &o, double t)
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
-      q.to_rotation_vector(*this);
+      q.to_orientation_vector(*this);
     }
   }
 }

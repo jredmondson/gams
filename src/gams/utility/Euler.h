@@ -50,7 +50,7 @@
  *
  * This file contains the Euler class, useful for specifying angles as euler
  * angles (a sequence of rotations about specified axes). To manipulate
- * these angles, convert them to the Quaternion or Rotation classes.
+ * these angles, convert them to the Quaternion or Orientation classes.
  **/
 
 #ifndef _GAMS_UTILITY_EULER_H_
@@ -58,7 +58,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "Rotation.h"
+#include "Orientation.h"
 #include "AngleUnits.h"
 #include "Quaternion.h"
 
@@ -138,7 +138,7 @@ namespace gams
        * convention, you will get a compile time error.
        *
        * Avoid manipulating angles in this notation. It is better to convert to
-       * a Quaternion (or Rotation) and back, than to try to directly manipulate
+       * a Quaternion (or Orientation) and back, than to try to directly manipulate
        * a Euler angle.
        *
        * @tparam A the first axis of rotation
@@ -200,11 +200,11 @@ namespace gams
         explicit Euler(const Euler<A2, B2, C2, Conv2> &o);
 
         /**
-         * Constructor to convert from a Rotation (or RotationVector)
+         * Constructor to convert from a Orientation (or OrientationVector)
          *
          * @param r the rotation
          **/
-        explicit Euler(const RotationVector &r);
+        explicit Euler(const OrientationVector &r);
 
         /// Getter for the first rotation angle, around axis A
         double a() const { return a_; }
@@ -228,21 +228,21 @@ namespace gams
         Quaternion to_quat() const;
 
         /**
-         * Convert this Euler angle to a Rotation (axis-angle notation),
+         * Convert this Euler angle to a Orientation (axis-angle notation),
          * within the default frame.
          *
-         * @return the Rotation which represents the same angle as *this
+         * @return the Orientation which represents the same angle as *this
          **/
-        Rotation to_rotation() const;
+        Orientation to_orientation() const;
 
         /**
-         * Convert this Euler angle to a Rotation (axis-angle notation),
+         * Convert this Euler angle to a Orientation (axis-angle notation),
          * within the specified frame.
          *
-         * @param frame the reference frame the Rotation will belong to
-         * @return the Rotation which represents the same angle as *this
+         * @param frame the reference frame the Orientation will belong to
+         * @return the Orientation which represents the same angle as *this
          **/
-        Rotation to_rotation(const ReferenceFrame &frame) const;
+        Orientation to_orientation(const ReferenceFrame &frame) const;
 
         /**
          * Convert a Quaternion into a Euler angle.

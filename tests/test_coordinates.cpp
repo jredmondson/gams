@@ -115,11 +115,11 @@ int main(int argc, char *argv[])
 
   std::cout << std::endl << "Testing rotations between Cartesian frames:" << std::endl;
   CartesianFrame rot_frame0(gloc0);
-  CartesianFrame rot_frame1(Pose(rot_frame0, Location(50, 100), Rotation(0, 0, 90, degrees)));
+  CartesianFrame rot_frame1(Pose(rot_frame0, Location(50, 100), Orientation(0, 0, 90, degrees)));
 
-  Rotation rot0(rot_frame0, 0, 0, 0);
-  Rotation rot1(rot_frame1, 0, 0, 0);
-  LOG(Rotation(rot_frame1.origin()));
+  Orientation rot0(rot_frame0, 0, 0, 0);
+  Orientation rot1(rot_frame1, 0, 0, 0);
+  LOG(Orientation(rot_frame1.origin()));
   TEST(rot1.transform_to(rot_frame0).rz(), M_PI / 2);
   TEST(rot0.transform_to(rot_frame1).rz(), - (M_PI / 2));
   TEST(rot0.distance_to(rot1), 90);
@@ -138,16 +138,10 @@ int main(int argc, char *argv[])
   LOG(rloc3.transform_to(gps_frame));
 
   std::cout << std::endl << "Testing rotations between Cartesian/GPS frames:" << std::endl;
-  Rotation grot0(gps_frame, 0, 0, 0);
+  Orientation grot0(gps_frame, 0, 0, 0);
   TEST(rot1.transform_to(gps_frame).rz(), M_PI / 2);
   TEST(grot0.transform_to(rot_frame1).rz(), - (M_PI / 2));
-
-  std::cout << std::endl << "Testing string conversions:" << std::endl;
-  Location sloc0(gps_frame, 4, 7);
-  LOG(sloc0.to_string());
-  sloc0.from_string("1, 2, 3");
-  LOG(sloc0);
-
+  
   std::cout << std::endl << "Testing Poses, with rotations between Cartesian frames:" << std::endl;
   Pose pose0(rot_frame0, 0, 0);
   Pose pose1(rot_frame1, 0, 0);
@@ -160,17 +154,17 @@ int main(int argc, char *argv[])
   std::cout << std::endl << "Forming a hexagon with a chain of Cartesian frames:" << std::endl;
   CartesianFrame hex_frame0(gloc0);
   Pose hex0(hex_frame0, 0, 0);
-  CartesianFrame hex_frame1(Pose(hex_frame0, Location(10, 0), Rotation(0, 0, 60, degrees)));
+  CartesianFrame hex_frame1(Pose(hex_frame0, Location(10, 0), Orientation(0, 0, 60, degrees)));
   Pose hex1(hex_frame1, 0, 0);
-  CartesianFrame hex_frame2(Pose(hex_frame1, Location(10, 0), Rotation(0, 0, 60, degrees)));
+  CartesianFrame hex_frame2(Pose(hex_frame1, Location(10, 0), Orientation(0, 0, 60, degrees)));
   Pose hex2(hex_frame2, 0, 0);
-  CartesianFrame hex_frame3(Pose(hex_frame2, Location(10, 0), Rotation(0, 0, 60, degrees)));
+  CartesianFrame hex_frame3(Pose(hex_frame2, Location(10, 0), Orientation(0, 0, 60, degrees)));
   Pose hex3(hex_frame3, 0, 0);
-  CartesianFrame hex_frame4(Pose(hex_frame3, Location(10, 0), Rotation(0, 0, 60, degrees)));
+  CartesianFrame hex_frame4(Pose(hex_frame3, Location(10, 0), Orientation(0, 0, 60, degrees)));
   Pose hex4(hex_frame4, 0, 0);
-  CartesianFrame hex_frame5(Pose(hex_frame4, Location(10, 0), Rotation(0, 0, 60, degrees)));
+  CartesianFrame hex_frame5(Pose(hex_frame4, Location(10, 0), Orientation(0, 0, 60, degrees)));
   Pose hex5(hex_frame5, 0, 0);
-  CartesianFrame hex_frame6(Pose(hex_frame5, Location(10, 0), Rotation(0, 0, 60, degrees)));
+  CartesianFrame hex_frame6(Pose(hex_frame5, Location(10, 0), Orientation(0, 0, 60, degrees)));
   Pose hex6(hex_frame6, 0, 0);
   TEST(hex6.distance_to(hex0), 0);
   TEST(hex0.distance_to(hex6), 0);
@@ -183,9 +177,9 @@ int main(int argc, char *argv[])
   TEST(hex0.angle_to(hex4), 120);
   TEST(hex0.angle_to(hex5), 60);
   TEST(hex0.angle_to(hex6), 0);
-  LOG(Rotation(hex0));
-  LOG(Rotation(hex6));
-  LOG(Rotation(hex6.transform_to(hex_frame0)));
+  LOG(Orientation(hex0));
+  LOG(Orientation(hex6));
+  LOG(Orientation(hex6.transform_to(hex_frame0)));
   TEST(hex0.angle_to(hex0), 0);
   return 0;
 }

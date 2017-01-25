@@ -83,7 +83,7 @@ namespace gams
      *       necessarily point in the north direction, especially for near-polar
      *       UPS coordinates. For proper transformation of poses, be sure to
      *       transform the entire pose as a single Pose object. Do not transform
-     *       Locations and Rotations individually if bearing is important.
+     *       Locations and Orientations individually if bearing is important.
      **/
     class GAMSExport UTMFrame : public ReferenceFrame
     {
@@ -185,30 +185,30 @@ namespace gams
                       double &x, double &y, double &z) const;
 
       /**
-       * Transform RotationVector in-place into its origin frame from this frame
+       * Transform OrientationVector in-place into its origin frame from this frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_rotation_to_origin(
+      virtual void transform_orientation_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Transform RotationVector in-place from its origin frame
+       * Transform OrientationVector in-place from its origin frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_rotation_from_origin(
+      virtual void transform_orientation_from_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
        * Transform pose in-place into its origin frame from this frame.
-       * Rotations may transform differenly based on Location, so transformation
+       * Orientations may transform differenly based on Location, so transformation
        * of Poses might result in different values than transformation of the
-       * Location and Rotation parts separately.
+       * Location and Orientation parts separately.
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -223,9 +223,9 @@ namespace gams
 
       /**
        * Transform pose in-place from its origin frame
-       * Rotations may transform differenly based on Location, so transformation
+       * Orientations may transform differenly based on Location, so transformation
        * of Poses might result in different values than transformation of the
-       * Location and Rotation parts separately.
+       * Location and Orientation parts separately.
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate

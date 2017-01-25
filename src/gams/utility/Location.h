@@ -28,7 +28,7 @@
  *      University for the operation of the Software Engineering Institute, a
  *      federally funded research and development center. Any opinions,
  *      findings and conclusions or recommendations expressed in this material
- *      are those of the author(s) and do not necessarily reflect the views of
+ *      are those of the author (s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
@@ -48,7 +48,7 @@
  * @file Location.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location class
+ * This file contains the Location and LocationVector classes
  **/
 
 #ifndef _GAMS_UTILITY_LOCATION_H_
@@ -91,39 +91,45 @@ namespace gams
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      constexpr LocationVector(double x, double y, double z = 0.0);
+      constexpr LocationVector (double x, double y, double z = 0.0);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).
        **/
-      constexpr LocationVector();
+      constexpr LocationVector ();
+
+      /**
+       * Copy constructor.
+       * @param rhs  vector to copy from
+       **/
+      constexpr LocationVector::LocationVector (const LocationVector & rhs);
 
       /**
        * Constructor from C array
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit LocationVector(const double array[]);
+      explicit LocationVector (const double array[]);
 
       /**
        * Constructor from C array
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit LocationVector(const float array[]);
+      explicit LocationVector (const float array[]);
 
       /**
        * Constructor from MADARA DoubleVector
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      explicit LocationVector(
+      explicit LocationVector (
         const madara::knowledge::containers::DoubleVector &vec);
 
       /**
        * Constructor from MADARA NativeDoubleVector
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      explicit LocationVector(
+      explicit LocationVector (
         const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
@@ -131,7 +137,7 @@ namespace gams
        *
        * @return true if no values in this Location are INVAL_COORD
        **/
-      constexpr bool is_invalid() const;
+      constexpr bool is_set () const;
 
       /**
        * Tests if all values in this Location are the same
@@ -139,42 +145,42 @@ namespace gams
        *
        * @param rhs the other Location to check against
        **/
-      constexpr bool operator==(const LocationVector &rhs) const;
+      constexpr bool operator== (const LocationVector &rhs) const;
 
       /**
        * Tests if all values in this Location are zero
        *
        * @return true of all values are zero
        **/
-      constexpr bool is_zero() const;
+      constexpr bool is_zero () const;
 
       /**
        * Returns the name of this coordinate type
        *
        * @return "Location"
        **/
-      static std::string name();
+      static std::string name ();
 
       /**
        * Getter for x
        *
        * @return x value
        **/
-      constexpr double x() const;
+      constexpr double x () const;
 
       /**
        * Getter for y
        *
        * @return y value
        **/
-      constexpr double y() const;
+      constexpr double y () const;
 
       /**
        * Getter for z
        *
        * @return z value
        **/
-      constexpr double z() const;
+      constexpr double z () const;
 
       /**
        * Setter for x
@@ -182,7 +188,7 @@ namespace gams
        * @param new_x the new x value
        * @return new x value
        **/
-      double x(double new_x);
+      double x (double new_x);
 
       /**
        * Setter for y
@@ -190,7 +196,7 @@ namespace gams
        * @param new_y the new y value
        * @return new y value
        **/
-      double y(double new_y);
+      double y (double new_y);
 
       /**
        * Setter for z
@@ -198,28 +204,28 @@ namespace gams
        * @param new_z the new z value
        * @return new z value
        **/
-      double z(double new_z);
+      double z (double new_z);
 
       /**
        * Getter for longitude, a synonym for x
        *
        * @return longitude value
        **/
-      constexpr double lng() const;
+      constexpr double lng () const;
 
       /**
        * Getter for latitude, a synonym for y
        *
        * @return latitude value
        **/
-      constexpr double lat() const;
+      constexpr double lat () const;
 
       /**
        * Getter for altitude, a synonym for z
        *
        * @return altitude value
        **/
-      constexpr double alt() const;
+      constexpr double alt () const;
 
       /**
        * Setter for longitude, a synonym for x
@@ -227,7 +233,7 @@ namespace gams
        * @param new_lng new longitude value
        * @return new longitude value
        **/
-      double lng(double new_lng);
+      double lng (double new_lng);
 
       /**
        * Setter for latitude, a synonym for y
@@ -235,7 +241,7 @@ namespace gams
        * @param new_lat new latitude value
        * @return new latitude value
        **/
-      double lat(double new_lat);
+      double lat (double new_lat);
 
       /**
        * Setter for altitude, a synonym for z
@@ -243,35 +249,35 @@ namespace gams
        * @param new_alt new altitude value
        * @return new altitude value
        **/
-      double alt(double new_alt);
+      double alt (double new_alt);
 
       /**
        * Getter for rho, a synonym for x for Cylindrical systems
        *
        * @return rho value
        **/
-      constexpr double rho() const;
+      constexpr double rho () const;
 
       /**
        * Getter for theta, a synonym for x for Spherical systems
        *
        * @return theta value
        **/
-      constexpr double theta() const;
+      constexpr double theta () const;
 
       /**
        * Getter for phi, a synonym for y for Cylindrical and Spherical systems
        *
        * @return phi value
        **/
-      constexpr double phi() const;
+      constexpr double phi () const;
 
       /**
        * Getter for r, a synonym for z for Cylindrical and Spherical systems
        *
        * @return r value
        **/
-      constexpr double r() const;
+      constexpr double r () const;
 
       /**
        * Setter for rho, a synonym for x for Cylindrical systems
@@ -279,7 +285,7 @@ namespace gams
        * @param new_rho new rho value
        * @return new rho value
        **/
-      double rho(double new_rho);
+      double rho (double new_rho);
 
       /**
        * Setter for theta, a synonym for x for Spherical systems
@@ -287,7 +293,7 @@ namespace gams
        * @param new_theta new theta value
        * @return new theta value
        **/
-      double theta(double new_theta);
+      double theta (double new_theta);
 
       /**
        * Setter for phi, a synonym for y for Cylindrical and Spherical systems
@@ -295,7 +301,7 @@ namespace gams
        * @param new_phi new phi value
        * @return new phi value
        **/
-      double phi(double new_phi);
+      double phi (double new_phi);
 
       /**
        * Setter for r, a synonym for z for Cylindrical and Spherical systems
@@ -303,7 +309,7 @@ namespace gams
        * @param new_r new new value
        * @return new r value
        **/
-      double r(double new_r);
+      double r (double new_r);
 
 #ifdef GAMS_UTM
 
@@ -313,7 +319,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr double northing() const;
+      constexpr double northing () const;
 
       /**
        * Gets the UTM easting for this location.
@@ -321,7 +327,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr double easting() const;
+      constexpr double easting () const;
 
       /**
        * Gets the UTM zone (longitudinal) for this location: 0 if USP (near
@@ -330,7 +336,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr int zone() const;
+      constexpr int zone () const;
 
       /**
        * Gets the UTM hemisphere for this location. True if northern.
@@ -338,7 +344,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr bool hemi() const;
+      constexpr bool hemi () const;
 
       /**
        * Set UTM northing and hemisphere (true is northern) simultaneously
@@ -348,7 +354,7 @@ namespace gams
        * @param n the new northing
        * @param h the new hemisphere
        **/
-      void northing(double n, bool h);
+      void northing (double n, bool h);
 
       /**
        * Set UTM northing only; do not change hemisphere
@@ -357,7 +363,7 @@ namespace gams
        *
        * @param n the new northing
        **/
-      void northing(double n);
+      void northing (double n);
 
       /**
        * Set UTM hemisphere (true is northern) only; do not change northing
@@ -366,7 +372,7 @@ namespace gams
        *
        * @param h the new hemisphere
        **/
-      void hemi(bool h);
+      void hemi (bool h);
 
       /**
        * Set UTM easting and zone simultaneously
@@ -376,7 +382,7 @@ namespace gams
        * @param e the new easting
        * @param z the new zone; 0 for USP (polar regions), otherwise [1,60]
        **/
-      void easting(double e, int z);
+      void easting (double e, int z);
 
       /**
        * Set UTM easting only; do not change zone
@@ -385,7 +391,7 @@ namespace gams
        *
        * @param e the new easting
        **/
-      void easting(double e);
+      void easting (double e);
 
       /**
        * Set UTM zone only; do not change easting
@@ -394,7 +400,7 @@ namespace gams
        *
        * @param z the new zone; 0 for USP (polar regions), otherwise [1,60]
        **/
-      void zone(int z);
+      void zone (int z);
 
       /**
        * Get the NATO band code for the latitude of this UTM location
@@ -403,7 +409,7 @@ namespace gams
        *
        * @return an uppercase letter according to NATO standards
        **/
-      char nato_band();
+      char nato_band ();
 
 #endif // GAMS_UTM
 
@@ -412,7 +418,7 @@ namespace gams
        *
        * @return the integer 3
        **/
-      constexpr static int size();
+      constexpr static int size ();
 
       /**
        * Retrives i'th coordinate, 0-indexed, in order x, y, z
@@ -420,7 +426,7 @@ namespace gams
        * @param i the index
        * @return the i'th value
        **/
-      constexpr double get(int i) const;
+      constexpr double get (int i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order x, y, z
@@ -428,7 +434,7 @@ namespace gams
        * @param i the index to set
        * @param val the value to set to
        **/
-      double set(int i, double val);
+      double set (int i, double val);
 
       typedef LocationVector BaseType;
 
@@ -438,7 +444,7 @@ namespace gams
        *
        * @return reference to this as BaseType
        **/
-      BaseType &as_vec();
+      BaseType &as_vec ();
 
       /**
        * Returns const reference to this as the above BaseType; useful
@@ -446,7 +452,7 @@ namespace gams
        *
        * @return const reference to this as BaseType
        **/
-      constexpr const BaseType &as_vec() const;
+      constexpr const BaseType &as_vec () const;
 
       friend class Quaternion;
 
@@ -486,7 +492,7 @@ namespace gams
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      Location(double x, double y, double z = 0.0);
+      Location (double x, double y, double z = 0.0);
 
       /**
        * Primary constructor
@@ -497,7 +503,7 @@ namespace gams
        * @param y the y coordinate of the new Location
        * @param z the z coordinate of the new Location; defaults to zero
        **/
-      constexpr Location(const ReferenceFrame &frame,
+      constexpr Location (const ReferenceFrame &frame,
                          double x, double y, double z = 0.0);
 
       /**
@@ -505,7 +511,13 @@ namespace gams
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit Location(const double array[]);
+      explicit Location (const double array[]);
+
+      /**
+      * Copy constructor
+      * @param rhs the source of the copy
+      **/
+      Location (const Location & rhs);
 
       /**
        * Constructor from C array, into specified ReferenceFrame
@@ -513,14 +525,14 @@ namespace gams
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit Location(const ReferenceFrame &frame, const double array[]);
+      explicit Location (const ReferenceFrame &frame, const double array[]);
 
       /**
        * Constructor from C array, into default ReferenceFrame
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit Location(const float array[]);
+      explicit Location (const float array[]);
 
       /**
        * Constructor from C array, into specified ReferenceFrame
@@ -528,13 +540,13 @@ namespace gams
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit Location(const ReferenceFrame &frame, const float array[]);
+      explicit Location (const ReferenceFrame &frame, const float array[]);
 
       /**
        * Constructor from MADARA DoubleVector, into default ReferenceFrame
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      explicit Location(
+      explicit Location (
               const madara::knowledge::containers::DoubleVector &vec);
 
       /**
@@ -542,7 +554,7 @@ namespace gams
        * @param frame the frame to belong to
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      Location(const ReferenceFrame &frame,
+      Location (const ReferenceFrame &frame,
                const madara::knowledge::containers::DoubleVector &vec);
 
       /**
@@ -550,7 +562,7 @@ namespace gams
        * ReferenceFrame
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      explicit Location(
+      explicit Location (
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
@@ -559,20 +571,20 @@ namespace gams
        * @param frame the frame to belong to
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      Location(const ReferenceFrame &frame,
+      Location (const ReferenceFrame &frame,
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
        * Default constructor. Initializes an invalid Location (INVAL_COORD).
        **/
-      Location();
+      Location ();
 
       /**
        * Constructs an invalid Location (INVAL_COORD), in the given frame
        *
        * @param frame the frame to belong to
        **/
-      Location(const ReferenceFrame &frame);
+      Location (const ReferenceFrame &frame);
 
       /**
        * Copy constructor, but transform into the new frame as well.
@@ -580,7 +592,17 @@ namespace gams
        * @param new_frame the new frame to transform to
        * @param orig    the origin location to use as a reference point
        **/
-      Location(const ReferenceFrame &new_frame, const Location &orig);
+      Location (const ReferenceFrame &new_frame, const Location &orig);
+
+      /**
+      * Returns a string of the values x, y, z
+      * @param delimiter      delimiter between values
+      * @param unset_identifier  value to print if unset
+      * @return  stringified version of the Location
+      **/
+      std::string to_string (
+        const std::string & delimiter = ", ",
+        const std::string & unset_identifier = "<unset>") const;
 
       using Coordinate<Location>::operator==;
     };

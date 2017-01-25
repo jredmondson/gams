@@ -56,52 +56,71 @@
 
 #include "Pose.h"
 
+#include <sstream>
+
 namespace gams
 {
   namespace utility
   {
     inline constexpr PoseVector::PoseVector(double x, double y, double z,
                                               double rx, double ry, double rz)
-      : LocationVector(x, y, z), RotationVector(rx, ry, rz) {}
+      : LocationVector(x, y, z), OrientationVector(rx, ry, rz) {}
 
     inline constexpr PoseVector::PoseVector(const LocationVector &loc)
-      : LocationVector(loc), RotationVector(0, 0, 0) {}
+      : LocationVector (loc), OrientationVector (INVAL_COORD, INVAL_COORD, INVAL_COORD)
+    {
+    }
 
-    inline constexpr PoseVector::PoseVector(const RotationVector &rot)
-      : LocationVector(0, 0, 0), RotationVector(rot) {}
+    inline constexpr PoseVector::PoseVector(const OrientationVector &rot)
+      : LocationVector (INVAL_COORD, INVAL_COORD, INVAL_COORD), OrientationVector (rot)
+    {
+    }
 
     inline constexpr PoseVector::PoseVector(const LocationVector &loc,
-                                            const RotationVector &rot)
-      : LocationVector(loc), RotationVector(rot) {}
+                                            const OrientationVector &rot)
+      : LocationVector(loc), OrientationVector(rot) {}
 
     inline constexpr PoseVector::PoseVector()
-      : LocationVector(), RotationVector() {}
+      : LocationVector(), OrientationVector() {}
 
     inline PoseVector::PoseVector(
         const madara::knowledge::containers::DoubleVector &vec)
       : LocationVector(vec[0], vec[1], vec[2]),
-        RotationVector(vec[3], vec[4], vec[5]) {}
+        OrientationVector(vec[3], vec[4], vec[5]) {}
 
     inline PoseVector::PoseVector(
         const madara::knowledge::containers::DoubleVector &vec_loc,
         const madara::knowledge::containers::DoubleVector &vec_rot)
       : LocationVector(vec_loc),
-        RotationVector(vec_rot) {}
+        OrientationVector(vec_rot) {}
 
     inline PoseVector::PoseVector(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : LocationVector(vec[0], vec[1], vec[2]),
-        RotationVector(vec[3], vec[4], vec[5]) {}
+        : LocationVector (vec[0], vec[1], vec[2]),
+        OrientationVector (vec[3], vec[4], vec[5])
+    {
+    }
+
 
     inline PoseVector::PoseVector(
         const madara::knowledge::containers::NativeDoubleVector &vec_loc,
         const madara::knowledge::containers::NativeDoubleVector &vec_rot)
       : LocationVector(vec_loc),
-        RotationVector(vec_rot) {}
+        OrientationVector(vec_rot) {}
 
-    inline constexpr bool PoseVector::is_invalid() const
+    inline constexpr bool PoseVector::is_set() const
     {
-      return LocationVector::is_invalid() || RotationVector::is_invalid();
+      return LocationVector::is_set() || OrientationVector::is_set();
+    }
+
+    inline constexpr bool PoseVector::is_location_set () const
+    {
+      return LocationVector::is_set ();
+    }
+
+    inline constexpr bool PoseVector::is_orientation_set () const
+    {
+      return OrientationVector::is_set ();
     }
 
     inline constexpr bool PoseVector::is_location_zero() const
@@ -109,21 +128,21 @@ namespace gams
       return as_location_vec().is_zero();
     }
 
-    inline constexpr bool PoseVector::is_rotation_zero() const
+    inline constexpr bool PoseVector::is_orientation_zero() const
     {
-      return as_rotation_vec().is_zero();
+      return as_orientation_vec().is_zero();
     }
 
     inline constexpr bool PoseVector::is_zero() const
     {
-      return is_location_zero() && is_rotation_zero();
+      return is_location_zero() && is_orientation_zero();
     }
 
     inline constexpr bool PoseVector::operator==(
                                 const PoseVector &other) const
     {
       return as_location_vec() == other.as_location_vec() &&
-             as_rotation_vec() == other.as_rotation_vec();
+             as_orientation_vec() == other.as_orientation_vec();
     }
 
     inline std::string PoseVector::name()
@@ -133,13 +152,13 @@ namespace gams
 
     inline constexpr int PoseVector::size() const
     {
-      return as_location_vec().size() + as_rotation_vec().size();
+      return as_location_vec().size() + as_orientation_vec().size();
     }
 
     inline constexpr double PoseVector::get(int i) const
     {
       return i <= 2 ? as_location_vec().get(i) :
-                      as_rotation_vec().get(i - 3);
+                      as_orientation_vec().get(i - 3);
     }
 
     inline double PoseVector::set(int i, double val)
@@ -147,7 +166,7 @@ namespace gams
       if(i <= 2)
         return as_location_vec().set(i, val);
       else
-        return as_rotation_vec().set(i - 3, val);
+        return as_orientation_vec().set(i - 3, val);
     }
 
     inline PoseVector &PoseVector::as_vec()
@@ -170,20 +189,20 @@ namespace gams
       return static_cast<const LocationVector &>(*this);
     }
 
-    inline RotationVector &PoseVector::as_rotation_vec()
+    inline OrientationVector &PoseVector::as_orientation_vec()
     {
-      return static_cast<RotationVector &>(*this);
+      return static_cast<OrientationVector &>(*this);
     }
 
-    inline constexpr const RotationVector &PoseVector::as_rotation_vec() const
+    inline constexpr const OrientationVector &PoseVector::as_orientation_vec() const
     {
-      return static_cast<const RotationVector &>(*this);
+      return static_cast<const OrientationVector &>(*this);
     }
 
     inline std::ostream &operator<<(std::ostream &o, const PoseVector &pose)
     {
       o << "(" << pose.as_location_vec() << ","
-               << pose.as_rotation_vec() << ")";
+               << pose.as_orientation_vec() << ")";
       return o;
     }
 
@@ -208,17 +227,17 @@ namespace gams
     inline constexpr Pose::Pose(const Location &loc)
       : PoseVector(loc), Coordinate(loc.frame()) {}
 
-    inline constexpr Pose::Pose(const Rotation &rot)
+    inline constexpr Pose::Pose(const Orientation &rot)
       : PoseVector(rot), Coordinate(rot.frame()) {}
 
-    inline Pose::Pose(const LocationVector &loc, const RotationVector &rot)
+    inline Pose::Pose(const LocationVector &loc, const OrientationVector &rot)
       : PoseVector(loc, rot), Coordinate() {}
 
     inline constexpr Pose::Pose(const ReferenceFrame &frame,
-                      const LocationVector &loc, const RotationVector &rot)
+                      const LocationVector &loc, const OrientationVector &rot)
       : PoseVector(loc, rot), Coordinate(frame) {}
 
-    inline constexpr Pose::Pose(const Location &loc, const Rotation &rot)
+    inline constexpr Pose::Pose(const Location &loc, const Orientation &rot)
       : PoseVector(loc, rot), Coordinate(loc.frame()) {}
 
     inline Pose::Pose(const ReferenceFrame &new_frame, const Pose &orig)
@@ -267,14 +286,14 @@ namespace gams
 
     inline double Pose::angle_to(const Pose &target) const
     {
-      Rotation me(*this);
-      Rotation other(target);
+      Orientation me(*this);
+      Orientation other(target);
       return me.distance_to(other);
     }
 
-    inline double Pose::angle_to(const Rotation &target) const
+    inline double Pose::angle_to(const Orientation &target) const
     {
-      Rotation me(*this);
+      Orientation me(*this);
       return me.distance_to(target);
     }
 
@@ -283,10 +302,26 @@ namespace gams
       return Location(frame(), x(), y(), z());
     }
 
-    inline constexpr Pose::operator Rotation() const
+    inline constexpr Pose::operator Orientation() const
     {
-      return Rotation(frame(), rx(), ry(), rz());
+      return Orientation(frame(), rx(), ry(), rz());
     }
+
+    inline
+      std::string Pose::to_string (const std::string & delimiter,
+      const std::string & unset_identifier) const
+    {
+      std::stringstream buffer;
+
+      buffer << Location (*this).to_string (delimiter, unset_identifier);
+
+      buffer << delimiter;
+
+      buffer << Orientation (*this).to_string (delimiter, unset_identifier);
+
+      return buffer.str ();
+    }
+
   }
 }
 

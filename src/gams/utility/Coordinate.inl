@@ -48,7 +48,7 @@
  * @file Coordinate.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains the Location, Orientation, and Pose classes
  **/
 
 #ifndef _GAMS_UTILITY_COORDINATE_INL_
@@ -171,21 +171,6 @@ namespace gams
       return false;
     }
 
-    template<typename CoordType>
-    inline std::string Coordinate<CoordType>::to_string(
-        const std::string &delim) const
-    {
-      std::stringstream buffer;
-      const CoordType &s = as_coord_type();
-      for(int i = 0; i < s.size(); ++i)
-      {
-        if(i > 0)
-          buffer << delim;
-        buffer << s.get(i);
-      }
-      return buffer.str();
-    }
-
     namespace
     {
       static std::istream &skip_nonnum(std::istream &s)
@@ -198,20 +183,6 @@ namespace gams
           s.get();
         }
         return s;
-      }
-    }
-
-    template<typename CoordType>
-    inline void Coordinate<CoordType>::from_string(const std::string &in)
-    {
-      std::stringstream buffer(in);
-      CoordType &s = as_coord_type();
-      for(int i = 0; i < s.size(); ++i)
-      {
-        double val;
-        buffer >> skip_nonnum;
-        buffer >> val;
-        s.set(i, val);
       }
     }
 

@@ -48,7 +48,7 @@
  * @file Coordinate.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Rotation, and Pose classes
+ * This file contains the Location, Orientation, and Pose classes
  **/
 
 #ifndef _GAMS_UTILITY_COORDINATE_H_
@@ -204,7 +204,7 @@ namespace gams
     {
     public:
       /**
-       * Retrieves the default frame that Coordinates (Pose, Location, Rotation)
+       * Retrieves the default frame that Coordinates (Pose, Location, Orientation)
        * that don't specify a frame will use.
        *
        * @return a reference to a CartesianFrame object that serves as default
@@ -323,28 +323,6 @@ namespace gams
        * @return true if *this is less than rhs
        **/
       bool operator<(const Coordinate<CoordType> &rhs) const;
-
-      /**
-       * Converts this Coordinate to a string; each value in the data
-       * tuple is joined with the delimeter passed in.
-       *
-       * @param delim the delimiter to join the values with; defaults to a comma
-       * @return the string representation of this Coordinate. If fed into the
-       *    from_string method of the same Coordinate type within the same
-       *    referenence frame, will produce an equal Coordinate to this one.
-       **/
-      std::string to_string(const std::string &delim = ",") const;
-
-      /**
-       * Sets coordinates from a string encoding a sequence of doubles,
-       * separated by any set of characters other than 0-9, '.', and '-'
-       *
-       * This does not modify this Coordinate's reference frame binding.
-       * The new coordinate will be within this Coordinate's reference frame.
-       *
-       * @param in the input string, as specified above
-       **/
-      void from_string(const std::string &in);
 
       /**
        * Outputs this Coordinates values to the referenced container. This

@@ -364,7 +364,7 @@ gams::algorithms::ZoneCoverage::execute (void)
     "gams::algorithms::ZoneCoverage::execute:" \
     " entering execute method\n");
 
-  if (!next_loc_.is_invalid ())
+  if (next_loc_.is_set ())
     platform_->move (next_loc_);
   return OK;
 }
@@ -392,7 +392,7 @@ gams::algorithms::ZoneCoverage::line_formation () const
     const Location &asset_loc = asset_locs_[0];
     const Location &enemy_loc = enemy_locs_[0];
 
-    if (!asset_loc.is_invalid () && !enemy_loc.is_invalid ())
+    if (asset_loc.is_set () && !enemy_loc.is_set ())
     {
       Location middle (platform_->get_frame (),
               (asset_loc.x () * distance_) + (enemy_loc.x () * (1 - distance_)),
@@ -438,7 +438,7 @@ gams::algorithms::ZoneCoverage::arc_formation () const
     const Location &asset_loc = asset_locs_[0];
     const Location &enemy_loc = enemy_locs_[0];
 
-    if (!asset_loc.is_invalid () && !enemy_loc.is_invalid ())
+    if (asset_loc.is_set () && enemy_loc.is_set ())
     {
       Location middle (platform_->get_frame (),
               (asset_loc.x () * distance_) + (enemy_loc.x () * (1 - distance_)),
@@ -551,7 +551,7 @@ gams::algorithms::ZoneCoverage::onion_formation () const
     const Location &asset_loc = asset_locs_[0];
     const Location &enemy_loc = enemy_locs_[0];
 
-    if (!asset_loc.is_invalid () && !enemy_loc.is_invalid ())
+    if (asset_loc.is_set () && enemy_loc.is_set ())
     {
       Location middle (platform_->get_frame (),
               (asset_loc.x () * distance_) + (enemy_loc.x () * (1 - distance_)),

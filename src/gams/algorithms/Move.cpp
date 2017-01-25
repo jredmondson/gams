@@ -52,6 +52,7 @@
 #include <sstream>
 
 #include "gams/utility/ArgumentParser.h"
+#include "gams/utility/Coordinate.h"
 
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
@@ -73,10 +74,10 @@ gams::algorithms::MoveFactory::create (
   
   if (knowledge && sensors && platform && self)
   {
-    std::vector <utility::Position> locations;
+    std::vector <utility::Pose> poses;
     int repeat_times (0);
 
-    KnowledgeMap::const_iterator locations_size_found =
+    KnowledgeMap::const_iterator poses_size_found =
       args.find ("locations.size");
 
     KnowledgeMap::const_iterator repeat_found = args.find ("repeat");
@@ -101,9 +102,9 @@ gams::algorithms::MoveFactory::create (
       }
     }
 
-    if (locations_size_found != args.end ())
+    if (poses_size_found != args.end ())
     {
-      Integer num_locations = locations_size_found->second.to_integer ();
+      Integer num_locations = poses_size_found->second.to_integer ();
       if (num_locations > 0)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -111,7 +112,7 @@ gams::algorithms::MoveFactory::create (
           "MoveFactory::create" \
           " using locations.size of %d\n", (int)num_locations);
 
-        locations.resize ((size_t)num_locations);
+        poses.resize ((size_t)num_locations);
 
         /**
          * fastest way to iterate through this is to find the locations
@@ -125,7 +126,7 @@ gams::algorithms::MoveFactory::create (
          * iterate over all locations (note we assume locations.size is
          * the only other legitimate variable with locations. prefix)
          **/
-        for (; next != locations_size_found; ++next)
+        for (; next != poses_size_found; ++next)
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MINOR,
@@ -138,24 +139,25 @@ gams::algorithms::MoveFactory::create (
             next->first, "locations."));
           int index = (int)k_index.to_integer ();
 
-          locations[index] = utility::Position::from_record (next->second);
+          poses[index].from_container <utility::order::GPS>(next->second.to_doubles ());
+          poses[index].frame (platform->get_frame ());
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MINOR,
             "MoveFactory::create" \
-            " setting location[%d] with [%s]\n",
-            index, locations[index].to_string ().c_str (), next->first.c_str ());
+            " setting pose[%d] with [%s]\n",
+            index, poses[index].to_string ().c_str (), next->first.c_str ());
         }
 
-        if (locations.size () > 0)
+        if (poses.size () > 0)
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MAJOR,
             "MoveFactory::create" \
             " creating Move algorithm with %d locations and %d repeats\n",
-            (int)locations.size (), repeat_times);
+            (int)poses.size (), repeat_times);
 
-          result = new Move (locations, repeat_times,
+          result = new Move (poses, repeat_times,
             knowledge, platform, sensors, self, agents);
         }
       }
@@ -180,13 +182,13 @@ gams::algorithms::MoveFactory::create (
 }
 
 gams::algorithms::Move::Move (
-  const std::vector <utility::Position> & locations,
+  const std::vector <utility::Pose> & locations,
   int repeat,
   madara::knowledge::KnowledgeBase * knowledge, 
   platforms::BasePlatform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
-  locations_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0)
+  poses_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0)
 {
   status_.init_vars (*knowledge, "move", self->id.to_integer ());
   status_.init_variable_values ();
@@ -201,7 +203,7 @@ gams::algorithms::Move::operator= (const Move & rhs)
 {
   if (this != &rhs)
   {
-    this->locations_ = rhs.locations_;
+    this->poses_ = rhs.poses_;
     this->repeat_ = rhs.repeat_;
     this->move_index_ = rhs.move_index_;
     this->cycles_ = rhs.cycles_;
@@ -219,20 +221,20 @@ gams::algorithms::Move::analyze (void)
   {
     if (status_.finished.is_false ())
     {
-      if (move_index_ < locations_.size ())
+      if (move_index_ < poses_.size ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "Move::analyze:" \
-          " currently moving to location %d -> [%s].\n",
+          " currently moving to pose %d -> [%s].\n",
           (int)move_index_,
-          locations_[move_index_].to_string ().c_str ());
+          poses_[move_index_].to_string ().c_str ());
 
         // check our distance to the next location
         utility::Location loc = platform_->get_location ();
         utility::Location next_loc (platform_->get_frame (),
-          locations_[move_index_].y, locations_[move_index_].x,
-          locations_[move_index_].z);
+          poses_[move_index_].lng (), poses_[move_index_].lat (),
+          poses_[move_index_].alt ());
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
@@ -243,7 +245,7 @@ gams::algorithms::Move::analyze (void)
         if (loc.approximately_equal (next_loc, platform_->get_accuracy ()))
         {
           // if we are at the end of the location list
-          if (move_index_ == locations_.size () - 1)
+          if (move_index_ == poses_.size () - 1)
           {
             ++cycles_;
 
@@ -284,9 +286,9 @@ gams::algorithms::Move::analyze (void)
             madara_logger_ptr_log (gams::loggers::global_logger.get (),
               gams::loggers::LOG_MAJOR,
               "Move::analyze:" \
-              " proceeding to location %d at [%s].\n",
+              " proceeding to pose %d at [%s].\n",
               (int)move_index_,
-              locations_[move_index_].to_string ().c_str ());
+              poses_[move_index_].to_string ().c_str ());
 
           } // if not the end of the list
         } // end if location is approximately equal to next location
@@ -339,13 +341,56 @@ gams::algorithms::Move::execute (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "Move::execute:" \
-      " calling platform->move(\"%s\")\n",
-      locations_[move_index_].to_string ().c_str ());
+      " moving to pose [%s]\n",
+      poses_[move_index_].to_string ().c_str ());
 
-    // allow GPSPosition to do the conversion for lat/lon
-    utility::GPSPosition next = locations_[move_index_];
+    // depending on type of pose that was set, pose, move or rotate
+    if (poses_[move_index_].is_set ())
+    {
+      if (!poses_[move_index_].is_location_set ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "Move::execute:" \
+          " Only a rotate is necessary to %s\n",
+          utility::Orientation (poses_[move_index_]).to_string ().c_str ());
 
-    platform_->move (next);
+        platform_->rotate (poses_[move_index_]);
+      }
+      else if (!poses_[move_index_].is_orientation_set ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "Move::execute:" \
+          " Only a location move is necessary to %s\n",
+          utility::Location (poses_[move_index_]).to_string ().c_str ());
+
+        platform_->move (poses_[move_index_]);
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "Move::execute:" \
+          " A rotation and a location movement is necessary to %s\n",
+          poses_[move_index_].to_string ().c_str ());
+
+        platform_->pose (poses_[move_index_]);
+      }
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "Move::execute:" \
+        " The platform was informed of new pose\n");
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "Move::execute:" \
+        " The pose is empty\n");
+
+    }
   }
   else if (is_finished)
   {

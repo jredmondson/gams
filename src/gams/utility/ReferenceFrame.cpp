@@ -53,7 +53,7 @@
 
 #include <gams/utility/ReferenceFrame.h>
 #include <gams/utility/Location.h>
-#include <gams/utility/Rotation.h>
+#include <gams/utility/Orientation.h>
 #include <gams/utility/Quaternion.h>
 
 namespace gams
@@ -111,39 +111,39 @@ namespace gams
       throw bad_coord_type<Location>(*this, "calc_distance");
     }
 
-    void ReferenceFrame::transform_rotation_to_origin(
+    void ReferenceFrame::transform_orientation_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_rotation_to_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_orientation_to_origin");
     }
 
-    void ReferenceFrame::transform_rotation_from_origin(
+    void ReferenceFrame::transform_orientation_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_rotation_from_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_orientation_from_origin");
     }
 
     void ReferenceFrame::transform_pose_to_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_pose_to_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_pose_to_origin");
     }
 
     void ReferenceFrame::transform_pose_from_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_pose_from_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_pose_from_origin");
     }
 
     double ReferenceFrame::calc_angle(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Rotation>(*this, "calc_angle");
+      throw bad_coord_type<Orientation>(*this, "calc_angle");
     }
 
-    void ReferenceFrame::do_normalize_rotation(
+    void ReferenceFrame::do_normalize_orientation(
                 double &, double &, double &) const {}
 
     void ReferenceFrame::do_normalize_pose(
@@ -151,12 +151,12 @@ namespace gams
                     double &rx, double &ry, double &rz) const
     {
       do_normalize_location(x, y, z);
-      do_normalize_rotation(rx, ry, rz);
+      do_normalize_orientation(rx, ry, rz);
     }
 
     void SimpleRotateFrame::rotate_location_vec(
           double &x, double &y, double &z,
-          const RotationVector &rot, bool reverse) const
+          const OrientationVector &rot, bool reverse) const
     {
       if(rot.is_zero())
         return;
@@ -171,23 +171,23 @@ namespace gams
       locq.to_location_vector(x, y, z);
     }
 
-    void SimpleRotateFrame::transform_rotation_to_origin(
+    void SimpleRotateFrame::transform_orientation_to_origin(
                                 double &rx, double &ry, double &rz) const
     {
       Quaternion in_quat(rx, ry, rz);
-      Quaternion origin_quat(origin().as_rotation_vec());
+      Quaternion origin_quat(origin().as_orientation_vec());
       in_quat *= origin_quat;
-      in_quat.to_rotation_vector(rx, ry, rz);
+      in_quat.to_orientation_vector(rx, ry, rz);
     }
 
-    void SimpleRotateFrame::transform_rotation_from_origin(
+    void SimpleRotateFrame::transform_orientation_from_origin(
                                 double &rx, double &ry, double &rz) const
     {
       Quaternion in_quat(rx, ry, rz);
-      Quaternion origin_quat(origin().as_rotation_vec());
+      Quaternion origin_quat(origin().as_orientation_vec());
       origin_quat.conjugate();
       in_quat *= origin_quat;
-      in_quat.to_rotation_vector(rx, ry, rz);
+      in_quat.to_orientation_vector(rx, ry, rz);
     }
 
     void SimpleRotateFrame::transform_pose_to_origin(
@@ -195,7 +195,7 @@ namespace gams
                     double &rx, double &ry, double &rz) const
     {
       transform_location_to_origin(x, y, z);
-      transform_rotation_to_origin(rx, ry, rz);
+      transform_orientation_to_origin(rx, ry, rz);
     }
 
     void SimpleRotateFrame::transform_pose_from_origin(
@@ -203,7 +203,7 @@ namespace gams
                     double &rx, double &ry, double &rz) const
     {
       transform_location_from_origin(x, y, z);
-      transform_rotation_from_origin(rx, ry, rz);
+      transform_orientation_from_origin(rx, ry, rz);
     }
 
     inline double SimpleRotateFrame::calc_angle(

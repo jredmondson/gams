@@ -62,7 +62,7 @@ namespace gams
 {
   namespace utility
   {
-    class RotationVector;
+    class OrientationVector;
     class LocationVector;
 
     /**
@@ -85,16 +85,16 @@ namespace gams
       /**
        * Constructor which converts a rotation vector, specified in individual
        * terms, into the corresponding quaternion representation. See
-       * RotationVector for details of the rotation vector representation.
+       * OrientationVector for details of the rotation vector representation.
        **/
       Quaternion(double rx, double ry, double rz);
 
       /**
        * Constructor which converts a rotation vector into the corresponding
-       * quaternion representation. See RotationVector for details of the
+       * quaternion representation. See OrientationVector for details of the
        * rotation vector representation.
        **/
-      explicit Quaternion(const RotationVector &rot);
+      explicit Quaternion(const OrientationVector &rot);
 
       /**
        * Constructor which converts a location vector into the corresponding
@@ -110,13 +110,13 @@ namespace gams
 
       void to_location_vector(LocationVector &loc) const;
 
-      void from_rotation_vector(double rx, double ry, double rz);
+      void from_orientation_vector(double rx, double ry, double rz);
 
-      void from_rotation_vector(const RotationVector &rot);
+      void from_orientation_vector(const OrientationVector &rot);
 
-      void to_rotation_vector(double &rx, double &ry, double &rz) const;
+      void to_orientation_vector(double &rx, double &ry, double &rz) const;
 
-      void to_rotation_vector(RotationVector &rot) const;
+      void to_orientation_vector(OrientationVector &rot) const;
 
       /**
        * Calculates the hamilton product of two quaternions, into a third.

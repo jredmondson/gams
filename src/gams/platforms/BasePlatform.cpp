@@ -187,12 +187,12 @@ gams::platforms::BasePlatform::rotate (const utility::Axes &)
 }
 
 int
-gams::platforms::BasePlatform::rotate (const utility::Rotation & target,
+gams::platforms::BasePlatform::rotate (const utility::Orientation & target,
   double epsilon)
 {
   int result (0);
 
-  utility::Rotation current(get_rotation());
+  utility::Orientation current(get_orientation());
 
   /**
    * if we are not paused, we are not already at the target,
@@ -228,7 +228,7 @@ gams::platforms::BasePlatform::pose (const utility::Pose & target,
   double loc_epsilon, double rot_epsilon)
 {
   int move_status = move(utility::Location(target), loc_epsilon);
-  int rotate_status = rotate(utility::Rotation(target), rot_epsilon);
+  int rotate_status = rotate(utility::Orientation(target), rot_epsilon);
   if(move_status == 0 || rotate_status == 0)
     return 0;
   if(move_status == 2 && rotate_status == 2)
@@ -294,7 +294,7 @@ gams::platforms::BasePlatform::stop_move (void)
 }
 
 void
-gams::platforms::BasePlatform::stop_rotation (void)
+gams::platforms::BasePlatform::stop_orientation (void)
 {
   if (*status_.rotating)
     status_.rotating = 0;

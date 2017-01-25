@@ -81,11 +81,11 @@ namespace gams
   {
     class ReferenceFrame;
     class LocationVector;
-    class RotationVector;
+    class OrientationVector;
 
     /**
      * Thrown when a reference frame function is called with a Coordinate
-     * type (e.g., Pose, Location, Rotation) that frame does not support.
+     * type (e.g., Pose, Location, Orientation) that frame does not support.
      *
      * @tparam CoordType The kind of Coordinate the error was raised for.
      **/
@@ -150,19 +150,19 @@ namespace gams
        * @param parent_frame of the two involved frames, the parent frame
        * @param child_frame of the two involved frames, the child frame
        * @param is_child_to_parent indicates direction of transformation
-       * @param unsupported_rotation true if the error was due to rotated
+       * @param unsupported_orientation true if the error was due to rotated
        *   reference frames not being supported for this transformation.
        *   Defaults to false;
        **/
       undefined_transform(const ReferenceFrame &parent_frame,
         const ReferenceFrame &child_frame, bool is_child_to_parent,
-        bool unsupported_rotation = false);
+        bool unsupported_orientation = false);
       ~undefined_transform() throw();
 
       const ReferenceFrame &parent_frame;
       const ReferenceFrame &child_frame;
       bool is_child_to_parent;
-      bool unsupported_rotation;
+      bool unsupported_orientation;
     };
 
     /**
@@ -280,7 +280,7 @@ namespace gams
       /**
        * Normalizes individual doubles representing a rotation
        **/
-      void normalize_rotation(double &rx, double &ry, double &rz) const;
+      void normalize_orientation(double &rx, double &ry, double &rz) const;
 
       /**
        * Normalizes individual doubles representing a pose
@@ -349,7 +349,7 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_rotation_to_origin(
+      virtual void transform_orientation_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -359,7 +359,7 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_rotation_from_origin(
+      virtual void transform_orientation_from_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -413,7 +413,7 @@ namespace gams
        * @param ry   y axis of rotation
        * @param rz   z axis of rotation
        **/
-      virtual void do_normalize_rotation(
+      virtual void do_normalize_orientation(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -618,7 +618,7 @@ namespace gams
 
     protected:
       /**
-       * Rotates a LocationVector according to a RotationVector
+       * Rotates a LocationVector according to a OrientationVector
        *
        * @param x   the x coordinate to rotate (in-place)
        * @param y   the y coordinate to rotate (in-place)
@@ -628,28 +628,28 @@ namespace gams
        **/
       void rotate_location_vec(
           double &x, double &y, double &z,
-          const RotationVector &rot,
+          const OrientationVector &rot,
           bool reverse = false) const;
 
     private:
       /**
-       * Transform RotationVector in-place into its origin frame from this frame
+       * Transform OrientationVector in-place into its origin frame from this frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_rotation_to_origin(
+      virtual void transform_orientation_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Transform RotationVector in-place from its origin frame
+       * Transform OrientationVector in-place from its origin frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_rotation_from_origin(
+      virtual void transform_orientation_from_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -683,7 +683,7 @@ namespace gams
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Calculates smallest angle between two RotationVectors
+       * Calculates smallest angle between two OrientationVectors
        *
        * @param rx1  the starting rotation on x axis
        * @param ry1  the starting rotation on y axis

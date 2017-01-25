@@ -356,9 +356,9 @@ namespace gams
     }
 
     template<>
-    inline void ReferenceFrame::transform_to_origin<>(Rotation &in)
+    inline void ReferenceFrame::transform_to_origin<>(Orientation &in)
     {
-      in.frame().transform_rotation_to_origin(in.rx_, in.ry_, in.rz_);
+      in.frame().transform_orientation_to_origin(in.rx_, in.ry_, in.rz_);
     }
 
     template<>
@@ -377,9 +377,9 @@ namespace gams
 
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
-        Rotation &in, const ReferenceFrame &to_frame)
+        Orientation &in, const ReferenceFrame &to_frame)
     {
-      to_frame.transform_rotation_from_origin(in.rx_, in.ry_, in.rz_);
+      to_frame.transform_orientation_from_origin(in.rx_, in.ry_, in.rz_);
     }
 
     template<>
@@ -400,7 +400,7 @@ namespace gams
 
     template<>
     inline double ReferenceFrame::calc_difference<>(
-        const Rotation &rot1, const Rotation &rot2)
+        const Orientation &rot1, const Orientation &rot2)
     {
       return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
                                      rot2.rx_, rot2.ry_, rot2.rz_);
@@ -420,10 +420,10 @@ namespace gams
       do_normalize_location(x, y, z);
     }
 
-    inline void ReferenceFrame::normalize_rotation(
+    inline void ReferenceFrame::normalize_orientation(
                                       double &rx, double &ry, double &rz) const
     {
-      do_normalize_rotation(rx, ry, rz);
+      do_normalize_orientation(rx, ry, rz);
     }
 
     inline void ReferenceFrame::normalize_pose(
@@ -440,9 +440,9 @@ namespace gams
     }
 
     template<>
-    inline void ReferenceFrame::normalize<>(Rotation &rot)
+    inline void ReferenceFrame::normalize<>(Orientation &rot)
     {
-      rot.frame().normalize_rotation(rot.rx_, rot.ry_, rot.rz_);
+      rot.frame().normalize_orientation(rot.rx_, rot.ry_, rot.rz_);
     }
 
     template<>
@@ -493,9 +493,9 @@ namespace gams
       return o;
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Rotation &rot)
+    inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
     {
-      o << rot.frame().name() << "Rotation" << rot.as_vec();
+      o << rot.frame().name() << "Orientation" << rot.as_vec();
       return o;
     }
 
@@ -539,16 +539,16 @@ namespace gams
     inline undefined_transform::undefined_transform(
             const ReferenceFrame &parent_frame,
             const ReferenceFrame &child_frame,
-            bool is_child_to_parent, bool unsupported_rotation)
+            bool is_child_to_parent, bool unsupported_orientation)
       : std::runtime_error(is_child_to_parent ?
             ("No defined transform from embedded " + child_frame.name() +
               " frame to parent " + parent_frame.name() + " frame")
           : ("No defined transform from parent " + parent_frame.name() +
               " frame to embedded " + child_frame.name() + " frame") +
-            (unsupported_rotation ? " involving rotation." : ".")),
+            (unsupported_orientation ? " involving rotation." : ".")),
         parent_frame(parent_frame), child_frame(child_frame),
           is_child_to_parent(is_child_to_parent),
-          unsupported_rotation(unsupported_rotation) {}
+          unsupported_orientation(unsupported_orientation) {}
 
     inline undefined_transform::~undefined_transform() throw() {}
   }

@@ -119,7 +119,7 @@ void UTMFrame::transform_location_from_origin(
   throw undefined_transform(*this, origin().frame(), true);
 }
 
-void UTMFrame::transform_rotation_to_origin(
+void UTMFrame::transform_orientation_to_origin(
                             double &rx, double &ry, double &rz) const
 {
   GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
@@ -129,7 +129,7 @@ void UTMFrame::transform_rotation_to_origin(
   throw undefined_transform(*this, origin().frame(), true);
 }
 
-void UTMFrame::transform_rotation_from_origin(
+void UTMFrame::transform_orientation_from_origin(
                             double &rx, double &ry, double &rz) const
 {
   GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
@@ -151,7 +151,7 @@ void UTMFrame::transform_pose_to_origin(
     Quaternion quat(rx, ry, rz);
     Quaternion gquat(0, 0, -DEG_TO_RAD(gamma));
     quat.pre_multiply(gquat);
-    quat.to_rotation_vector(rx, ry, rz);
+    quat.to_orientation_vector(rx, ry, rz);
     return;
   }
   throw undefined_transform(*this, origin().frame(), true);
@@ -173,7 +173,7 @@ void UTMFrame::transform_pose_from_origin(
     Quaternion quat(rx, ry, rz);
     Quaternion gquat(0, 0, DEG_TO_RAD(gamma));
     quat.pre_multiply(gquat);
-    quat.to_rotation_vector(rx, ry, rz);
+    quat.to_orientation_vector(rx, ry, rz);
     return;
   }
   throw undefined_transform(*this, origin().frame(), true);

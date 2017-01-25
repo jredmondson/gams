@@ -62,7 +62,7 @@ namespace gams
   {
     /**
      * Locations represented as meters distance, in x, y, and z, from an origin
-     * Rotations represented in Axis Angle notation
+     * Orientations represented in Axis Angle notation
      *
      * All conversions to/from child and parent CartesianFrames are supported.
      * Conversions to/from a parent GPSFrame are supported, except converting

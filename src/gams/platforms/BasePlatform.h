@@ -163,10 +163,10 @@ namespace gams
       utility::Location get_location () const;
 
       /**
-       * Gets Rotation of platform, within its parent frame
+       * Gets Orientation of platform, within its parent frame
        * @return Location of platform
        */
-      utility::Rotation get_rotation () const;
+      utility::Orientation get_orientation () const;
 
       /**
        * Gets Pose of platform, within its parent frame
@@ -253,14 +253,14 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the rotate, @see PlatformReturnValues
        **/
-      virtual int rotate (const utility::Rotation & target,
+      virtual int rotate (const utility::Orientation & target,
         double epsilon = M_PI/16);
 
       /**
        * Moves the platform to a pose (location and rotation)
        *
        * This default implementation calls move and rotate with the
-       * Location and Rotation portions of the target Pose. The return value
+       * Location and Orientation portions of the target Pose. The return value
        * is composed as follows: if either call returns ERROR (0), this call
        * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
        * this call also returns ARRIVED (2). Otherwise, this call returns
@@ -313,7 +313,7 @@ namespace gams
       /**
        * Stops rotation, resetting source and dest angles to current angle
        **/
-      virtual void stop_rotation (void);
+      virtual void stop_orientation (void);
 
       /**
        * Instructs the agent to take off

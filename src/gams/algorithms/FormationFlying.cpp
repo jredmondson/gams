@@ -527,7 +527,7 @@ gams::algorithms::FormationFlying::plan (void)
       switch (modifier_)
       {
         /**
-         * Rotation formation keys off of head location at all times
+         * Orientation formation keys off of head location at all times
          */
       case ROTATE:
       {

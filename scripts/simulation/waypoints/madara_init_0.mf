@@ -1,7 +1,7 @@
 .vrep_port=19906;
 
-.initial_x=10;
-.initial_y=10;
+.initial_lat=40.443222;
+.initial_lon=-79.940334;
 .initial_alt=4;
 
 agent.0.algorithm="waypoints";

@@ -97,6 +97,12 @@ gams::platforms::VREPBase::VREPBase (
 {
   if (sensors && knowledge)
   {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase():" \
+      " sw_pose_ is %s\n",
+      sw_pose_.to_string ().c_str ());
+
     // setup containers to access movement configuration values
     thread_rate_.set_name(".vrep_move_thread_rate", *knowledge);
     if(!thread_rate_.exists())
@@ -165,10 +171,10 @@ gams::platforms::VREPBase::get_sw_pose(const utility::ReferenceFrame &frame)
     containers::NativeDoubleVector sw (".vrep_sw_position", *knowledge_);
 
     // VREP apparently has weird lat/lon x/y stuff going on. Reverse order.
-    return utility::Pose (frame, sw[1], sw[0]);
+    return utility::Pose (frame, sw[1], sw[0], 0, 0, 0, 0);
   }
 
-  return utility::Pose(frame, 0, 0);
+  return utility::Pose (frame, 0, 0, 0, 0, 0, 0);
 }
 
 gams::platforms::VREPBase::~VREPBase ()
@@ -265,7 +271,7 @@ gams::platforms::VREPBase::sense (void)
       utility::euler::EulerVREP vrep_euler (
         curr_orientation[0], curr_orientation[1], curr_orientation[2]);
 
-      utility::Rotation vrep_orient (get_vrep_frame (), vrep_euler.to_quat ());
+      utility::Orientation vrep_orient (get_vrep_frame (), vrep_euler.to_quat ());
 
       utility::euler::YawPitchRoll vrep_yawpitchroll (vrep_orient);
 
@@ -473,8 +479,8 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::do_rotate (utility::Rotation target,
-                                      const utility::Rotation & current,
+gams::platforms::VREPBase::do_rotate (utility::Orientation target,
+                                      const utility::Orientation & current,
                                       double max_delta)
 {
   // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
@@ -623,7 +629,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::rotate (const utility::Rotation & target,
+gams::platforms::VREPBase::rotate (const utility::Orientation & target,
   double epsilon)
 {
   if (get_ready ())
@@ -637,7 +643,7 @@ gams::platforms::VREPBase::rotate (const utility::Rotation & target,
       " requested target \"%f,%f,%f\"\n", target.rx (), target.ry (), target.rz ());
 
     // convert form input reference frame to vrep reference frame, if necessary
-    utility::Rotation vrep_target (get_vrep_frame (), target);
+    utility::Orientation vrep_target (get_vrep_frame (), target);
 
     // get current position in VREP frame
     simxFloat curr_arr[3];
@@ -649,7 +655,7 @@ gams::platforms::VREPBase::rotate (const utility::Rotation & target,
 
     EulerVREP euler_curr (curr_arr[0], curr_arr[1], curr_arr[2]);
 
-    utility::Rotation vrep_rot (euler_curr.to_rotation (get_vrep_frame ()));
+    utility::Orientation vrep_rot (euler_curr.to_orientation (get_vrep_frame ()));
 
     if (do_rotate (vrep_target, vrep_rot, max_rotate_delta_.to_double ()) == 0)
       return 0;
@@ -662,8 +668,8 @@ gams::platforms::VREPBase::rotate (const utility::Rotation & target,
 
     EulerVREP euler_node_curr (curr_arr[0], curr_arr[1], curr_arr[2]);
 
-    utility::Rotation vrep_node_rot (
-      euler_node_curr.to_rotation (get_vrep_frame ()));
+    utility::Orientation vrep_node_rot (
+      euler_node_curr.to_orientation (get_vrep_frame ()));
 
     // return code
     if (vrep_node_rot.distance_to (vrep_target) < epsilon)
