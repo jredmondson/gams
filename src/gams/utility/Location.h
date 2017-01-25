@@ -102,7 +102,7 @@ namespace gams
        * Copy constructor.
        * @param rhs  vector to copy from
        **/
-      constexpr LocationVector::LocationVector (const LocationVector & rhs);
+      constexpr LocationVector (const LocationVector & rhs);
 
       /**
        * Constructor from C array

@@ -2488,7 +2488,7 @@ namespace platforms
      * Gets Rotation of platform, within its parent frame. Optional.
      * \@return Location of platform
      **/
-    gams::utility::Rotation get_rotation () const;
+    gams::utility::Orientation get_orientation () const;
 
     /**
      * Gets sensor radius. Optional.
@@ -2529,7 +2529,7 @@ namespace platforms
      * \@param   epsilon   approximation value
      * \@return the status of the rotate, \@see PlatformReturnValues
      **/
-    virtual int rotate (const gams::utility::Rotation & target,
+    virtual int rotate (const gams::utility::Orientation & target,
       double epsilon = M_PI/16);
 
     /**
@@ -2748,10 +2748,10 @@ platforms::${new_plat}::get_location () const
 
 
 // Gets Rotation of platform, within its parent frame. Optional.
-gams::utility::Rotation
-platforms::${new_plat}::get_rotation () const
+gams::utility::Orientation
+platforms::${new_plat}::get_orientation () const
 {
-  gams::utility::Rotation result;
+  gams::utility::Orientation result;
   
   return result;
 }
@@ -2820,7 +2820,7 @@ platforms::${new_plat}::move (
 // Rotates the platform to match a given angle. Optional.
 int
 platforms::${new_plat}::rotate (
-  const gams::utility::Rotation & target,
+  const gams::utility::Orientation & target,
   double epsilon)
 {
   /**
