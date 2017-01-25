@@ -224,7 +224,7 @@ namespace gams
     template<typename CoordType>
     template<typename O, typename ContainType>
     inline void Coordinate<CoordType>::from_container(
-                                ContainType &container)
+                                const ContainType &container)
     {
       CoordType &s = as_coord_type();
       s.set(0, container[O::get(0)]);

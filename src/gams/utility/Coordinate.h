@@ -376,7 +376,7 @@ namespace gams
        * @param container the container to pull new values from.
        **/
       template<typename Order, typename ContainType>
-      void from_container(ContainType &container);
+      void from_container(const ContainType &container);
 
       /**
        * Outputs this Coordinates values to the referenced container. This
