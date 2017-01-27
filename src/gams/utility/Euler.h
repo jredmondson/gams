@@ -274,7 +274,7 @@ namespace gams
       typedef EulerYPR YawPitchRoll;
 
       /** The most common vernacular usage of roll, pitch and yaw */
-      typedef EulerVREP RollPitchYaw;
+      typedef EulerExtrXYZ RollPitchYaw;
 
       /** Stream operator for Euler angles */
       template<typename A, typename B, typename C, typename Conv>
