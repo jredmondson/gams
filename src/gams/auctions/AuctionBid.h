@@ -75,17 +75,17 @@ namespace gams
       /**
        * Compares for bid less than
        **/
-      bool operator< (AuctionBid & rhs);
+      bool operator< (const AuctionBid & rhs) const;
 
       /**
       * Compares for bid equality
       **/
-      bool operator== (AuctionBid & rhs);
+      bool operator== (const AuctionBid & rhs) const;
 
       /**
       * Compares for bid greater than
       **/
-      bool operator> (AuctionBid & rhs);
+      bool operator> (const AuctionBid & rhs) const;
 
       /// the id of the bidder (e.g., "agent.0")
       std::string bidder;
@@ -105,7 +105,7 @@ namespace gams
       * @param  lhs  left hand side
       * @param  rhs  right hand side
       **/
-      bool operator() (AuctionBid & lhs, AuctionBid &rhs);
+      bool operator() (const AuctionBid & lhs, const AuctionBid &rhs) const;
     };
 
     /**
@@ -119,7 +119,7 @@ namespace gams
        * @param  lhs  left hand side
        * @param  rhs  right hand side
        **/
-      bool operator() (AuctionBid & lhs, AuctionBid &rhs);
+      bool operator() (const AuctionBid & lhs, const AuctionBid &rhs) const;
     };
 
     /// convenience typedef for vector fo AuctionBid

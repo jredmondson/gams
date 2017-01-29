@@ -59,33 +59,33 @@
 #include "madara/utility/Utility.h"
 
 inline bool
-gams::auctions::AuctionBid::operator< (AuctionBid & rhs)
+gams::auctions::AuctionBid::operator< (const AuctionBid & rhs) const
 {
   return amount < rhs.amount;
 }
 
 inline bool
-gams::auctions::AuctionBid::operator== (AuctionBid & rhs)
+gams::auctions::AuctionBid::operator== (const AuctionBid & rhs) const
 {
   return amount == rhs.amount;
 }
 
 inline bool
-gams::auctions::AuctionBid::operator> (AuctionBid & rhs)
+gams::auctions::AuctionBid::operator> (const AuctionBid & rhs) const
 {
   return amount > rhs.amount;
 }
 
 inline bool
 gams::auctions::AuctionBidAscending::operator() (
-  AuctionBid & lhs, AuctionBid &rhs)
+  const AuctionBid & lhs, const AuctionBid &rhs) const
 {
   return lhs < rhs;
 }
 
 inline bool
 gams::auctions::AuctionBidDescending::operator() (
-  AuctionBid & lhs, AuctionBid &rhs)
+  const AuctionBid & lhs, const AuctionBid &rhs) const
 {
   return rhs < lhs;
 }
