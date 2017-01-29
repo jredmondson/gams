@@ -64,11 +64,6 @@ namespace gams
                             double x, double y, double z)
       : x_(x), y_(y), z_(z) {}
 
-    inline constexpr LocationVector::LocationVector (const LocationVector & rhs)
-      : x_ (rhs.x_), y_ (rhs.y_), z_ (rhs.z_)
-    {
-    }
-
     inline constexpr LocationVector::LocationVector()
       : x_(INVAL_COORD), y_(INVAL_COORD), z_(INVAL_COORD) {}
 

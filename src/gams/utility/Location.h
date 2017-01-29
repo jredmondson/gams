@@ -99,12 +99,6 @@ namespace gams
       constexpr LocationVector ();
 
       /**
-       * Copy constructor.
-       * @param rhs  vector to copy from
-       **/
-      constexpr LocationVector::LocationVector (const LocationVector & rhs);
-
-      /**
        * Constructor from C array
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
