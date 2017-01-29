@@ -95,17 +95,17 @@ namespace gams
 
         struct X
         {
-          static char *name() { return "X"; }
+          static const char *name() { return "X"; }
         };
 
         struct Y
         {
-          static char *name() { return "Y"; }
+          static const char *name() { return "Y"; }
         };
 
         struct Z
         {
-          static char *name() { return "Z"; }
+          static const char *name() { return "Z"; }
         };
       } // namespace conv
     }
