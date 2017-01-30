@@ -264,14 +264,14 @@ namespace gams
       /**
        * Normalizes a Pose; if zone is -1, ensure that the location is in
        * the standard zone. If moving to a different zone is required, updates
-       * the rotation part accordingly as well.
+       * the orientation part accordingly as well.
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
-       * @param rx   x axis of rotation
-       * @param ry   y axis of rotation
-       * @param rz   z axis of rotation
+       * @param rx   x axis of orientation
+       * @param ry   y axis of orientation
+       * @param rz   z axis of orientation
        **/
       virtual void do_normalize_pose(
                       double &x, double &y, double &z,

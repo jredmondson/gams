@@ -72,7 +72,7 @@ namespace gams
      *    Axis rz points upwards (i.e, normal vector)
      *
      * Note that under this scheme, change in x and/or y position, while
-     *   maintaining the same rotation angles, implies a rotation relative
+     *   maintaining the same orientation angles, implies a orientation relative
      *   to the planet.
      *
      * Distances at same altitude calculated as distance along great circle of

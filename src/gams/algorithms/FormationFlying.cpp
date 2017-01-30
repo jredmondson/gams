@@ -216,7 +216,7 @@ gams::algorithms::FormationFlyingFactory::create (
  * agent's specified location (in cylindrical coordinates) relative to the head
  * agent. Destination is the final position for the head agent. Members is the 
  * number of members in the formation, used to synchronize starting. Modifier
- * is either NONE or ROTATE (rotate the formation).
+ * is either NONE or ROTATE (orient the formation).
  */
 gams::algorithms::FormationFlying::FormationFlying (
   const std::string & head_id,
@@ -269,7 +269,7 @@ gams::algorithms::FormationFlying::FormationFlying (
     z_ = 0.0;
 
   // get modifier
-  if (modifier.compare ("rotate") == 0)
+  if (modifier.compare ("orient") == 0)
     modifier_ = ROTATE;
 
   // construct wait for in formation string
@@ -498,7 +498,7 @@ gams::algorithms::FormationFlying::plan (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    // increment executions, only used by rotation formation for now
+    // increment executions, only used by orientation formation for now
     ++executions_;
 
     need_to_move_ = false;

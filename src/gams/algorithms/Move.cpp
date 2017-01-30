@@ -345,7 +345,7 @@ gams::algorithms::Move::execute (void)
       " moving to pose [%s]\n",
       poses_[move_index_].to_string ().c_str ());
 
-    // depending on type of pose that was set, pose, move or rotate
+    // depending on type of pose that was set, pose, move or orient
     if (poses_[move_index_].is_set ())
     {
       if (!poses_[move_index_].is_location_set ())
@@ -353,10 +353,10 @@ gams::algorithms::Move::execute (void)
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "Move::execute:" \
-          " Only a rotate is necessary to %s\n",
+          " Only a orient is necessary to %s\n",
           utility::Orientation (poses_[move_index_]).to_string ().c_str ());
 
-        platform_->rotate (poses_[move_index_]);
+        platform_->orient (poses_[move_index_]);
       }
       else if (!poses_[move_index_].is_orientation_set ())
       {
@@ -373,7 +373,7 @@ gams::algorithms::Move::execute (void)
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "Move::execute:" \
-          " A rotation and a location movement is necessary to %s\n",
+          " A orientation and a location movement is necessary to %s\n",
           poses_[move_index_].to_string ().c_str ());
 
         platform_->pose (poses_[move_index_]);

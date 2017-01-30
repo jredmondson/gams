@@ -164,9 +164,9 @@ namespace gams
        * Rotates the platform to a specified Orientation
        * @param   target    the coordinates to move to
        * @param   epsilon   approximation value, in radians
-       * @return the status of the rotate operation, @see PlatformReturnValues
+       * @return the status of the orient operation, @see PlatformReturnValues
        **/
-      virtual int rotate (const utility::Orientation & location,
+      virtual int orient (const utility::Orientation & location,
         double epsilon = M_PI/32);
 
       /**
@@ -256,7 +256,7 @@ namespace gams
 
       madara::knowledge::containers::Double max_delta_;
 
-      madara::knowledge::containers::Double max_rotate_delta_;
+      madara::knowledge::containers::Double max_orient_delta_;
 
       /// Move thread name
       const static std::string MOVE_THREAD_NAME;
@@ -333,7 +333,7 @@ namespace gams
       int do_move (const utility::Location & target,
                    const utility::Location & current, double max_delta);
 
-      int do_rotate (utility::Orientation target,
+      int do_orient (utility::Orientation target,
                      const utility::Orientation & current, double max_delta);
     }; // class VREPBase
   } // namespace platform

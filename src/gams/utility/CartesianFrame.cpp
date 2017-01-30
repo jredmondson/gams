@@ -57,7 +57,7 @@ namespace gams
     {
       GAMS_WITH_FRAME_TYPE(origin(), CartesianFrame, frame)
       {
-        rotate_location_vec(x, y, z, origin());
+        orient_location_vec(x, y, z, origin());
 
         x += origin().x();
         y += origin().y();
@@ -66,7 +66,7 @@ namespace gams
       }
       GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
       {
-        rotate_location_vec(x, y, z, origin());
+        orient_location_vec(x, y, z, origin());
 
         z += origin().z();
 
@@ -85,7 +85,7 @@ namespace gams
 #ifdef GAMS_UTM
       GAMS_WITH_FRAME_TYPE(origin(), UTMFrame, frame)
       {
-        rotate_location_vec(x, y, z, origin());
+        orient_location_vec(x, y, z, origin());
 
         x += origin().x();
         y += origin().y();
@@ -101,7 +101,7 @@ namespace gams
     {
       GAMS_WITH_FRAME_TYPE(origin(), CartesianFrame, frame)
       {
-        rotate_location_vec(x, y, z, origin(), true);
+        orient_location_vec(x, y, z, origin(), true);
 
         x -= origin().x();
         y -= origin().y();
@@ -130,7 +130,7 @@ namespace gams
 #ifdef GAMS_UTM
       GAMS_WITH_FRAME_TYPE(origin(), UTMFrame, frame)
       {
-        rotate_location_vec(x, y, z, origin(), true);
+        orient_location_vec(x, y, z, origin(), true);
 
         x -= origin().x();
         y -= origin().y();

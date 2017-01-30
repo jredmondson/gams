@@ -154,7 +154,7 @@ namespace gams
       /// the destination location
       madara::knowledge::containers::NativeDoubleArray dest;
 
-      /// the destination rotation
+      /// the destination orientation
       madara::knowledge::containers::NativeDoubleArray dest_orientation;
       
       /// the home location

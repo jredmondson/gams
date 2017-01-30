@@ -181,13 +181,13 @@ gams::platforms::BasePlatform::move (const utility::Location & target,
 
 
 int
-gams::platforms::BasePlatform::rotate (const utility::Axes &)
+gams::platforms::BasePlatform::orient (const utility::Axes &)
 {
   return 0;
 }
 
 int
-gams::platforms::BasePlatform::rotate (const utility::Orientation & target,
+gams::platforms::BasePlatform::orient (const utility::Orientation & target,
   double epsilon)
 {
   int result (0);
@@ -228,10 +228,10 @@ gams::platforms::BasePlatform::pose (const utility::Pose & target,
   double loc_epsilon, double rot_epsilon)
 {
   int move_status = move(utility::Location(target), loc_epsilon);
-  int rotate_status = rotate(utility::Orientation(target), rot_epsilon);
-  if(move_status == 0 || rotate_status == 0)
+  int orient_status = orient(utility::Orientation(target), rot_epsilon);
+  if(move_status == 0 || orient_status == 0)
     return 0;
-  if(move_status == 2 && rotate_status == 2)
+  if(move_status == 2 && orient_status == 2)
     return 2;
   return 1;
 }

@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   LOG(cloc3.distance_to(gloc0));
   LOG(gloc0.distance_to(cloc3));
 
-  std::cout << std::endl << "Testing rotations between Cartesian frames:" << std::endl;
+  std::cout << std::endl << "Testing orientations between Cartesian frames:" << std::endl;
   CartesianFrame rot_frame0(gloc0);
   CartesianFrame rot_frame1(Pose(rot_frame0, Location(50, 100), Orientation(0, 0, 90, degrees)));
 
@@ -137,12 +137,12 @@ int main(int argc, char *argv[])
   Location rloc3(rot_frame1, 2000, 8000);
   LOG(rloc3.transform_to(gps_frame));
 
-  std::cout << std::endl << "Testing rotations between Cartesian/GPS frames:" << std::endl;
+  std::cout << std::endl << "Testing orientations between Cartesian/GPS frames:" << std::endl;
   Orientation grot0(gps_frame, 0, 0, 0);
   TEST(rot1.transform_to(gps_frame).rz(), M_PI / 2);
   TEST(grot0.transform_to(rot_frame1).rz(), - (M_PI / 2));
   
-  std::cout << std::endl << "Testing Poses, with rotations between Cartesian frames:" << std::endl;
+  std::cout << std::endl << "Testing Poses, with orientations between Cartesian frames:" << std::endl;
   Pose pose0(rot_frame0, 0, 0);
   Pose pose1(rot_frame1, 0, 0);
   LOG(pose0);

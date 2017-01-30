@@ -116,9 +116,9 @@ gams::platforms::VREPBase::VREPBase (
     if(!max_delta_.exists())
       max_delta_ = 0;
 
-    max_rotate_delta_.set_name(".vrep_max_rotate_delta", *knowledge);
-    if(!max_rotate_delta_.exists())
-      max_rotate_delta_ = 0;
+    max_orient_delta_.set_name(".vrep_max_orient_delta", *knowledge);
+    if(!max_orient_delta_.exists())
+      max_orient_delta_ = 0;
 
     // grab coverage sensor
     variables::Sensors::iterator it = sensors->find ("coverage");
@@ -479,11 +479,11 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::do_rotate (utility::Orientation target,
+gams::platforms::VREPBase::do_orient (utility::Orientation target,
                                       const utility::Orientation & current,
                                       double max_delta)
 {
-  // TODO: handle non-Z-axis rotation; for now ignore X and Y as workaround
+  // TODO: handle non-Z-axis orientation; for now ignore X and Y as workaround
 
   /*
   EulerVREP euler_current(current);
@@ -500,7 +500,7 @@ gams::platforms::VREPBase::do_rotate (utility::Orientation target,
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPBase::do_rotate:" \
+      "gams::platforms::VREPBase::do_orient:" \
       " rotating from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
       current.rx (), current.ry (), current.rz (),
       target.rx (), target.ry (), target.rz (), distance);
@@ -509,17 +509,17 @@ gams::platforms::VREPBase::do_rotate (utility::Orientation target,
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_TRACE,
-        "gams::platforms::VREPBase::do_rotate:" \
+        "gams::platforms::VREPBase::do_orient:" \
         " rotating to target instantly\n");
     }
     else // we cannot reach target in this step
     {
       double fraction = max_delta / distance;
 
-      // move quadrotor target closer to the desired rotation
+      // move quadrotor target closer to the desired orientation
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_TRACE,
-        "gams::platforms::VREPBase::do_rotate:" \
+        "gams::platforms::VREPBase::do_orient:" \
         " calculating new target location %f / %f == %f\n",
         max_delta, distance, fraction);
 
@@ -534,7 +534,7 @@ gams::platforms::VREPBase::do_rotate (utility::Orientation target,
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPBase::do_rotate:" \
+      "gams::platforms::VREPBase::do_orient:" \
       " setting target to \"%f,%f,%f\"\n", dest_arr[0], dest_arr[1], dest_arr[2]);
 
     // send movement command
@@ -548,8 +548,8 @@ gams::platforms::VREPBase::do_rotate (utility::Orientation target,
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::platforms::VREPBase::do_rotate:" \
-      " Unable to rotate. Waiting on vrep_ready and begin_sim\n");
+      "gams::platforms::VREPBase::do_orient:" \
+      " Unable to orient. Waiting on vrep_ready and begin_sim\n");
   }
 
   return 1;
@@ -629,17 +629,17 @@ gams::platforms::VREPBase::move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::rotate (const utility::Orientation & target,
+gams::platforms::VREPBase::orient (const utility::Orientation & target,
   double epsilon)
 {
   if (get_ready ())
   {
     // update variables
-    BasePlatform::rotate (target);
+    BasePlatform::orient (target);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
-      "gams::platforms::VREPBase::rotate:" \
+      "gams::platforms::VREPBase::orient:" \
       " requested target \"%f,%f,%f\"\n", target.rx (), target.ry (), target.rz ());
 
     // convert form input reference frame to vrep reference frame, if necessary
@@ -657,7 +657,7 @@ gams::platforms::VREPBase::rotate (const utility::Orientation & target,
 
     utility::Orientation vrep_rot (euler_curr.to_orientation (get_vrep_frame ()));
 
-    if (do_rotate (vrep_target, vrep_rot, max_rotate_delta_.to_double ()) == 0)
+    if (do_orient (vrep_target, vrep_rot, max_orient_delta_.to_double ()) == 0)
       return 0;
 
     VREP_LOCK
@@ -679,8 +679,8 @@ gams::platforms::VREPBase::rotate (const utility::Orientation & target,
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::platforms::VREPBase::rotate:" \
-      " Unable to rotate. Waiting on vrep_ready and begin_sim\n");
+      "gams::platforms::VREPBase::orient:" \
+      " Unable to orient. Waiting on vrep_ready and begin_sim\n");
   }
 
   return 1;

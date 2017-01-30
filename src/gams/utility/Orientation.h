@@ -77,12 +77,12 @@ namespace gams
 
     /**
      * Container for Orientation information, not bound to a frame. Uses axis-angle
-     * notation: a rotation is represented by a vector whose direction forms the
-     * axis of rotation, with angle of rotation equal to length of the vector.
+     * notation: a orientation is represented by a vector whose direction forms the
+     * axis of orientation, with angle of orientation equal to length of the vector.
      *
-     * All rotations about an axis follow the right hand role; if the origin is
+     * All orientations about an axis follow the right hand role; if the origin is
      * the center of your right hand, and your thumb is pointing in the positive
-     * direction of the rotation axis, rotations curve in the direction your
+     * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
     class OrientationVector
@@ -91,11 +91,11 @@ namespace gams
       /**
        * Constructor, taking values forming an angle-axis 3-vector
        * Orientation axis is determined by vector's direction. The length of
-       * the vector is the amount of rotation (in radians, by default).
+       * the vector is the amount of orientation (in radians, by default).
        *
-       * @param rx length of rotation vector in x-axis direction
-       * @param ry length of rotation vector in y-axis direction
-       * @param rz length of rotation vector in z-axis direction
+       * @param rx length of orientation vector in x-axis direction
+       * @param ry length of orientation vector in y-axis direction
+       * @param rz length of orientation vector in z-axis direction
        **/
       constexpr OrientationVector (double rx, double ry, double rz);
 
@@ -103,10 +103,10 @@ namespace gams
        * Constructor, taking axis and angle separately
        * @pre (x, y, z) must form a unit vector
        *
-       * @param x length of rotation axis unit vector in x-axis direction
-       * @param y length of rotation axis unit vector in y-axis direction
-       * @param z length of rotation axis unit vector in z-axis direction
-       * @param angle the amount of rotation around the axis
+       * @param x length of orientation axis unit vector in x-axis direction
+       * @param y length of orientation axis unit vector in y-axis direction
+       * @param z length of orientation axis unit vector in z-axis direction
+       * @param angle the amount of orientation around the axis
        **/
       constexpr OrientationVector (double x, double y, double z, double angle);
 
@@ -125,13 +125,13 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
-       * Default Constructor. Produces an invalid rotation (INVAL_COORD)
+       * Default Constructor. Produces an invalid orientation (INVAL_COORD)
        **/
       constexpr OrientationVector ();
 
       /**
        * Constructor to convert from Quaternion to equivalent
-       * rotation vector
+       * orientation vector
        *
        * Implementation in Quaternion.inl due to circular dependencies
        **/
@@ -254,14 +254,14 @@ namespace gams
     };
 
     /**
-     * Represents a rotation or orientation within a reference frame.
-     * Uses axis-angle notation: a rotation is represented by a vector whose
-     * direction forms the axis of rotation, with angle of rotation equal to
+     * Represents a orientation or orientation within a reference frame.
+     * Uses axis-angle notation: a orientation is represented by a vector whose
+     * direction forms the axis of orientation, with angle of orientation equal to
      * length of the vector.
      *
-     * All rotations about an axis follow the right hand role; if the origin is
+     * All orientations about an axis follow the right hand role; if the origin is
      * the center of your right hand, and your thumb is pointing in the positive
-     * direction of the rotation axis, rotations curve in the direction your
+     * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
     class Orientation : public OrientationVector, public Coordinate<Orientation>
@@ -270,28 +270,28 @@ namespace gams
       /**
        * Constructor, for default frame, taking values forming an angle-axis
        * 3-vector Orientation axis is determined by vector's direction. Amount of
-       * rotation, in radians, is the length of the vector.
+       * orientation, in radians, is the length of the vector.
        *
-       * For a simple rotation around a single axis, just pass that angle in the
+       * For a simple orientation around a single axis, just pass that angle in the
        * corresponding axis' argument.
        *
-       * @param rx length of rotation vector in default-frame's x-axis direction
-       * @param ry length of rotation vector in default-frame's y-axis direction
-       * @param rz length of rotation vector in default-frame's z-axis direction
+       * @param rx length of orientation vector in default-frame's x-axis direction
+       * @param ry length of orientation vector in default-frame's y-axis direction
+       * @param rz length of orientation vector in default-frame's z-axis direction
        **/
       Orientation (double rx, double ry, double rz);
 
       /**
        * Constructor, for default frame, taking values forming an angle-axis
        * 3-vector Orientation axis is determined by vector's direction. Amount of
-       * rotation is the length of the vector.
+       * orientation is the length of the vector.
        *
-       * For a simple rotation around a single axis, just pass that angle in the
+       * For a simple orientation around a single axis, just pass that angle in the
        * corresponding axis' argument.
        *
-       * @param rx length of rotation vector in default-frame's x-axis direction
-       * @param ry length of rotation vector in default-frame's y-axis direction
-       * @param rz length of rotation vector in default-frame's z-axis direction
+       * @param rx length of orientation vector in default-frame's x-axis direction
+       * @param ry length of orientation vector in default-frame's y-axis direction
+       * @param rz length of orientation vector in default-frame's z-axis direction
        * @param u units to use (see AngleUnits.h)
        **/
       template<typename U> Orientation (double rx, double ry, double rz, U u);
@@ -299,15 +299,15 @@ namespace gams
       /**
        * Constructor, for given frame, taking values forming an angle-axis
        * 3-vector Orientation axis is determined by vector's direction. Amount of
-       * rotation, in radians, is the length of the vector.
+       * orientation, in radians, is the length of the vector.
        *
-       * For a simple rotation around a single axis, just pass that angle in the
+       * For a simple orientation around a single axis, just pass that angle in the
        * corresponding axis' argument.
        *
-       * @param frame the frame that this rotation belongs to
-       * @param rx length of rotation vector in owning-frame's x-axis direction
-       * @param ry length of rotation vector in owning-frame's y-axis direction
-       * @param rz length of rotation vector in owning-frame's z-axis direction
+       * @param frame the frame that this orientation belongs to
+       * @param rx length of orientation vector in owning-frame's x-axis direction
+       * @param ry length of orientation vector in owning-frame's y-axis direction
+       * @param rz length of orientation vector in owning-frame's z-axis direction
        **/
       constexpr Orientation (const ReferenceFrame &frame,
                          double rx, double ry, double rz);
@@ -315,15 +315,15 @@ namespace gams
       /**
        * Constructor, for given frame, taking values forming an angle-axis
        * 3-vector Orientation axis is determined by vector's direction. Amount of
-       * rotation is the length of the vector.
+       * orientation is the length of the vector.
        *
-       * For a simple rotation around a single axis, just pass that angle in the
+       * For a simple orientation around a single axis, just pass that angle in the
        * corresponding axis' argument.
        *
-       * @param frame the frame that this rotation belongs to
-       * @param rx length of rotation vector in owning-frame's x-axis direction
-       * @param ry length of rotation vector in owning-frame's y-axis direction
-       * @param rz length of rotation vector in owning-frame's z-axis direction
+       * @param frame the frame that this orientation belongs to
+       * @param rx length of orientation vector in owning-frame's x-axis direction
+       * @param ry length of orientation vector in owning-frame's y-axis direction
+       * @param rz length of orientation vector in owning-frame's z-axis direction
        * @param u units to use (see AngleUnits.h)
        **/
       template<typename U>
@@ -334,10 +334,10 @@ namespace gams
        * Constructor, for default frame taking axis and angle separately
        * @pre (x, y, z) must form a unit vector (sqrt (x*x + y*y + z*z) == 1)
        *
-       * @param x length of rotation axis vector in frame's x-axis direction
-       * @param y length of rotation axis vector in frame's y-axis direction
-       * @param z length of rotation axis vector in frame's z-axis direction
-       * @param angle the amount of rotation, in radians, around the axis
+       * @param x length of orientation axis vector in frame's x-axis direction
+       * @param y length of orientation axis vector in frame's y-axis direction
+       * @param z length of orientation axis vector in frame's z-axis direction
+       * @param angle the amount of orientation, in radians, around the axis
        **/
       Orientation (double x, double y, double z,
                                     double angle);
@@ -346,10 +346,10 @@ namespace gams
        * Constructor, for default frame taking axis and angle separately
        * @pre (x, y, z) must form a unit vector (sqrt (x*x + y*y + z*z) == 1)
        *
-       * @param x length of rotation axis vector in frame's x-axis direction
-       * @param y length of rotation axis vector in frame's y-axis direction
-       * @param z length of rotation axis vector in frame's z-axis direction
-       * @param angle the amount of rotation around the axis
+       * @param x length of orientation axis vector in frame's x-axis direction
+       * @param y length of orientation axis vector in frame's y-axis direction
+       * @param z length of orientation axis vector in frame's z-axis direction
+       * @param angle the amount of orientation around the axis
        * @param u units to use (see AngleUnits.h)
        **/
       template<typename U> Orientation (double x, double y, double z,
@@ -359,11 +359,11 @@ namespace gams
        * Constructor, for a given frame taking axis and angle separately
        * @pre (x, y, z) must form a unit vector (sqrt (x*x + y*y + z*z) == 1)
        *
-       * @param frame the frame that this rotation belongs to
-       * @param x length of rotation axis vector in frame's x-axis direction
-       * @param y length of rotation axis vector in frame's y-axis direction
-       * @param z length of rotation axis vector in frame's z-axis direction
-       * @param angle the amount of rotation, default radians, around the axis
+       * @param frame the frame that this orientation belongs to
+       * @param x length of orientation axis vector in frame's x-axis direction
+       * @param y length of orientation axis vector in frame's y-axis direction
+       * @param z length of orientation axis vector in frame's z-axis direction
+       * @param angle the amount of orientation, default radians, around the axis
        **/
       constexpr Orientation (const ReferenceFrame &frame,
                          double x, double y, double z, double angle);
@@ -372,11 +372,11 @@ namespace gams
        * Constructor, for a given frame taking axis and angle separately
        * @pre (x, y, z) must form a unit vector (sqrt (x*x + y*y + z*z) == 1)
        *
-       * @param frame the frame that this rotation belongs to
-       * @param x length of rotation axis vector in frame's x-axis direction
-       * @param y length of rotation axis vector in frame's y-axis direction
-       * @param z length of rotation axis vector in frame's z-axis direction
-       * @param angle the amount of rotation around the axis
+       * @param frame the frame that this orientation belongs to
+       * @param x length of orientation axis vector in frame's x-axis direction
+       * @param y length of orientation axis vector in frame's y-axis direction
+       * @param z length of orientation axis vector in frame's z-axis direction
+       * @param angle the amount of orientation around the axis
        * @param u units to use (see AngleUnits.h)
        **/
       template<typename U> constexpr Orientation (const ReferenceFrame &frame,
@@ -416,22 +416,22 @@ namespace gams
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
-       * Default constructor; an invalid rotation, in the default frame
+       * Default constructor; an invalid orientation, in the default frame
        **/
       Orientation ();
 
       /**
        * Construct from a Quaternion, into the default frame.
        *
-       * @param quat the Quaternion to converto to a rotation vector
+       * @param quat the Quaternion to converto to a orientation vector
        **/
       explicit Orientation (const Quaternion &quat);
 
       /**
        * Construct from a Quaternion, into a given frame.
        *
-       * @param frame the frame that this rotation belongs to
-       * @param quat the Quaternion to converto to a rotation vector
+       * @param frame the frame that this orientation belongs to
+       * @param quat the Quaternion to converto to a orientation vector
        **/
       explicit Orientation (const ReferenceFrame &frame, const Quaternion &quat);
 
@@ -439,36 +439,36 @@ namespace gams
        * Copy constructor, but also convert to a new frame
        *
        * @param new_frame the new frame to convert to
-       * @param orig the origin of the rotation
+       * @param orig the origin of the orientation
        **/
       Orientation (const ReferenceFrame &new_frame, const Orientation &orig);
 
       /**
-       * Synonym for distance_to. Returns angle of shortest rotation mapping
-       * this rotation onto the target.
+       * Synonym for distance_to. Returns angle of shortest orientation mapping
+       * this orientation onto the target.
        *
        * @param target the other Orientation
-       * @return the shortest angle, in radians, to rotate this onto target
+       * @return the shortest angle, in radians, to orient this onto target
        **/
       double angle_to (const Orientation &target) const;
 
       /**
-       * Synonym for distance_to. Returns angle of shortest rotation mapping
-       * this rotation onto the target.
+       * Synonym for distance_to. Returns angle of shortest orientation mapping
+       * this orientation onto the target.
        *
        * @param target the other Orientation
        * @param u units to use (see AngleUnits.h)
-       * @return the shortest angle to rotate this onto target
+       * @return the shortest angle to orient this onto target
        **/
       template<typename U> double angle_to (const Orientation &target, U u) const;
 
       /**
        * Interpolate a new Orientation that is (t * 100)% between *this and
-       * o, along the shortest path of rotation between them in 3D space.
+       * o, along the shortest path of orientation between them in 3D space.
        *
        * @param o the other Orientation. If it is not in the same frame as *this,
        *          it will be transformed first.
-       * @param t between 0 and 1, how "close" the interpolated rotation should
+       * @param t between 0 and 1, how "close" the interpolated orientation should
        *          be to *this
        *
        * @return the interpolated Orientation.
@@ -489,12 +489,12 @@ namespace gams
 
       /**
        * Interpolate a new Orientation that is (t * 100)% between *this and
-       * o, along the shortest path of rotation between them in 3D space.
+       * o, along the shortest path of orientation between them in 3D space.
        * Store the result in *this.
        *
        * @param o the other Orientation. If it is not in the same frame as *this,
        *          it will be transformed first.
-       * @param t between 0 and 1, how "close" the interpolated rotation should
+       * @param t between 0 and 1, how "close" the interpolated orientation should
        *          be to *this
        *
        * Implementation in Quaternion.inl due to circular dependencies

@@ -545,7 +545,7 @@ namespace gams
               " frame to parent " + parent_frame.name() + " frame")
           : ("No defined transform from parent " + parent_frame.name() +
               " frame to embedded " + child_frame.name() + " frame") +
-            (unsupported_orientation ? " involving rotation." : ".")),
+            (unsupported_orientation ? " involving orientation." : ".")),
         parent_frame(parent_frame), child_frame(child_frame),
           is_child_to_parent(is_child_to_parent),
           unsupported_orientation(unsupported_orientation) {}

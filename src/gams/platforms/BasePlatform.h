@@ -243,23 +243,23 @@ namespace gams
       /**
       * Rotates the platform by an angle on a 3D axis
       * @param   axes  the coordinates to move to
-      * @return the status of the rotate, @see PlatformReturnValues
+      * @return the status of the orient, @see PlatformReturnValues
       **/
-      virtual int rotate (const utility::Axes & axes);
+      virtual int orient (const utility::Axes & axes);
 
       /**
        * Rotates the platform to match a given angle
-       * @param   target    the rotation to move to
+       * @param   target    the orientation to move to
        * @param   epsilon   approximation value
-       * @return the status of the rotate, @see PlatformReturnValues
+       * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int rotate (const utility::Orientation & target,
+      virtual int orient (const utility::Orientation & target,
         double epsilon = M_PI/16);
 
       /**
-       * Moves the platform to a pose (location and rotation)
+       * Moves the platform to a pose (location and orientation)
        *
-       * This default implementation calls move and rotate with the
+       * This default implementation calls move and orient with the
        * Location and Orientation portions of the target Pose. The return value
        * is composed as follows: if either call returns ERROR (0), this call
        * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
@@ -270,7 +270,7 @@ namespace gams
        *
        * @param   target        the coordinates to move to
        * @param   loc_epsilon   approximation value for the location
-       * @param   rot_epsilon   approximation value for the rotation
+       * @param   rot_epsilon   approximation value for the orientation
        * @return the status of the operation, @see PlatformReturnValues
        **/
       virtual int pose (const utility::Pose & target,
@@ -311,7 +311,7 @@ namespace gams
       virtual void stop_move (void);
 
       /**
-       * Stops rotation, resetting source and dest angles to current angle
+       * Stops orientation, resetting source and dest angles to current angle
        **/
       virtual void stop_orientation (void);
 

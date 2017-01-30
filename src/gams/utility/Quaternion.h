@@ -83,16 +83,16 @@ namespace gams
       constexpr Quaternion(double x, double y, double z, double w);
 
       /**
-       * Constructor which converts a rotation vector, specified in individual
+       * Constructor which converts a orientation vector, specified in individual
        * terms, into the corresponding quaternion representation. See
-       * OrientationVector for details of the rotation vector representation.
+       * OrientationVector for details of the orientation vector representation.
        **/
       Quaternion(double rx, double ry, double rz);
 
       /**
-       * Constructor which converts a rotation vector into the corresponding
+       * Constructor which converts a orientation vector into the corresponding
        * quaternion representation. See OrientationVector for details of the
-       * rotation vector representation.
+       * orientation vector representation.
        **/
       explicit Quaternion(const OrientationVector &rot);
 
@@ -120,7 +120,7 @@ namespace gams
 
       /**
        * Calculates the hamilton product of two quaternions, into a third.
-       * The resulting quaternion represents the composed rotation of the args.
+       * The resulting quaternion represents the composed orientation of the args.
        * The target quaternion can be one of the two source quaternion.
        * The two source quaternions can be the same (for squaring)
        *
@@ -177,11 +177,11 @@ namespace gams
 
       /**
        * Treat this quaternion as a location quaternion (w should be zero),
-       * and rotate it by the rotation represented by rot
+       * and orient it by the orientation represented by rot
        *
-       * @param rot the Quaternion angle to rotate by
+       * @param rot the Quaternion angle to orient by
        **/
-      void rotate_by(Quaternion rot);
+      void orient_by(Quaternion rot);
 
       /**
        * Copy and conjugate this quaternion
@@ -212,9 +212,9 @@ namespace gams
       double dot_product(const Quaternion &rhs) const;
 
       /**
-       * Calculates the angle between the rotations represented by
+       * Calculates the angle between the orientations represented by
        * this, and the target Quaternion. This is the smallest angle
-       * this can be rotated to arrive at target.
+       * this can be orientd to arrive at target.
        *
        * @param target the target Quaternion
        * @return the angle in radians between this and the target
@@ -357,35 +357,35 @@ namespace gams
        **/
       void slerp_this(const Quaternion &o, double t);
 
-      /* The methods below return the cells of the 3x3 rotation matrix this
+      /* The methods below return the cells of the 3x3 orientation matrix this
        * quaternion represents; names are mRC(), where R is row, and C is column
        */
 
-      /** Row 1 Column 1 of rotation matrix equivalent to this quaternion */
+      /** Row 1 Column 1 of orientation matrix equivalent to this quaternion */
       double m11() const;
 
-      /** Row 1 Column 2 of rotation matrix equivalent to this quaternion */
+      /** Row 1 Column 2 of orientation matrix equivalent to this quaternion */
       double m12() const;
 
-      /** Row 1 Column 3 of rotation matrix equivalent to this quaternion */
+      /** Row 1 Column 3 of orientation matrix equivalent to this quaternion */
       double m13() const;
 
-      /** Row 2 Column 1 of rotation matrix equivalent to this quaternion */
+      /** Row 2 Column 1 of orientation matrix equivalent to this quaternion */
       double m21() const;
 
-      /** Row 2 Column 2 of rotation matrix equivalent to this quaternion */
+      /** Row 2 Column 2 of orientation matrix equivalent to this quaternion */
       double m22() const;
 
-      /** Row 2 Column 3 of rotation matrix equivalent to this quaternion */
+      /** Row 2 Column 3 of orientation matrix equivalent to this quaternion */
       double m23() const;
 
-      /** Row 3 Column 1 of rotation matrix equivalent to this quaternion */
+      /** Row 3 Column 1 of orientation matrix equivalent to this quaternion */
       double m31() const;
 
-      /** Row 3 Column 2 of rotation matrix equivalent to this quaternion */
+      /** Row 3 Column 2 of orientation matrix equivalent to this quaternion */
       double m32() const;
 
-      /** Row 3 Column 3 of rotation matrix equivalent to this quaternion */
+      /** Row 3 Column 3 of orientation matrix equivalent to this quaternion */
       double m33() const;
 
     private:
