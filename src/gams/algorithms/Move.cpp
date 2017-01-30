@@ -76,11 +76,14 @@ gams::algorithms::MoveFactory::create (
   {
     std::vector <utility::Pose> poses;
     int repeat_times (0);
+    double wait_time (0.0);
 
     KnowledgeMap::const_iterator poses_size_found =
       args.find ("locations.size");
 
     KnowledgeMap::const_iterator repeat_found = args.find ("repeat");
+
+    KnowledgeMap::const_iterator wait_time_found = args.find ("wait_time");
 
     if (repeat_found != args.end ())
     {
@@ -245,53 +248,6 @@ gams::algorithms::Move::analyze (void)
 
         if (loc.approximately_equal (next_loc, platform_->get_accuracy ()))
         {
-          // if we are at the end of the location list
-          if (move_index_ == poses_.size () - 1)
-          {
-            ++cycles_;
-
-            madara_logger_ptr_log (gams::loggers::global_logger.get (),
-              gams::loggers::LOG_MAJOR,
-              "Move::analyze:" \
-              " finished waypoints cycle number %d of %d target cycles\n",
-              cycles_, repeat_);
-
-            if (cycles_ >= repeat_ && repeat_ >= 0)
-            {
-              madara_logger_ptr_log (gams::loggers::global_logger.get (),
-                gams::loggers::LOG_MAJOR,
-                "Move::analyze:" \
-                " algorithm is finished after %d cycles\n",
-                cycles_);
-
-              result |= FINISHED;
-              status_.finished = 1;
-            } // end if finished
-            else
-            {
-              // reset the move index if we are supposed to cycle
-              move_index_ = 0;
-
-              madara_logger_ptr_log (gams::loggers::global_logger.get (),
-                gams::loggers::LOG_MAJOR,
-                "Move::analyze:" \
-                " proceeding to location 0 in next cycle.\n");
-
-            } // end if not finished
-          } // end if move_index_ == end of locations
-          else
-          {
-            // go to the next location
-            ++move_index_;
-
-            madara_logger_ptr_log (gams::loggers::global_logger.get (),
-              gams::loggers::LOG_MAJOR,
-              "Move::analyze:" \
-              " proceeding to pose %d at [%s].\n",
-              (int)move_index_,
-              poses_[move_index_].to_string ().c_str ());
-
-          } // if not the end of the list
         } // end if location is approximately equal to next location
       } // end next move is within the locations list
       else
@@ -334,6 +290,8 @@ gams::algorithms::Move::execute (void)
 {
   int result (OK);
 
+  int move_result (-1);
+
   bool is_finished = status_.finished == 1;
 
   if (platform_ && *platform_->get_platform_status ()->movement_available
@@ -356,7 +314,13 @@ gams::algorithms::Move::execute (void)
           " Only a orient is necessary to %s\n",
           utility::Orientation (poses_[move_index_]).to_string ().c_str ());
 
-        platform_->orient (poses_[move_index_]);
+        move_result = platform_->orient (poses_[move_index_],
+          platform_->get_accuracy ());
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "Move::execute:" \
+          " platform->orient returned %d.\n", move_result);
       }
       else if (!poses_[move_index_].is_orientation_set ())
       {
@@ -366,7 +330,13 @@ gams::algorithms::Move::execute (void)
           " Only a location move is necessary to %s\n",
           utility::Location (poses_[move_index_]).to_string ().c_str ());
 
-        platform_->move (poses_[move_index_]);
+        move_result = platform_->move (poses_[move_index_],
+          platform_->get_accuracy ());
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "Move::execute:" \
+          " platform->move returned %d.\n", move_result);
       }
       else
       {
@@ -376,13 +346,77 @@ gams::algorithms::Move::execute (void)
           " A orientation and a location movement is necessary to %s\n",
           poses_[move_index_].to_string ().c_str ());
 
-        platform_->pose (poses_[move_index_]);
+        move_result = platform_->pose (poses_[move_index_],
+          platform_->get_accuracy ());
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "Move::execute:" \
+          " platform->pose returned %d.\n", move_result);
+
       }
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "Move::execute:" \
         " The platform was informed of new pose\n");
+
+      if (move_result == platforms::PLATFORM_ARRIVED)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "Move::execute:" \
+          " platform operation was a success. Determining new moves.\n",
+          move_result);
+
+        // if we are at the end of the location list
+        if (move_index_ == poses_.size () - 1)
+        {
+          ++cycles_;
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "Move::execute:" \
+            " finished waypoints cycle number %d of %d target cycles\n",
+            cycles_, repeat_);
+
+          if (cycles_ >= repeat_ && repeat_ >= 0)
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MAJOR,
+              "Move::execute:" \
+              " algorithm is finished after %d cycles\n",
+              cycles_);
+
+            result |= FINISHED;
+            status_.finished = 1;
+          } // end if finished
+          else
+          {
+            // reset the move index if we are supposed to cycle
+            move_index_ = 0;
+
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MAJOR,
+              "Move::execute:" \
+              " proceeding to location 0 in next cycle.\n");
+
+          } // end if not finished
+        } // end if move_index_ == end of locations
+        else
+        {
+          // go to the next location
+          ++move_index_;
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "Move::analyze:" \
+            " proceeding to pose %d at [%s].\n",
+            (int)move_index_,
+            poses_[move_index_].to_string ().c_str ());
+
+        } // if not the end of the list
+      }
     }
     else
     {
