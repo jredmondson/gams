@@ -1,9 +1,9 @@
 .vrep_port=19907;
 
-.initial_x=5;
-.initial_y=5;
+.initial_x=10;
+.initial_y=10;
 .initial_alt=3;
 
 agent.1.algorithm="follow";
 agent.1.algorithm.args.target="agent.0";
-agent.1.algorithm.args.delay=3;
+agent.1.algorithm.args.offset=[1, 1, 3];

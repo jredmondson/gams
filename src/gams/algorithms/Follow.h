@@ -63,6 +63,7 @@
 #include "gams/variables/Self.h"
 #include "gams/utility/GPSPosition.h"
 #include "gams/algorithms/AlgorithmFactory.h"
+#include "gams/utility/CartesianFrame.h"
 
 namespace gams
 {
@@ -76,16 +77,16 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  id         id of agent to follow
-       * @param  delay      timesteps to delay until follow
+       * @param  target     full agent name the agent should follow
+       * @param  offset     offset from target.location to move to
        * @param  knowledge  the context containing variables and values
        * @param  platform   the underlying platform the algorithm will use
        * @param  sensors    map of sensor names to sensor information
        * @param  self       self-referencing variables
        **/
       Follow (
-        const std::string & id,
-        madara::knowledge::KnowledgeRecord::Integer delay,
+        const std::string & target,
+        const std::vector <double> & offset,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -122,16 +123,22 @@ namespace gams
       
     protected:
       /// location of agent to follow
-      madara::knowledge::containers::NativeDoubleArray target_location_;
+      variables::Agent target_;
 
-      /// type of movement being executed
-      utility::GPSPosition next_position_;
+      /// current target location shared between analyze and execute
+      utility::Location target_location_;
 
-      /// previous locations of target agent
-      std::queue<utility::GPSPosition> previous_locations_;
+      /// keep track of last location
+      utility::Location last_location_;
 
-      /// timesteps to delay/max size of queue
-      size_t delay_;
+      /// keep track of last leader/target location
+      utility::Location target_last_location_;
+
+      /// keep track of the offset that agent should be at
+      std::vector <double> offset_;
+
+      /// flag between analyze and execute indicating new move is necessary
+      bool need_move_;
     };
 
     /**

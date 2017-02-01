@@ -110,7 +110,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
-        "gams::algorithms::FormationFlyingFactory:" \
+        "gams::algorithms::FormationCoverage:" \
         " check arg %s\n",
         i->first.c_str ());
 
@@ -123,7 +123,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " setting coverage to %s\n", coverage.c_str ());
         }
         else if (madara::utility::begins_with (i->first, "coverage.args.") &&
@@ -134,7 +134,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " adding coverage_arg %s = %s\n", arg.c_str (),
             i->second.to_string ().c_str ());
 
@@ -148,7 +148,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " %d size destination set\n", (int)destination.size ());
           break;
         }
@@ -160,7 +160,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " setting group to %s\n", group.c_str ());
           break;
         }
@@ -172,7 +172,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " setting formation head to %s\n", head.c_str ());
           break;
         }
@@ -184,7 +184,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " setting modifier to %s\n", modifier.c_str ());
           break;
         }
@@ -196,7 +196,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " %d size offset set\n", (int)offset.size ());
           break;
         }
@@ -208,7 +208,7 @@ gams::algorithms::FormationCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationFlyingFactory:" \
+            "gams::algorithms::FormationCoverage:" \
             " setting formation head/target to %s\n", head.c_str ());
           break;
         }
@@ -217,7 +217,7 @@ gams::algorithms::FormationCoverageFactory::create (
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationFlyingFactory:" \
+          "gams::algorithms::FormationCoverage:" \
           " argument unknown: %s -> %s\n",
           i->first.c_str (), i->second.to_string ().c_str ());
 
@@ -231,7 +231,7 @@ gams::algorithms::FormationCoverageFactory::create (
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_ERROR,
-        "gams::algorithms::FormationFlyingFactory::create:" \
+        "gams::algorithms::FormationCoverage::create:" \
         " Invalid args. head = %s, group = %s, coverage = %s, " \
         " offset.size = %d, destination.size = %d. Returning null.\n",
         head.c_str (), group.c_str (), coverage.c_str (),
