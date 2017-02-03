@@ -139,7 +139,7 @@ gams::algorithms::Home::execute (void)
         "algorithms::Home::execute:" \
         " platform->move returned %d.\n", move_result);
 
-      if (move_result == 0)
+      if (move_result == platforms::PLATFORM_ARRIVED)
       {
         status_.finished = 1;
         result |= FINISHED;
