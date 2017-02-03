@@ -81,7 +81,7 @@ namespace gams
       : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
 
     inline constexpr OrientationVector::OrientationVector()
-      : rx_(INVAL_COORD), ry_(INVAL_COORD), rz_(INVAL_COORD) {}
+      : rx_(0), ry_(0), rz_(0) {}
 
     inline constexpr bool OrientationVector::is_set () const
     {
