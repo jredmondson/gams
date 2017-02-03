@@ -65,16 +65,16 @@ namespace gams
   namespace utility
   {
     /**
-    * A deprecated class for rotation information. @see ReferenceFrame
+    * A deprecated class for orientation information. @see ReferenceFrame
     **/
     class GAMSExport Axes
     {
     public:
       /**
        * Constructor
-       * @param  init_x    the x axis rotation
-       * @param  init_y    the y axis rotation
-       * @param  init_z    the z axis rotation
+       * @param  init_x    the x axis orientation
+       * @param  init_y    the y axis orientation
+       * @param  init_z    the z axis orientation
        **/
       Axes (
         double init_x = 0.0, double init_y = 0.0, double init_z = 0.0);

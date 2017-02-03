@@ -154,7 +154,7 @@ namespace gams
       do_normalize_orientation(rx, ry, rz);
     }
 
-    void SimpleRotateFrame::rotate_location_vec(
+    void SimpleRotateFrame::orient_location_vec(
           double &x, double &y, double &z,
           const OrientationVector &rot, bool reverse) const
     {
@@ -167,7 +167,7 @@ namespace gams
       if(reverse)
         rotq.conjugate();
 
-      locq.rotate_by(rotq);
+      locq.orient_by(rotq);
       locq.to_location_vector(x, y, z);
     }
 

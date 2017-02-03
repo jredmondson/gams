@@ -66,8 +66,8 @@ namespace gams
      *
      * All conversions to/from child and parent CartesianFrames are supported.
      * Conversions to/from a parent GPSFrame are supported, except converting
-     * GPSFrame to a child CartesianFrame that is rotated w.r.t. the GPSFrame
-     * Converting to GPSFrame from a rotated child Cartesian is supported.
+     * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
+     * Converting to GPSFrame from a orientd child Cartesian is supported.
      **/
     class GAMSExport CartesianFrame : public SimpleRotateFrame
     {

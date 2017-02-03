@@ -204,7 +204,7 @@ namespace gams
       return *this;
     }
 
-    inline void Quaternion::rotate_by(Quaternion rot)
+    inline void Quaternion::orient_by(Quaternion rot)
     {
       pre_multiply(rot);
       rot.conjugate();
@@ -358,7 +358,7 @@ namespace gams
       this->pre_multiply(tmp);
     }
 
-    /* The methods below return the cells of the 3x3 rotation matrix this
+    /* The methods below return the cells of the 3x3 orientation matrix this
      * quaternion represents; names are mRC(), where R is row, and C is column
      */
     inline double Quaternion::m11() const

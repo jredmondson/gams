@@ -150,7 +150,7 @@ namespace gams
        * @param parent_frame of the two involved frames, the parent frame
        * @param child_frame of the two involved frames, the child frame
        * @param is_child_to_parent indicates direction of transformation
-       * @param unsupported_orientation true if the error was due to rotated
+       * @param unsupported_orientation true if the error was due to orientd
        *   reference frames not being supported for this transformation.
        *   Defaults to false;
        **/
@@ -278,7 +278,7 @@ namespace gams
       void normalize_location(double &x, double &y, double &z) const;
 
       /**
-       * Normalizes individual doubles representing a rotation
+       * Normalizes individual doubles representing a orientation
        **/
       void normalize_orientation(double &rx, double &ry, double &rz) const;
 
@@ -393,13 +393,13 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param rx1   x axis of first rotation
-       * @param ry1   y axis of first rotation
-       * @param rz1   z axis of first rotation
-       * @param rx2   x axis of second rotation
-       * @param ry2   y axis of second rotation
-       * @param rz2   z axis of second rotation
-       * @return rotational distance in degrees from rot1 to rot2
+       * @param rx1   x axis of first orientation
+       * @param ry1   y axis of first orientation
+       * @param rz1   z axis of first orientation
+       * @param rx2   x axis of second orientation
+       * @param ry2   y axis of second orientation
+       * @param rz2   z axis of second orientation
+       * @return orientational distance in degrees from rot1 to rot2
        **/
       virtual double calc_angle(
                       double rx1, double ry1, double rz1,
@@ -409,9 +409,9 @@ namespace gams
        * Override for new coordinate systems that can require normalization of
        * coordinates, e.g., angl-based systems. NOP by default.
        *
-       * @param rx   x axis of rotation
-       * @param ry   y axis of rotation
-       * @param rz   z axis of rotation
+       * @param rx   x axis of orientation
+       * @param ry   y axis of orientation
+       * @param rz   z axis of orientation
        **/
       virtual void do_normalize_orientation(
                       double &rx, double &ry, double &rz) const;
@@ -423,9 +423,9 @@ namespace gams
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
-       * @param rx   x axis of rotation
-       * @param ry   y axis of rotation
-       * @param rz   z axis of rotation
+       * @param rx   x axis of orientation
+       * @param ry   y axis of orientation
+       * @param rz   z axis of orientation
        **/
       virtual void do_normalize_pose(
                       double &x, double &y, double &z,
@@ -588,8 +588,8 @@ namespace gams
     /**
      * For internal use.
      *
-     * Provides implementation of rotation and pose transforms for frames
-     * where rotation transformation is independant of location. This applies
+     * Provides implementation of orientation and pose transforms for frames
+     * where orientation transformation is independant of location. This applies
      * to, for example, Cartesian and GPS frames, but not UTM frames.
      * Inherit from this to use this implementation.
      **/
@@ -620,13 +620,13 @@ namespace gams
       /**
        * Rotates a LocationVector according to a OrientationVector
        *
-       * @param x   the x coordinate to rotate (in-place)
-       * @param y   the y coordinate to rotate (in-place)
-       * @param z   the z coordinate to rotate (in-place)
-       * @param rot the rotation to apply, axis-angle notation
-       * @param reverse if true, apply rotation in opposite direction
+       * @param x   the x coordinate to orient (in-place)
+       * @param y   the y coordinate to orient (in-place)
+       * @param z   the z coordinate to orient (in-place)
+       * @param rot the orientation to apply, axis-angle notation
+       * @param reverse if true, apply orientation in opposite direction
        **/
-      void rotate_location_vec(
+      void orient_location_vec(
           double &x, double &y, double &z,
           const OrientationVector &rot,
           bool reverse = false) const;
@@ -654,7 +654,7 @@ namespace gams
 
       /**
        * Transform pose in-place into its origin frame from this frame.
-       * Simply applies location and rotation transforms independantly
+       * Simply applies location and orientation transforms independantly
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -669,7 +669,7 @@ namespace gams
 
       /**
        * Transform pose in-place from its origin frame
-       * Simply applies location and rotation transforms independantly
+       * Simply applies location and orientation transforms independantly
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -685,12 +685,12 @@ namespace gams
       /**
        * Calculates smallest angle between two OrientationVectors
        *
-       * @param rx1  the starting rotation on x axis
-       * @param ry1  the starting rotation on y axis
-       * @param rz1  the starting rotation on z axis
+       * @param rx1  the starting orientation on x axis
+       * @param ry1  the starting orientation on y axis
+       * @param rz1  the starting orientation on z axis
        * @param rx2 the ending rotatation on x axis
-       * @param ry2  the ending rotation on y axis
-       * @param rz2  the ending rotation on z axis
+       * @param ry2  the ending orientation on y axis
+       * @param rz2  the ending orientation on z axis
        * @return the difference in radians
        **/
       virtual double calc_angle(
