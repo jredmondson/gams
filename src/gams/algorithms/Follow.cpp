@@ -266,7 +266,8 @@ gams::algorithms::Follow::execute (void)
         " Target has location. Moving.\n");
 
       // create a cartesian overlay where we consider leader location the origin
-      gams::utility::CartesianFrame target_frame (target_location_);
+      gams::utility::CartesianFrame target_frame (
+        gams::utility::Pose(target_location_, gams::utility::Orientation(0, 0, 0)));
 
       // the destination is modified by the row, column and buffer size
       gams::utility::Location destination (
