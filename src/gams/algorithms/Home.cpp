@@ -105,6 +105,16 @@ gams::algorithms::Home::operator= (const Home & rhs)
 int
 gams::algorithms::Home::analyze (void)
 {
+  if (self_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Home::analyze:" \
+      " current pose is [%s, %s].\n",
+      self_->agent.location.to_record ().to_string ().c_str (),
+      self_->agent.orientation.to_record ().to_string ().c_str ());
+  }
+
   return OK;
 }
       
@@ -125,7 +135,7 @@ gams::algorithms::Home::execute (void)
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
-        "algorithms::Home::execute:" \
+        "gams::algorithms::Home::execute:" \
         " Home location is %s. Moving to home.\n",
         destination.to_string ().c_str ());
 
@@ -136,7 +146,7 @@ gams::algorithms::Home::execute (void)
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
-        "algorithms::Home::execute:" \
+        "gams::algorithms::Home::execute:" \
         " platform->move returned %d.\n", move_result);
 
       if (move_result == platforms::PLATFORM_ARRIVED)
@@ -150,7 +160,7 @@ gams::algorithms::Home::execute (void)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "algorithms::Home::execute:" \
+      "gams::algorithms::Home::execute:" \
       " platform is null. No movement possible.\n");
   }
 

@@ -96,6 +96,16 @@ gams::algorithms::Land::operator= (const Land & rhs)
 int
 gams::algorithms::Land::analyze (void)
 {
+  if (self_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Land::analyze:" \
+      " current pose is [%s, %s].\n",
+      self_->agent.location.to_record ().to_string ().c_str (),
+      self_->agent.orientation.to_record ().to_string ().c_str ());
+  }
+
   return OK;
 }
       
@@ -107,7 +117,10 @@ gams::algorithms::Land::execute (void)
 
   if (executions_ == 0)
   {
-    std::cerr << "Landing...\n";
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Land::execute:" \
+      " calling platform->land ().\n");
 
     if (platform_)
     {
@@ -118,7 +131,10 @@ gams::algorithms::Land::execute (void)
     }
     else
     {
-      std::cerr << "ERROR: No platform. Landing aborted.\n";
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "algorithms::Land::execute:" \
+        " ERROR: no platform initialized. Cannot land.\n");
     }
   }
   return result;

@@ -105,6 +105,16 @@ gams::algorithms::Takeoff::operator= (const Takeoff & rhs)
 int
 gams::algorithms::Takeoff::analyze (void)
 {
+  if (self_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Takeoff::analyze:" \
+      " current pose is [%s, %s].\n",
+      self_->agent.location.to_record ().to_string ().c_str (),
+      self_->agent.orientation.to_record ().to_string ().c_str ());
+  }
+
   return OK;
 }
       
@@ -116,7 +126,10 @@ gams::algorithms::Takeoff::execute (void)
 
   if (executions_ == 0)
   {
-    std::cerr << "Taking off..." << std::endl;
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Takeoff::execute:" \
+      " calling platform->takeoff ().\n");
 
     if (platform_)
     {
@@ -127,7 +140,10 @@ gams::algorithms::Takeoff::execute (void)
     }
     else
     {
-      std::cerr << "ERROR: No platform. Takeoff aborted." << std::endl;
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_ERROR,
+        "algorithms::Land::execute:" \
+        " ERROR: no platform initialized. Cannot takeoff.\n");
     }
   }
 

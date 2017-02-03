@@ -198,6 +198,16 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
 int
 gams::algorithms::Follow::analyze (void)
 {
+  if (self_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Follow::analyze:" \
+      " current pose is [%s, %s].\n",
+      self_->agent.location.to_record ().to_string ().c_str (),
+      self_->agent.orientation.to_record ().to_string ().c_str ());
+  }
+
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
     const utility::ReferenceFrame * platform_frame =
@@ -301,9 +311,9 @@ gams::algorithms::Follow::execute (void)
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
+      gams::loggers::LOG_ERROR,
       "gams::algorithms::Follow::execute:" \
-      " Platform not initialized. Unable to execute.\n");
+      " ERROR: Platform not initialized. Unable to execute.\n");
   }
   return 0;
 }

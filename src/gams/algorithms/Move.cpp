@@ -222,6 +222,16 @@ gams::algorithms::Move::analyze (void)
 
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
+    if (self_)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "algorithms::Move::analyze:" \
+        " current pose is [%s, %s].\n",
+        self_->agent.location.to_record ().to_string ().c_str (),
+        self_->agent.orientation.to_record ().to_string ().c_str ());
+    }
+
     if (status_.finished.is_false ())
     {
       if (move_index_ < poses_.size ())
