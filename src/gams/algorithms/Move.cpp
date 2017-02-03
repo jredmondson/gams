@@ -142,8 +142,7 @@ gams::algorithms::MoveFactory::create (
             next->first, "locations."));
           int index = (int)k_index.to_integer ();
 
-          poses[index].from_container <utility::order::GPS,
-            std::vector <double> >(next->second.to_doubles ());
+          poses[index].from_container (next->second.to_doubles ());
           poses[index].frame (platform->get_frame ());
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),

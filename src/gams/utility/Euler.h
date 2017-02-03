@@ -258,8 +258,11 @@ namespace gams
       };
 
       typedef Euler<conv::X, conv::Y, conv::Z>             EulerXYZ;
+      typedef Euler<conv::Y, conv::X, conv::Z>             EulerYXZ;
       typedef Euler<conv::X, conv::Y, conv::Z, conv::Intr> EulerIntrXYZ;
+      typedef Euler<conv::Y, conv::X, conv::Z, conv::Intr> EulerIntrYXZ;
       typedef Euler<conv::X, conv::Y, conv::Z, conv::Extr> EulerExtrXYZ;
+      typedef Euler<conv::Y, conv::X, conv::Z, conv::Extr> EulerExtrYXZ;
       typedef Euler<conv::Z, conv::Y, conv::X>             EulerZYX;
       typedef Euler<conv::Z, conv::Y, conv::X, conv::Intr> EulerIntrZYX;
       typedef Euler<conv::Z, conv::Y, conv::X, conv::Extr> EulerExtrZYX;
