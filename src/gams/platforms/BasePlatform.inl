@@ -124,9 +124,3 @@ gams::platforms::BasePlatform::get_platform_status (void)
 {
   return &status_;
 }
-
-inline const gams::utility::ReferenceFrame &
-gams::platforms::BasePlatform::get_frame (void)
-{
-  return frame_;
-}

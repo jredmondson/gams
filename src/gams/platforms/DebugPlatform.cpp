@@ -545,3 +545,9 @@ gams::platforms::DebugPlatform::takeoff (void)
   
   return 0;
 }
+
+const gams::utility::ReferenceFrame &
+gams::platforms::DebugPlatform::get_frame (void) const
+{
+  return frame_;
+}

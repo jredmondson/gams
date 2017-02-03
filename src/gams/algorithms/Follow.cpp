@@ -164,10 +164,13 @@ gams::algorithms::Follow::Follow (
     // initialize leader's variables
     target_.init_vars (*knowledge, target);
 
+    const utility::ReferenceFrame * platform_frame =
+      &(platform->get_location ().frame ());
+
     // initialize location frames
-    last_location_.frame (platform->get_frame ());
-    target_last_location_.frame (platform->get_frame ());
-    target_location_.frame (platform->get_frame ());
+    last_location_.frame (*platform_frame);
+    target_last_location_.frame (*platform_frame);
+    target_location_.frame (*platform_frame);
 
     // resize to provide a 
     if (offset_.size () < 3)
@@ -292,7 +295,7 @@ gams::algorithms::Follow::execute (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Follow::execute:" \
-        " Target do not have a location. Not moving.\n");
+        " Target does not have a location. Not moving.\n");
     }
   }
   else

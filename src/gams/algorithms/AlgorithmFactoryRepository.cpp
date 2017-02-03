@@ -59,6 +59,7 @@
 #include "gams/algorithms/KarlEvaluator.h"
 #include "gams/algorithms/ZoneCoverage.h"
 #include "gams/algorithms/Takeoff.h"
+#include "gams/algorithms/Home.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/MessageProfiling.h"
 #include "gams/algorithms/PerimeterPatrol.h"
@@ -177,6 +178,13 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
   aliases[0] = "formation sync";
 
   add (aliases, new FormationSyncFactory ());
+
+  // the performance profiler
+  aliases.resize (2);
+  aliases[0] = "home";
+  aliases[1] = "return";
+
+  add (aliases, new HomeFactory ());
 
   // the karl evaluator algorithm
   aliases.resize (1);

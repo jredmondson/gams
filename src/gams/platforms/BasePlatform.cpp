@@ -305,4 +305,3 @@ gams::platforms::BasePlatform::stop_orientation (void)
   self_->agent.dest_orientation = self_->agent.orientation;
 }
 
-gams::utility::GPSFrame gams::platforms::BasePlatform::frame_;

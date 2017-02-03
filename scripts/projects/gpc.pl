@@ -4086,8 +4086,17 @@ void handle_arguments (int argc, char ** argv)
 // perform main logic of program
 int main (int argc, char ** argv)
 {
+  settings.type = madara::transport::MULTICAST;
+ 
   // handle all user arguments
   handle_arguments (argc, argv);
+
+  if (settings.hosts.size () == 0)
+  {
+    // setup default transport as multicast
+    settings.hosts.resize (1);
+    settings.hosts[0] = default_multicast;
+  }
   
   // set this once to allow for debugging knowledge base creation
   if (madara_debug_level >= 0)

@@ -63,6 +63,7 @@
 #include "gams/utility/CartesianFrame.h"
 #include "gams/utility/Location.h"
 #include "gams/utility/Orientation.h"
+#include "gams/utility/GPSFrame.h"
 #include "madara/threads/Threader.h"
 #include "madara/threads/BaseThread.h"
 #include "madara/LockType.h"
@@ -181,7 +182,13 @@ namespace gams
        **/
       virtual int takeoff (void);
 
-      const utility::ReferenceFrame &get_vrep_frame() const;
+      /**
+      * Method for returning the platform's current frame
+      * @return frame that the platform's coordinate system is operating in
+      **/
+      virtual const utility::ReferenceFrame & get_frame (void) const;
+
+      const utility::ReferenceFrame & get_vrep_frame (void) const;
 
     protected:
       /**
@@ -249,6 +256,11 @@ namespace gams
        * CartesianFrame representing vrep coordinate system.
        **/
       utility::CartesianFrame vrep_frame_;
+
+      /**
+      * CartesianFrame representing vrep coordinate system.
+      **/
+      utility::GPSFrame gps_frame_;
 
       madara::knowledge::containers::Double thread_rate_;
 

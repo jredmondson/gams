@@ -160,3 +160,9 @@ gams::platforms::PlatformCollection::takeoff (void)
 {
   return 0;
 }
+
+const gams::utility::ReferenceFrame &
+gams::platforms::PlatformCollection::get_frame (void) const
+{
+  return frame_;
+}

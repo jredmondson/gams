@@ -61,7 +61,7 @@
 #include "gams/variables/PlatformStatus.h"
 #include "gams/utility/GPSPosition.h"
 #include "gams/utility/Axes.h"
-#include "gams/utility/GPSFrame.h"
+#include "gams/utility/ReferenceFrame.h"
 #include "gams/utility/Location.h"
 #include "gams/utility/Pose.h"
 #include "madara/knowledge/KnowledgeBase.h"
@@ -351,7 +351,11 @@ namespace gams
        **/
       const variables::PlatformStatus * get_platform_status (void) const;
 
-      static const utility::ReferenceFrame &get_frame (void);
+      /**
+       * Method for returning the platform's current frame
+       * @return frame that the platform's coordinate system is operating in
+       **/
+      virtual const utility::ReferenceFrame & get_frame (void) const = 0;
 
     protected:
       /// movement speed for platform in meters/second
@@ -370,7 +374,7 @@ namespace gams
       variables::PlatformStatus status_;
 
       /// the reference frame this platform operates within
-      static utility::GPSFrame frame_;
+      //static utility::GPSFrame frame_;
     };
 
     // deprecated typdef. Please use BasePlatform instead.

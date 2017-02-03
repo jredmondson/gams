@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,126 +43,123 @@
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
-#include "NullPlatform.h"
-#include "gams/loggers/GlobalLogger.h"
 
-gams::platforms::BasePlatform *
-gams::platforms::NullPlatformFactory::create (
-const madara::knowledge::KnowledgeMap & /*args*/,
+/**
+ * @file Home.cpp
+ * @author James Edmondson <jedmondson@gmail.com>
+ *
+ * This file contains the definition of the Home movement class
+ **/
+
+#include "gams/algorithms/Home.h"
+
+#include <iostream>
+
+gams::algorithms::BaseAlgorithm *
+gams::algorithms::HomeFactory::create (
+  const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
-  variables::Platforms * platforms,
-  variables::Self * self)
+  variables::Self * self,
+  variables::Agents * /*agents*/)
 {
-  BasePlatform * result (0);
+  BaseAlgorithm * result (0);
   
-  if (knowledge && sensors && platforms && self)
+  if (knowledge && sensors && platform && self)
   {
-    result = new NullPlatform (knowledge, sensors, platforms, self);
+    result = new Home (knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::platforms::NullPlatform::NullPlatform (
+gams::algorithms::Home::Home (
   madara::knowledge::KnowledgeBase * knowledge,
+  platforms::BasePlatform * platform,
   variables::Sensors * sensors,
-  variables::Platforms * platforms,
   variables::Self * self)
-  : BasePlatform (knowledge, sensors, self)
+  : BaseAlgorithm (knowledge, platform, sensors, self)
 {
-  if (platforms && knowledge)
-  {
-    (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
-    status_ = (*platforms)[get_id ()];
-  }
+  status_.init_vars (*knowledge, "takeoff", self->id.to_integer ());
+  status_.init_variable_values ();
 }
 
-gams::platforms::NullPlatform::~NullPlatform ()
+gams::algorithms::Home::~Home ()
 {
 }
 
 void
-gams::platforms::NullPlatform::operator= (const NullPlatform & rhs)
+gams::algorithms::Home::operator= (const Home & rhs)
 {
   if (this != &rhs)
   {
-    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *> (this);
-    const platforms::BasePlatform * source =
-      dynamic_cast <const platforms::BasePlatform *> (&rhs);
-
-    *dest = *source;
+    this->platform_ = rhs.platform_;
+    this->sensors_ = rhs.sensors_;
+    this->self_ = rhs.self_;
+    this->status_ = rhs.status_;
   }
 }
- 
-int
-gams::platforms::NullPlatform::analyze (void)
-{ 
-  return 0;
-}
 
-std::string
-gams::platforms::NullPlatform::get_id () const
-{
-  return "null";
-}
-
-std::string
-gams::platforms::NullPlatform::get_name () const
-{
-  return "Null";
-}
-
-double
-gams::platforms::NullPlatform::get_accuracy () const
-{
-  return 0.0;
-}
-
-double
-gams::platforms::NullPlatform::get_move_speed () const
-{
-  return 0.0;
-}
 
 int
-gams::platforms::NullPlatform::home (void)
+gams::algorithms::Home::analyze (void)
 {
-  return 0;
+  return OK;
 }
+      
 
 int
-gams::platforms::NullPlatform::land (void)
+gams::algorithms::Home::execute (void)
 {
-  return 0;
+  int result = 0;
+
+  if (platform_)
+  {
+    std::vector <double> home = self_->agent.home.to_record ().to_doubles ();
+
+    if (home.size () >= 2)
+    {
+      utility::Location destination (platform_->get_frame ());
+      destination.from_container (self_->agent.home);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "algorithms::Home::execute:" \
+        " Home location is %s. Moving to home.\n",
+        destination.to_string ().c_str ());
+
+      int move_result = platform_->move (
+        destination, platform_->get_accuracy ());
+
+      executions_++;
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "algorithms::Home::execute:" \
+        " platform->move returned %d.\n", move_result);
+
+      if (move_result == 0)
+      {
+        status_.finished = 1;
+        result |= FINISHED;
+      }
+    }
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "algorithms::Home::execute:" \
+      " platform is null. No movement possible.\n");
+  }
+
+  return result;
 }
+
 
 int
-gams::platforms::NullPlatform::move (const utility::Position & /*position*/,
-  const double & /*epsilon*/)
+gams::algorithms::Home::plan (void)
 {
   return 0;
-}
-
-int
-gams::platforms::NullPlatform::sense (void)
-{
-  return 0;
-}
-
-void
-gams::platforms::NullPlatform::set_move_speed (const double& /*speed*/)
-{
-}
-
-int
-gams::platforms::NullPlatform::takeoff (void)
-{
-  return 0;
-}
-
-const gams::utility::ReferenceFrame &
-gams::platforms::NullPlatform::get_frame (void) const
-{
-  return frame_;
 }
