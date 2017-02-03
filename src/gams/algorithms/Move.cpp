@@ -237,8 +237,8 @@ gams::algorithms::Move::analyze (void)
         // check our distance to the next location
         utility::Location loc = platform_->get_location ();
         utility::Location next_loc (platform_->get_frame (),
-          poses_[move_index_].lng (), poses_[move_index_].lat (),
-          poses_[move_index_].alt ());
+          poses_[move_index_].get (0), poses_[move_index_].get (1),
+          poses_[move_index_].get (2));
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
