@@ -164,14 +164,6 @@ gams::algorithms::Follow::Follow (
     // initialize leader's variables
     target_.init_vars (*knowledge, target);
 
-    const utility::ReferenceFrame * platform_frame =
-      &(platform->get_location ().frame ());
-
-    // initialize location frames
-    last_location_.frame (*platform_frame);
-    target_last_location_.frame (*platform_frame);
-    target_location_.frame (*platform_frame);
-
     // resize to provide a 
     if (offset_.size () < 3)
     {
@@ -208,6 +200,14 @@ gams::algorithms::Follow::analyze (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
+    const utility::ReferenceFrame * platform_frame =
+      &(platform_->get_location ().frame ());
+
+    // initialize location frames
+    last_location_.frame (*platform_frame);
+    target_last_location_.frame (*platform_frame);
+    target_location_.frame (*platform_frame);
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Follow::analyze:" \
@@ -274,7 +274,7 @@ gams::algorithms::Follow::execute (void)
 
       // the destination is modified by the row, column and buffer size
       gams::utility::Location destination (
-        target_frame, offset_[1], offset_[0], offset_[2]);
+        target_frame, offset_[0], offset_[1], offset_[2]);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
