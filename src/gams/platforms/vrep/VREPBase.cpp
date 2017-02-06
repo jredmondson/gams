@@ -569,7 +569,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
       "gams::platforms::VREPBase::move:" \
       " requested target \"%f,%f,%f\"\n", target.x (), target.y (), target.z ());
 
-    // convert form input reference frame to vrep reference frame, if necessary
+    // convert from input reference frame to vrep reference frame, if necessary
     utility::Location vrep_target (get_vrep_frame (), target);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -642,7 +642,7 @@ gams::platforms::VREPBase::orient (const utility::Orientation & target,
       "gams::platforms::VREPBase::orient:" \
       " requested target \"%f,%f,%f\"\n", target.rx (), target.ry (), target.rz ());
 
-    // convert form input reference frame to vrep reference frame, if necessary
+    // convert from input reference frame to vrep reference frame, if necessary
     utility::Orientation vrep_target (get_vrep_frame (), target);
 
     // get current position in VREP frame
