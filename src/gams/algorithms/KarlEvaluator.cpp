@@ -127,7 +127,7 @@ gams::algorithms::KarlEvaluatorFactory::create (
           store_result = i->second.to_string ();
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
+            gams::loggers::LOG_MAJOR,
             "gams::algorithms::KarlEvaluatorFactory::create:" \
             " setting store_result to %s\n", store_result.c_str ());
           break;
@@ -140,7 +140,7 @@ gams::algorithms::KarlEvaluatorFactory::create (
           is_wait = true;
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
+            gams::loggers::LOG_MAJOR,
             "gams::algorithms::KarlEvaluatorFactory::create:" \
             " setting wait_time to %f\n", wait_time);
           break;
