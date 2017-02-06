@@ -227,7 +227,7 @@ gams::algorithms::Follow::analyze (void)
     if (target_.location.to_record ().to_doubles ().size () >= 2)
     {
       // import target location
-      target_location_.from_container<gams::utility::order::GPS> (
+      target_location_.from_container (
         target_.location);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
