@@ -12,3 +12,4 @@ agent.8.algorithm.args.protectors="protectors";
 agent.8.algorithm.args.enemies="enemies";
 agent.8.algorithm.args.buffer=.zone_coverage_buffer;
 agent.8.algorithm.args.distance=.zone_coverage_distance;
+agent.8.algorithm.args.frame="gps";

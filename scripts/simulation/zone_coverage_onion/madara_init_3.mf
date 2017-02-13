@@ -12,3 +12,5 @@ agent.3.algorithm.args.protectors="protectors";
 agent.3.algorithm.args.enemies="enemies";
 agent.3.algorithm.args.buffer=.zone_coverage_buffer;
 agent.3.algorithm.args.distance=.zone_coverage_distance;
+
+agent.3.algorithm.args.frame="gps";

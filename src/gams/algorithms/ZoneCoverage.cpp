@@ -60,6 +60,7 @@
 
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/utility/CartesianFrame.h"
+#include "madara/utility/Utility.h"
 
 namespace engine = madara::knowledge;
 namespace containers = engine::containers;
@@ -91,6 +92,7 @@ variables::Agents * agents)
     std::string assets = "assets";
     std::string enemies = "enemies";
     std::string formation = "line";
+    std::string frame = "cartesian";
     double buffer = 2;
     double distance = 0.5;
 
@@ -160,6 +162,17 @@ variables::Agents * agents)
             " set formation to %s\n", formation.c_str ());
           break;
         }
+        else if (i->first == "frame")
+        {
+          frame = i->second.to_string ();
+          madara::utility::lower (frame);
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::ZoneCoverageFactory:" \
+            " set frame to %s\n", frame.c_str ());
+          break;
+        }
         goto unknown;
       case 'p':
         if (i->first == "protectors")
@@ -185,7 +198,7 @@ variables::Agents * agents)
     }
 
     result = new ZoneCoverage (
-      protectors, assets, enemies, formation, buffer, distance,
+      protectors, assets, enemies, formation, frame, buffer, distance,
       knowledge, platform, sensors, self);
   }
 
@@ -197,6 +210,7 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   const std::string &assets,
   const std::string &enemies,
   const std::string &formation,
+  const std::string &frame,
   double buffer, double distance,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -206,7 +220,7 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   protector_group_ (protectors), asset_group_ (assets), enemy_group_ (enemies),
   protectors_ (get_group (protectors)), assets_ (get_group (assets)),
   enemies_ (get_group (enemies)),
-  formation_ (formation), buffer_ (buffer), distance_ (distance),
+  formation_ (formation), frame_ (frame), buffer_ (buffer), distance_ (distance),
   index_ (get_index ()),
   form_func_ (get_form_func (formation)),
   next_loc_ ()
@@ -331,9 +345,16 @@ gams::algorithms::ZoneCoverage::update_locs (
   }
   for (int i = 0; i < arrays.size (); ++i)
   {
-    if (arrays[i][0] != 0.0 && arrays[i][1] != 0.0)
+    if (arrays[i].size () >= 2)
     {
-      locs[i].from_container<order::GPS> (arrays[i]);
+      if (frame_ == "gps")
+      {
+        locs[i].from_container<order::GPS> (arrays[i]);
+      }
+      else
+      {
+        locs[i].from_container (arrays[i]);
+      }
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::ZoneCoverage::update_locs:" \
@@ -379,6 +400,17 @@ gams::algorithms::ZoneCoverage::plan (void)
 
   if (index_ >= 0)
     next_loc_ = ( (this)->* (form_func_)) ();
+
+  if (asset_locs_.size () > 0 && enemy_locs_.size () > 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::plan:" \
+      " vip is at [%s]. attacker is at [%s]\n",
+      asset_locs_[0].to_string ().c_str (),
+      enemy_locs_[0].to_string ().c_str ());
+  }
+
   return OK;
 }
 

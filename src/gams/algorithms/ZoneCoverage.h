@@ -91,6 +91,7 @@ namespace gams
        * @param  assets       name of group of agents to protect
        * @param  enemies      name of group of attacking agents
        * @param  formation    name of formation
+       * @param  frame        frame of reference (cartesian, GPS)
        * @param  buffer       buffer between agents
        * @param  distance     distance from the asset
        * @param  knowledge    the context containing variables and values
@@ -103,6 +104,7 @@ namespace gams
         const std::string &assets,
         const std::string &enemies,
         const std::string &formation,
+        const std::string &frame,
         double buffer, double distance,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
@@ -142,11 +144,13 @@ namespace gams
       std::string protector_group_;
       std::string asset_group_;
       std::string enemy_group_;
+      std::string frame_;
 
       madara::knowledge::containers::StringVector protectors_;
       madara::knowledge::containers::StringVector assets_;
       madara::knowledge::containers::StringVector enemies_;
       std::string formation_;
+
       double buffer_;
 
       double distance_;

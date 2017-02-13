@@ -13,3 +13,4 @@ agent.7.algorithm.args.enemies="enemies";
 agent.7.algorithm.args.buffer.zone_coverage_buffer;
 agent.7.algorithm.args.buffer=.zone_coverage_buffer;
 agent.7.algorithm.args.distance=.zone_coverage_distance;
+agent.7.algorithm.args.frame="gps";
