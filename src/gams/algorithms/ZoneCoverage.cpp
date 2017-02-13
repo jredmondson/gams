@@ -223,7 +223,7 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   formation_ (formation), frame_ (frame), buffer_ (buffer), distance_ (distance),
   index_ (get_index ()),
   form_func_ (get_form_func (formation)),
-  next_loc_ ()
+  next_loc_ (INVAL_COORD, INVAL_COORD, INVAL_COORD)
 {
   status_.init_vars (*knowledge, "zone_coverage", self->id.to_integer ());
   status_.init_variable_values ();
@@ -442,7 +442,7 @@ gams::algorithms::ZoneCoverage::line_formation () const
     const Location &asset_loc = asset_locs_[0];
     const Location &enemy_loc = enemy_locs_[0];
 
-    if (asset_loc.is_set () && !enemy_loc.is_set ())
+    if (asset_loc.is_set () && enemy_loc.is_set ())
     {
       Location middle (platform_->get_frame (),
               (asset_loc.x () * distance_) + (enemy_loc.x () * (1 - distance_)),
