@@ -444,12 +444,34 @@ gams::algorithms::ZoneCoverage::line_formation () const
 
     if (asset_loc.is_set () && enemy_loc.is_set ())
     {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::plan:" \
+        " vip is set. attacker is set\n");
+
       Location middle (platform_->get_frame (),
               (asset_loc.x () * distance_) + (enemy_loc.x () * (1 - distance_)),
               (asset_loc.y () * distance_) + (enemy_loc.y () * (1 - distance_)),
               (asset_loc.z () * distance_) + (enemy_loc.z () * (1 - distance_)));
+
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::plan:" \
+        " middle location is [%s]\n",
+        middle.to_string ().c_str ());
+
+
       if (index_ == 0)
+      {
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::ZoneCoverage::plan:" \
+          " defender is the middle agent. Using middle.\n");
+
         ret = middle;
+      }
       else
       {
         CartesianFrame frame (asset_loc);
@@ -471,6 +493,14 @@ gams::algorithms::ZoneCoverage::line_formation () const
 
         ret.transform_this_to (platform_->get_frame ());
         ret.z (middle.z ());
+
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::ZoneCoverage::plan:" \
+          " defender is NOT the middle agent. Using [%s].\n",
+          ret.to_string ().c_str ());
+
       }
     }
   }
