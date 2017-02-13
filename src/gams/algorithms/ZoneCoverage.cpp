@@ -503,6 +503,24 @@ gams::algorithms::ZoneCoverage::line_formation () const
 
       }
     }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::plan:" \
+        " vip is not set or attacker is not set\n");
+    }
+  }
+  else
+  {
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::plan:" \
+      " vip locations or enemy locations are not set. " \
+      " vip location size is %d, enemy location size is %d\n",
+      (int)asset_locs_.size (), (int)enemy_locs_.size ());
+
   }
 
   return ret;
