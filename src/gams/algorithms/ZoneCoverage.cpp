@@ -386,7 +386,25 @@ gams::algorithms::ZoneCoverage::execute (void)
     " entering execute method\n");
 
   if (next_loc_.is_set ())
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::execute:" \
+      " next location for agent is [%s]\n",
+      next_loc_.to_string ().c_str ());
+
     platform_->move (next_loc_);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::execute:" \
+      " next location is invalid. Not moving.\n");
+  }
+
+
+
   return OK;
 }
 
