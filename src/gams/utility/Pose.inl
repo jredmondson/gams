@@ -67,12 +67,12 @@ namespace gams
       : LocationVector(x, y, z), OrientationVector(rx, ry, rz) {}
 
     inline constexpr PoseVector::PoseVector(const LocationVector &loc)
-      : LocationVector (loc), OrientationVector (INVAL_COORD, INVAL_COORD, INVAL_COORD)
+      : LocationVector (loc), OrientationVector (0, 0, 0)
     {
     }
 
     inline constexpr PoseVector::PoseVector(const OrientationVector &rot)
-      : LocationVector (INVAL_COORD, INVAL_COORD, INVAL_COORD), OrientationVector (rot)
+      : LocationVector (0, 0, 0), OrientationVector (rot)
     {
     }
 

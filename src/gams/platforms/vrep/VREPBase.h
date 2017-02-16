@@ -260,7 +260,7 @@ namespace gams
       /**
       * CartesianFrame representing vrep coordinate system.
       **/
-      utility::GPSFrame gps_frame_;
+      static utility::GPSFrame gps_frame_;
 
       madara::knowledge::containers::Double thread_rate_;
 

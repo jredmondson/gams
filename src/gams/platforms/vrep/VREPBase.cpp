@@ -77,6 +77,8 @@ namespace containers = madara::knowledge::containers;
 
 const std::string gams::platforms::VREPBase::TargetMover::NAME("move_thread");
 
+gams::utility::GPSFrame gams::platforms::VREPBase::gps_frame_;
+
 gams::platforms::VREPBase::VREPBase (
   std::string model_file,
   simxUChar is_client_side,
@@ -84,7 +86,7 @@ gams::platforms::VREPBase::VREPBase (
   variables::Sensors * sensors,
   variables::Self * self)
   : BasePlatform (knowledge, sensors, self), airborne_ (false),
-    move_speed_ (0.8), sw_pose_ (get_sw_pose(get_frame ())),
+    move_speed_ (0.8), sw_pose_ (get_sw_pose(gps_frame_)),
     vrep_frame_ (sw_pose_), mover_ (NULL),
     begin_sim_ ("begin_sim", *knowledge),
     vrep_ready_ ("vrep_ready", *knowledge),
@@ -266,7 +268,7 @@ gams::platforms::VREPBase::sense (void)
         curr_orientation[0], curr_orientation[1], curr_orientation[2]);
 
       utility::Location vrep_loc(get_vrep_frame (), curr_arr);
-      utility::Location loc(get_frame (), vrep_loc);
+      utility::Location loc(gps_frame_, vrep_loc);
 
       utility::euler::EulerVREP vrep_euler (
         curr_orientation[0], curr_orientation[1], curr_orientation[2]);
@@ -361,7 +363,7 @@ gams::platforms::VREPBase::move (const utility::Position & position,
 
     if (gps_pos != NULL)
     {
-      return move (utility::Location (get_frame (),
+      return move (utility::Location (gps_frame_,
         gps_pos->longitude (), gps_pos->latitude (), gps_pos->altitude ()),
         epsilon);
     }
@@ -713,24 +715,46 @@ gams::platforms::VREPBase::set_initial_position ()
 {
   // get initial position
   simxFloat pos[3];
+  bool is_gps = false;
+  utility::Location init_loc;
   if (knowledge_->exists(".initial_lat") && knowledge_->exists(".initial_lon"))
   {
+    is_gps = true;
     // get gps coords
-    utility::Location gps_loc(get_frame (),
+    utility::Location gps_loc(gps_frame_,
                        knowledge_->get (".initial_lon").to_double (),
                        knowledge_->get (".initial_lat").to_double ());
 
     // convert to vrep
     utility::Location vrep_loc(get_vrep_frame (), gps_loc);
     vrep_loc.to_array(pos);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::platforms::VREPBase::set_inital_position:" \
+    " Converting from [%s] to [%s] via origin [%s]\n",
+    gps_loc.to_string().c_str(), vrep_loc.to_string().c_str(),
+    vrep_loc.frame().origin().to_string().c_str()
+    );
+
+    init_loc = gps_loc;
   }
   else
   {
     // get vrep coords
     pos[0] = knowledge_->get (".initial_x").to_double ();
     pos[1] = knowledge_->get (".initial_y").to_double ();
+
+    init_loc = utility::Location(get_vrep_frame(), pos[0], pos[1], pos[2]);
   }
   pos[2] = get_initial_z ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::platforms::VREPBase::set_inital_position:" \
+    " Placing VREP platform at %s[%s], vrep [%f, %f, %f]\n",
+    is_gps ? "GPS" : "", init_loc.to_string().c_str(), pos[0], pos[1], pos[2]
+    );
 
   // send set object position command
   VREP_LOCK
@@ -740,7 +764,7 @@ gams::platforms::VREPBase::set_initial_position ()
   }
 
   utility::Location vrep_loc(get_vrep_frame (), pos);
-  utility::Location gps_loc(get_frame (), vrep_loc);
+  utility::Location gps_loc(gps_frame_, vrep_loc);
   gps_loc.to_container<utility::order::GPS>(self_->agent.location);
   //BasePlatform::move(vrep_loc);
 }
