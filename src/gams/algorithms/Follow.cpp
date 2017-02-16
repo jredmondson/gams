@@ -46,7 +46,7 @@
 
 /**
  * @file Follow.cpp
- * @author Anton Dukeman <anton.dukeman@gmail.com>
+ * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the definition of the Follow algorithm
  */
@@ -56,8 +56,7 @@
 #include <sstream>
 #include <iostream>
 #include <limits.h>
-using std::cerr;
-using std::endl;
+#include <math.h>
 
 #include "gams/utility/GPSPosition.h"
 
@@ -184,6 +183,7 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
     this->BaseAlgorithm::operator= (rhs);
     this->target_ = rhs.target_;
     this->target_location_ = rhs.target_location_;
+    this->target_destination_ = rhs.target_destination_;
     this->last_location_ = rhs.last_location_;
     this->target_last_location_ = rhs.target_last_location_;
     this->offset_ = rhs.offset_;
@@ -213,10 +213,12 @@ gams::algorithms::Follow::analyze (void)
     const utility::ReferenceFrame * platform_frame =
       &(platform_->get_location ().frame ());
 
-    // initialize location frames
+    // initialize location and orientation frames
     last_location_.frame (*platform_frame);
     target_last_location_.frame (*platform_frame);
+    target_destination_.frame (*platform_frame);
     target_location_.frame (*platform_frame);
+    target_orientation_.frame (*platform_frame);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -226,9 +228,11 @@ gams::algorithms::Follow::analyze (void)
     // check if target location is set correctly
     if (target_.location.to_record ().to_doubles ().size () >= 2)
     {
-      // import target location
+      // import target location and destination
       target_location_.from_container (
         target_.location);
+      target_destination_.from_container (target_.dest);
+      target_orientation_.from_container (target_.orientation);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -277,10 +281,29 @@ gams::algorithms::Follow::execute (void)
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Follow::execute:" \
         " Target has location. Moving.\n");
+      
+      gams::utility::CartesianFrame target_frame;
 
-      // create a cartesian overlay where we consider leader location the origin
-      gams::utility::CartesianFrame target_frame (
-        gams::utility::Pose(target_location_, gams::utility::Orientation(0, 0, 0)));
+      if (target_.dest.to_record ().size () >= 2)
+      {
+        // if the target destination has been set by the platform, try to adjust
+        // formation according to the intended next position of the platform
+
+        double dest_radians = atan2 (
+          target_destination_.y () - target_location_.y (),
+          target_destination_.x () - target_location_.x ());
+
+        gams::utility::Orientation dest_orientation (0, 0, dest_radians);
+
+        target_frame = gams::utility::CartesianFrame (
+          gams::utility::Pose (target_location_, dest_orientation));
+      }
+      else
+      {
+        target_frame = gams::utility::CartesianFrame (
+          gams::utility::Pose (target_location_,
+          target_orientation_));
+      }
 
       // the destination is modified by the row, column and buffer size
       gams::utility::Location destination (

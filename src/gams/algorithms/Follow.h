@@ -46,7 +46,7 @@
 
 /**
  * @file Follow.h
- * @author Anton Dukeman <anton.dukeman@gmail.com>
+ * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the declaration of the Follow algorithm
  **/
@@ -128,14 +128,23 @@ namespace gams
       /// current target location shared between analyze and execute
       utility::Location target_location_;
 
+      /// current target location shared between analyze and execute
+      utility::Location target_destination_;
+
       /// keep track of last location
       utility::Location last_location_;
 
       /// keep track of last leader/target location
       utility::Location target_last_location_;
 
+      /// keep track of the target orientation
+      utility::Orientation target_orientation_;
+
       /// keep track of the offset that agent should be at
       std::vector <double> offset_;
+
+      /// keep track of the minimum_buffer that should be maintained
+      std::vector <double> minimum_buffer_;
 
       /// flag between analyze and execute indicating new move is necessary
       bool need_move_;
