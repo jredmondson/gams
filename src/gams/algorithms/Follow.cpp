@@ -228,11 +228,22 @@ gams::algorithms::Follow::analyze (void)
     // check if target location is set correctly
     if (target_.location.to_record ().to_doubles ().size () >= 2)
     {
-      // import target location and destination
-      target_location_.from_container (
-        target_.location);
-      target_destination_.from_container (target_.dest);
-      target_orientation_.from_container (target_.orientation);
+      if (platform_->get_frame ().name () == "GPS")
+      {
+        // import target location and destination
+        target_location_.from_container <utility::order::GPS> (
+          target_.location);
+        target_destination_.from_container <utility::order::GPS> (target_.dest);
+        target_orientation_.from_container <utility::order::GPS> (target_.orientation);
+      }
+      else
+      {
+        // import target location and destination
+        target_location_.from_container (
+          target_.location);
+        target_destination_.from_container (target_.dest);
+        target_orientation_.from_container (target_.orientation);
+      }
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -318,8 +329,16 @@ gams::algorithms::Follow::execute (void)
       // move to new destination
       platform_->move (destination, platform_->get_accuracy ());
 
-      // keep track of last location seen
-      last_location_.from_container (self_->agent.location);
+      if (platform_->get_frame ().name () == "GPS")
+      {
+        // keep track of last location seen
+        last_location_.from_container <utility::order::GPS> (self_->agent.location);
+      }
+      else
+      {
+        // keep track of last location seen
+        last_location_.from_container (self_->agent.location);
+      }
 
       ++executions_;
     }

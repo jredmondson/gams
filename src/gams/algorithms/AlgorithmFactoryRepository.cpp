@@ -127,191 +127,216 @@ algorithms::AlgorithmFactoryRepository::add (
 
     factory_map_[alias] = factory;
   }
+
+  // if the user has added aliases, then we are technically initialized
+  init_started_ = true;
+  init_finished_ = true;
 }
 
 void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
   void)
 {
-  std::vector <std::string> aliases;
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::AlgorithmFactoryRepository:initialize_default_mappings" \
+    " Creating map of all default algorithm factories.\n");
 
-  // the performance profiler
-  aliases.resize (1);
-  aliases[0] = "barrier";
+  if (!init_started_)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::AlgorithmFactoryRepository:initialize_default_mappings" \
+      " Flag has not been set. Initializing.\n");
 
-  add (aliases, new GroupBarrierFactory ());
+    std::vector <std::string> aliases;
 
-  // the debug algorithm
-  aliases.resize (3);
-  aliases[0] = "debug";
-  aliases[1] = "print";
-  aliases[2] = "printer";
+    // the performance profiler
+    aliases.resize (1);
+    aliases[0] = "barrier";
 
-  add (aliases, new DebugAlgorithmFactory ());
+    add (aliases, new GroupBarrierFactory ());
 
-  // the executor
-  aliases.resize (2);
-  aliases[0] = "exec";
-  aliases[1] = "executor";
+    // the debug algorithm
+    aliases.resize (3);
+    aliases[0] = "debug";
+    aliases[1] = "print";
+    aliases[2] = "printer";
 
-  add (aliases, new ExecutorFactory ());
+    add (aliases, new DebugAlgorithmFactory ());
 
-  // the follow algorithm
-  aliases.resize (1);
-  aliases[0] = "follow";
+    // the executor
+    aliases.resize (2);
+    aliases[0] = "exec";
+    aliases[1] = "executor";
 
-  add (aliases, new FollowFactory ());
+    add (aliases, new ExecutorFactory ());
 
-  // the formation coverage algorithm
-  aliases.resize (1);
-  aliases[0] = "formation coverage";
+    // the follow algorithm
+    aliases.resize (1);
+    aliases[0] = "follow";
 
-  add (aliases, new FormationCoverageFactory ());
+    add (aliases, new FollowFactory ());
 
-  // the formation algorithm
-  aliases.resize (1);
-  aliases[0] = "formation";
+    // the formation coverage algorithm
+    aliases.resize (1);
+    aliases[0] = "formation coverage";
 
-  add (aliases, new FormationFlyingFactory ());
+    add (aliases, new FormationCoverageFactory ());
 
-  // the performance profiler
-  aliases.resize (1);
-  aliases[0] = "formation sync";
+    // the formation algorithm
+    aliases.resize (1);
+    aliases[0] = "formation";
 
-  add (aliases, new FormationSyncFactory ());
+    add (aliases, new FormationFlyingFactory ());
 
-  // the performance profiler
-  aliases.resize (2);
-  aliases[0] = "home";
-  aliases[1] = "return";
+    // the performance profiler
+    aliases.resize (1);
+    aliases[0] = "formation sync";
 
-  add (aliases, new HomeFactory ());
+    add (aliases, new FormationSyncFactory ());
 
-  // the karl evaluator algorithm
-  aliases.resize (1);
-  aliases[0] = "karl";
+    // the performance profiler
+    aliases.resize (2);
+    aliases[0] = "home";
+    aliases[1] = "return";
 
-  add (aliases, new KarlEvaluatorFactory ());
+    add (aliases, new HomeFactory ());
 
-  // the local pheromone coverage algorithm
-  aliases.resize (1);
-  aliases[0] = "local pheremone";
+    // the karl evaluator algorithm
+    aliases.resize (1);
+    aliases[0] = "karl";
 
-  add (aliases, new area_coverage::LocalPheremoneAreaCoverageFactory ());
+    add (aliases, new KarlEvaluatorFactory ());
 
-  // the message profiling algorithm
-  aliases.resize (1);
-  aliases[0] = "message profiling";
+    // the local pheromone coverage algorithm
+    aliases.resize (1);
+    aliases[0] = "local pheremone";
 
-  add (aliases, new MessageProfilingFactory ());
+    add (aliases, new area_coverage::LocalPheremoneAreaCoverageFactory ());
 
-  // the minimum time coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "min time";
-  aliases[1] = "mtac";
+    // the message profiling algorithm
+    aliases.resize (1);
+    aliases[0] = "message profiling";
 
-  add (aliases, new area_coverage::MinTimeAreaCoverageFactory ());
+    add (aliases, new MessageProfilingFactory ());
 
-  // the move algorithm
-  aliases.resize (2);
-  aliases[0] = "move";
-  aliases[1] = "waypoints";
+    // the minimum time coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "min time";
+    aliases[1] = "mtac";
 
-  add (aliases, new MoveFactory ());
-  
-  // the null algorithm
-  aliases.resize (1);
-  aliases[0] = "null";
+    add (aliases, new area_coverage::MinTimeAreaCoverageFactory ());
 
-  add (aliases, new NullAlgorithmFactory ());
+    // the move algorithm
+    aliases.resize (2);
+    aliases[0] = "move";
+    aliases[1] = "waypoints";
 
-  // the performance profiler
-  aliases.resize (1);
-  aliases[0] = "performance profiling";
+    add (aliases, new MoveFactory ());
 
-  add (aliases, new PerformanceProfilingFactory ());
+    // the null algorithm
+    aliases.resize (1);
+    aliases[0] = "null";
 
-  // the perimeter patrol algorithm
-  aliases.resize (3);
-  aliases[0] = "patrol";
-  aliases[1] = "perimeter patrol";
-  aliases[2] = "pp";
+    add (aliases, new NullAlgorithmFactory ());
 
-  add (aliases, new PerimeterPatrolFactory ());
+    // the performance profiler
+    aliases.resize (1);
+    aliases[0] = "performance profiling";
 
-  // the perimeter patrol algorithm
-  aliases.resize (2);
-  aliases[0] = "perimeter patrol area coverage";
-  aliases[1] = "ppac";
+    add (aliases, new PerformanceProfilingFactory ());
 
-  add (aliases, new area_coverage::PerimeterPatrolCoverageFactory ());
+    // the perimeter patrol algorithm
+    aliases.resize (3);
+    aliases[0] = "patrol";
+    aliases[1] = "perimeter patrol";
+    aliases[2] = "pp";
 
-  // the prioritized min time area coverage
-  aliases.resize (2);
-  aliases[0] = "prioritized min time area coverage";
-  aliases[1] = "pmtac";
+    add (aliases, new PerimeterPatrolFactory ());
 
-  add (aliases, new area_coverage::PrioritizedMinTimeAreaCoverageFactory ());
+    // the perimeter patrol algorithm
+    aliases.resize (2);
+    aliases[0] = "perimeter patrol area coverage";
+    aliases[1] = "ppac";
 
-  // the priority-weighted coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "priority weighted random area coverage";
-  aliases[1] = "pwrac";
+    add (aliases, new area_coverage::PerimeterPatrolCoverageFactory ());
 
-  add (aliases, new area_coverage::PriorityWeightedRandomAreaCoverageFactory ());
+    // the prioritized min time area coverage
+    aliases.resize (2);
+    aliases[0] = "prioritized min time area coverage";
+    aliases[1] = "pmtac";
 
-  // the takeoff algorithm
-  aliases.resize (1);
-  aliases[0] = "takeoff";
+    add (aliases, new area_coverage::PrioritizedMinTimeAreaCoverageFactory ());
 
-  add (aliases, new TakeoffFactory ());
+    // the priority-weighted coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "priority weighted random area coverage";
+    aliases[1] = "pwrac";
 
-  // the takeoff algorithm
-  aliases.resize (1);
-  aliases[0] = "land";
+    add (aliases, new area_coverage::PriorityWeightedRandomAreaCoverageFactory ());
 
-  add (aliases, new LandFactory ());
+    // the takeoff algorithm
+    aliases.resize (1);
+    aliases[0] = "takeoff";
 
-  // the snake area coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "snake";
-  aliases[1] = "sac";
+    add (aliases, new TakeoffFactory ());
 
-  add (aliases, new area_coverage::SnakeAreaCoverageFactory ());
-  
-  // the uniform random area coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "uniform random area coverage";
-  aliases[1] = "urac";
+    // the takeoff algorithm
+    aliases.resize (1);
+    aliases[0] = "land";
 
-  add (aliases, new area_coverage::UniformRandomAreaCoverageFactory ());
-  
-  // the uniform random edge coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "uniform random edge coverage";
-  aliases[1] = "urec";
+    add (aliases, new LandFactory ());
 
-  add (aliases, new area_coverage::UniformRandomEdgeCoverageFactory ());
+    // the snake area coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "snake";
+    aliases[1] = "sac";
 
-  // the waypoints coverage algorithm
-  aliases.resize (2);
-  aliases[0] = "waypoints coverage";
-  aliases[1] = "waypoints_coverage";
+    add (aliases, new area_coverage::SnakeAreaCoverageFactory ());
 
-  add (aliases, new area_coverage::WaypointsCoverageFactory ());
+    // the uniform random area coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "uniform random area coverage";
+    aliases[1] = "urac";
 
-  // the wait
-  aliases.resize (1);
-  aliases[0] = "wait";
+    add (aliases, new area_coverage::UniformRandomAreaCoverageFactory ());
 
-  add (aliases, new WaitFactory ());
+    // the uniform random edge coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "uniform random edge coverage";
+    aliases[1] = "urec";
 
-  // zone coverage
-  aliases.resize (2);
-  aliases[0] = "zone coverage";
-  aliases[1] = "zone defense";
+    add (aliases, new area_coverage::UniformRandomEdgeCoverageFactory ());
 
-  add (aliases, new ZoneCoverageFactory ());
+    // the waypoints coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "waypoints coverage";
+    aliases[1] = "waypoints_coverage";
 
+    add (aliases, new area_coverage::WaypointsCoverageFactory ());
+
+    // the wait
+    aliases.resize (1);
+    aliases[0] = "wait";
+
+    add (aliases, new WaitFactory ());
+
+    // zone coverage
+    aliases.resize (2);
+    aliases[0] = "zone coverage";
+    aliases[1] = "zone defense";
+
+    add (aliases, new ZoneCoverageFactory ());
+
+    init_finished_ = true;
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::AlgorithmFactoryRepository:initialize_default_mappings" \
+      " Flag has already been set. No need to initialize.\n");
+  }
 }
 
 algorithms::BaseAlgorithm *
@@ -328,7 +353,7 @@ algorithms::AlgorithmFactoryRepository::create (
     " creating \"%s\" algorithm.\n", type.c_str ());
 
   
-  if (type != "")
+  if (type != "" && init_finished_)
   {
     std::string lowercased_type (type);
     madara::utility::lower (lowercased_type);
@@ -347,6 +372,13 @@ algorithms::AlgorithmFactoryRepository::create (
         "gams::algorithms::AlgorithmFactoryRepository::create:" \
         " could not find \"%s\" algorithm.\n", lowercased_type.c_str ());
     }
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::AlgorithmFactoryRepository:create" \
+      " ERROR: create called before initialize is complete.\n");
   }
 
   return result;

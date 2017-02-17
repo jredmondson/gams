@@ -172,6 +172,12 @@ namespace gams
 
       /// a map of all aliases to factories
       AlgorithmFactoryMap  factory_map_;
+
+      /// flag for seeing if an init defaults has started
+      bool init_started_;
+
+      /// flag for seeing if an init defaultshas stopped
+      bool init_finished_;
     };
 
     /**

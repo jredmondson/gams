@@ -81,6 +81,7 @@ namespace gams
        * Constructor
        * @param  locations    a list of targets to move to
        * @param  repeat       number of times to repeat (-1 for indefinite)
+       * @param  frame        reference frame for coordinates (e.g., "gps")
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
@@ -90,6 +91,7 @@ namespace gams
       Move (
         const std::vector <utility::Pose> & locations,
         int repeat,
+        const std::string & frame,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -138,6 +140,12 @@ namespace gams
 
       /// tracks the number of cycles completed through locations
       int cycles_;
+
+      /// reference frame for coordinates
+      std::string frame_;
+
+      /// internal variable for quick lookup instead of string comparison
+      bool is_gps_;
     };
 
     /**

@@ -51,6 +51,8 @@
 #include <vector>
 #include <sstream>
 
+#include "madara/utility/Utility.h"
+
 #include "gams/utility/ArgumentParser.h"
 #include "gams/utility/Coordinate.h"
 
@@ -77,6 +79,7 @@ gams::algorithms::MoveFactory::create (
     std::vector <utility::Pose> poses;
     int repeat_times (0);
     double wait_time (0.0);
+    std::string frame;
 
     KnowledgeMap::const_iterator poses_size_found =
       args.find ("locations.size");
@@ -84,6 +87,13 @@ gams::algorithms::MoveFactory::create (
     KnowledgeMap::const_iterator repeat_found = args.find ("repeat");
 
     KnowledgeMap::const_iterator wait_time_found = args.find ("wait_time");
+
+    KnowledgeMap::const_iterator frame_found = args.find ("frame");
+
+    if (frame_found != args.end ())
+    {
+      frame = frame_found->second.to_string ();
+    }
 
     if (repeat_found != args.end ())
     {
@@ -142,7 +152,15 @@ gams::algorithms::MoveFactory::create (
             next->first, "locations."));
           int index = (int)k_index.to_integer ();
 
-          poses[index].from_container (next->second.to_doubles ());
+          if (platform->get_frame ().name () == "GPS")
+          {
+            poses[index].from_container <gams::utility::order::GPS> (next->second.to_doubles ());
+          }
+          else
+          {
+            poses[index].from_container (next->second.to_doubles ());
+          }
+
           poses[index].frame (platform->get_frame ());
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -160,7 +178,7 @@ gams::algorithms::MoveFactory::create (
             " creating Move algorithm with %d locations and %d repeats\n",
             (int)poses.size (), repeat_times);
 
-          result = new Move (poses, repeat_times,
+          result = new Move (poses, repeat_times, frame,
             knowledge, platform, sensors, self, agents);
         }
       }
@@ -187,14 +205,21 @@ gams::algorithms::MoveFactory::create (
 gams::algorithms::Move::Move (
   const std::vector <utility::Pose> & locations,
   int repeat,
+  const std::string & frame,
   madara::knowledge::KnowledgeBase * knowledge, 
   platforms::BasePlatform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
-  poses_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0)
+  poses_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0),
+  frame_ (frame), is_gps_ (false)
 {
   status_.init_vars (*knowledge, "move", self->id.to_integer ());
   status_.init_variable_values ();
+
+  if (frame == "gps")
+  {
+    is_gps_ = true;
+  }
 }
 
 gams::algorithms::Move::~Move ()
