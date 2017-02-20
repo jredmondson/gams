@@ -153,7 +153,8 @@ gams::algorithms::Follow::Follow (
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self) :
-  BaseAlgorithm (knowledge, platform, sensors, self), offset_ (offset)
+  BaseAlgorithm (knowledge, platform, sensors, self), offset_ (offset),
+  had_valid_dest_orientation_ (false)
 {
   if (knowledge && platform && sensors && self)
   {
@@ -188,6 +189,7 @@ gams::algorithms::Follow::operator= (const Follow & rhs)
     this->target_last_location_ = rhs.target_last_location_;
     this->offset_ = rhs.offset_;
     this->need_move_ = rhs.need_move_;
+    this->had_valid_dest_orientation_ = rhs.had_valid_dest_orientation_;
   }
 }
 
@@ -217,6 +219,7 @@ gams::algorithms::Follow::analyze (void)
     last_location_.frame (*platform_frame);
     target_last_location_.frame (*platform_frame);
     target_destination_.frame (*platform_frame);
+    last_target_destination_.frame (*platform_frame);
     target_location_.frame (*platform_frame);
     target_orientation_.frame (*platform_frame);
 
@@ -228,22 +231,11 @@ gams::algorithms::Follow::analyze (void)
     // check if target location is set correctly
     if (target_.location.to_record ().to_doubles ().size () >= 2)
     {
-      if (platform_->get_frame ().name () == "GPS")
-      {
-        // import target location and destination
-        target_location_.from_container <utility::order::GPS> (
-          target_.location);
-        target_destination_.from_container <utility::order::GPS> (target_.dest);
-        target_orientation_.from_container <utility::order::GPS> (target_.orientation);
-      }
-      else
-      {
-        // import target location and destination
-        target_location_.from_container (
-          target_.location);
-        target_destination_.from_container (target_.dest);
-        target_orientation_.from_container (target_.orientation);
-      }
+      // import target location and destination
+      target_location_.from_container (
+        target_.location);
+      target_destination_.from_container (target_.dest);
+      target_orientation_.from_container (target_.orientation);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -329,16 +321,9 @@ gams::algorithms::Follow::execute (void)
       // move to new destination
       platform_->move (destination, platform_->get_accuracy ());
 
-      if (platform_->get_frame ().name () == "GPS")
-      {
-        // keep track of last location seen
-        last_location_.from_container <utility::order::GPS> (self_->agent.location);
-      }
-      else
-      {
-        // keep track of last location seen
-        last_location_.from_container (self_->agent.location);
-      }
+      // keep track of last location seen
+      last_location_.from_container (self_->agent.location);
+      last_target_destination_ = target_destination_;
 
       ++executions_;
     }

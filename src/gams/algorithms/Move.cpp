@@ -79,7 +79,6 @@ gams::algorithms::MoveFactory::create (
     std::vector <utility::Pose> poses;
     int repeat_times (0);
     double wait_time (0.0);
-    std::string frame;
 
     KnowledgeMap::const_iterator poses_size_found =
       args.find ("locations.size");
@@ -88,11 +87,18 @@ gams::algorithms::MoveFactory::create (
 
     KnowledgeMap::const_iterator wait_time_found = args.find ("wait_time");
 
-    KnowledgeMap::const_iterator frame_found = args.find ("frame");
-
-    if (frame_found != args.end ())
+    if (wait_time_found != args.end ())
     {
-      frame = frame_found->second.to_string ();
+      wait_time = wait_time_found->second.to_double ();
+    }
+    else
+    {
+      wait_time_found = args.find ("wait");
+
+      if (wait_time_found != args.end ())
+      {
+        wait_time = wait_time_found->second.to_double ();
+      }
     }
 
     if (repeat_found != args.end ())
@@ -152,16 +158,9 @@ gams::algorithms::MoveFactory::create (
             next->first, "locations."));
           int index = (int)k_index.to_integer ();
 
-          if (platform->get_frame ().name () == "GPS")
-          {
-            poses[index].from_container <gams::utility::order::GPS> (next->second.to_doubles ());
-          }
-          else
-          {
-            poses[index].from_container (next->second.to_doubles ());
-          }
-
           poses[index].frame (platform->get_frame ());
+
+          poses[index].from_container (next->second.to_doubles ());
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MINOR,
@@ -178,7 +177,7 @@ gams::algorithms::MoveFactory::create (
             " creating Move algorithm with %d locations and %d repeats\n",
             (int)poses.size (), repeat_times);
 
-          result = new Move (poses, repeat_times, frame,
+          result = new Move (poses, repeat_times, wait_time,
             knowledge, platform, sensors, self, agents);
         }
       }
@@ -205,21 +204,16 @@ gams::algorithms::MoveFactory::create (
 gams::algorithms::Move::Move (
   const std::vector <utility::Pose> & locations,
   int repeat,
-  const std::string & frame,
+  double wait_time,
   madara::knowledge::KnowledgeBase * knowledge, 
   platforms::BasePlatform * platform, variables::Sensors * sensors, 
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
   poses_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0),
-  frame_ (frame), is_gps_ (false)
+  wait_time_ (wait_time), waiting_ (false), finished_moving_ (false)
 {
   status_.init_vars (*knowledge, "move", self->id.to_integer ());
   status_.init_variable_values ();
-
-  if (frame == "gps")
-  {
-    is_gps_ = true;
-  }
 }
 
 gams::algorithms::Move::~Move ()
@@ -270,30 +264,28 @@ gams::algorithms::Move::analyze (void)
 
         // check our distance to the next location
         utility::Location loc = platform_->get_location ();
-        utility::Location next_loc (platform_->get_frame (),
-          poses_[move_index_].get (0), poses_[move_index_].get (1),
-          poses_[move_index_].get (2));
+        utility::Location next_loc (platform_->get_frame (), poses_[move_index_]);
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
           "Move::analyze:" \
           " distance between points is %f (need %f accuracy)\n",
           loc.distance_to (next_loc), platform_->get_accuracy ());
-
-        if (loc.approximately_equal (next_loc, platform_->get_accuracy ()))
-        {
-        } // end if location is approximately equal to next location
       } // end next move is within the locations list
       else
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_ERROR,
-          "Move::analyze:" \
-          " ERROR: move_index_ is greater than possible locations.\n");
+        if (!waiting_ || ACE_OS::gettimeofday () > end_time_)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_ERROR,
+            "Move::analyze:" \
+            " move_index_ is greater than possible locations.\n");
 
-        result |= FINISHED;
+          result |= FINISHED;
 
-        status_.finished.modify ();
+          status_.finished.modify ();
+        }
+
       } // end is not in the locations list
     } // end is not finished
     else
@@ -326,10 +318,13 @@ gams::algorithms::Move::execute (void)
 
   int move_result (-1);
 
-  bool is_finished = status_.finished == 1;
-
+  if (waiting_ && ACE_OS::gettimeofday () > end_time_)
+  {
+    waiting_ = false;
+  }
+  
   if (platform_ && *platform_->get_platform_status ()->movement_available
-    && !is_finished)
+      && !finished_moving_ && !waiting_)
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -397,6 +392,14 @@ gams::algorithms::Move::execute (void)
 
       if (move_result == platforms::PLATFORM_ARRIVED)
       {
+        if (!waiting_ && wait_time_ > 0.0)
+        {
+          ACE_Time_Value delay;
+          delay.set (wait_time_);
+          end_time_ = ACE_OS::gettimeofday () + delay;
+          waiting_ = true;
+        }
+
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "Move::execute:" \
@@ -422,8 +425,13 @@ gams::algorithms::Move::execute (void)
               " algorithm is finished after %d cycles\n",
               cycles_);
 
-            result |= FINISHED;
-            status_.finished = 1;
+            finished_moving_ = true;
+
+            if (!waiting_)
+            {
+              result |= FINISHED;
+              status_.finished = 1;
+            }
           } // end if finished
           else
           {
@@ -461,9 +469,16 @@ gams::algorithms::Move::execute (void)
 
     }
   }
-  else if (is_finished)
+  else if (!waiting_)
   {
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "Move::execute:" \
+      " No movements left. Not waiting. Finished.\n");
+
     result |= FINISHED;
+    status_.finished = 1;
   }
 
   return result;

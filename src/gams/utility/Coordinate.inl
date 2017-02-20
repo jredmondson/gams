@@ -188,52 +188,6 @@ namespace gams
 
     template<typename CoordType>
     template<typename ContainType>
-    inline void Coordinate<CoordType>::to_container(
-                                ContainType &container) const
-    {
-      const CoordType &s = as_coord_type();
-      for(int i = 0; i < s.size(); i++)
-      {
-        container.set(i, s.get(i));
-      }
-    }
-
-    template<typename CoordType>
-    template<typename O, typename ContainType>
-    inline void Coordinate<CoordType>::to_container(
-                                ContainType &container) const
-    {
-      const CoordType &s = as_coord_type();
-      container.set(0, s.get(O::find(0)));
-      container.set(1, s.get(O::find(1)));
-      container.set(2, s.get(O::find(2)));
-    }
-
-    template<typename CoordType>
-    template<typename ContainType>
-    inline void Coordinate<CoordType>::from_container(
-                              const ContainType &container)
-    {
-      CoordType &s = as_coord_type();
-      for(int i = 0; i < s.size(); i++)
-      {
-        s.set(i, container[i]);
-      }
-    }
-
-    template<typename CoordType>
-    template<typename O, typename ContainType>
-    inline void Coordinate<CoordType>::from_container(
-                                const ContainType &container)
-    {
-      CoordType &s = as_coord_type();
-      s.set(0, container[O::get(0)]);
-      s.set(1, container[O::get(1)]);
-      s.set(2, container[O::get(2)]);
-    }
-
-    template<typename CoordType>
-    template<typename ContainType>
     inline void Coordinate<CoordType>::to_array(
                                 ContainType &out) const
     {

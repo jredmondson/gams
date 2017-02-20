@@ -131,6 +131,9 @@ namespace gams
       /// current target location shared between analyze and execute
       utility::Location target_destination_;
 
+      /// current target location shared between analyze and execute
+      utility::Location last_target_destination_;
+
       /// keep track of last location
       utility::Location last_location_;
 
@@ -148,6 +151,12 @@ namespace gams
 
       /// flag between analyze and execute indicating new move is necessary
       bool need_move_;
+
+      /// keep track of whether we had previously calculated target orient
+      bool had_valid_dest_orientation_;
+
+      /// last valid destination based orientation
+      gams::utility::Orientation last_dest_orientation;
     };
 
     /**

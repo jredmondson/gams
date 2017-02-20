@@ -347,14 +347,8 @@ gams::algorithms::ZoneCoverage::update_locs (
   {
     if (arrays[i].size () >= 2)
     {
-      if (frame_ == "gps")
-      {
-        locs[i].from_container<order::GPS> (arrays[i]);
-      }
-      else
-      {
-        locs[i].from_container (arrays[i]);
-      }
+      locs[i].from_container (arrays[i]);
+
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::ZoneCoverage::update_locs:" \

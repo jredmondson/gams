@@ -146,7 +146,7 @@ gams::platforms::BasePlatform::move (const utility::Location & target,
   utility::Location current(get_location());
 
   utility::Location dest(get_frame(), 0, 0);
-  dest.from_container<utility::order::GPS> (self_->agent.dest);
+  dest.from_container (self_->agent.dest);
 
   utility::Location gps_target(get_frame(), target);
 
@@ -160,7 +160,7 @@ gams::platforms::BasePlatform::move (const utility::Location & target,
      (!*status_.moving || gps_target != dest))
   {
     self_->agent.source = self_->agent.location;
-    gps_target.to_container<utility::order::GPS> (self_->agent.dest);
+    gps_target.to_container (self_->agent.dest);
 
     result = 1;
     status_.moving = 1;

@@ -136,7 +136,7 @@ void gams::auctions::AuctionMinimumDistance::calculate_bids (void)
     {
       // import the agents's location into the GAMS Pose system
       gams::utility::Location location (platform_->get_frame ());
-      location.from_container<gams::utility::order::GPS> (agents[i].location);
+      location.from_container (agents[i].location);
 
       double distance = location.distance_to (target_);
 

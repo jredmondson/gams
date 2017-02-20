@@ -66,7 +66,7 @@ inline gams::utility::Location
 gams::platforms::BasePlatform::get_location () const
 {
   utility::Location ret(get_frame(), 0, 0);
-  ret.from_container<utility::order::GPS>(self_->agent.location);
+  ret.from_container (self_->agent.location);
   return ret;
 }
 

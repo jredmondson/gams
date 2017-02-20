@@ -501,6 +501,63 @@ namespace gams
        **/
       void slerp_this (const Orientation &o, double t);
 
+
+      /**
+      * Outputs this Coordinates values to the referenced container. This
+      * container type must support the following set method:
+      *  ContainType::set(int index, double value)
+      *
+      * The MADARA DoubleVector and NativeDoubleVector types are supported.
+      *
+      * Values read in XYZ, or Lng/Lat/Alt order
+      *
+      * @tparam ContainType the type of the container; must support "set"
+      * @param container the container to put this Coordinate's values into.
+      **/
+      template<typename ContainType>
+      void to_container (ContainType &container) const;
+
+      /**
+      * Overwrites this Coordinate's values with those pulled from the
+      * referenced container. These values will be within this object's
+      * current reference frame. The container must support operator[],
+      *
+      * Values read in XYZ, or Lng/Lat/Alt order
+      *
+      * @tparam ContainType the type of the container; must support operator[]
+      * @param container the container to pull new values from.
+      **/
+      template<typename ContainType>
+      void from_container (const ContainType &container);
+
+
+      /**
+      * Outputs this Coordinates values to the referenced container. This
+      * container type must support the following set method:
+      *  ContainType::set(int index, double value)
+      *
+      * The MADARA DoubleVector and NativeDoubleVector types are supported.
+      *
+      * @tparam Order a type which specifies the ordering (see order namespace)
+      * @tparam ContainType the type of the container; must support "set"
+      * @param container the container to put this Coordinate's values into.
+      **/
+      template<typename Order, typename ContainType>
+      void to_container (ContainType &container) const;
+
+      /**
+      * Overwrites this Coordinate's values with those pulled from the
+      * referenced container. These values will be within this object's
+      * current reference frame. The container must support operator[],
+      *
+      * @tparam Order a type which specifies the ordering (see order namespace)
+      * @tparam ContainType the type of the container; must support operator[]
+      * @param container the container to pull new values from.
+      **/
+      template<typename Order, typename ContainType>
+      void from_container (const ContainType &container);
+
+
       using Coordinate<Orientation>::operator==;
     };
   }

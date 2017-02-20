@@ -81,7 +81,7 @@ namespace gams
        * Constructor
        * @param  locations    a list of targets to move to
        * @param  repeat       number of times to repeat (-1 for indefinite)
-       * @param  frame        reference frame for coordinates (e.g., "gps")
+       * @param  wait_time    global wait (in s) after arriving at waypoints
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
@@ -91,7 +91,7 @@ namespace gams
       Move (
         const std::vector <utility::Pose> & locations,
         int repeat,
-        const std::string & frame,
+        double wait_time,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -144,8 +144,17 @@ namespace gams
       /// reference frame for coordinates
       std::string frame_;
 
-      /// internal variable for quick lookup instead of string comparison
-      bool is_gps_;
+      /// the end time
+      ACE_Time_Value end_time_;
+
+      /// global wait time for each waypoint
+      double wait_time_;
+
+      /// if true, is in a waiting state on wait_time_
+      bool waiting_;
+
+      /// if true, all movements are completed
+      bool finished_moving_;
     };
 
     /**
