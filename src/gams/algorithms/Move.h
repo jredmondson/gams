@@ -67,6 +67,8 @@
 #include "gams/utility/Position.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
+#include "gams/GAMSExport.h"
+
 namespace gams
 {
   namespace algorithms

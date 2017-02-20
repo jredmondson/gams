@@ -58,6 +58,7 @@
 #include <string>
 #include <gams/CPP11_compat.h>
 #include <gams/utility/Coordinate.h>
+#include "gams/GAMSExport.h"
 #include <cmath>
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
@@ -264,7 +265,7 @@ namespace gams
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
-    class Orientation : public OrientationVector, public Coordinate<Orientation>
+    class GAMSExport Orientation : public OrientationVector, public Coordinate<Orientation>
     {
     public:
       /**

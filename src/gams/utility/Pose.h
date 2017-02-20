@@ -281,7 +281,7 @@ namespace gams
      * Represents a combination of Location and Orientation within a single
      * reference frame.
      **/
-    class Pose : public PoseVector, public Coordinate<Pose>
+    class GAMSExport Pose : public PoseVector, public Coordinate<Pose>
     {
     public:
       /**

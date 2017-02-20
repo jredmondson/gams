@@ -476,7 +476,7 @@ namespace gams
      * the Location is not actually bound to a UTMFrame, but will not cause
      * exceptions.
      **/
-    class Location : public LocationVector, public Coordinate<Location>
+    class GAMSExport Location : public LocationVector, public Coordinate<Location>
     {
     public:
       /**
