@@ -59,7 +59,7 @@
 
 #include <stdexcept>
 #include <gams/utility/Coordinate.h>
-#include <gams/utility/ReferenceFrame.h>
+#include "ReferenceFrame.h"
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
 

@@ -59,13 +59,12 @@
 
 #include <gams/utility/Location.h>
 #include <gams/utility/Orientation.h>
+#include "ReferenceFrame.h"
 
 namespace gams
 {
   namespace utility
   {
-    class ReferenceFrame;
-
     /**
      * Container for Pose information, not bound to a frame.
      * See LocationVector and OrientationVector for representation deatils

@@ -58,7 +58,7 @@
 #include <string>
 #include <gams/CPP11_compat.h>
 #include <gams/utility/Coordinate.h>
-#include <gams/utility/ReferenceFrame.h>
+#include "ReferenceFrame.h"
 #include <cmath>
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
