@@ -255,62 +255,10 @@ namespace gams
     }
 
     template<typename U>
-    inline double Orientation::angle_to(const Orientation &target, U u) const
+    inline double Orientation::angle_to (const Orientation &target, U u) const
     {
-      return u.from_radians(distance_to(target));
+      return u.from_radians (distance_to (target));
     }
-
-
-
-    template<typename ContainType>
-    inline void Orientation::to_container (
-      ContainType &container) const
-    {
-      if (frame ().name () == "GPS")
-      {
-        to_container <order::GPS> (container);
-      }
-      else
-      {
-        to_container <order::XYZ> (container);
-      }
-    }
-
-
-    template<typename ContainType>
-    inline void Orientation::from_container (
-      const ContainType &container)
-    {
-      if (frame ().name () == "GPS")
-      {
-        from_container <order::GPS> (container);
-      }
-      else
-      {
-        from_container <order::XYZ> (container);
-      }
-    }
-
-
-    template<typename O, typename ContainType>
-    inline void Orientation::to_container (
-      ContainType &container) const
-    {
-      container.set (0, get (O::find (0)));
-      container.set (1, get (O::find (1)));
-      container.set (2, get (O::find (2)));
-    }
-
-    template<typename O, typename ContainType>
-    inline void Orientation::from_container (
-      const ContainType &container)
-    {
-      set (0, container[O::get (0)]);
-      set (1, container[O::get (1)]);
-      set (2, container[O::get (2)]);
-    }
-
-
   }
 }
 

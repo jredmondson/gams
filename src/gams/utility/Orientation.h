@@ -58,7 +58,6 @@
 #include <string>
 #include <gams/CPP11_compat.h>
 #include <gams/utility/Coordinate.h>
-#include "ReferenceFrame.h"
 #include <cmath>
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
@@ -504,60 +503,18 @@ namespace gams
 
 
       /**
-      * Outputs this Coordinates values to the referenced container. This
-      * container type must support the following set method:
-      *  ContainType::set(int index, double value)
-      *
-      * The MADARA DoubleVector and NativeDoubleVector types are supported.
-      *
-      * Values read in XYZ, or Lng/Lat/Alt order
-      *
-      * @tparam ContainType the type of the container; must support "set"
-      * @param container the container to put this Coordinate's values into.
-      **/
-      template<typename ContainType>
-      void to_container (ContainType &container) const;
+       * Saves the orientation to a MADARA container
+       * @param  container the container to save to
+       **/
+      void to_container (
+        madara::knowledge::containers::NativeDoubleVector &container) const;
 
       /**
-      * Overwrites this Coordinate's values with those pulled from the
-      * referenced container. These values will be within this object's
-      * current reference frame. The container must support operator[],
-      *
-      * Values read in XYZ, or Lng/Lat/Alt order
-      *
-      * @tparam ContainType the type of the container; must support operator[]
-      * @param container the container to pull new values from.
+      * Imports the orientation from a MADARA container
+      * @param  container the container to import from
       **/
-      template<typename ContainType>
-      void from_container (const ContainType &container);
-
-
-      /**
-      * Outputs this Coordinates values to the referenced container. This
-      * container type must support the following set method:
-      *  ContainType::set(int index, double value)
-      *
-      * The MADARA DoubleVector and NativeDoubleVector types are supported.
-      *
-      * @tparam Order a type which specifies the ordering (see order namespace)
-      * @tparam ContainType the type of the container; must support "set"
-      * @param container the container to put this Coordinate's values into.
-      **/
-      template<typename Order, typename ContainType>
-      void to_container (ContainType &container) const;
-
-      /**
-      * Overwrites this Coordinate's values with those pulled from the
-      * referenced container. These values will be within this object's
-      * current reference frame. The container must support operator[],
-      *
-      * @tparam Order a type which specifies the ordering (see order namespace)
-      * @tparam ContainType the type of the container; must support operator[]
-      * @param container the container to pull new values from.
-      **/
-      template<typename Order, typename ContainType>
-      void from_container (const ContainType &container);
-
+      void from_container (
+        const madara::knowledge::containers::NativeDoubleVector &container);
 
       using Coordinate<Orientation>::operator==;
     };
