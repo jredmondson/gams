@@ -303,9 +303,10 @@ gams::algorithms::Follow::execute (void)
       }
       else
       {
+        // by default use a pose of the target location with a default orientation
         target_frame = gams::utility::CartesianFrame (
           gams::utility::Pose (target_location_,
-          target_orientation_));
+          gams::utility::Orientation (0,0,0)));
       }
 
       // the destination is modified by the row, column and buffer size
