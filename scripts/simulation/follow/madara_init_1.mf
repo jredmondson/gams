@@ -6,4 +6,4 @@
 
 agent.1.algorithm="follow";
 agent.1.algorithm.args.target="agent.0";
-agent.1.algorithm.args.offset=[1, 1, 3];
+agent.1.algorithm.args.offset=[-1, 1, 2];
