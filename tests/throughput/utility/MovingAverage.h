@@ -2,6 +2,7 @@
 #define _UTILITY_MOVING_AVERAGE_
 
 #include <vector>
+#include <stdlib.h>
 
 namespace utility
 {
