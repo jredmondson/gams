@@ -22,6 +22,37 @@ project (test_mape_loop) : using_gams, using_madara, using_ace {
   }
 }
 
+project (gams_throughput) : using_gams, using_madara, using_ace {
+  exeout = $(GAMS_ROOT)/bin
+  exename = gams_throughput
+  
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+  
+  Build_Files {
+    using_gams.mpb
+    tests.mpc
+  }
+
+  Header_Files {
+    tests/throughput/utility
+    tests/throughput/algorithms
+    tests/throughput/filters
+    tests/throughput/gams_throughput.cpp
+  }
+
+  Source_Files {
+    tests/throughput/utility
+    tests/throughput/algorithms
+    tests/throughput/filters
+    tests/throughput/gams_throughput.cpp
+  }
+}
+
 
 project (test_controller) : using_gams, using_madara, using_ace {
   exeout = $(GAMS_ROOT)/bin

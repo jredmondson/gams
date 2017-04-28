@@ -73,6 +73,8 @@ gams::variables::Agent::operator= (const Agent & agent)
     this->is_mobile = agent.is_mobile;
     this->location = agent.location;
     this->orientation = agent.orientation;
+    this->source_orientation = agent.source_orientation;
+    this->dest_orientation = agent.dest_orientation;
     this->desired_altitude = agent.desired_altitude;
     this->source = agent.source;
     this->dest = agent.dest;
@@ -120,6 +122,8 @@ gams::variables::Agent::init_vars (
   variables::init_vars (accents, knowledge, prefix);
   home.set_name (prefix + ".home", knowledge);
   source.set_name (prefix + ".source", knowledge);
+  source_orientation.set_name (prefix + ".source_orientation", knowledge);
+  dest_orientation.set_name (prefix + ".dest_orientation", knowledge);
   dest.set_name (prefix + ".dest", knowledge);
   temperature.set_name (prefix + ".temperature", knowledge);
   madara_debug_level.set_name (prefix + ".madara_debug_level", knowledge);
@@ -177,7 +181,9 @@ gams::variables::Agent::init_vars (
   variables::init_vars (accents, knowledge, agent_name);
   home.set_name (agent_name + ".home", knowledge);
   source.set_name (agent_name + ".source", knowledge);
+  source_orientation.set_name (agent_name + ".source_orientation", knowledge);
   dest.set_name (agent_name + ".dest", knowledge);
+  dest_orientation.set_name (agent_name + ".dest_orientation", knowledge);
   temperature.set_name (agent_name + ".temperature", knowledge);
   madara_debug_level.set_name (agent_name + ".madara_debug_level", knowledge);
   gams_debug_level.set_name (agent_name + ".gams_debug_level", knowledge);
