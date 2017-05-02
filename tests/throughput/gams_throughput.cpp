@@ -170,8 +170,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
+        double deadline;
         std::stringstream buffer (argv[i + 1]);
-        buffer >> settings.deadline;
+        buffer >> deadline;
+        
+        settings.set_deadline (deadline);
       }
       else
         print_usage (argv[0]);
@@ -555,7 +558,7 @@ int main (int argc, char ** argv)
       hertz,
       loop_time,
       madara::transport::type_name (settings).c_str (),
-      settings.deadline,
+      settings.get_deadline (),
       (int)payload_size,
       (int)settings.queue_length,
       rcv_only ? "yes" : "no",
@@ -581,7 +584,7 @@ int main (int argc, char ** argv)
       (int)settings.id,
       loop_time,
       madara::transport::type_name (settings).c_str (),
-      settings.deadline,
+      settings.get_deadline (),
       (int)settings.queue_length,
       rcv_only ? "yes" : "no",
       no_apply ? "no" : "yes",
