@@ -55,6 +55,7 @@
 #define _GAMS_UTILITY_LOCATION_H_
 
 #include <gams/pose/Position.h>
+#include <gams/utility/Coordinate.h>
 
 namespace gams
 {

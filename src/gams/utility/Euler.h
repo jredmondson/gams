@@ -57,6 +57,9 @@
 #define _GAMS_UTILITY_EULER_H_
 
 #include <gams/pose/Euler.h>
+#include <gams/utility/AngleUnits.h>
+#include <gams/utility/Orientation.h>
+#include <gams/utility/Quaternion.h>
 
 namespace gams
 {

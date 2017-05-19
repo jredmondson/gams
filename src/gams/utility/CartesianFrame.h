@@ -55,6 +55,7 @@
 #define _GAMS_UTILITY_CARTESIAN_FRAME_H_
 
 #include <gams/pose/CartesianFrame.h>
+#include <gams/utility/ReferenceFrame.h>
 
 namespace gams
 {

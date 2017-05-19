@@ -55,6 +55,7 @@
 #define _GAMS_UTILITY_GPS_FRAME_H_
 
 #include <gams/pose/GPSFrame.h>
+#include <gams/utility/ReferenceFrame.h>
 
 namespace gams
 {

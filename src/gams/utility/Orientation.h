@@ -55,6 +55,11 @@
 #define _GAMS_UTILITY_ORIENTATION_H_
 
 #include <gams/pose/Rotation.h>
+#include <gams/utility/AngleUnits.h>
+#include <gams/utility/Quaternion.h>
+#include <gams/utility/Euler.h>
+#include <gams/utility/Coordinate.h>
+
 namespace gams
 {
   namespace utility
