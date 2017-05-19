@@ -55,17 +55,17 @@
  * exist). See below for details.
  **/
 
-#ifndef _GAMS_UTILITY_EULER_FORMULAS_INL_
-#define _GAMS_UTILITY_EULER_FORMULAS_INL_
+#ifndef _GAMS_POSE_EULER_FORMULAS_INL_
+#define _GAMS_POSE_EULER_FORMULAS_INL_
 
 #include <cmath>
-#include "gams/utility/Quaternion.h"
+#include "gams/pose/Quaternion.h"
 
 #include "Euler.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     namespace euler
     {
@@ -77,7 +77,7 @@ namespace gams
         struct EulerFormulas
         {
           static_assert(sizeof(A) == -1, "Formulas for this convention " \
-            "not implemented. See src/gams/utility/EulerFormulas.inl"
+            "not implemented. See src/gams/pose/EulerFormulas.inl"
           );
         };
 
@@ -129,24 +129,6 @@ namespace gams
         {
           typedef EulerFormulas<C, B, A> F;
           typedef typename GetEulerTrig<C, B, A>::type Trig;
-        };
-
-        struct radians_t
-        {
-          double to_radians(double in) { return in; }
-          double from_radians(double in) { return in; }
-        };
-
-        struct degrees_t
-        {
-          double to_radians(double in) { return DEG_TO_RAD(in); }
-          double from_radians(double in) { return RAD_TO_DEG(in); }
-        };
-
-        struct revolutions_t
-        {
-          double to_radians(double in) { return in * 2 * M_PI; }
-          double from_radians(double in) { return in / (2 * M_PI); }
         };
 
         // Conversion formulas from NASA document:

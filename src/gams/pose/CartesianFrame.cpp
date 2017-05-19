@@ -50,7 +50,7 @@
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     void CartesianFrame::transform_location_to_origin(
                       double &x, double &y, double &z) const

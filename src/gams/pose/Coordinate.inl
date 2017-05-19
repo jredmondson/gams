@@ -48,11 +48,11 @@
  * @file Coordinate.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Location, Orientation, and Pose classes
+ * This file contains the Position, Rotation, and Pose classes
  **/
 
-#ifndef _GAMS_UTILITY_COORDINATE_INL_
-#define _GAMS_UTILITY_COORDINATE_INL_
+#ifndef _GAMS_POSE_COORDINATE_INL_
+#define _GAMS_POSE_COORDINATE_INL_
 
 #include <iostream>
 #include <cstdio>
@@ -62,7 +62,7 @@
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     inline const ReferenceFrame &CoordinateBase::default_frame()
     {

@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_CARTESIAN_FRAME_H_
 #define _GAMS_UTILITY_CARTESIAN_FRAME_H_
 
-#include "ReferenceFrame.h"
+#include <gams/pose/CartesianFrame.h>
 
 namespace gams
 {
@@ -69,67 +69,8 @@ namespace gams
      * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
      * Converting to GPSFrame from a orientd child Cartesian is supported.
      **/
-    class GAMSExport CartesianFrame : public SimpleRotateFrame
-    {
-    public:
-      /**
-       * Default constructor. No parent frame.
-       **/
-      CartesianFrame();
-
-      /**
-       * Creates a copy of the origin Pose passed in.
-       **/
-      explicit CartesianFrame(const Pose &origin);
-
-      /**
-       * Uses an existing Pose as origin, and maintains
-       * a pointer to it. Changes to it affect this frame
-       **/
-      explicit CartesianFrame(Pose *origin);
-
-    protected:
-      /**
-       * Returns the name of this type of reference frame.
-       *
-       * @return the string "Cartesian"
-       **/
-      virtual std::string get_name() const;
-
-      /**
-       * Transforms a location to origin
-       * @param x   the x coordinate
-       * @param y   the y coordinate
-       * @param z   the z coordinate
-       **/
-      virtual void transform_location_to_origin(
-                      double &x, double &y, double &z) const;
-
-      /**
-      * Transforms a location from origin
-      * @param x   the x coordinate
-      * @param y   the y coordinate
-      * @param z   the z coordinate
-      **/
-      virtual void transform_location_from_origin(
-                      double &x, double &y, double &z) const;
-
-      /**
-      * Calculates distance from one point to another
-      * @param x1   the x coordinate of the first point
-      * @param y1   the y coordinate of the first point
-      * @param z1   the z coordinate of the first point
-      * @param x2   the x coordinate of the second point
-      * @param y2   the y coordinate of the second point
-      * @param z2   the z coordinate of the second point
-      **/
-      virtual double calc_distance(
-                      double x1, double y1, double z1,
-                      double x2, double y2, double z2) const;
-    };
+    typedef gams::pose::CartesianFrame CartesianFrame;
   }
 }
-
-#include "CartesianFrame.inl"
 
 #endif

@@ -51,41 +51,85 @@
  * This file contains the base reference Frame class
  **/
 
-#ifndef _GAMS_UTILITY_CARTESIAN_FRAME_INL_
-#define _GAMS_UTILITY_CARTESIAN_FRAME_INL_
+#ifndef _GAMS_POSE_CARTESIAN_FRAME_H_
+#define _GAMS_POSE_CARTESIAN_FRAME_H_
 
 #include "ReferenceFrame.h"
 
-#include "CartesianFrame.h"
-
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
-    inline CartesianFrame::CartesianFrame() : SimpleRotateFrame() {}
-
-    inline CartesianFrame::CartesianFrame(const Pose &origin)
-              : SimpleRotateFrame(origin) {}
-
-    inline CartesianFrame::CartesianFrame(Pose *origin)
-              : SimpleRotateFrame(origin) {}
-
-    inline std::string CartesianFrame::get_name() const
+    /**
+     * Positions represented as meters distance, in x, y, and z, from an origin
+     * Rotations represented in Axis Angle notation
+     *
+     * All conversions to/from child and parent CartesianFrames are supported.
+     * Conversions to/from a parent GPSFrame are supported, except converting
+     * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
+     * Converting to GPSFrame from a orientd child Cartesian is supported.
+     **/
+    class GAMSExport CartesianFrame : public SimpleRotateFrame
     {
-      return "Cartesian";
-    }
+    public:
+      /**
+       * Default constructor. No parent frame.
+       **/
+      CartesianFrame();
 
-    inline double CartesianFrame::calc_distance(
+      /**
+       * Creates a copy of the origin Pose passed in.
+       **/
+      explicit CartesianFrame(const Pose &origin);
+
+      /**
+       * Uses an existing Pose as origin, and maintains
+       * a pointer to it. Changes to it affect this frame
+       **/
+      explicit CartesianFrame(Pose *origin);
+
+    protected:
+      /**
+       * Returns the name of this type of reference frame.
+       *
+       * @return the string "Cartesian"
+       **/
+      virtual std::string get_name() const;
+
+      /**
+       * Transforms a location to origin
+       * @param x   the x coordinate
+       * @param y   the y coordinate
+       * @param z   the z coordinate
+       **/
+      virtual void transform_location_to_origin(
+                      double &x, double &y, double &z) const;
+
+      /**
+      * Transforms a location from origin
+      * @param x   the x coordinate
+      * @param y   the y coordinate
+      * @param z   the z coordinate
+      **/
+      virtual void transform_location_from_origin(
+                      double &x, double &y, double &z) const;
+
+      /**
+      * Calculates distance from one point to another
+      * @param x1   the x coordinate of the first point
+      * @param y1   the y coordinate of the first point
+      * @param z1   the z coordinate of the first point
+      * @param x2   the x coordinate of the second point
+      * @param y2   the y coordinate of the second point
+      * @param z2   the z coordinate of the second point
+      **/
+      virtual double calc_distance(
                       double x1, double y1, double z1,
-                      double x2, double y2, double z2) const
-    {
-      double x_dist = x2 - x1;
-      double y_dist = y2 - y1;
-      double z_dist = z2 - z2;
-
-      return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
-    }
+                      double x2, double y2, double z2) const;
+    };
   }
 }
+
+#include "CartesianFrame.inl"
 
 #endif

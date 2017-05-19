@@ -51,8 +51,8 @@
  * This file contains the base reference Frame class
  **/
 
-#ifndef _GAMS_UTILITY_UTM_FRAME_INL_
-#define _GAMS_UTILITY_UTM_FRAME_INL_
+#ifndef _GAMS_POSE_UTM_FRAME_INL_
+#define _GAMS_POSE_UTM_FRAME_INL_
 
 #ifdef GAMS_UTM
 
@@ -62,7 +62,7 @@
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     inline UTMFrame::UTMFrame(int zone)
         : ReferenceFrame(), zone_(zone) {}
@@ -74,10 +74,10 @@ namespace gams
 
     inline void UTMFrame::zone(int zone) { zone_ = zone; }
 
-    inline Location UTMFrame::mk_loc(double easting, int zone,
+    inline Position UTMFrame::mk_loc(double easting, int zone,
                                      double northing, bool hemi)
     {
-      return Location(*this, from_easting(easting, zone),
+      return Position(*this, from_easting(easting, zone),
                       from_northing(northing, hemi));
     }
 
@@ -116,57 +116,57 @@ namespace gams
       return hemi == true ? n : n - SOUTH_OFFSET;
     }
 
-    inline constexpr double LocationVector::northing() const
+    inline constexpr double PositionVector::northing() const
     {
       return UTMFrame::to_northing(y_);
     }
 
-    inline constexpr double LocationVector::easting() const
+    inline constexpr double PositionVector::easting() const
     {
       return UTMFrame::to_easting(x_);
     }
 
-    inline constexpr int LocationVector::zone() const
+    inline constexpr int PositionVector::zone() const
     {
       return UTMFrame::to_zone(x_);
     }
 
-    inline constexpr bool LocationVector::hemi() const
+    inline constexpr bool PositionVector::hemi() const
     {
       return UTMFrame::to_hemi(y_);
     }
 
-    inline void LocationVector::northing(double n, bool h)
+    inline void PositionVector::northing(double n, bool h)
     {
       y_ = UTMFrame::from_northing(n, h);
     }
 
-    inline void LocationVector::northing(double n)
+    inline void PositionVector::northing(double n)
     {
       northing(n, hemi());
     }
 
-    inline void LocationVector::hemi(bool h)
+    inline void PositionVector::hemi(bool h)
     {
       northing(northing(), h);
     }
 
-    inline void LocationVector::easting(double e, int z)
+    inline void PositionVector::easting(double e, int z)
     {
       x_ = UTMFrame::from_easting(e, z);
     }
 
-    inline void LocationVector::easting(double e)
+    inline void PositionVector::easting(double e)
     {
       easting(e, zone());
     }
 
-    inline void LocationVector::zone(int z)
+    inline void PositionVector::zone(int z)
     {
       easting(easting(), z);
     }
 
-    inline char LocationVector::nato_band()
+    inline char PositionVector::nato_band()
     {
       return UTMFrame::nato_band(x_,y_);
     }

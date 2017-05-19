@@ -51,14 +51,14 @@
  * This file contains the base reference Frame class
  **/
 
-#include <gams/utility/ReferenceFrame.h>
-#include <gams/utility/Location.h>
-#include <gams/utility/Orientation.h>
-#include <gams/utility/Quaternion.h>
+#include <gams/pose/ReferenceFrame.h>
+#include <gams/pose/Position.h>
+#include <gams/pose/Rotation.h>
+#include <gams/pose/Quaternion.h>
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     // TODO implement O(height) algo instead of O(height ^ 2)
     const ReferenceFrame *ReferenceFrame::find_common_frame(
@@ -93,13 +93,13 @@ namespace gams
     void ReferenceFrame::transform_location_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Location>(*this, "transform_location_to_origin");
+      throw bad_coord_type<Position>(*this, "transform_location_to_origin");
     }
 
     void ReferenceFrame::transform_location_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Location>(*this, "transform_location_from_origin");
+      throw bad_coord_type<Position>(*this, "transform_location_from_origin");
     }
 
     void ReferenceFrame::do_normalize_location(
@@ -108,39 +108,39 @@ namespace gams
     double ReferenceFrame::calc_distance(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Location>(*this, "calc_distance");
+      throw bad_coord_type<Position>(*this, "calc_distance");
     }
 
     void ReferenceFrame::transform_orientation_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_orientation_to_origin");
+      throw bad_coord_type<Rotation>(*this, "transform_orientation_to_origin");
     }
 
     void ReferenceFrame::transform_orientation_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_orientation_from_origin");
+      throw bad_coord_type<Rotation>(*this, "transform_orientation_from_origin");
     }
 
     void ReferenceFrame::transform_pose_to_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_pose_to_origin");
+      throw bad_coord_type<Rotation>(*this, "transform_pose_to_origin");
     }
 
     void ReferenceFrame::transform_pose_from_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_pose_from_origin");
+      throw bad_coord_type<Rotation>(*this, "transform_pose_from_origin");
     }
 
     double ReferenceFrame::calc_angle(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Orientation>(*this, "calc_angle");
+      throw bad_coord_type<Rotation>(*this, "calc_angle");
     }
 
     void ReferenceFrame::do_normalize_orientation(
@@ -156,7 +156,7 @@ namespace gams
 
     void SimpleRotateFrame::orient_location_vec(
           double &x, double &y, double &z,
-          const OrientationVector &rot, bool reverse) const
+          const RotationVector &rot, bool reverse) const
     {
       if(rot.is_zero())
         return;

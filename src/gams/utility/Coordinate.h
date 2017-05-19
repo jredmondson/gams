@@ -54,20 +54,12 @@
 #ifndef _GAMS_UTILITY_COORDINATE_H_
 #define _GAMS_UTILITY_COORDINATE_H_
 
-#include "gams/GAMSExport.h"
-#include <string>
-#include <cfloat>
-#include <utility>
-#include <gams/CPP11_compat.h>
-
-#define INVAL_COORD DBL_MAX
+#include <gams/pose/Coordinate.h>
 
 namespace gams
 {
   namespace utility
   {
-    class ReferenceFrame;
-
     namespace order
     {
       /**
@@ -78,84 +70,7 @@ namespace gams
        * with readable names.
        **/
       template<int i0_, int i1_, int i2_>
-      class Order
-      {
-      public:
-        static const int i0 = i0_;
-        static const int i1 = i1_;
-        static const int i2 = i2_;
-
-        constexpr static int get(int i)
-        {
-//#ifdef MSC_VER
-          // Visual Studio chokes on the partial specializations of get_ below,
-          // so use another approach. Should be just as efficient with C++11,
-          // but possibly less efficient under C++03 (relies on smarter
-          // optimization by the compiler for same efficiency).
-          return (i == 0 ? i0_:
-                 (i == 1 ? i1_:
-                 (i == 2 ? i2_: -1 )));
-//#else
-          //return get_<i>::value;
-//#endif
-        }
-
-        constexpr static int find(int i)
-        {
-//#ifdef MSC_VER
-          return (i == i0_ ? 0:
-                 (i == i1_ ? 1:
-                 (i == i2_ ? 2: -1 )));
-//#else
-          //return find_<i>::value;
-//#endif
-        }
-
-#if 0
-      protected:
-        template<int i, bool = true>
-        struct get_;
-
-        template<bool dummy>
-        struct get_<0, dummy>
-        {
-          static const int value = i0_;
-        };
-
-        template<bool dummy>
-        struct get_<1, dummy>
-        {
-          static const int value = i1_;
-        };
-
-        template<bool dummy>
-        struct get_<2, dummy>
-        {
-          static const int value = i2_;
-        };
-
-        template<int i, bool = true>
-        struct find_;
-
-        template<bool dummy>
-        struct find_<i0_, dummy>
-        {
-          static const int value = 0;
-        };
-
-        template<bool dummy>
-        struct find_<i1_, dummy>
-        {
-          static const int value = 1;
-        };
-
-        template<bool dummy>
-        struct find_<i2_, dummy>
-        {
-          static const int value = 2;
-        };
-#endif
-      };
+      using Order = gams::pose::order::Order<i0_, i1_, i2_>;
 
       static const int X = 0;
       static const int Lng = X;
@@ -200,20 +115,7 @@ namespace gams
      * Allows all specializations of Coordinate to share the same default frame.
      * This type serves no other purpose.
      **/
-    class CoordinateBase
-    {
-    public:
-      /**
-       * Retrieves the default frame that Coordinates (Pose, Location, Orientation)
-       * that don't specify a frame will use.
-       *
-       * @return a reference to a CartesianFrame object that serves as default
-       **/
-      GAMSExport static const ReferenceFrame &default_frame();
-
-    private:
-      GAMSExport static const ReferenceFrame *default_frame_;
-    };
+    using CoordinateBase = gams::pose::CoordinateBase;
 
     /**
      * New coordinate types which are frame-dependant can inherit from this
@@ -240,233 +142,8 @@ namespace gams
      *      and add transformation logic for those methods in the various frames
      **/
     template<typename CoordType>
-    class Coordinate : public CoordinateBase
-    {
-    public:
-      /**
-       * Default Constructor. Initializes frame as default_frame()
-       **/
-      Coordinate();
-
-      /**
-       * Construct through a reference to a frame object. This Coordinate must
-       * not outlive the ReferenceFrame that is passed in.
-       *
-       * @param frame the reference frame this Coordinate will belong to
-       **/
-      constexpr explicit Coordinate(const ReferenceFrame &frame);
-
-      /**
-       * Construct through a pointer to a frame object. This Coordinate must not
-       * outlive the ReferenceFrame that is passed in.
-       *
-       * @param frame the reference frame this Coordinate will belong to
-       **/
-      constexpr explicit Coordinate(const ReferenceFrame *frame);
-
-      /**
-       * Getter for the reference frame this Coordinate belongs to.
-       *
-       * @return the frame
-       **/
-      constexpr const ReferenceFrame &frame() const;
-
-      /**
-       * Setter for the reference frame this Coordinate belongs to. Any further
-       * calculations using this Coordinate will use this frame.
-       *
-       * Not thread-safe.
-       *
-       * @param new_frame the frame the Coordinate will now belong to
-       * @return the old frame
-       **/
-      const ReferenceFrame &frame(const ReferenceFrame &new_frame);
-
-      /**
-       * Evaluate equality with the other Coordinate
-       *
-       * Note: in practice, the approximately_equal method may be more useful
-       *
-       * @param rhs the other Coordinate
-       * @return true if the two coordinates are in the same reference frame,
-       *  and they have the same values
-       **/
-      bool operator==(const CoordType &rhs) const;
-
-      /**
-       * Evaluate inequality with the other Coordinate.
-       *
-       * Note: in practice, a negated call to the approximately_equal method
-       * may be more useful
-       *
-       * @param rhs the other Coordinate
-       * @return false if the two coordinates are in the same reference frame,
-       *  and they have the same values
-       **/
-      bool operator!=(const CoordType &rhs) const;
-
-      /**
-       * Tests if this Coordinate is within epsilon in distance (as defined by
-       * this Coordinate's reference frame's distance metric). If the other
-       * Coordinate is in a different reference frame, it is first copied, and
-       * converted to this Coordinate's reference frame.
-       *
-       * @param other the other Coordinate to test against
-       * @param epsilon the maximum distance permitted to return true
-       * @return true if the distance is less than or equal to  epsilon
-       **/
-      bool approximately_equal(const CoordType &other, double epsilon) const;
-
-      /**
-       * Less than used for ordering in stl containers
-       * @param rhs   comparing position
-       * @return true if *this is less than rhs
-       **/
-      bool operator<(const Coordinate<CoordType> &rhs) const;
-
-      /**
-       * Outputs this Coordinates values to the referenced container. This
-       * container type must support operator[] for setting by index.
-       *
-       * If the array's size is smaller than the cardinality of this
-       * coordinate type, the behavior is undefined. If it is larger, the
-       * extra elements are not changed.
-       *
-       * The MADARA DoubleVector and NativeDoubleVector types are supported.
-       *
-       * @tparam ContainType the type of the container; must support "set"
-       * @param out the container to put this Coordinate's values into.
-       **/
-      template<typename ContainType>
-      void to_array(ContainType &out) const;
-
-      /**
-       * Overwrites this Coordinate's values with those pulled from the
-       * referenced array. These values will be within this object's
-       * current reference frame. The container must support operator[],
-       *
-       * If the array's size is smaller than the cardinality of this
-       * coordinate type, the behavior is undefined. If it is larger, the
-       * extra elements are ignored.
-       *
-       * @tparam ContainType the type of the container; must support operator[]
-       * @param in the container to pull new values from.
-       **/
-      template<typename ContainType>
-      void from_array(const ContainType &in);
-
-      /**
-       * Compares coordinates values to those in the container. The container
-       * must support operator[], returning a numerical type. The values in
-       * the container are assumed to lie in the same reference frame as those
-       * of this coordinate
-       *
-       * @tparam ContainType the type of the container; must support operator[]
-       * @return returns true if this coordinates values match those in the
-       *         container, respectively. If this container is smaller than the
-       *         cardinality of this coordinate type, behavior is undefined.
-       *         If it is greater, the extra values are ignored.
-       **/
-      template<typename ContainType>
-      bool operator==(const ContainType &container) const;
-
-      /**
-       * Compares coordinates values to those in the container. The container
-       * must support operator[], returning a numerical type. The values in
-       * the container are assumed to lie in the same reference frame as those
-       * of this coordinate
-       *
-       * @tparam ContainType the type of the container; must support operator[]
-       * @return returns false if this coordinates values match those in the
-       *         container, respectively. If this container is smaller than the
-       *         cardinality of this coordinate type, behavior is undefined.
-       *         If it is greater, the extra values are ignored.
-       **/
-      template<typename ContainType>
-      bool operator!=(const ContainType &container) const;
-
-      /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-       * The four methods below are defined in ReferenceFrame.inl,
-       * due to circular dependencies
-       * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-      /**
-       * Copy and transform this coordinate to a new reference frame
-	   *
-	   * Requres "ReferenceFrame.h"
-       *
-       * @param new_frame the frame to transform to
-       * @return the new coordinate in the new frame
-       *
-       * @throws bad_coord_type thrown if the new reference frame does
-       *      not support CoordType.
-       * @throws unrelated_frames thrown if the new reference frame is not
-       *      part of the same tree as the current one.
-       * @throws undefined_transform thrown if no conversion between two frames
-       *      along the conversion path has been defined.
-       **/
-      CoordType WARN_UNUSED transform_to(const ReferenceFrame &new_frame)const;
-
-      /**
-       * Transform this coordinate, in place, to a new reference frame
-	   *
-	   * Requres "ReferenceFrame.h"
-       *
-       * @param new_frame the frame to transform to
-       *
-       * @throws bad_coord_type thrown if the new reference frame does
-       *      not support CoordType.
-       * @throws unrelated_frames thrown if the new reference frame is not
-       *      part of the same tree as the current one.
-       * @throws undefined_transform thrown if no conversion between two frames
-       *      along the conversion path has been defined.
-       **/
-      void transform_this_to(const ReferenceFrame &new_frame);
-
-      /**
-       * Calculate distance from this Coordinate to a target. If the target
-       * is in another reference frame, this and the target will be copied, and
-       * converted to their closest common frame.
-	   *
-	   * Requres "ReferenceFrame.h"
-       *
-       * @param target the target Coordinate to calculate distance to
-       * @return the distance according to the distance metric in the common
-       *   frame, for CoordType. Typically, return will be meters or degrees.
-       *
-       * @throws bad_coord_type thrown if a frame along the conversion path
-       *      does not support CoordType.
-       * @throws unrelated_frames thrown if the target's reference frame is not
-       *      part of the same tree as the current one.
-       * @throws undefined_transform thrown if no conversion between two frames
-       *      along the conversion path has been defined.
-       **/
-      double distance_to(const CoordType &target) const;
-
-      /**
-       * Reduces this Coordinate to it's normalized form, should one exist.
-       * Typically useful for Coordinate types which incorporate angles.
-	   *
-	   * Requres "ReferenceFrame.h"
-       **/
-      void normalize();
-
-    private:
-      const ReferenceFrame *frame_;
-
-      CoordType &as_coord_type();
-
-      constexpr const CoordType &as_coord_type() const;
-
-      template<typename Type>
-      Type &as_type();
-
-      template<typename Type>
-      constexpr const Type &as_type() const;
-    };
+    using Coordinate = gams::pose::Coordinate<CoordType>;
   }
 }
-
-#include "Coordinate.inl"
 
 #endif

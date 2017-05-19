@@ -55,7 +55,7 @@
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     const double GPSFrame::EARTH_RADIUS = 6371000.0;
     const double GPSFrame::MOON_RADIUS  = 1737100.0;

@@ -54,41 +54,20 @@
 #ifndef _GAMS_UTILITY_ANGLE_UNITS_H_
 #define _GAMS_UTILITY_ANGLE_UNITS_H_
 
-#include "Orientation.h"
+#include <gams/pose/AngleUnits.h>
 
 namespace gams
 {
   namespace utility
   {
-    namespace detail
-    {
-      struct radians_t
-      {
-        double to_radians(double in) { return in; }
-        double from_radians(double in) { return in; }
-      };
-
-      struct degrees_t
-      {
-        double to_radians(double in) { return DEG_TO_RAD(in); }
-        double from_radians(double in) { return RAD_TO_DEG(in); }
-      };
-
-      struct revolutions_t
-      {
-        double to_radians(double in) { return in * 2 * M_PI; }
-        double from_radians(double in) { return in / (2 * M_PI); }
-      };
-    } // namespace detail
-
     /// Radians unit flag; see Euler constructor
-    static const detail::radians_t radians;
+    static const gams::pose::detail::radians_t radians;
 
     /// Degres unit flag; see Euler constructor
-    static const detail::degrees_t degrees;
+    static const gams::pose::detail::degrees_t degrees;
 
     /// Revolutions (i.e., 1 == 360 degrees) unit flag; see Euler constructor
-    static const detail::revolutions_t revolutions;
+    static const gams::pose::detail::revolutions_t revolutions;
   }
 }
 

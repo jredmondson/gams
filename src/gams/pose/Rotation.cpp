@@ -45,16 +45,16 @@
  **/
 
 /**
- * @file Pose.cpp
+ * @file Rotation.cpp
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains functions for the Pose class
+ * This file contains functions for the Rotation class
  **/
 
-#include "Pose.h"
+#include "Rotation.h"
 #include "ReferenceFrame.h"
 
-void gams::utility::Pose::to_container (
+void gams::pose::Rotation::to_container (
   madara::knowledge::containers::NativeDoubleVector &container) const
 {
   if (frame ().name () == "GPS")
@@ -72,66 +72,20 @@ void gams::utility::Pose::to_container (
 }
 
 
-void gams::utility::Pose::from_container (
+void gams::pose::Rotation::from_container (
   const madara::knowledge::containers::NativeDoubleVector &container)
 {
   if (frame ().name () == "GPS")
   {
     set (0, container[order::GPS::get (0)]);
     set (1, container[order::GPS::get (1)]);
+    set (2, container[order::GPS::get (2)]);
   }
   else
   {
     set (0, container[order::XYZ::get (0)]);
     set (1, container[order::XYZ::get (1)]);
-  }
-
-  for (int i = 2; i < container.size (); ++i)
-  {
-    set (i, container[i]);
-  }
-
-  if (container.size () <= 3)
-  {
-    if (container.size () == 2)
-    {
-      set (2, 0);
-    }
-
-    set (3, 0);
-    set (4, 0);
-    set (5, 0);
+    set (2, container[order::XYZ::get (2)]);
   }
 }
 
-void gams::utility::Pose::from_container (
-  const std::vector <double> &container)
-{
-  if (frame ().name () == "GPS")
-  {
-    set (0, container[order::GPS::get (0)]);
-    set (1, container[order::GPS::get (1)]);
-  }
-  else
-  {
-    set (0, container[order::XYZ::get (0)]);
-    set (1, container[order::XYZ::get (1)]);
-  }
-
-  for (int i = 2; i < container.size (); ++i)
-  {
-    set (i, container[i]);
-  }
-
-  if (container.size () <= 3)
-  {
-    if (container.size () == 2)
-    {
-      set (2, 0);
-    }
-
-    set (3, 0);
-    set (4, 0);
-    set (5, 0);
-  }
-}

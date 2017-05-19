@@ -45,127 +45,127 @@
  **/
 
 /**
- * @file Location.inl
+ * @file Position.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the inline functions for the Location class
+ * This file contains the inline functions for the Position class
  **/
 
-#ifndef _GAMS_UTILITY_LOCATION_INL_
-#define _GAMS_UTILITY_LOCATION_INL_
+#ifndef _GAMS_POSE_POSITION_INL_
+#define _GAMS_POSE_POSITION_INL_
 
-#include "Location.h"
+#include "Position.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
-    inline constexpr LocationVector::LocationVector(
+    inline constexpr PositionVector::PositionVector(
                             double x, double y, double z)
       : x_(x), y_(y), z_(z) {}
 
-    inline constexpr LocationVector::LocationVector()
+    inline constexpr PositionVector::PositionVector()
       : x_(0), y_(0), z_(0) {}
 
-    inline LocationVector::LocationVector(const double array[])
+    inline PositionVector::PositionVector(const double array[])
       : x_(array[0]), y_(array[1]), z_(array[2]) {}
 
-    inline LocationVector::LocationVector(const float array[])
+    inline PositionVector::PositionVector(const float array[])
       : x_(array[0]), y_(array[1]), z_(array[2]) {}
 
-    inline LocationVector::LocationVector(
+    inline PositionVector::PositionVector(
         const madara::knowledge::containers::DoubleVector &vec)
       : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
 
-    inline LocationVector::LocationVector(
+    inline PositionVector::PositionVector(
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
 
-    inline constexpr bool LocationVector::is_set() const
+    inline constexpr bool PositionVector::is_set() const
     {
       return x_ != INVAL_COORD || y_ != INVAL_COORD || z_ != INVAL_COORD;
     }
 
     inline constexpr bool
-        LocationVector::operator==(const LocationVector &other) const
+        PositionVector::operator==(const PositionVector &other) const
     {
       return x_ == other.x_ && y_ == other.y_ && z_ == other.z_;
     }
 
-    inline constexpr bool LocationVector::is_zero() const
+    inline constexpr bool PositionVector::is_zero() const
     {
       return x_ == 0 && y_ == 0 && z_ == 0;
     }
 
-    inline std::string LocationVector::name()
+    inline std::string PositionVector::name()
     {
-      return "Location";
+      return "Position";
     }
 
-    inline constexpr double LocationVector::x() const { return x_; }
-    inline constexpr double LocationVector::y() const { return y_; }
-    inline constexpr double LocationVector::z() const { return z_; }
+    inline constexpr double PositionVector::x() const { return x_; }
+    inline constexpr double PositionVector::y() const { return y_; }
+    inline constexpr double PositionVector::z() const { return z_; }
 
-    inline double LocationVector::x(double new_x) { return x_ = new_x; }
-    inline double LocationVector::y(double new_y) { return y_ = new_y; }
-    inline double LocationVector::z(double new_z) { return z_ = new_z; }
+    inline double PositionVector::x(double new_x) { return x_ = new_x; }
+    inline double PositionVector::y(double new_y) { return y_ = new_y; }
+    inline double PositionVector::z(double new_z) { return z_ = new_z; }
 
-    inline constexpr double LocationVector::lng() const { return x_; }
-    inline constexpr double LocationVector::lat() const { return y_; }
-    inline constexpr double LocationVector::alt() const { return z_; }
+    inline constexpr double PositionVector::lng() const { return x_; }
+    inline constexpr double PositionVector::lat() const { return y_; }
+    inline constexpr double PositionVector::alt() const { return z_; }
 
-    inline double LocationVector::lng(double new_x) { return x_ = new_x; }
-    inline double LocationVector::lat(double new_y) { return y_ = new_y; }
-    inline double LocationVector::alt(double new_z) { return z_ = new_z; }
+    inline double PositionVector::lng(double new_x) { return x_ = new_x; }
+    inline double PositionVector::lat(double new_y) { return y_ = new_y; }
+    inline double PositionVector::alt(double new_z) { return z_ = new_z; }
 
-    inline constexpr double LocationVector::rho() const { return x_; }
-    inline constexpr double LocationVector::theta() const { return x_; }
-    inline constexpr double LocationVector::phi() const { return y_; }
-    inline constexpr double LocationVector::r() const { return z_; }
+    inline constexpr double PositionVector::rho() const { return x_; }
+    inline constexpr double PositionVector::theta() const { return x_; }
+    inline constexpr double PositionVector::phi() const { return y_; }
+    inline constexpr double PositionVector::r() const { return z_; }
 
-    inline double LocationVector::rho(double new_x) { return x_ = new_x; }
-    inline double LocationVector::theta(double new_x) { return x_ = new_x; }
-    inline double LocationVector::phi(double new_y) { return y_ = new_y; }
-    inline double LocationVector::r(double new_z) { return z_ = new_z; }
+    inline double PositionVector::rho(double new_x) { return x_ = new_x; }
+    inline double PositionVector::theta(double new_x) { return x_ = new_x; }
+    inline double PositionVector::phi(double new_y) { return y_ = new_y; }
+    inline double PositionVector::r(double new_z) { return z_ = new_z; }
 
-    inline constexpr int LocationVector::size()
+    inline constexpr int PositionVector::size()
     {
       return 3;
     }
 
-    inline constexpr double LocationVector::get(int i) const
+    inline constexpr double PositionVector::get(int i) const
     {
       return i == 0 ? x() :
              i == 1 ? y() :
              i == 2 ? z() :
-             throw std::range_error("Index out of bounds for Location");
+             throw std::range_error("Index out of bounds for Position");
     }
 
-    inline double LocationVector::set(int i, double val)
+    inline double PositionVector::set(int i, double val)
     {
       return i == 0 ? x(val) :
              i == 1 ? y(val) :
              i == 2 ? z(val) :
-             throw std::range_error("Index out of bounds for Location");
+             throw std::range_error("Index out of bounds for Position");
     }
 
-    inline LocationVector &LocationVector::as_vec()
+    inline PositionVector &PositionVector::as_vec()
     {
       return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const LocationVector &LocationVector::as_vec() const
+    inline constexpr const PositionVector &PositionVector::as_vec() const
     {
       return static_cast<const BaseType &>(*this);
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const LocationVector &loc)
+    inline std::ostream &operator<<(std::ostream &o, const PositionVector &loc)
     {
       o << "(" << loc.x() << "," << loc.y() << "," << loc.z() << ")";
       return o;
     }
 
-    inline std::string Location::to_string (const std::string & delimiter,
+    inline std::string Position::to_string (const std::string & delimiter,
       const std::string & unset_identifier) const
     {
       std::stringstream buffer;
@@ -192,58 +192,58 @@ namespace gams
       return buffer.str ();
     }
 
-    inline Location::Location(double x, double y, double z)
-      : LocationVector(x, y, z), Coordinate() {}
+    inline Position::Position(double x, double y, double z)
+      : PositionVector(x, y, z), Coordinate() {}
 
-    inline constexpr Location::Location(const ReferenceFrame &frame,
+    inline constexpr Position::Position(const ReferenceFrame &frame,
                        double x, double y, double z)
-      : LocationVector(x, y, z), Coordinate(frame) {}
+      : PositionVector(x, y, z), Coordinate(frame) {}
 
-    inline Location::Location() : LocationVector(), Coordinate() {}
+    inline Position::Position() : PositionVector(), Coordinate() {}
 
-    inline Location::Location(const ReferenceFrame &frame)
-      : LocationVector(), Coordinate(frame) {}
+    inline Position::Position(const ReferenceFrame &frame)
+      : PositionVector(), Coordinate(frame) {}
 
-    inline Location::Location(const ReferenceFrame &new_frame,
-                              const Location &orig)
-      : LocationVector(orig), Coordinate(orig.frame())
+    inline Position::Position(const ReferenceFrame &new_frame,
+                              const Position &orig)
+      : PositionVector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);
     }
 
-    inline Location::Location (const Location & rhs)
-      : LocationVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate (rhs.frame ())
+    inline Position::Position (const Position & rhs)
+      : PositionVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate (rhs.frame ())
     {
     }
 
-    inline Location::Location(const double array[])
-      : LocationVector(array), Coordinate() {}
+    inline Position::Position(const double array[])
+      : PositionVector(array), Coordinate() {}
 
-    inline Location::Location(const ReferenceFrame &frame, const double array[])
-      : LocationVector(array), Coordinate(frame) {}
+    inline Position::Position(const ReferenceFrame &frame, const double array[])
+      : PositionVector(array), Coordinate(frame) {}
 
-    inline Location::Location(const float array[])
-      : LocationVector(array), Coordinate() {}
+    inline Position::Position(const float array[])
+      : PositionVector(array), Coordinate() {}
 
-    inline Location::Location(const ReferenceFrame &frame, const float array[])
-      : LocationVector(array), Coordinate(frame) {}
+    inline Position::Position(const ReferenceFrame &frame, const float array[])
+      : PositionVector(array), Coordinate(frame) {}
 
-    inline Location::Location(
+    inline Position::Position(
         const madara::knowledge::containers::DoubleVector &vec)
-      : LocationVector(vec), Coordinate() {}
+      : PositionVector(vec), Coordinate() {}
 
-    inline Location::Location(const ReferenceFrame &frame,
+    inline Position::Position(const ReferenceFrame &frame,
         const madara::knowledge::containers::DoubleVector &vec)
-      : LocationVector(vec), Coordinate(frame) {}
+      : PositionVector(vec), Coordinate(frame) {}
 
-    inline Location::Location(
+    inline Position::Position(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : LocationVector(vec), Coordinate() {}
+      : PositionVector(vec), Coordinate() {}
 
-    inline Location::Location(
+    inline Position::Position(
         const ReferenceFrame &frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : LocationVector(vec), Coordinate(frame) {}
+      : PositionVector(vec), Coordinate(frame) {}
 
   }
 }

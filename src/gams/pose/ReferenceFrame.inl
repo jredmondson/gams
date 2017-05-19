@@ -51,16 +51,16 @@
  * This file contains the base reference frame class's inline functions
  **/
 
-#ifndef _GAMS_UTILITY_REFERENCE_FRAME_INL_
-#define _GAMS_UTILITY_REFERENCE_FRAME_INL_
+#ifndef _GAMS_POSE_REFERENCE_FRAME_INL_
+#define _GAMS_POSE_REFERENCE_FRAME_INL_
 
 #include "ReferenceFrame.h"
 
-#include <gams/utility/Pose.h>
+#include <gams/pose/Pose.h>
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
 #ifdef CPP11
     inline ReferenceFrame::ReferenceFrame()
@@ -350,13 +350,13 @@ namespace gams
     }
 
     template<>
-    inline void ReferenceFrame::transform_to_origin<>(Location &in)
+    inline void ReferenceFrame::transform_to_origin<>(Position &in)
     {
       in.frame().transform_location_to_origin(in.x_, in.y_, in.z_);
     }
 
     template<>
-    inline void ReferenceFrame::transform_to_origin<>(Orientation &in)
+    inline void ReferenceFrame::transform_to_origin<>(Rotation &in)
     {
       in.frame().transform_orientation_to_origin(in.rx_, in.ry_, in.rz_);
     }
@@ -370,14 +370,14 @@ namespace gams
 
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
-        Location &in, const ReferenceFrame &to_frame)
+        Position &in, const ReferenceFrame &to_frame)
     {
       to_frame.transform_location_from_origin(in.x_, in.y_, in.z_);
     }
 
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
-        Orientation &in, const ReferenceFrame &to_frame)
+        Rotation &in, const ReferenceFrame &to_frame)
     {
       to_frame.transform_orientation_from_origin(in.rx_, in.ry_, in.rz_);
     }
@@ -392,7 +392,7 @@ namespace gams
 
     template<>
     inline double ReferenceFrame::calc_difference<>(
-        const Location &loc1, const Location &loc2)
+        const Position &loc1, const Position &loc2)
     {
       return loc1.frame().calc_distance(loc1.x_, loc1.y_, loc1.z_,
                                         loc2.x_, loc2.y_, loc2.z_);
@@ -400,7 +400,7 @@ namespace gams
 
     template<>
     inline double ReferenceFrame::calc_difference<>(
-        const Orientation &rot1, const Orientation &rot2)
+        const Rotation &rot1, const Rotation &rot2)
     {
       return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
                                      rot2.rx_, rot2.ry_, rot2.rz_);
@@ -434,13 +434,13 @@ namespace gams
     }
 
     template<>
-    inline void ReferenceFrame::normalize<>(Location &loc)
+    inline void ReferenceFrame::normalize<>(Position &loc)
     {
       loc.frame().normalize_location(loc.x_, loc.y_, loc.z_);
     }
 
     template<>
-    inline void ReferenceFrame::normalize<>(Orientation &rot)
+    inline void ReferenceFrame::normalize<>(Rotation &rot)
     {
       rot.frame().normalize_orientation(rot.rx_, rot.ry_, rot.rz_);
     }
@@ -487,15 +487,15 @@ namespace gams
 
 #endif // ifndef __INTELLISENSE__
 
-    inline std::ostream &operator<<(std::ostream &o, const Location &loc)
+    inline std::ostream &operator<<(std::ostream &o, const Position &loc)
     {
-      o << loc.frame().name() << "Location" << loc.as_vec();
+      o << loc.frame().name() << "Position" << loc.as_vec();
       return o;
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
+    inline std::ostream &operator<<(std::ostream &o, const Rotation &rot)
     {
-      o << rot.frame().name() << "Orientation" << rot.as_vec();
+      o << rot.frame().name() << "Rotation" << rot.as_vec();
       return o;
     }
 

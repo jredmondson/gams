@@ -45,46 +45,46 @@
  **/
 
 /**
- * @file GPSFrame.h
+ * @file CartesianFrame.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the base reference Frame class
  **/
 
-#ifndef _GAMS_UTILITY_GPS_FRAME_H_
-#define _GAMS_UTILITY_GPS_FRAME_H_
+#ifndef _GAMS_POSE_CARTESIAN_FRAME_INL_
+#define _GAMS_POSE_CARTESIAN_FRAME_INL_
 
-#include <gams/pose/GPSFrame.h>
+#include "ReferenceFrame.h"
+
+#include "CartesianFrame.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
-    /**
-     * Locations represented as GPS coordinates, and an altitude,
-     * assuming a spherical planet (by default, Earth):
-     *    x is Latitude
-     *    y is Longitude
-     *    z is Altitude (above assumed perfectly spherical surface)
-     * Orientations represented in Axis Angle notation
-     *    Axis rx points towards north pole
-     *    Axis ry points west at current location
-     *    Axis rz points upwards (i.e, normal vector)
-     *
-     * Note that under this scheme, change in x and/or y position, while
-     *   maintaining the same orientation angles, implies a orientation relative
-     *   to the planet.
-     *
-     * Distances at same altitude calculated as distance along great circle of
-     * sphere of radius planet_radius plus altitude. If altitude differs,
-     * great circle distance first calculated using lower of two altitudes,
-     * then distance calculated as follows:
-     *    distance = sqrt(circle_distance ^ 2 + altitude_difference ^ 2)
-     *
-     * This frame can have cartesian frames embedded within it, but cannot
-     * be embedded within any other frames at this time.
-     **/
-    typedef gams::pose::GPSFrame GPSFrame;
+    inline CartesianFrame::CartesianFrame() : SimpleRotateFrame() {}
+
+    inline CartesianFrame::CartesianFrame(const Pose &origin)
+              : SimpleRotateFrame(origin) {}
+
+    inline CartesianFrame::CartesianFrame(Pose *origin)
+              : SimpleRotateFrame(origin) {}
+
+    inline std::string CartesianFrame::get_name() const
+    {
+      return "Cartesian";
+    }
+
+    inline double CartesianFrame::calc_distance(
+                      double x1, double y1, double z1,
+                      double x2, double y2, double z2) const
+    {
+      double x_dist = x2 - x1;
+      double y_dist = y2 - y1;
+      double z_dist = z2 - z2;
+
+      return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
+    }
   }
 }
 

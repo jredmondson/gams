@@ -51,8 +51,8 @@
  * This file contains inline functions of the Euler class
  **/
 
-#ifndef _GAMS_UTILITY_EULER_INL_
-#define _GAMS_UTILITY_EULER_INL_
+#ifndef _GAMS_POSE_EULER_INL_
+#define _GAMS_POSE_EULER_INL_
 
 #include <iostream>
 #include <cmath>
@@ -60,7 +60,7 @@
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     namespace euler
     {
@@ -92,7 +92,7 @@ namespace gams
       }
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Euler<A,B,C,Conv>::Euler(const OrientationVector &r)
+      inline Euler<A,B,C,Conv>::Euler(const RotationVector &r)
       {
         Quaternion quat(r);
         set_from_quat(quat);
@@ -108,16 +108,16 @@ namespace gams
       };
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Orientation Euler<A,B,C,Conv>::to_orientation() const
+      inline Rotation Euler<A,B,C,Conv>::to_orientation() const
       {
-        return Orientation(to_quat());
+        return Rotation(to_quat());
       };
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Orientation
+      inline Rotation
       Euler<A,B,C,Conv>::to_orientation(const ReferenceFrame &frame) const
       {
-        return Orientation(frame, to_quat());
+        return Rotation(frame, to_quat());
       };
 
       template<typename A, typename B, typename C, typename Conv>

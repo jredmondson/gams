@@ -3,26 +3,26 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * 
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following acknowledgments and disclaimers.
- *
+ * 
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- *
+ * 
  * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
- *
+ * 
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  *    appear in their names without prior written permission of
  *    permission@sei.cmu.edu.
- *
+ * 
  * 5. Redistributions of any form whatsoever must retain the following
  *    acknowledgment:
- *
+ * 
  *      This material is based upon work funded and supported by the Department
  *      of Defense under Contract No. FA8721-05-C-0003 with Carnegie Mellon
  *      University for the operation of the Software Engineering Institute, a
@@ -30,7 +30,7 @@
  *      findings and conclusions or recommendations expressed in this material
  *      are those of the author(s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
- *
+ * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
@@ -39,53 +39,57 @@
  *      OBTAINED FROM USE OF THE MATERIAL. CARNEGIE MELLON UNIVERSITY DOES
  *      NOT MAKE ANY WARRANTY OF ANY KIND WITH RESPECT TO FREEDOM FROM PATENT,
  *      TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- *
+ * 
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
 
 /**
- * @file Location.cpp
+ * @file AngleUnits.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains functions for the Location class
+ * Angle units for specifying argument types
  **/
 
-#include "Location.h"
-#include "ReferenceFrame.h"
+#ifndef _GAMS_POSE_ANGLE_UNITS_H_
+#define _GAMS_POSE_ANGLE_UNITS_H_
 
-void gams::utility::Location::to_container (
-  madara::knowledge::containers::NativeDoubleVector &container) const
+#include "Rotation.h"
+
+namespace gams
 {
-  if (frame ().name () == "GPS")
+  namespace pose
   {
-    container.set (0, get (order::GPS::find (0)));
-    container.set (1, get (order::GPS::find (1)));
-    container.set (2, get (order::GPS::find (2)));
-  }
-  else
-  {
-    container.set (0, get (order::XYZ::find (0)));
-    container.set (1, get (order::XYZ::find (1)));
-    container.set (2, get (order::XYZ::find (2)));
+    namespace detail
+    {
+      struct radians_t
+      {
+        double to_radians(double in) { return in; }
+        double from_radians(double in) { return in; }
+      };
+
+      struct degrees_t
+      {
+        double to_radians(double in) { return DEG_TO_RAD(in); }
+        double from_radians(double in) { return RAD_TO_DEG(in); }
+      };
+
+      struct revolutions_t
+      {
+        double to_radians(double in) { return in * 2 * M_PI; }
+        double from_radians(double in) { return in / (2 * M_PI); }
+      };
+    } // namespace detail
+
+    /// Radians unit flag; see Euler constructor
+    static const detail::radians_t radians;
+
+    /// Degres unit flag; see Euler constructor
+    static const detail::degrees_t degrees;
+
+    /// Revolutions (i.e., 1 == 360 degrees) unit flag; see Euler constructor
+    static const detail::revolutions_t revolutions;
   }
 }
 
-
-void gams::utility::Location::from_container (
-  const madara::knowledge::containers::NativeDoubleVector &container)
-{
-  if (frame ().name () == "GPS")
-  {
-    set (0, container[order::GPS::get (0)]);
-    set (1, container[order::GPS::get (1)]);
-    set (2, container[order::GPS::get (2)]);
-  }
-  else
-  {
-    set (0, container[order::XYZ::get (0)]);
-    set (1, container[order::XYZ::get (1)]);
-    set (2, container[order::XYZ::get (2)]);
-  }
-}
-
+#endif

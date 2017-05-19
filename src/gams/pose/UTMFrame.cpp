@@ -59,7 +59,7 @@
 
 #include <GeographicLib/UTMUPS.hpp>
 
-using namespace gams::utility;
+using namespace gams::pose;
 
 using namespace GeographicLib;
 
@@ -193,8 +193,8 @@ double UTMFrame::calc_distance(
   }
   GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
   {
-    Location l1(*this, x1, y1, z1);
-    Location l2(*this, x2, y2, z2);
+    Position l1(*this, x1, y1, z1);
+    Position l2(*this, x2, y2, z2);
 
     l1.transform_this_to(*frame);
     l2.transform_this_to(*frame);
@@ -211,7 +211,7 @@ void UTMFrame::do_normalize_location(
   {
     if(zone_ < 0)
     {
-      Location loc(*this, x, y, 0);
+      Position loc(*this, x, y, 0);
       loc.transform_this_to(*frame);
       loc.transform_this_to(*this);
       if(loc.zone() != to_zone(x) || loc.hemi() != to_hemi(y))

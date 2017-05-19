@@ -51,17 +51,17 @@
  * This file contains inline function definitions for Quaternion
  **/
 
-#ifndef _GAMS_UTILITY_QUATERNION_INL_
-#define _GAMS_UTILITY_QUATERNION_INL_
+#ifndef _GAMS_POSE_QUATERNION_INL_
+#define _GAMS_POSE_QUATERNION_INL_
 
-#include <gams/utility/Orientation.h>
-#include <gams/utility/Location.h>
+#include <gams/pose/Rotation.h>
+#include <gams/pose/Position.h>
 
 #include "Quaternion.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     inline constexpr Quaternion::Quaternion(
               double x, double y, double z, double w)
@@ -72,12 +72,12 @@ namespace gams
       from_orientation_vector(rx, ry, rz);
     }
 
-    inline Quaternion::Quaternion(const OrientationVector &rot)
+    inline Quaternion::Quaternion(const RotationVector &rot)
     {
       from_orientation_vector(rot);
     }
 
-    inline Quaternion::Quaternion(const LocationVector &loc)
+    inline Quaternion::Quaternion(const PositionVector &loc)
     {
       from_location_vector(loc);
     }
@@ -90,7 +90,7 @@ namespace gams
       w_ = 0;
     }
 
-    inline void Quaternion::from_location_vector(const LocationVector &loc)
+    inline void Quaternion::from_location_vector(const PositionVector &loc)
     {
       from_location_vector(loc.x(), loc.y(), loc.z());
     }
@@ -103,7 +103,7 @@ namespace gams
       z = z_;
     }
 
-    inline void Quaternion::to_location_vector(LocationVector &loc) const
+    inline void Quaternion::to_location_vector(PositionVector &loc) const
     {
       to_location_vector(loc.x_, loc.y_, loc.z_);
     }
@@ -129,7 +129,7 @@ namespace gams
       }
     }
 
-    inline void Quaternion::from_orientation_vector(const OrientationVector &rot)
+    inline void Quaternion::from_orientation_vector(const RotationVector &rot)
     {
       from_orientation_vector(rot.rx(), rot.ry(), rot.rz());
     }
@@ -152,7 +152,7 @@ namespace gams
       }
     }
 
-    inline void Quaternion::to_orientation_vector(OrientationVector &rot) const
+    inline void Quaternion::to_orientation_vector(RotationVector &rot) const
     {
       to_orientation_vector(rot.rx_, rot.ry_, rot.rz_);
     }
@@ -406,7 +406,7 @@ namespace gams
       return w_ * w_ - x_* x_ - y_ * y_ + z_ * z_;
     }
 
-    inline OrientationVector::OrientationVector(const Quaternion &quat)
+    inline RotationVector::RotationVector(const Quaternion &quat)
     {
       quat.to_orientation_vector(rx_, ry_, rz_);
     }
@@ -420,15 +420,15 @@ namespace gams
       return o;
     }
 
-    inline Orientation Orientation::slerp(const Orientation &o, double t) const
+    inline Rotation Rotation::slerp(const Rotation &o, double t) const
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
-      return Orientation(q);
+      return Rotation(q);
     }
 
-    inline void Orientation::slerp_this(const Orientation &o, double t)
+    inline void Rotation::slerp_this(const Rotation &o, double t)
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));

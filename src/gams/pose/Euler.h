@@ -50,17 +50,21 @@
  *
  * This file contains the Euler class, useful for specifying angles as euler
  * angles (a sequence of orientations about specified axes). To manipulate
- * these angles, convert them to the Quaternion or Orientation classes.
+ * these angles, convert them to the Quaternion or Rotation classes.
  **/
 
-#ifndef _GAMS_UTILITY_EULER_H_
-#define _GAMS_UTILITY_EULER_H_
+#ifndef _GAMS_POSE_EULER_H_
+#define _GAMS_POSE_EULER_H_
 
-#include <gams/pose/Euler.h>
+#include <iostream>
+#include <cmath>
+#include "Rotation.h"
+#include "AngleUnits.h"
+#include "Quaternion.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     namespace euler
     {
@@ -72,19 +76,47 @@ namespace gams
        **/
       namespace conv
       {
-        typedef gams::pose::euler::conv::Intr Intr;
-        typedef gams::pose::euler::conv::Extr Extr;
-        typedef gams::pose::euler::conv::X X;
-        typedef gams::pose::euler::conv::Y Y;
-        typedef gams::pose::euler::conv::Z Z;
+        struct Intr
+        {
+          static const char *name() { return "Intr"; }
+
+          static const bool reverse = false;
+        };
+
+        struct Extr
+        {
+          static const char *name() { return "Extr"; }
+
+          /* Conversion formulas are in terms of intrinsic convention; to use
+           * them for extrinsic convention, we just need to pass the arguments
+           * in reverse order. This flag communicates this need. */
+          static const bool reverse = true;
+        };
+
+        struct X
+        {
+          static const char *name() { return "X"; }
+        };
+
+        struct Y
+        {
+          static const char *name() { return "Y"; }
+        };
+
+        struct Z
+        {
+          static const char *name() { return "Z"; }
+        };
       } // namespace conv
     }
   }
 }
 
+#include "gams/pose/EulerFormulas.inl"
+
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     namespace euler
     {
@@ -106,7 +138,7 @@ namespace gams
        * convention, you will get a compile time error.
        *
        * Avoid manipulating angles in this notation. It is better to convert to
-       * a Quaternion (or Orientation) and back, than to try to directly manipulate
+       * a Quaternion (or Rotation) and back, than to try to directly manipulate
        * a Euler angle.
        *
        * @tparam A the first axis of orientation
@@ -116,7 +148,114 @@ namespace gams
        *              (conv::Intr) orientations in this convention. Default is Intr
        **/
       template<typename A, typename B, typename C, typename Conv = conv::Intr>
-      using Euler = gams::pose::euler::Euler<A, B, C, Conv>;
+      class Euler
+      {
+      private:
+        typedef typename detail::GetTypes<A,B,C,Conv>::F F;
+        typedef typename detail::GetTypes<A,B,C,Conv>::Trig Trig;
+      public:
+        /**
+         * Default constructor. Initializes angles to all zeroes (no orientation).
+         **/
+        Euler() : a_(0), b_(0), c_(0) {}
+
+        /**
+         * Constructor from radians.
+         *
+         * @param a the orientation in radians around axis A
+         * @param b the orientation in radians around axis B
+         * @param c the orientation in radians around axis C
+         **/
+        Euler(double a, double b, double c) : a_(a), b_(b), c_(c) {}
+
+        /**
+         * Constructor from specified units.
+         *
+         * @param u the units flag (degrees, radians, or revolutions)
+         * @param a the orientation around axis A
+         * @param b the orientation around axis B
+         * @param c the orientation around axis C
+         *
+         * @tparam Unit the type of the units flag (inferred automatically)
+         **/
+        template<typename Unit>
+        Euler(double a, double b, double c, Unit u);
+
+        /**
+         * Constructor to convert from a unit Quaternion.
+         * The unit-ness of the Quaternion is not verified. If a non-unit
+         * Quaternion is passed in, behaviour is undefined.
+         *
+         * @param quat the Quaternion to convert. Must be a unit quaternion,
+         *             or behavior is undefined.
+         **/
+        explicit Euler(const Quaternion &quat);
+
+        /**
+         * Constructor to convert from a different Euler convention.
+         *
+         * @param o the other Euler object
+         **/
+        template<typename A2, typename B2, typename C2, typename Conv2>
+        explicit Euler(const Euler<A2, B2, C2, Conv2> &o);
+
+        /**
+         * Constructor to convert from a Rotation (or RotationVector)
+         *
+         * @param r the orientation
+         **/
+        explicit Euler(const RotationVector &r);
+
+        /// Getter for the first orientation angle, around axis A
+        double a() const { return a_; }
+        /// Getter for the first orientation angle, around axis B
+        double b() const { return b_; }
+        /// Getter for the first orientation angle, around axis C
+        double c() const { return c_; }
+
+        /// Setter for the first orientation angle, around axis A
+        void a(double n) { a_ = n; }
+        /// Setter for the first orientation angle, around axis B
+        void b(double n) { b_ = n; }
+        /// Setter for the first orientation angle, around axis C
+        void c(double n) { c_ = n; }
+
+        /**
+         * Convert this Euler angle to a Quaternion
+         *
+         * @return the Quaternion which represents the same angle as *this
+         **/
+        Quaternion to_quat() const;
+
+        /**
+         * Convert this Euler angle to a Rotation (axis-angle notation),
+         * within the default frame.
+         *
+         * @return the Rotation which represents the same angle as *this
+         **/
+        Rotation to_orientation() const;
+
+        /**
+         * Convert this Euler angle to a Rotation (axis-angle notation),
+         * within the specified frame.
+         *
+         * @param frame the reference frame the Rotation will belong to
+         * @return the Rotation which represents the same angle as *this
+         **/
+        Rotation to_orientation(const ReferenceFrame &frame) const;
+
+        /**
+         * Convert a Quaternion into a Euler angle.
+         *
+         * @param quat the Quaternion to convert
+         * @return a Euler angle equivalent to quat
+         **/
+        static Euler from_quat(const Quaternion &quat);
+      private:
+        double a_, b_, c_;
+
+        void set_from_quat(const Quaternion &quat);
+      };
 
       typedef Euler<conv::X, conv::Y, conv::Z>             EulerXYZ;
       typedef Euler<conv::Y, conv::X, conv::Z>             EulerYXZ;
@@ -139,8 +278,14 @@ namespace gams
 
       /** The most common vernacular usage of roll, pitch and yaw */
       typedef EulerExtrXYZ RollPitchYaw;
+
+      /** Stream operator for Euler angles */
+      template<typename A, typename B, typename C, typename Conv>
+      std::ostream &operator<<(std::ostream &o, const Euler<A, B, C, Conv> &e);
     }
   }
 }
+
+#include "Euler.inl"
 
 #endif

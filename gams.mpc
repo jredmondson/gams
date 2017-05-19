@@ -87,6 +87,10 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/platforms
     }
 
+    Pose {
+      src/gams/pose
+    }
+
     Utility {
       src/gams/utility
     }
@@ -143,6 +147,10 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
       src/gams/platforms
     }
 
+    Pose {
+      src/gams/pose
+    }
+
     Utility {
       src/gams/utility
     }
@@ -195,6 +203,10 @@ project (gams) : using_madara, using_ace, using_utm, using_dronerk, vrep_lib, ro
     
     Platforms {
       src/gams/platforms
+    }
+
+    Pose {
+      src/gams/pose
     }
 
     Utility {
