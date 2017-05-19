@@ -197,6 +197,8 @@ void print_usage (string prog_name)
   cerr << "       add transport using UDP ip (one at a time)" << endl;
   cerr << "   [-v | --vrep <ip_address> <port>]" << endl;
   cerr << "       vrep connection information" << endl;
+  cerr << "   [--zmq <proto:ip:port>" << endl;
+  cerr << "       add transport using ZeroMQ (one at a time)" << endl;
 
   exit (0);
 }
@@ -359,6 +361,18 @@ void handle_arguments (int argc, char** argv)
           sscanf (argv[i + 1], "%d", &vrep_port);
           ++i;
       }
+    }
+    else if (arg1 == "--zmq")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::ZMQ;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
     }
     else
     {

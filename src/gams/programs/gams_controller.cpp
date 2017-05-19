@@ -118,6 +118,7 @@ void print_usage (char * prog_name)
 " [-r |--reduced]               use the reduced message header\n" \
 " [-t |--target path]           file system location to save received files (NYI)\n" \
 " [-u |--udp ip:port]           a udp ip to send to (first is self to bind to)\n" \
+" [--zmq proto:ip:port]         specifies a 0MQ transport endpoint\n"
 "\n",
         prog_name);
   exit (0);
@@ -353,6 +354,18 @@ void handle_arguments (int argc, char ** argv)
       {
         settings.hosts.push_back (argv[i + 1]);
         settings.type = madara::transport::UDP;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == "--zmq")
+    {
+      if (i + 1 < argc && argv[i + 1][0] != '-')
+      {
+        settings.hosts.push_back (argv[i + 1]);
+        settings.type = madara::transport::ZMQ;
       }
       else
         print_usage (argv[0]);
