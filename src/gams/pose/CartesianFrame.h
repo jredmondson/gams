@@ -62,7 +62,7 @@ namespace gams
   {
     /**
      * Positions represented as meters distance, in x, y, and z, from an origin
-     * Rotations represented in Axis Angle notation
+     * Orientations represented in Axis Angle notation
      *
      * All conversions to/from child and parent CartesianFrames are supported.
      * Conversions to/from a parent GPSFrame are supported, except converting
@@ -97,21 +97,21 @@ namespace gams
       virtual std::string get_name() const;
 
       /**
-       * Transforms a location to origin
+       * Transforms a position to origin
        * @param x   the x coordinate
        * @param y   the y coordinate
        * @param z   the z coordinate
        **/
-      virtual void transform_location_to_origin(
+      virtual void transform_position_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
-      * Transforms a location from origin
+      * Transforms a position from origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_location_from_origin(
+      virtual void transform_position_from_origin(
                       double &x, double &y, double &z) const;
 
       /**

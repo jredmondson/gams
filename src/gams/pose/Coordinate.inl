@@ -48,7 +48,7 @@
  * @file Coordinate.inl
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Position, Rotation, and Pose classes
+ * This file contains the Position, Orientation, and Pose classes
  **/
 
 #ifndef _GAMS_POSE_COORDINATE_INL_

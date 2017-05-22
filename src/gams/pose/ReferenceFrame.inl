@@ -352,11 +352,11 @@ namespace gams
     template<>
     inline void ReferenceFrame::transform_to_origin<>(Position &in)
     {
-      in.frame().transform_location_to_origin(in.x_, in.y_, in.z_);
+      in.frame().transform_position_to_origin(in.x_, in.y_, in.z_);
     }
 
     template<>
-    inline void ReferenceFrame::transform_to_origin<>(Rotation &in)
+    inline void ReferenceFrame::transform_to_origin<>(Orientation &in)
     {
       in.frame().transform_orientation_to_origin(in.rx_, in.ry_, in.rz_);
     }
@@ -372,12 +372,12 @@ namespace gams
     inline void ReferenceFrame::transform_from_origin<>(
         Position &in, const ReferenceFrame &to_frame)
     {
-      to_frame.transform_location_from_origin(in.x_, in.y_, in.z_);
+      to_frame.transform_position_from_origin(in.x_, in.y_, in.z_);
     }
 
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
-        Rotation &in, const ReferenceFrame &to_frame)
+        Orientation &in, const ReferenceFrame &to_frame)
     {
       to_frame.transform_orientation_from_origin(in.rx_, in.ry_, in.rz_);
     }
@@ -400,7 +400,7 @@ namespace gams
 
     template<>
     inline double ReferenceFrame::calc_difference<>(
-        const Rotation &rot1, const Rotation &rot2)
+        const Orientation &rot1, const Orientation &rot2)
     {
       return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
                                      rot2.rx_, rot2.ry_, rot2.rz_);
@@ -414,10 +414,10 @@ namespace gams
                                          pose2.x_, pose2.y_, pose2.z_);
     }
 
-    inline void ReferenceFrame::normalize_location(
+    inline void ReferenceFrame::normalize_position(
                                       double &x, double &y, double &z) const
     {
-      do_normalize_location(x, y, z);
+      do_normalize_position(x, y, z);
     }
 
     inline void ReferenceFrame::normalize_orientation(
@@ -436,11 +436,11 @@ namespace gams
     template<>
     inline void ReferenceFrame::normalize<>(Position &loc)
     {
-      loc.frame().normalize_location(loc.x_, loc.y_, loc.z_);
+      loc.frame().normalize_position(loc.x_, loc.y_, loc.z_);
     }
 
     template<>
-    inline void ReferenceFrame::normalize<>(Rotation &rot)
+    inline void ReferenceFrame::normalize<>(Orientation &rot)
     {
       rot.frame().normalize_orientation(rot.rx_, rot.ry_, rot.rz_);
     }
@@ -493,9 +493,9 @@ namespace gams
       return o;
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Rotation &rot)
+    inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
     {
-      o << rot.frame().name() << "Rotation" << rot.as_vec();
+      o << rot.frame().name() << "Orientation" << rot.as_vec();
       return o;
     }
 

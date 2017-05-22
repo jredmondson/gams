@@ -54,7 +54,7 @@
 #ifndef _GAMS_POSE_ANGLE_UNITS_H_
 #define _GAMS_POSE_ANGLE_UNITS_H_
 
-#include "Rotation.h"
+#include "Orientation.h"
 
 namespace gams
 {

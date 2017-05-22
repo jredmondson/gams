@@ -53,7 +53,7 @@
 
 #include <gams/pose/ReferenceFrame.h>
 #include <gams/pose/Position.h>
-#include <gams/pose/Rotation.h>
+#include <gams/pose/Orientation.h>
 #include <gams/pose/Quaternion.h>
 
 namespace gams
@@ -90,19 +90,19 @@ namespace gams
       return nullptr;
     }
 
-    void ReferenceFrame::transform_location_to_origin(
+    void ReferenceFrame::transform_position_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Position>(*this, "transform_location_to_origin");
+      throw bad_coord_type<Position>(*this, "transform_position_to_origin");
     }
 
-    void ReferenceFrame::transform_location_from_origin(
+    void ReferenceFrame::transform_position_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Position>(*this, "transform_location_from_origin");
+      throw bad_coord_type<Position>(*this, "transform_position_from_origin");
     }
 
-    void ReferenceFrame::do_normalize_location(
+    void ReferenceFrame::do_normalize_position(
                 double &, double &, double &) const {}
 
     double ReferenceFrame::calc_distance(
@@ -114,33 +114,33 @@ namespace gams
     void ReferenceFrame::transform_orientation_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_orientation_to_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_orientation_to_origin");
     }
 
     void ReferenceFrame::transform_orientation_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_orientation_from_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_orientation_from_origin");
     }
 
     void ReferenceFrame::transform_pose_to_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_pose_to_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_pose_to_origin");
     }
 
     void ReferenceFrame::transform_pose_from_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Rotation>(*this, "transform_pose_from_origin");
+      throw bad_coord_type<Orientation>(*this, "transform_pose_from_origin");
     }
 
     double ReferenceFrame::calc_angle(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Rotation>(*this, "calc_angle");
+      throw bad_coord_type<Orientation>(*this, "calc_angle");
     }
 
     void ReferenceFrame::do_normalize_orientation(
@@ -150,13 +150,13 @@ namespace gams
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      do_normalize_location(x, y, z);
+      do_normalize_position(x, y, z);
       do_normalize_orientation(rx, ry, rz);
     }
 
-    void SimpleRotateFrame::orient_location_vec(
+    void SimpleRotateFrame::orient_position_vec(
           double &x, double &y, double &z,
-          const RotationVector &rot, bool reverse) const
+          const OrientationVector &rot, bool reverse) const
     {
       if(rot.is_zero())
         return;
@@ -168,7 +168,7 @@ namespace gams
         rotq.conjugate();
 
       locq.orient_by(rotq);
-      locq.to_location_vector(x, y, z);
+      locq.to_position_vector(x, y, z);
     }
 
     void SimpleRotateFrame::transform_orientation_to_origin(
@@ -194,7 +194,7 @@ namespace gams
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      transform_location_to_origin(x, y, z);
+      transform_position_to_origin(x, y, z);
       transform_orientation_to_origin(rx, ry, rz);
     }
 
@@ -202,7 +202,7 @@ namespace gams
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      transform_location_from_origin(x, y, z);
+      transform_position_from_origin(x, y, z);
       transform_orientation_from_origin(rx, ry, rz);
     }
 

@@ -48,7 +48,7 @@
  * @file Coordinate.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Position, Rotation, and Pose classes
+ * This file contains the Position, Orientation, and Pose classes
  **/
 
 #ifndef _GAMS_POSE_COORDINATE_H_
@@ -148,7 +148,7 @@ namespace gams
     {
     public:
       /**
-       * Retrieves the default frame that Coordinates (Pose, Position, Rotation)
+       * Retrieves the default frame that Coordinates (Pose, Position, Orientation)
        * that don't specify a frame will use.
        *
        * @return a reference to a CartesianFrame object that serves as default

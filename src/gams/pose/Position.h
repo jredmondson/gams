@@ -308,33 +308,33 @@ namespace gams
 #ifdef GAMS_UTM
 
       /**
-       * Gets the UTM northing for this location.
-       * Will return arbitrary value if this location is not bound to a UTMFrame
+       * Gets the UTM northing for this position.
+       * Will return arbitrary value if this position is not bound to a UTMFrame
        *
        * Defined in UTMFrame.inl
        **/
       constexpr double northing () const;
 
       /**
-       * Gets the UTM easting for this location.
-       * Will return arbitrary value if this location is not bound to a UTMFrame
+       * Gets the UTM easting for this position.
+       * Will return arbitrary value if this position is not bound to a UTMFrame
        *
        * Defined in UTMFrame.inl
        **/
       constexpr double easting () const;
 
       /**
-       * Gets the UTM zone (longitudinal) for this location: 0 if USP (near
+       * Gets the UTM zone (longitudinal) for this position: 0 if USP (near
        * poles) otherwise in range [1, 60]
-       * Will return arbitrary value if this location is not bound to a UTMFrame
+       * Will return arbitrary value if this position is not bound to a UTMFrame
        *
        * Defined in UTMFrame.inl
        **/
       constexpr int zone () const;
 
       /**
-       * Gets the UTM hemisphere for this location. True if northern.
-       * Will return arbitrary value if this location is not bound to a UTMFrame
+       * Gets the UTM hemisphere for this position. True if northern.
+       * Will return arbitrary value if this position is not bound to a UTMFrame
        *
        * Defined in UTMFrame.inl
        **/
@@ -397,7 +397,7 @@ namespace gams
       void zone (int z);
 
       /**
-       * Get the NATO band code for the latitude of this UTM location
+       * Get the NATO band code for the latitude of this UTM position
        *
        * Defined in UTMFrame.inl
        *
@@ -458,7 +458,7 @@ namespace gams
 
     /**
      * Represents a Position within a reference frame.
-     * This location always has x, y, and z coordinates, but interpretation
+     * This position always has x, y, and z coordinates, but interpretation
      * of those coordinates can vary according to the reference frame.
      *
      * Provides accessor methods to support non-cartesian coordinate systems:
@@ -584,7 +584,7 @@ namespace gams
        * Copy constructor, but transform into the new frame as well.
        *
        * @param new_frame the new frame to transform to
-       * @param orig    the origin location to use as a reference point
+       * @param orig    the origin position to use as a reference point
        **/
       Position (const ReferenceFrame &new_frame, const Position &orig);
 
@@ -599,14 +599,14 @@ namespace gams
         const std::string & unset_identifier = "<unset>") const;
 
       /**
-      * Saves the location to a MADARA container
+      * Saves the position to a MADARA container
       * @param  container the container to save to
       **/
       void to_container (
         madara::knowledge::containers::NativeDoubleVector &container) const;
 
       /**
-      * Imports the location from a MADARA container
+      * Imports the position from a MADARA container
       * @param  container the container to import from
       **/
       void from_container (

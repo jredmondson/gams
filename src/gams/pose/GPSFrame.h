@@ -66,9 +66,9 @@ namespace gams
      *    x is Latitude
      *    y is Longitude
      *    z is Altitude (above assumed perfectly spherical surface)
-     * Rotations represented in Axis Angle notation
+     * Orientations represented in Axis Angle notation
      *    Axis rx points towards north pole
-     *    Axis ry points west at current location
+     *    Axis ry points west at current position
      *    Axis rz points upwards (i.e, normal vector)
      *
      * Note that under this scheme, change in x and/or y position, while
@@ -159,21 +159,21 @@ namespace gams
       virtual std::string get_name() const;
 
       /**
-      * Transforms a location to origin
+      * Transforms a position to origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_location_to_origin(
+      virtual void transform_position_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
-      * Transforms a location from origin
+      * Transforms a position from origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_location_from_origin(
+      virtual void transform_position_from_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -190,12 +190,12 @@ namespace gams
                       double x2, double y2, double z2) const;
 
       /**
-      * Normalizes a location
+      * Normalizes a position
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void do_normalize_location(
+      virtual void do_normalize_position(
                       double &x, double &y, double &z) const;
 
     private:

@@ -58,7 +58,7 @@
 #include <string>
 
 #include <gams/pose/Position.h>
-#include <gams/pose/Rotation.h>
+#include <gams/pose/Orientation.h>
 
 namespace gams
 {
@@ -66,13 +66,13 @@ namespace gams
   {
     /**
      * Container for Pose information, not bound to a frame.
-     * See PositionVector and RotationVector for representation deatils
+     * See PositionVector and OrientationVector for representation deatils
      **/
-    class PoseVector : public PositionVector, public RotationVector
+    class PoseVector : public PositionVector, public OrientationVector
     {
     public:
       /**
-       * Constructs a PoseVector from individual location and orientation values
+       * Constructs a PoseVector from individual position and orientation values
        *
        * @param x position along x-axis
        * @param y position along y-axis
@@ -85,29 +85,29 @@ namespace gams
                             double rx, double ry, double rz);
 
       /**
-       * Construct a PoseVector from a PositionVector. Rotation info will
+       * Construct a PoseVector from a PositionVector. Orientation info will
        * be all zeros (is_orientation_zero () == true)
        *
-       * @param loc the PositionVector to get location info from.
+       * @param loc the PositionVector to get position info from.
        **/
       constexpr PoseVector (const PositionVector &loc);
 
       /**
-       * Construct a PoseVector from a RotationVector. Position info will
-       * be all zeros (is_location_zero () == true)
+       * Construct a PoseVector from a OrientationVector. Position info will
+       * be all zeros (is_position () == true)
        *
-       * @param rot the RotationVector to get location info from.
+       * @param rot the OrientationVector to get position info from.
        **/
-      constexpr PoseVector (const RotationVector &rot);
+      constexpr PoseVector (const OrientationVector &rot);
 
       /**
-       * Construct from individual PositionVector and RotationVector
+       * Construct from individual PositionVector and OrientationVector
        *
        * @param loc the PositionVector
-       * @param rot the RotationVector
+       * @param rot the OrientationVector
        **/
       constexpr PoseVector (const PositionVector &loc,
-                            const RotationVector &rot);
+                            const OrientationVector &rot);
 
       /**
        * Default constructor. All values will be INVAL_COORD
@@ -131,8 +131,8 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
-       * Constructor from two MADARA DoubleVectors, for location and orientation
-       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * Constructor from two MADARA DoubleVectors, for position and orientation
+       * @param vec_loc  position values from (0, 1, 2 into x, y, z)
        * @param vec_rot  orientation values from (0, 1, 2 into rx, ry, rz)
        **/
       explicit PoseVector (
@@ -140,8 +140,8 @@ namespace gams
         const madara::knowledge::containers::DoubleVector &vec_rot);
 
       /**
-       * Constructor from two MADARA NativeDoubleVector, for location/orientation
-       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * Constructor from two MADARA NativeDoubleVector, for position/orientation
+       * @param vec_loc  position values from (0, 1, 2 into x, y, z)
        * @param vec_rot  orientation values from (0, 1, 2 into rx, ry, rz)
        **/
       explicit PoseVector (
@@ -156,10 +156,11 @@ namespace gams
       constexpr bool is_set () const;
 
       /**
-      * Tests if the location is set (valid).
+      * Tests if the position is set (valid).
       *
-      * @return true if location has been set to something valid
+      * @return true if position has been set to something valid
       **/
+      constexpr bool is_position_set () const;
       constexpr bool is_location_set () const;
 
       /**
@@ -170,10 +171,11 @@ namespace gams
       constexpr bool is_orientation_set () const;
 
       /**
-       * Tests if all location information is zero.
+       * Tests if all position information is zero.
        *
-       * @return true if all location information is zero
+       * @return true if all position information is zero
        **/
+      constexpr bool is_position_zero () const;
       constexpr bool is_location_zero () const;
 
       /**
@@ -185,7 +187,7 @@ namespace gams
 
       /**
        * Tests if all pose information is zero.
-       * If true, is_location_zero and is_orientation_zero are also true
+       * If true, is_position_zero and is_orientation_zero are also true
        *
        * @return true if all pose information is zero
        **/
@@ -253,6 +255,7 @@ namespace gams
        *
        * @return reference to the PositionVector
        **/
+      PositionVector &as_position_vec ();
       PositionVector &as_location_vec ();
 
       /**
@@ -260,32 +263,33 @@ namespace gams
        *
        * @return const reference to the PositionVector
        **/
+      constexpr const PositionVector &as_position_vec () const;
       constexpr const PositionVector &as_location_vec () const;
 
       /**
-       * Gets a reference to this object's Rotation part.
+       * Gets a reference to this object's Orientation part.
        *
-       * @return reference to the RotationVector
+       * @return reference to the OrientationVector
        **/
-      RotationVector &as_orientation_vec ();
+      OrientationVector &as_orientation_vec ();
 
       /**
-       * Gets a const reference to this object's Rotation part.
+       * Gets a const reference to this object's Orientation part.
        *
-       * @return const reference to the RotationVector
+       * @return const reference to the OrientationVector
        **/
-      constexpr const RotationVector &as_orientation_vec () const;
+      constexpr const OrientationVector &as_orientation_vec () const;
     };
 
     /**
-     * Represents a combination of Position and Rotation within a single
+     * Represents a combination of Position and Orientation within a single
      * reference frame.
      **/
     class GAMSExport Pose : public PoseVector, public Coordinate<Pose>
     {
     public:
       /**
-       * Constructs a Pose from individual location and orientation values
+       * Constructs a Pose from individual position and orientation values
        * in the default frame
        *
        * @param x position along x-axis
@@ -298,7 +302,7 @@ namespace gams
       Pose (double x, double y, double z, double rx, double ry, double rz);
 
       /**
-       * Constructs a Pose from individual location values in the default
+       * Constructs a Pose from individual position values in the default
        * frame. All orientation values are zero.
        *
        * @param x position along x-axis
@@ -308,7 +312,7 @@ namespace gams
       Pose (double x, double y, double z = 0.0);
 
       /**
-       * Constructs a Pose from individual location and orientation values
+       * Constructs a Pose from individual position and orientation values
        * in the given frame
        *
        * @param frame the frame this pose belongs to
@@ -324,7 +328,7 @@ namespace gams
                      double rx, double ry, double rz);
 
       /**
-       * Constructs a Pose from individual location values in the default
+       * Constructs a Pose from individual position values in the default
        * frame. All orientation values are zero.
        *
        * @param frame the frame this pose belongs to
@@ -343,51 +347,51 @@ namespace gams
 
       /**
        * Construct from a Position. All orientation info set to zero.
-       * Frame is same as the input location.
+       * Frame is same as the input position.
        *
-       * @param loc the Position to copy location info from.
+       * @param loc the Position to copy position info from.
        **/
       constexpr Pose (const Position &loc);
 
       /**
-       * Construct from a Rotation. All location info set to zero.
+       * Construct from a Orientation. All position info set to zero.
        * Frame is same as the input orientation.
        *
-       * @param rot the Rotation to copy orientation info from.
+       * @param rot the Orientation to copy orientation info from.
        **/
-      constexpr Pose (const Rotation &rot);
+      constexpr Pose (const Orientation &rot);
 
       /**
-       * Construct from individual Position and Rotation vectors, in the
+       * Construct from individual Position and Orientation vectors, in the
        * default frame.
        *
-       * @param loc the Position to copy location info from.
-       * @param rot the Rotation to copy orientation info from.
+       * @param loc the Position to copy position info from.
+       * @param rot the Orientation to copy orientation info from.
        **/
-      Pose (const PositionVector &loc, const RotationVector &rot);
+      Pose (const PositionVector &loc, const OrientationVector &rot);
 
       /**
-       * Construct from individual Position and Rotation vectors, in a
+       * Construct from individual Position and Orientation vectors, in a
        * given frame.
        *
        * @param frame the frame this pose belongs to
-       * @param loc the Position to copy location info from.
-       * @param rot the Rotation to copy orientation info from.
+       * @param loc the Position to copy position info from.
+       * @param rot the Orientation to copy orientation info from.
        **/
       constexpr Pose (const ReferenceFrame &frame,
                      const PositionVector &loc,
-                     const RotationVector &rot);
+                     const OrientationVector &rot);
 
       /**
-       * Construct from individual Position and Rotation.
+       * Construct from individual Position and Orientation.
        * Frame is same as the input Position. No transformation is done.
        *
-       * The Rotation's frame is ignored; its values are taken directly
+       * The Orientation's frame is ignored; its values are taken directly
        *
-       * @param loc the Position to copy location info from.
-       * @param rot the Rotation to copy orientation info from.
+       * @param loc the Position to copy position info from.
+       * @param rot the Orientation to copy orientation info from.
        **/
-      constexpr Pose (const Position &loc, const Rotation &rot);
+      constexpr Pose (const Position &loc, const Orientation &rot);
 
       /**
        * Copy constructor, but also transform to the new frame.
@@ -434,9 +438,9 @@ namespace gams
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
-       * Constructor from two MADARA DoubleVector, for location/orientation
+       * Constructor from two MADARA DoubleVector, for position/orientation
        * into default reference frame
-       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_loc  position values from (0, 1, 2 into x, y, z)
        * @param vec_rot  orientation values from (0, 1, 2 into rx, ry, rz)
        **/
       Pose (
@@ -444,10 +448,10 @@ namespace gams
         const madara::knowledge::containers::DoubleVector &vec_rot);
 
       /**
-       * Constructor from two MADARA DoubleVector, for location/orientation
+       * Constructor from two MADARA DoubleVector, for position/orientation
        * into specified reference frame
        * @param frame the frame to belong to
-       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_loc  position values from (0, 1, 2 into x, y, z)
        * @param vec_rot  orientation values from (0, 1, 2 into rx, ry, rz)
        **/
       Pose (const ReferenceFrame &frame,
@@ -455,9 +459,9 @@ namespace gams
         const madara::knowledge::containers::DoubleVector &vec_rot);
 
       /**
-       * Constructor from two MADARA NativeDoubleVector, for location/orientation
+       * Constructor from two MADARA NativeDoubleVector, for position/orientation
        * into default reference frame
-       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_loc  position values from (0, 1, 2 into x, y, z)
        * @param vec_rot  orientation values from (0, 1, 2 into rx, ry, rz)
        **/
       Pose (
@@ -465,10 +469,10 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &vec_rot);
 
       /**
-       * Constructor from two MADARA NativeDoubleVector, for location/orientation
+       * Constructor from two MADARA NativeDoubleVector, for position/orientation
        * into specified reference frame
        * @param frame the frame to belong to
-       * @param vec_loc  location values from (0, 1, 2 into x, y, z)
+       * @param vec_loc  position values from (0, 1, 2 into x, y, z)
        * @param vec_rot  orientation values from (0, 1, 2 into rx, ry, rz)
        **/
       Pose (const ReferenceFrame &frame,
@@ -489,7 +493,7 @@ namespace gams
        * @param target the target orientation
        * @return shortest angle to map this pose's onto the given orientation
        **/
-      double angle_to (const Rotation &target) const;
+      double angle_to (const Orientation &target) const;
 
       /**
        * Casting operator to extract Position from this Pose
@@ -499,11 +503,11 @@ namespace gams
       constexpr operator Position () const;
 
       /**
-       * Castig operator to extract Rotation from this Pose
+       * Castig operator to extract Orientation from this Pose
        *
-       * @return Rotation with same frame as this pose, and same rx/ry/rz values
+       * @return Orientation with same frame as this pose, and same rx/ry/rz values
        **/
-      constexpr operator Rotation () const;
+      constexpr operator Orientation () const;
 
       /**
       * Returns a string of the values x, y, z, rx, ry, rz

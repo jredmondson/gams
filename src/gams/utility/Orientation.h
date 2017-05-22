@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_ORIENTATION_H_
 #define _GAMS_UTILITY_ORIENTATION_H_
 
-#include <gams/pose/Rotation.h>
+#include <gams/pose/Orientation.h>
 #include <gams/utility/AngleUnits.h>
 #include <gams/utility/Quaternion.h>
 #include <gams/utility/Euler.h>
@@ -74,7 +74,7 @@ namespace gams
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
-    typedef gams::pose::RotationVector OrientationVector;
+    typedef gams::pose::OrientationVector OrientationVector;
 
     /**
      * Represents a orientation or orientation within a reference frame.
@@ -87,7 +87,7 @@ namespace gams
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
-    typedef gams::pose::Rotation Orientation;
+    typedef gams::pose::Orientation Orientation;
   }
 }
 
