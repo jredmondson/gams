@@ -91,7 +91,7 @@ char UTMFrame::nato_band(double x, double y)
   }
 }
 
-void UTMFrame::transform_location_to_origin(
+void UTMFrame::transform_position_to_origin(
                   double &x, double &y, double &z) const
 {
   GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
@@ -103,7 +103,7 @@ void UTMFrame::transform_location_to_origin(
   throw undefined_transform(*this, origin().frame(), true);
 }
 
-void UTMFrame::transform_location_from_origin(
+void UTMFrame::transform_position_from_origin(
                   double &x, double &y, double &z) const
 {
   GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
@@ -204,7 +204,7 @@ double UTMFrame::calc_distance(
   return NAN;
 }
 
-void UTMFrame::do_normalize_location(
+void UTMFrame::do_normalize_position(
                   double &x, double &y, double &z) const
 {
   GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)

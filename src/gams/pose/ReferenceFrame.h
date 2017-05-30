@@ -81,11 +81,11 @@ namespace gams
   {
     class ReferenceFrame;
     class PositionVector;
-    class RotationVector;
+    class OrientationVector;
 
     /**
      * Thrown when a reference frame function is called with a Coordinate
-     * type (e.g., Pose, Position, Rotation) that frame does not support.
+     * type (e.g., Pose, Position, Orientation) that frame does not support.
      *
      * @tparam CoordType The kind of Coordinate the error was raised for.
      **/
@@ -273,9 +273,9 @@ namespace gams
       std::string name() const;
 
       /**
-       * Normalizes individual doubles representing a location
+       * Normalizes individual doubles representing a position
        **/
-      void normalize_location(double &x, double &y, double &z) const;
+      void normalize_position(double &x, double &y, double &z) const;
 
       /**
        * Normalizes individual doubles representing a orientation
@@ -303,7 +303,7 @@ namespace gams
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
        **/
-      virtual void transform_location_to_origin(
+      virtual void transform_position_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -313,7 +313,7 @@ namespace gams
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
        **/
-      virtual void transform_location_from_origin(
+      virtual void transform_position_from_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -324,7 +324,7 @@ namespace gams
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
        **/
-      virtual void do_normalize_location(
+      virtual void do_normalize_position(
                       double &x, double &y, double &z) const;
 
       /**
@@ -589,7 +589,7 @@ namespace gams
      * For internal use.
      *
      * Provides implementation of orientation and pose transforms for frames
-     * where orientation transformation is independant of location. This applies
+     * where orientation transformation is independant of position. This applies
      * to, for example, Cartesian and GPS frames, but not UTM frames.
      * Inherit from this to use this implementation.
      **/
@@ -618,7 +618,7 @@ namespace gams
 
     protected:
       /**
-       * Rotates a PositionVector according to a RotationVector
+       * Rotates a PositionVector according to a OrientationVector
        *
        * @param x   the x coordinate to orient (in-place)
        * @param y   the y coordinate to orient (in-place)
@@ -626,14 +626,14 @@ namespace gams
        * @param rot the orientation to apply, axis-angle notation
        * @param reverse if true, apply orientation in opposite direction
        **/
-      void orient_location_vec(
+      void orient_position_vec(
           double &x, double &y, double &z,
-          const RotationVector &rot,
+          const OrientationVector &rot,
           bool reverse = false) const;
 
     private:
       /**
-       * Transform RotationVector in-place into its origin frame from this frame
+       * Transform OrientationVector in-place into its origin frame from this frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
@@ -643,7 +643,7 @@ namespace gams
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Transform RotationVector in-place from its origin frame
+       * Transform OrientationVector in-place from its origin frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
@@ -654,7 +654,7 @@ namespace gams
 
       /**
        * Transform pose in-place into its origin frame from this frame.
-       * Simply applies location and orientation transforms independantly
+       * Simply applies position and orientation transforms independantly
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -669,7 +669,7 @@ namespace gams
 
       /**
        * Transform pose in-place from its origin frame
-       * Simply applies location and orientation transforms independantly
+       * Simply applies position and orientation transforms independantly
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -683,7 +683,7 @@ namespace gams
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Calculates smallest angle between two RotationVectors
+       * Calculates smallest angle between two OrientationVectors
        *
        * @param rx1  the starting orientation on x axis
        * @param ry1  the starting orientation on y axis

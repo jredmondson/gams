@@ -83,7 +83,7 @@ namespace gams
      *       necessarily point in the north direction, especially for near-polar
      *       UPS coordinates. For proper transformation of poses, be sure to
      *       transform the entire pose as a single Pose object. Do not transform
-     *       Positions and Rotations individually if bearing is important.
+     *       Positions and Orientations individually if bearing is important.
      **/
     class GAMSExport UTMFrame : public ReferenceFrame
     {
@@ -167,25 +167,25 @@ namespace gams
       virtual std::string get_name() const;
 
       /**
-      * Transforms a location to origin
+      * Transforms a position to origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_location_to_origin(
+      virtual void transform_position_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
-      * Transforms a location from origin
+      * Transforms a position from origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_location_from_origin(
+      virtual void transform_position_from_origin(
                       double &x, double &y, double &z) const;
 
       /**
-       * Transform RotationVector in-place into its origin frame from this frame
+       * Transform OrientationVector in-place into its origin frame from this frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
@@ -195,7 +195,7 @@ namespace gams
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Transform RotationVector in-place from its origin frame
+       * Transform OrientationVector in-place from its origin frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
@@ -206,9 +206,9 @@ namespace gams
 
       /**
        * Transform pose in-place into its origin frame from this frame.
-       * Rotations may transform differenly based on Position, so transformation
+       * Orientations may transform differenly based on Position, so transformation
        * of Poses might result in different values than transformation of the
-       * Position and Rotation parts separately.
+       * Position and Orientation parts separately.
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -223,9 +223,9 @@ namespace gams
 
       /**
        * Transform pose in-place from its origin frame
-       * Rotations may transform differenly based on Position, so transformation
+       * Orientations may transform differenly based on Position, so transformation
        * of Poses might result in different values than transformation of the
-       * Position and Rotation parts separately.
+       * Position and Orientation parts separately.
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -252,17 +252,17 @@ namespace gams
                       double x2, double y2, double z2) const;
 
       /**
-       * Normalizes a Position; if zone is -1, ensure that the location is in
+       * Normalizes a Position; if zone is -1, ensure that the position is in
        * the standard zone.
        * @param x   the x coordinate
        * @param y   the y coordinate
        * @param z   the z coordinate
        **/
-      virtual void do_normalize_location(
+      virtual void do_normalize_position(
                       double &x, double &y, double &z) const;
 
       /**
-       * Normalizes a Pose; if zone is -1, ensure that the location is in
+       * Normalizes a Pose; if zone is -1, ensure that the position is in
        * the standard zone. If moving to a different zone is required, updates
        * the orientation part accordingly as well.
        *

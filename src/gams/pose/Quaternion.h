@@ -62,7 +62,7 @@ namespace gams
 {
   namespace pose
   {
-    class RotationVector;
+    class OrientationVector;
     class PositionVector;
 
     /**
@@ -85,38 +85,38 @@ namespace gams
       /**
        * Constructor which converts a orientation vector, specified in individual
        * terms, into the corresponding quaternion representation. See
-       * RotationVector for details of the orientation vector representation.
+       * OrientationVector for details of the orientation vector representation.
        **/
       Quaternion(double rx, double ry, double rz);
 
       /**
        * Constructor which converts a orientation vector into the corresponding
-       * quaternion representation. See RotationVector for details of the
+       * quaternion representation. See OrientationVector for details of the
        * orientation vector representation.
        **/
-      explicit Quaternion(const RotationVector &rot);
+      explicit Quaternion(const OrientationVector &rot);
 
       /**
-       * Constructor which converts a location vector into the corresponding
+       * Constructor which converts a position vector into the corresponding
        * quaternion representation; x, y, and z are copied over. The w term is 0
        **/
       explicit Quaternion(const PositionVector &loc);
 
-      void from_location_vector(double x, double y, double z);
+      void from_position_vector(double x, double y, double z);
 
-      void from_location_vector(const PositionVector &loc);
+      void from_position_vector(const PositionVector &loc);
 
-      void to_location_vector(double &x, double &y, double &z) const;
+      void to_position_vector(double &x, double &y, double &z) const;
 
-      void to_location_vector(PositionVector &loc) const;
+      void to_position_vector(PositionVector &loc) const;
 
       void from_orientation_vector(double rx, double ry, double rz);
 
-      void from_orientation_vector(const RotationVector &rot);
+      void from_orientation_vector(const OrientationVector &rot);
 
       void to_orientation_vector(double &rx, double &ry, double &rz) const;
 
-      void to_orientation_vector(RotationVector &rot) const;
+      void to_orientation_vector(OrientationVector &rot) const;
 
       /**
        * Calculates the hamilton product of two quaternions, into a third.
@@ -176,7 +176,7 @@ namespace gams
       Quaternion &negate();
 
       /**
-       * Treat this quaternion as a location quaternion (w should be zero),
+       * Treat this quaternion as a position quaternion (w should be zero),
        * and orient it by the orientation represented by rot
        *
        * @param rot the Quaternion angle to orient by

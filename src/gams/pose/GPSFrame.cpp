@@ -61,13 +61,13 @@ namespace gams
     const double GPSFrame::MOON_RADIUS  = 1737100.0;
     const double GPSFrame::MARS_RADIUS  = 3389500.0;
 
-    void GPSFrame::transform_location_to_origin(
+    void GPSFrame::transform_position_to_origin(
                                             double &, double &, double &) const
     {
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void GPSFrame::transform_location_from_origin(
+    void GPSFrame::transform_position_from_origin(
                                             double &, double &, double &) const
     {
       throw undefined_transform(*this, origin().frame(), false);
@@ -128,7 +128,7 @@ namespace gams
         return sqrt(great_circle_dist * great_circle_dist + alt_diff*alt_diff);
     }
 
-    void GPSFrame::do_normalize_location(
+    void GPSFrame::do_normalize_position(
                       double &x, double &y, double &z) const
     {
       while(y > 90.000001)

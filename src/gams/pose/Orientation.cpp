@@ -45,16 +45,16 @@
  **/
 
 /**
- * @file Rotation.cpp
+ * @file Orientation.cpp
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains functions for the Rotation class
+ * This file contains functions for the Orientation class
  **/
 
-#include "Rotation.h"
+#include "Orientation.h"
 #include "ReferenceFrame.h"
 
-void gams::pose::Rotation::to_container (
+void gams::pose::Orientation::to_container (
   madara::knowledge::containers::NativeDoubleVector &container) const
 {
   if (frame ().name () == "GPS")
@@ -72,7 +72,7 @@ void gams::pose::Rotation::to_container (
 }
 
 
-void gams::pose::Rotation::from_container (
+void gams::pose::Orientation::from_container (
   const madara::knowledge::containers::NativeDoubleVector &container)
 {
   if (frame ().name () == "GPS")
