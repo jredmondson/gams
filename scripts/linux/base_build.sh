@@ -333,7 +333,7 @@ if [ $GAMS -eq 1 ]; then
     if [ ! -d $VREP_ROOT ]; then 
       cd $INSTALL_DIR
       echo "DOWNLOADING VREP"
-      wget http://coppeliarobotics.com/$VREP_INSTALLER
+      wget http://coppeliarobotics.com/files/$VREP_INSTALLER
       mkdir $VREP_ROOT
 
       echo "UNPACKING VREP"
