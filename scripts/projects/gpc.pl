@@ -2423,6 +2423,8 @@ platforms::threads::${new_thr}::run (void)
 #include \"gams/platforms/BasePlatform.h\"
 #include \"gams/platforms/PlatformFactory.h\"
 #include \"madara/threads/Threader.h\"
+#include \"gams/pose/GPSFrame.h\"
+#include \"gams/pose/CartesianFrame.h\"
 
 namespace platforms
 {        
@@ -2575,9 +2577,20 @@ namespace platforms
      **/
     virtual int takeoff (void);
     
+    /**
+     * Returns the reference frame for the platform (e.g. GPS or cartesian)
+     **/
+    virtual const gams::pose::ReferenceFrame & get_frame (void) const;
+    
   private:
     // a threader for managing platform threads
     madara::threads::Threader threader_;    
+    
+    // a default GPS frame
+    static gams::pose::GPSFrame  gps_frame;
+    
+    // a default Cartesian frame
+    static gams::pose::CartesianFrame  cartesian_frame;
   }; // end ${new_plat} class
     
 
@@ -2623,6 +2636,10 @@ namespace platforms
         }
 
         $source_contents .= "
+gams::pose::CartesianFrame  platforms::${new_plat}::cartesian_frame;   
+gams::pose::GPSFrame  platforms::${new_plat}::gps_frame;         
+        
+ 
 // factory class for creating a ${new_plat} 
 gams::platforms::BasePlatform *
 platforms::${new_plat}Factory::create (
@@ -2872,6 +2889,12 @@ int
 platforms::${new_plat}::takeoff (void)
 {
   return gams::platforms::PLATFORM_OK;
+}
+
+const gams::pose::ReferenceFrame &
+platforms::${new_plat}::get_frame (void) const
+{
+  return gps_frame;
 }
 ";
       
