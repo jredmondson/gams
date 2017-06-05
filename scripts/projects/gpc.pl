@@ -2482,13 +2482,13 @@ namespace platforms
      * Gets Location of platform, within its parent frame. Optional.
      * \@return Location of platform
      **/
-    gams::utility::Location get_location () const;
+    gams::pose::Position get_location () const;
 
     /**
      * Gets Rotation of platform, within its parent frame. Optional.
      * \@return Location of platform
      **/
-    gams::utility::Orientation get_orientation () const;
+    gams::pose::Orientation get_orientation () const;
 
     /**
      * Gets sensor radius. Optional.
@@ -2520,7 +2520,7 @@ namespace platforms
      * \@param   epsilon   approximation value
      * \@return the status of the move operation, \@see PlatformReturnValues
      **/
-    virtual int move (const gams::utility::Location & location,
+    virtual int move (const gams::pose::Position & location,
       double epsilon = 0.1);
 
     /**
@@ -2529,7 +2529,7 @@ namespace platforms
      * \@param   epsilon   approximation value
      * \@return the status of the rotate, \@see PlatformReturnValues
      **/
-    virtual int rotate (const gams::utility::Orientation & target,
+    virtual int rotate (const gams::pose::Orientation & target,
       double epsilon = M_PI/16);
 
     /**
@@ -2549,7 +2549,7 @@ namespace platforms
      * \@param   rot_epsilon   approximation value for the rotation
      * \@return the status of the operation, \@see PlatformReturnValues
      **/
-    virtual int pose (const gams::utility::Pose & target,
+    virtual int pose (const gams::pose::Pose & target,
       double loc_epsilon = 0.1, double rot_epsilon = M_PI/16);
 
     /**
@@ -2738,20 +2738,20 @@ platforms::${new_plat}::get_accuracy (void) const
 }
 
 // Gets Location of platform, within its parent frame. Optional.
-gams::utility::Location
+gams::pose::Position
 platforms::${new_plat}::get_location () const
 {
-  gams::utility::Location result;
+  gams::pose::Position result;
   
   return result;
 }
 
 
 // Gets Rotation of platform, within its parent frame. Optional.
-gams::utility::Orientation
+gams::pose::Orientation
 platforms::${new_plat}::get_orientation () const
 {
-  gams::utility::Orientation result;
+  gams::pose::Orientation result;
   
   return result;
 }
@@ -2804,7 +2804,7 @@ platforms::${new_plat}::land (void)
 // Moves the platform to a location. Optional.
 int
 platforms::${new_plat}::move (
-  const gams::utility::Location & location,
+  const gams::pose::Position & location,
   double epsilon)
 {
   /**
@@ -2820,7 +2820,7 @@ platforms::${new_plat}::move (
 // Rotates the platform to match a given angle. Optional.
 int
 platforms::${new_plat}::rotate (
-  const gams::utility::Orientation & target,
+  const gams::pose::Orientation & target,
   double epsilon)
 {
   /**
@@ -2835,7 +2835,7 @@ platforms::${new_plat}::rotate (
 
 // Moves the platform to a pose (location and rotation). Optional.
 int
-platforms::${new_plat}::pose (const gams::utility::Pose & target,
+platforms::${new_plat}::pose (const gams::pose::Pose & target,
   double loc_epsilon, double rot_epsilon)
 {
   /**
