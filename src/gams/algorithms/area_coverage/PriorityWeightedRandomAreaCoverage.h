@@ -68,6 +68,10 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Focuses on high priority areas over low priority, and uses a weighted
+      * system for area coverage regionss
+      **/
       class GAMSExport PriorityWeightedRandomAreaCoverage : public BaseAreaCoverage
       {
       public:

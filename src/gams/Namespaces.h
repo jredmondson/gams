@@ -134,6 +134,38 @@ namespace gams
   }
 
   /**
+  * @namespace gams::pose
+  * Provides position and orientation primitives
+  **/
+  namespace pose
+  {
+    /**
+    * @namespace gams::pose::detail
+    * Provides underlying pose classes that provide infrastructure for
+    * higher level pose-related functions
+    **/
+    namespace detail
+    {
+    }
+
+    /**
+    * @namespace gams::pose::euler
+    * Provides support for Euler tools for positions and orientations
+    **/
+    namespace euler
+    {
+    }
+
+    /**
+    * @namespace gams::pose::order
+    * Provides support for ordering reference-frame inputss
+    **/
+    namespace order
+    {
+    }
+  }
+
+  /**
   * @namespace gams::programs
   * Provides source for certain non-test-related programs
   **/
@@ -162,12 +194,28 @@ namespace gams
     namespace java
     {
     }
+
+    /**
+    * @namespace gams::utility::euler
+    * DEPRECATED: Provides classes here have been moved to gams::pose::euler
+    **/
+    namespace euler
+    {
+    }
+
+    /**
+    * @namespace gams::utility::order
+    * DEPRECATED: Provides classes here have been moved to gams::pose::order
+    **/
+    namespace order
+    {
+    }
   }
 
   
   /**
-  * @namespace gams::utility
-  * Provides MADARA variables for GAMS-related entities and information
+  * @namespace gams::variables
+  * Provides MADARA containers for GAMS-related entities and information
   **/
   namespace variables
   {

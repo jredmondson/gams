@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file MinTimeAreaCoverage.cpp
+ * @file MinTimeAreaCoverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * The original use of this class was for time based coverage where agents would
@@ -76,6 +76,9 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Area coverage that minimizes the time taken for covering an area
+      **/
       class GAMSExport MinTimeAreaCoverage : public BaseAreaCoverage
       {
       public:

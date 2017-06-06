@@ -48,7 +48,8 @@
  * @file WaypointsCoverage.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the snake area coverage class
+ * This file contains the definition of a waypoint algorithm
+ * that also keeps track of area covered
  **/
 
 #ifndef _GAMS_ALGORITHMS_AREA_COVERAGE_WAYPOINTS_COVERAGE_H_
@@ -71,6 +72,9 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Waypoints algorithm that also tracks coverage metrics
+      **/
       class GAMSExport WaypointsCoverage : public BaseAreaCoverage
       {
       public:

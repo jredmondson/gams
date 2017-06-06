@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file PrioritizedMinTimeAreaCoverage.cpp
+ * @file PrioritizedMinTimeAreaCoverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  **/
 
@@ -66,6 +66,10 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Focuses on high priority areas over low priority, and attempts
+      * to do minimum time coverage
+      **/
       class GAMSExport PrioritizedMinTimeAreaCoverage : 
         public MinTimeAreaCoverage
       {

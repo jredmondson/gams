@@ -48,7 +48,7 @@
  * @file UniformRandomAreaCoverage.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the random area coverage class
+ * This file contains the definition of a uniform distribution area coverage
  **/
 
 #ifndef   _GAMS_ALGORITHMS_AREA_COVERAGE_UNIFORM_RANDOM_AREA_COVERAGE_H_
@@ -69,6 +69,9 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Covers area uniformly
+      **/
       class GAMSExport UniformRandomAreaCoverage : public BaseAreaCoverage
       {
       public:

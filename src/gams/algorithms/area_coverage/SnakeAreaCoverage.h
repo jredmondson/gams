@@ -71,6 +71,10 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Implements a serpentine pattern-based area coverage that is
+      * minimum time but easy to predict (adversarially)
+      **/
       class GAMSExport SnakeAreaCoverage : public BaseAreaCoverage
       {
       public:

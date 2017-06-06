@@ -66,6 +66,9 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+       * Base class for all area coverages
+       **/
       class GAMSExport BaseAreaCoverage : public BaseAlgorithm
       {
       public:

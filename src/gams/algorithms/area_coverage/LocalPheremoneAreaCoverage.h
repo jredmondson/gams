@@ -47,6 +47,7 @@
 /**
  * @file LocalPheremoneAreaCoverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
+ * Contains implementation of area coverage based on pheremone tracking
  **/
 
 #ifndef _GAMS_ALGORITHMS_AREA_COVERAGE_PHEREMONE_AREA_COVERAGE_H_
@@ -63,6 +64,9 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Covers an area based on concentrations of virtual pheremones
+      **/
       class GAMSExport LocalPheremoneAreaCoverage : public BaseAreaCoverage
       {
       public:

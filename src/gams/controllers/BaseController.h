@@ -54,6 +54,8 @@
 #ifndef   _GAMS_BASE_CONTROLLER_H_
 #define   _GAMS_BASE_CONTROLLER_H_
 
+#include "ControllerSettings.h"
+
 #include "gams/GAMSExport.h"
 #include "gams/variables/Agent.h"
 #include "gams/variables/Swarm.h"
@@ -88,8 +90,10 @@ namespace gams
       /**
        * Constructor
        * @param   knowledge   The knowledge base to reference and mutate
+       * @param   settings    an initial configuration for the controller
        **/
-      BaseController (madara::knowledge::KnowledgeBase & knowledge);
+      BaseController (madara::knowledge::KnowledgeBase & knowledge,
+        const ControllerSettings & settings = ControllerSettings ());
 
       /**
        * Destructor
@@ -146,7 +150,7 @@ namespace gams
        *                      loop period.
        * @return  the result of the MAPE loop
        **/
-      int run (double loop_period = 0.0,
+      int run (double loop_period,
         double max_runtime = -1,
         double send_period = -1.0);
       
@@ -182,6 +186,12 @@ namespace gams
 
         return run (loop_rate, max_runtime, send_rate);
       }
+
+      /**
+       * Runs iterations of the MAPE loop with configured settings
+       * @return  the result of the MAPE loop
+       **/
+      int run (void);
 
       /**
        * Adds an accent algorithm
@@ -253,7 +263,12 @@ namespace gams
        * @param  platform   the platform to use
        **/
       void init_platform (platforms::BasePlatform * platform);
-           
+      
+      /**
+       * Configures the controller with initialization settings
+       **/
+      void configure (const ControllerSettings & settings);
+
 #ifdef _GAMS_JAVA_
       /**
        * Initializes a Java-based algorithm
@@ -353,6 +368,11 @@ namespace gams
       /// Containers for swarm-related variables
       variables::Swarm swarm_;
 
+      /// Settings for controller management and qos
+      ControllerSettings settings_;
+
+      /// keeps track of the checkpoints saved in the control loop
+      int checkpoint_count_;
     private:
 
       /// Code shared between run and run_once

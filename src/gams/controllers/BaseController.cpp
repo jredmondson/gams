@@ -70,9 +70,13 @@ using std::endl;
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::controllers::BaseController::BaseController (
-  madara::knowledge::KnowledgeBase & knowledge)
-  : algorithm_ (0), knowledge_ (knowledge), platform_ (0)
+  madara::knowledge::KnowledgeBase & knowledge,
+  const ControllerSettings & settings)
+  : algorithm_ (0), knowledge_ (knowledge), platform_ (0),
+  settings_ (settings), checkpoint_count_ (0)
 {
+  init_vars (settings_.agent_prefix);
+
   // setup the platform and algorithm global repositories
   platforms::global_platform_factory->set_knowledge (&knowledge);
   platforms::global_platform_factory->set_platforms (&platforms_);
@@ -512,6 +516,15 @@ gams::controllers::BaseController::run_once (void)
   return return_value;
 }
 
+
+int
+gams::controllers::BaseController::run (void)
+{
+  return run_hz (settings_.loop_hertz,
+    settings_.run_time, settings_.send_hertz);
+}
+
+
 int
 gams::controllers::BaseController::run (double loop_period,
   double max_runtime, double send_period)
@@ -519,6 +532,8 @@ gams::controllers::BaseController::run (double loop_period,
   // return value
   int return_value (0);
   bool first_execute (true);
+  const std::string checkpoint_prefix (
+    settings_.checkpoint_prefix + "_" + settings_.agent_prefix + "_");
 
   // for checking for potential user commands
   double loop_hz = 1.0 / loop_period;
@@ -545,6 +560,21 @@ gams::controllers::BaseController::run (double loop_period,
     "gams::controllers::BaseController::run:" \
     " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
     loop_period, max_runtime, send_period);
+
+  if (settings_.checkpoint_strategy != CHECKPOINT_NONE)
+  {
+    std::stringstream filename;
+    filename << checkpoint_prefix << checkpoint_count_ << ".kb";
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::controllers::BaseController::run:" \
+      " saving initial context to %s%d.kb\n",
+      checkpoint_prefix.c_str (), checkpoint_count_);
+
+    knowledge_.save_context (filename.str ());
+    ++checkpoint_count_;
+  }
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -574,6 +604,21 @@ gams::controllers::BaseController::run (double loop_period,
         " calling system_analyze ()\n");
       return_value |= system_analyze ();
 
+      if (settings_.checkpoint_strategy == CHECKPOINT_EVERY_LOOP)
+      {
+        std::stringstream filename;
+        filename << checkpoint_prefix << checkpoint_count_ << ".kb";
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::BaseController::run:" \
+          " saving context after loop to %s%d.kb\n",
+          checkpoint_prefix.c_str (), checkpoint_count_);
+
+        knowledge_.save_context (filename.str ());
+        ++checkpoint_count_;
+      }
+
       // grab current time
       current = ACE_OS::gettimeofday ();
 
@@ -584,6 +629,21 @@ gams::controllers::BaseController::run (double loop_period,
           gams::loggers::LOG_MAJOR,
           "gams::controllers::BaseController::run:" \
           " sending updates\n");
+
+        if (settings_.checkpoint_strategy == CHECKPOINT_EVERY_SEND)
+        {
+          std::stringstream filename;
+          filename << checkpoint_prefix << checkpoint_count_ << ".kb";
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "gams::controllers::BaseController::run:" \
+            " saving context before send_modifieds to %s%d.kb\n",
+            checkpoint_prefix.c_str (), checkpoint_count_);
+
+          knowledge_.save_context (filename.str ());
+          ++checkpoint_count_;
+        }
 
         // send modified values through network
         knowledge_.send_modifieds ();
@@ -988,6 +1048,14 @@ void gams::controllers::BaseController::init_platform (platforms::BasePlatform *
     " Updating algorithm factory's platform\n");
 
   algorithms::global_algorithm_factory->set_platform (platform_);
+}
+
+
+void
+gams::controllers::BaseController::configure (
+  const ControllerSettings & settings)
+{
+  settings_ = settings;
 }
 
 #ifdef _GAMS_JAVA_

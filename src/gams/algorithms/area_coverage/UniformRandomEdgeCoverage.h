@@ -48,7 +48,8 @@
  * @file UniformRandomEdgeCoverage.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the definition of the random area coverage class
+ * This file contains the definition of uniform distribution of area
+ * coverage that targets edges of a region
  **/
 
 #ifndef   _GAMS_ALGORITHMS_AREA_COVERAGE_UNIFORM_RANDOM_EDGE_COVERAGE_H_
@@ -70,6 +71,10 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Area coverage that selects region edge locations in
+      * a uniform distribution
+      **/
       class GAMSExport UniformRandomEdgeCoverage : public BaseAreaCoverage
       {
       public:

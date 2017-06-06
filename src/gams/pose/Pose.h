@@ -511,8 +511,8 @@ namespace gams
 
       /**
       * Returns a string of the values x, y, z, rx, ry, rz
-      * @param delimiter      delimiter between values
-      * @param include_unset  if true, include unset values
+      * @param delimiter         delimiter between values
+      * @param unset_identifier  if true, include unset values
       * @return  stringified version of the Pose
       **/
       std::string to_string (

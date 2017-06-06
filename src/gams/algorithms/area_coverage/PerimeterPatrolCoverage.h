@@ -72,6 +72,9 @@ namespace gams
   {
     namespace area_coverage
     {
+      /**
+      * Moves along a perimeter and keeps track of coverage metrics
+      **/
       class GAMSExport PerimeterPatrolCoverage : public BaseAreaCoverage
       {
       public:
