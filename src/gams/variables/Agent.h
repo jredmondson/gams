@@ -55,6 +55,7 @@
 #define   _GAMS_VARIABLES_DEVICES_H_
 
 #include <vector>
+#include <map>
 #include <string>
 
 #include "gams/GAMSExport.h"
@@ -221,10 +222,15 @@ namespace gams
     };
 
     /**
-     * An array of agents
+     * An array of agent knowledge
      **/
     typedef std::vector <Agent>   Agents;
-    
+
+    /**
+    * A map of agent prefixes to agent knowledge
+    **/
+    typedef std::map <std::string, Agent>   AgentMap;
+
     /**
       * Initializes agent containers
       * @param   variables  the variables to initialize
