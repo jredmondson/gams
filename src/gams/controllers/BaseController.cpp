@@ -267,7 +267,7 @@ gams::controllers::BaseController::system_analyze (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Settings MADARA debug level to %d\n", (int)*self_.agent.madara_debug_level);
+      " Setting MADARA debug level to %d\n", (int)*self_.agent.madara_debug_level);
 
     madara::logger::global_logger->set_level ((int)*self_.agent.madara_debug_level);
   }
@@ -278,7 +278,7 @@ gams::controllers::BaseController::system_analyze (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Settings GAMS debug level to %d\n", (int)*self_.agent.gams_debug_level);
+      " Setting GAMS debug level to %d\n", (int)*self_.agent.gams_debug_level);
 
     gams::loggers::global_logger->set_level ((int)*self_.agent.gams_debug_level);
   }
