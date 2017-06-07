@@ -1056,6 +1056,17 @@ gams::controllers::BaseController::configure (
   const ControllerSettings & settings)
 {
   settings_ = settings;
+
+  if (settings_.madara_log_level >= 0)
+  {
+    self_.agent.madara_debug_level = settings_.madara_log_level;
+    madara::logger::global_logger->set_level (settings_.madara_log_level);
+  }
+  if (settings_.gams_log_level >= 0)
+  {
+    self_.agent.gams_debug_level = settings_.gams_log_level;
+    gams::loggers::global_logger->set_level (settings_.gams_log_level);
+  }
 }
 
 #ifdef _GAMS_JAVA_
@@ -1188,6 +1199,17 @@ gams::controllers::BaseController::init_vars (
 
   self_.init_vars (knowledge_, self_prefix);
   swarm_.init_vars (knowledge_);
+
+  if (settings_.madara_log_level >= 0)
+  {
+    self_.agent.madara_debug_level = settings_.madara_log_level;
+    madara::logger::global_logger->set_level (settings_.madara_log_level);
+  }
+  if (settings_.gams_log_level >= 0)
+  {
+    self_.agent.gams_debug_level = settings_.gams_log_level;
+    gams::loggers::global_logger->set_level (settings_.gams_log_level);
+  }
 }
 
 void
@@ -1204,6 +1226,17 @@ const Integer & processes)
   variables::init_vars (agents_, knowledge_, processes);
   swarm_.init_vars (knowledge_, processes);
   self_.init_vars (knowledge_, id);
+
+  if (settings_.madara_log_level >= 0)
+  {
+    self_.agent.madara_debug_level = settings_.madara_log_level;
+    madara::logger::global_logger->set_level (settings_.madara_log_level);
+  }
+  if (settings_.gams_log_level >= 0)
+  {
+    self_.agent.gams_debug_level = settings_.gams_log_level;
+    gams::loggers::global_logger->set_level (settings_.gams_log_level);
+  }
 }
 
 void

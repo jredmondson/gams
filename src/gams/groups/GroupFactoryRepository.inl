@@ -75,7 +75,7 @@ gams::groups::GroupFactoryRepository::create (const std::string & prefix)
     " reading group at prefix %s\n",
     prefix.c_str ());
 
-  if (knowledge_)
+  if (knowledge_ && prefix != "")
   {
     madara::knowledge::containers::Integer type (prefix + ".type", *knowledge_);
 
