@@ -615,6 +615,9 @@ namespace gams
 
       using Coordinate<Position>::operator==;
     };
+
+    // helpful typedef for vector of positions
+    typedef std::vector <Position>    Positions;
   }
 }
 
