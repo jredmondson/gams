@@ -135,7 +135,7 @@ gams::algorithms::area_coverage::WaypointsCoverage::WaypointsCoverage (
     gams::loggers::LOG_DETAILED,
     "WaypointsCoverage::const: calling init_vars\n");
 
-  status_.init_vars (*knowledge, "waypoints", self->id.to_integer ());
+  status_.init_vars (*knowledge, "waypoints", self->agent.prefix);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,

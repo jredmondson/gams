@@ -200,7 +200,7 @@ gams::algorithms::GroupBarrier::GroupBarrier (
   BaseAlgorithm (knowledge, platform, sensors, self),
   members_ (members)
 {
-  status_.init_vars (*knowledge, "barrier", self->id.to_integer ());
+  status_.init_vars (*knowledge, "barrier", self->agent.prefix);
   status_.init_variable_values ();
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

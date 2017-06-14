@@ -231,7 +231,7 @@ gams::algorithms::FormationFlying::FormationFlying (
   : BaseAlgorithm (knowledge, platform, sensors, self), modifier_ (NONE),
     need_to_move_ (false), phi_dir_(DBL_MAX)
 {
-  status_.init_vars (*knowledge, "formation", self->id.to_integer ());
+  status_.init_vars (*knowledge, "formation", self->agent.prefix);
   status_.init_variable_values ();
 
   std::string my_id = "agent.";

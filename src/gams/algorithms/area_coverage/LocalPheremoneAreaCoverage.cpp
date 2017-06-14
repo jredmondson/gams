@@ -176,8 +176,10 @@ LocalPheremoneAreaCoverage (
   BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
   pheremone_ (search_id + ".pheremone", knowledge)
 {
+  self->agent.prefix;
   // init status vars
-  status_.init_vars (*knowledge, "lpac", self->id.to_integer ());
+  status_.init_vars (*knowledge, "lpac", self->agent.prefix);
+  status_.init_vars (*knowledge, "lpac", self->agent.prefix);
   status_.init_variable_values ();
 
   // get search area

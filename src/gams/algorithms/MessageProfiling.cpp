@@ -98,7 +98,7 @@ gams::algorithms::MessageProfiling::MessageProfiling (
   : BaseAlgorithm (knowledge, platform, sensors, self), 
     send_size_ (20)
 {
-  status_.init_vars (*knowledge, "message_profiling", self->id.to_integer ());
+  status_.init_vars (*knowledge, "message_profiling", self->agent.prefix);
   status_.init_variable_values ();
 
   // attach filter

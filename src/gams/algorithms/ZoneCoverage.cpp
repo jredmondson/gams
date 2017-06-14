@@ -225,7 +225,7 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   form_func_ (get_form_func (formation)),
   next_loc_ (INVAL_COORD, INVAL_COORD, INVAL_COORD)
 {
-  status_.init_vars (*knowledge, "zone_coverage", self->id.to_integer ());
+  status_.init_vars (*knowledge, "zone_coverage", self->agent.prefix);
   status_.init_variable_values ();
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

@@ -166,7 +166,7 @@ UniformRandomEdgeCoverage::UniformRandomEdgeCoverage (
     " entered constructor\n");
 
   // init status vars
-  status_.init_vars (*knowledge, "urec", self->id.to_integer ());
+  status_.init_vars (*knowledge, "urec", self->agent.prefix);
   status_.init_variable_values ();
 
   // generate search region

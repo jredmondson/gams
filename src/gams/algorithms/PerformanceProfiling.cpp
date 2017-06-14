@@ -72,7 +72,7 @@ gams::algorithms::PerformanceProfiling::PerformanceProfiling (
   variables::Self * self)
   : BaseAlgorithm (knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "performance_profiling", self->id.to_integer ());
+  status_.init_vars (*knowledge, "performance_profiling", self->agent.prefix);
   status_.init_variable_values ();
 }
 

@@ -192,7 +192,7 @@ gams::algorithms::PerimeterPatrol::PerimeterPatrol (
   area_ (area), max_time_ (max_time), counter_ (counter), move_index_ (0),
   initialized_ (false)
 {
-  status_.init_vars (*knowledge, "patrol", self->id.to_integer ());
+  status_.init_vars (*knowledge, "patrol", self->agent.prefix);
   status_.init_variable_values ();
 }
 

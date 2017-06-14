@@ -263,7 +263,7 @@ gams::algorithms::FormationCoverage::FormationCoverage (
   BaseAlgorithm (knowledge, platform, sensors, self), is_covering_(false), 
   head_algo_ (0), my_formation_ (0)
 {
-  status_.init_vars (*knowledge, "formation_coverage", self->id.to_integer ());
+  status_.init_vars (*knowledge, "formation_coverage", self->agent.prefix);
   status_.init_variable_values ();
 
   // setup formation flying with null destination

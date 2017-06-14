@@ -82,7 +82,7 @@ gams::algorithms::NullAlgorithm::NullAlgorithm (
   variables::Self * self)
   : BaseAlgorithm (knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "null", self->id.to_integer ());
+  status_.init_vars (*knowledge, "null", self->agent.prefix);
   status_.init_variable_values ();
 }
 

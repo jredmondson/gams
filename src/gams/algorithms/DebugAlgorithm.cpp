@@ -80,7 +80,7 @@ gams::algorithms::DebugAlgorithm::DebugAlgorithm (
 {
   if (knowledge)
   {
-    status_.init_vars (*knowledge, "debug", self->id.to_integer ());
+    status_.init_vars (*knowledge, "debug", self->agent.prefix);
     status_.init_variable_values ();
     k_executions_.set_name (executions_location, *knowledge);
   }

@@ -180,7 +180,7 @@ PriorityWeightedRandomAreaCoverage (
   total_priority_ (0.0)
 {
   // init status vars
-  status_.init_vars (*knowledge, "pwrac", self->id.to_integer ());
+  status_.init_vars (*knowledge, "pwrac", self->agent.prefix);
   status_.init_variable_values ();
 
   // get search area

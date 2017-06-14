@@ -158,7 +158,7 @@ gams::algorithms::Follow::Follow (
 {
   if (knowledge && platform && sensors && self)
   {
-    status_.init_vars (*knowledge, "follow", self->id.to_integer ());
+    status_.init_vars (*knowledge, "follow", self->agent.prefix);
     status_.init_variable_values ();
 
     // initialize leader's variables

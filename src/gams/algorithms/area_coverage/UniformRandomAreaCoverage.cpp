@@ -162,7 +162,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::
   BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time)
 {
   // init status vars
-  status_.init_vars (*knowledge, "urac", self->id.to_integer ());
+  status_.init_vars (*knowledge, "urac", self->agent.prefix);
   status_.init_variable_values ();
 
   // get region to cover

@@ -313,7 +313,7 @@ gams::algorithms::FormationSync::FormationSync (
   BaseAlgorithm (knowledge, platform, sensors, self), start_ (start),
   end_ (end), members_ (members), buffer_ (buffer), formation_ (formation)
 {
-  status_.init_vars (*knowledge, "formation_sync", self->id.to_integer ());
+  status_.init_vars (*knowledge, "formation_sync", self->agent.prefix);
   status_.init_variable_values ();
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

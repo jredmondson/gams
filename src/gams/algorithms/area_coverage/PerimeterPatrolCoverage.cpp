@@ -181,7 +181,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverage::PerimeterPatrolCoverag
   region_id_ (region_id)
 {
   // initialize some status variables
-  status_.init_vars (*knowledge, "ppac", self->id.to_integer ());
+  status_.init_vars (*knowledge, "ppac", self->agent.prefix);
   status_.init_variable_values ();
 
   if (*platform->get_platform_status ()->ok)

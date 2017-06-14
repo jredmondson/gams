@@ -100,6 +100,9 @@ gams::variables::Self::init_vars (
 {
   // initialize the variable containers
   this->id.set_name (".id", knowledge);
+  this->id = id;
+  this->prefix.set_name (".prefix", knowledge);
+  this->prefix = "agent." + this->id.to_string ();
   this->agent.init_vars (knowledge, id);
 }
 

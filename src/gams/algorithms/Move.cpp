@@ -212,7 +212,7 @@ gams::algorithms::Move::Move (
   poses_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0),
   wait_time_ (wait_time), waiting_ (false), finished_moving_ (false)
 {
-  status_.init_vars (*knowledge, "move", self->id.to_integer ());
+  status_.init_vars (*knowledge, "move", self->agent.prefix);
   status_.init_variable_values ();
 }
 

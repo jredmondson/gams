@@ -172,7 +172,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::SnakeAreaCoverage (
   BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
   cur_waypoint_ (0), region_id_ (region_id)
 {
-  status_.init_vars (*knowledge, "sac", self->id.to_integer ());
+  status_.init_vars (*knowledge, "sac", self->agent.prefix);
   status_.init_variable_values ();
 
   // setup

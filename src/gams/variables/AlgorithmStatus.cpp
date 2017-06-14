@@ -77,6 +77,42 @@ gams::variables::AlgorithmStatus::operator= (const AlgorithmStatus & rhs)
 
 void
 gams::variables::AlgorithmStatus::init_vars (
+madara::knowledge::KnowledgeBase & knowledge,
+const std::string & new_name, const std::string & prefix)
+{
+  id = -1;
+  name = new_name;
+
+  // initialize the variable containers
+  this->ok.set_name (prefix + ".ok", knowledge);
+  this->paused.set_name (prefix + ".paused", knowledge);
+  this->waiting.set_name (prefix + ".waiting", knowledge);
+  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
+  this->failed.set_name (prefix + ".failed", knowledge);
+  this->unknown.set_name (prefix + ".unknown", knowledge);
+  this->finished.set_name (prefix + ".finished", knowledge);
+}
+
+void
+gams::variables::AlgorithmStatus::init_vars (
+madara::knowledge::Variables & knowledge,
+const std::string & new_name, const std::string & prefix)
+{
+  id = -1;
+  name = new_name;
+
+  // initialize the variable containers
+  this->ok.set_name (prefix + ".ok", knowledge);
+  this->paused.set_name (prefix + ".paused", knowledge);
+  this->waiting.set_name (prefix + ".waiting", knowledge);
+  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
+  this->failed.set_name (prefix + ".failed", knowledge);
+  this->unknown.set_name (prefix + ".unknown", knowledge);
+  this->finished.set_name (prefix + ".finished", knowledge);
+}
+
+void
+gams::variables::AlgorithmStatus::init_vars (
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & new_name, int i)
 {

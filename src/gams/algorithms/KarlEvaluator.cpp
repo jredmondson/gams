@@ -201,7 +201,7 @@ gams::algorithms::KarlEvaluator::KarlEvaluator (
 {
   if (knowledge)
   {
-    status_.init_vars (*knowledge, "karl", self->id.to_integer ());
+    status_.init_vars (*knowledge, "karl", self->agent.prefix);
     status_.init_variable_values ();
 
     if (is_wait && wait_time > 0)

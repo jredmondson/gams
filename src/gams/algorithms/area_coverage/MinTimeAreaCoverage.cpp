@@ -178,7 +178,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
   min_time_ (search_id + "." + algo_name, knowledge)
 {
   // init status vars
-  status_.init_vars (*knowledge, algo_name, self->id.to_integer ());
+  status_.init_vars (*knowledge, algo_name, self->agent.prefix);
   status_.init_variable_values ();
 
   // get search area

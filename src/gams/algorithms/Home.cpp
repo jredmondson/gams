@@ -81,7 +81,7 @@ gams::algorithms::Home::Home (
   variables::Self * self)
   : BaseAlgorithm (knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "takeoff", self->id.to_integer ());
+  status_.init_vars (*knowledge, "takeoff", self->agent.prefix);
   status_.init_variable_values ();
 }
 

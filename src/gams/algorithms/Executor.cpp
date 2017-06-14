@@ -248,7 +248,7 @@ gams::algorithms::Executor::Executor (
   algorithms_ (algorithms), repeat_ (repeat), alg_index_ (0), cycles_ (0),
   precond_met_ (false), current_ (0)
 {
-  status_.init_vars (*knowledge, "executor", self->id.to_integer ());
+  status_.init_vars (*knowledge, "executor", self->agent.prefix);
   status_.init_variable_values ();
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

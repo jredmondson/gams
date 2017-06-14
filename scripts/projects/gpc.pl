@@ -2194,7 +2194,7 @@ algorithms::${new_alg}::${new_alg} (
   gams::variables::Agents * agents)
   : gams::algorithms::BaseAlgorithm (knowledge, platform, sensors, self, agents)
 {
-  status_.init_vars (*knowledge, \"${new_alg}\", self->id.to_integer ());
+  status_.init_vars (*knowledge, \"${new_alg}\", self->agent.prefix);
   status_.init_variable_values ();
 }
 

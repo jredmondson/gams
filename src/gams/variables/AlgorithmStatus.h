@@ -91,7 +91,25 @@ namespace gams
       void operator= (const AlgorithmStatus & rhs);
 
       /**
-       * Initializes variable containers
+      * Initializes variable containers
+      * @param   knowledge  the knowledge base that houses the variables
+      * @param   new_name   the name of the algorithm
+      * @param   prefix     the agent prefix
+      **/
+      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+        const std::string & new_name, const std::string & prefix);
+
+      /**
+      * Initializes variable containers
+      * @param   knowledge  the knowledge base that houses the variables
+      * @param   new_name   the name of the algorithm
+      * @param   prefix     the agent prefix
+      **/
+      void init_vars (madara::knowledge::Variables & knowledge,
+        const std::string & new_name, const std::string & prefix);
+
+      /**
+       * Initializes variable containers (DEPRECATED)
        * @param   knowledge  the knowledge base that houses the variables
        * @param   new_name   the name of the algorithm
        * @param   i          the agent id
@@ -100,7 +118,7 @@ namespace gams
         const std::string & new_name, int i);
       
       /**
-       * Initializes variable containers
+       * Initializes variable containers (DEPRECATED)
        * @param   knowledge  the variable context
        * @param   new_name   the name of the algorithm
        * @param   i          the agent id
