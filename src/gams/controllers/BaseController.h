@@ -298,7 +298,7 @@ namespace gams
       *                       should come from
       **/
       void init_vars (const std::string & self_prefix,
-        const std::string group_name = "");
+        const std::string & group_name = "");
 
       /**
       * Initializes global variable containers

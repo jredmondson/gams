@@ -520,6 +520,18 @@ gams::controllers::BaseController::run_once (void)
 int
 gams::controllers::BaseController::run (void)
 {
+  // check the debug levels and set accordingly
+  if (settings_.madara_log_level >= 0)
+  {
+    self_.agent.madara_debug_level = settings_.madara_log_level;
+    madara::logger::global_logger->set_level (settings_.madara_log_level);
+  }
+  if (settings_.gams_log_level >= 0)
+  {
+    self_.agent.gams_debug_level = settings_.gams_log_level;
+    gams::loggers::global_logger->set_level (settings_.gams_log_level);
+  }
+
   return run_hz (settings_.loop_hertz,
     settings_.run_time, settings_.send_hertz);
 }
@@ -1155,7 +1167,7 @@ void gams::controllers::BaseController::init_platform (jobject platform)
 void
 gams::controllers::BaseController::init_vars (
   const std::string & self_prefix,
-  const std::string group_name)
+  const std::string & group_name)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
