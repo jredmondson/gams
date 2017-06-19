@@ -336,6 +336,12 @@ namespace gams
        **/
       platforms::BasePlatform * get_platform (void);
 
+      /**
+      * Gets the sensors map
+      * @return the platform
+      **/
+      variables::Sensors * get_sensors (void);
+
     protected:
 
       /// Accents on the primary algorithm

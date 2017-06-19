@@ -1293,3 +1293,9 @@ gams::controllers::BaseController::get_platform (void)
 {
   return platform_;
 }
+
+gams::variables::Sensors *
+gams::controllers::BaseController::get_sensors (void)
+{
+  return &sensors_;
+}
