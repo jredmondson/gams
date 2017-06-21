@@ -127,7 +127,7 @@ IF %vrep% EQU 1 (
   )
 
 
-  start "" "%VREP_ROOT%\vrep"
+  start "vrepstart" /D "%VREP_ROOT%" "vrep"
 
   IF %verbose% EQU 1 (
     echo Sleeping for 10s to allow VREP to load
