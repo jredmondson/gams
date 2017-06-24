@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+# Copyright (c) 2015-2017 Carnegie Mellon University. All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -64,6 +64,8 @@
 #                   git://git.code.sf.net/p/madara/code
 #   $GAMS_ROOT    - location of this GAMS git repository
 #   $VREP_ROOT    - location of VREP installation, if applicable
+#   $SSL_ROOT     - location of OpenSSL (usually /usr)
+#   $ZMQ_ROOT     - location of ZeroMQ (usually /usr/local)
 #
 # For android
 #   $LOCAL_CROSS_PREFIX
@@ -85,6 +87,8 @@ GAMS=0
 PREREQS=0
 DOCS=0
 VREP_CONFIG=0
+ZMQ=0
+SSL=0
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -119,6 +123,10 @@ do
     MADARA=1
   elif [ "$var" = "gams" ]; then
     GAMS=1
+  elif [ "$var" = "zmq" ]; then
+    ZMQ=1
+  elif [ "$var" = "ssl" ]; then
+    SSL=1
   elif [ "$var" = "odroid" ]; then
     ODROID=1
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
@@ -140,10 +148,12 @@ do
     echo "  odroid          target ODROID computing platform"
     echo "  prereqs         use apt-get to install prereqs"
     echo "  ros             build ROS platform classes"
+    echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
+    echo "  zmq             build with ZeroMQ support"
     echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
@@ -155,6 +165,8 @@ do
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  JAVA_HOME           - location of JDK"
+    echo "  ZMQ_ROOT            - location of ZeroMQ"
+    echo "  SSL_ROOT            - location of OpenSSL"
     exit
   fi
 done
@@ -227,6 +239,14 @@ if [ $PREREQS -eq 1 ]; then
     sudo apt-get install -f oracle-java8-set-default
     echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
   fi
+  
+  if [ $SSL -eq 1 ]; then
+    sudo apt-get install libssl-dev
+  fi
+  
+  if [ $ZMQ -eq 1 ]; then 
+    sudo apt-get install libtool pkg-config autoconf automake
+  fi
 fi
 
 if [ $ACE -eq 1 ]; then
@@ -265,6 +285,17 @@ else
   echo "NOT BUILDING ACE"
 fi
 
+if [ $ZMQ -eq 1 ]; then
+  git clone https://github.com/zeromq/libzmq
+  cd libzmq
+  ./autogen.sh && ./configure && make -j 4
+  make check
+  sudo make install && sudo ldconfig
+  export ZMQ_ROOT=/usr/local
+else
+  echo "NOT BUILDING ZEROMQ"
+fi
+
 if [ $MADARA -eq 1 ]; then
   # build MADARA
   if [ -z $MADARA_ROOT ] ; then
@@ -284,7 +315,7 @@ if [ $MADARA -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS MADARA.mwc
+  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -294,7 +325,7 @@ if [ $MADARA -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS -j $CORES
+  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ -j $CORES
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING MADARA"
@@ -399,5 +430,14 @@ echo "export ACE_ROOT=$ACE_ROOT"
 echo "export MADARA_ROOT=$MADARA_ROOT"
 echo "export GAMS_ROOT=$GAMS_ROOT"
 echo "export VREP_ROOT=$VREP_ROOT"
+
+if [ $SSL -eq 1 ]; then
+  echo "export SSL_ROOT=$SSL_ROOT"
+fi
+
+if [ $SSL -eq 1 ]; then
+  echo "export ZMQ_ROOT=$ZMQ_ROOT"
+fi
+
 echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib"
 echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$VREP_ROOT"
