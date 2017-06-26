@@ -50,10 +50,6 @@
 #include "DebugPlatform.h"
 #include "NullPlatform.h"
 
-#ifdef _GAMS_DRONERK_
-#include "dronerk/Drone_RK.h"
-#endif
-
 #ifdef _GAMS_VREP_
 #include "gams/platforms/vrep/VREPQuad.h"
 #include "gams/platforms/vrep/VREPQuadLaser.h"
