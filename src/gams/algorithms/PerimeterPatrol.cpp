@@ -240,10 +240,8 @@ gams::algorithms::PerimeterPatrol::analyze (void)
       locations_[move_index_].to_string ().c_str ());
 
     // check our distance to the next location
-    utility::Location loc = platform_->get_location ();
-    utility::Location next_loc (platform_->get_frame (),
-      locations_[move_index_].y, locations_[move_index_].x,
-      locations_[move_index_].z);
+    pose::Position loc = platform_->get_location ();
+    pose::Position next_loc = locations_[move_index_];
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
@@ -315,8 +313,7 @@ gams::algorithms::PerimeterPatrol::execute (void)
       " calling platform->move(\"%s\")\n",
       locations_[move_index_].to_string ().c_str ());
 
-    // allow GPSPosition to do the conversion for lat/lon
-    utility::GPSPosition next = locations_[move_index_];
+    pose::Position next = locations_[move_index_];
 
     platform_->move (next);
   }
@@ -353,13 +350,22 @@ gams::algorithms::PerimeterPatrol::generate_locations (void)
   if (locations_.size () == 0)
   {
     // get the area from the knowledge base
-    utility::SearchArea sa;
+    pose::SearchArea sa;
     sa.from_container (*knowledge_, area_);
 
     // get a bounding box around the regions
-    utility::Region hull = sa.get_convex_hull ();
+    pose::Region hull = sa.get_convex_hull ();
 
     locations_ = hull.vertices;
+
+    for (pose::Position v : locations_)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "PerimeterPatrol::generate_locations:" \
+        " hull point: %s\n",
+        v.to_string().c_str());
+    }
   }
 
   if (platform_ && *platform_->get_platform_status ()->movement_available)
@@ -367,7 +373,7 @@ gams::algorithms::PerimeterPatrol::generate_locations (void)
     // find closest location
     move_index_ = 0;
 
-    utility::GPSPosition agent_location;
+    pose::Position agent_location (platform_->get_frame());
     agent_location.from_container (self_->agent.location);
 
     // find distance to default position

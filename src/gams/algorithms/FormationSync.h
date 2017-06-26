@@ -62,7 +62,6 @@
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/BaseAlgorithm.h"
-#include "gams/utility/GPSPosition.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Barrier.h"
@@ -107,8 +106,8 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       FormationSync (
-        utility::GPSPosition & start,
-        utility::GPSPosition & end,
+        pose::Position & start,
+        pose::Position & end,
         const std::vector<std::string> & members,
         double buffer,
         int formation,
@@ -161,7 +160,7 @@ namespace gams
        * @param distance   the distance in meters
        * @return  the new position at the angle and distance
        **/
-      utility::GPSPosition generate_position (utility::GPSPosition reference,
+      pose::Position generate_position (pose::Position reference,
         double angle, double distance);
 
       /**
@@ -174,10 +173,10 @@ namespace gams
         std::vector <std::string> & member_list);
 
       /// center of formation start
-      utility::GPSPosition start_;
+      pose::Position start_;
 
       /// center of formation end
-      utility::GPSPosition end_;
+      pose::Position end_;
 
       /// members of the formation (e.g., agent.0, agent.1, etc.)
       std::vector <std::string> members_;
@@ -186,7 +185,7 @@ namespace gams
       double buffer_;
 
       /// the planned positions of this agent
-      std::vector <utility::GPSPosition> plan_;
+      std::vector <pose::Position> plan_;
 
       /// the formation to use
       int formation_;

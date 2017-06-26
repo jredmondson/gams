@@ -51,7 +51,14 @@
  * Agents mark a sensor with their time when they enter a discretized cell of a 
  * region. Each agent selects a destination coordinate which provides the 
  * highest increase in sensor utility determined by time since last observation.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
+ *
+ * Disabled pending repair of the variables::Sensor class
  **/
+
+#if 0
 
 #include "gams/loggers/GlobalLogger.h"
 #include "gams/algorithms/area_coverage/PrioritizedMinTimeAreaCoverage.h"
@@ -218,3 +225,5 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverage::get_utility (
   util = util / sqrt (start.distance_to_2d (end) + 1);
   return util;
 }
+
+#endif

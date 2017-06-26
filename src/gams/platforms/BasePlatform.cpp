@@ -48,7 +48,6 @@
 #include <cmath>
 
 #include "BasePlatform.h"
-#include "gams/utility/GPSPosition.h"
 
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
@@ -119,7 +118,7 @@ gams::platforms::BasePlatform::home (void)
   if (self_->agent.home.size () == 3)
   {
     // read the home position
-    utility::GPSPosition position;
+    pose::Position position(get_frame());
     position.from_container (self_->agent.home);
 
     // move to home
@@ -129,26 +128,28 @@ gams::platforms::BasePlatform::home (void)
   return 0;
 }
 
+#if 0
 int
 gams::platforms::BasePlatform::move (const utility::Position & target,
   const double & epsilon)
 {
-  return move(utility::Location(get_frame(),
+  return move(pose::Position(get_frame(),
               target.y, target.x, target.z), epsilon);
 }
+#endif
 
 int
-gams::platforms::BasePlatform::move (const utility::Location & target,
+gams::platforms::BasePlatform::move (const pose::Position & target,
   double epsilon)
 {
   int result = 0;
 
-  utility::Location current(get_location());
+  pose::Position current(get_location());
 
-  utility::Location dest(get_frame(), 0, 0);
+  pose::Position dest(get_frame(), 0, 0);
   dest.from_container (self_->agent.dest);
 
-  utility::Location gps_target(get_frame(), target);
+  pose::Position gps_target(get_frame(), target);
 
   /**
    * if we are not paused, we are not already at the target,
@@ -181,18 +182,12 @@ gams::platforms::BasePlatform::move (const utility::Location & target,
 
 
 int
-gams::platforms::BasePlatform::orient (const utility::Axes &)
-{
-  return 0;
-}
-
-int
-gams::platforms::BasePlatform::orient (const utility::Orientation & target,
+gams::platforms::BasePlatform::orient (const pose::Orientation & target,
   double epsilon)
 {
   int result (0);
 
-  utility::Orientation current(get_orientation());
+  pose::Orientation current(get_orientation());
 
   /**
    * if we are not paused, we are not already at the target,
@@ -224,11 +219,11 @@ gams::platforms::BasePlatform::orient (const utility::Orientation & target,
 }
 
 int
-gams::platforms::BasePlatform::pose (const utility::Pose & target,
+gams::platforms::BasePlatform::pose (const pose::Pose & target,
   double loc_epsilon, double rot_epsilon)
 {
-  int move_status = move(utility::Location(target), loc_epsilon);
-  int orient_status = orient(utility::Orientation(target), rot_epsilon);
+  int move_status = move(pose::Position(target), loc_epsilon);
+  int orient_status = orient(pose::Orientation(target), rot_epsilon);
   if(move_status == 0 || orient_status == 0)
     return 0;
   if(move_status == 2 && orient_status == 2)
@@ -303,5 +298,11 @@ gams::platforms::BasePlatform::stop_orientation (void)
   // set source and dest to current position
   self_->agent.source_orientation = self_->agent.orientation;
   self_->agent.dest_orientation = self_->agent.orientation;
+}
+
+const gams::pose::ReferenceFrame &
+gams::platforms::BasePlatform::get_frame (void) const
+{
+  return pose::default_frame();
 }
 

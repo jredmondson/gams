@@ -42,6 +42,9 @@
  * 
  *      This material has been approved for public release and unlimited
  *      distribution.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  **/
 
 #include "gams/algorithms/area_coverage/UniformRandomAreaCoverage.h"
@@ -166,7 +169,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::
   status_.init_variable_values ();
 
   // get region to cover
-  utility::SearchArea search;
+  pose::SearchArea search;
   search.from_container (*knowledge, search_area_id);
   region_ = search.get_convex_hull ();
 
@@ -211,7 +214,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::
         region_.max_lon_));
       next_position_.altitude (madara::utility::rand_double (region_.min_alt_,
         region_.max_alt_));
-    } while (!region_.contains (next_position_));
+    } while (!region_.contains (next_position_.to_gps_pos()));
 
     // found an acceptable position, so set it as next
     utility::GPSPosition current;

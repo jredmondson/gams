@@ -62,7 +62,7 @@
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/BaseAlgorithm.h"
-#include "gams/utility/Location.h"
+#include "gams/pose/Position.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Barrier.h"
@@ -157,13 +157,13 @@ namespace gams
 
       int index_;
 
-      typedef utility::Location (ZoneCoverage::*formation_func) () const;
+      typedef pose::Position (ZoneCoverage::*formation_func) () const;
 
       formation_func form_func_;
 
-      utility::Location line_formation () const;
-      utility::Location arc_formation () const;
-      utility::Location onion_formation () const;
+      pose::Position line_formation () const;
+      pose::Position arc_formation () const;
+      pose::Position onion_formation () const;
 
       static formation_func get_form_func (const std::string &form_name);
 
@@ -172,16 +172,16 @@ namespace gams
       MadaraArrayVec asset_loc_cont_;
       MadaraArrayVec enemy_loc_cont_;
 
-      std::vector<utility::Location> asset_locs_;
-      std::vector<utility::Location> enemy_locs_;
-      utility::Location next_loc_;
+      std::vector<pose::Position> asset_locs_;
+      std::vector<pose::Position> enemy_locs_;
+      pose::Position next_loc_;
 
     private:
       madara::knowledge::containers::StringVector get_group (const std::string &name) const;
       void update_arrays (const madara::knowledge::containers::StringVector &names,
                          MadaraArrayVec &arrays) const;
       void update_locs (const MadaraArrayVec &arrays,
-                       std::vector<utility::Location> &locs) const;
+                       std::vector<pose::Position> &locs) const;
       int get_index () const;
     };
     

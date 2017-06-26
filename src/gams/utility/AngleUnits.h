@@ -61,12 +61,15 @@ namespace gams
   namespace utility
   {
     /// Radians unit flag; see Euler constructor
+    /// Deprecated; use gams::pose::radians instead
     static const gams::pose::detail::radians_t radians;
 
     /// Degres unit flag; see Euler constructor
+    /// Deprecated; use gams::pose::degrees instead
     static const gams::pose::detail::degrees_t degrees;
 
     /// Revolutions (i.e., 1 == 360 degrees) unit flag; see Euler constructor
+    /// Deprecated; use gams::pose::revolutions instead
     static const gams::pose::detail::revolutions_t revolutions;
   }
 }

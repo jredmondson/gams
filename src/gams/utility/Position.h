@@ -49,6 +49,8 @@
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains a utility class for working with position
+ *
+ * DEPRECATED: use pose::Position instead. Will be removed in GAMS v2
  **/
 
 #ifndef _GAMS_UTILITY_POSITION_H_
@@ -60,12 +62,17 @@
 #include "madara/knowledge/containers/DoubleVector.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 
+#include "gams/pose/Position.h"
+#include "gams/pose/ReferenceFrame.h"
+
 namespace gams
 {
   namespace utility
   {
     /**
     * A position in an x, y, z coordinate system
+    *
+    * DEPRECATED: use pose::Position instead. Will be removed in GAMS v2
     **/
     class GAMSExport Position
     {
@@ -84,6 +91,13 @@ namespace gams
        * @param source  the source to copy
        **/
       Position(const Position & source);
+
+      Position (const pose::Position & pos)
+        : x(pos.x()), y(pos.y()), z(pos.z()) {}
+
+      pose::Position to_pos (const pose::ReferenceFrame &frame) const {
+        return pose::Position (frame, x, y, z);
+      }
 
       /**
        * Destructor

@@ -158,12 +158,6 @@ namespace gams
       static void ros_init(const std::string& n = "robot_0");
 
     protected:
-      /// a cartesian frame for coordinate reference frame
-      pose::CartesianFrame cart_frame_;
-
-      /// a GPS frame for base coordinate reference frame
-      pose::GPSFrame gps_frame_;
-
       /// the current frame (can theoretically be switched between options)
       pose::ReferenceFrame * frame_;
 

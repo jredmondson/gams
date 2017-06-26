@@ -64,7 +64,7 @@
 #include "gams/variables/Self.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/OS_NS_sys_time.h"
-#include "gams/utility/Position.h"
+#include "gams/pose/Position.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
 #include "gams/GAMSExport.h"
@@ -91,7 +91,7 @@ namespace gams
        * @param  agents      variables referencing agents
        **/
       Move (
-        const std::vector <utility::Pose> & locations,
+        const std::vector <pose::Pose> & locations,
         int repeat,
         double wait_time,
         madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -132,7 +132,7 @@ namespace gams
     protected:
 
       /// the locations to visit
-      std::vector <utility::Pose> poses_;
+      std::vector <pose::Pose> poses_;
 
       /// number of times to repeat
       int repeat_;

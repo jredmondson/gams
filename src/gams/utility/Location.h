@@ -73,6 +73,8 @@ namespace gams
      * northing/easting/zone/hemi/alt for UTM/USP systems
      *
      * Each of the above are bound to x/y/z respectively
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::PositionVector LocationVector;
 
@@ -95,6 +97,8 @@ namespace gams
      * to. In particular, the UTM/USP accessors may produce strange values if
      * the Location is not actually bound to a UTMFrame, but will not cause
      * exceptions.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::Position Location;
   }

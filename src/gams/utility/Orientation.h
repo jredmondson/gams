@@ -73,6 +73,8 @@ namespace gams
      * the center of your right hand, and your thumb is pointing in the positive
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::OrientationVector OrientationVector;
 
@@ -86,6 +88,8 @@ namespace gams
      * the center of your right hand, and your thumb is pointing in the positive
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::Orientation Orientation;
   }

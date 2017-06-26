@@ -65,12 +65,16 @@ namespace gams
     /**
      * Container for Pose information, not bound to a frame.
      * See LocationVector and OrientationVector for representation deatils
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::PoseVector PoseVector;
 
     /**
      * Represents a combination of Location and Orientation within a single
      * reference frame.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::Pose Pose;
     ;

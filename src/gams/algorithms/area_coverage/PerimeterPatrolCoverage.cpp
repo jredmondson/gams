@@ -51,6 +51,9 @@
  * Defines a Perimeter Patrol path for agents to follow. Used as tutorial for
  * creating custom area coverage algorithms. If this file is updated, please
  * update the wiki as well.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  */
 
 #include "gams/loggers/GlobalLogger.h"
@@ -59,8 +62,8 @@
 #include <vector>
 
 #include "gams/utility/GPSPosition.h"
-#include "gams/utility/Region.h"
-#include "gams/utility/SearchArea.h"
+#include "gams/pose/Region.h"
+#include "gams/pose/SearchArea.h"
 #include "gams/utility/Position.h"
 
 #include "gams/utility/ArgumentParser.h"
@@ -109,7 +112,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "gams::algorithms::PerimeterPatrolCoverageFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
           break;
         }
@@ -121,7 +124,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "gams::algorithms::PerimeterPatrolCoverageFactory:" \
             " setting search_area to %s\n", search_area.c_str ());
           break;
         }
@@ -133,7 +136,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::FormationSyncFactory:" \
+            "gams::algorithms::PerimeterPatrolCoverageFactory:" \
             " setting time to %f\n", time);
           break;
         }
@@ -142,7 +145,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationSyncFactory:" \
+          "gams::algorithms::PerimeterPatrolCoverageFactory:" \
           " argument unknown: %s -> %s\n",
           i->first.c_str (), i->second.to_string ().c_str ());
         break;
@@ -200,10 +203,16 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverage::generate_positions (vo
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
     // get waypoints
-    utility::SearchArea sa;
+    pose::SearchArea sa;
     sa.from_container (*knowledge_, region_id_);
-    utility::Region reg = sa.get_convex_hull ();
-    vector<utility::GPSPosition> vertices = reg.vertices;
+    pose::Region reg = sa.get_convex_hull ();
+    vector<utility::GPSPosition> vertices;
+    vertices.reserve(reg.vertices.size());
+    for (pose::Position vert : reg.vertices)
+    {
+      vertices.push_back(utility::GPSPosition(
+        vert.transform_to(pose::gps_frame())));
+    }
 
     // find closest waypoint as starting point
     size_t closest = 0;

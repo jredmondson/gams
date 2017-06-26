@@ -58,8 +58,6 @@
 #include <limits.h>
 #include <math.h>
 
-#include "gams/utility/GPSPosition.h"
-
 #include "gams/utility/ArgumentParser.h"
 
 using std::stringstream;
@@ -212,7 +210,7 @@ gams::algorithms::Follow::analyze (void)
 
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    const utility::ReferenceFrame * platform_frame =
+    const pose::ReferenceFrame * platform_frame =
       &(platform_->get_location ().frame ());
 
     // initialize location and orientation frames
@@ -285,7 +283,7 @@ gams::algorithms::Follow::execute (void)
         "gams::algorithms::Follow::execute:" \
         " Target has location. Moving.\n");
       
-      gams::utility::CartesianFrame target_frame;
+      gams::pose::CartesianFrame target_frame;
 
       if (target_.dest.to_record ().size () >= 2)
       {
@@ -296,21 +294,21 @@ gams::algorithms::Follow::execute (void)
           target_destination_.y () - target_location_.y (),
           target_destination_.x () - target_location_.x ());
 
-        gams::utility::Orientation dest_orientation (0, 0, dest_radians);
+        gams::pose::Orientation dest_orientation (0, 0, dest_radians);
 
-        target_frame = gams::utility::CartesianFrame (
-          gams::utility::Pose (target_location_, dest_orientation));
+        target_frame = gams::pose::CartesianFrame (
+          gams::pose::Pose (target_location_, dest_orientation));
       }
       else
       {
         // by default use a pose of the target location with a default orientation
-        target_frame = gams::utility::CartesianFrame (
-          gams::utility::Pose (target_location_,
-          gams::utility::Orientation (0,0,0)));
+        target_frame = gams::pose::CartesianFrame (
+          gams::pose::Pose (target_location_,
+          gams::pose::Orientation (0,0,0)));
       }
 
       // the destination is modified by the row, column and buffer size
-      gams::utility::Location destination (
+      gams::pose::Position destination (
         target_frame, offset_[0], offset_[1], offset_[2]);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),

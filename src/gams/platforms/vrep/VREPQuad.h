@@ -59,7 +59,6 @@
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
-#include "gams/utility/GPSPosition.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/threads/Threader.h"
 #include "madara/threads/BaseThread.h"

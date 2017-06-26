@@ -54,7 +54,7 @@
 #include "madara/utility/Utility.h"
 
 #include "gams/utility/ArgumentParser.h"
-#include "gams/utility/Coordinate.h"
+#include "gams/pose/Coordinate.h"
 
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
@@ -76,7 +76,7 @@ gams::algorithms::MoveFactory::create (
   
   if (knowledge && sensors && platform && self)
   {
-    std::vector <utility::Pose> poses;
+    std::vector <pose::Pose> poses;
     int repeat_times (0);
     double wait_time (0.0);
 
@@ -202,7 +202,7 @@ gams::algorithms::MoveFactory::create (
 }
 
 gams::algorithms::Move::Move (
-  const std::vector <utility::Pose> & locations,
+  const std::vector <pose::Pose> & locations,
   int repeat,
   double wait_time,
   madara::knowledge::KnowledgeBase * knowledge, 
@@ -263,8 +263,8 @@ gams::algorithms::Move::analyze (void)
           poses_[move_index_].to_string ().c_str ());
 
         // check our distance to the next location
-        utility::Location loc = platform_->get_location ();
-        utility::Location next_loc (platform_->get_frame (), poses_[move_index_]);
+        pose::Position loc = platform_->get_location ();
+        pose::Position next_loc (platform_->get_frame (), poses_[move_index_]);
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_DETAILED,
@@ -341,7 +341,7 @@ gams::algorithms::Move::execute (void)
           gams::loggers::LOG_MINOR,
           "Move::execute:" \
           " Only a orient is necessary to %s\n",
-          utility::Orientation (poses_[move_index_]).to_string ().c_str ());
+          pose::Orientation (poses_[move_index_]).to_string ().c_str ());
 
         move_result = platform_->orient (poses_[move_index_],
           platform_->get_accuracy ());
@@ -357,7 +357,7 @@ gams::algorithms::Move::execute (void)
           gams::loggers::LOG_MINOR,
           "Move::execute:" \
           " Only a location move is necessary to %s\n",
-          utility::Location (poses_[move_index_]).to_string ().c_str ());
+          pose::Position (poses_[move_index_]).to_string ().c_str ());
 
         move_result = platform_->move (poses_[move_index_],
           platform_->get_accuracy ());

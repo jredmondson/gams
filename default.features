@@ -14,10 +14,6 @@
 tests                   = 1
 
 
-/// @feature dronerk
-/// Enable this feature if you want to support the Drone RK platform
-dronerk                   = 0
-
 /// @feature vrep
 /// Enable this feature if you want to support the VREP simulator
 vrep                      = 1

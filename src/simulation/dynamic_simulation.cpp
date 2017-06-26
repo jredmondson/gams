@@ -56,16 +56,16 @@
 #include "madara/utility/Utility.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 
-#include "gams/utility/Region.h"
-using gams::utility::Region;
-#include "gams/utility/PrioritizedRegion.h"
-using gams::utility::PrioritizedRegion;
-#include "gams/utility/SearchArea.h"
-using gams::utility::SearchArea;
+#include "gams/pose/Region.h"
+using gams::pose::Region;
+#include "gams/pose/PrioritizedRegion.h"
+using gams::pose::PrioritizedRegion;
+#include "gams/pose/SearchArea.h"
+using gams::pose::SearchArea;
 #include "gams/utility/Position.h"
-using gams::utility::Position;
-#include "gams/utility/GPSPosition.h"
-using gams::utility::GPSPosition;
+using gams::pose::Position;
+#include "gams/pose/GPSFrame.h"
+using gams::pose::gps_frame;
 #include "gams/variables/Sensor.h"
 using gams::variables::Sensor;
 
@@ -431,15 +431,18 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
   {
     size_t next = (j + 1) % reg.vertices.size ();
 
-    gams::utility::GPSPosition origin;
+    Position origin(gps_frame());
     double latitude (sw[0]), longitude (sw[1]);
     origin.latitude (latitude); origin.longitude (longitude);
 
-    const gams::utility::GPSPosition gps_pos_1 = reg.vertices[j];
-    const gams::utility::GPSPosition gps_pos_2 = reg.vertices[next];
-    const gams::utility::Position pos_1 = gps_pos_1.to_position (origin);
-    const gams::utility::Position pos_2 = gps_pos_2.to_position (origin);
-    const double delta_x = pos_2.x - pos_1.x;
+    const Position gps_pos_1 = reg.vertices[j];
+    const Position gps_pos_2 = reg.vertices[next];
+
+    gams::pose::CartesianFrame local_frame(origin);
+
+    const Position pos_1 = gps_pos_1.transform_to (local_frame);
+    const Position pos_2 = gps_pos_2.transform_to (local_frame);
+    const double delta_x = pos_2.x() - pos_1.x();
 
     const unsigned int NUM_PLANTS_PER_SIDE = 5;
     for (unsigned int k = 0; k < NUM_PLANTS_PER_SIDE; ++k)
@@ -447,15 +450,15 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
       double plant_x, plant_y;
       if (delta_x != 0)
       {
-        const double m = (pos_2.y - pos_1.y) / delta_x;
+        const double m = (pos_2.y() - pos_1.y()) / delta_x;
         const double k_del_x = k * delta_x / NUM_PLANTS_PER_SIDE;
-        plant_x = pos_1.x + k_del_x;
-        plant_y = pos_1.y + m * k_del_x;
+        plant_x = pos_1.x() + k_del_x;
+        plant_y = pos_1.y() + m * k_del_x;
       }
       else // vertical line
       {
-        plant_x = pos_1.x;
-        plant_y = pos_1.y + (pos_2.y - pos_1.y) * k / NUM_PLANTS_PER_SIDE;
+        plant_x = pos_1.x();
+        plant_y = pos_1.y() + (pos_2.y() - pos_1.y()) * k / NUM_PLANTS_PER_SIDE;
       }
 
       // find where it should go
@@ -639,7 +642,7 @@ void create_environment (const int& client_id,
     {
       if (regions[i].find ("region") != std::string::npos)
       {
-        gams::utility::Region reg;
+        gams::pose::Region reg;
         reg.from_container (knowledge, regions[i]);
         put_border (knowledge, reg, client_id);
       }
@@ -743,7 +746,7 @@ time_to_full_coverage (madara::knowledge::KnowledgeBase& knowledge,
   const SearchArea& search)
 {
   // get sensors and discrete area
-  GPSPosition origin;
+  Position origin(gps_frame());
   madara::knowledge::containers::NativeDoubleArray origin_container;
   origin_container.set_name ("sensor.coverage.origin", knowledge, 3);
   origin.from_container (origin_container);

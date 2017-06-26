@@ -71,12 +71,15 @@
 #include "gams/algorithms/area_coverage/UniformRandomAreaCoverage.h"
 #include "gams/algorithms/area_coverage/UniformRandomEdgeCoverage.h"
 #include "gams/algorithms/area_coverage/PriorityWeightedRandomAreaCoverage.h"
-#include "gams/algorithms/area_coverage/LocalPheremoneAreaCoverage.h"
 #include "gams/algorithms/area_coverage/SnakeAreaCoverage.h"
-#include "gams/algorithms/area_coverage/MinTimeAreaCoverage.h"
-#include "gams/algorithms/area_coverage/PrioritizedMinTimeAreaCoverage.h"
 #include "gams/algorithms/area_coverage/PerimeterPatrolCoverage.h"
 #include "gams/algorithms/area_coverage/WaypointsCoverage.h"
+
+#if 0
+#include "gams/algorithms/area_coverage/MinTimeAreaCoverage.h"
+#include "gams/algorithms/area_coverage/PrioritizedMinTimeAreaCoverage.h"
+#include "gams/algorithms/area_coverage/LocalPheremoneAreaCoverage.h"
+#endif
 
 #include <iostream>
 
@@ -208,24 +211,11 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
 
     add (aliases, new KarlEvaluatorFactory ());
 
-    // the local pheromone coverage algorithm
-    aliases.resize (1);
-    aliases[0] = "local pheremone";
-
-    add (aliases, new area_coverage::LocalPheremoneAreaCoverageFactory ());
-
     // the message profiling algorithm
     aliases.resize (1);
     aliases[0] = "message profiling";
 
     add (aliases, new MessageProfilingFactory ());
-
-    // the minimum time coverage algorithm
-    aliases.resize (2);
-    aliases[0] = "min time";
-    aliases[1] = "mtac";
-
-    add (aliases, new area_coverage::MinTimeAreaCoverageFactory ());
 
     // the move algorithm
     aliases.resize (2);
@@ -254,27 +244,6 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
 
     add (aliases, new PerimeterPatrolFactory ());
 
-    // the perimeter patrol algorithm
-    aliases.resize (2);
-    aliases[0] = "perimeter patrol area coverage";
-    aliases[1] = "ppac";
-
-    add (aliases, new area_coverage::PerimeterPatrolCoverageFactory ());
-
-    // the prioritized min time area coverage
-    aliases.resize (2);
-    aliases[0] = "prioritized min time area coverage";
-    aliases[1] = "pmtac";
-
-    add (aliases, new area_coverage::PrioritizedMinTimeAreaCoverageFactory ());
-
-    // the priority-weighted coverage algorithm
-    aliases.resize (2);
-    aliases[0] = "priority weighted random area coverage";
-    aliases[1] = "pwrac";
-
-    add (aliases, new area_coverage::PriorityWeightedRandomAreaCoverageFactory ());
-
     // the takeoff algorithm
     aliases.resize (1);
     aliases[0] = "takeoff";
@@ -291,6 +260,55 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
     aliases.resize (2);
     aliases[0] = "snake";
     aliases[1] = "sac";
+
+    // the wait
+    aliases.resize (1);
+    aliases[0] = "wait";
+
+    add (aliases, new WaitFactory ());
+
+    // zone coverage
+    aliases.resize (2);
+    aliases[0] = "zone coverage";
+    aliases[1] = "zone defense";
+
+    add (aliases, new ZoneCoverageFactory ());
+
+#if 0
+    // the local pheromone coverage algorithm
+    aliases.resize (1);
+    aliases[0] = "local pheremone";
+
+    add (aliases, new area_coverage::LocalPheremoneAreaCoverageFactory ());
+
+    // the minimum time coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "min time";
+    aliases[1] = "mtac";
+
+    add (aliases, new area_coverage::MinTimeAreaCoverageFactory ());
+
+    // the prioritized min time area coverage
+    aliases.resize (2);
+    aliases[0] = "prioritized min time area coverage";
+    aliases[1] = "pmtac";
+
+    add (aliases, new area_coverage::PrioritizedMinTimeAreaCoverageFactory ());
+#endif
+
+    // the perimeter patrol algorithm
+    aliases.resize (2);
+    aliases[0] = "perimeter patrol area coverage";
+    aliases[1] = "ppac";
+
+    add (aliases, new area_coverage::PerimeterPatrolCoverageFactory ());
+
+    // the priority-weighted coverage algorithm
+    aliases.resize (2);
+    aliases[0] = "priority weighted random area coverage";
+    aliases[1] = "pwrac";
+
+    add (aliases, new area_coverage::PriorityWeightedRandomAreaCoverageFactory ());
 
     add (aliases, new area_coverage::SnakeAreaCoverageFactory ());
 
@@ -314,19 +332,6 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
     aliases[1] = "waypoints_coverage";
 
     add (aliases, new area_coverage::WaypointsCoverageFactory ());
-
-    // the wait
-    aliases.resize (1);
-    aliases[0] = "wait";
-
-    add (aliases, new WaitFactory ());
-
-    // zone coverage
-    aliases.resize (2);
-    aliases[0] = "zone coverage";
-    aliases[1] = "zone defense";
-
-    add (aliases, new ZoneCoverageFactory ());
 
     init_finished_ = true;
   }

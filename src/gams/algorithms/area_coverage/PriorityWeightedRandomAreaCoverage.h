@@ -60,7 +60,7 @@
 
 #include <vector>
 
-#include "gams/utility/SearchArea.h"
+#include "gams/pose/SearchArea.h"
 
 namespace gams
 {
@@ -107,7 +107,7 @@ namespace gams
         void generate_new_position (void);
   
         /// Search Area to cover
-        utility::SearchArea search_area_;
+        pose::SearchArea search_area_;
   
         /// priority total by region
         std::vector<double> priority_total_by_region_;

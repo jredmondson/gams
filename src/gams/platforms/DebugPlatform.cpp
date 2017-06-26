@@ -334,7 +334,7 @@ gams::platforms::DebugPlatform::land (void)
 }
 
 int
-gams::platforms::DebugPlatform::move (const utility::Position & position,
+gams::platforms::DebugPlatform::move (const pose::Position & position,
   const double & /*epsilon*/)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -544,10 +544,4 @@ gams::platforms::DebugPlatform::takeoff (void)
     *self_->id, *executions_, *status_.gps_spoofed);
   
   return 0;
-}
-
-const gams::utility::ReferenceFrame &
-gams::platforms::DebugPlatform::get_frame (void) const
-{
-  return frame_;
 }

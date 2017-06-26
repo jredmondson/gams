@@ -51,7 +51,14 @@
  * Agents mark a sensor with their time when they enter a discretized cell of a 
  * region. At each time step, they select the neighboring cell with the lowest 
  * pheremone reading as their next destination.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
+ *
+ * Disabled pending repair of the variables::Sensor class
  **/
+
+#if 0
 
 #include "gams/loggers/GlobalLogger.h"
 #include "gams/algorithms/area_coverage/LocalPheremoneAreaCoverage.h"
@@ -294,3 +301,5 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
     initialized_ = true;
   }
 }
+
+#endif

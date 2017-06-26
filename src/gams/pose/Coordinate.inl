@@ -129,7 +129,7 @@ namespace gams
     template<typename CoordType>
     inline bool Coordinate<CoordType>::operator==(const CoordType &rhs) const
     {
-      if(frame() == rhs.frame())
+      if(&frame() == &rhs.frame())
       {
         return as_type<typename CoordType::BaseType>() == rhs;
       }

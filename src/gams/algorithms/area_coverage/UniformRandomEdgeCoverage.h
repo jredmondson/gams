@@ -63,7 +63,7 @@
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
 #include "gams/utility/GPSPosition.h"
-#include "gams/utility/Region.h"
+#include "gams/pose/Region.h"
 
 namespace gams
 {
@@ -115,7 +115,7 @@ namespace gams
         virtual void generate_new_position (void);
   
         /// convex hull of coverage region
-        utility::Region region_;
+        pose::Region region_;
       }; // class UniformRandomEdgeCoverage
 
       /**

@@ -52,8 +52,8 @@
  * Tests the functionality of gams::variables classes
  **/
 
-#include "gams/utility/Position.h"
-#include "gams/utility/GPSPosition.h"
+#include "gams/pose/Position.h"
+#include "gams/pose/GPSFrame.h"
 #include "gams/variables/Sensor.h"
 
 #include "gams/variables/AccentStatus.h"
@@ -63,8 +63,8 @@
 #include <assert.h>
 #include <vector>
 
-using gams::utility::GPSPosition;
-using gams::utility::Position;
+using gams::pose::Position;
+using gams::pose::gps_frame;
 using gams::variables::Sensor;
 using std::cout;
 using std::endl;
@@ -151,7 +151,7 @@ test_Sensor ()
    * We make the assumption that the Earth is flat over the area of operation 
    * and overlay a cartesian grid with the origin GPS location as (0,0,0).
    */
-  const GPSPosition origin (40, -80); 
+  const Position origin (gps_frame(), 40, -80); 
 
   // actual sensor construction
   Sensor s (name, &test, range, origin);
@@ -197,12 +197,12 @@ test_Sensor ()
    * performing a set. When calling get_gps_from_index() with a Position, it 
    * returns the GPS location of the closest discretized Position. 
    */
-  GPSPosition g1 (origin);
+  Position g1 (origin);
   g1.latitude (40.01);
   value = 2;
   s.set_value (g1, value);
   Position p1 = s.get_index_from_gps (g1);
-  GPSPosition g2 = s.get_gps_from_index (p1);
+  Position g2 = s.get_gps_from_index (p1);
   assert (s.get_value (g1) == value);
   assert (s.get_value (p1) == value);
   assert (s.get_value (g2) == value);

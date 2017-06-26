@@ -149,7 +149,14 @@ gams::controllers::BaseController::monitor (void)
       "gams::controllers::BaseController::monitor:" \
       " calling platform_->sense ()\n");
 
-    result = platform_->sense ();
+    try {
+      result = platform_->sense ();
+    } catch (std::exception &e) {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::analyze:" \
+        " exception in platform_->sense (): %s\n", e.what());
+    }
   }
   else
   {
@@ -298,7 +305,14 @@ gams::controllers::BaseController::analyze (void)
       "gams::controllers::BaseController::analyze:" \
       " calling platform_->analyze ()\n");
 
-    return_value |= platform_->analyze ();
+    try {
+      return_value |= platform_->analyze ();
+    } catch (std::exception &e) {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::analyze:" \
+        " exception in platform_->analyze (): %s\n", e.what());
+    }
   }
   else
   {
@@ -315,7 +329,14 @@ gams::controllers::BaseController::analyze (void)
       "gams::controllers::BaseController::analyze:" \
       " calling algorithm_->analyze ()\n");
 
-    return_value |= algorithm_->analyze ();
+    try {
+      return_value |= algorithm_->analyze ();
+    } catch (std::exception &e) {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::analyze:" \
+        " exception in algorithm_->analyze (): %s\n", e.what());
+    }
   }
   else
   {
@@ -354,7 +375,14 @@ gams::controllers::BaseController::plan (void)
       "gams::controllers::BaseController::plan:" \
       " calling algorithm_->plan ()\n");
 
-    return_value |= algorithm_->plan ();
+    try {
+      return_value |= algorithm_->plan ();
+    } catch (std::exception &e) {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::analyze:" \
+        " exception in algorithm_->plan (): %s\n", e.what());
+    }
   }
   else
   {
@@ -393,7 +421,14 @@ gams::controllers::BaseController::execute (void)
       "gams::controllers::BaseController::execute:" \
       " calling algorithm_->execute ()\n");
 
-    return_value |= algorithm_->execute ();
+    try {
+      return_value |= algorithm_->execute ();
+    } catch (std::exception &e) {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::analyze:" \
+        " exception in algorithm_->execute (): %s\n", e.what());
+    }
   }
   else
   {

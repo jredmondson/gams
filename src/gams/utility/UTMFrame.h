@@ -85,6 +85,8 @@ namespace gams
      *       UPS coordinates. For proper transformation of poses, be sure to
      *       transform the entire pose as a single Pose object. Do not transform
      *       Locations and Orientations individually if bearing is important.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::UTMFrame UTMFrame;
   }

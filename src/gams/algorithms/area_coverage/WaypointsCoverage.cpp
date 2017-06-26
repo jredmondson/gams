@@ -42,6 +42,9 @@
  * 
  *      This material has been approved for public release and unlimited
  *      distribution.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  **/
 
 #include "gams/algorithms/area_coverage/WaypointsCoverage.h"

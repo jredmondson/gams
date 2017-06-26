@@ -57,16 +57,16 @@
 #include <vector>
 #include <string>
 
-#include "gams/utility/PrioritizedRegion.h"
+#include "gams/pose/PrioritizedRegion.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     /**
     * A utility class for search areas
     **/
-    class GAMSExport SearchArea : public Containerize
+    class GAMSExport SearchArea : public utility::Containerize
     {
     public:
       /**
@@ -138,14 +138,14 @@ namespace gams
        * @param pos   position to get priority of
        * @return priority of position
        */
-      madara::knowledge::KnowledgeRecord::Integer get_priority (const GPSPosition& pos) const;
+      madara::knowledge::KnowledgeRecord::Integer get_priority (const Position& pos) const;
       
       /**
-       * Determine if GPSPosition is in region
+       * Determine if Position is in region
        * @param   p   point to check if in region
        * @return  true if point is in the search area, false otherwise
        **/
-      bool contains (const GPSPosition& p) const;
+      bool contains (const Position& p) const;
       
       /**
        * Create string representation of SearchArea
@@ -171,8 +171,8 @@ namespace gams
        * @param gp3  end point
        * @return cross product of the points
        **/
-      double cross (const GPSPosition& gp1, const GPSPosition& gp2, 
-        const GPSPosition& gp3) const;
+      double cross (const Position& gp1, const Position& gp2, 
+        const Position& gp3) const;
 
       /// collection of prioritized regions
       std::vector<PrioritizedRegion> regions_;

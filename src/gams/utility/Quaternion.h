@@ -66,6 +66,8 @@ namespace gams
     /**
      * Used internally to implement angle operations.
      * Not reference-frame aware.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::Quaternion Quaternion;
   }

@@ -42,6 +42,9 @@
  * 
  *      This material has been approved for public release and unlimited
  *      distribution.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  **/
 
 #include "gams/algorithms/area_coverage/UniformRandomEdgeCoverage.h"
@@ -174,7 +177,7 @@ UniformRandomEdgeCoverage::UniformRandomEdgeCoverage (
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::area_coverage::UniformRandomEdgeCoverage::constructor:" \
     " parsing SearchArea \"%s\"\n", prefix.c_str ());
-  utility::SearchArea search;
+  pose::SearchArea search;
   search.from_container (*knowledge, prefix);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -227,9 +230,8 @@ gams::algorithms::area_coverage::UniformRandomEdgeCoverage::generate_new_positio
     int target_edge = madara::utility::rand_int (0, num_edges - 1);
 
     // get endpoints
-    const utility::GPSPosition & pos_1 = region_.vertices[target_edge];
-    const utility::GPSPosition & pos_2 =
-      region_.vertices[(target_edge + 1) % num_edges];
+    const utility::GPSPosition pos_1 (region_.vertices[target_edge].transform_to(pose::gps_frame()));
+    const utility::GPSPosition pos_2 (region_.vertices[(target_edge + 1) % num_edges].transform_to(pose::gps_frame()));
 
     // get random point on line
     double delta_lat = pos_2.latitude () - pos_1.latitude ();

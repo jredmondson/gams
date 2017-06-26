@@ -206,6 +206,8 @@ namespace gams
        * @return longitude value
        **/
       constexpr double lng () const;
+      constexpr double lon () const;
+      constexpr double longitude () const;
 
       /**
        * Getter for latitude, a synonym for y
@@ -213,6 +215,7 @@ namespace gams
        * @return latitude value
        **/
       constexpr double lat () const;
+      constexpr double latitude () const;
 
       /**
        * Getter for altitude, a synonym for z
@@ -220,6 +223,7 @@ namespace gams
        * @return altitude value
        **/
       constexpr double alt () const;
+      constexpr double altitude () const;
 
       /**
        * Setter for longitude, a synonym for x
@@ -228,6 +232,8 @@ namespace gams
        * @return new longitude value
        **/
       double lng (double new_lng);
+      double lon (double new_lng);
+      double longitude (double new_lng);
 
       /**
        * Setter for latitude, a synonym for y
@@ -236,6 +242,7 @@ namespace gams
        * @return new latitude value
        **/
       double lat (double new_lat);
+      double latitude (double new_lat);
 
       /**
        * Setter for altitude, a synonym for z
@@ -244,6 +251,7 @@ namespace gams
        * @return new altitude value
        **/
       double alt (double new_alt);
+      double altitude (double new_alt);
 
       /**
        * Getter for rho, a synonym for x for Cylindrical systems

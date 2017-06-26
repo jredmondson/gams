@@ -72,6 +72,8 @@ namespace gams
        * specify a Euler convention. The euler namespace provides typedefs
        * for all possible conventions which may be simpler than using these
        * tags directly.
+       *
+       * Deprecated backwards compatibility aliases. Will be removed in v2
        **/
       namespace conv
       {
