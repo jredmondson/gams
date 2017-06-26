@@ -249,7 +249,7 @@ gams::algorithms::DebugAlgorithm::execute (void)
 
   if (platform_)
   {
-    utility::GPSPosition next (1, 2, 3);
+    pose::Position next (platform_->get_frame(), 1, 2, 3);
     platform_->move (next);
   }
   else

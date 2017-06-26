@@ -58,7 +58,7 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "gams/utility/Region.h"
+#include "gams/pose/Region.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
 #include "gams/loggers/GlobalLogger.h"

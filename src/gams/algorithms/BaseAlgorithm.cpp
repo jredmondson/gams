@@ -45,7 +45,7 @@
  **/
 
 #include "gams/algorithms/BaseAlgorithm.h"
-#include "gams/utility/Region.h"
+#include "gams/pose/Region.h"
 
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;

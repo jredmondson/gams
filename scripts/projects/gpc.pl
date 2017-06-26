@@ -2670,7 +2670,7 @@ platforms::${new_plat}::${new_plat} (
     if (it == sensors->end ()) // create coverage sensor
     {
       // get origin
-      gams::utility::GPSPosition origin;
+      gams::pose::Position origin (gams::pose::gps_frame());
       madara::knowledge::containers::NativeDoubleArray origin_container;
       origin_container.set_name (\"sensor.coverage.origin\", *knowledge, 3);
       origin.from_container (origin_container);

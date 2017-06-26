@@ -52,6 +52,8 @@
  * select their destination based on how long it had been since it was last 
  * visited. It should probably be slightly modified to easily accept custom 
  * utility calculation functions.
+ *
+ * NOTE: Disabled pending repair of the variables::Sensor class
  */
 
 #ifndef _GAMS_ALGORITHMS_AREA_COVERAGE_MIN_TIME_AREA_COVERAGE_H_
@@ -65,7 +67,7 @@
 
 #include "madara/knowledge/KnowledgeUpdateSettings.h"
 
-#include "gams/utility/SearchArea.h"
+#include "gams/pose/SearchArea.h"
 #include "gams/utility/GPSPosition.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
@@ -127,7 +129,7 @@ namespace gams
         virtual void review_last_move ();
   
         /// Search Area to cover
-        utility::SearchArea search_area_;
+        pose::SearchArea search_area_;
   
         /// time since last coverage
         variables::Sensor min_time_;

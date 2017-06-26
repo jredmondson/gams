@@ -48,13 +48,15 @@
  * @file LocalPheremoneAreaCoverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  * Contains implementation of area coverage based on pheremone tracking
+ *
+ * NOTE: Disabled pending repair of the variables::Sensor class
  **/
 
 #ifndef _GAMS_ALGORITHMS_AREA_COVERAGE_PHEREMONE_AREA_COVERAGE_H_
 #define _GAMS_ALGORITHMS_AREA_COVERAGE_PHEREMONE_AREA_COVERAGE_H_
 
 #include "gams/algorithms/area_coverage/BaseAreaCoverage.h"
-#include "gams/utility/SearchArea.h"
+#include "gams/pose/SearchArea.h"
 #include "gams/variables/Sensor.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
@@ -102,7 +104,7 @@ namespace gams
         virtual void generate_new_position (void);
   
         /// Search Area to cover
-        utility::SearchArea search_area_;
+        pose::SearchArea search_area_;
   
         /// virtual pheremone
         variables::Sensor pheremone_;

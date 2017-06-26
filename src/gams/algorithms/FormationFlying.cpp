@@ -59,8 +59,7 @@ using std::set;
 using std::string;
 using std::stringstream;
 
-#include "gams/utility/Position.h"
-#include "gams/utility/GPSPosition.h"
+#include "gams/pose/Position.h"
 
 #include "gams/utility/ArgumentParser.h"
 
@@ -538,7 +537,7 @@ gams::algorithms::FormationFlying::plan (void)
         utility::GPSPosition reference;
         reference.from_container (head_location_);
         next_position_ = utility::GPSPosition::to_gps_position (
-          offset, reference);
+          offset, reference).to_gps_pos();
 
         need_to_move_ = true;
 
@@ -552,9 +551,10 @@ gams::algorithms::FormationFlying::plan (void)
       {
         // calculate formation location
         double angle = phi_ + phi_dir_;
-        utility::GPSPosition ref_location;
+        pose::Position ref_location (platform_->get_frame());
         ref_location.from_container (head_location_);
-        utility::Position offset (rho_ * cos (angle), rho_ * sin (angle), z_);
+        pose::CartesianFrame local (ref_location);
+        pose::Position offset (local, rho_ * cos (angle), rho_ * sin (angle), z_);
 
         // hold position until everybody is ready
         if (formation_ready_ == 0)
@@ -563,8 +563,7 @@ gams::algorithms::FormationFlying::plan (void)
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationFlying:" \
             " follower moving or holding position in formation\n");
-          next_position_ = utility::GPSPosition::to_gps_position (
-            offset, ref_location);
+          next_position_ = offset.transform_to (platform_->get_frame());
         }
         else // we are moving or already at destination
         {
@@ -578,18 +577,19 @@ gams::algorithms::FormationFlying::plan (void)
           {
             // predict where the reference agent will be
             dist = 1;
-            utility::Position direction (
+            pose::Position direction (local,
               dist * cos (phi_dir_), dist * sin (phi_dir_));
-            utility::GPSPosition predicted =
-              utility::GPSPosition::to_gps_position (
-              direction, ref_location);
-            next_position_ = utility::GPSPosition::to_gps_position (
-              offset, predicted);
+            pose::Position predicted =
+              direction.transform_to (platform_->get_frame());
+            pose::CartesianFrame pred_local (predicted);
+            offset.frame (pred_local);
+            next_position_ = offset.transform_to (platform_->get_frame());
           }
           else // close enough, just go to final location
           {
-            next_position_ = utility::GPSPosition::to_gps_position (
-              offset, get_destination ());
+            pose::CartesianFrame dest_local (get_destination());
+            offset.frame (dest_local);
+            next_position_ = offset.transform_to (platform_->get_frame());
           }
         }
         need_to_move_ = true;
@@ -612,10 +612,10 @@ gams::algorithms::FormationFlying::is_ready () const
   return (formation_ready_ == 1);
 }
 
-gams::utility::GPSPosition
-gams::algorithms::FormationFlying::get_destination ()
+gams::pose::Position
+gams::algorithms::FormationFlying::get_destination () const
 {
-  utility::GPSPosition rv;
+  pose::Position rv (platform_->get_frame());
   rv.from_container(head_destination_);
   return rv;
 }

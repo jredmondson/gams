@@ -84,6 +84,8 @@ namespace gams
      *
      * This frame can have cartesian frames embedded within it, but cannot
      * be embedded within any other frames at this time.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::GPSFrame GPSFrame;
   }

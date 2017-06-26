@@ -1,10 +1,10 @@
 #include <iostream>
 #include <math.h>
-#include <gams/utility/Euler.h>
-#include <gams/utility/Orientation.h>
-//#include <gams/utility/GPSFrame.h>
+#include <gams/pose/Euler.h>
+#include <gams/pose/Orientation.h>
+//#include <gams/pose/GPSFrame.h>
 
-using namespace gams::utility;
+using namespace gams::pose;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.0001;
@@ -35,7 +35,7 @@ double round_nearest(double in)
     } \
   } while(0)
 
-using namespace gams::utility::euler;
+using namespace gams::pose::euler;
 using std::cout;
 using std::endl;
 

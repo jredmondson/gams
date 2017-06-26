@@ -42,6 +42,9 @@
  * 
  *      This material has been approved for public release and unlimited
  *      distribution.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  **/
 
 #include "SnakeAreaCoverage.h"
@@ -51,7 +54,7 @@
 #include <vector>
 
 #include "gams/utility/GPSPosition.h"
-#include "gams/utility/Region.h"
+#include "gams/pose/Region.h"
 #include "gams/utility/Position.h"
 
 #include "gams/utility/ArgumentParser.h"
@@ -238,7 +241,7 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::compute_waypoints (
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
     // get region information
-    utility::Region region;
+    pose::Region region;
     region.from_container (*knowledge_, region_id);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -248,10 +251,17 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::compute_waypoints (
 
     // convert to equirectangular projection coordinates
     const size_t num_edges = region.vertices.size ();
+    vector<utility::GPSPosition> vertices;
+    vertices.reserve(num_edges);
+    for (pose::Position vert : region.vertices)
+    {
+      vertices.push_back(utility::GPSPosition(
+        vert.transform_to(pose::gps_frame())));
+    }
     vector<utility::Position> positions;
-    const utility::GPSPosition reference = region.vertices[0];
-    for (size_t i = 0; i < region.vertices.size (); ++i)
-      positions.push_back (region.vertices[i].to_position (reference));
+    const utility::GPSPosition reference = vertices[0];
+    for (size_t i = 0; i < vertices.size (); ++i)
+      positions.push_back (vertices[i].to_position (reference));
 
     // find longest edge
     size_t longest_edge = 0;

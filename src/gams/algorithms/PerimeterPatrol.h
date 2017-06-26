@@ -149,7 +149,7 @@ namespace gams
       ACE_Time_Value end_time_;
 
       /// the locations to visit
-      utility::GpsPositions locations_;
+      std::vector<pose::Position> locations_;
 
       /// current location to move to
       size_t move_index_;

@@ -51,7 +51,7 @@
  * Prioritized region associates a priority with a region
  **/
 
-#include "gams/utility/PrioritizedRegion.h"
+#include "gams/pose/PrioritizedRegion.h"
 
 #include <vector>
 #include <string>
@@ -64,26 +64,26 @@
 using std::string;
 using std::vector;
 
-gams::utility::PrioritizedRegion::PrioritizedRegion (
-  const vector <GPSPosition> & init_points, const unsigned int p, 
+gams::pose::PrioritizedRegion::PrioritizedRegion (
+  const vector <Position> & init_points, const unsigned int p, 
   const std::string& name) :
   Region (init_points, 0, name), priority (p)
 {
 }
 
-gams::utility::PrioritizedRegion::PrioritizedRegion (const Region & region,
+gams::pose::PrioritizedRegion::PrioritizedRegion (const Region & region,
   const unsigned int p, const std::string& name) :
   Region (region), priority (p)
 {
   set_name (name);
 }
 
-gams::utility::PrioritizedRegion::~PrioritizedRegion ()
+gams::pose::PrioritizedRegion::~PrioritizedRegion ()
 {
 }
 
 void
-gams::utility::PrioritizedRegion::operator= (const PrioritizedRegion & rhs)
+gams::pose::PrioritizedRegion::operator= (const PrioritizedRegion & rhs)
 {
   if (this != &rhs)
   {
@@ -93,20 +93,20 @@ gams::utility::PrioritizedRegion::operator= (const PrioritizedRegion & rhs)
 }
 
 bool
-gams::utility::PrioritizedRegion::operator== (const PrioritizedRegion& rhs) const
+gams::pose::PrioritizedRegion::operator== (const PrioritizedRegion& rhs) const
 {
   return (this == &rhs) || 
     (((Region*)this)->operator==(rhs) && (priority == rhs.priority));
 }
 
 bool
-gams::utility::PrioritizedRegion::operator!= (const PrioritizedRegion& rhs) const
+gams::pose::PrioritizedRegion::operator!= (const PrioritizedRegion& rhs) const
 {
   return !(*this == rhs);
 }
 
 std::string
-gams::utility::PrioritizedRegion::to_string (const std::string & delimiter)
+gams::pose::PrioritizedRegion::to_string (const std::string & delimiter)
   const
 {
   std::stringstream ret_val;
@@ -116,7 +116,7 @@ gams::utility::PrioritizedRegion::to_string (const std::string & delimiter)
 }
 
 bool
-gams::utility::PrioritizedRegion::check_valid_type (
+gams::pose::PrioritizedRegion::check_valid_type (
   madara::knowledge::KnowledgeBase& kb, const std::string& name) const
 {
   const static Class_ID valid = 
@@ -125,7 +125,7 @@ gams::utility::PrioritizedRegion::check_valid_type (
 }
 
 void
-gams::utility::PrioritizedRegion::to_container_impl (
+gams::pose::PrioritizedRegion::to_container_impl (
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   Region temp (*this);
@@ -141,7 +141,7 @@ gams::utility::PrioritizedRegion::to_container_impl (
 }
 
 bool
-gams::utility::PrioritizedRegion::from_container_impl (
+gams::pose::PrioritizedRegion::from_container_impl (
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   bool ret_val (false);
@@ -149,7 +149,7 @@ gams::utility::PrioritizedRegion::from_container_impl (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-      "gams::utility::PrioritizedRegion::from_container:" \
+      "gams::pose::PrioritizedRegion::from_container:" \
       " \"%s\" is not a valid Region\n", name.c_str ());
     ret_val = false;
   }
@@ -166,7 +166,7 @@ gams::utility::PrioritizedRegion::from_container_impl (
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
-          "gams::utility::PrioritizedRegion::from_container:" \
+          "gams::pose::PrioritizedRegion::from_container:" \
           " \"%s\" is missing priority value\n", name.c_str ());
         ret_val = false;
       }

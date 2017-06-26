@@ -51,6 +51,9 @@
  * This file defines common functionality for area coverage algorithms. If this
  * file is updated, please also update the tutorials in the wiki with line
  * numbers or implementation changes.
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  */
 
 #include "gams/algorithms/area_coverage/BaseAreaCoverage.h"
@@ -126,7 +129,7 @@ gams::algorithms::area_coverage::BaseAreaCoverage::execute (void)
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::area_coverage::BaseAreaCoverage::execute:" \
       " calling platform->move(\"%s\")\n", next_position_.to_string ().c_str ());
-    platform_->move(next_position_);
+    platform_->move(next_position_.to_gps_pos());
   }
   else if (!initialized_)
   {
@@ -163,8 +166,8 @@ gams::algorithms::area_coverage::BaseAreaCoverage::plan (void)
 {
   if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    utility::Location loc = platform_->get_location ();
-    utility::Location next_loc (platform_->get_frame (),
+    pose::Position loc = platform_->get_location ();
+    pose::Position next_loc (platform_->get_frame (),
       next_position_.longitude (), next_position_.latitude (),
       next_position_.altitude ());
 

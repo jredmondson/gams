@@ -697,6 +697,8 @@ namespace gams
                       double rx1, double ry1, double rz1,
                       double rx2, double ry2, double rz2) const;
     };
+
+    GAMSExport const ReferenceFrame &default_frame (void);
   }
 }
 

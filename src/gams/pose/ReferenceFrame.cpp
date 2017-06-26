@@ -215,5 +215,9 @@ namespace gams
       return quat1.angle_to(quat2);
     }
 
+    GAMSExport const ReferenceFrame &default_frame (void)
+    {
+      return CoordinateBase::default_frame();
+    }
   }
 }

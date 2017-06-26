@@ -66,6 +66,8 @@ namespace gams
      * type (e.g., Pose, Location, Orientation) that frame does not support.
      *
      * @tparam CoordType The kind of Coordinate the error was raised for.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     template<typename CoordType>
     using bad_coord_type = gams::pose::bad_coord_type<CoordType>;
@@ -73,6 +75,8 @@ namespace gams
     /**
      * Thrown when an an attempt is made to transform between frames
      * that do not belong to the same frame tree.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::unrelated_frames unrelated_frames;
 
@@ -86,6 +90,8 @@ namespace gams
      *    2) From A as child to B as its parent
      *    3) From B as parent to A as its child
      *    4) From B as child to A as its parent
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::undefined_transform undefined_transform;
 
@@ -97,6 +103,8 @@ namespace gams
      * If implementing a new reference frame, you will need to modify the
      * transform_to_origin and transform_from_origin methods of the reference
      * frames the new reference frame should be able to transform to and from.
+     *
+     * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
     typedef gams::pose::ReferenceFrame ReferenceFrame;
   }

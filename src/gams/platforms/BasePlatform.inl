@@ -44,7 +44,7 @@
  *      distribution.
  **/
 
-#include "gams/utility/Euler.h"
+#include "gams/pose/Euler.h"
 
 inline gams::platforms::BasePlatform::BasePlatform (
   madara::knowledge::KnowledgeBase * knowledge,
@@ -62,37 +62,37 @@ gams::platforms::BasePlatform::get_position ()
   return position;
 }
 
-inline gams::utility::Location
+inline gams::pose::Position
 gams::platforms::BasePlatform::get_location () const
 {
-  utility::Location ret(get_frame(), 0, 0);
+  pose::Position ret(get_frame(), 0, 0);
   ret.from_container (self_->agent.location);
   return ret;
 }
 
-inline gams::utility::Orientation
+inline gams::pose::Orientation
 gams::platforms::BasePlatform::get_orientation () const
 {
-  utility::euler::RollPitchYaw euler;
+  pose::euler::RollPitchYaw euler;
 
   euler.a (self_->agent.orientation[0]);
   euler.b (self_->agent.orientation[1]);
   euler.c (self_->agent.orientation[2]);
 
-  return utility::Orientation(get_frame(), euler.to_quat ());
+  return pose::Orientation(get_frame(), euler.to_quat ());
 }
 
-inline gams::utility::Pose
+inline gams::pose::Pose
 gams::platforms::BasePlatform::get_pose () const
 {
-  utility::euler::RollPitchYaw euler;
+  pose::euler::RollPitchYaw euler;
 
   euler.a (self_->agent.orientation[0]);
   euler.b (self_->agent.orientation[1]);
   euler.c (self_->agent.orientation[2]);
 
-  return utility::Pose (get_frame (), utility::LocationVector (self_->agent.location),
-    utility::OrientationVector (euler.to_quat ()));
+  return pose::Pose (get_frame (), pose::PositionVector (self_->agent.location),
+    pose::OrientationVector (euler.to_quat ()));
 }
 
 inline madara::knowledge::KnowledgeBase *

@@ -59,7 +59,7 @@
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/BaseAlgorithm.h"
-#include "gams/utility/GPSPosition.h"
+#include "gams/pose/Position.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/groups/GroupFactoryRepository.h"
 
@@ -141,7 +141,7 @@ namespace gams
        * Get head's destination
        * @return utility::Position object of head's destination
        */
-      utility::GPSPosition get_destination();
+      pose::Position get_destination() const;
 
       /// formation wait string
       struct Compiled
@@ -166,8 +166,8 @@ namespace gams
       /// head destination
       madara::knowledge::containers::NativeDoubleArray head_destination_;
 
-      /// destination as GPSPosition
-      utility::GPSPosition destination_;
+      /// destination as Position
+      pose::Position destination_;
 
       /// am i in formation?
       madara::knowledge::containers::Integer in_formation_;
@@ -183,7 +183,7 @@ namespace gams
       bool need_to_move_;
 
       /// next position
-      utility::GPSPosition next_position_;
+      pose::Position next_position_;
 
       /// number of agents in formation; only head_id_ needs to know this
       unsigned int num_agents_;

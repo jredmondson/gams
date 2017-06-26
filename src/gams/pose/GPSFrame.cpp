@@ -61,6 +61,12 @@ namespace gams
     const double GPSFrame::MOON_RADIUS  = 1737100.0;
     const double GPSFrame::MARS_RADIUS  = 3389500.0;
 
+    GAMSExport const GPSFrame &gps_frame (void)
+    {
+      static const GPSFrame frame;
+      return frame;
+    }
+
     void GPSFrame::transform_position_to_origin(
                                             double &, double &, double &) const
     {

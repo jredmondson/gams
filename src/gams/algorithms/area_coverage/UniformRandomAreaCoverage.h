@@ -61,7 +61,7 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Self.h"
 #include "gams/algorithms/BaseAlgorithm.h"
-#include "gams/utility/Region.h"
+#include "gams/pose/Region.h"
 
 namespace gams
 {
@@ -112,7 +112,7 @@ namespace gams
         virtual void generate_new_position (void);
 
         /// region to cover
-        utility::Region region_;
+        pose::Region region_;
       };
 
       /**

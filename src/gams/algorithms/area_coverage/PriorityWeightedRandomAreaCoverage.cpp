@@ -50,6 +50,9 @@
  *
  * Prioritized Random Area Coverage prioritizes certain regions of a search area
  * based on specified priorities
+ *
+ * NOTE: the Area Coverage algorithms currently use the deprecated
+ * utility::Position classes, and should not be used as examples.
  **/
 
 #include "gams/algorithms/area_coverage/PriorityWeightedRandomAreaCoverage.h"
@@ -187,7 +190,7 @@ PriorityWeightedRandomAreaCoverage (
   search_area_.from_container (*knowledge, search_id);
 
   // calculate total priority
-  const vector<utility::PrioritizedRegion>& regions =
+  const vector<pose::PrioritizedRegion>& regions =
     search_area_.get_regions ();
   for (unsigned int i = 0; i < regions.size (); ++i)
   {
@@ -225,7 +228,7 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverage::
   {
     // select region
     double selected_rand = madara::utility::rand_double (0.0, total_priority_);
-    const utility::PrioritizedRegion* selected_region = 0;
+    const pose::PrioritizedRegion* selected_region = 0;
     for (unsigned int i = 0; i < search_area_.get_regions ().size (); ++i)
     {
       if (priority_total_by_region_[i] > selected_rand)
@@ -244,7 +247,7 @@ gams::algorithms::area_coverage::PriorityWeightedRandomAreaCoverage::
         selected_region->max_lon_));
       next_position_.altitude (madara::utility::rand_double (selected_region->min_alt_,
         selected_region->max_alt_));
-    } while (!selected_region->contains (next_position_));
+    } while (!selected_region->contains (next_position_.to_gps_pos()));
 
     // found an acceptable position, so set it as next
     utility::GPSPosition current;

@@ -61,9 +61,8 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "gams/utility/GPSPosition.h"
 #include "gams/algorithms/AlgorithmFactory.h"
-#include "gams/utility/CartesianFrame.h"
+#include "gams/pose/CartesianFrame.h"
 
 namespace gams
 {
@@ -126,22 +125,22 @@ namespace gams
       variables::Agent target_;
 
       /// current target location shared between analyze and execute
-      utility::Location target_location_;
+      pose::Position target_location_;
 
       /// current target location shared between analyze and execute
-      utility::Location target_destination_;
+      pose::Position target_destination_;
 
       /// current target location shared between analyze and execute
-      utility::Location last_target_destination_;
+      pose::Position last_target_destination_;
 
       /// keep track of last location
-      utility::Location last_location_;
+      pose::Position last_location_;
 
       /// keep track of last leader/target location
-      utility::Location target_last_location_;
+      pose::Position target_last_location_;
 
       /// keep track of the target orientation
-      utility::Orientation target_orientation_;
+      pose::Orientation target_orientation_;
 
       /// keep track of the offset that agent should be at
       std::vector <double> offset_;
@@ -156,7 +155,7 @@ namespace gams
       bool had_valid_dest_orientation_;
 
       /// last valid destination based orientation
-      gams::utility::Orientation last_dest_orientation;
+      gams::pose::Orientation last_dest_orientation;
     };
 
     /**

@@ -56,7 +56,7 @@
 
 #include "gams/variables/Sensor.h"
 
-#include "gams/utility/Euler.h"
+#include "gams/pose/Euler.h"
 
 #include <ace/Guard_T.h>
 
@@ -71,13 +71,11 @@ using std::endl;
 using std::cout;
 using std::string;
 
-using namespace gams::utility::euler;
+using namespace gams::pose::euler;
 
 namespace containers = madara::knowledge::containers;
 
 const std::string gams::platforms::VREPBase::TargetMover::NAME("move_thread");
-
-gams::utility::GPSFrame gams::platforms::VREPBase::gps_frame_;
 
 gams::platforms::VREPBase::VREPBase (
   std::string model_file,
@@ -86,7 +84,7 @@ gams::platforms::VREPBase::VREPBase (
   variables::Sensors * sensors,
   variables::Self * self)
   : BasePlatform (knowledge, sensors, self), airborne_ (false),
-    move_speed_ (0.8), sw_pose_ (get_sw_pose(gps_frame_)),
+    move_speed_ (0.8), sw_pose_ (get_sw_pose(pose::gps_frame())),
     vrep_frame_ (sw_pose_), mover_ (NULL),
     begin_sim_ ("begin_sim", *knowledge),
     vrep_ready_ ("vrep_ready", *knowledge),
@@ -127,7 +125,7 @@ gams::platforms::VREPBase::VREPBase (
     if (it == sensors->end ()) // create coverage sensor
     {
       // get origin
-      utility::GPSPosition origin;
+      pose::Position origin(pose::gps_frame());
       madara::knowledge::containers::NativeDoubleArray origin_container;
       origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
       origin.from_container (origin_container);
@@ -164,8 +162,8 @@ gams::platforms::VREPBase::VREPBase (
   }
 }
 
-gams::utility::Pose
-gams::platforms::VREPBase::get_sw_pose(const utility::ReferenceFrame &frame)
+gams::pose::Pose
+gams::platforms::VREPBase::get_sw_pose(const pose::ReferenceFrame &frame)
 {
   if (knowledge_)
   {
@@ -173,10 +171,10 @@ gams::platforms::VREPBase::get_sw_pose(const utility::ReferenceFrame &frame)
     containers::NativeDoubleVector sw (".vrep_sw_position", *knowledge_);
 
     // VREP apparently has weird lat/lon x/y stuff going on. Reverse order.
-    return utility::Pose (frame, sw[1], sw[0], 0, 0, 0, 0);
+    return pose::Pose (frame, sw[1], sw[0], 0, 0, 0, 0);
   }
 
-  return utility::Pose (frame, 0, 0, 0, 0, 0, 0);
+  return pose::Pose (frame, 0, 0, 0, 0, 0, 0);
 }
 
 gams::platforms::VREPBase::~VREPBase ()
@@ -267,15 +265,15 @@ gams::platforms::VREPBase::sense (void)
         " vrep orientation: %f,%f,%f\n",
         curr_orientation[0], curr_orientation[1], curr_orientation[2]);
 
-      utility::Location vrep_loc(get_vrep_frame (), curr_arr);
-      utility::Location loc(gps_frame_, vrep_loc);
+      pose::Position vrep_loc(get_vrep_frame (), curr_arr);
+      pose::Position loc(pose::gps_frame(), vrep_loc);
 
-      utility::euler::EulerVREP vrep_euler (
+      pose::euler::EulerVREP vrep_euler (
         curr_orientation[0], curr_orientation[1], curr_orientation[2]);
 
-      utility::Orientation vrep_orient (get_vrep_frame (), vrep_euler.to_quat ());
+      pose::Orientation vrep_orient (get_vrep_frame (), vrep_euler.to_quat ());
 
-      utility::euler::YawPitchRoll vrep_yawpitchroll (vrep_orient);
+      pose::euler::YawPitchRoll vrep_yawpitchroll (vrep_orient);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_DETAILED,
@@ -312,11 +310,9 @@ gams::platforms::VREPBase::analyze (void)
   if (get_ready ())
   {
     // set position on coverage map
-    utility::Position* pos = get_position ();
+    pose::Position pos = get_location ();
     (*sensors_)["coverage"]->set_value (
-      utility::GPSPosition(*pos),
-      knowledge_->get_context ().get_clock ());
-    delete pos;
+      pos, knowledge_->get_context ().get_clock ());
   }
   else
   {
@@ -352,6 +348,7 @@ gams::platforms::VREPBase::land (void)
   return 0;
 }
 
+#if 0
 int
 gams::platforms::VREPBase::move (const utility::Position & position,
   const double & epsilon)
@@ -363,13 +360,13 @@ gams::platforms::VREPBase::move (const utility::Position & position,
 
     if (gps_pos != NULL)
     {
-      return move (utility::Location (gps_frame_,
+      return move (pose::Position (pose::gps_frame(),
         gps_pos->longitude (), gps_pos->latitude (), gps_pos->altitude ()),
         epsilon);
     }
     else
     {
-      return move (utility::Location (get_vrep_frame (),
+      return move (pose::Position (get_vrep_frame (),
         position.x, position.y, position.z),
         epsilon);
     }
@@ -384,10 +381,11 @@ gams::platforms::VREPBase::move (const utility::Position & position,
 
   return 0;
 }
+#endif
 
 int
-gams::platforms::VREPBase::do_move (const utility::Location & target,
-                                    const utility::Location & current,
+gams::platforms::VREPBase::do_move (const pose::Position & target,
+                                    const pose::Position & current,
                                     double max_delta)
 {
   if (get_ready ())
@@ -481,8 +479,8 @@ gams::platforms::VREPBase::do_move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::do_orient (utility::Orientation target,
-                                      const utility::Orientation & current,
+gams::platforms::VREPBase::do_orient (pose::Orientation target,
+                                      const pose::Orientation & current,
                                       double max_delta)
 {
   // TODO: handle non-Z-axis orientation; for now ignore X and Y as workaround
@@ -558,7 +556,7 @@ gams::platforms::VREPBase::do_orient (utility::Orientation target,
 }
 
 int
-gams::platforms::VREPBase::move (const utility::Location & target,
+gams::platforms::VREPBase::move (const pose::Position & target,
   double epsilon)
 {
   if (get_ready ())
@@ -572,7 +570,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
       " requested target \"%f,%f,%f\"\n", target.x (), target.y (), target.z ());
 
     // convert from input reference frame to vrep reference frame, if necessary
-    utility::Location vrep_target (get_vrep_frame (), target);
+    pose::Position vrep_target (get_vrep_frame (), target);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
@@ -586,7 +584,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
       simxGetObjectPosition (client_id_, node_target_, -1, curr_arr,
       simx_opmode_oneshot_wait);
     }
-    utility::Location vrep_loc (get_vrep_frame (), curr_arr);
+    pose::Position vrep_loc (get_vrep_frame (), curr_arr);
 
     if (thread_rate_.to_double () == 0)
     {
@@ -614,7 +612,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
       simx_opmode_oneshot_wait);
     }
 
-    utility::Location vrep_node_loc(get_vrep_frame (), curr_arr);
+    pose::Position vrep_node_loc(get_vrep_frame (), curr_arr);
     // return code
     if (vrep_node_loc.distance_to (vrep_target) < epsilon)
       return 2;
@@ -631,7 +629,7 @@ gams::platforms::VREPBase::move (const utility::Location & target,
 }
 
 int
-gams::platforms::VREPBase::orient (const utility::Orientation & target,
+gams::platforms::VREPBase::orient (const pose::Orientation & target,
   double epsilon)
 {
   if (get_ready ())
@@ -645,7 +643,7 @@ gams::platforms::VREPBase::orient (const utility::Orientation & target,
       " requested target \"%f,%f,%f\"\n", target.rx (), target.ry (), target.rz ());
 
     // convert from input reference frame to vrep reference frame, if necessary
-    utility::Orientation vrep_target (get_vrep_frame (), target);
+    pose::Orientation vrep_target (get_vrep_frame (), target);
 
     // get current position in VREP frame
     simxFloat curr_arr[3];
@@ -657,7 +655,7 @@ gams::platforms::VREPBase::orient (const utility::Orientation & target,
 
     EulerVREP euler_curr (curr_arr[0], curr_arr[1], curr_arr[2]);
 
-    utility::Orientation vrep_rot (euler_curr.to_orientation (get_vrep_frame ()));
+    pose::Orientation vrep_rot (euler_curr.to_orientation (get_vrep_frame ()));
 
     if (do_orient (vrep_target, vrep_rot, max_orient_delta_.to_double ()) == 0)
       return 0;
@@ -670,7 +668,7 @@ gams::platforms::VREPBase::orient (const utility::Orientation & target,
 
     EulerVREP euler_node_curr (curr_arr[0], curr_arr[1], curr_arr[2]);
 
-    utility::Orientation vrep_node_rot (
+    pose::Orientation vrep_node_rot (
       euler_node_curr.to_orientation (get_vrep_frame ()));
 
     // return code
@@ -716,17 +714,17 @@ gams::platforms::VREPBase::set_initial_position ()
   // get initial position
   simxFloat pos[3];
   bool is_gps = false;
-  utility::Location init_loc;
+  pose::Position init_loc;
   if (knowledge_->exists(".initial_lat") && knowledge_->exists(".initial_lon"))
   {
     is_gps = true;
     // get gps coords
-    utility::Location gps_loc(gps_frame_,
+    pose::Position gps_loc(pose::gps_frame(),
                        knowledge_->get (".initial_lon").to_double (),
                        knowledge_->get (".initial_lat").to_double ());
 
     // convert to vrep
-    utility::Location vrep_loc(get_vrep_frame (), gps_loc);
+    pose::Position vrep_loc(get_vrep_frame (), gps_loc);
     vrep_loc.to_array(pos);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -745,7 +743,7 @@ gams::platforms::VREPBase::set_initial_position ()
     pos[0] = knowledge_->get (".initial_x").to_double ();
     pos[1] = knowledge_->get (".initial_y").to_double ();
 
-    init_loc = utility::Location(get_vrep_frame(), pos[0], pos[1], pos[2]);
+    init_loc = pose::Position(get_vrep_frame(), pos[0], pos[1], pos[2]);
   }
   pos[2] = get_initial_z ();
 
@@ -763,8 +761,8 @@ gams::platforms::VREPBase::set_initial_position ()
                            simx_opmode_oneshot_wait);
   }
 
-  utility::Location vrep_loc(get_vrep_frame (), pos);
-  utility::Location gps_loc(gps_frame_, vrep_loc);
+  pose::Position vrep_loc(get_vrep_frame (), pos);
+  pose::Position gps_loc(pose::gps_frame(), vrep_loc);
   gps_loc.to_container (self_->agent.location);
   //BasePlatform::move(vrep_loc);
 }
@@ -796,9 +794,9 @@ gams::platforms::VREPBase::TargetMover::run ()
     " moving at speed %f\n", local_move_speed);
 
   // convert form input reference frame to vrep reference frame, if necessary
-  utility::Location target(base_.get_frame (), 0, 0);
+  pose::Position target(base_.get_frame (), 0, 0);
   target.from_container (base_.self_->agent.dest);
-  utility::Location vrep_target(base_.get_vrep_frame (), target);
+  pose::Position vrep_target(base_.get_vrep_frame (), target);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
@@ -818,22 +816,22 @@ gams::platforms::VREPBase::TargetMover::run ()
     "gams::platforms::VREPBase::TargetMover::run:" \
     " vrep target position \"%f,%f,%f\"\n", curr_arr[0], curr_arr[1], curr_arr[2]);
 
-  utility::Location vrep_loc(base_.get_vrep_frame (), curr_arr);
+  pose::Position vrep_loc(base_.get_vrep_frame (), curr_arr);
 
   base_.do_move(vrep_target, vrep_loc, local_move_speed);
 }
 
-const gams::utility::ReferenceFrame &
+const gams::pose::ReferenceFrame &
 gams::platforms::VREPBase::get_vrep_frame (void) const
 {
   return vrep_frame_;
 }
 
 
-const gams::utility::ReferenceFrame &
+const gams::pose::ReferenceFrame &
 gams::platforms::VREPBase::get_frame (void) const
 {
-  return gps_frame_;
+  return pose::gps_frame();
 }
 
 #endif // _GAMS_VREP_

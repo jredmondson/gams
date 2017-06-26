@@ -60,10 +60,9 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
 #include "gams/utility/GPSPosition.h"
-#include "gams/utility/Axes.h"
-#include "gams/utility/ReferenceFrame.h"
-#include "gams/utility/Location.h"
-#include "gams/utility/Pose.h"
+#include "gams/pose/ReferenceFrame.h"
+#include "gams/pose/Position.h"
+#include "gams/pose/Pose.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
@@ -160,19 +159,19 @@ namespace gams
        * Gets Location of platform, within its parent frame
        * @return Location of platform
        */
-      utility::Location get_location () const;
+      pose::Position get_location () const;
 
       /**
        * Gets Orientation of platform, within its parent frame
        * @return Location of platform
        */
-      utility::Orientation get_orientation () const;
+      pose::Orientation get_orientation () const;
 
       /**
        * Gets Pose of platform, within its parent frame
        * @return Location of platform
        */
-      utility::Pose get_pose () const;
+      pose::Pose get_pose () const;
 
       /**
        * Gets the name of the platform
@@ -228,8 +227,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const utility::Position & position,
-        const double & epsilon = 0.1);
+      //virtual int move (const utility::Position & position,
+        //const double & epsilon = 0.1);
 
       /**
        * Moves the platform to a location
@@ -237,15 +236,8 @@ namespace gams
        * @param   epsilon     approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const utility::Location & location,
+      virtual int move (const pose::Position & location,
         double epsilon = 0.1);
-
-      /**
-      * Rotates the platform by an angle on a 3D axis
-      * @param   axes  the coordinates to move to
-      * @return the status of the orient, @see PlatformReturnValues
-      **/
-      virtual int orient (const utility::Axes & axes);
 
       /**
        * Rotates the platform to match a given angle
@@ -253,7 +245,7 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int orient (const utility::Orientation & target,
+      virtual int orient (const pose::Orientation & target,
         double epsilon = M_PI/16);
 
       /**
@@ -273,7 +265,7 @@ namespace gams
        * @param   rot_epsilon   approximation value for the orientation
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      virtual int pose (const utility::Pose & target,
+      virtual int pose (const pose::Pose & target,
         double loc_epsilon = 0.1, double rot_epsilon = M_PI/16);
 
       /**
@@ -353,9 +345,12 @@ namespace gams
 
       /**
        * Method for returning the platform's current frame
+       *
+       * By default, returns pose::default_frame()
+       *
        * @return frame that the platform's coordinate system is operating in
        **/
-      virtual const utility::ReferenceFrame & get_frame (void) const = 0;
+      virtual const pose::ReferenceFrame & get_frame (void) const;
 
     protected:
       /// movement speed for platform in meters/second
@@ -374,7 +369,7 @@ namespace gams
       variables::PlatformStatus status_;
 
       /// the reference frame this platform operates within
-      //static utility::GPSFrame frame_;
+      //static pose::GPSFrame frame_;
     };
 
     // deprecated typdef. Please use BasePlatform instead.

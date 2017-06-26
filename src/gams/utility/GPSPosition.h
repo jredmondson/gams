@@ -49,6 +49,8 @@
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * This file contains a utility class for working with gps coordinates
+ *
+ * DEPRECATED: use pose::Position instead. Will be removed in GAMS v2
  **/
 
 #ifndef _GAMS_UTILITY_GPS_POSITION_H_
@@ -60,12 +62,17 @@
 
 #include "Position.h"
 
+#include "gams/pose/Position.h"
+#include "gams/pose/GPSFrame.h"
+
 namespace gams
 {
   namespace utility
   {
     /**
     * A position in the global positioning system reference frame
+    *
+    * DEPRECATED: use pose::Position instead. Will be removed in GAMS v2
     **/
     class GAMSExport GPSPosition : public Position
     {
@@ -88,6 +95,14 @@ namespace gams
        * Constructor
        **/
       GPSPosition (const Position & position);
+
+      GPSPosition (const pose::Position & pos)
+        : Position(pos.lat(), pos.lng(), pos.alt()) {}
+
+      pose::Position to_gps_pos () const {
+        return pose::Position (pose::gps_frame(),
+          longitude(), latitude(), altitude());
+      }
 
       /**
        * Destructor

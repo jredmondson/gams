@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
+ * 3. The names Carnegie Mellon University, "SEI and/or Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN AS-IS BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -45,144 +45,88 @@
  **/
 
 /**
- * @file Region.h
- * @author James Edmondson <jedmondson@gmail.com>
+ * @file PrioritizedRegion.h
+ * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
- * This file contains a utility class for working with position
+ * Prioritized region associates a priority with a region
  **/
 
-#ifndef  _GAMS_UTILITY_REGION_H_
-#define  _GAMS_UTILITY_REGION_H_
+#ifndef  _GAMS_UTILITY_PRIORITIZED_REGION_H_
+#define  _GAMS_UTILITY_PRIORITIZED_REGION_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "gams/GAMSExport.h"
-#include "madara/knowledge/containers/StringVector.h"
-#include "gams/utility/Position.h"
-#include "gams/utility/GPSPosition.h"
-#include "gams/utility/Containerize.h"
+#include "gams/pose/Region.h"
+#include "gams/pose/Position.h"
 
 namespace gams
 {
-  namespace utility
+  namespace pose
   {
     /**
-     * A helper class for region information
-     **/
-    class GAMSExport Region : public Containerize
+    * A helper class for prioritized region information
+    **/
+    class GAMSExport PrioritizedRegion : public Region
     {
     public:
       /**
        * Constructor
-       * @param  init_vertices  the vertices of the region
-       * @param  type           the type of region
-       * @param  name           name of the region
+       * @param init_points   vector of points representing boundary polygon of region
+       * @param new_priority  associated priority
+       * @param name          name of the region
        **/
-      Region (const std::vector <GPSPosition> & init_vertices = 
-        std::vector<GPSPosition> (), unsigned int type = 0, 
-        const std::string& name = "");
+      PrioritizedRegion (const std::vector <Position>& init_points =
+        std::vector<Position> (), const unsigned int new_priority = 1, const std::string& name = "");
+
+      /**
+       * Constructor
+       * @param region        associated region
+       * @param new_priority  associated priority
+       * @param name          name of the region
+       **/
+      PrioritizedRegion (const Region& region, const unsigned int new_priority = 1, const std::string& name = "");
 
       /**
        * Destructor
        **/
-      virtual ~Region ();
+      virtual ~PrioritizedRegion ();
+
+      /**
+       * Equality operator. Uses Region::operator== and checks if priority are equal
+       * @param rhs   PrioritizedRegion to compare to
+       * @return true if same vertices and same priority, false otherwise
+       **/
+      bool operator== (const PrioritizedRegion& rhs) const;
+
+      /**
+       * Inequality operator. Uses operator== and inverses result
+       * @param rhs   PrioritizedRegion to compare to
+       * @return false if same vertices and same priority, true otherwise
+       **/
+      bool operator!= (const PrioritizedRegion& rhs) const;
+
+      /**
+       * Helper function for converting the position to a string
+       * @param delimiter characters to insert between position components
+       * @return string representation of this PrioritizedRegion
+       **/
+      std::string to_string (const std::string & delimiter = ":") const;
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Region& rhs);
+      void operator= (const PrioritizedRegion& rhs);
 
-      /**
-       * Equality operator. Only checks if the vertices are the same
-       * @param rhs   Region to compare with
-       */
-      bool operator== (const Region& rhs) const;
-
-      /**
-       * Inequality operator. Calls operator== and inverses result
-       * @param rhs   Region to compare with
-       */
-      bool operator!= (const Region& rhs) const;
-
-      /**
-       * Gets name of region
-       * @return name of the region
-       */
-      std::string get_name () const;
-
-      /**
-       * Sets name of region
-       * @param name   new name of the region
-       */
-      void set_name (const std::string& name);
-      
-      /**
-       * Determines if GPSPosition is in region
-       * @param   position   point to check if in region
-       * @return  true if point is in region or on border, false otherwise
-       **/
-      bool contains (const GPSPosition & position) const;
-
-      /**
-       * Determines if GPSPosition is in region
-       * @param   position     point to check if in region
-       * @param   ref   gps reference for point p
-       * @return  true if point is in region or on border, false otherwise
-       **/
-      bool contains (const Position & position,
-        const GPSPosition & ref) const;
-
-      /**
-       * Gets distance from any point in this region
-       * @param   position     point to check
-       * @return 0 if in region, otherwise distance from region
-       **/
-      double distance (const GPSPosition & position) const;
-
-      /**
-       * Gets bounding box
-       * @return Region object corresponding to bounding box
-       **/
-      Region get_bounding_box () const;
-
-      /**
-       * Gets area of the region
-       * @return area of this region
-       **/
-      double get_area () const;
-
-      /**
-       * Converts the position to a string
-       * @param delimiter characters to insert between position components
-       * @return string representation of this Region
-       **/
-      std::string to_string (const std::string & delimiter = ":") const;
-
-      /// the vertices of the region
-      std::vector <GPSPosition> vertices;
-
-      /// bounding box
-      double min_lat_, max_lat_;
-      double min_lon_, max_lon_;
-      double min_alt_, max_alt_;
-
-    protected:
-      /**
-       * populate bounding box values
-       **/
-      void calculate_bounding_box ();
-
-      /// type for this region
-      unsigned int type_;
+      /// priority
+      madara::knowledge::KnowledgeRecord::Integer priority;
 
     private:
       /**
        * Check if object is of correct type
        * @param kb        Knowledge Base with object
-       * @param name      Name of object in the KB
-       * @return true if name is a valid object in kb, false otherwise
+       * @param name      Prefix of object in the KB
        */
       virtual bool check_valid_type (madara::knowledge::KnowledgeBase& kb,
         const std::string& name) const;
@@ -204,8 +148,8 @@ namespace gams
       virtual bool from_container_impl (
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
-    }; // class Region
+    }; // class PrioritizedRegion
   } // namespace utility
 } // namespace gams
 
-#endif // _GAMS_UTILITY_REGION_H_
+#endif // _GAMS_UTILITY_PRIORITIZED_REGION_H_

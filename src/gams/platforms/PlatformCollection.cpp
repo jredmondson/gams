@@ -138,7 +138,7 @@ gams::platforms::PlatformCollection::land (void)
 }
 
 int
-gams::platforms::PlatformCollection::move (const utility::Position & /*position*/,
+gams::platforms::PlatformCollection::move (const pose::Position & /*position*/,
   const double & /*epsilon*/)
 {
   return 0;
@@ -159,10 +159,4 @@ int
 gams::platforms::PlatformCollection::takeoff (void)
 {
   return 0;
-}
-
-const gams::utility::ReferenceFrame &
-gams::platforms::PlatformCollection::get_frame (void) const
-{
-  return frame_;
 }

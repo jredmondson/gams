@@ -69,6 +69,8 @@ namespace gams
      * Conversions to/from a parent GPSFrame are supported, except converting
      * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
      * Converting to GPSFrame from a orientd child Cartesian is supported.
+     *
+     * Deprecated backwards compatibility typedef. Will be removed in v2
      **/
     typedef gams::pose::CartesianFrame CartesianFrame;
   }

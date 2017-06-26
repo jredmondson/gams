@@ -51,7 +51,7 @@
  * Search Area is a collection of regions, possibly with priority
  **/
 
-#include "gams/utility/SearchArea.h"
+#include "gams/pose/SearchArea.h"
 
 #include <sstream>
 #include <string>
@@ -62,8 +62,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "gams/utility/Region.h"
-#include "gams/utility/GPSPosition.h"
+#include "gams/pose/Region.h"
 #include "gams/loggers/GlobalLogger.h"
 #include "madara/utility/Utility.h"
 #include "madara/knowledge/containers/Integer.h"
@@ -83,12 +82,12 @@ using std::vector;
 namespace mutility = madara::utility;
 typedef madara::knowledge::KnowledgeRecord::Integer Integer;
 
-gams::utility::SearchArea::SearchArea () :
+gams::pose::SearchArea::SearchArea () :
   Containerize()
 {
 }
 
-gams::utility::SearchArea::SearchArea (const PrioritizedRegion& region, 
+gams::pose::SearchArea::SearchArea (const PrioritizedRegion& region, 
   const std::string& name) :
   Containerize (name)
 {
@@ -96,19 +95,19 @@ gams::utility::SearchArea::SearchArea (const PrioritizedRegion& region,
   calculate_bounding_box ();
 }
 
-gams::utility::SearchArea::SearchArea (
+gams::pose::SearchArea::SearchArea (
   const vector<PrioritizedRegion>& regions, const std::string& name) :
   Containerize (name), regions_ (regions)
 {
   calculate_bounding_box ();
 }
 
-gams::utility::SearchArea::~SearchArea ()
+gams::pose::SearchArea::~SearchArea ()
 {
 }
 
 bool
-gams::utility::SearchArea::operator== (const SearchArea& rhs) const
+gams::pose::SearchArea::operator== (const SearchArea& rhs) const
 {
   if (this == &rhs)
     return true;
@@ -128,13 +127,13 @@ gams::utility::SearchArea::operator== (const SearchArea& rhs) const
 }
 
 bool
-gams::utility::SearchArea::operator!= (const SearchArea& rhs) const
+gams::pose::SearchArea::operator!= (const SearchArea& rhs) const
 {
   return !(*this == rhs);
 }
 
 void
-gams::utility::SearchArea::operator= (const SearchArea & rhs)
+gams::pose::SearchArea::operator= (const SearchArea & rhs)
 {
   if (this != &rhs)
   {
@@ -150,7 +149,7 @@ gams::utility::SearchArea::operator= (const SearchArea & rhs)
 }
 
 void
-gams::utility::SearchArea::add_prioritized_region (const PrioritizedRegion& r)
+gams::pose::SearchArea::add_prioritized_region (const PrioritizedRegion& r)
 {
   regions_.push_back (r);
 
@@ -164,8 +163,8 @@ gams::utility::SearchArea::add_prioritized_region (const PrioritizedRegion& r)
   max_alt_ = (max_alt_ < r.max_alt_) ? r.max_alt_ : max_alt_;
 }
 
-gams::utility::Region
-gams::utility::SearchArea::get_convex_hull () const
+gams::pose::Region
+gams::pose::SearchArea::get_convex_hull () const
 {
   /**
    * completely rewritten by James Edmondson on 4/3/2016.
@@ -181,11 +180,11 @@ gams::utility::SearchArea::get_convex_hull () const
   class SortXThenY
   {
   public:
-    bool operator () (const gams::utility::GPSPosition & first,
-      const gams::utility::GPSPosition & second)
+    bool operator () (const gams::pose::Position & first,
+      const gams::pose::Position & second)
     {
       // prefer left-most x or if tie, bottom-most left-most x
-      return first.x < second.x || (first.x == second.x && first.y < second.y);
+      return first.x() < second.x() || (first.x() == second.x() && first.y() < second.y());
     }
   };
 
@@ -196,12 +195,12 @@ gams::utility::SearchArea::get_convex_hull () const
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " building a convex hull\n");
 
   Region result;
-  GpsPositions positions;
-  GpsPositions & hull (result.vertices);
+  vector<Position> positions;
+  vector<Position> & hull (result.vertices);
   size_t num_points (0), current (0), k (0);
 
   // iterate over all regions 
@@ -212,7 +211,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " total region vertices is %d. Resizing list.\n",
     (int)num_points);
 
@@ -230,7 +229,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " sorting vertices.\n");
 
   // sort by x and then y
@@ -238,7 +237,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " removing duplicate vertices.\n");
 
   // get rid of duplicates
@@ -261,7 +260,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
-      "gams::utility::SearchArea::get_convex_hull:" \
+      "gams::pose::SearchArea::get_convex_hull:" \
       " after duplicates check, positions size set to %d.\n",
       (int)vacant);
 
@@ -270,7 +269,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_DETAILED,
-      "gams::utility::SearchArea::get_convex_hull:" \
+      "gams::pose::SearchArea::get_convex_hull:" \
       " allocating %d vertices for potential hull.\n",
       (int)vacant * 2);
 
@@ -280,7 +279,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " building lower hull.\n");
 
   // build lower hull
@@ -294,7 +293,7 @@ gams::utility::SearchArea::get_convex_hull () const
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " lower hull construction used %d points.\n", (int)k);
 
   if (positions.size () >= 2)
@@ -313,13 +312,13 @@ gams::utility::SearchArea::get_convex_hull () const
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-      "gams::utility::SearchArea::get_convex_hull:" \
+      "gams::pose::SearchArea::get_convex_hull:" \
       " ERROR: not enough vertices in region for bounding box creation.\n");
   }
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
-    "gams::utility::SearchArea::get_convex_hull:" \
+    "gams::pose::SearchArea::get_convex_hull:" \
     " upper hull construction finished hull with %d points.\n", (int)k - 1);
 
   if (k > 0)
@@ -334,14 +333,14 @@ gams::utility::SearchArea::get_convex_hull () const
   return result;
 }
 
-const vector<gams::utility::PrioritizedRegion>&
-gams::utility::SearchArea::get_regions () const
+const vector<gams::pose::PrioritizedRegion>&
+gams::pose::SearchArea::get_regions () const
 {
   return regions_;
 }
 
 madara::knowledge::KnowledgeRecord::Integer
-gams::utility::SearchArea::get_priority (const GPSPosition& pos) const
+gams::pose::SearchArea::get_priority (const Position& pos) const
 {
   madara::knowledge::KnowledgeRecord::Integer priority = 0;
   for (vector<PrioritizedRegion>::const_iterator it = regions_.begin ();
@@ -355,7 +354,7 @@ gams::utility::SearchArea::get_priority (const GPSPosition& pos) const
 }
 
 bool
-gams::utility::SearchArea::contains (const GPSPosition & p) const
+gams::pose::SearchArea::contains (const Position & p) const
 {
   for (unsigned int i = 0; i < regions_.size(); ++i)
     if (regions_[i].contains (p))
@@ -364,7 +363,7 @@ gams::utility::SearchArea::contains (const GPSPosition & p) const
 }
 
 string
-gams::utility::SearchArea::to_string () const
+gams::pose::SearchArea::to_string () const
 {
   stringstream buffer;
   buffer << "Num regions: " << regions_.size () << endl;
@@ -374,7 +373,7 @@ gams::utility::SearchArea::to_string () const
 }
 
 void
-gams::utility::SearchArea::calculate_bounding_box ()
+gams::pose::SearchArea::calculate_bounding_box ()
 {
   min_lat_ = min_lon_ = min_alt_ = DBL_MAX;
   max_lat_ = max_lon_ = max_alt_ = -DBL_MAX;
@@ -391,7 +390,7 @@ gams::utility::SearchArea::calculate_bounding_box ()
 }
 
 bool
-gams::utility::SearchArea::check_valid_type (
+gams::pose::SearchArea::check_valid_type (
   madara::knowledge::KnowledgeBase& kb, const std::string& name) const
 {
   const static Class_ID valid = (Class_ID) 
@@ -401,7 +400,7 @@ gams::utility::SearchArea::check_valid_type (
 }
 
 void
-gams::utility::SearchArea::to_container_impl (
+gams::pose::SearchArea::to_container_impl (
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   // set object type
@@ -449,7 +448,7 @@ gams::utility::SearchArea::to_container_impl (
 }
 
 bool
-gams::utility::SearchArea::from_container_impl (
+gams::pose::SearchArea::from_container_impl (
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   bool ret_val (false);
@@ -457,7 +456,7 @@ gams::utility::SearchArea::from_container_impl (
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_ERROR,
-      "gams::utility::SearchArea::from_container:" \
+      "gams::pose::SearchArea::from_container:" \
       " \"%s\" is not a valid SearchArea\n", name.c_str ());
   }
   else
@@ -500,7 +499,7 @@ gams::utility::SearchArea::from_container_impl (
             {
               madara_logger_ptr_log (gams::loggers::global_logger.get (),
                 gams::loggers::LOG_ERROR,
-                "gams::utility::SearchArea::from_container:" \
+                "gams::pose::SearchArea::from_container:" \
                 " \"%s\" is not valid PrioritizedRegion\n",
                 pr_prefix.str ().c_str ());
             }
@@ -515,7 +514,7 @@ gams::utility::SearchArea::from_container_impl (
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_ERROR,
-            "gams::utility::SearchArea::from_container:" \
+            "gams::pose::SearchArea::from_container:" \
             " \"%s\" does not have size value\n", name.c_str ());
         }
         break;
@@ -524,7 +523,7 @@ gams::utility::SearchArea::from_container_impl (
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_ERROR,
-          "gams::utility::SearchArea::from_container:" \
+          "gams::pose::SearchArea::from_container:" \
           " found invalid object_type %u\n", get_type (kb, name));
       }
     }

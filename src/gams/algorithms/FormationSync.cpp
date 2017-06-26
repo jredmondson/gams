@@ -87,8 +87,8 @@ variables::Agents * agents)
 
   if (knowledge && sensors && platform && self)
   {
-    utility::GPSPosition start;
-    utility::GPSPosition end;
+    pose::Position start (platform->get_frame());
+    pose::Position end (platform->get_frame());
     std::vector <std::string> members;
 
     int formation_type = FormationSync::LINE;
@@ -133,8 +133,8 @@ variables::Agents * agents)
 
           if (coords.size () >= 2)
           {
-            end.x = coords[0];
-            end.y = coords[1];
+            end.lat(coords[0]);
+            end.lng(coords[1]);
           }
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -251,8 +251,8 @@ variables::Agents * agents)
 
           if (coords.size () >= 2)
           {
-            start.x = coords[0];
-            start.y = coords[1];
+            start.lat(coords[0]);
+            start.lng(coords[1]);
           }
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -300,8 +300,8 @@ variables::Agents * agents)
 }
 
 gams::algorithms::FormationSync::FormationSync (
-  utility::GPSPosition & start,
-  utility::GPSPosition & end,
+  pose::Position & start,
+  pose::Position & end,
   const std::vector<std::string> & members,
   double buffer,
   int formation,
@@ -373,25 +373,26 @@ gams::algorithms::FormationSync::generate_plan (int formation)
    * will contain the latitude (x) and longitude (y) differences
    * between the points in meters.
    **/
-  utility::Position distances = end_.to_position (start_);
+  pose::CartesianFrame start_frame (start_);
+  pose::Position distances = end_.transform_to (start_frame);
 
   /**
    * the number of moves is sum of the the horizontal and
    * vertical distances divided by the buffer
    **/
-  int x_moves = (int)(std::abs (distances.x / buffer_)) + 1;
-  int y_moves = (int)(std::abs (distances.y / buffer_)) + 1;
+  int x_moves = (int)(std::abs (distances.x() / buffer_)) + 1;
+  int y_moves = (int)(std::abs (distances.y() / buffer_)) + 1;
   int total_moves = x_moves + y_moves;
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::FormationSync::constructor:" \
     " Formation will move %.3f m lat, %.3f m long in %d moves\n",
-    distances.x, distances.y, total_moves);
+    distances.x(), distances.y(), total_moves);
 
   // the type of movement will be based on sign of distance
-  double latitude_move = distances.x < 0 ? -buffer_ : buffer_;
-  double longitude_move = distances.y < 0 ? -buffer_ : buffer_;
+  double latitude_move = distances.x() < 0 ? -buffer_ : buffer_;
+  double longitude_move = distances.y() < 0 ? -buffer_ : buffer_;
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
@@ -404,8 +405,8 @@ gams::algorithms::FormationSync::generate_plan (int formation)
   utility::Position movement;
 
   // the initial position for this specific agent
-  utility::GPSPosition init;
-  utility::GPSPosition position_end;
+  pose::Position init (platform_->get_frame());
+  pose::Position position_end (platform_->get_frame());
 
   if (formation == TRIANGLE)
   {
@@ -456,15 +457,6 @@ gams::algorithms::FormationSync::generate_plan (int formation)
         }
       }
     }
-
-    // the initial position for this specific agent
-    init = start_.to_gps_position (
-      movement, start_);
-
-    // the ending position for this specific agent
-    position_end = end_.to_gps_position (
-      movement, end_);
-
   }
   else if (formation == PYRAMID)
   {
@@ -476,15 +468,6 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     // the initial position where the first two moves will be for this agent
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
-
-    // the initial position for this specific agent
-    init = start_.to_gps_position (
-      movement, start_);
-
-    // the ending position for this specific agent
-    position_end = end_.to_gps_position (
-      movement, end_);
-
   }
   else if (formation == RECTANGLE)
   {
@@ -518,14 +501,6 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     }
     movement.y = row * longitude_move;
 
-    // the initial position for this specific agent
-    init = start_.to_gps_position (
-      movement, start_);
-
-    // the ending position for this specific agent
-    position_end = end_.to_gps_position (
-      movement, end_);
-
   }
   else if (formation == CIRCLE)
   {
@@ -537,15 +512,6 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     // the initial position where the first two moves will be for this agent
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
-
-    // the initial position for this specific agent
-    init = start_.to_gps_position (
-      movement, start_);
-
-    // the ending position for this specific agent
-    position_end = end_.to_gps_position (
-      movement, end_);
-
   }
   else if (formation == WING)
   {
@@ -668,14 +634,6 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     // the initial position where the first two moves will be for this agent
     movement.x = col * latitude_move * 2;
     movement.y = row * longitude_move * 2;
-
-    // the initial position for this specific agent
-    init = start_.to_gps_position (
-      movement, start_);
-
-    // the ending position for this specific agent
-    position_end = end_.to_gps_position (
-      movement, end_);
   }
   // default is LINE
   else
@@ -688,17 +646,18 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     // the initial position where the first two moves will be for this agent
     movement.x = position_ * latitude_move * 2;
     movement.y = 0;
-
-    // the initial position for this specific agent
-    init = start_.to_gps_position (
-      movement, start_);
-
-    // the ending position for this specific agent
-    position_end = end_.to_gps_position (
-      movement, end_);
   }
 
-  utility::GPSPosition last (init);
+  // the initial position for this specific agent
+  pose::Position move_start = movement.to_pos (start_frame);
+  init = move_start.transform_to (platform_->get_frame());
+
+  // the ending position for this specific agent
+  pose::CartesianFrame end_frame (start_);
+  pose::Position move_end = movement.to_pos (end_frame);
+  position_end = move_end.transform_to (platform_->get_frame());
+
+  pose::Position last (init);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_DETAILED,
@@ -716,8 +675,9 @@ gams::algorithms::FormationSync::generate_plan (int formation)
   // move latitude until done
   for (int i = 0; i < x_moves; ++i)
   {
-    last = last.to_gps_position (
-      movement, last);
+    pose::CartesianFrame last_frame (last);
+    pose::Position move_last = movement.to_pos (last_frame);
+    last = move_last.transform_to (platform_->get_frame());
     plan_.push_back (last);
   }
 
@@ -735,8 +695,9 @@ gams::algorithms::FormationSync::generate_plan (int formation)
   // move latitude until done
   for (int i = 0; i < y_moves; ++i)
   {
-    last = last.to_gps_position (
-      movement, last);
+    pose::CartesianFrame last_frame (last);
+    pose::Position move_last = movement.to_pos (last_frame);
+    last = move_last.transform_to (platform_->get_frame());
     plan_.push_back (last);
   }
 
@@ -760,17 +721,16 @@ gams::algorithms::FormationSync::generate_plan (int formation)
 
 }
 
-gams::utility::GPSPosition
-gams::algorithms::FormationSync::generate_position (utility::GPSPosition reference,
+gams::pose::Position
+gams::algorithms::FormationSync::generate_position (pose::Position reference,
 double angle, double distance)
 {
-  // compute the offset position
-  utility::Position offset (
-    distance * cos (angle), distance * sin (angle), 0);
+  pose::CartesianFrame local (reference);
 
+  // compute the offset position
+  pose::Position offset (local, distance * cos(angle), distance * sin(angle));
   // return the new GPS position from the reference position
-  return utility::GPSPosition::to_gps_position (
-    offset, reference);
+  return offset.transform_to (reference.frame());
 }
 
 int
@@ -835,7 +795,7 @@ gams::algorithms::FormationSync::analyze (void)
           " %d: Round %d of %d: Proceeding to next barrier round\n",
           position_, round, (int)plan_.size ());
 
-        utility::GPSPosition current;
+        pose::Position current (platform_->get_frame());
         current.from_container (self_->agent.location);
 
         // for some reason, we have divergent functions for distance equality

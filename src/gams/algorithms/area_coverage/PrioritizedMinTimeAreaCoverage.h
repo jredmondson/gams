@@ -47,6 +47,8 @@
 /**
  * @file PrioritizedMinTimeAreaCoverage.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
+ *
+ * NOTE: Disabled pending repair of the variables::Sensor class
  **/
 
 #ifndef _GAMS_ALGORITHMS_AREA_COVERAGE_PRIORITIZED_MIN_TIME_AREA_COVERAGE_H_

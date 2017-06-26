@@ -201,6 +201,8 @@ namespace gams
     private:
       double planet_radius_;
     };
+
+    GAMSExport const GPSFrame &gps_frame (void);
   }
 }
 

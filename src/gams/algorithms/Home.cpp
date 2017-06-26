@@ -130,7 +130,7 @@ gams::algorithms::Home::execute (void)
 
     if (home.size () >= 2)
     {
-      utility::Location destination (platform_->get_frame ());
+      pose::Position destination (platform_->get_frame ());
       destination.from_container (self_->agent.home);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),

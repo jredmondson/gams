@@ -54,14 +54,16 @@
 #ifndef  _GAMS_UTILITY_SEARCH_AREA_INL_
 #define  _GAMS_UTILITY_SEARCH_AREA_INL_
 
-#include "gams/utility/SearchArea.h"
+#include "gams/pose/SearchArea.h"
 
 inline double
-gams::utility::SearchArea::cross (
-  const GPSPosition& o, const GPSPosition& a,
-  const GPSPosition& b) const
+gams::pose::SearchArea::cross (
+  const Position& o, const Position& a,
+  const Position& b) const
 {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  Position la(o.frame(), a);
+  Position lb(o.frame(), b);
+  return (la.x() - o.x()) * (lb.y() - o.y()) - (la.y() - o.y()) * (lb.x() - o.x());
 }
 
 #endif // _GAMS_UTILITY_SEARCH_AREA_INL_

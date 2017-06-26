@@ -58,12 +58,11 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
 #include "gams/platforms/BasePlatform.h"
-#include "gams/utility/GPSPosition.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "gams/utility/CartesianFrame.h"
-#include "gams/utility/Location.h"
-#include "gams/utility/Orientation.h"
-#include "gams/utility/GPSFrame.h"
+#include "gams/pose/CartesianFrame.h"
+#include "gams/pose/Position.h"
+#include "gams/pose/Orientation.h"
+#include "gams/pose/GPSFrame.h"
 #include "madara/threads/Threader.h"
 #include "madara/threads/BaseThread.h"
 #include "madara/LockType.h"
@@ -149,8 +148,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const utility::Position & position,
-        const double & epsilon = 0.1);
+      //virtual int move (const utility::Position & position,
+        //const double & epsilon = 0.1);
 
       /**
        * Moves the platform to a location
@@ -158,7 +157,7 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const utility::Location & location,
+      virtual int move (const pose::Position & location,
         double epsilon = 0.1);
 
       /**
@@ -167,7 +166,7 @@ namespace gams
        * @param   epsilon   approximation value, in radians
        * @return the status of the orient operation, @see PlatformReturnValues
        **/
-      virtual int orient (const utility::Orientation & location,
+      virtual int orient (const pose::Orientation & location,
         double epsilon = M_PI/32);
 
       /**
@@ -186,9 +185,9 @@ namespace gams
       * Method for returning the platform's current frame
       * @return frame that the platform's coordinate system is operating in
       **/
-      virtual const utility::ReferenceFrame & get_frame (void) const;
+      virtual const pose::ReferenceFrame & get_frame (void) const;
 
-      const utility::ReferenceFrame & get_vrep_frame (void) const;
+      const pose::ReferenceFrame & get_vrep_frame (void) const;
 
     protected:
       /**
@@ -250,17 +249,12 @@ namespace gams
       simxInt node_target_;
 
       /// gps coordinates corresponding to (0, 0) in vrep
-      utility::Pose sw_pose_;
+      pose::Pose sw_pose_;
 
       /**
        * CartesianFrame representing vrep coordinate system.
        **/
-      utility::CartesianFrame vrep_frame_;
-
-      /**
-      * CartesianFrame representing vrep coordinate system.
-      **/
-      static utility::GPSFrame gps_frame_;
+      pose::CartesianFrame vrep_frame_;
 
       madara::knowledge::containers::Double thread_rate_;
 
@@ -340,13 +334,13 @@ namespace gams
       /// reference to knowledge record "S{.id}.init"
       madara::knowledge::containers::Integer agent_ready_;
 
-      utility::Pose get_sw_pose(const utility::ReferenceFrame &frame);
+      pose::Pose get_sw_pose(const pose::ReferenceFrame &frame);
 
-      int do_move (const utility::Location & target,
-                   const utility::Location & current, double max_delta);
+      int do_move (const pose::Position & target,
+                   const pose::Position & current, double max_delta);
 
-      int do_orient (utility::Orientation target,
-                     const utility::Orientation & current, double max_delta);
+      int do_orient (pose::Orientation target,
+                     const pose::Orientation & current, double max_delta);
     }; // class VREPBase
   } // namespace platform
 } // namespace gams

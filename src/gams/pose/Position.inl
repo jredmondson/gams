@@ -110,13 +110,21 @@ namespace gams
     inline double PositionVector::y(double new_y) { return y_ = new_y; }
     inline double PositionVector::z(double new_z) { return z_ = new_z; }
 
+    inline constexpr double PositionVector::lon() const { return x_; }
     inline constexpr double PositionVector::lng() const { return x_; }
+    inline constexpr double PositionVector::longitude() const { return x_; }
     inline constexpr double PositionVector::lat() const { return y_; }
+    inline constexpr double PositionVector::latitude() const { return y_; }
     inline constexpr double PositionVector::alt() const { return z_; }
+    inline constexpr double PositionVector::altitude() const { return z_; }
 
+    inline double PositionVector::lon(double new_x) { return x_ = new_x; }
     inline double PositionVector::lng(double new_x) { return x_ = new_x; }
+    inline double PositionVector::longitude(double new_x) { return x_ = new_x; }
     inline double PositionVector::lat(double new_y) { return y_ = new_y; }
+    inline double PositionVector::latitude(double new_y) { return y_ = new_y; }
     inline double PositionVector::alt(double new_z) { return z_ = new_z; }
+    inline double PositionVector::altitude(double new_z) { return z_ = new_z; }
 
     inline constexpr double PositionVector::rho() const { return x_; }
     inline constexpr double PositionVector::theta() const { return x_; }
