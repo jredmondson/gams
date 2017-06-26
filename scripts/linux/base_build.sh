@@ -89,6 +89,7 @@ DOCS=0
 VREP_CONFIG=0
 ZMQ=0
 SSL=0
+DMPL=0
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -123,6 +124,10 @@ do
     MADARA=1
   elif [ "$var" = "gams" ]; then
     GAMS=1
+  elif [ "$var" = "dart" ]; then
+    DMPL=1
+  elif [ "$var" = "dmpl" ]; then
+    DMPL=1
   elif [ "$var" = "zmq" ]; then
     ZMQ=1
   elif [ "$var" = "ssl" ]; then
@@ -141,6 +146,7 @@ do
     echo "  args can be zero or more of the following, space delimited"
     echo "  ace             build ACE"
     echo "  android         build android libs, turns on java"
+    echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
     echo "  gams            build GAMS"
     echo "  java            build java jar"
@@ -167,6 +173,8 @@ do
     echo "  JAVA_HOME           - location of JDK"
     echo "  ZMQ_ROOT            - location of ZeroMQ"
     echo "  SSL_ROOT            - location of OpenSSL"
+    echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
+    echo "  DMPL_ROOT          - location of DART DMPL directory"
     exit
   fi
 done
@@ -232,7 +240,7 @@ echo ""
 
 if [ $PREREQS -eq 1 ]; then
   sudo apt-get install -f build-essential subversion git-core perl
-  
+
   if [ $JAVA -eq 1 ]; then
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
@@ -240,6 +248,17 @@ if [ $PREREQS -eq 1 ]; then
     echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
   fi
   
+  if [ $ROS -eq 1 ]; then
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+    sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+    sudo apt-get update
+    sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs
+    sudo rosdep init
+    rosdep update
+    echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+    source ~/.bashrc
+  fi
+
   if [ $SSL -eq 1 ]; then
     sudo apt-get install libssl-dev
   fi
@@ -247,6 +266,7 @@ if [ $PREREQS -eq 1 ]; then
   if [ $ZMQ -eq 1 ]; then 
     sudo apt-get install libtool pkg-config autoconf automake
   fi
+
 fi
 
 if [ $ACE -eq 1 ]; then
@@ -419,6 +439,31 @@ else
 fi
   
 
+if [ $DMPL -eq 1 ]; then
+
+  # build GAMS
+  if [ -z $DMPL_ROOT ] ; then
+    export DMPL_ROOT=$INSTALL_DIR/DMPL
+    echo "SETTING DMPL_ROOT to $DMPL_ROOT"
+  fi
+  if [ ! -d $DMPL_ROOT ] ; then
+    echo "DOWNLOADING GAMS"
+    git clone --depth 1 -b release-0.4.0 https://github.com/cps-sei/DMPL.git $DMPL_ROOT
+    
+  else
+    echo "UPDATING DMPL"
+    cd $DMPL_ROOT
+    git pull
+
+    echo "CLEANING GAMS OBJECTS"
+    make clean -j $CORES
+
+  fi
+
+  cd $DMPL_ROOT
+  make MZSRM=0 -j $CORES
+fi
+
 if [ $VREP_CONFIG -eq 1 ]; then
   echo "CONFIGURING 20 VREP PORTS"
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
@@ -439,5 +484,15 @@ if [ $SSL -eq 1 ]; then
   echo "export ZMQ_ROOT=$ZMQ_ROOT"
 fi
 
+if [ $DMPL -eq 1 ]; then
+  echo "export DMPL_ROOT=$DMPL_ROOT"
+fi
+
 echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib"
 echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$VREP_ROOT"
+
+
+if [ $DMPL -eq 1 ]; then
+  echo "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
+fi
+
