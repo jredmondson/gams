@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -45,10 +45,10 @@
  **/
 
 /**
- * @file ROSBase.h
+ * @file RosBase.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
- * This file contains the definition of the ROSBase abstract class
+ * This file contains the definition of the RosBase abstract class
  **/
 
 #ifndef   _GAMS_PLATFORM_ROS_BASE_H_
@@ -58,8 +58,9 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
 #include "gams/platforms/BasePlatform.h"
-#include "gams/utility/GPSPosition.h"
-#include "madara/knowledge_engine/KnowledgeBase.h"
+#include "gams/pose/GPSFrame.h"
+#include "gams/pose/CartesianFrame.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 // ROS includes
 #include "ros/ros.h"
@@ -73,7 +74,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMSExport ROSBase : public BasePlatform
+    class GAMSExport RosBase : public BasePlatform
     {
     public:
       /**
@@ -83,21 +84,21 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       device variables that describe self state
        **/
-      ROSBase (
-        Madara::KnowledgeEngine::KnowledgeBase * knowledge,
+      RosBase (
+        madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Self * self);
 
       /**
        * Destructor
        **/
-      virtual ~ROSBase ();
+      virtual ~RosBase ();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const ROSBase & rhs);
+      void operator= (const RosBase & rhs);
 
       /**
        * Polls the sensor environment for useful information
@@ -129,7 +130,7 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const utility::Position & position,
+      virtual int move (const pose::Position & position,
         const double & epsilon = 0.1);
       
       /**
@@ -145,12 +146,27 @@ namespace gams
       virtual int takeoff (void);
 
       /**
+       * Returns the reference frame for the platform (usually GPS)
+       * @return the platform's reference frame for positions
+       **/
+      virtual const pose::ReferenceFrame & get_frame (void) const;
+
+      /**
        * Initialize the ros node
        * @param   n   node name
        */
       static void ros_init(const std::string& n = "robot_0");
 
     protected:
+      /// a cartesian frame for coordinate reference frame
+      pose::CartesianFrame cart_frame_;
+
+      /// a GPS frame for base coordinate reference frame
+      pose::GPSFrame gps_frame_;
+
+      /// the current frame (can theoretically be switched between options)
+      pose::ReferenceFrame * frame_;
+
       /**
        * wait for go signal from controller
        */
@@ -158,7 +174,7 @@ namespace gams
 
       /// flag for simulated robot ready to receive instruction
       bool ready_;
-    }; // class ROSBase
+    }; // class RosBase
   } // namespace platform
 } // namespace gams
 

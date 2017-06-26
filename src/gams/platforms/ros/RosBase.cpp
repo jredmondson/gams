@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -46,14 +46,14 @@
 
 #ifdef _GAMS_ROS_ // only compile this if we are simulating in ROS
 
-#include "gams/platforms/ros/ROSBase.h"
+#include "gams/platforms/ros/RosBase.h"
 
 #include <iostream>
 #include <cmath>
 #include <map>
 #include <vector>
 
-#include "madara/knowledge_engine/containers/DoubleVector.h"
+#include "madara/knowledge/containers/DoubleVector.h"
 
 #include "ros/ros.h"
 
@@ -65,11 +65,12 @@ using std::cerr;
 using std::string;
 using std::map;
 
-gams::platforms::ROSBase::ROSBase (Madara::KnowledgeEngine::KnowledgeBase * knowledge,
+gams::platforms::RosBase::RosBase (madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Self * self) :
   BasePlatform (knowledge, sensors, self), ready_ (false)
 {
   static bool init = false;
+  this->frame_ = &gps_frame_;
   if (!init)
   {
     string node_name (knowledge->get (".ros_node").to_string ());
@@ -79,35 +80,35 @@ gams::platforms::ROSBase::ROSBase (Madara::KnowledgeEngine::KnowledgeBase * know
   }
 }
 
-gams::platforms::ROSBase::~ROSBase ()
+gams::platforms::RosBase::~RosBase ()
 {
 }
 
 void
-gams::platforms::ROSBase::operator= (const ROSBase & rhs)
+gams::platforms::RosBase::operator= (const RosBase & rhs)
 {
 }
 
 int
-gams::platforms::ROSBase::sense ()
+gams::platforms::RosBase::sense ()
 {
   return 1;
 }
 
 int
-gams::platforms::ROSBase::analyze ()
+gams::platforms::RosBase::analyze ()
 {
   return 1;
 }
 
 double
-gams::platforms::ROSBase::get_accuracy () const
+gams::platforms::RosBase::get_accuracy () const
 {
   return 1;
 }
 
 int
-gams::platforms::ROSBase::land ()
+gams::platforms::RosBase::land ()
 {
   return 1;
 }
@@ -119,23 +120,23 @@ land ()
 }
 
 int
-gams::platforms::ROSBase::move (const utility::Position & position, const double & epsilon)
+gams::platforms::RosBase::move (const pose::Position & position, const double & epsilon)
 {
   return 1;
 }
 
 void
-gams::platforms::ROSBase::set_move_speed (const double& speed)
+gams::platforms::RosBase::set_move_speed (const double& speed)
 {
 }
 
 int
-gams::platforms::ROSBase::takeoff ()
+gams::platforms::RosBase::takeoff ()
 {
 }
 
 void
-gams::platforms::ROSBase::ros_init(const std::string& n)
+gams::platforms::RosBase::ros_init(const std::string& n)
 {
   static bool has_init = false;
   
@@ -148,8 +149,15 @@ gams::platforms::ROSBase::ros_init(const std::string& n)
 }
 
 void
-gams::platforms::ROSBase::wait_for_go () const
+gams::platforms::RosBase::wait_for_go () const
 {
 }
 
+const gams::pose::ReferenceFrame &
+gams::platforms::RosBase::get_frame (void) const
+{
+  return *frame_;
+}
+
 #endif // _GAMS_ROS_
+

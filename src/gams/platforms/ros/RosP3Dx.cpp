@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014-2017 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -45,7 +45,7 @@
  **/
 
 /**
- * @file ROS_P3DX.cpp
+ * @file RosP3Dx.cpp
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * This file contains the definition of the Stage simulated Pioneer 3D-X robot class
@@ -53,7 +53,7 @@
 
 #ifdef _GAMS_ROS_ // only compile this if we are using ROS
 
-#include "gams/platforms/ros/ROS_P3DX.h"
+#include "gams/platforms/ros/RosP3Dx.h"
 
 #define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
 
@@ -62,36 +62,41 @@ using std::endl;
 using std::cout;
 using std::cerr;
 using std::string;
+
+namespace knowledge = madara::knowledge;
+
 #include <cmath>
 
-#include "madara/knowledge_engine/containers/DoubleVector.h"
+#include "madara/knowledge/containers/DoubleVector.h"
 
 #include "gams/variables/Sensor.h"
 
 gams::platforms::BasePlatform *
-gams::platforms::ROS_P3DXFactory::create (
-  const Madara::KnowledgeVector & args,
-  Madara::KnowledgeEngine::KnowledgeBase * knowledge,
+gams::platforms::RosP3DxFactory::create (
+  const knowledge::KnowledgeMap & args,
+  knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Platforms * platforms,
   variables::Self * self)
 {
   BasePlatform * result (0);
+
   if (knowledge && sensors && platforms && self)
-    result = new ROS_P3DX (knowledge, sensors, platforms, self);
+    result = new RosP3Dx (knowledge, sensors, platforms, self);
+
   return result;
 }
 
-gams::platforms::ROS_P3DX::ROS_P3DX (
-  Madara::KnowledgeEngine::KnowledgeBase * knowledge, 
+gams::platforms::RosP3Dx::RosP3Dx (
+  knowledge::KnowledgeBase * knowledge, 
   variables::Sensors * sensors,
   variables::Platforms * platforms, variables::Self * self) :
-  ROSBase (knowledge, sensors, self),
+  RosBase (knowledge, sensors, self),
   ros_namespace_(knowledge->get (".ros_namespace").to_string ()), 
   node_handle_ (ros_namespace_),
   move_client_ (ros_namespace_ + std::string ("/move_base"), true), 
   spinner_ (1), init_pose_set_ (false)
 {
-  cerr << "creating ROS_P3DX" << endl;
+  ROS_INFO("creating RosP3Dx");
   if (platforms && knowledge)
   {
     (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
@@ -111,47 +116,49 @@ gams::platforms::ROS_P3DX::ROS_P3DX (
     exit(-1);
   }
 
+  status_.movement_available = 1;
+
   // get initial position from knowledge base
-  Madara::KnowledgeRecord record = knowledge->get (".initial_position");
+  knowledge::KnowledgeRecord record = knowledge->get (".initial_position");
   std::vector <double> coords = record.to_doubles ();
-  utility::Position p(coords[0], coords[1], coords[2]);
+  pose::Position p(get_frame (), coords[0], coords[1], coords[2]);
   set_initial_position(p);
 
   // probably not needed?
   self_->agent.desired_altitude = 0.05;
 
   // start spinner for reading position from AMCL
-  spinner_.start();
+  spinner_.start ();
 
   // platform is ready
   ready_ = true;
 }
 
-gams::platforms::ROS_P3DX::~ROS_P3DX ()
+gams::platforms::RosP3Dx::~RosP3Dx ()
 {
 }
 
 std::string
-gams::platforms::ROS_P3DX::get_id () const
+gams::platforms::RosP3Dx::get_id () const
 {
-  return "ros_p3dx";
+  return "RosP3Dx";
 }
 
 std::string
-gams::platforms::ROS_P3DX::get_name () const
+gams::platforms::RosP3Dx::get_name () const
 {
   return "ROS Pioneer 3DX";
 }
 
 int
-gams::platforms::ROS_P3DX::move (const utility::Position & position, const double & epsilon)
+gams::platforms::RosP3Dx::move (const pose::Position & position, const double & epsilon)
 {
   // generate message
   move_base_msgs::MoveBaseGoal goal;
   goal.target_pose.header.frame_id = "/map";
-  goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.pose.position.x = position.x;
-  goal.target_pose.pose.position.y = position.y;
+  goal.target_pose.header.stamp = ros::Time::now ();
+  goal.target_pose.pose.position.x = position.x ();
+  goal.target_pose.pose.position.y = position.y ();
   goal.target_pose.pose.position.z = 0.0;
   goal.target_pose.pose.orientation.w = 1.0;
   
@@ -161,31 +168,31 @@ gams::platforms::ROS_P3DX::move (const utility::Position & position, const doubl
 }
 
 void
-gams::platforms::ROS_P3DX::set_initial_position (const utility::Position& p)
+gams::platforms::RosP3Dx::set_initial_position (const pose::Position& p)
 {
   // send pose estimate
   ROS_INFO("Send initial pose estimate");
   geometry_msgs::PoseWithCovarianceStamped init_pose;
   init_pose.header.frame_id = "/map";
-  init_pose.header.stamp = ros::Time::now();
+  init_pose.header.stamp = ros::Time::now ();
 
   // initial position and orientation
-  init_pose.pose.pose.position.x = p.x;
-  init_pose.pose.pose.position.y = p.y;
+  init_pose.pose.pose.position.x = p.x ();
+  init_pose.pose.pose.position.y = p.y ();
   init_pose.pose.pose.position.z = 0;
   init_pose.pose.pose.orientation.x = 0.0;
   init_pose.pose.pose.orientation.y = 0.0;
-  if(p.z == 90)
+  if(p.z () == 90)
   {
     init_pose.pose.pose.orientation.z = -0.704976308536;
     init_pose.pose.pose.orientation.w = 0.709230854097;
   }
-  else if(p.z == 180 || p.z == -180)
+  else if(p.z () == 180 || p.z () == -180)
   {
     init_pose.pose.pose.orientation.z = -1;
     init_pose.pose.pose.orientation.w = 0;
   }
-  else if(p.z == 0)
+  else if(p.z () == 0)
   {
     init_pose.pose.pose.orientation.z = 0;
     init_pose.pose.pose.orientation.w = 1;
@@ -203,7 +210,7 @@ gams::platforms::ROS_P3DX::set_initial_position (const utility::Position& p)
     node_handle_.advertise<geometry_msgs::PoseWithCovarianceStamped>(
       ros_namespace_ + std::string("/initialpose"), 1);
   amcl_pose_sub_ = node_handle_.subscribe(
-    ros_namespace_ + "/amcl_pose", 1, &ROS_P3DX::update_pose, this);
+    ros_namespace_ + "/amcl_pose", 1, &RosP3Dx::update_pose, this);
 
   // attempt to send initial pose
   ros::Rate timer(5);
@@ -211,23 +218,24 @@ gams::platforms::ROS_P3DX::set_initial_position (const utility::Position& p)
   for(i = 0; i < 100 && !init_pose_set_; ++i)
   {
     init_pose_pub.publish(init_pose);
-    ros::spinOnce();
-    timer.sleep();
+    ros::spinOnce ();
+    timer.sleep ();
   }
   if(i == 100)
     ROS_INFO("Unable to set initial pose");
 }
 
 void
-gams::platforms::ROS_P3DX::update_pose(const geometry_msgs::PoseWithCovarianceStamped& msg)
+gams::platforms::RosP3Dx::update_pose(const geometry_msgs::PoseWithCovarianceStamped& msg)
 {
   // need to mutex protect this
   init_pose_set_ = true;
-  utility::Position p;
-  p.x = msg.pose.pose.position.x;
-  p.y = msg.pose.pose.position.y;
-  p.z = msg.pose.pose.position.z;
+  pose::Position p (get_frame ());
+  p.x (msg.pose.pose.position.x);
+  p.y (msg.pose.pose.position.y);
+  p.z (msg.pose.pose.position.z);
   p.to_container (self_->agent.location);
 }
 
 #endif // _GAMS_ROS_
+

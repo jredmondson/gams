@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names “Carnegie Mellon University,” "SEI” and/or “Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN “AS-IS” BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -45,25 +45,25 @@
  **/
 
 /**
- * @file ROS_P3DX.h
+ * @file RosP3Dx.h
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *
  * This file contains the declaration of the Stage simulated Pioneer 3D-X robot class
  **/
 
-#ifndef   _GAMS_PLATFORM_ROS_P3DX_H_
-#define   _GAMS_PLATFORM_ROS_P3DX_H_
+#ifndef   _GAMS_PLATFORM_RosP3Dx_H_
+#define   _GAMS_PLATFORM_RosP3Dx_H_
 
 #ifdef _GAMS_ROS_
 
-#include "gams/platforms/ros/ROSBase.h"
+#include "gams/platforms/ros/RosBase.h"
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
 #include "gams/utility/Position.h"
 #include "gams/platforms/PlatformFactory.h"
-#include "madara/knowledge_engine/KnowledgeBase.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 #include "ros/ros.h"
 #include "move_base_msgs/MoveBaseAction.h"
@@ -74,7 +74,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMSExport ROS_P3DX : public ROSBase
+    class GAMSExport RosP3Dx : public RosBase
     {
     public:
       /**
@@ -84,8 +84,8 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       device variables that describe self state
        **/
-      ROS_P3DX (
-        Madara::KnowledgeEngine::KnowledgeBase * knowledge,
+      RosP3Dx (
+        madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
@@ -93,7 +93,7 @@ namespace gams
       /**
        * Destructor
        */
-      virtual ~ROS_P3DX ();
+      virtual ~RosP3Dx ();
       
       /**
        * Gets the unique identifier of the platform. This should be an
@@ -113,7 +113,7 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const utility::Position & position,
+      virtual int move (const pose::Position & position,
         const double & epsilon = 0.1);
 
     protected:
@@ -124,15 +124,15 @@ namespace gams
       ros::AsyncSpinner spinner_;
       bool init_pose_set_;
 
-      void set_initial_position(const utility::Position& p);
+      void set_initial_position(const pose::Position& p);
 
       void update_pose(const geometry_msgs::PoseWithCovarianceStamped& msg);
-    }; // class ROS_P3DX
+    }; // class RosP3Dx
 
     /**
-     * A factory class for creating ROS_P3DX platforms
+     * A factory class for creating RosP3Dx platforms
      **/
-    class GAMSExport ROS_P3DXFactory : public PlatformFactory
+    class GAMSExport RosP3DxFactory : public PlatformFactory
     {
     public:
 
@@ -149,15 +149,15 @@ namespace gams
        *                    set by the controller in init_vars
        **/
       virtual BasePlatform * create (
-        const Madara::KnowledgeVector & args,
-        Madara::KnowledgeEngine::KnowledgeBase * knowledge,
+        const madara::knowledge::KnowledgeMap & args,
+        madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
-      }; // class ROS_P3DXFactory
+      }; // class RosP3DxFactory
   } // namespace platform
 } // namespace gams
 
 #endif // _GAMS_ROS_
 
-#endif // _GAMS_PLATFORM_ROS_P3DX_H_
+#endif // _GAMS_PLATFORM_RosP3Dx_H_

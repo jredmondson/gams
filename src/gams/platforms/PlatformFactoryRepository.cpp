@@ -64,7 +64,7 @@
 #endif
 
 #ifdef _GAMS_ROS_
-#include "gams/platforms/ros/ROS_P3DX.h"
+#include "gams/platforms/ros/RosP3Dx.h"
 #endif 
 
 #include "gams/loggers/GlobalLogger.h"
@@ -168,10 +168,11 @@ platforms::PlatformFactoryRepository::initialize_default_mappings (void)
 #ifdef _GAMS_ROS_
   // the ROS P3DX platform
   aliases.resize (2);
-  aliases[0] = "ros_p3dx";
+  aliases[0] = "RosP3Dx";
   aliases[1] = "ros-p3dx";
+  aliases[2] = "ROS_P3DX";
 
-  add (aliases, new ROS_P3DXFactory ());
+  add (aliases, new RosP3DxFactory ());
 #endif
 }
 
