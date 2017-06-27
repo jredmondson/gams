@@ -90,6 +90,14 @@ VREP_CONFIG=0
 ZMQ=0
 SSL=0
 DMPL=0
+
+ACE_DEPENDENCY_ENABLED=0
+MADARA_DEPENDENCY_ENABLED=0
+ACE_AS_A_PREREQ=0
+MADARA_AS_A_PREREQ=0
+VREP_AS_A_PREREQ=0
+GAMS_AS_A_PREREQ=0
+
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -179,8 +187,14 @@ do
   fi
 done
 
+# specify ACE_ROOT if missing. It's needed for most everything else.
 if [ -z $ACE_ROOT ] ; then
   export ACE_ROOT=$INSTALL_DIR/ace/ACE_wrappers
+fi
+
+# check if ACE_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
+if [[ ":$LD_LIBRARY_PATH:" == *":$ACE_ROOT/lib:"* ]]; then
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ACE_ROOT/lib
 fi
 
 # echo build information
@@ -275,7 +289,22 @@ if [ $PREREQS -eq 1 ]; then
 
 fi
 
-if [ $ACE -eq 1 ]; then
+# check if ACE is a prereq for later packages
+
+if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] || [ $MADARA -eq 1 ]; then
+  ACE_DEPENDENCY_ENABLED=1
+fi
+
+if [ $ACE_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $ACE_ROOT ]; then
+  ACE_AS_A_PREREQ=1
+fi
+
+# check if ACE_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
+if [[ ! ":$LD_LIBRARY_PATH:" == *":$ACE_ROOT/lib:"* ]]; then
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ACE_ROOT/lib
+fi
+
+if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
@@ -339,15 +368,32 @@ if [ $SSL -eq 1 ]; then
   fi
 fi
 
-if [ $MADARA -eq 1 ]; then
+# set MADARA_ROOT since it is required by most other packages
+if [ -z $MADARA_ROOT ] ; then
+  export MADARA_ROOT=$INSTALL_DIR/madara
+  echo "SETTING MADARA_ROOT to $MADARA_ROOT"
+fi
+
+# check if MADARA_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
+if [[ ! ":$LD_LIBRARY_PATH:" == *":$MADARA_ROOT/lib:"* ]]; then
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib
+fi
+
+if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] ; then
+  MADARA_DEPENDENCY_ENABLED=1
+fi
+
+# check if MADARA is a prereq for later packages
+if [ $MADARA_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MADARA_ROOT ]; then
+  MADARA_AS_A_PREREQ=1
+fi
+
+if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
+
+  echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
 
   cd $INSTALL_DIR
 
-  # build MADARA
-  if [ -z $MADARA_ROOT ] ; then
-    export MADARA_ROOT=$INSTALL_DIR/madara
-    echo "SETTING MADARA_ROOT to $MADARA_ROOT"
-  fi
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
     git clone http://git.code.sf.net/p/madara/code $MADARA_ROOT
@@ -381,8 +427,11 @@ else
   echo "NOT BUILDING MADARA"
 fi
 
+if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
+  VREP_AS_A_PREREQ=1
+fi
 
-if [ $VREP -eq 1 ] || [ $DMPL -eq 1 ]; then
+if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
   if [ ! $VREP_ROOT ] ; then
     export VREP_ROOT=$INSTALL_DIR/vrep
     echo "SETTING VREP_ROOT to $VREP_ROOT"
@@ -421,13 +470,14 @@ else
   echo "NOT DOWNLOADING VREP"
 fi
 
+if [ $DMPL -eq 1 ] && [ ! -d $GAMS_ROOT ]; then
+  GAMS_AS_A_PREREQ=1
+fi
 
-if [ $GAMS -eq 1 ]; then
+echo "LD_LIBRARY_PATH for GAMS compile is $LD_LIBRARY_PATH"
 
-  if [ -z $MADARA_ROOT ] ; then
-    export MADARA_ROOT=$INSTALL_DIR/madara
-    echo "SETTING MADARA_ROOT to $MADARA_ROOT"
-  fi
+# if gams has been specified, or if dmpl is specified and GAMS_ROOT doesn't exist
+if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   # build GAMS
   if [ -z $GAMS_ROOT ] ; then
@@ -469,15 +519,27 @@ if [ $GAMS -eq 1 ]; then
 else
   echo "NOT BUILDING GAMS"
 fi
-  
+ 
+# check if GAMS_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
+if [[ ! ":$LD_LIBRARY_PATH:" == *":$GAMS_ROOT/lib:"* ]]; then
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GAMS_ROOT/lib
+fi
+ 
 
 if [ $DMPL -eq 1 ]; then
 
+  echo "LD_LIBRARY_PATH for DMPLC compile is $LD_LIBRARY_PATH"
+
   cd $INSTALL_DIR
+
+  if [ ! $VREP_ROOT ] ; then
+    export VREP_ROOT=$INSTALL_DIR/vrep
+    echo "SETTING VREP_ROOT to $VREP_ROOT"
+  fi
 
   # build GAMS
   if [ -z $DMPL_ROOT ] ; then
-    export DMPL_ROOT=$INSTALL_DIR/DMPL
+    export DMPL_ROOT=$INSTALL_DIR/dmplc
     echo "SETTING DMPL_ROOT to $DMPL_ROOT"
   fi
   if [ ! -d $DMPL_ROOT ] ; then
