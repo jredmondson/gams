@@ -3,7 +3,7 @@
   <!-- ensure sim time is being used -->
   <param name="/use_sim_time" value="true"/>
 
-  <!-- Run the map server -->
+  <!-- Run the map server. env grabs the specified OS environment variable.  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(env GAMS_ROOT)/scripts/stage_simulation/resources/rooms/rooms_map.yaml">
     <param name="frame_id" value="/map" />
   </node>
@@ -14,7 +14,8 @@
   <!-- Launch RViz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(env GAMS_ROOT)/scripts/stage_simulation/move/move.rviz"/>
 
-  <!-- Run amcl and move_base nodes for each robot -->
+  <!-- Run amcl and move_base nodes for each robot. The namespace (ns) must match a robot in the env.world file. Anywhere robot_0 is
+       in this group must also be changed if ns is changed. -->
   <group ns="robot_0">
     <param name="tf_prefix" value="robot_0" />
 
@@ -42,6 +43,7 @@
     </node>
   </group>
 
+  <!-- Same constraints on namespace as above. -->
   <group ns="robot_1">
     <param name="tf_prefix" value="robot_1" />
 
