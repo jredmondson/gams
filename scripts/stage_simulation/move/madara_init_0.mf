@@ -1,8 +1,6 @@
-agent.0.command="move";
-agent.0.command.size=2;
-agent.0.command.0="";
-agent.0.command.1[0]=2;
-agent.0.command.1[1]=2;
+agent.0.algorithm="waypoints";
+agent.0.algorithm.args.locations.size=1;
+agent.0.algorithm.args.locations.0=[2,2];
 
 .initial_position[0]=-8.5;
 .initial_position[1]=14;
