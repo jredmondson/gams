@@ -70,7 +70,7 @@ gams::platforms::RosBase::RosBase (madara::knowledge::KnowledgeBase * knowledge,
   BasePlatform (knowledge, sensors, self), ready_ (false)
 {
   static bool init = false;
-  this->frame_ = pose::gps_frame();
+  this->frame_ = &pose::gps_frame();
   //Or, for Cartesian: this->frame_ = pose::default_frame();
   if (!init)
   {

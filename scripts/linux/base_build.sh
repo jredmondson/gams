@@ -249,14 +249,16 @@ if [ $PREREQS -eq 1 ]; then
   fi
   
   if [ $ROS -eq 1 ]; then
-    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-    sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-    sudo apt-get update
-    sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs
-    sudo rosdep init
-    rosdep update
-    echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-    source ~/.bashrc
+    if [ ! -d "/opt/ros/kinetic" ] ; then
+      sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+      sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+      sudo apt-get update
+      sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs ros-kinetic-navigation
+      sudo rosdep init
+      rosdep update
+      echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+      source ~/.bashrc
+    fi
   fi
 
   if [ $SSL -eq 1 ]; then
@@ -267,9 +269,15 @@ if [ $PREREQS -eq 1 ]; then
     sudo apt-get install libtool pkg-config autoconf automake
   fi
 
+  if [ $DMPL -eq 1 ]; then 
+    sudo apt-get install perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
+  fi
+
 fi
 
 if [ $ACE -eq 1 ]; then
+
+  cd $INSTALL_DIR
 
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $ACE_ROOT ] ; then
@@ -306,17 +314,35 @@ else
 fi
 
 if [ $ZMQ -eq 1 ]; then
-  git clone https://github.com/zeromq/libzmq
-  cd libzmq
-  ./autogen.sh && ./configure && make -j 4
-  make check
-  sudo make install && sudo ldconfig
-  export ZMQ_ROOT=/usr/local
+
+  cd $INSTALL_DIR
+
+  if [ ! -d libzmq ] ; then
+    git clone https://github.com/zeromq/libzmq
+    cd libzmq
+    ./autogen.sh && ./configure && make -j 4
+    make check
+    sudo make install && sudo ldconfig
+    export ZMQ_ROOT=/usr/local
+  else
+    if [ -z $ZMQ_ROOT ]; then
+      export ZMQ_ROOT=/usr/local
+    fi
+  fi
 else
-  echo "NOT BUILDING ZEROMQ"
+  echo "NOT BUILDING ZEROMQ. If this is an error, delete the libzmq directory"
+fi
+
+if [ $SSL -eq 1 ]; then
+  if [ -z $SSL_ROOT ]; then
+    export SSL_ROOT=/usr
+  fi
 fi
 
 if [ $MADARA -eq 1 ]; then
+
+  cd $INSTALL_DIR
+
   # build MADARA
   if [ -z $MADARA_ROOT ] ; then
     export MADARA_ROOT=$INSTALL_DIR/madara
@@ -355,7 +381,53 @@ else
   echo "NOT BUILDING MADARA"
 fi
 
+
+if [ $VREP -eq 1 ] || [ $DMPL -eq 1 ]; then
+  if [ ! $VREP_ROOT ] ; then
+    export VREP_ROOT=$INSTALL_DIR/vrep
+    echo "SETTING VREP_ROOT to $VREP_ROOT"
+  fi
+  if [ ! -d $VREP_ROOT ]; then 
+    cd $INSTALL_DIR
+    echo "DOWNLOADING VREP"
+    wget http://coppeliarobotics.com/files/$VREP_INSTALLER
+    mkdir $VREP_ROOT
+
+    echo "UNPACKING VREP"
+    tar xfz $VREP_INSTALLER -C $VREP_ROOT  --strip-components 1
+
+    echo "CHANGING VREP OPTIONS"
+    if [ -f $VREP_ROOT/system/usrset.txt ]; then
+      for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
+        cat $VREP_ROOT/system/usrset.txt | sed "s/$i = false/$i = true/g" > $VREP_ROOT/system/usrset.txt1
+        mv $VREP_ROOT/system/usrset.txt1 $VREP_ROOT/system/usrset.txt
+      done
+    else
+      for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
+        echo "$i = true" >> $VREP_ROOT/system/usrset.txt
+      done
+    fi
+
+    echo "CONFIGURING 20 VREP PORTS"
+    $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+
+
+    echo "PATCHING VREP"
+    patch -b -d $VREP_ROOT -p1 -i $GAMS_ROOT/scripts/linux/patches/00_VREP_extApi_readPureDataFloat_alignment.patch
+  else
+    echo "NO CHANGE TO VREP"
+  fi
+else
+  echo "NOT DOWNLOADING VREP"
+fi
+
+
 if [ $GAMS -eq 1 ]; then
+
+  if [ -z $MADARA_ROOT ] ; then
+    export MADARA_ROOT=$INSTALL_DIR/madara
+    echo "SETTING MADARA_ROOT to $MADARA_ROOT"
+  fi
 
   # build GAMS
   if [ -z $GAMS_ROOT ] ; then
@@ -375,46 +447,6 @@ if [ $GAMS -eq 1 ]; then
     make realclean -j $CORES
 
   fi
-
-  if [ $VREP -eq 1 ]; then
-    if [ ! $VREP_ROOT ] ; then
-      export VREP_ROOT=$INSTALL_DIR/vrep
-      echo "SETTING VREP_ROOT to $VREP_ROOT"
-    fi
-    if [ ! -d $VREP_ROOT ]; then 
-      cd $INSTALL_DIR
-      echo "DOWNLOADING VREP"
-      wget http://coppeliarobotics.com/files/$VREP_INSTALLER
-      mkdir $VREP_ROOT
-
-      echo "UNPACKING VREP"
-      tar xfz $VREP_INSTALLER -C $VREP_ROOT  --strip-components 1
-
-      echo "CHANGING VREP OPTIONS"
-      if [ -f $VREP_ROOT/system/usrset.txt ]; then
-        for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
-          cat $VREP_ROOT/system/usrset.txt | sed "s/$i = false/$i = true/g" > $VREP_ROOT/system/usrset.txt1
-            mv $VREP_ROOT/system/usrset.txt1 $VREP_ROOT/system/usrset.txt
-        done
-      else
-        for i in doNotShowOpenglSettingsMessage doNotShowCrashRecoveryMessage doNotShowUpdateCheckMessage; do
-          echo "$i = true" >> $VREP_ROOT/system/usrset.txt
-        done
-      fi
-
-      echo "CONFIGURING 20 VREP PORTS"
-      $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
-
-
-      echo "PATCHING VREP"
-      patch -b -d $VREP_ROOT -p1 -i $GAMS_ROOT/scripts/linux/patches/00_VREP_extApi_readPureDataFloat_alignment.patch
-    else
-      echo "NO CHANGE TO VREP"
-    fi
-  else
-    echo "NOT DOWNLOADING VREP"
-  fi
-
     
   cd $GAMS_ROOT
 
@@ -441,6 +473,8 @@ fi
 
 if [ $DMPL -eq 1 ]; then
 
+  cd $INSTALL_DIR
+
   # build GAMS
   if [ -z $DMPL_ROOT ] ; then
     export DMPL_ROOT=$INSTALL_DIR/DMPL
@@ -448,7 +482,7 @@ if [ $DMPL -eq 1 ]; then
   fi
   if [ ! -d $DMPL_ROOT ] ; then
     echo "DOWNLOADING GAMS"
-    git clone --depth 1 -b release-0.4.0 https://github.com/cps-sei/DMPL.git $DMPL_ROOT
+    git clone --depth 1 -b release-0.4.0 https://github.com/cps-sei/dmplc.git $DMPL_ROOT
     
   else
     echo "UPDATING DMPL"
@@ -477,10 +511,13 @@ echo "export GAMS_ROOT=$GAMS_ROOT"
 echo "export VREP_ROOT=$VREP_ROOT"
 
 if [ $SSL -eq 1 ]; then
+  if [ -z $SSL_ROOT ]; then
+    export SSL_ROOT=/usr
+  fi
   echo "export SSL_ROOT=$SSL_ROOT"
 fi
 
-if [ $SSL -eq 1 ]; then
+if [ $ZMQ -eq 1 ]; then
   echo "export ZMQ_ROOT=$ZMQ_ROOT"
 fi
 
