@@ -2,9 +2,7 @@ agent.0.algorithm="waypoints";
 agent.0.algorithm.args.locations.size=1;
 agent.0.algorithm.args.locations.0=[2,2];
 
-.initial_position[0]=-8.5;
-.initial_position[1]=14;
-.initial_position[2]=90;
+.initial_position=[-8.5,14,90];
 
 .ros_namespace="/robot_0";
 .ros_node="robot_0";
