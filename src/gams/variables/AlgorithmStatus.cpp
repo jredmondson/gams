@@ -78,10 +78,12 @@ gams::variables::AlgorithmStatus::operator= (const AlgorithmStatus & rhs)
 void
 gams::variables::AlgorithmStatus::init_vars (
 madara::knowledge::KnowledgeBase & knowledge,
-const std::string & new_name, const std::string & prefix)
+const std::string & new_name, const std::string & agent_prefix)
 {
   id = -1;
   name = new_name;
+
+  std::string prefix (agent_prefix + ".algorithm." + name);
 
   // initialize the variable containers
   this->ok.set_name (prefix + ".ok", knowledge);
@@ -96,10 +98,12 @@ const std::string & new_name, const std::string & prefix)
 void
 gams::variables::AlgorithmStatus::init_vars (
 madara::knowledge::Variables & knowledge,
-const std::string & new_name, const std::string & prefix)
+const std::string & new_name, const std::string & agent_prefix)
 {
   id = -1;
   name = new_name;
+
+  std::string prefix (agent_prefix + ".algorithm." + name);
 
   // initialize the variable containers
   this->ok.set_name (prefix + ".ok", knowledge);

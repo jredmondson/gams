@@ -254,8 +254,8 @@ gams::algorithms::Executor::Executor (
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::Executor::constr:" \
-    " Initialized with %d algorithms and %d repeat.\n",
-    (int)algorithms.size (), repeat);
+    " Initialized with %d algorithms and %d repeat. Status stored at %s.\n",
+    (int)algorithms.size (), repeat, status_.name.c_str ());
 }
 
 gams::algorithms::Executor::~Executor ()

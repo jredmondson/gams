@@ -92,21 +92,21 @@ namespace gams
 
       /**
       * Initializes variable containers
-      * @param   knowledge  the knowledge base that houses the variables
-      * @param   new_name   the name of the algorithm
-      * @param   prefix     the agent prefix
+      * @param   knowledge        the knowledge base that houses the variables
+      * @param   new_name         the name of the algorithm
+      * @param   agent_prefix     the agent prefix
       **/
       void init_vars (madara::knowledge::KnowledgeBase & knowledge,
-        const std::string & new_name, const std::string & prefix);
+        const std::string & new_name, const std::string & agent_prefix);
 
       /**
       * Initializes variable containers
-      * @param   knowledge  the knowledge base that houses the variables
-      * @param   new_name   the name of the algorithm
-      * @param   prefix     the agent prefix
+      * @param   knowledge      the knowledge base that houses the variables
+      * @param   new_name       the name of the algorithm
+      * @param   agent_prefix   the agent prefix
       **/
       void init_vars (madara::knowledge::Variables & knowledge,
-        const std::string & new_name, const std::string & prefix);
+        const std::string & new_name, const std::string & agent_prefix);
 
       /**
        * Initializes variable containers (DEPRECATED)

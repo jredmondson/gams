@@ -222,15 +222,6 @@ namespace gams
       virtual int land (void);
 
       /**
-       * Moves the platform to a position
-       * @param   position  the coordinates to move to
-       * @param   epsilon   approximation value
-       * @return the status of the move operation, @see PlatformReturnValues
-       **/
-      //virtual int move (const utility::Position & position,
-        //const double & epsilon = 0.1);
-
-      /**
        * Moves the platform to a location
        * @param   location    the coordinates to move to
        * @param   epsilon     approximation value
