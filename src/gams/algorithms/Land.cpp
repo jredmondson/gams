@@ -128,6 +128,11 @@ gams::algorithms::Land::execute (void)
       executions_++;
       status_.finished = 1;
       result |= FINISHED;
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "algorithms::Land::execute:" \
+        " finished set to 1. Algorithm ready to move on.\n");
     }
     else
     {

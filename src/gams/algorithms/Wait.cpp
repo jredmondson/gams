@@ -105,6 +105,11 @@ gams::algorithms::Wait::Wait (
 {
   status_.init_vars (*knowledge, "wait", self->agent.prefix);
   status_.init_variable_values ();
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "algorithms::Wait::constr:" \
+    " waiting for %.2f seconds.\n", length);
 }
 
 gams::algorithms::Wait::~Wait ()
@@ -127,6 +132,18 @@ gams::algorithms::Wait::analyze (void)
   {
     ret_val = FINISHED;
     status_.finished = 1;
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "algorithms::Wait::analyze:" \
+      " finished set to 1. Algorithm ready to move on.\n");
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MINOR,
+      "algorithms::Wait::analyze:" \
+      " we have not waited long enough.\n");
   }
 
   return ret_val;
