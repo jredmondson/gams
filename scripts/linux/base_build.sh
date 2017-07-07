@@ -587,7 +587,7 @@ if [ $DMPL -eq 1 ]; then
   echo "export DMPL_ROOT=$DMPL_ROOT"
 fi
 
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib"
+echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
 echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$VREP_ROOT"
 
 
