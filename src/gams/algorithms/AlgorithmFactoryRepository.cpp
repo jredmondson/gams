@@ -67,6 +67,7 @@
 #include "gams/algorithms/Wait.h"
 #include "gams/algorithms/PerformanceProfiling.h"
 #include "gams/algorithms/GroupBarrier.h"
+#include "gams/algorithms/Text.h"
 
 #include "gams/algorithms/area_coverage/UniformRandomAreaCoverage.h"
 #include "gams/algorithms/area_coverage/UniformRandomEdgeCoverage.h"
@@ -273,6 +274,13 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
     aliases[1] = "zone defense";
 
     add (aliases, new ZoneCoverageFactory ());
+
+    // text spelling
+    aliases.resize (2);
+    aliases[0] = "text";
+    aliases[1] = "spell";
+
+    add (aliases, new TextFactory ());
 
 #if 0
     // the local pheromone coverage algorithm
