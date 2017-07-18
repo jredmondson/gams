@@ -89,7 +89,6 @@ variables::Agents * agents)
   {
     pose::Position start (platform->get_frame());
     pose::Position end (platform->get_frame());
-    std::vector <std::string> members;
 
     int formation_type = FormationSync::LINE;
     double buffer = 5.0;
@@ -114,8 +113,7 @@ variables::Agents * agents)
             " setting barrier to %s\n", barrier.c_str ());
           break;
         }
-        goto unknown;
-        if (i->first == "buffer")
+        else if (i->first == "buffer")
         {
           buffer = i->second.to_double ();
 
@@ -227,20 +225,6 @@ variables::Agents * agents)
             "gams::algorithms::FormationSyncFactory:" \
             " setting group to %s\n", group.c_str ());
 
-          std::string members_list_name;
-          
-          if (madara::utility::begins_with (group, "group"))
-          {
-            members_list_name = group + ".members";
-          }
-          else
-          {
-            members_list_name = "group." + group + ".members";
-          }
-
-          containers::StringVector member_list (members_list_name, *knowledge);
-
-          member_list.copy_to (members);
           break;
         }
         goto unknown;
@@ -279,19 +263,10 @@ variables::Agents * agents)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::FormationSync::constructor:" \
-        " No group specified. Using swarm.\n");
-
-      Integer processes = (Integer)agents->size ();
-
-      for (Integer i = 0; i < processes; ++i)
-      {
-        madara::knowledge::KnowledgeRecord temp ("agent.");
-        temp += i;
-        members.push_back (temp.to_string ());
-      }
+        " ERROR: No group specified.\n");
     }
 
-    result = new FormationSync (start, end, members, buffer,
+    result = new FormationSync (start, end, group, buffer,
       formation_type, barrier,
       knowledge, platform, sensors, self);
   }
@@ -302,7 +277,7 @@ variables::Agents * agents)
 gams::algorithms::FormationSync::FormationSync (
   pose::Position & start,
   pose::Position & end,
-  const std::vector<std::string> & members,
+  const std::string & group,
   double buffer,
   int formation,
   std::string barrier_name,
@@ -311,10 +286,24 @@ gams::algorithms::FormationSync::FormationSync (
   variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self), start_ (start),
-  end_ (end), members_ (members), buffer_ (buffer), formation_ (formation)
+  end_ (end),
+  group_factory_ (knowledge),
+  group_ (0),
+  buffer_ (buffer), formation_ (formation)
 {
   status_.init_vars (*knowledge, "formation_sync", self->agent.prefix);
   status_.init_variable_values ();
+
+  // use the group factory to allow for fixed or dynamic groups
+  group_ = group_factory_.create (group);
+
+  if (group_)
+  {
+    // fill the group member lists with current contents
+    // we can sync the group and call get_members again if we want to support
+    // changing group member lists (even with fixed list groups)
+    group_->get_members (group_members_);
+  }
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -327,7 +316,8 @@ gams::algorithms::FormationSync::FormationSync (
 
   if (position_ >= 0)
   {
-    barrier_.set_name (barrier_name, *knowledge, position_, (int)members.size ());
+    barrier_.set_name (barrier_name, *knowledge,
+      position_, (int)group_members_.size ());
     barrier_.set (0);
     barrier_.next ();
   }
@@ -338,7 +328,7 @@ gams::algorithms::FormationSync::FormationSync (
       "gams::algorithms::FormationSync::constructor:" \
       " %s does not have a position in group algorithm." \
       " Unable to participate in barrier.\n",
-      (int)self_->agent.prefix.c_str ());
+      self_->agent.prefix.c_str ());
 
   }
 }
@@ -351,7 +341,8 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     "gams::algorithms::FormationSync::constructor:" \
     " Generating plan\n");
 
-  position_ = this->get_position_in_member_list (self_->agent.prefix, members_);
+  position_ = this->get_position_in_member_list (
+    self_->agent.prefix, group_members_);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
@@ -359,230 +350,205 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     " %s is position %d in member list\n",
     self_->agent.prefix.c_str (), position_);
 
-  /**
-   * the offset in the line has an open space between each process
-   * [0] [ ] [1] [ ] [2] [ ] [3] [ ] [4] [ ] [5] ...
-   * initial position will be ref + position * buffer
-   **/
-
-  /**
-   * First step, figure out how many steps we need. Distances
-   * will contain the latitude (x) and longitude (y) differences
-   * between the points in meters.
-   **/
-  pose::CartesianFrame start_frame (start_);
-  pose::Position distances = end_.transform_to (start_frame);
-
-  /**
-   * the number of moves is sum of the the horizontal and
-   * vertical distances divided by the buffer
-   **/
-  int x_moves = (int)(std::abs (distances.x() / buffer_)) + 1;
-  int y_moves = (int)(std::abs (distances.y() / buffer_)) + 1;
-  int total_moves = x_moves + y_moves;
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::algorithms::FormationSync::constructor:" \
-    " Formation will move %.3f m lat, %.3f m long in %d moves\n",
-    distances.x(), distances.y(), total_moves);
-
-  // the type of movement will be based on sign of distance
-  double latitude_move = distances.x() < 0 ? -buffer_ : buffer_;
-  double longitude_move = distances.y() < 0 ? -buffer_ : buffer_;
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::algorithms::FormationSync::constructor:" \
-    " Will execute %.3f m in %d latitude moves and then" \
-    " %.3f m in %d longitude moves\n",
-    latitude_move, x_moves, longitude_move, y_moves);
-
-  // a cartesian movement offset
-  utility::Position movement;
-
-  // the initial position for this specific agent
-  pose::Position init (platform_->get_frame());
-  pose::Position position_end (platform_->get_frame());
-
-  if (formation == TRIANGLE)
+  if (position_ >= 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::algorithms::FormationSync::constructor:" \
-      " Formation type is TRIANGLE\n");
+    /**
+     * the offset in the line has an open space between each process
+     * [0] [ ] [1] [ ] [2] [ ] [3] [ ] [4] [ ] [5] ...
+     * initial position will be ref + position * buffer
+     **/
 
     /**
-    * the offset in the line has an open space between each process
-    * [0] [ ] [1] [ ] [2] [ ] n / 2 agents = row
-    * [ ] [3] [ ] [4] row - 1 agents
-    * [5] row - 2 agents
-    * initial position will be ref + position * buffer
-    **/
-
-    // first row
-    if (position_ <= members_.size () / 2)
-    {
-      movement.x = position_ * latitude_move * 2;
-      movement.y = 0;
-    }
-    else
-    {
-      bool position_found = false;
-      int row_length = (int)members_.size () / 4;
-      int last_position = (int)members_.size () / 2;
-      for (int row = 1; !position_found; ++row, last_position += row_length, row_length /= 2)
-      {
-        if (row_length < 1)
-          row_length = 1;
-
-        if (position_ <= last_position + row_length)
-        {
-          int column = position_ - last_position - 1;
-          position_found = true;
-
-          // stagger the rows for a seamless buffer space for neighbor rows
-          if (row % 2 == 0)
-          {
-            movement.x = column * latitude_move * 2;
-          }
-          else
-          {
-            movement.x = latitude_move + column * latitude_move * 2;
-          }
-          movement.y = row * longitude_move;
-        }
-      }
-    }
-  }
-  else if (formation == PYRAMID)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::algorithms::FormationSync::constructor:" \
-      " Formation type is PYRAMID\n");
-
-    // the initial position where the first two moves will be for this agent
-    movement.x = position_ * latitude_move * 2;
-    movement.y = 0;
-  }
-  else if (formation == RECTANGLE)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
-      "gams::algorithms::FormationSync::constructor:" \
-      " Formation type is RECTANGLE\n");
+     * First step, figure out how many steps we need. Distances
+     * will contain the latitude (x) and longitude (y) differences
+     * between the points in meters.
+     **/
+    pose::CartesianFrame start_frame (start_);
+    pose::Position distances = end_.transform_to (start_frame);
 
     /**
-    * the offset in the line has an open space between each process
-    * [0] [ ] [1] [ ] 
-    * [ ] [2] [ ] [3] 
-    * [4] [ ] [5] [ ]
-    * initial position will be ref + position * buffer
-    **/
+     * the number of moves is sum of the the horizontal and
+     * vertical distances divided by the buffer
+     **/
+    int x_moves = (int)(std::abs (distances.x () / buffer_)) + 1;
+    int y_moves = (int)(std::abs (distances.y () / buffer_)) + 1;
+    int total_moves = x_moves + y_moves;
 
-    double num_rows = std::sqrt ((double)members_.size ());
-    int column (0), row (0);
-
-    column = position_ % (int)num_rows;
-    row = position_ / (int)num_rows;
-
-    // the initial position where the first two moves will be for this agent
-    if (row % 2 == 0)
-    {
-      movement.x = column * latitude_move * 2;
-    }
-    else
-    {
-      movement.x = latitude_move + column * latitude_move * 2;
-    }
-    movement.y = row * longitude_move;
-
-  }
-  else if (formation == CIRCLE)
-  {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationSync::constructor:" \
-      " Formation type is CIRCLE\n");
+      " Formation will move %.3f m lat, %.3f m long in %d moves\n",
+      distances.x (), distances.y (), total_moves);
 
-    // the initial position where the first two moves will be for this agent
-    movement.x = position_ * latitude_move * 2;
-    movement.y = 0;
-  }
-  else if (formation == WING)
-  {
+    // the type of movement will be based on sign of distance
+    double latitude_move = distances.x () < 0 ? -buffer_ : buffer_;
+    double longitude_move = distances.y () < 0 ? -buffer_ : buffer_;
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationSync::constructor:" \
-      " Formation type is WING\n");
+      " Will execute %.3f m in %d latitude moves and then" \
+      " %.3f m in %d longitude moves\n",
+      latitude_move, x_moves, longitude_move, y_moves);
 
-    /**
-    [ 0][  ][  ] if size % 2 == 1
-    [  ][ 1][  ]   cols = size / 2 + 1
-    [  ][  ][ 2]   col = position % cols
-    [  ][ 3][  ]   row = position
-    [ 4][  ][  ]
+    // a cartesian movement offset
+    utility::Position movement;
 
-    else // even, 2 and 4 are outliers
+    // the initial position for this specific agent
+    pose::Position init (platform_->get_frame ());
+    pose::Position position_end (platform_->get_frame ());
 
-    [ 0][  ][  ] if position != size - 1
-    [  ][ 1][  ]   cols = size / 2
-    [ 5][  ][ 2]   row = position
-    [  ][ 3][  ]   col = position % cols
-    [ 4][  ][  ] else
-                   if (size == 4)
-                     row = col = 2
-                   else
-                     row = size / 2
-                     if size != 2
-                       col = 0
-                     else
-                       col = 1
-    **/
-
-
-    int col, row;
-
-    // if size is odd
-    if (members_.size () % 2 == 1)
+    if (formation == TRIANGLE)
     {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::constructor:" \
+        " Formation type is TRIANGLE\n");
+
       /**
-       * size = 5, cols = 3
-       * [0][ ][ ] pos = 0, row = 0, col = 0
-       * [ ][1][ ] pos = 1, row = 1, col = 1
-       * [ ][ ][2] pos = 2, row = 2, col = 2
-       * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
-       * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
-       **/
-      int cols = (int)members_.size () / 2 + 1;
-      if (position_ >= cols)
+      * the offset in the line has an open space between each process
+      * [0] [ ] [1] [ ] [2] [ ] n / 2 agents = row
+      * [ ] [3] [ ] [4] row - 1 agents
+      * [5] row - 2 agents
+      * initial position will be ref + position * buffer
+      **/
+
+      // first row
+      if (position_ <= group_members_.size () / 2)
       {
-        col = cols - position_ % cols - 2;
+        movement.x = position_ * latitude_move * 2;
+        movement.y = 0;
       }
       else
       {
-        col = position_ % cols;
+        bool position_found = false;
+        int row_length = (int)group_members_.size () / 4;
+        int last_position = (int)group_members_.size () / 2;
+        for (int row = 1; !position_found; ++row, last_position += row_length, row_length /= 2)
+        {
+          if (row_length < 1)
+            row_length = 1;
+
+          if (position_ <= last_position + row_length)
+          {
+            int column = position_ - last_position - 1;
+            position_found = true;
+
+            // stagger the rows for a seamless buffer space for neighbor rows
+            if (row % 2 == 0)
+            {
+              movement.x = column * latitude_move * 2;
+            }
+            else
+            {
+              movement.x = latitude_move + column * latitude_move * 2;
+            }
+            movement.y = row * longitude_move;
+          }
+        }
       }
-      row = position_;
     }
-    // if size is even
-    else
+    else if (formation == PYRAMID)
     {
-      // handle everything before last position first
-      if (position_ != members_.size () - 1)
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::constructor:" \
+        " Formation type is PYRAMID\n");
+
+      // the initial position where the first two moves will be for this agent
+      movement.x = position_ * latitude_move * 2;
+      movement.y = 0;
+    }
+    else if (formation == RECTANGLE)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::constructor:" \
+        " Formation type is RECTANGLE\n");
+
+      /**
+      * the offset in the line has an open space between each process
+      * [0] [ ] [1] [ ]
+      * [ ] [2] [ ] [3]
+      * [4] [ ] [5] [ ]
+      * initial position will be ref + position * buffer
+      **/
+
+      double num_rows = std::sqrt ((double)group_members_.size ());
+      int column (0), row (0);
+
+      column = position_ % (int)num_rows;
+      row = position_ / (int)num_rows;
+
+      // the initial position where the first two moves will be for this agent
+      if (row % 2 == 0)
+      {
+        movement.x = column * latitude_move * 2;
+      }
+      else
+      {
+        movement.x = latitude_move + column * latitude_move * 2;
+      }
+      movement.y = row * longitude_move;
+
+    }
+    else if (formation == CIRCLE)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::constructor:" \
+        " Formation type is CIRCLE\n");
+
+      // the initial position where the first two moves will be for this agent
+      movement.x = position_ * latitude_move * 2;
+      movement.y = 0;
+    }
+    else if (formation == WING)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::constructor:" \
+        " Formation type is WING\n");
+
+      /**
+      [ 0][  ][  ] if size % 2 == 1
+      [  ][ 1][  ]   cols = size / 2 + 1
+      [  ][  ][ 2]   col = position % cols
+      [  ][ 3][  ]   row = position
+      [ 4][  ][  ]
+
+      else // even, 2 and 4 are outliers
+
+      [ 0][  ][  ] if position != size - 1
+      [  ][ 1][  ]   cols = size / 2
+      [ 5][  ][ 2]   row = position
+      [  ][ 3][  ]   col = position % cols
+      [ 4][  ][  ] else
+      if (size == 4)
+      row = col = 2
+      else
+      row = size / 2
+      if size != 2
+      col = 0
+      else
+      col = 1
+      **/
+
+
+      int col, row;
+
+      // if size is odd
+      if (group_members_.size () % 2 == 1)
       {
         /**
-        * size = 6, cols = 3
-        * [0][ ][ ] pos = 0, row = 0, col = 0
-        * [ ][1][ ] pos = 1, row = 1, col = 1
-        * [ ][ ][2] pos = 2, row = 2, col = 2
-        * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
-        * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
-        **/
-        int cols = (int)members_.size () / 2;
-        row = position_;
-
+         * size = 5, cols = 3
+         * [0][ ][ ] pos = 0, row = 0, col = 0
+         * [ ][1][ ] pos = 1, row = 1, col = 1
+         * [ ][ ][2] pos = 2, row = 2, col = 2
+         * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
+         * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
+         **/
+        int cols = (int)group_members_.size () / 2 + 1;
         if (position_ >= cols)
         {
           col = cols - position_ % cols - 2;
@@ -591,131 +557,158 @@ gams::algorithms::FormationSync::generate_plan (int formation)
         {
           col = position_ % cols;
         }
+        row = position_;
       }
-      // handle the last position. 2 and 4 are outliers
+      // if size is even
       else
       {
-        // In size == 4, we create a wedge rather than wing
-        if (members_.size () == 4)
-        {
-          row = col = 2;
-        }
-        else
+        // handle everything before last position first
+        if (position_ != group_members_.size () - 1)
         {
           /**
           * size = 6, cols = 3
-          * [0][ ][ ] 
-          * [ ][1][ ] 
-          * [5][ ][2] pos = 5, row = 2, col = 2
-          * [ ][3][ ] 
-          * [4][ ][ ] 
+          * [0][ ][ ] pos = 0, row = 0, col = 0
+          * [ ][1][ ] pos = 1, row = 1, col = 1
+          * [ ][ ][2] pos = 2, row = 2, col = 2
+          * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
+          * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
           **/
+          int cols = (int)group_members_.size () / 2;
+          row = position_;
 
-          // otherwise, we set the row to the middle of the formation
-          row = (int)members_.size () / 2 - 1;
-
-          // most formations will just use a drone at the far back and center
-          if (members_.size () != 2)
+          if (position_ >= cols)
           {
-            col = 0;
+            col = cols - position_ % cols - 2;
           }
-          // size == 2 will just increment the col 
           else
           {
-            col = 1;
+            col = position_ % cols;
+          }
+        }
+        // handle the last position. 2 and 4 are outliers
+        else
+        {
+          // In size == 4, we create a wedge rather than wing
+          if (group_members_.size () == 4)
+          {
+            row = col = 2;
+          }
+          else
+          {
+            /**
+            * size = 6, cols = 3
+            * [0][ ][ ]
+            * [ ][1][ ]
+            * [5][ ][2] pos = 5, row = 2, col = 2
+            * [ ][3][ ]
+            * [4][ ][ ]
+            **/
+
+            // otherwise, we set the row to the middle of the formation
+            row = (int)group_members_.size () / 2 - 1;
+
+            // most formations will just use a drone at the far back and center
+            if (group_members_.size () != 2)
+            {
+              col = 0;
+            }
+            // size == 2 will just increment the col 
+            else
+            {
+              col = 1;
+            }
           }
         }
       }
+
+      // the initial position where the first two moves will be for this agent
+      movement.x = col * latitude_move * 2;
+      movement.y = row * longitude_move * 2;
+    }
+    // default is LINE
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::FormationSync::constructor:" \
+        " Formation type is LINE\n");
+
+      // the initial position where the first two moves will be for this agent
+      movement.x = position_ * latitude_move * 2;
+      movement.y = 0;
     }
 
-    // the initial position where the first two moves will be for this agent
-    movement.x = col * latitude_move * 2;
-    movement.y = row * longitude_move * 2;
-  }
-  // default is LINE
-  else
-  {
+    // the initial position for this specific agent
+    pose::Position move_start = movement.to_pos (start_frame);
+    init = move_start.transform_to (platform_->get_frame ());
+
+    // the ending position for this specific agent
+    pose::CartesianFrame end_frame (start_);
+    pose::Position move_end = movement.to_pos (end_frame);
+    position_end = move_end.transform_to (platform_->get_frame ());
+
+    pose::Position last (init);
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationSync::constructor:" \
-      " Formation type is LINE\n");
+      " Position[%d] will begin at %s\n",
+      position_, last.to_string ().c_str ());
 
-    // the initial position where the first two moves will be for this agent
-    movement.x = position_ * latitude_move * 2;
+    // first two barriered moves are the initial position
+    plan_.push_back (last);
+    plan_.push_back (last);
+
+    movement.x = latitude_move;
     movement.y = 0;
+
+    // move latitude until done
+    for (int i = 0; i < x_moves; ++i)
+    {
+      pose::CartesianFrame last_frame (last);
+      pose::Position move_last = movement.to_pos (last_frame);
+      last = move_last.transform_to (platform_->get_frame ());
+      plan_.push_back (last);
+    }
+
+    // push last latitudinal position onto plan
+    //last.x = position_end.x;
+    //plan_.push_back (last);
+
+    // keep track of the pivot point
+    move_pivot_ = x_moves + 2;
+
+    // adjust longitudinally
+    movement.x = 0;
+    movement.y = longitude_move;
+
+    // move latitude until done
+    for (int i = 0; i < y_moves; ++i)
+    {
+      pose::CartesianFrame last_frame (last);
+      pose::Position move_last = movement.to_pos (last_frame);
+      last = move_last.transform_to (platform_->get_frame ());
+      plan_.push_back (last);
+    }
+
+    // push last latitudinal position onto plan
+    //last.y = position_end.y;
+    //plan_.push_back (last);
+
+    std::stringstream full_plan_description;
+
+    for (size_t i = 0; i < plan_.size (); ++i)
+    {
+      full_plan_description << "  [" << i << "]: ";
+      full_plan_description << plan_[i].to_string () << "\n";
+    }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::FormationSync::constructor:" \
+      " Generated the following plan:\n%s",
+      full_plan_description.str ().c_str ());
   }
-
-  // the initial position for this specific agent
-  pose::Position move_start = movement.to_pos (start_frame);
-  init = move_start.transform_to (platform_->get_frame());
-
-  // the ending position for this specific agent
-  pose::CartesianFrame end_frame (start_);
-  pose::Position move_end = movement.to_pos (end_frame);
-  position_end = move_end.transform_to (platform_->get_frame());
-
-  pose::Position last (init);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_DETAILED,
-    "gams::algorithms::FormationSync::constructor:" \
-    " Position[%d] will begin at %s\n",
-    position_, last.to_string ().c_str ());
-
-  // first two barriered moves are the initial position
-  plan_.push_back (last);
-  plan_.push_back (last);
-
-  movement.x = latitude_move;
-  movement.y = 0;
-
-  // move latitude until done
-  for (int i = 0; i < x_moves; ++i)
-  {
-    pose::CartesianFrame last_frame (last);
-    pose::Position move_last = movement.to_pos (last_frame);
-    last = move_last.transform_to (platform_->get_frame());
-    plan_.push_back (last);
-  }
-
-  // push last latitudinal position onto plan
-  //last.x = position_end.x;
-  //plan_.push_back (last);
-
-  // keep track of the pivot point
-  move_pivot_ = x_moves + 2;
-
-  // adjust longitudinally
-  movement.x = 0;
-  movement.y = longitude_move;
-
-  // move latitude until done
-  for (int i = 0; i < y_moves; ++i)
-  {
-    pose::CartesianFrame last_frame (last);
-    pose::Position move_last = movement.to_pos (last_frame);
-    last = move_last.transform_to (platform_->get_frame());
-    plan_.push_back (last);
-  }
-
-  // push last latitudinal position onto plan
-  //last.y = position_end.y;
-  //plan_.push_back (last);
-
-  std::stringstream full_plan_description;
-
-  for (size_t i = 0; i < plan_.size (); ++i)
-  {
-    full_plan_description << "  [" << i << "]: ";
-    full_plan_description << plan_[i].to_string () << "\n";
-  }
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::algorithms::FormationSync::constructor:" \
-    " Generated the following plan:\n%s",
-    full_plan_description.str ().c_str ());
-
 }
 
 gams::pose::Position
@@ -733,7 +726,7 @@ double angle, double distance)
 int
 gams::algorithms::FormationSync::get_position_in_member_list (
 std::string id,
-std::vector <std::string> & member_list)
+groups::AgentVector & member_list)
 {
   int result = -1;
 
@@ -762,7 +755,13 @@ gams::algorithms::FormationSync::operator= (const FormationSync & rhs)
 
     start_ = rhs.start_;
     end_ = rhs.end_;
-    members_ = rhs.members_;
+    delete group_;
+    group_factory_ = rhs.group_factory_;
+    if (rhs.group_)
+    {
+      group_ = group_factory_.create (rhs.group_->get_prefix ());
+    }
+    group_members_ = rhs.group_members_;
     buffer_ = rhs.buffer_;
     barrier_ = rhs.barrier_;
   }
@@ -815,9 +814,9 @@ gams::algorithms::FormationSync::analyze (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::FormationSync::analyze:" \
-        " agent.%d does not have a position in group algorithm." \
+        " %s does not have a position in group algorithm." \
         " Nothing to analyze.\n",
-        (int)self_->id.to_integer ());
+        self_->agent.prefix.c_str ());
     }
   }
   else
@@ -893,6 +892,9 @@ gams::algorithms::FormationSync::execute (void)
 
       status_.finished = 1;
     }
+
+    // modify the barrier to rebroadcast current barrier status
+    barrier_.modify ();
   }
   else
   {

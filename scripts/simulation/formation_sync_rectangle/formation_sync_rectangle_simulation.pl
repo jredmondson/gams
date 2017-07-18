@@ -5,7 +5,7 @@ use simulation;
 $gams_root = $ENV{GAMS_ROOT};
 $time = 3600;
 $madara_debug = 0;
-$gams_debug = 3;
+$gams_debug = 4;
 $period = 1;
 $num = 9;
 $sim = "formation_sync_rectangle";

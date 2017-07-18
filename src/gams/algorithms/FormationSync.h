@@ -65,6 +65,7 @@
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Barrier.h"
+#include "gams/groups/GroupFactoryRepository.h"
 
 namespace gams
 {
@@ -95,7 +96,7 @@ namespace gams
        * Constructor
        * @param  start        the starting center of the formation
        * @param  end          the ending center of the formation
-       * @param  members      the members of the formation
+       * @param  group        the group name (e.g., group.allies)
        * @param  buffer       the distance between formation participants in
        *                      meters
        * @param  formation    type of formation (@see FormationTypes)
@@ -108,7 +109,7 @@ namespace gams
       FormationSync (
         pose::Position & start,
         pose::Position & end,
-        const std::vector<std::string> & members,
+        const std::string & group,
         double buffer,
         int formation,
         std::string barrier_name,
@@ -170,7 +171,7 @@ namespace gams
        * @return the position of the id in the member list. -1 if not found.
        **/
       int get_position_in_member_list (std::string id,
-        std::vector <std::string> & member_list);
+        groups::AgentVector & member_list);
 
       /// center of formation start
       pose::Position start_;
@@ -178,8 +179,14 @@ namespace gams
       /// center of formation end
       pose::Position end_;
 
-      /// members of the formation (e.g., agent.0, agent.1, etc.)
-      std::vector <std::string> members_;
+      /// factory for interacting with user-defined groups
+      groups::GroupFactoryRepository group_factory_;
+
+      /// the group that the user wishes the algorithm to use
+      groups::GroupBase * group_;
+
+      /// a convenience list of all current group members
+      groups::AgentVector group_members_;
 
       /// the buffer between cells in the formation
       double buffer_;

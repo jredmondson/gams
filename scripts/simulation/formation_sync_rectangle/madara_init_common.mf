@@ -4,3 +4,15 @@ swarm.algorithm.args.start = [40.443387, -79.940098];
 swarm.algorithm.args.end = [40.443100, -79.940570];
 swarm.algorithm.args.buffer = 1.0;
 swarm.algorithm.args.formation = "rectangle";
+swarm.algorithm.args.group = "group.rectangle";
+
+group.rectangle.members.size=9;
+group.rectangle.members.0="agent.0";
+group.rectangle.members.1="agent.1";
+group.rectangle.members.2="agent.2";
+group.rectangle.members.3="agent.3";
+group.rectangle.members.4="agent.4";
+group.rectangle.members.5="agent.5";
+group.rectangle.members.6="agent.6";
+group.rectangle.members.7="agent.7";
+group.rectangle.members.8="agent.8";

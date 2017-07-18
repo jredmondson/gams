@@ -2,3 +2,11 @@ swarm.algorithm="formation sync";
 swarm.algorithm.args.start = [40.443387, -79.940098];
 swarm.algorithm.args.end = [40.443100, -79.940570];
 swarm.algorithm.args.buffer = 1.0;
+swarm.algorithm.args.group = "group.allies";
+
+group.allies.members.size=5;
+group.allies.members.0="agent.0";
+group.allies.members.1="agent.1";
+group.allies.members.2="agent.2";
+group.allies.members.3="agent.3";
+group.allies.members.4="agent.4";
