@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2017 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file Text.h
+ * @file Spell.h
  * @author David Kyle <dskyle@sei.cmu.edu>
  *
- * Algorithm for forming nodes into text shapes
+ * Algorithm for spelling words and letters with agents
  **/
 
-#ifndef _GAMS_ALGORITHMS_TEXT_H_
-#define _GAMS_ALGORITHMS_TEXT_H_
+#ifndef _GAMS_ALGORITHMS_SPELL_H_
+#define _GAMS_ALGORITHMS_SPELL_H_
 
 #include <vector>
 #include <string>
@@ -66,6 +66,7 @@
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Barrier.h"
+#include "gams/groups/GroupFactoryRepository.h"
 
 namespace gams
 {
@@ -74,7 +75,7 @@ namespace gams
     /**
     *
     **/
-    class GAMSExport Text : public BaseAlgorithm
+    class GAMSExport Spell : public BaseAlgorithm
     {
     public:
 
@@ -95,11 +96,12 @@ namespace gams
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      Text (
-        std::string group, std::string text,
+      Spell (
+        std::string & group, std::string & text,
         pose::Pose origin,
         double height, double width,
         double buffer,
+        std::string & barrier,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -124,34 +126,57 @@ namespace gams
       virtual int plan (void);
       
     protected:
-      std::string group_, text_;
+      std::string text_;
 
+      /// factory for interacting with user-defined groups
+      groups::GroupFactoryRepository group_factory_;
+
+      /// the group that the user wishes the algorithm to use
+      groups::GroupBase * group_;
+
+      /// a convenience list of all current group members
+      groups::AgentVector group_members_;
+
+      /// the origin of the spelled word/phrase
       pose::Pose origin_;
 
-      double height_, width_, buffer_;
+      /// the height of the letters to spell in meters
+      double height_;
+      
+      /// the width of the letters to spell in meters
+      double width_;
+      
+      /// the expected buffer between letters in meters
+      double buffer_;
 
-      madara::knowledge::containers::StringVector nodes_;
-
+      /// the index of the agent in the member list
       int index_;
 
+      /// the next position to go to
       pose::Position next_pos_;
 
+      /// the step count in the waypoint list
       size_t step_;
 
+      /// a barrier between all agents before steps can proceed
+      madara::knowledge::containers::Barrier barrier_;
+
     private:
-      madara::knowledge::containers::StringVector get_group (const std::string &name) const;
+      /**
+       * Helper function for retrieving member index froup group member list
+       **/
       int get_index () const;
     };
     
     /**
-     * A factory class for creating Text algorithms
+     * A factory class for creating Spell algorithms
      **/
-    class GAMSExport TextFactory : public AlgorithmFactory
+    class GAMSExport SpellFactory : public AlgorithmFactory
     {
     public:
 
       /**
-       * Creates a Text Algorithm.
+       * Creates a Spell Algorithm.
        * @param   args      Map of arguments, from name to value
        * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the

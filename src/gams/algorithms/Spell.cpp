@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2017 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,11 +45,11 @@
  **/
 
 /**
- * @file Text.cpp
+ * @file Spell.cpp
  * @author James Edmondson <jedmondson@gmail.com>
  **/
 
-#include "gams/algorithms/Text.h"
+#include "gams/algorithms/Spell.h"
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/utility/Utility.h"
 
@@ -57,11 +57,13 @@
 #include <string>
 #include <iostream>
 #include <cmath>
+#include <ctype.h>
 #include <initializer_list>
 #include <array>
 
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/utility/CartesianFrame.h"
+#include "gams/groups/GroupFactoryRepository.h"
 #include "madara/utility/Utility.h"
 
 namespace engine = madara::knowledge;
@@ -73,7 +75,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 typedef madara::knowledge::KnowledgeMap   KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::TextFactory::create (
+gams::algorithms::SpellFactory::create (
 const madara::knowledge::KnowledgeMap & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
@@ -85,7 +87,7 @@ variables::Agents * agents)
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::TextFactory:" \
+    "gams::algorithms::SpellFactory:" \
     " entered create with %u args\n", args.size ());
 
   if (knowledge && sensors && platform && self)
@@ -96,6 +98,7 @@ variables::Agents * agents)
     double height = 10;
     double width = 8;
     double buffer = 2;
+    std::string barrier_name = "barrier.spell";
 
     for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
     {
@@ -111,8 +114,18 @@ variables::Agents * agents)
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::TextFactory:" \
+            "gams::algorithms::SpellFactory:" \
             " set buffer to %f\n", buffer);
+          break;
+        }
+        else if (i->first == "barrier")
+        {
+          barrier_name = i->second.to_string ();
+
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_DETAILED,
+            "gams::algorithms::SpellFactory:" \
+            " set barrier name to %s\n", barrier_name.c_str ());
           break;
         }
         goto unknown;
@@ -123,7 +136,7 @@ variables::Agents * agents)
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::TextFactory:" \
+            "gams::algorithms::SpellFactory:" \
             " set group to %s\n", group.c_str());
           break;
         }
@@ -135,7 +148,7 @@ variables::Agents * agents)
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::TextFactory:" \
+            "gams::algorithms::SpellFactory:" \
             " set height to %f\n", height);
           break;
         }
@@ -148,7 +161,7 @@ variables::Agents * agents)
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::TextFactory:" \
+            "gams::algorithms::SpellFactory:" \
             " set origin to %s\n", origin.to_string().c_str());
           break;
         }
@@ -160,7 +173,7 @@ variables::Agents * agents)
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::TextFactory:" \
+            "gams::algorithms::SpellFactory:" \
             " set text to %s\n", text.c_str());
           break;
         }
@@ -172,7 +185,7 @@ variables::Agents * agents)
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,
-            "gams::algorithms::TextFactory:" \
+            "gams::algorithms::SpellFactory:" \
             " set width to %f\n", width);
           break;
         }
@@ -181,127 +194,143 @@ variables::Agents * agents)
       default:
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::TextFactory:" \
+          "gams::algorithms::SpellFactory:" \
           " argument unknown: %s -> %s\n",
           i->first.c_str (), i->second.to_string ().c_str ());
         break;
       }
     }
 
-    result = new Text (
+    result = new Spell (
       std::move(group), std::move(text), origin,
-      height, width, buffer,
+      height, width, buffer, barrier_name,
       knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::Text::Text (
-  std::string group, std::string text,
+gams::algorithms::Spell::Spell (
+  std::string & group, std::string & text,
   pose::Pose origin, double height, double width,
   double buffer,
+  std::string & barrier_name,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self),
-  group_ (std::move(group)), text_ (std::move(text)), origin_ (origin),
+  group_factory_ (knowledge),
+  group_ (0),
+  text_ (std::move(text)), origin_ (origin),
   height_ (height), width_ (width), buffer_ (buffer),
-  nodes_ (get_group (group_)), index_ (get_index ()), step_ (0),
+  index_ (-1), step_ (0),
   next_pos_ (INVAL_COORD, INVAL_COORD, INVAL_COORD)
 {
-  status_.init_vars (*knowledge, "text", self->agent.prefix);
-  status_.init_variable_values ();
+  if (knowledge && self)
+  {
+    status_.init_vars (*knowledge, "text", self->agent.prefix);
+    status_.init_variable_values ();
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::algorithms::Tet::constructor:" \
-    " Creating algorithm with args: ...\n" \
-    "   group -> %s\n" \
-    "   text -> %s\n" \
-    "   origin -> %s\n" \
-    "   height -> %f\n" \
-    "   width -> %f\n" \
-    "   buffer -> %f\n",
-    group_.c_str (), text_.c_str (), origin.to_string().c_str (),
-    height, width, buffer
-    );
+    // use the group factory to allow for fixed or dynamic groups
+    group_ = group_factory_.create (group);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::Text::constructor:" \
-    " index: %i\n", index_);
+    // fill the group member lists with current contents
+    // we can sync the group and call get_members again if we want to support
+    // changing group member lists (even with fixed list groups)
+    group_->get_members (group_members_);
+
+    // retrieve the index of the agent in the member list
+    index_ = get_index ();
+
+    // initialize the barrier with the expected group size. Note that if
+    // we want to support dynamic groups, we need to update the barrier
+    // with the new group size (if we want to do this in the future)
+    barrier_.set_name (barrier_name, *knowledge,
+      index_, (int)group_members_.size ());
+
+    // set the initial barrier to the first position
+    barrier_.set (0);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Tet::constructor:" \
+      " Creating algorithm with args: ...\n" \
+      "   group -> %s\n" \
+      "   text -> %s\n" \
+      "   origin -> %s\n" \
+      "   height -> %f\n" \
+      "   width -> %f\n" \
+      "   buffer -> %f\n",
+      group.c_str (), text_.c_str (), origin.to_string ().c_str (),
+      height, width, buffer
+      );
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::algorithms::Spell::constructor:" \
+      " index: %i\n", index_);
+  }
 }
 
 
 int
-gams::algorithms::Text::get_index () const
+gams::algorithms::Spell::get_index () const
 {
-  std::stringstream to_find;
-  to_find << "agent." << self_->id.to_integer ();
-
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_TRACE,
-    "gams::algorithms::Text::get_index:" \
-    " looking for: %s\n", to_find.str ().c_str ());
+    "gams::algorithms::Spell::get_index:" \
+    " looking for: %s\n", self_->agent.prefix.c_str ());
 
-  for (int i = 0; i < nodes_.size (); ++i)
+  for (int i = 0; i < group_members_.size (); ++i)
   {
-    if (nodes_[i] == to_find.str ())
+    if (group_members_[i] == self_->agent.prefix)
       return i;
   }
 
   return -1;
 }
 
-madara::knowledge::containers::StringVector
-gams::algorithms::Text::get_group (const std::string &name) const
-{
-  return madara::knowledge::containers::StringVector (
-     "group." + name + ".members", *knowledge_);
-}
-
 int
-gams::algorithms::Text::analyze (void)
+gams::algorithms::Spell::analyze (void)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::Text::analyze:" \
+    "gams::algorithms::Spell::analyze:" \
     " entering analyze method\n");
 
   return OK;
 }
 
 int
-gams::algorithms::Text::execute (void)
+gams::algorithms::Spell::execute (void)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::Text::execute:" \
+    "gams::algorithms::Spell::execute:" \
     " entering execute method\n");
 
-  if (next_pos_.is_set ())
+  if (barrier_.is_done () && next_pos_.is_set ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::algorithms::Text::execute:" \
+      "gams::algorithms::Spell::execute:" \
       " next location for agent is [%s]\n",
       next_pos_.to_string ().c_str ());
 
     if (platform_->move (next_pos_) == platforms::PLATFORM_ARRIVED) {
-      ++step_;
+      // proceed to next barrier round
+      barrier_.next ();
+      ++step_; // could also do = (size_t)barrier_.get_round ();
     }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::algorithms::Text::execute:" \
+      "gams::algorithms::Spell::execute:" \
       " next location is invalid. Not moving.\n");
   }
-
-
 
   return OK;
 }
@@ -367,7 +396,7 @@ std::map<char, Letter> create_letters_map ()
         { {0, 0}, {0.5, 0}, {1, 0}, {0.5, 0} },
         { {0.5, 0}, {0.5, 0.5}, {0.5, 0}, {0.5, 0.5} },
         { {0.5, 0.5}, {0.5, 1}, {0.5, 0.5}, {0.5, 1} },
-      } },
+      } }
   };
 }
 
@@ -385,17 +414,17 @@ const Letter *get_letter (char letter)
 }
 
 int
-gams::algorithms::Text::plan (void)
+gams::algorithms::Spell::plan (void)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::algorithms::Text::plan:" \
+    "gams::algorithms::Spell::plan:" \
     " entering plan method\n");
 
   if (index_ < 0) {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_WARNING,
-      "gams::algorithms::Text::plan:" \
+      "gams::algorithms::Spell::plan:" \
       " invalid index: %i\n", index_);
     return OK;
   }
@@ -405,18 +434,18 @@ gams::algorithms::Text::plan (void)
   if (count >= text_.size()) {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_WARNING,
-      "gams::algorithms::Text::plan:" \
+      "gams::algorithms::Spell::plan:" \
       " node %i would go beyond text length: %i\n", count, text_.size());
     return OK;
   }
 
-  char c = std::toupper(text_[count]);
+  char c = ::toupper(text_[count]);
   const Letter *letter = get_letter(c);
 
   if (letter == nullptr) {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_WARNING,
-      "gams::algorithms::Text::plan:" \
+      "gams::algorithms::Spell::plan:" \
       " no pattern set for character: %c\n", c);
     return OK;
   }

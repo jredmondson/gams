@@ -67,7 +67,7 @@
 #include "gams/algorithms/Wait.h"
 #include "gams/algorithms/PerformanceProfiling.h"
 #include "gams/algorithms/GroupBarrier.h"
-#include "gams/algorithms/Text.h"
+#include "gams/algorithms/Spell.h"
 
 #include "gams/algorithms/area_coverage/UniformRandomAreaCoverage.h"
 #include "gams/algorithms/area_coverage/UniformRandomEdgeCoverage.h"
@@ -280,7 +280,7 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
     aliases[0] = "text";
     aliases[1] = "spell";
 
-    add (aliases, new TextFactory ());
+    add (aliases, new SpellFactory ());
 
 #if 0
     // the local pheromone coverage algorithm
