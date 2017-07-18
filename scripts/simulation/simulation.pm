@@ -41,13 +41,13 @@ sub run {
       elsif ($osname eq "MSWin32") # windows default
       {
         $cmd = "$gams_root\\bin\\gams_controller -i $i -n $num --loop-time $time --period $period ";
-		$cmd .= " --madara-file ";
+		    $cmd .= " --madara-file ";
         $cmd .= "$gams_root\\scripts\\simulation\\madara_init_common.mf ";
-	    $cmd .= "$gams_root\\scripts\\simulation\\areas\\$area.mf ";
-		$cmd .= "$gams_root\\scripts\\simulation\\$sim\\madara_init_common.mf ";
-		$cmd .= "$gams_root\\scripts\\simulation\\$sim\\madara_init_$i.mf ";
-		$cmd .= "--madara-level $madara_debug --gams-level $gams_debug ";
-		$cmd .= "--queue-length 2000000 --logfile gams_log_$i.log";
+	      $cmd .= "$gams_root\\scripts\\simulation\\areas\\$area.mf ";
+		    $cmd .= "$gams_root\\scripts\\simulation\\$sim\\madara_init_common.mf ";
+		    $cmd .= "$gams_root\\scripts\\simulation\\$sim\\madara_init_$i.mf ";
+		    $cmd .= "--madara-level $madara_debug --gams-level $gams_debug ";
+		    $cmd .= "--queue-length 2000000 --logfile gams_log_$i.log";
         print("start \"Device$i\" /REALTIME $cmd\n\n");
         system("start \"Device$i\" /REALTIME $cmd");
       }

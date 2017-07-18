@@ -5,3 +5,12 @@ swarm.algorithm.args.end = [40.443100, -79.940570];
 swarm.algorithm.args.buffer = 1.0;
 swarm.algorithm.args.formation = "wing";
 swarm.algorithm.id = 1;
+swarm.algorithm.args.group = "group.wing";
+
+
+group.wing.members.size=5;
+group.wing.members.0="agent.0";
+group.wing.members.1="agent.1";
+group.wing.members.2="agent.2";
+group.wing.members.3="agent.3";
+group.wing.members.4="agent.4";
