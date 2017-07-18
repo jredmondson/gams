@@ -336,9 +336,9 @@ gams::algorithms::FormationSync::FormationSync (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::FormationSync::constructor:" \
-      " agent.%d does not have a position in group algorithm." \
+      " %s does not have a position in group algorithm." \
       " Unable to participate in barrier.\n",
-      (int)self_->id.to_integer ());
+      (int)self_->agent.prefix.c_str ());
 
   }
 }
@@ -351,16 +351,13 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     "gams::algorithms::FormationSync::constructor:" \
     " Generating plan\n");
 
-  madara::knowledge::KnowledgeRecord temp ("agent.");
-  temp += self_->id.to_string ();
-
-  position_ = this->get_position_in_member_list (temp.to_string (), members_);
+  position_ = this->get_position_in_member_list (self_->agent.prefix, members_);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MINOR,
     "gams::algorithms::FormationSync::constructor:" \
     " %s is position %d in member list\n",
-    temp.to_string ().c_str (), position_);
+    self_->agent.prefix.c_str (), position_);
 
   /**
    * the offset in the line has an open space between each process
