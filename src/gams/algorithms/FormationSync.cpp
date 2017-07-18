@@ -328,7 +328,7 @@ gams::algorithms::FormationSync::FormationSync (
       "gams::algorithms::FormationSync::constructor:" \
       " %s does not have a position in group algorithm." \
       " Unable to participate in barrier.\n",
-      (int)self_->agent.prefix.c_str ());
+      self_->agent.prefix.c_str ());
 
   }
 }
@@ -816,7 +816,7 @@ gams::algorithms::FormationSync::analyze (void)
         "gams::algorithms::FormationSync::analyze:" \
         " %s does not have a position in group algorithm." \
         " Nothing to analyze.\n",
-        (int)self_->agent.prefix.c_str ());
+        self_->agent.prefix.c_str ());
     }
   }
   else

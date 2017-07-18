@@ -202,7 +202,7 @@ variables::Agents * agents)
     }
 
     result = new Spell (
-      std::move(group), std::move(text), origin,
+      group, text, origin,
       height, width, buffer, barrier_name,
       knowledge, platform, sensors, self);
   }
