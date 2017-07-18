@@ -97,11 +97,11 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       Spell (
-        std::string & group, std::string & text,
+        const std::string &group, std::string text,
         pose::Pose origin,
         double height, double width,
         double buffer,
-        std::string & barrier,
+        const std::string & barrier,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -150,7 +150,7 @@ namespace gams
       double buffer_;
 
       /// the index of the agent in the member list
-      int index_;
+      int index_, count_, node_;
 
       /// the next position to go to
       pose::Position next_pos_;

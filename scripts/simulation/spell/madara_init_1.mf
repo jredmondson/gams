@@ -1,0 +1,5 @@
+.vrep_port=19907;
+
+.initial_lat=40.443131;
+.initial_lon=-79.940570;
+.initial_alt=4;

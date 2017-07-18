@@ -202,7 +202,7 @@ variables::Agents * agents)
     }
 
     result = new Spell (
-      std::move(group), std::move(text), origin,
+      group, std::move(text), origin,
       height, width, buffer, barrier_name,
       knowledge, platform, sensors, self);
   }
@@ -211,10 +211,10 @@ variables::Agents * agents)
 }
 
 gams::algorithms::Spell::Spell (
-  std::string & group, std::string & text,
+  const std::string &group, std::string text,
   pose::Pose origin, double height, double width,
   double buffer,
-  std::string & barrier_name,
+  const std::string & barrier_name,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -229,7 +229,22 @@ gams::algorithms::Spell::Spell (
 {
   if (knowledge && self)
   {
-    status_.init_vars (*knowledge, "text", self->agent.prefix);
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::Tet::constructor:" \
+      " Creating algorithm with args: ...\n" \
+      "   group -> %s\n" \
+      "   text -> %s\n" \
+      "   origin -> %s\n" \
+      "   barrier_name -> %s\n" \
+      "   height -> %f\n" \
+      "   width -> %f\n" \
+      "   buffer -> %f\n",
+      group.c_str (), text_.c_str (), origin.to_string ().c_str (),
+      barrier_name.c_str (), height, width, buffer
+      );
+
+    status_.init_vars (*knowledge, "spell", self->agent.prefix);
     status_.init_variable_values ();
 
     // use the group factory to allow for fixed or dynamic groups
@@ -243,33 +258,35 @@ gams::algorithms::Spell::Spell (
     // retrieve the index of the agent in the member list
     index_ = get_index ();
 
-    // initialize the barrier with the expected group size. Note that if
-    // we want to support dynamic groups, we need to update the barrier
-    // with the new group size (if we want to do this in the future)
-    barrier_.set_name (barrier_name, *knowledge,
-      index_, (int)group_members_.size ());
+    count_ = index_ / 3;
+    node_ = index_ % 3;
 
-    // set the initial barrier to the first position
-    barrier_.set (0);
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::algorithms::Tet::constructor:" \
-      " Creating algorithm with args: ...\n" \
-      "   group -> %s\n" \
-      "   text -> %s\n" \
-      "   origin -> %s\n" \
-      "   height -> %f\n" \
-      "   width -> %f\n" \
-      "   buffer -> %f\n",
-      group.c_str (), text_.c_str (), origin.to_string ().c_str (),
-      height, width, buffer
-      );
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
       "gams::algorithms::Spell::constructor:" \
       " index: %i\n", index_);
+
+    std::stringstream s;
+    s << barrier_name << "." << count_;
+    // initialize the barrier with the expected group size. Note that if
+    // we want to support dynamic groups, we need to update the barrier
+    // with the new group size (if we want to do this in the future)
+    barrier_.set_name (s.str(), *knowledge, node_, 3);
+
+    // set the initial barrier to the first position
+    barrier_.set (0);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::algorithms::Spell::constructor:" \
+      " created barrier: %s with 3 members; I am index %i\n",
+        s.str().c_str(), node_);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_TRACE,
+      "gams::algorithms::Spell::constructor:" \
+      " finished\n");
   }
 }
 
@@ -349,7 +366,7 @@ public:
                           double height, double width,
                           size_t step) const {
     const Offsets &offsets = positions_[step % positions_.size()];
-    return pose::Position(frame, width * offsets[0], height * offsets[1]);
+    return pose::Position(frame, width * offsets[0], height * -offsets[1]);
   }
 private:
   std::vector<Offsets> positions_;
@@ -428,18 +445,15 @@ gams::algorithms::Spell::plan (void)
       " invalid index: %i\n", index_);
     return OK;
   }
-  size_t count = index_ / 3;
-  size_t node = index_ * 3;
-
-  if (count >= text_.size()) {
+  if (count_ >= text_.size()) {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_WARNING,
       "gams::algorithms::Spell::plan:" \
-      " node %i would go beyond text length: %i\n", count, text_.size());
+      " node %i would go beyond text length: %i\n", count_, text_.size());
     return OK;
   }
 
-  char c = ::toupper(text_[count]);
+  char c = ::toupper(text_[count_]);
   const Letter *letter = get_letter(c);
 
   if (letter == nullptr) {
@@ -450,11 +464,17 @@ gams::algorithms::Spell::plan (void)
     return OK;
   }
 
-  double offset = count * (width_ + buffer_);
+  double offset = count_ * (width_ + buffer_);
   pose::CartesianFrame base_frame (origin_);
   pose::CartesianFrame frame (pose::Position(base_frame, offset, 0));
 
-  next_pos_ = letter->get_pos(frame, height_, width_, node, step_);
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_WARNING,
+    "gams::algorithms::Spell::plan:" \
+    " get position for node %i at step %i\n", node_, step_);
+
+  next_pos_ = letter->get_pos(frame, height_, width_, node_, step_)
+    .transform_to(platform_->get_frame());
 
   return OK;
 }
