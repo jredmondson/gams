@@ -310,7 +310,7 @@ gams::algorithms::Spell::execute (void)
     "gams::algorithms::Spell::execute:" \
     " entering execute method\n");
 
-  if (barrier_.is_done () && next_pos_.is_set ())
+  if (next_pos_.is_set ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -318,10 +318,33 @@ gams::algorithms::Spell::execute (void)
       " next location for agent is [%s]\n",
       next_pos_.to_string ().c_str ());
 
-    if (platform_->move (next_pos_) == platforms::PLATFORM_ARRIVED) {
-      // proceed to next barrier round
-      barrier_.next ();
-      ++step_; // could also do = (size_t)barrier_.get_round ();
+    if (platform_->move (next_pos_) == platforms::PLATFORM_ARRIVED)
+    {
+      if (barrier_.is_done ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::Spell::execute:" \
+          " %d: We have arrived and others are ready for next round." \
+          " Proceeding to next round.\n");
+
+        barrier_.next ();
+        ++step_; // could also do = (size_t)barrier_.get_round ();
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::Spell::execute:" \
+          " %d: We have arrived but others are not ready for next round." \
+          " Staying in current round.\n");
+
+        if (gams::loggers::global_logger.get ()->get_level () >=
+          gams::loggers::LOG_DETAILED)
+        {
+          knowledge_->print (barrier_.get_debug_info ());
+        }
+      }
     }
   }
   else

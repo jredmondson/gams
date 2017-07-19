@@ -337,7 +337,7 @@ gams::algorithms::FormationSync::FormationSync (
     barrier_.set_name (barrier_name, *knowledge,
       position_, (int)group_members_.size ());
     barrier_.set (0);
-    barrier_.next ();
+    //barrier_.next ();
   }
   else
   {
@@ -674,7 +674,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       position_, last.to_string ().c_str ());
 
     // first two barriered moves are the initial position
-    plan_.push_back (last);
+    //plan_.push_back (last);
     plan_.push_back (last);
 
     movement.x = latitude_move;
@@ -778,11 +778,12 @@ gams::algorithms::FormationSync::analyze (void)
   {
     if (position_ >= 0)
     {
-      int round = barrier_.get_round ();
+      int round = (int)barrier_.get_round () / 2;
+      int state = (int)barrier_.get_round () % 2;
 
       barrier_.modify ();
 
-      if (round < (int)plan_.size () && barrier_.is_done ())
+      if (round < (int)plan_.size ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
@@ -808,20 +809,48 @@ gams::algorithms::FormationSync::analyze (void)
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MAJOR,
             "gams::algorithms::FormationSync::analyze:" \
-            " %d: distance is within platform accuracy of %.2f meters. " \
-            " Going to next round.\n",
+            " %d: distance is within platform accuracy of %.2f meters.\n",
             position_, platform_->get_accuracy ());
-
-          barrier_.next ();
         }
         else
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MINOR,
             "gams::algorithms::FormationSync::analyze:" \
-            " %d: distance is not within platform accuracy of %.2f meters. " \
-            " Staying in current round.\n",
+            " %d: distance is not within platform accuracy of %.2f meters.\n",
             position_, platform_->get_accuracy ());
+        }
+
+        // if we are in a waiting state, then we can potentially move to a move state
+        if (state == 1)
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MINOR,
+            "gams::algorithms::FormationSync::analyze:" \
+            " %d: we are in a waiting state.\n");
+
+          if (barrier_.is_done ())
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MINOR,
+              "gams::algorithms::FormationSync::analyze:" \
+              " %d: waiting barrier complete, ready to move.\n");
+
+            barrier_.next ();
+          }
+          else
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MINOR,
+              "gams::algorithms::FormationSync::execute:" \
+              " %d: waiting barrier not complete.\n");
+
+            if (gams::loggers::global_logger.get ()->get_level () >=
+              gams::loggers::LOG_DETAILED)
+            {
+              knowledge_->print (barrier_.get_debug_info ());
+            }
+          }
         }
       }
       else
@@ -829,7 +858,7 @@ gams::algorithms::FormationSync::analyze (void)
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "gams::algorithms::FormationSync::analyze:" \
-          " %d: Round %d of %d: NOT proceeding to next barrier round\n",
+          " %d: Round %d of %d: We are finished with moving\n",
           position_, round, (int)plan_.size ());
       }
     }
@@ -866,7 +895,11 @@ gams::algorithms::FormationSync::execute (void)
   {
     if (position_ >= 0)
     {
-      int move = (int)barrier_.get_round ();
+      // move is index of move in the list
+      int move = (int)barrier_.get_round () / 2;
+
+      // state is moving if 0 and waiting for barrier if 1
+      int state = (int)barrier_.get_round () % 2;
 
       if (move < (int)plan_.size ())
       {
@@ -887,33 +920,19 @@ gams::algorithms::FormationSync::execute (void)
             move, plan_[move].to_string ().c_str ());
         }
 
-        if (platform_->move (plan_[move], platform_->get_accuracy ()) ==
-          gams::platforms::PLATFORM_ARRIVED)
+        int move_result = platform_->move (plan_[move], platform_->get_accuracy ());
+
+        if (state == 0 && move_result == gams::platforms::PLATFORM_ARRIVED)
         {
-          if (barrier_.is_done ())
-          {
-            madara_logger_ptr_log (gams::loggers::global_logger.get (),
-              gams::loggers::LOG_MAJOR,
-              "gams::algorithms::FormationSync::execute:" \
-              " %d: We have arrived and others are ready for next round." \
-              " Proceeding to next round.\n");
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::FormationSync::execute:" \
+            " %d: movement for round %d is finished." \
+            " Proceeding to next waiting round.\n",
+            position_, move);
 
-            barrier_.next ();
-          }
-          else
-          {
-            madara_logger_ptr_log (gams::loggers::global_logger.get (),
-              gams::loggers::LOG_MINOR,
-              "gams::algorithms::FormationSync::execute:" \
-              " %d: We have arrived but others are not ready for next round." \
-              " Staying in current round.\n");
-
-            if (gams::loggers::global_logger.get ()->get_level () >= 
-                gams::loggers::LOG_DETAILED)
-            {
-              knowledge_->print (barrier_.get_debug_info ());
-            }
-          }
+          // if we have arrived, set barrier to next
+          barrier_.next ();
         }
         else
         {
