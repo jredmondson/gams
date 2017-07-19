@@ -280,7 +280,7 @@ gams::algorithms::FormationSync::FormationSync (
   const std::string & group,
   double buffer,
   int formation,
-  std::string barrier_name,
+  const std::string & barrier_name,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
@@ -303,6 +303,9 @@ gams::algorithms::FormationSync::FormationSync (
     // we can sync the group and call get_members again if we want to support
     // changing group member lists (even with fixed list groups)
     group_->get_members (group_members_);
+
+    position_ = get_position_in_member_list (
+      self_->agent.prefix, group_members_);
   }
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),

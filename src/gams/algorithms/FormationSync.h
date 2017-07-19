@@ -112,7 +112,7 @@ namespace gams
         const std::string & group,
         double buffer,
         int formation,
-        std::string barrier_name,
+        const std::string & barrier_name,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
