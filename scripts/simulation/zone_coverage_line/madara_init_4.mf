@@ -7,9 +7,9 @@
 agent.4.algorithm="zone coverage";
 
 agent.4.algorithm.args.formation=.zone_coverage_formation;
-agent.4.algorithm.args.assets="assets";
+agent.4.algorithm.args.assets="agent.0";
 agent.4.algorithm.args.protectors="protectors";
-agent.4.algorithm.args.enemies="enemies";
+agent.4.algorithm.args.enemies="agent.2";
 agent.4.algorithm.args.buffer=.zone_coverage_buffer;
 agent.4.algorithm.args.distance=.zone_coverage_distance;
 agent.4.algorithm.args.frame="gps";

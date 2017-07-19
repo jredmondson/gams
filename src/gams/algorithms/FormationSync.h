@@ -164,15 +164,6 @@ namespace gams
       pose::Position generate_position (pose::Position reference,
         double angle, double distance);
 
-      /**
-       * Gets the position of the id in the member list
-       * @param  id           the id of the member
-       * @param  member_list  the list of members
-       * @return the position of the id in the member list. -1 if not found.
-       **/
-      int get_position_in_member_list (std::string id,
-        groups::AgentVector & member_list);
-
       /// center of formation start
       pose::Position start_;
 

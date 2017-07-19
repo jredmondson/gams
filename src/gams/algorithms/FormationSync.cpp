@@ -294,6 +294,12 @@ gams::algorithms::FormationSync::FormationSync (
   status_.init_vars (*knowledge, "formation_sync", self->agent.prefix);
   status_.init_variable_values ();
 
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::FormationSync::constructor:" \
+    " attempting to create group %s\n",
+    group.c_str ());
+
   // use the group factory to allow for fixed or dynamic groups
   group_ = group_factory_.create (group);
 
@@ -303,10 +309,19 @@ gams::algorithms::FormationSync::FormationSync (
     // we can sync the group and call get_members again if we want to support
     // changing group member lists (even with fixed list groups)
     group_->get_members (group_members_);
-
-    position_ = get_position_in_member_list (
-      self_->agent.prefix, group_members_);
   }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+      "gams::algorithms::FormationSync::constructor:" \
+      " group was a null group (group not found)\n");
+
+    knowledge->print ();
+  }
+
+  position_ = gams::groups::find_member_index (
+    self_->agent.prefix, group_members_);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -344,7 +359,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     "gams::algorithms::FormationSync::constructor:" \
     " Generating plan\n");
 
-  position_ = this->get_position_in_member_list (
+  position_ = groups::find_member_index (
     self_->agent.prefix, group_members_);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -724,25 +739,6 @@ double angle, double distance)
   pose::Position offset (local, distance * cos(angle), distance * sin(angle));
   // return the new GPS position from the reference position
   return offset.transform_to (reference.frame());
-}
-
-int
-gams::algorithms::FormationSync::get_position_in_member_list (
-std::string id,
-groups::AgentVector & member_list)
-{
-  int result = -1;
-
-  for (size_t i = 0; i < member_list.size (); ++i)
-  {
-    if (member_list[i] == id)
-    {
-      result = (int)i;
-      break;
-    }
-  }
-
-  return result;
 }
 
 gams::algorithms::FormationSync::~FormationSync ()

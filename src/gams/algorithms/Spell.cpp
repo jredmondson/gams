@@ -256,7 +256,8 @@ gams::algorithms::Spell::Spell (
     group_->get_members (group_members_);
 
     // retrieve the index of the agent in the member list
-    index_ = get_index ();
+    index_ = gams::groups::find_member_index (
+      self_->agent.prefix, group_members_);
 
     count_ = index_ / 3;
     node_ = index_ % 3;
@@ -265,7 +266,7 @@ gams::algorithms::Spell::Spell (
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,
       "gams::algorithms::Spell::constructor:" \
-      " index: %i\n", index_);
+      " index in group members: %i\n", index_);
 
     std::stringstream s;
     s << barrier_name << "." << count_;
@@ -288,24 +289,6 @@ gams::algorithms::Spell::Spell (
       "gams::algorithms::Spell::constructor:" \
       " finished\n");
   }
-}
-
-
-int
-gams::algorithms::Spell::get_index () const
-{
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::Spell::get_index:" \
-    " looking for: %s\n", self_->agent.prefix.c_str ());
-
-  for (int i = 0; i < group_members_.size (); ++i)
-  {
-    if (group_members_[i] == self_->agent.prefix)
-      return i;
-  }
-
-  return -1;
 }
 
 int

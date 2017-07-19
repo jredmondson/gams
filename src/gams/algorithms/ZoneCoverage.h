@@ -66,6 +66,7 @@
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Barrier.h"
+#include "gams/groups/GroupFactoryRepository.h"
 
 namespace gams
 {
@@ -104,7 +105,6 @@ namespace gams
         const std::string &assets,
         const std::string &enemies,
         const std::string &formation,
-        const std::string &frame,
         double buffer, double distance,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
@@ -141,14 +141,19 @@ namespace gams
       virtual int plan (void);
       
     protected:
-      std::string protector_group_;
-      std::string asset_group_;
-      std::string enemy_group_;
+      /// factory for interacting with user-defined groups
+      groups::GroupFactoryRepository group_factory_;
+
       std::string frame_;
 
-      madara::knowledge::containers::StringVector protectors_;
-      madara::knowledge::containers::StringVector assets_;
-      madara::knowledge::containers::StringVector enemies_;
+      gams::groups::GroupBase * protectors_;
+      gams::groups::GroupBase * assets_;
+      gams::groups::GroupBase * enemies_;
+
+      gams::groups::AgentVector protectors_members_;
+      gams::groups::AgentVector assets_members_;
+      gams::groups::AgentVector enemies_members_;
+
       std::string formation_;
 
       double buffer_;
@@ -177,12 +182,10 @@ namespace gams
       pose::Position next_loc_;
 
     private:
-      madara::knowledge::containers::StringVector get_group (const std::string &name) const;
-      void update_arrays (const madara::knowledge::containers::StringVector &names,
+      void update_arrays (const gams::groups::AgentVector &names,
                          MadaraArrayVec &arrays) const;
       void update_locs (const MadaraArrayVec &arrays,
                        std::vector<pose::Position> &locs) const;
-      int get_index () const;
     };
     
     /**

@@ -88,11 +88,10 @@ variables::Agents * agents)
 
   if (knowledge && sensors && platform && self)
   {
-    std::string protectors = "protectors";
-    std::string assets = "assets";
-    std::string enemies = "enemies";
+    std::string protectors = "group.protectors";
+    std::string assets = "group.assets";
+    std::string enemies = "group.enemies";
     std::string formation = "line";
-    std::string frame = "cartesian";
     double buffer = 2;
     double distance = 0.5;
 
@@ -162,17 +161,6 @@ variables::Agents * agents)
             " set formation to %s\n", formation.c_str ());
           break;
         }
-        else if (i->first == "frame")
-        {
-          frame = i->second.to_string ();
-          madara::utility::lower (frame);
-
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_DETAILED,
-            "gams::algorithms::ZoneCoverageFactory:" \
-            " set frame to %s\n", frame.c_str ());
-          break;
-        }
         goto unknown;
       case 'p':
         if (i->first == "protectors")
@@ -198,7 +186,7 @@ variables::Agents * agents)
     }
 
     result = new ZoneCoverage (
-      protectors, assets, enemies, formation, frame, buffer, distance,
+      protectors, assets, enemies, formation, buffer, distance,
       knowledge, platform, sensors, self);
   }
 
@@ -210,63 +198,272 @@ gams::algorithms::ZoneCoverage::ZoneCoverage (
   const std::string &assets,
   const std::string &enemies,
   const std::string &formation,
-  const std::string &frame,
   double buffer, double distance,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self),
-  protector_group_ (protectors), asset_group_ (assets), enemy_group_ (enemies),
-  protectors_ (get_group (protectors)), assets_ (get_group (assets)),
-  enemies_ (get_group (enemies)),
-  formation_ (formation), frame_ (frame), buffer_ (buffer), distance_ (distance),
-  index_ (get_index ()),
+  group_factory_ (knowledge),
+  formation_ (formation), buffer_ (buffer), distance_ (distance),
+  index_ (-1),
   form_func_ (get_form_func (formation)),
   next_loc_ (INVAL_COORD, INVAL_COORD, INVAL_COORD)
 {
-  status_.init_vars (*knowledge, "zone_coverage", self->agent.prefix);
-  status_.init_variable_values ();
+  if (knowledge)
+  {
+    status_.init_vars (*knowledge, "zone_coverage", self->agent.prefix);
+    status_.init_variable_values ();
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::algorithms::ZoneCoverage::constructor:" \
-    " Creating algorithm with args: ...\n" \
-    "   protectors -> %s\n" \
-    "   assets -> %s\n" \
-    "   enemies -> %s\n" \
-    "   formation -> %s\n" \
-    "   buffer -> %f\n",
-    protectors.c_str (), assets.c_str (), enemies.c_str (),
-    formation.c_str (), buffer
-    );
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::constructor:" \
+      " Creating algorithm with args: ...\n" \
+      "   protectors -> %s\n" \
+      "   assets -> %s\n" \
+      "   enemies -> %s\n" \
+      "   formation -> %s\n" \
+      "   buffer -> %f\n",
+      protectors.c_str (), assets.c_str (), enemies.c_str (),
+      formation.c_str (), buffer
+      );
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::ZoneCoverage::constructor:" \
-    " protectors list size: %i\n",
-    protectors_.size ());
+    // check if protectors is a single agent or a group
+    if (!gams::variables::Agent::is_agent (*knowledge, protectors))
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " protectors is a group prefix: %s\n",
+        protectors.c_str ());
 
-  update_arrays (assets_, asset_loc_cont_);
+      std::string protectors_name;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::ZoneCoverage::constructor:" \
-    " assets list size: %i; asset loc array size: %i\n",
-    assets_.size (), asset_loc_cont_.size ());
+      // add group. to the group name if it is not provided
+      if (madara::utility::begins_with (protectors, "group."))
+      {
+        protectors_name = protectors;
+      }
+      else
+      {
+        protectors_name = "group.";
+        protectors_name += protectors;
+      }
 
-  update_arrays (enemies_, enemy_loc_cont_);
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " protectors group name in knowledge base is : %s\n",
+        protectors_name.c_str ());
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::ZoneCoverage::constructor:" \
-    " enemy list size: %i; enemy loc array size: %i\n",
-    assets_.size (), asset_loc_cont_.size ());
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::ZoneCoverage::constructor:" \
-    " index: %i\n", index_);
+      // use the group factory to allow for fixed or dynamic groups
+      protectors_ = group_factory_.create (protectors_name);
+
+      if (protectors_)
+      {
+        // fill the group member lists with current contents
+        // we can sync the group and call get_members again if we want to support
+        // changing group member lists (even with fixed list groups)
+        protectors_->get_members (protectors_members_);
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::ZoneCoverage::constructor:" \
+          " protectors group was a null group (group not found)\n");
+
+        knowledge->print ();
+      }
+
+      // retrieve the index of the agent in the member list
+      index_ = gams::groups::find_member_index (
+        self_->agent.prefix, protectors_members_);
+
+      if (index_ < 0)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::ZoneCoverage::constructor:" \
+          " this agent (%s) is not in the protectors group (%d members)\n",
+          self_->agent.prefix.c_str (), (int)protectors_members_.size ());
+      }
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " protectors is an agent prefix: %s\n",
+        protectors.c_str ());
+
+      // we have a single agent protector, not a group
+      protectors_ = 0;
+      protectors_members_.push_back (protectors);
+      if (self_->agent.prefix == protectors)
+      {
+        index_ = 0;
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::ZoneCoverage::constructor:" \
+          " this agent (%s) is not in the protectors group\n",
+          self_->agent.prefix.c_str ());
+      }
+    }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::constructor:" \
+      " protectors list size: %i\n",
+      protectors_members_.size ());
+
+    // check if assets is a single agent or a group
+    if (!gams::variables::Agent::is_agent (*knowledge, assets))
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " assets is a group prefix: %s\n",
+        assets.c_str ());
+
+      std::string assets_name;
+
+      // add group. to the group name if it is not provided
+      if (madara::utility::begins_with (assets, "group."))
+      {
+        assets_name = assets;
+      }
+      else
+      {
+        assets_name = "group.";
+        assets_name += assets;
+      }
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " protectors group name in knowledge base is : %s\n",
+        assets_name.c_str ());
+
+      // use the group factory to allow for fixed or dynamic groups
+      assets_ = group_factory_.create (assets_name);
+
+      if (assets_)
+      {
+        // fill the group member lists with current contents
+        // we can sync the group and call get_members again if we want to support
+        // changing group member lists (even with fixed list groups)
+        assets_->get_members (assets_members_);
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::ZoneCoverage::constructor:" \
+          " assets group was a null group (group not found)\n");
+
+        knowledge->print ();
+      }
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " assets is an agent prefix: %s\n",
+        assets.c_str ());
+
+      // we have a single agent asset, not a group
+      assets_ = 0;
+      assets_members_.push_back (assets);
+    }
+
+    update_arrays (assets_members_, asset_loc_cont_);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::constructor:" \
+      " assets list size: %i; asset loc array size: %i\n",
+      assets_members_.size (), asset_loc_cont_.size ());
+
+    // check if enemies is a single agent or a group
+    if (!gams::variables::Agent::is_agent (*knowledge, enemies))
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " enemies is a group prefix: %s\n",
+        enemies.c_str ());
+
+      std::string enemies_name;
+
+      // add group. to the group name if it is not provided
+      if (madara::utility::begins_with (enemies, "group."))
+      {
+        enemies_name = enemies;
+      }
+      else
+      {
+        enemies_name = "group.";
+        enemies_name += enemies;
+      }
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " protectors group name in knowledge base is : %s\n",
+        enemies_name.c_str ());
+
+      // use the group factory to allow for fixed or dynamic groups
+      enemies_ = group_factory_.create (enemies_name);
+
+      if (enemies_)
+      {
+        // fill the group member lists with current contents
+        // we can sync the group and call get_members again if we want to support
+        // changing group member lists (even with fixed list groups)
+        enemies_->get_members (enemies_members_);
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_ERROR,
+          "gams::algorithms::ZoneCoverage::constructor:" \
+          " enemies group was a null group (group not found)\n");
+
+        knowledge->print ();
+      }
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::ZoneCoverage::constructor:" \
+        " enemies is an agent prefix: %s\n",
+        enemies.c_str ());
+
+      // we have a single agent asset, not a group
+      enemies_ = 0;
+      enemies_members_.push_back (enemies);
+    }
+
+    update_arrays (enemies_members_, enemy_loc_cont_);
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::constructor:" \
+      " enemy list size: %i; enemy loc array size: %i\n",
+      enemies_members_.size (), enemy_loc_cont_.size ());
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::algorithms::ZoneCoverage::constructor:" \
+      " index: %i\n", index_);
+  }
 }
 
 
@@ -289,36 +486,9 @@ gams::algorithms::ZoneCoverage::operator= (const ZoneCoverage & rhs)
   }
 }
 
-int
-gams::algorithms::ZoneCoverage::get_index () const
-{
-  std::stringstream to_find;
-  to_find << "agent." << self_->id.to_integer ();
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_TRACE,
-    "gams::algorithms::ZoneCoverage::get_index:" \
-    " looking for: %s\n", to_find.str ().c_str ());
-
-  for (int i = 0; i < protectors_.size (); ++i)
-  {
-    if (protectors_[i] == to_find.str ())
-      return i;
-  }
-
-  return -1;
-}
-
-madara::knowledge::containers::StringVector
-gams::algorithms::ZoneCoverage::get_group (const std::string &name) const
-{
-  return madara::knowledge::containers::StringVector (
-     "group." + name + ".members", *knowledge_);
-}
-
 void
 gams::algorithms::ZoneCoverage::update_arrays (
-  const madara::knowledge::containers::StringVector &names,
+  const gams::groups::AgentVector &names,
   MadaraArrayVec &arrays) const
 {
   arrays.clear ();

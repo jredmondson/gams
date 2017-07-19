@@ -160,12 +160,6 @@ namespace gams
 
       /// a barrier between all agents before steps can proceed
       madara::knowledge::containers::Barrier barrier_;
-
-    private:
-      /**
-       * Helper function for retrieving member index froup group member list
-       **/
-      int get_index () const;
     };
     
     /**

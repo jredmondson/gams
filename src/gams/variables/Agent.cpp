@@ -253,3 +253,12 @@ gams::variables::Agent::init_variable_settings ()
   madara_debug_level.set_settings (keep_local);
   gams_debug_level.set_settings (keep_local);
 }
+
+bool
+gams::variables::Agent::is_agent (
+  madara::knowledge::KnowledgeBase & knowledge,
+  const std::string prefix)
+{
+  return madara::utility::begins_with (prefix, "agent.")
+    || knowledge.exists (prefix + ".location");
+}

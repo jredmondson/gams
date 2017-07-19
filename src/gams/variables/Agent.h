@@ -118,7 +118,14 @@ namespace gams
        **/
       void init_vars (madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& id);
-      
+
+      /**
+       * Checks if the prefix points to an agent in the knowledge base. This
+       * is a simple check that looks for prefix.location being set.
+       **/
+      static bool is_agent (madara::knowledge::KnowledgeBase & knowledge,
+        const std::string prefix);
+
       /// the battery indicator for this agent
       madara::knowledge::containers::Integer battery_remaining;
 
