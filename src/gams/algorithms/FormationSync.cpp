@@ -907,6 +907,12 @@ gams::algorithms::FormationSync::execute (void)
               "gams::algorithms::FormationSync::execute:" \
               " %d: We have arrived but others are not ready for next round." \
               " Staying in current round.\n");
+
+            if (gams::loggers::global_logger.get ()->get_level () >= 
+                gams::loggers::LOG_DETAILED)
+            {
+              knowledge_->print (barrier_.get_debug_info ());
+            }
           }
         }
         else
