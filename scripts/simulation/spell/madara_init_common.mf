@@ -1,4 +1,4 @@
-group.nodes.members.size=12;
+group.nodes.members.size=9;
 group.nodes.members.0="agent.0";
 group.nodes.members.1="agent.1";
 group.nodes.members.2="agent.2";
@@ -15,6 +15,6 @@ group.nodes.members.11="agent.11";
 .platform="vrep-uav";
 
 swarm.algorithm = "spell";
-swarm.algorithm.args.text = "NATO";
+swarm.algorithm.args.text = "CMU";
 swarm.algorithm.args.group = "group.nodes";
 swarm.algorithm.args.origin = region.0.0;
