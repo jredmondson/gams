@@ -895,9 +895,6 @@ gams::algorithms::FormationSync::execute (void)
 
       status_.finished = 1;
     }
-
-    // modify the barrier to rebroadcast current barrier status
-    barrier_.modify ();
   }
   else
   {
