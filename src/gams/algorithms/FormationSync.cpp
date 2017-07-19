@@ -787,16 +787,41 @@ gams::algorithms::FormationSync::analyze (void)
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "gams::algorithms::FormationSync::analyze:" \
-          " %d: Round %d of %d: Proceeding to next barrier round\n",
+          " %d: Round %d of %d: Checking distance to planned position\n",
           position_, round, (int)plan_.size ());
 
         pose::Position current (platform_->get_frame());
         current.from_container (self_->agent.location);
 
+        double distance = current.distance_to (plan_[round]);
+
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::FormationSync::analyze:" \
+          " %d: distance from %s to plan_[%d] (%s) is %.2f\n",
+          position_, current.to_string ().c_str (), round,
+          plan_[round].to_string ().c_str (), distance);
+
         // for some reason, we have divergent functions for distance equality
         if (plan_[round].approximately_equal (current, platform_->get_accuracy ()))
         {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::FormationSync::analyze:" \
+            " %d: distance is within platform accuracy of %.2f meters. " \
+            " Going to next round.\n",
+            position_, platform_->get_accuracy ());
+
           barrier_.next ();
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MINOR,
+            "gams::algorithms::FormationSync::analyze:" \
+            " %d: distance is not within platform accuracy of %.2f meters. " \
+            " Staying in current round.\n",
+            position_, platform_->get_accuracy ());
         }
       }
       else
@@ -863,10 +888,35 @@ gams::algorithms::FormationSync::execute (void)
         }
 
         if (platform_->move (plan_[move], platform_->get_accuracy ()) ==
-          gams::platforms::PLATFORM_ARRIVED &&
-          move < (int)plan_.size () && barrier_.is_done ())
+          gams::platforms::PLATFORM_ARRIVED)
         {
-          barrier_.next ();
+          if (barrier_.is_done ())
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MAJOR,
+              "gams::algorithms::FormationSync::execute:" \
+              " %d: We have arrived and others are ready for next round." \
+              " Proceeding to next round.\n");
+
+            barrier_.next ();
+          }
+          else
+          {
+            madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              gams::loggers::LOG_MINOR,
+              "gams::algorithms::FormationSync::execute:" \
+              " %d: We have arrived but others are not ready for next round." \
+              " Staying in current round.\n");
+          }
+        }
+        else
+        {
+          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+            gams::loggers::LOG_MINOR,
+            "gams::algorithms::FormationSync::execute:" \
+            " %d: platform->move did not return PLATFORM_ARRIVED. " \
+            " Staying in current round.\n",
+            position_, platform_->get_accuracy ());
         }
       }
       else
