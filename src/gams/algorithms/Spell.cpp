@@ -299,6 +299,101 @@ gams::algorithms::Spell::analyze (void)
     "gams::algorithms::Spell::analyze:" \
     " entering analyze method\n");
 
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  {
+    barrier_.modify ();
+
+    if (next_pos_.is_set ())
+    {
+      pose::Position current (platform_->get_frame ());
+      current.from_container (self_->agent.location);
+
+      double distance = current.distance_to (next_pos_);
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Spell::analyze:" \
+        " distance from [%s] next position [%s] is %.2f\n",
+        current.to_string ().c_str (),
+        next_pos_.to_string ().c_str (), distance);
+
+      // for some reason, we have divergent functions for distance equality
+      if (next_pos_.approximately_equal (current, platform_->get_accuracy ()))
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::Spell::analyze:" \
+          " distance is within platform accuracy of %.2f meters.\n",
+          platform_->get_accuracy ());
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::Spell::analyze:" \
+          " %d: distance is not within platform accuracy of %.2f meters.\n",
+          platform_->get_accuracy ());
+      }
+    }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::Spell::analyze:" \
+        " We do not have a next position slated for movement. Finished.\n");
+    }
+  
+    int state = (int)barrier_.get_round () % 2;
+
+    // if we are in a waiting state, then we can potentially move to a move state
+    if (state == 1)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::algorithms::Spell::analyze:" \
+        " we are in a waiting state.\n");
+
+      if (barrier_.is_done ())
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::Spell::analyze:" \
+          " waiting barrier complete, ready to move.\n");
+
+        // we can proceed to the next movement point once our waiting is done
+        barrier_.next ();
+        ++step_; // could also do = (size_t)barrier_.get_round ();
+      } // end if barrier is done for waiting state
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::Spell::analyze:" \
+          " waiting barrier not complete.\n");
+
+        if (gams::loggers::global_logger.get ()->get_level () >=
+          gams::loggers::LOG_DETAILED)
+        {
+          knowledge_->print (barrier_.get_debug_info ());
+        }
+      } // end wait state not complete (barrier is not done)
+    } // end if state == 1 (WAITING)
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "Spell:analyze" \
+        " we are in a movement round of the barrier.\n");
+    }
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "Spell:analyze" \
+      " platform has not set movement_available to 1.\n");
+  }
+
   return OK;
 }
 
@@ -310,34 +405,45 @@ gams::algorithms::Spell::execute (void)
     "gams::algorithms::Spell::execute:" \
     " entering execute method\n");
 
-  if (next_pos_.is_set ())
+  if (platform_ && *platform_->get_platform_status ()->movement_available)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::algorithms::Spell::execute:" \
-      " next location for agent is [%s]\n",
-      next_pos_.to_string ().c_str ());
-
-    if (platform_->move (next_pos_) == platforms::PLATFORM_ARRIVED)
+    if (next_pos_.is_set ())
     {
-      if (barrier_.is_done ())
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Spell::execute:" \
+        " next location for agent is [%s]\n",
+        next_pos_.to_string ().c_str ());
+
+      int state = (int)barrier_.get_round () % 2;
+
+      int move_result = platform_->move (next_pos_, platform_->get_accuracy ());
+
+      // if the state is moving (0) then analyze move
+      if (state == 0 && move_result == gams::platforms::PLATFORM_ARRIVED)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::Spell::execute:" \
-          " %d: We have arrived and others are ready for next round." \
-          " Proceeding to next round.\n");
+          " Movement round of barrier. Arrived at destination." \
+          " Proceeding to waiting round.\n");
 
         barrier_.next ();
-        ++step_; // could also do = (size_t)barrier_.get_round ();
       }
-      else
+      else if (state == 0)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_MINOR,
+          gams::loggers::LOG_MAJOR,
           "gams::algorithms::Spell::execute:" \
-          " %d: We have arrived but others are not ready for next round." \
-          " Staying in current round.\n");
+          " Movement round of barrier. Still in transit.\n");
+      }
+      else if (state == 1)
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::Spell::execute:" \
+          " Waiting round of barrier. Still waiting.\n");
+
 
         if (gams::loggers::global_logger.get ()->get_level () >=
           gams::loggers::LOG_DETAILED)
@@ -346,13 +452,20 @@ gams::algorithms::Spell::execute (void)
         }
       }
     }
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Spell::execute:" \
+        " next location is invalid. Not moving.\n");
+    }
   }
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
-      "gams::algorithms::Spell::execute:" \
-      " next location is invalid. Not moving.\n");
+      "Spell:execute" \
+      " platform has not set movement_available to 1.\n");
   }
 
   return OK;

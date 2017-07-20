@@ -827,14 +827,14 @@ gams::algorithms::FormationSync::analyze (void)
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_MINOR,
             "gams::algorithms::FormationSync::analyze:" \
-            " %d: we are in a waiting state.\n");
+            " %d: we are in a waiting state.\n", position_);
 
           if (barrier_.is_done ())
           {
             madara_logger_ptr_log (gams::loggers::global_logger.get (),
               gams::loggers::LOG_MINOR,
               "gams::algorithms::FormationSync::analyze:" \
-              " %d: waiting barrier complete, ready to move.\n");
+              " %d: waiting barrier complete, ready to move.\n", position_);
 
             barrier_.next ();
           }
@@ -842,8 +842,8 @@ gams::algorithms::FormationSync::analyze (void)
           {
             madara_logger_ptr_log (gams::loggers::global_logger.get (),
               gams::loggers::LOG_MINOR,
-              "gams::algorithms::FormationSync::execute:" \
-              " %d: waiting barrier not complete.\n");
+              "gams::algorithms::FormationSync::analyze:" \
+              " %d: waiting barrier not complete.\n", position_);
 
             if (gams::loggers::global_logger.get ()->get_level () >=
               gams::loggers::LOG_DETAILED)
@@ -875,7 +875,7 @@ gams::algorithms::FormationSync::analyze (void)
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
+      gams::loggers::LOG_MAJOR,
       "FormationSync:analyze" \
       " platform has not set movement_available to 1.\n");
   }
@@ -960,9 +960,9 @@ gams::algorithms::FormationSync::execute (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::FormationSync::execute:" \
-        " agent.%d does not have a position in group algorithm." \
+        " %s does not have a position in group algorithm." \
         " Nothing to execute.\n",
-        (int)self_->id.to_integer ());
+        (int)self_->agent.prefix.c_str ());
 
       status_.finished = 1;
     }
@@ -970,7 +970,7 @@ gams::algorithms::FormationSync::execute (void)
   else
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
+      gams::loggers::LOG_MAJOR,
       "FormationSync:execute" \
       " platform has not set movement_available to 1.\n");
   }
