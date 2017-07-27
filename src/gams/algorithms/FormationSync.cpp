@@ -962,7 +962,7 @@ gams::algorithms::FormationSync::execute (void)
         "gams::algorithms::FormationSync::execute:" \
         " %s does not have a position in group algorithm." \
         " Nothing to execute.\n",
-        (int)self_->agent.prefix.c_str ());
+        self_->agent.prefix.c_str ());
 
       status_.finished = 1;
     }
