@@ -14,8 +14,8 @@ group.nodes.members.11="agent.11";
 
 .platform="vrep-uav";
 
-swarm.algorithm = "spell";
-swarm.algorithm.args.text = "5";
-swarm.algorithm.args.group = "group.nodes";
-swarm.algorithm.args.origin = region.0.0;
-swarm.algorithm.args.buffer = 3.0;
+{.prefix}.algorithm = "spell";
+{.prefix}.algorithm.args.text = "5";
+{.prefix}.algorithm.args.group = "group.nodes";
+{.prefix}.algorithm.args.origin = region.0.0;
+{.prefix}.algorithm.args.buffer = 3.0;
