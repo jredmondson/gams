@@ -77,11 +77,11 @@ size_t max_latencies (500);
 /// flag for acting as a pure data sink
 bool rcv_only (false);
 
-void print_usage (char * prog_name)
+void print_usage (char * prog_name, char * arg)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_ALWAYS,
-"\nProgram summary for %s:\n\n" 
+"\nProgram summary for %s (arg %s):\n\n" 
 "     Loop controller setup for gams\n" 
 " [-A |--algorithm type]        algorithm to start with\n" 
 " [-a |--accent type]           accent algorithm to start with\n" 
@@ -116,7 +116,7 @@ void print_usage (char * prog_name)
 " [-z |--hertz hertz]           the hertz rate to execute algorithm at\n" 
 " [--zmq proto:ip:port]         specifies a 0MQ transport endpoint\n" 
 "\n",
-        prog_name);
+        prog_name, arg);
   exit (0);
 }
 
@@ -132,7 +132,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         algorithm = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -141,7 +141,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         accents.push_back (argv[i + 1]);
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -153,7 +153,7 @@ void handle_arguments (int argc, char ** argv)
         settings.type = madara::transport::BROADCAST;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -162,7 +162,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         settings.write_domain = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -177,7 +177,7 @@ void handle_arguments (int argc, char ** argv)
         settings.set_deadline (deadline);
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -193,7 +193,7 @@ void handle_arguments (int argc, char ** argv)
         settings.enable_participant_ttl (hops);
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -205,7 +205,7 @@ void handle_arguments (int argc, char ** argv)
         gams::loggers::global_logger->add_file (argv[i + 1]);
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -218,7 +218,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> settings.id;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -230,7 +230,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> madara_debug_level;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -242,7 +242,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> gams_debug_level;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -254,7 +254,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> loop_time;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -266,7 +266,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> max_latencies;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -278,7 +278,7 @@ void handle_arguments (int argc, char ** argv)
         settings.type = madara::transport::MULTICAST;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -299,7 +299,7 @@ void handle_arguments (int argc, char ** argv)
       --i;
 
       if (!files)
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
     }
     else if (arg1 == "-n" || arg1 == "--num_agents")
     {
@@ -309,7 +309,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> num_agents;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -322,7 +322,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         host = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -331,7 +331,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         output_filename = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -343,7 +343,7 @@ void handle_arguments (int argc, char ** argv)
         plat_set = true;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -355,7 +355,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> period;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -367,7 +367,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> settings.queue_length;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -387,7 +387,7 @@ void handle_arguments (int argc, char ** argv)
         buffer >> payload_size;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -404,7 +404,7 @@ void handle_arguments (int argc, char ** argv)
         }
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -417,20 +417,20 @@ void handle_arguments (int argc, char ** argv)
         buffer >> settings.read_threads;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
     else if (arg1 == "-tz" || arg1 == "--read-threads-hertz")
     {
-      if (i + 1 < argc && argv[i + 1][0] != '-')
+      if (i + 1 < argc)
       {
         std::stringstream buffer;
         buffer << argv[i + 1];
         buffer >> settings.read_thread_hertz;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -442,13 +442,13 @@ void handle_arguments (int argc, char ** argv)
         settings.type = madara::transport::UDP;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
     else if (arg1 == "-z" || arg1 == "--hertz")
     {
-      if (i + 1 < argc && argv[i + 1][0] != '-')
+      if (i + 1 < argc)
       {
         double hertz;
         std::stringstream buffer (argv[i + 1]);
@@ -464,7 +464,7 @@ void handle_arguments (int argc, char ** argv)
         }
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
@@ -476,13 +476,13 @@ void handle_arguments (int argc, char ** argv)
         settings.type = madara::transport::ZMQ;
       }
       else
-        print_usage (argv[0]);
+        print_usage (argv[0], argv[i]);
 
       ++i;
     }
     else
     {
-      print_usage (argv[0]);
+      print_usage (argv[0], argv[i]);
     }
   }
 }
