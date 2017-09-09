@@ -44,3 +44,11 @@ GAMS HELP DOCUMENTATION INFORMATION
 
   Developer documentation is not yet available online in its own branch.
 
+4 TROUBLESHOOTING
+
+  Windows:
+
+    If you see errors related to the dot command, you likely do not have the
+    Graphviz bin directory in your path. Graphviz is usually installed to
+    C:\Program Files (x86)\Graphviz2.38, so simply add this to your PATH
+    variable, restart Visual Studio, and everything should work.
