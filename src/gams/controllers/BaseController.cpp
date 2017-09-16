@@ -253,7 +253,7 @@ gams::controllers::BaseController::system_analyze (void)
       init_algorithm (swarm_.algorithm.to_string (), args);
 
       self_.agent.last_algorithm = swarm_.algorithm.to_string ();
-      if (self_.agent.algorithm_id.is_true ())
+      if (swarm_.algorithm_id.is_true ())
       {
         self_.agent.last_algorithm_id = *swarm_.algorithm_id;
       }
