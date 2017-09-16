@@ -188,7 +188,7 @@ gams::controllers::BaseController::system_analyze (void)
 
   if (self_.agent.algorithm != "")
   {
-    if (swarm_.algorithm_id != 0 &&
+    if (self_.agent.algorithm_id != 0 &&
         self_.agent.last_algorithm_id == self_.agent.algorithm_id)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
