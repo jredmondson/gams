@@ -88,7 +88,7 @@ namespace gams
         new (&origin_) Pose(o.origin_);
     }
 
-    inline ReferenceFrame &ReferenceFrame::operator=(const ReferenceFrame &o)
+    inline void ReferenceFrame::operator=(const ReferenceFrame &o)
     {
       extern_origin_ = o.origin_is_external();
       if(extern_origin_)

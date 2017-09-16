@@ -205,7 +205,7 @@ namespace gams
       /**
        * Assignment operator
        **/
-      ReferenceFrame &operator=(const ReferenceFrame &o);
+      void operator=(const ReferenceFrame &o);
 
       /**
        * Destructor. Frees the origin, if it was allocated in

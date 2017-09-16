@@ -7,7 +7,7 @@
 #define WARN_UNUSED
 #endif
 
-#if __cplusplus >= 201103L // || (_MSC_VER >= 1600) 
+#if __cplusplus >= 201103L || (_MSC_VER >= 1600) 
 // If C++11 support is active
 #define CPP11
 #else
