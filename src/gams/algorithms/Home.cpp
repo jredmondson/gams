@@ -107,12 +107,20 @@ gams::algorithms::Home::analyze (void)
 {
   if (self_)
   {
+    pose::Position current (platform_->get_frame ());
+    current.from_container (self_->agent.location);
+
+    pose::Position destination (platform_->get_frame ());
+    destination.from_container (self_->agent.home);
+
+    double distance = current.distance_to (destination);
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_MAJOR,
       "gams::algorithms::Home::analyze:" \
-      " current pose is [%s, %s].\n",
-      self_->agent.location.to_record ().to_string ().c_str (),
-      self_->agent.orientation.to_record ().to_string ().c_str ());
+      " distance from [%s] to home position [%s] is %.2f\n",
+      current.to_string ().c_str (),
+      destination.to_string ().c_str (), distance);
   }
 
   return OK;

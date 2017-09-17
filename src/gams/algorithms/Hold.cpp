@@ -123,14 +123,17 @@ gams::algorithms::Hold::analyze (void)
 {
   if (self_ && pose_set_)
   {
+    pose::Position current (platform_->get_frame ());
+    current.from_container (self_->agent.location);
+
+    double distance = current.distance_to (location_);
+
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_MAJOR,
       "gams::algorithms::Hold::analyze:" \
-      " current pose is [%s, %s]. Dest is [%s, %s]\n",
-      self_->agent.location.to_record ().to_string ().c_str (),
-      self_->agent.orientation.to_record ().to_string ().c_str (),
-      location_.to_string ().c_str (),
-      orientation_.to_string ().c_str ());
+      " distance from [%s] to hold position [%s] is %.2f\n",
+      current.to_string ().c_str (),
+      location_.to_string ().c_str (), distance);
   }
   else
   {
