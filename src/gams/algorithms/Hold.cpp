@@ -91,7 +91,7 @@ gams::algorithms::Hold::Hold (
     orientation_ = platform->get_orientation ();
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MINOR,
+      gams::loggers::LOG_MAJOR,
       "gams::algorithms::Hold::constr:" \
       " setting hold location to [%s, %s]\n",
       location_.to_string ().c_str (),
@@ -140,7 +140,7 @@ gams::algorithms::Hold::analyze (void)
       orientation_ = platform_->get_orientation ();
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MINOR,
+        gams::loggers::LOG_MAJOR,
         "gams::algorithms::Hold::analyze:" \
         " setting hold location to [%s, %s]\n",
         location_.to_string ().c_str (),
@@ -166,7 +166,7 @@ gams::algorithms::Hold::execute (void)
     if (pose_set_)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MINOR,
+        gams::loggers::LOG_MAJOR,
         "gams::algorithms::Hold::execute:" \
         " Hold location is %s. Moving to home.\n",
         location_.to_string ().c_str ());
@@ -195,7 +195,7 @@ gams::algorithms::Hold::execute (void)
         orientation_ = platform_->get_orientation ();
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_MINOR,
+          gams::loggers::LOG_MAJOR,
           "gams::algorithms::Hold::execute:" \
           " setting hold location to [%s, %s]\n",
           location_.to_string ().c_str (),
