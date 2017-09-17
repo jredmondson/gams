@@ -197,6 +197,8 @@ gams::controllers::BaseController::system_analyze (void)
         " agent.algorithm already analyzed (last_algorithm=%d, cur_algorithm=%d)\n",
         (int)*self_.agent.last_algorithm_id,
         (int)*self_.agent.algorithm_id);
+
+      ++self_.agent.algorithm_rejects;
     }
     else
     {
@@ -218,6 +220,21 @@ gams::controllers::BaseController::system_analyze (void)
         self_.agent.last_algorithm_id = *self_.agent.algorithm_id;
       }
 
+      if (algorithm_ != 0)
+      {
+        ++self_.agent.algorithm_accepts;
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::BaseController::system_analyze:" \
+          " Algorithm (%s) rejected. Likely bad algorithm name or args.\n",
+          (*self_.agent.algorithm).c_str ());
+
+        ++self_.agent.algorithm_rejects;
+      }
+
       // reset the command
       self_.agent.algorithm = "";
       self_.agent.algorithm_id = 0;
@@ -237,6 +254,8 @@ gams::controllers::BaseController::system_analyze (void)
         " swarm.algorithm already analyzed (last_algorithm=%d, cur_algorithm=%d)\n",
         (int) *self_.agent.last_algorithm_id,
         (int)*swarm_.algorithm_id);
+
+      ++self_.agent.algorithm_rejects;
     }
     else
     {
@@ -256,6 +275,21 @@ gams::controllers::BaseController::system_analyze (void)
       if (swarm_.algorithm_id.is_true ())
       {
         self_.agent.last_algorithm_id = *swarm_.algorithm_id;
+      }
+
+      if (algorithm_ != 0)
+      {
+        ++self_.agent.algorithm_accepts;
+      }
+      else
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::controllers::BaseController::system_analyze:" \
+          " Algorithm (%s) rejected. Likely bad algorithm name or args.\n",
+          (*swarm_.algorithm).c_str ());
+
+        ++self_.agent.algorithm_rejects;
       }
 
       // reset the command

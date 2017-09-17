@@ -65,6 +65,8 @@ gams::variables::Agent::operator= (const Agent & agent)
   {
     this->algorithm = agent.algorithm;
     this->algorithm_id = agent.algorithm_id;
+    this->algorithm_accepts = agent.algorithm_accepts;
+    this->algorithm_rejects = agent.algorithm_rejects;
     this->algorithm_changed = agent.algorithm_changed;
     this->algorithm_args = agent.algorithm_args;
     this->battery_remaining = agent.battery_remaining;
@@ -114,6 +116,8 @@ gams::variables::Agent::init_vars (
   search_area_id.set_name (prefix + ".search_area_id", knowledge);
   algorithm.set_name (prefix + ".algorithm", knowledge);
   algorithm_id.set_name (prefix + ".algorithm.id", knowledge);
+  algorithm_accepts.set_name (prefix + ".algorithm.accepts", knowledge);
+  algorithm_rejects.set_name (prefix + ".algorithm.rejects", knowledge);
   algorithm_changed.set_name (prefix + ".algorithm.changed", knowledge);
   algorithm_args.set_name (prefix + ".algorithm.args", knowledge);
   last_algorithm.set_name (prefix + ".algorithm.last", knowledge);
@@ -173,6 +177,8 @@ gams::variables::Agent::init_vars (
   search_area_id.set_name (agent_name + ".search_area_id", knowledge);
   algorithm.set_name (agent_name + ".algorithm", knowledge);
   algorithm_id.set_name (agent_name + ".algorithm.id", knowledge);
+  algorithm_accepts.set_name (agent_name + ".algorithm.accepts", knowledge);
+  algorithm_rejects.set_name (agent_name + ".algorithm.rejects", knowledge);
   algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
   algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
   last_algorithm.set_name (agent_name + ".algorithm.last", knowledge);

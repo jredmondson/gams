@@ -135,8 +135,14 @@ namespace gams
       /// agent specific command 
       madara::knowledge::containers::String algorithm;
 
-      /// agent specific command 
+      /// the algorithm id (useful if algorithm requests may need to be resent)
       madara::knowledge::containers::Integer algorithm_id;
+
+      /// number of algorithm rejections (bad name or id)
+      madara::knowledge::containers::Integer algorithm_rejects;
+
+      /// number of algorithm accepts / changes
+      madara::knowledge::containers::Integer algorithm_accepts;
 
       /// agent specific command has changed
       madara::knowledge::containers::Integer algorithm_changed;
