@@ -60,6 +60,7 @@
 #include "gams/algorithms/ZoneCoverage.h"
 #include "gams/algorithms/Takeoff.h"
 #include "gams/algorithms/Home.h"
+#include "gams/algorithms/Hold.h"
 #include "gams/algorithms/Follow.h"
 #include "gams/algorithms/MessageProfiling.h"
 #include "gams/algorithms/PerimeterPatrol.h"
@@ -198,6 +199,12 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
     aliases[0] = "formation sync";
 
     add (aliases, new FormationSyncFactory ());
+
+    // the performance profiler
+    aliases.resize (1);
+    aliases[0] = "hold";
+
+    add (aliases, new HoldFactory ());
 
     // the performance profiler
     aliases.resize (2);

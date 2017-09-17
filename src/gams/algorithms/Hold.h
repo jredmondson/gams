@@ -51,8 +51,8 @@
  * This file contains the definition of the Hold position class
  **/
 
-#ifndef   _GAMS_ALGORITHMS_HOME_H_
-#define   _GAMS_ALGORITHMS_HOME_H_
+#ifndef   _GAMS_ALGORITHMS_HOLD_H_
+#define   _GAMS_ALGORITHMS_HOLD_H_
 
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/BasePlatform.h"
@@ -155,4 +155,4 @@ namespace gams
   }
 }
 
-#endif // _GAMS_ALGORITHMS_HOME_H_
+#endif // _GAMS_ALGORITHMS_HOLD_H_
