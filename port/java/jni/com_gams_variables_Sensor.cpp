@@ -2,10 +2,13 @@
 #include "com_gams_variables_Sensor.h"
 #include "gams/variables/Sensor.h"
 #include "gams/utility/GPSPosition.h"
+#include "gams/pose/Region.h"
+#include "gams/pose/SearchArea.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
 namespace variables = gams::variables;
+namespace pose = gams::pose;
 namespace utility = gams::utility;
 
 /*
@@ -111,7 +114,7 @@ jdouble JNICALL Java_com_gams_variables_Sensor_jni_1getPositionValue
   jdouble result (0.0);
 
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::Position * coord = (utility::Position *) coord_ptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     result = current->get_value (*coord);
@@ -131,7 +134,7 @@ jdouble JNICALL Java_com_gams_variables_Sensor_jni_1getGpsValue
   jdouble result (0.0);
 
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     result = current->get_value (*coord);
@@ -187,7 +190,7 @@ void JNICALL Java_com_gams_variables_Sensor_jni_1setOrigin
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     current->set_origin (*coord);
@@ -218,7 +221,7 @@ void JNICALL Java_com_gams_variables_Sensor_jni_1setPositionValue
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr, jdouble value)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::Position * coord = (utility::Position *) coord_ptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     current->set_value (*coord, value);
@@ -234,7 +237,7 @@ void JNICALL Java_com_gams_variables_Sensor_jni_1setGpsValue
   (JNIEnv *, jobject, jlong cptr, jlong coord_ptr, jdouble value)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     current->set_value (*coord, value);
@@ -252,10 +255,10 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1getGpsFromIndex
   jlong result (0);
 
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::Position * index = (utility::Position *) index_ptr;
+  pose::Position * index = (pose::Position *) index_ptr;
   if (current && index)
   {
-    result = (jlong) new utility::GPSPosition (
+    result = (jlong) new pose::Position (
       current->get_gps_from_index (*index));
   }
 
@@ -273,10 +276,10 @@ jlong JNICALL Java_com_gams_variables_Sensor_jni_1getIndexFromGps
   jlong result (0);
 
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
-    result = (jlong) new utility::Position (
+    result = (jlong) new pose::Position (
       current->get_index_from_gps (*coord));
   }
 
@@ -312,18 +315,18 @@ jlongArray JNICALL Java_com_gams_variables_Sensor_jni_1discretizeRegion
 {
   jlongArray result;
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::Region * region = (utility::Region *) region_ptr;
+  pose::Region * region = (pose::Region *) region_ptr;
   
   if (current && region)
   {
-    std::set<utility::Position> positions = current->discretize (*region);
+    std::set<pose::Position> positions = current->discretize (*region);
 
     if (positions.size () > 0)
     {
       result = env->NewLongArray ((jsize)positions.size ());
       jlong * elements = env->GetLongArrayElements(result, 0);
       size_t cur (0);
-      for (std::set<utility::Position>::iterator i = positions.begin ();
+      for (std::set<pose::Position>::iterator i = positions.begin ();
         i != positions.end (); ++i)
       {
         elements[cur] = (jlong) new utility::Position (*i);
@@ -345,18 +348,18 @@ jlongArray JNICALL Java_com_gams_variables_Sensor_jni_1discretizeSearchArea
 {
   jlongArray result;
   variables::Sensor * current = (variables::Sensor *) cptr;
-  utility::SearchArea * area = (utility::SearchArea *) area_ptr;
+  pose::SearchArea * area = (pose::SearchArea *) area_ptr;
   
   if (current && area)
   {
-    std::set<utility::Position> positions = current->discretize (*area);
+    std::set<pose::Position> positions = current->discretize (*area);
 
     if (positions.size () > 0)
     {
       result = env->NewLongArray ((jsize)positions.size ());
       jlong * elements = env->GetLongArrayElements(result, 0);
       size_t cur (0);
-      for (std::set<utility::Position>::iterator i = positions.begin ();
+      for (std::set<pose::Position>::iterator i = positions.begin ();
         i != positions.end (); ++i)
       {
         elements[cur] = (jlong) new utility::Position (*i);

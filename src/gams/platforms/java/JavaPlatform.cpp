@@ -473,14 +473,7 @@ gams::platforms::JavaPlatform::land (void)
 }
 
 int
-gams::platforms::JavaPlatform::move (const utility::Location & location, double epsilon)
-{
-  utility::GPSPosition pos(location.lat(), location.lng(), location.alt());
-  return move(pos, epsilon);
-}
-
-int
-gams::platforms::JavaPlatform::move (const utility::Position & position,
+gams::platforms::JavaPlatform::move (const pose::Position & position,
   const double & epsilon)
 {
   gams::utility::java::Acquire_VM jvm;
@@ -501,7 +494,7 @@ gams::platforms::JavaPlatform::move (const utility::Position & position,
        "gams::platforms::JavaPlatform::move:" \
       " Obtaining Position class and constructor\n");
 
-    jclass pos_class = utility::java::find_class (jvm.env, "com/gams/utility/Position");
+    jclass pos_class = utility::java::find_class (jvm.env, "com/gams/pose/Position");
     jmethodID pos_const = jvm.env->GetMethodID (pos_class, "<init>", "(DDD)V");
     jmethodID pos_free = jvm.env->GetMethodID (pos_class, "free", "()V");
 
@@ -513,7 +506,7 @@ gams::platforms::JavaPlatform::move (const utility::Position & position,
         " Creating new position object.\n");
 
       jobject inpos = jvm.env->NewObject (
-        pos_class, pos_const, position.x, position.y, position.z);
+        pos_class, pos_const, position.x (), position.y (), position.z ());
       jdouble inepsilon (epsilon);
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -549,7 +542,7 @@ gams::platforms::JavaPlatform::move (const utility::Position & position,
 }
 
 int
-gams::platforms::JavaPlatform::rotate (const utility::Axes & axes)
+gams::platforms::JavaPlatform::orient (const pose::Orientation & axes)
 {
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
@@ -569,7 +562,7 @@ gams::platforms::JavaPlatform::rotate (const utility::Axes & axes)
        "gams::platforms::JavaPlatform::rotate:" \
       " Obtaining Axes class and constructor\n");
 
-    jclass axes_class = utility::java::find_class (jvm.env, "com/gams/utility/Axes");
+    jclass axes_class = utility::java::find_class (jvm.env, "com/gams/pose/Orientation");
     jmethodID axes_const = jvm.env->GetMethodID (axes_class, "<init>", "(DDD)V");
     jmethodID axes_free = jvm.env->GetMethodID (axes_class, "free", "()V");
 
@@ -581,7 +574,7 @@ gams::platforms::JavaPlatform::rotate (const utility::Axes & axes)
         " Creating new axes object.\n");
 
       jobject inaxes = jvm.env->NewObject (
-        axes_class, axes_const, axes.x, axes.y, axes.z);
+        axes_class, axes_const, axes.rx (), axes.ry (), axes.rz ());
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,

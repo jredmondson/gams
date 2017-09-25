@@ -2,11 +2,11 @@
 
 #include <string>
 
-#include "gams/utility/Region.h"
+#include "gams/pose/Region.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
-namespace utility = gams::utility;
+namespace pose = gams::pose;
 
 /*
  * Class:     com_gams_utility_Region
@@ -16,7 +16,7 @@ namespace utility = gams::utility;
 jlong JNICALL Java_com_gams_utility_Region_jni_1Region
   (JNIEnv *, jobject)
 {
-  return (jlong) new utility::Region ();
+  return (jlong) new pose::Region ();
 }
 
 /*
@@ -27,7 +27,7 @@ jlong JNICALL Java_com_gams_utility_Region_jni_1Region
 void JNICALL Java_com_gams_utility_Region_jni_1freeRegion
   (JNIEnv *, jclass, jlong cptr)
 {
-  delete (utility::Region *) cptr;
+  delete (pose::Region *) cptr;
 }
 
 /*
@@ -38,7 +38,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1freeRegion
 jstring JNICALL Java_com_gams_utility_Region_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  const utility::Region * current = (const utility::Region *) cptr;
+  const pose::Region * current = (const pose::Region *) cptr;
   jstring result;
 
   if (current)
@@ -57,7 +57,7 @@ jstring JNICALL Java_com_gams_utility_Region_jni_1getName
 void JNICALL Java_com_gams_utility_Region_jni_1setName
   (JNIEnv * env, jobject, jlong cptr, jstring new_name)
 {
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (new_name, 0);
 
   if (current && str_name)
@@ -76,7 +76,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1setName
 void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
   (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
   engine::KnowledgeBase * kb = (engine::KnowledgeBase *) kb_ptr;
 
@@ -96,7 +96,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1fromContainer
 void JNICALL Java_com_gams_utility_Region_jni_1toContainer
   (JNIEnv * env, jobject, jlong cptr, jlong kb_ptr, jstring name)
 {
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   const char * str_name = env->GetStringUTFChars (name, 0);
   engine::KnowledgeBase * kb = (engine::KnowledgeBase *) kb_ptr;
 
@@ -116,7 +116,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1toContainer
 void JNICALL Java_com_gams_utility_Region_jni_1modify
   (JNIEnv *, jobject, jlong cptr)
 {
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
   {
     current->modify();
@@ -133,7 +133,7 @@ jstring JNICALL Java_com_gams_utility_Region_jni_1toString
 {
   jstring ret_val;
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
   {
     std::string result = current->to_string();
@@ -151,9 +151,9 @@ jstring JNICALL Java_com_gams_utility_Region_jni_1toString
 void JNICALL Java_com_gams_utility_Region_jni_1addGpsVertex
   (JNIEnv *, jobject, jlong cptr, jlong vertex)
 {
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current && vertex != 0)
-    current->vertices.push_back (*(utility::GPSPosition *)vertex);
+    current->vertices.push_back (*(pose::Position *)vertex);
 }
 
 /*
@@ -165,7 +165,7 @@ jlongArray JNICALL Java_com_gams_utility_Region_jni_1getVertices
   (JNIEnv * env, jobject, jlong cptr)
 {
   jlongArray result;
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
 
   if (current)
   {
@@ -175,7 +175,7 @@ jlongArray JNICALL Java_com_gams_utility_Region_jni_1getVertices
       jlong * elements = env->GetLongArrayElements(result, 0);
       for (size_t i = 0; i < current->vertices.size (); ++i)
       {
-        elements[i] = (jlong) new utility::GPSPosition (current->vertices[i]);
+        elements[i] = (jlong) new pose::Position (current->vertices[i]);
       }
       env->ReleaseLongArrayElements(result, elements, 0);
     }
@@ -194,7 +194,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getArea
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->get_area ();
 
@@ -211,9 +211,9 @@ jlong JNICALL Java_com_gams_utility_Region_jni_1getBoundingBox
 {
   jlong result (0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
-    result = (jlong) new utility::Region (current->get_bounding_box ());
+    result = (jlong) new pose::Region (current->get_bounding_box ());
 
   return result;
 }
@@ -228,8 +228,8 @@ jboolean JNICALL Java_com_gams_utility_Region_jni_1containsGps
 {
   jboolean result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
-  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
+  pose::Region * current = (pose::Region *) cptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current)
     result = current->contains (*coord);
 
@@ -246,8 +246,8 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getGpsDistance
 {
   jboolean result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
-  utility::GPSPosition * coord = (utility::GPSPosition *) coord_ptr;
+  pose::Region * current = (pose::Region *) cptr;
+  pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
     result = current->distance (*coord);
 
@@ -264,7 +264,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getMaxAlt
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->max_alt_;
 
@@ -280,7 +280,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getMinAlt
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->min_alt_;
 
@@ -297,7 +297,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getMaxLat
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->max_lat_;
 
@@ -314,7 +314,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getMinLat
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->min_lat_;
 
@@ -331,7 +331,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getMaxLong
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->max_lon_;
 
@@ -348,7 +348,7 @@ jdouble JNICALL Java_com_gams_utility_Region_jni_1getMinLong
 {
   jdouble result (0.0);
 
-  utility::Region * current = (utility::Region *) cptr;
+  pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->min_lon_;
 

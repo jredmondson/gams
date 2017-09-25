@@ -150,25 +150,15 @@ namespace gams
        *                    and target before exiting
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const utility::Position & position,
+      virtual int move (const pose::Position & position,
         const double & proximity = 0.1) override;
       
-      /**
-       * Moves the platform to a position
-       * @param   location  the coordinate to move to
-       * @param   proximity minimum required distance between current
-       *                    and target before exiting
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      virtual int move (const utility::Location & location,
-        double proximity = 0.1) override;
-
       /**
       * Rotates the platform an angle on a 3D axis
       * @param   axes  the coordinates to move to
       * @return 1 if currently rotating, 0 if arrived, negative if error
       **/
-      virtual int rotate (const utility::Axes & axes);
+      virtual int orient (const pose::Orientation & axes);
 
       /**
        * Polls the sensor environment for useful information
