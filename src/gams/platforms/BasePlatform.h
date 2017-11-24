@@ -294,6 +294,16 @@ namespace gams
       virtual void stop_move (void);
 
       /**
+      * Resumes movement status flags
+      **/
+      virtual void resume_move (void);
+
+      /**
+      * Resumes orientation status flags
+      **/
+      virtual void resume_orientation (void);
+
+      /**
        * Stops orientation, resetting source and dest angles to current angle
        **/
       virtual void stop_orientation (void);

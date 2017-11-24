@@ -289,10 +289,30 @@ gams::platforms::BasePlatform::stop_move (void)
 }
 
 void
+gams::platforms::BasePlatform::resume_move (void)
+{
+  if (!*status_.moving)
+    status_.moving = 1;
+  status_.paused_moving = 0;
+}
+
+void
 gams::platforms::BasePlatform::stop_orientation (void)
 {
   if (*status_.rotating)
     status_.rotating = 0;
+  status_.paused_rotating = 0;
+
+  // set source and dest to current position
+  self_->agent.source_orientation = self_->agent.orientation;
+  self_->agent.dest_orientation = self_->agent.orientation;
+}
+
+void
+gams::platforms::BasePlatform::resume_orientation (void)
+{
+  if (!*status_.rotating)
+    status_.rotating = 1;
   status_.paused_rotating = 0;
 
   // set source and dest to current position
