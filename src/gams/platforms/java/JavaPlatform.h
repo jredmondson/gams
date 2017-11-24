@@ -151,7 +151,7 @@ namespace gams
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int move (const pose::Position & position,
-        const double & proximity = 0.1) override;
+        double proximity = 0.1) override;
       
       /**
       * Rotates the platform an angle on a 3D axis

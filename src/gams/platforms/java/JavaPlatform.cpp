@@ -474,7 +474,7 @@ gams::platforms::JavaPlatform::land (void)
 
 int
 gams::platforms::JavaPlatform::move (const pose::Position & position,
-  const double & epsilon)
+  double epsilon)
 {
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
