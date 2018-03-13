@@ -289,7 +289,7 @@ $script is using the following configuration:
   # recursively create path/name
   my $create_result = make_path("$path");
   
-  $src_path = "$path/docs";
+  $docs_path = "$path/docs";
   $sim_path = "$path/sim";
   $src_path = "$path/src";
   $algs_path = "$path/src/algorithms";
@@ -2515,7 +2515,7 @@ namespace platforms
       
       /**
         * Initializes thread with MADARA context
-        * \@param   context   context for querying current program state
+        * \@param   knowledge   context for querying current program state
         **/
       virtual void init (madara::knowledge::KnowledgeBase & knowledge);
 
@@ -2672,6 +2672,7 @@ namespace platforms
      * Gets the unique identifier of the platform. This should be an
      * alphanumeric identifier that can be used as part of a MADARA
      * variable (e.g. vrep_ant, autonomous_snake, etc.) Required.
+     * \@return the id of the platform to use in factory methods
      **/
     virtual std::string get_id () const;
 
@@ -2685,25 +2686,25 @@ namespace platforms
      * Gets Location of platform, within its parent frame. Optional.
      * \@return Location of platform
      **/
-    gams::pose::Position get_location () const;
+    gams::pose::Position get_location (void) const;
 
     /**
      * Gets Rotation of platform, within its parent frame. Optional.
      * \@return Location of platform
      **/
-    gams::pose::Orientation get_orientation () const;
+    gams::pose::Orientation get_orientation (void) const;
 
     /**
      * Gets sensor radius. Optional.
      * \@return minimum radius of all available sensors for this platform
      **/
-    virtual double get_min_sensor_range () const;
+    virtual double get_min_sensor_range (void) const;
 
     /**
      * Gets move speed. Optional.
      * \@return speed in meters per second
      **/
-    virtual double get_move_speed () const;
+    virtual double get_move_speed (void) const;
 
     /**
      * Instructs the agent to return home. Optional.
@@ -2719,8 +2720,8 @@ namespace platforms
 
     /**
      * Moves the platform to a location. Optional.
-     * \@param   target    the coordinates to move to
-     * \@param   epsilon   approximation value
+     * \@param   location    the coordinates to move to
+     * \@param   epsilon     approximation value
      * \@return the status of the move operation, \@see PlatformReturnValues
      **/
     virtual int move (const gams::pose::Position & location,
@@ -2933,7 +2934,7 @@ platforms::${new_plat}::analyze (void)
 
 // Gets the name of the platform. Required.
 std::string
-platforms::${new_plat}::get_name () const
+platforms::${new_plat}::get_name (void) const
 {
   return \"${new_plat}\";
 }
@@ -2941,7 +2942,7 @@ platforms::${new_plat}::get_name () const
 
 // Gets the unique identifier of the platform.
 std::string
-platforms::${new_plat}::get_id () const
+platforms::${new_plat}::get_id (void) const
 {
   return \"${new_plat}\";
 }
@@ -2957,7 +2958,7 @@ platforms::${new_plat}::get_accuracy (void) const
 
 // Gets Location of platform, within its parent frame. Optional.
 gams::pose::Position
-platforms::${new_plat}::get_location () const
+platforms::${new_plat}::get_location (void) const
 {
   gams::pose::Position result;
   
@@ -2967,7 +2968,7 @@ platforms::${new_plat}::get_location () const
 
 // Gets Rotation of platform, within its parent frame. Optional.
 gams::pose::Orientation
-platforms::${new_plat}::get_orientation () const
+platforms::${new_plat}::get_orientation (void) const
 {
   gams::pose::Orientation result;
   
@@ -2977,7 +2978,7 @@ platforms::${new_plat}::get_orientation () const
 
 // Gets sensor radius. Optional.
 double
-platforms::${new_plat}::get_min_sensor_range () const
+platforms::${new_plat}::get_min_sensor_range (void) const
 {
   // should be in square meters
   return 0.0;
@@ -2985,7 +2986,7 @@ platforms::${new_plat}::get_min_sensor_range () const
 
 // Gets move speed. Optional.
 double
-platforms::${new_plat}::get_move_speed () const
+platforms::${new_plat}::get_move_speed (void) const
 {
   // should be in meters/s
   return 0.0;
@@ -4784,6 +4785,13 @@ int main (int argc, char ** argv)
     copy "$script_dir/common/docs/MainPage.md", "$path/docs/";
   }
 
+  # copy src directory autogeneration files
+  if (not -f "$path/src/Namespaces.h")
+  {
+    copy "$script_dir/common/src/Namespaces.h", "$path/src";
+  }
+
+  # copy main directory autogeneration files
   if (not -f "$path/doxygen_help_gen.mpb")
   {
     copy "$script_dir/common/doxygen_help_gen.mpb", "$path/";
