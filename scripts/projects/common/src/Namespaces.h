@@ -1,5 +1,5 @@
-#ifndef _GPCPL_GEN_NAMESPACES_H_
-#define _GPCPL_GEN_NAMESPACES_H_
+#ifndef _RISLAB_NAMESPACES_H_
+#define _RISLAB_NAMESPACES_H_
 
 /**
 * @file Namespaces.h
@@ -15,13 +15,6 @@
  **/
 namespace algorithms
 {
-  /**
-   * @namespace algorithms::threads
-   * Contains threads that will be managed by algorithms
-   **/
-  namespace threads
-  {
-  }
 }
 
 /**
@@ -29,6 +22,14 @@ namespace algorithms
  * Contains managed C++ containers that map between C++ variables and knowledge variables
  **/
 namespace containers
+{
+}
+
+/**
+ * @namespace filters
+ * Contains filters that may shape traffic on-send or on-receive
+ **/
+namespace filters
 {
 }
 
@@ -55,6 +56,5 @@ namespace threads
 {
 }
 
-#endif //_GPCPL_GEN_NAMESPACES_H_
-
+#endif
 
