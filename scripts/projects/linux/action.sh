@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+# Copyright (c) 2015-2018 Carnegie Mellon University. All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,7 +27,7 @@
 # 5. Redistributions of any form whatsoever must retain the following
 # acknowledgment:
 #
-# Copyright 2015 Carnegie Mellon University
+# Copyright 2015-2018 Carnegie Mellon University
 #
 # This material is based upon work funded and supported by the
 # Department of Defense under Contract No. FA8721-05-C-0003 with
@@ -59,11 +59,23 @@
 
 COMPILE=0
 COMPILE_VREP=0
+DOCS=0
+PREREQS=0
 RUN=0
 VERBOSE=0
 VREP=0
 INSTALL_DIR=`pwd`
 SCRIPTS_DIR=`dirname $0`
+
+# just in case we're in git commits and empty directories were discarded
+[ -d $SCRIPTS_DIR/src/algorithms ] || mkdir $SCRIPTS_DIR/src/algorithms
+[ -d $SCRIPTS_DIR/src/algorithms/threads ] || mkdir $SCRIPTS_DIR/src/algorithms/threads
+[ -d $SCRIPTS_DIR/src/containers ] || mkdir $SCRIPTS_DIR/src/containers
+[ -d $SCRIPTS_DIR/src/filters ] || mkdir $SCRIPTS_DIR/src/filters
+[ -d $SCRIPTS_DIR/src/platforms ] || mkdir $SCRIPTS_DIR/src/platforms
+[ -d $SCRIPTS_DIR/src/platforms/threads ] || mkdir $SCRIPTS_DIR/src/platforms/threads
+[ -d $SCRIPTS_DIR/src/threads ] || mkdir $SCRIPTS_DIR/src/threads
+[ -d $SCRIPTS_DIR/src/transports ] || mkdir $SCRIPTS_DIR/src/transports
 
 if [ -z $CORES ] ; then
   echo "CORES unset, so setting it to default of 1"
@@ -78,7 +90,10 @@ do
     COMPILE=1
   elif [ "$var" = "compile-vrep" ]; then
     COMPILE_VREP=1
-    COMPILE=1
+  elif [ "$var" = "docs" ]; then
+    DOCS=1
+  elif [ "$var" = "prereqs" ]; then
+    PREREQS=1
   elif [ "$var" = "run" ]; then
     RUN=1
   elif [ "$var" = "sim" ]; then
@@ -92,6 +107,7 @@ do
     echo "  args can be zero or more of the following, space delimited"
     echo "  compile         build the custom project"
     echo "  compile-vrep    compile with vrep support"
+    echo "  prereqs         apt-get doxygen and other prereqs"
     echo "  run|sim         run the simulation"
     echo "  verbose         print verbose information during this script"
     echo "  vrep            start vrep before running the simulation"
@@ -110,6 +126,10 @@ do
   fi
 done
 
+if [ $PREREQS -eq 1 ]; then
+  sudo apt-get install doxygen graphviz
+fi
+
 if [ $COMPILE -eq 1 ]; then
 
   if [ $VERBOSE -eq 1 ]; then
@@ -117,7 +137,7 @@ if [ $COMPILE -eq 1 ]; then
   fi
 
   cd $SCRIPTS_DIR
-  $ACE_ROOT/bin/mwc.pl -type gnuace -features vrep=$COMPILE_VREP,tests=0 workspace.mwc
+  $ACE_ROOT/bin/mwc.pl -type gnuace -features vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
   
   
   if [ $VERBOSE -eq 1 ]; then
@@ -131,7 +151,7 @@ if [ $COMPILE -eq 1 ]; then
     echo "Building project..."
   fi
 
-  make vrep=$COMPILE_VREP -j $CORES
+  make vrep=$COMPILE_VREP docs=$DOCS -j $CORES
   
 fi
   

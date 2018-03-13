@@ -1,0 +1,18 @@
+project (documentation_custom) : doxygen_help_gen, build_files {
+
+  requires += docs
+
+  custom_only = 1
+  
+  prebuild = perl ./get_version.pl
+
+  Build_Files {
+    Documentation.mpc
+    doxygen_help_gen.mpb
+  }
+
+  DoxygenTypeSupport_Files {
+    Doxyfile.dxy >> rislab
+  }
+}
+

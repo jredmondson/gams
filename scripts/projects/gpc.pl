@@ -70,6 +70,9 @@ my $vrep_start_port;
 my $sim_path;
 my $src_path;
 my $algs_path;
+my $algs_threads_path;
+my $containers_path;
+my $docs_path;
 my $plats_path;
 my $plats_threads_path;
 my $threads_path;
@@ -78,6 +81,8 @@ my $filters_path;
 my $transient;
 my $bin_path;
 my @algorithms = ();
+my @algorithm_threads = ();
+my @containers = ();
 my @platforms = ();
 my @platform_threads = ();
 my @threads = ();
@@ -95,6 +100,7 @@ GetOptions(
   'buffer=i' => \$buffer,
   'border=s' => \@border,
   'broadcast|b=s' => \$broadcast,
+  'container|c=s' => \@containers,
   'domain=s' => \$domain,
   'duration|d|t=i' => \$duration,
   'equidistant|distributed' => \$equidistant,
@@ -155,6 +161,7 @@ options:
   --buffer|-m meters     buffer in meters between agents
   --border r0 r1 ...     regions to put a border around
   --broadcast|b host     broadcast ip/host to use for network transport
+  --container|c name     container data structure to modify
   --domain domain        domain of the network (to separate network traffic)
   --distributed          for positions in region, distribute uniformly
   --duration|-t sec      max duration of simulation in secs
@@ -227,6 +234,8 @@ $script is using the following configuration:
     ("\n    " . join ("\n    ", @border)) : 'no') . "
   broadcast = " . ($broadcast ? $broadcast : 'no') . "
   buffer = $buffer meters
+  containers = " . (scalar @containers > 0 ?
+    ("\n    " . join ("\n    ", @containers)) : 'no') . "
   domain = " . (defined $domain ? $domain : 'default') . "
   equidistant = " . ($equidistant ? 'yes' : 'no') . "
   first = " . (defined $first ? $first : 'default') . "
@@ -280,9 +289,12 @@ $script is using the following configuration:
   # recursively create path/name
   my $create_result = make_path("$path");
   
+  $src_path = "$path/docs";
   $sim_path = "$path/sim";
   $src_path = "$path/src";
   $algs_path = "$path/src/algorithms";
+  $algs_threads_path = "$path/src/algorithms/threads";
+  $containers_path = "$path/src/containers";
   $plats_path = "$path/src/platforms";
   $plats_threads_path = "$path/src/platforms/threads";
   $threads_path = "$path/src/threads";
@@ -308,8 +320,11 @@ $script is using the following configuration:
       print("Directory $path had not been created. Populating...\n");
     }
     
+    make_path("$docs_path");
     make_path("$sim_path");
     make_path("$algs_path");
+    make_path("$algs_threads_path");
+    make_path("$containers_path");
     make_path("$plats_path");
     make_path("$plats_threads_path");
     make_path("$threads_path");
@@ -1982,6 +1997,192 @@ $region.3 = [$max_lat, $min_lon];\n";
     close common_file;
   }
   
+  # make new container
+  foreach my $new_container (@containers)
+  {
+    if ($new_container and not -f "$containers_path/$new_container.h")
+    {
+      my $new_container_uc = uc $new_container;
+    
+      if ($verbose)
+      {
+        print ("Adding infrastructure for container $new_container...\n");
+      }
+         
+      # Create file contents for custom algorithms
+       
+      my $container_header_contents = "
+#ifndef   _CONTAINERS_${new_container_uc}_H_
+#define   _CONTAINERS_${new_container_uc}_H_
+
+#include <string>
+#include <vector>
+
+#include \"madara/knowledge/KnowledgeBase.h\"
+#include \"madara/knowledge/containers/Integer.h\"
+#include \"madara/knowledge/containers/Double.h\"
+#include \"madara/knowledge/containers/NativeIntegerVector.h\"
+#include \"madara/knowledge/containers/NativeDoubleVector.h\"
+#include \"madara/knowledge/containers/String.h\"
+
+namespace containers
+{
+  /**
+  * Houses variables modified and read by threads
+  **/
+  class ${new_container}
+  {
+  public:
+    /**
+     * Default constructor
+     **/
+    ${new_container} ();
+
+    /**
+     * Constructor
+     * \@param  knowledge    the context containing variables and values
+     **/
+    ${new_container} (
+      madara::knowledge::KnowledgeBase & knowledge);
+
+    /**
+     * Initializes all containers and variable values
+     * \@param  knowledge    the context containing variables and values
+     **/
+    void init (madara::knowledge::KnowledgeBase & knowledge);
+
+    /**
+     * Modifies all containers to indicate they should be resent on next send
+     **/
+    void modify (void);
+
+    /**
+     * Reads all MADARA containers into the user-facing C++ variables.
+     **/
+    void read (void);
+
+    /**
+     * Writes user-facing C++ variables to the MADARA containers. Note
+     * that this does not check if values are different. It always overwrites
+     * the values in the knowledge base with what is currently in local vars
+     **/
+    void write (void);
+
+    /// imu acceleration x, y, z
+    std::vector<double> imu_sigma_accel;
+
+    /// orientation x, y, z (roll, pitch, yaw)
+    std::vector<double> orientation;
+
+    /// the position of the agent (x, y, z)
+    std::vector<double> position;
+
+  private:
+
+    /// imu_sigma_accel that directly interfaces to the KnowledgeBase
+    madara::knowledge::containers::NativeDoubleArray imu_sigma_accel_;
+
+    /// orientation that directly interfaces to the KnowledgeBase
+    madara::knowledge::containers::NativeDoubleArray orientation_;
+
+    /// imu_sigma_accel that directly interfaces to the KnowledgeBase
+    madara::knowledge::containers::NativeDoubleArray position_;
+
+
+    /// unmanaged context for locking. The knowledge base should stay in scope
+    madara::knowledge::ThreadSafeContext * context_;
+  };
+
+} // end containers namespace
+
+#endif // _CONTAINERS_${new_container_uc}_H_
+";
+
+      my $container_source_contents = "
+
+#include \"${new_container}.h\"
+
+#include \"madara/knowledge/ContextGuard.h\"
+
+containers::${new_container}::${new_container} ()
+: context_ (0)
+{
+}
+
+containers::${new_container}::${new_container} (
+  madara::knowledge::KnowledgeBase & knowledge)
+{
+  init (knowledge);
+}
+
+void
+containers::${new_container}::init (
+  madara::knowledge::KnowledgeBase & knowledge)
+{
+  // hold context for use in guards later
+  context_ = &knowledge.get_context ();
+
+  // init knowledge variables. DO NOT REMOVE COMMENT
+  imu_sigma_accel_.set_name (\".imu.sigma.accel\", knowledge);
+  orientation_.set_name (\".orientation\", knowledge);
+  position_.set_name (\".position\", knowledge);
+}
+
+void
+containers::${new_container}::read (void)
+{
+  if (context_)
+  {
+    // lock the context for consistency
+    madara::knowledge::ContextGuard guard (*context_);
+
+    // update user-facing variables. DO NOT REMOVE COMMENT
+    imu_sigma_accel = imu_sigma_accel_.to_record ().to_doubles ();
+    orientation = orientation_.to_record ().to_doubles ();
+    position = position_.to_record ().to_doubles ();
+  }
+}
+
+void
+containers::${new_container}::write (void)
+{
+  if (context_)
+  {
+    // lock the context for consistency
+    madara::knowledge::ContextGuard guard (*context_);
+
+    // update knowledge base. DO NOT REMOVE COMMENT
+    imu_sigma_accel_.set (imu_sigma_accel);
+    orientation_.set (orientation);
+    position_.set (position);
+  }
+}
+
+void
+containers::${new_container}::modify (void)
+{
+  // mark containers as modified so the values are resent. DO NOT REMOVE COMMENT
+  imu_sigma_accel_.modify ();
+  orientation_.modify ();
+  position_.modify ();
+}
+";
+
+   
+      # open files for writing
+      open container_header, ">$containers_path/$new_container.h" or 
+        die "ERROR: Couldn't open $containers_path/$new_container.h for writing\n";
+        print container_header $container_header_contents;
+      close container_header;
+          
+      open container_source, ">$containers_path/$new_container.cpp" or 
+        die "ERROR: Couldn't open $containers_path/$new_container.cpp for writing\n";
+        print container_source $container_source_contents;
+      close container_source;
+          
+    }
+  }
+
   if (scalar @new_algorithm > 0 or scalar @new_platform > 0
       or scalar @new_thread > 0 or scalar @new_transport > 0
       or scalar @new_platform_thread > 0
@@ -2101,7 +2302,7 @@ namespace algorithms
   };
 
   /**
-   * A factory class for creating Debug Algorithms
+   * A factory class for creating ${new_alg} Algorithms
    **/
   class ${new_alg}Factory : public gams::algorithms::AlgorithmFactory
   {
@@ -3680,6 +3881,8 @@ project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
   Header_Files {
     src/
     src/algorithms
+    src/algorithms/threads
+    src/containers
     src/filters
     src/platforms
     src/platforms/threads
@@ -3690,6 +3893,8 @@ project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
   Source_Files {
     src
     src/algorithms
+    src/algorithms/threads
+    src/containers
     src/filters
     src/platforms
     src/platforms/threads
@@ -3714,6 +3919,7 @@ workspace {
   }
 
   project.mpc
+  docs/Documentation.mpc
 }
 
 ";
@@ -4556,6 +4762,38 @@ int main (int argc, char ** argv)
     chmod 0755, "$path/action.sh";
   }
   
+  # copy documentation autogeneration files
+  if (not -f "$path/docs/Documentation.mpc")
+  {
+    copy "$script_dir/common/docs/Documentation.mpc", "$path/docs/";
+  }
+
+  if (not -f "$path/docs/Doxyfile.dxy")
+  {
+    copy "$script_dir/common/docs/Doxyfile.dxy", "$path/docs/";
+  }
+
+  if (not -f "$path/docs/get_version.pl")
+  {
+    copy "$script_dir/common/docs/get_version.pl", "$path/docs/";
+    chmod 0755, "$path/docs/get_version.pl";
+  }
+
+  if (not -f "$path/docs/MainPage.md")
+  {
+    copy "$script_dir/common/docs/MainPage.md", "$path/docs/";
+  }
+
+  if (not -f "$path/doxygen_help_gen.mpb")
+  {
+    copy "$script_dir/common/doxygen_help_gen.mpb", "$path/";
+  }
+
+  if (not -f "$path/VERSION.txt")
+  {
+    copy "$script_dir/common/VERSION.txt", "$path/";
+  }
+
   if (not -f "$path/README.txt")
   {
     my @custom_type_list = ();

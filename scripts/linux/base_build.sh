@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015-2017 Carnegie Mellon University. All Rights Reserved.
+# Copyright (c) 2015-2018 Carnegie Mellon University. All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -253,7 +253,7 @@ fi
 echo ""
 
 if [ $PREREQS -eq 1 ]; then
-  sudo apt-get install -f build-essential subversion git-core perl
+  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz
 
   if [ $JAVA -eq 1 ]; then
     sudo add-apt-repository ppa:webupd8team/java
