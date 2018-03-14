@@ -382,6 +382,18 @@ void handle_arguments (int argc, char ** argv)
     {
       settings.send_reduced_message_header = true;
     }
+    else if (arg1 == "-s" || arg1 == "--send-hertz")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> controller_settings.send_hertz;
+      }
+      else
+        print_usage (argv[0]);
+
+      ++i;
+    }
     else if (arg1 == "-t" || arg1 == "--target")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
