@@ -67,13 +67,13 @@ namespace gams
       return frame;
     }
 
-    void GPSFrame::transform_position_to_origin(
+    void GPSFrame::transform_linear_to_origin(
                                             double &, double &, double &) const
     {
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void GPSFrame::transform_position_from_origin(
+    void GPSFrame::transform_linear_from_origin(
                                             double &, double &, double &) const
     {
       throw undefined_transform(*this, origin().frame(), false);
@@ -134,7 +134,7 @@ namespace gams
         return sqrt(great_circle_dist * great_circle_dist + alt_diff*alt_diff);
     }
 
-    void GPSFrame::do_normalize_position(
+    void GPSFrame::do_normalize_linear(
                       double &x, double &y, double &z) const
     {
       while(y > 90.000001)

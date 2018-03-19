@@ -167,21 +167,21 @@ namespace gams
       virtual std::string get_name() const;
 
       /**
-      * Transforms a position to origin
+      * Transforms a linear to origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_position_to_origin(
+      virtual void transform_linear_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
-      * Transforms a position from origin
+      * Transforms a linear from origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_position_from_origin(
+      virtual void transform_linear_from_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -191,7 +191,7 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_orientation_to_origin(
+      virtual void transform_angular_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -201,7 +201,7 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_orientation_from_origin(
+      virtual void transform_angular_from_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -252,26 +252,26 @@ namespace gams
                       double x2, double y2, double z2) const;
 
       /**
-       * Normalizes a Position; if zone is -1, ensure that the position is in
+       * Normalizes a Position; if zone is -1, ensure that the linear is in
        * the standard zone.
        * @param x   the x coordinate
        * @param y   the y coordinate
        * @param z   the z coordinate
        **/
-      virtual void do_normalize_position(
+      virtual void do_normalize_linear(
                       double &x, double &y, double &z) const;
 
       /**
-       * Normalizes a Pose; if zone is -1, ensure that the position is in
+       * Normalizes a Pose; if zone is -1, ensure that the linear is in
        * the standard zone. If moving to a different zone is required, updates
-       * the orientation part accordingly as well.
+       * the angular part accordingly as well.
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
-       * @param rx   x axis of orientation
-       * @param ry   y axis of orientation
-       * @param rz   z axis of orientation
+       * @param rx   x axis of angular
+       * @param ry   y axis of angular
+       * @param rz   z axis of angular
        **/
       virtual void do_normalize_pose(
                       double &x, double &y, double &z,

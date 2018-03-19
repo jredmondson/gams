@@ -57,8 +57,8 @@
 #include <iostream>
 #include <string>
 
-#include <gams/pose/Position.h>
-#include <gams/pose/Orientation.h>
+#include <gams/pose/Linear.h>
+#include <gams/pose/Angular.h>
 
 namespace gams
 {
@@ -66,9 +66,9 @@ namespace gams
   {
     /**
      * Container for Pose information, not bound to a frame.
-     * See PositionVector and OrientationVector for representation deatils
+     * See LinearVector and AngularVector for representation deatils
      **/
-    class PoseVector : public PositionVector, public OrientationVector
+    class PoseVector : public LinearVector, public AngularVector
     {
     public:
       /**
@@ -85,29 +85,29 @@ namespace gams
                             double rx, double ry, double rz);
 
       /**
-       * Construct a PoseVector from a PositionVector. Orientation info will
+       * Construct a PoseVector from a LinearVector. Angular info will
        * be all zeros (is_orientation_zero () == true)
        *
-       * @param loc the PositionVector to get position info from.
+       * @param loc the LinearVector to get position info from.
        **/
-      constexpr PoseVector (const PositionVector &loc);
+      constexpr PoseVector (const LinearVector &loc);
 
       /**
-       * Construct a PoseVector from a OrientationVector. Position info will
+       * Construct a PoseVector from a AngularVector. Linear info will
        * be all zeros (is_position () == true)
        *
-       * @param rot the OrientationVector to get position info from.
+       * @param rot the AngularVector to get position info from.
        **/
-      constexpr PoseVector (const OrientationVector &rot);
+      constexpr PoseVector (const AngularVector &rot);
 
       /**
-       * Construct from individual PositionVector and OrientationVector
+       * Construct from individual LinearVector and AngularVector
        *
-       * @param loc the PositionVector
-       * @param rot the OrientationVector
+       * @param loc the LinearVector
+       * @param rot the AngularVector
        **/
-      constexpr PoseVector (const PositionVector &loc,
-                            const OrientationVector &rot);
+      constexpr PoseVector (const LinearVector &loc,
+                            const AngularVector &rot);
 
       /**
        * Default constructor. All values will be INVAL_COORD
@@ -251,38 +251,38 @@ namespace gams
       constexpr const BaseType &as_vec () const;
 
       /**
-       * Gets a reference to this object's Position part.
+       * Gets a reference to this object's Linear part.
        *
-       * @return reference to the PositionVector
+       * @return reference to the LinearVector
        **/
-      PositionVector &as_position_vec ();
-      PositionVector &as_location_vec ();
+      LinearVector &as_position_vec ();
+      LinearVector &as_location_vec ();
 
       /**
-       * Gets a const reference to this object's Position part.
+       * Gets a const reference to this object's Linear part.
        *
-       * @return const reference to the PositionVector
+       * @return const reference to the LinearVector
        **/
-      constexpr const PositionVector &as_position_vec () const;
-      constexpr const PositionVector &as_location_vec () const;
+      constexpr const LinearVector &as_position_vec () const;
+      constexpr const LinearVector &as_location_vec () const;
 
       /**
-       * Gets a reference to this object's Orientation part.
+       * Gets a reference to this object's Angular part.
        *
-       * @return reference to the OrientationVector
+       * @return reference to the AngularVector
        **/
-      OrientationVector &as_orientation_vec ();
+      AngularVector &as_orientation_vec ();
 
       /**
-       * Gets a const reference to this object's Orientation part.
+       * Gets a const reference to this object's Angular part.
        *
-       * @return const reference to the OrientationVector
+       * @return const reference to the AngularVector
        **/
-      constexpr const OrientationVector &as_orientation_vec () const;
+      constexpr const AngularVector &as_orientation_vec () const;
     };
 
     /**
-     * Represents a combination of Position and Orientation within a single
+     * Represents a combination of Linear and Angular within a single
      * reference frame.
      **/
     class GAMSExport Pose : public PoseVector, public Coordinate<Pose>
@@ -346,52 +346,52 @@ namespace gams
       Pose ();
 
       /**
-       * Construct from a Position. All orientation info set to zero.
+       * Construct from a Linear. All orientation info set to zero.
        * Frame is same as the input position.
        *
-       * @param loc the Position to copy position info from.
+       * @param loc the Linear to copy position info from.
        **/
-      constexpr Pose (const Position &loc);
+      constexpr Pose (const Linear &loc);
 
       /**
-       * Construct from a Orientation. All position info set to zero.
+       * Construct from a Angular. All position info set to zero.
        * Frame is same as the input orientation.
        *
-       * @param rot the Orientation to copy orientation info from.
+       * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const Orientation &rot);
+      constexpr Pose (const Angular &rot);
 
       /**
-       * Construct from individual Position and Orientation vectors, in the
+       * Construct from individual Linear and Angular vectors, in the
        * default frame.
        *
-       * @param loc the Position to copy position info from.
-       * @param rot the Orientation to copy orientation info from.
+       * @param loc the Linear to copy position info from.
+       * @param rot the Angular to copy orientation info from.
        **/
-      Pose (const PositionVector &loc, const OrientationVector &rot);
+      Pose (const LinearVector &loc, const AngularVector &rot);
 
       /**
-       * Construct from individual Position and Orientation vectors, in a
+       * Construct from individual Linear and Angular vectors, in a
        * given frame.
        *
        * @param frame the frame this pose belongs to
-       * @param loc the Position to copy position info from.
-       * @param rot the Orientation to copy orientation info from.
+       * @param loc the Linear to copy position info from.
+       * @param rot the Angular to copy orientation info from.
        **/
       constexpr Pose (const ReferenceFrame &frame,
-                     const PositionVector &loc,
-                     const OrientationVector &rot);
+                     const LinearVector &loc,
+                     const AngularVector &rot);
 
       /**
-       * Construct from individual Position and Orientation.
-       * Frame is same as the input Position. No transformation is done.
+       * Construct from individual Linear and Angular.
+       * Frame is same as the input Linear. No transformation is done.
        *
-       * The Orientation's frame is ignored; its values are taken directly
+       * The Angular's frame is ignored; its values are taken directly
        *
-       * @param loc the Position to copy position info from.
-       * @param rot the Orientation to copy orientation info from.
+       * @param loc the Linear to copy position info from.
+       * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const Position &loc, const Orientation &rot);
+      constexpr Pose (const Linear &loc, const Angular &rot);
 
       /**
        * Copy constructor, but also transform to the new frame.
@@ -493,21 +493,21 @@ namespace gams
        * @param target the target orientation
        * @return shortest angle to map this pose's onto the given orientation
        **/
-      double angle_to (const Orientation &target) const;
+      double angle_to (const Angular &target) const;
 
       /**
-       * Casting operator to extract Position from this Pose
+       * Casting operator to extract Linear from this Pose
        *
-       * @return Position with same frame as this pose, and same x/y/z values
+       * @return Linear with same frame as this pose, and same x/y/z values
        **/
-      constexpr operator Position () const;
+      constexpr operator Linear () const;
 
       /**
-       * Castig operator to extract Orientation from this Pose
+       * Castig operator to extract Angular from this Pose
        *
-       * @return Orientation with same frame as this pose, and same rx/ry/rz values
+       * @return Angular with same frame as this pose, and same rx/ry/rz values
        **/
-      constexpr operator Orientation () const;
+      constexpr operator Angular () const;
 
       /**
       * Returns a string of the values x, y, z, rx, ry, rz

@@ -52,8 +52,8 @@
  **/
 
 #include <gams/pose/ReferenceFrame.h>
-#include <gams/pose/Position.h>
-#include <gams/pose/Orientation.h>
+#include <gams/pose/Linear.h>
+#include <gams/pose/Angular.h>
 #include <gams/pose/Quaternion.h>
 
 namespace gams
@@ -93,13 +93,13 @@ namespace gams
     void ReferenceFrame::transform_position_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Position>(*this, "transform_position_to_origin");
+      throw bad_coord_type<Linear>(*this, "transform_position_to_origin");
     }
 
     void ReferenceFrame::transform_position_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Position>(*this, "transform_position_from_origin");
+      throw bad_coord_type<Linear>(*this, "transform_position_from_origin");
     }
 
     void ReferenceFrame::do_normalize_position(
@@ -108,39 +108,39 @@ namespace gams
     double ReferenceFrame::calc_distance(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Position>(*this, "calc_distance");
+      throw bad_coord_type<Linear>(*this, "calc_distance");
     }
 
     void ReferenceFrame::transform_orientation_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_orientation_to_origin");
+      throw bad_coord_type<Angular>(*this, "transform_orientation_to_origin");
     }
 
     void ReferenceFrame::transform_orientation_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_orientation_from_origin");
+      throw bad_coord_type<Angular>(*this, "transform_orientation_from_origin");
     }
 
     void ReferenceFrame::transform_pose_to_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_pose_to_origin");
+      throw bad_coord_type<Angular>(*this, "transform_pose_to_origin");
     }
 
     void ReferenceFrame::transform_pose_from_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_pose_from_origin");
+      throw bad_coord_type<Angular>(*this, "transform_pose_from_origin");
     }
 
     double ReferenceFrame::calc_angle(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Orientation>(*this, "calc_angle");
+      throw bad_coord_type<Angular>(*this, "calc_angle");
     }
 
     void ReferenceFrame::do_normalize_orientation(
@@ -156,7 +156,7 @@ namespace gams
 
     void SimpleRotateFrame::orient_position_vec(
           double &x, double &y, double &z,
-          const OrientationVector &rot, bool reverse) const
+          const AngularVector &rot, bool reverse) const
     {
       if(rot.is_zero())
         return;

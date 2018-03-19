@@ -54,8 +54,8 @@
 #ifndef _GAMS_POSE_QUATERNION_INL_
 #define _GAMS_POSE_QUATERNION_INL_
 
-#include <gams/pose/Orientation.h>
-#include <gams/pose/Position.h>
+#include <gams/pose/Angular.h>
+#include <gams/pose/Linear.h>
 
 #include "Quaternion.h"
 
@@ -69,20 +69,20 @@ namespace gams
 
     inline Quaternion::Quaternion(double rx, double ry, double rz)
     {
-      from_orientation_vector(rx, ry, rz);
+      from_angular_vector(rx, ry, rz);
     }
 
-    inline Quaternion::Quaternion(const OrientationVector &rot)
+    inline Quaternion::Quaternion(const AngularVector &rot)
     {
-      from_orientation_vector(rot);
+      from_angular_vector(rot);
     }
 
-    inline Quaternion::Quaternion(const PositionVector &loc)
+    inline Quaternion::Quaternion(const LinearVector &loc)
     {
-      from_position_vector(loc);
+      from_linear_vector(loc);
     }
 
-    inline void Quaternion::from_position_vector(double x, double y, double z)
+    inline void Quaternion::from_linear_vector(double x, double y, double z)
     {
       x_ = x;
       y_ = y;
@@ -90,12 +90,12 @@ namespace gams
       w_ = 0;
     }
 
-    inline void Quaternion::from_position_vector(const PositionVector &loc)
+    inline void Quaternion::from_linear_vector(const LinearVector &loc)
     {
-      from_position_vector(loc.x(), loc.y(), loc.z());
+      from_linear_vector(loc.x(), loc.y(), loc.z());
     }
 
-    inline void Quaternion::to_position_vector(
+    inline void Quaternion::to_linear_vector(
                         double &x, double &y, double &z) const
     {
       x = x_;
@@ -103,12 +103,12 @@ namespace gams
       z = z_;
     }
 
-    inline void Quaternion::to_position_vector(PositionVector &loc) const
+    inline void Quaternion::to_linear_vector(LinearVector &loc) const
     {
-      to_position_vector(loc.x_, loc.y_, loc.z_);
+      to_linear_vector(loc.x_, loc.y_, loc.z_);
     }
 
-    inline void Quaternion::from_orientation_vector(
+    inline void Quaternion::from_angular_vector(
                           double rx, double ry, double rz)
     {
       double magnitude = sqrt(rx * rx + ry * ry + rz * rz);
@@ -129,12 +129,12 @@ namespace gams
       }
     }
 
-    inline void Quaternion::from_orientation_vector(const OrientationVector &rot)
+    inline void Quaternion::from_angular_vector(const AngularVector &rot)
     {
-      from_orientation_vector(rot.rx(), rot.ry(), rot.rz());
+      from_angular_vector(rot.rx(), rot.ry(), rot.rz());
     }
 
-    inline void Quaternion::to_orientation_vector(
+    inline void Quaternion::to_angular_vector(
                               double &rx, double &ry, double &rz) const
     {
       double norm = sqrt(x_ * x_ + y_ * y_ + z_ * z_);
@@ -152,9 +152,9 @@ namespace gams
       }
     }
 
-    inline void Quaternion::to_orientation_vector(OrientationVector &rot) const
+    inline void Quaternion::to_angular_vector(AngularVector &rot) const
     {
-      to_orientation_vector(rot.rx_, rot.ry_, rot.rz_);
+      to_angular_vector(rot.rx_, rot.ry_, rot.rz_);
     }
 
     inline void Quaternion::hamilton_product(
@@ -406,9 +406,9 @@ namespace gams
       return w_ * w_ - x_* x_ - y_ * y_ + z_ * z_;
     }
 
-    inline OrientationVector::OrientationVector(const Quaternion &quat)
+    inline AngularVector::AngularVector(const Quaternion &quat)
     {
-      quat.to_orientation_vector(rx_, ry_, rz_);
+      quat.to_angular_vector(rx_, ry_, rz_);
     }
 
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)
@@ -420,20 +420,20 @@ namespace gams
       return o;
     }
 
-    inline Orientation Orientation::slerp(const Orientation &o, double t) const
+    inline Angular Angular::slerp(const Angular &o, double t) const
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
-      return Orientation(q);
+      return Angular(q);
     }
 
-    inline void Orientation::slerp_this(const Orientation &o, double t)
+    inline void Angular::slerp_this(const Angular &o, double t)
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
-      q.to_orientation_vector(*this);
+      q.to_angular_vector(*this);
     }
   }
 }

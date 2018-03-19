@@ -92,7 +92,7 @@ namespace gams
       }
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Euler<A,B,C,Conv>::Euler(const OrientationVector &r)
+      inline Euler<A,B,C,Conv>::Euler(const AngularVector &r)
       {
         Quaternion quat(r);
         set_from_quat(quat);
@@ -108,16 +108,16 @@ namespace gams
       };
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Orientation Euler<A,B,C,Conv>::to_orientation() const
+      inline Angular Euler<A,B,C,Conv>::to_angular() const
       {
-        return Orientation(to_quat());
+        return Angular(to_quat());
       };
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Orientation
-      Euler<A,B,C,Conv>::to_orientation(const ReferenceFrame &frame) const
+      inline Angular
+      Euler<A,B,C,Conv>::to_angular(const ReferenceFrame &frame) const
       {
-        return Orientation(frame, to_quat());
+        return Angular(frame, to_quat());
       };
 
       template<typename A, typename B, typename C, typename Conv>
