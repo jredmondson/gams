@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014-2018 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -126,6 +126,9 @@ namespace gams
       static bool is_agent (madara::knowledge::KnowledgeBase & knowledge,
         const std::string prefix);
 
+      /// the acceleration vector of the platform
+      madara::knowledge::containers::NativeDoubleArray acceleration;
+      
       /// the battery indicator for this agent
       madara::knowledge::containers::Integer battery_remaining;
 
@@ -201,6 +204,9 @@ namespace gams
       /// indicator for temperature
       madara::knowledge::containers::Double temperature;
 
+      /// the velocity vector of the platform
+      madara::knowledge::containers::NativeDoubleArray velocity;
+      
       /// container for accents
       AccentStatuses accents;
 

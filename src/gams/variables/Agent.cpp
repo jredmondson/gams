@@ -63,6 +63,7 @@ gams::variables::Agent::operator= (const Agent & agent)
 {
   if (this != &agent)
   {
+    this->acceleration = agent.acceleration;
     this->algorithm = agent.algorithm;
     this->algorithm_id = agent.algorithm_id;
     this->algorithm_accepts = agent.algorithm_accepts;
@@ -94,6 +95,7 @@ gams::variables::Agent::operator= (const Agent & agent)
     this->loop_hz = agent.loop_hz;
     this->send_hz = agent.send_hz;
     this->prefix = agent.prefix;
+    this->velocity = agent.velocity;
   }
 }
 
@@ -103,6 +105,7 @@ gams::variables::Agent::init_vars (
   const std::string & prefix)
 {
   // initialize the variable containers
+  acceleration.set_name (prefix + ".acceleration", knowledge);
   min_alt.set_name (prefix + ".min_alt", knowledge);
   location.set_name (prefix + ".location", knowledge);
   orientation.set_name (prefix + ".orientation", knowledge);
@@ -134,6 +137,7 @@ gams::variables::Agent::init_vars (
   gams_debug_level.set_name (prefix + ".gams_debug_level", knowledge);
   loop_hz.set_name (prefix + ".loop_hz", knowledge);
   send_hz.set_name (prefix + ".send_hz", knowledge);
+  velocity.set_name (prefix + ".velocity", knowledge);
 
   this->prefix = prefix;
 
@@ -164,6 +168,7 @@ gams::variables::Agent::init_vars (
   prefix = agent_name;
 
   // initialize the variable containers
+  acceleration.set_name (agent_name + ".acceleration", knowledge);
   min_alt.set_name (agent_name + ".min_alt", knowledge);
   location.set_name (agent_name + ".location", knowledge, 3);
   orientation.set_name (agent_name + ".orientation", knowledge, 3);
@@ -195,6 +200,7 @@ gams::variables::Agent::init_vars (
   gams_debug_level.set_name (agent_name + ".gams_debug_level", knowledge);
   loop_hz.set_name (agent_name + ".loop_hz", knowledge);
   send_hz.set_name (agent_name + ".send_hz", knowledge);
+  velocity.set_name (agent_name + ".velocity", knowledge);
 
   // init settings
   init_variable_settings ();
