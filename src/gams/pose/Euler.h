@@ -228,21 +228,21 @@ namespace gams
         Quaternion to_quat() const;
 
         /**
-         * Convert this Euler angle to a Angular (axis-angle notation),
+         * Convert this Euler angle to a Orientation (axis-angle notation),
          * within the default frame.
          *
-         * @return the Angular which represents the same angle as *this
+         * @return the Orientation which represents the same angle as *this
          **/
-        Angular to_angular() const;
+        Orientation to_orientation() const;
 
         /**
-         * Convert this Euler angle to a Angular (axis-angle notation),
+         * Convert this Euler angle to an Orientation (axis-angle notation),
          * within the specified frame.
          *
-         * @param frame the reference frame the Angular will belong to
-         * @return the Angular which represents the same angle as *this
+         * @param frame the reference frame the Orientation will belong to
+         * @return the Orientation which represents the same angle as *this
          **/
-        Angular to_angular(const ReferenceFrame &frame) const;
+        Orientation to_orientation(const ReferenceFrame &frame) const;
 
         /**
          * Convert a Quaternion into a Euler angle.

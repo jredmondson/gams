@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2018 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,16 +45,26 @@
  **/
 
 /**
- * @file Position.h
+ * @file AngularVelocity.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Position and PositionVector classes
+ * This file contains the AngularVelocity class
  **/
 
-#ifndef _GAMS_POSE_POSITION_H_
-#define _GAMS_POSE_POSITION_H_
+#ifndef _GAMS_POSE_ANGULAR_VELOCITY_H
+#define _GAMS_POSE_ANGULAR_VELOCITY_H
 
-#include "Linear.h"
+#include <iostream>
+#include <string>
+#include <gams/CPP11_compat.h>
+#include <gams/pose/Coordinate.h>
+#include <gams/pose/Angular.h>
+#include "gams/GAMSExport.h"
+#include <cmath>
+#include <madara/knowledge/containers/DoubleVector.h>
+#include <madara/knowledge/containers/NativeDoubleVector.h>
+
+#include "AngleUnits.h"
 
 namespace gams
 {
@@ -62,31 +72,47 @@ namespace gams
   {
     class ReferenceFrame;
 
+    class Quaternion;
     /**
-     * Container for Position information, not bound to a frame.
-     * Stores a 3-tuple, for x, y, and z.
+     * Represents a orientation or orientation within a reference frame.
+     * Uses axis-angle notation: a orientation is represented by a vector whose
+     * direction forms the axis of orientation, with angle of orientation equal to
+     * length of the vector.
      *
-     * Provides accessor methods to support non-cartesian coordinate systems:
-     *
-     * lng/lat/alt for GPS-style systems
-     * rho/phi/r for Cylindrical systems
-     * theta/phi/r for Spherical systems
-     * northing/easting/zone/hemi/alt for UTM/USP systems
-     *
-     * Each of the above are bound to x/y/z respectively
+     * All orientations about an axis follow the right hand role; if the origin is
+     * the center of your right hand, and your thumb is pointing in the positive
+     * direction of the orientation axis, orientations curve in the direction your
+     * fingers are pointing.
      **/
-    class Position : public Linear<Position>
+    class GAMSExport AngularVelocity : public Angular<AngularVelocity>
     {
     public:
-      /// Inherit Linear's constructors
-      using Linear::Linear;
+      using Angular::Angular;
     };
 
-    // helpful typedef for vector of positions
-    typedef std::vector <Position>    Positions;
+    template<>
+    inline void ReferenceFrame::transform_to_origin<>(AngularVelocity &in)
+    {
+      in.frame().transform_angular_to_origin(in.rx_, in.ry_, in.rz_);
+    }
+    template<>
+    inline void ReferenceFrame::transform_from_origin<>(
+        AngularVelocity &in, const ReferenceFrame &to_frame)
+    {
+      to_frame.transform_angular_from_origin(in.rx_, in.ry_, in.rz_);
+    }
+
+    template<>
+    inline double ReferenceFrame::calc_difference<>(
+        const AngularVelocity &rot1, const AngularVelocity &rot2)
+    {
+      return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
+                                     rot2.rx_, rot2.ry_, rot2.rz_);
+    }
+
+    template<>
+    inline void ReferenceFrame::normalize<>(AngularVelocity &rot) {}
   }
 }
-
-#include "Position.inl"
 
 #endif

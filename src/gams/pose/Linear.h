@@ -484,7 +484,8 @@ namespace gams
      * the Linear is not actually bound to a UTMFrame, but will not cause
      * exceptions.
      **/
-    class GAMSExport Linear : public LinearVector, public Coordinate<Linear>
+    template<typename C>
+    class Linear : public LinearVector, public Coordinate<C>
     {
     public:
       /**
@@ -594,7 +595,7 @@ namespace gams
        * @param new_frame the new frame to transform to
        * @param orig    the origin position to use as a reference point
        **/
-      Linear (const ReferenceFrame &new_frame, const Linear &orig);
+      Linear (const ReferenceFrame &new_frame, const C &orig);
 
       /**
       * Returns a string of the values x, y, z
@@ -621,11 +622,12 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &container);
 
 
-      using Coordinate<Linear>::operator==;
+      using Coordinate::operator==;
     };
 
     // helpful typedef for vector of positions
-    typedef std::vector <Linear>    Linears;
+    template<class C>
+    using Linears = std::vector <Linear<C>>;
   }
 }
 

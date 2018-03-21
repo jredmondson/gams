@@ -69,8 +69,7 @@ namespace gams
      *
      * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
-    template<typename CoordType>
-    using bad_coord_type = gams::pose::bad_coord_type<CoordType>;
+    using bad_coord_type = gams::pose::bad_coord_type;
 
     /**
      * Thrown when an an attempt is made to transform between frames

@@ -173,7 +173,8 @@ namespace gams
       return o;
     }
 
-    inline std::string Linear::to_string (const std::string & delimiter,
+    template<class C>
+    inline std::string Linear<C>::to_string (const std::string & delimiter,
       const std::string & unset_identifier) const
     {
       std::stringstream buffer;
@@ -200,58 +201,109 @@ namespace gams
       return buffer.str ();
     }
 
-    inline Linear::Linear(double x, double y, double z)
+    template<class C>
+    inline Linear<C>::Linear(double x, double y, double z)
       : LinearVector(x, y, z), Coordinate() {}
 
-    inline constexpr Linear::Linear(const ReferenceFrame &frame,
+    template<class C>
+    inline constexpr Linear<C>::Linear(const ReferenceFrame &frame,
                        double x, double y, double z)
       : LinearVector(x, y, z), Coordinate(frame) {}
 
-    inline Linear::Linear() : LinearVector(), Coordinate() {}
+    template<class C>
+    inline Linear<C>::Linear() : LinearVector(), Coordinate() {}
 
-    inline Linear::Linear(const ReferenceFrame &frame)
+    template<class C>
+    inline Linear<C>::Linear(const ReferenceFrame &frame)
       : LinearVector(), Coordinate(frame) {}
 
-    inline Linear::Linear(const ReferenceFrame &new_frame,
-                              const Linear &orig)
+    template<class C>
+    inline Linear<C>::Linear(const ReferenceFrame &new_frame,
+                              const C &orig)
       : LinearVector(orig), Coordinate(orig.frame())
     {
       transform_this_to(new_frame);
     }
 
-    inline Linear::Linear (const Linear & rhs)
+    template<class C>
+    inline Linear<C>::Linear (const Linear & rhs)
       : LinearVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate (rhs.frame ())
     {
     }
 
-    inline Linear::Linear(const double array[])
+    template<class C>
+    inline Linear<C>::Linear(const double array[])
       : LinearVector(array), Coordinate() {}
 
-    inline Linear::Linear(const ReferenceFrame &frame, const double array[])
+    template<class C>
+    inline Linear<C>::Linear(const ReferenceFrame &frame, const double array[])
       : LinearVector(array), Coordinate(frame) {}
 
-    inline Linear::Linear(const float array[])
+    template<class C>
+    inline Linear<C>::Linear(const float array[])
       : LinearVector(array), Coordinate() {}
 
-    inline Linear::Linear(const ReferenceFrame &frame, const float array[])
+    template<class C>
+    inline Linear<C>::Linear(const ReferenceFrame &frame, const float array[])
       : LinearVector(array), Coordinate(frame) {}
 
-    inline Linear::Linear(
+    template<class C>
+    inline Linear<C>::Linear(
         const madara::knowledge::containers::DoubleVector &vec)
       : LinearVector(vec), Coordinate() {}
 
-    inline Linear::Linear(const ReferenceFrame &frame,
+    template<class C>
+    inline Linear<C>::Linear(const ReferenceFrame &frame,
         const madara::knowledge::containers::DoubleVector &vec)
       : LinearVector(vec), Coordinate(frame) {}
 
-    inline Linear::Linear(
+    template<class C>
+    inline Linear<C>::Linear(
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : LinearVector(vec), Coordinate() {}
 
-    inline Linear::Linear(
+    template<class C>
+    inline Linear<C>::Linear(
         const ReferenceFrame &frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : LinearVector(vec), Coordinate(frame) {}
+
+    template<class C>
+    inline void Linear<C>::to_container (
+      madara::knowledge::containers::NativeDoubleVector &container) const
+    {
+      if (frame ().name () == "GPS")
+      {
+        container.set (0, get (order::GPS::find (0)));
+        container.set (1, get (order::GPS::find (1)));
+        container.set (2, get (order::GPS::find (2)));
+      }
+      else
+      {
+        container.set (0, get (order::XYZ::find (0)));
+        container.set (1, get (order::XYZ::find (1)));
+        container.set (2, get (order::XYZ::find (2)));
+      }
+    }
+
+
+    template<class C>
+    inline void Linear<C>::from_container (
+      const madara::knowledge::containers::NativeDoubleVector &container)
+    {
+      if (frame ().name () == "GPS")
+      {
+        set (0, container[order::GPS::get (0)]);
+        set (1, container[order::GPS::get (1)]);
+        set (2, container[order::GPS::get (2)]);
+      }
+      else
+      {
+        set (0, container[order::XYZ::get (0)]);
+        set (1, container[order::XYZ::get (1)]);
+        set (2, container[order::XYZ::get (2)]);
+      }
+    }
 
   }
 }

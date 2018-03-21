@@ -57,8 +57,8 @@
 #include <iostream>
 #include <string>
 
-#include <gams/pose/Linear.h>
-#include <gams/pose/Angular.h>
+#include <gams/pose/Position.h>
+#include <gams/pose/Orientation.h>
 
 namespace gams
 {
@@ -351,7 +351,7 @@ namespace gams
        *
        * @param loc the Linear to copy position info from.
        **/
-      constexpr Pose (const Linear &loc);
+      constexpr Pose (const Position &loc);
 
       /**
        * Construct from a Angular. All position info set to zero.
@@ -359,7 +359,7 @@ namespace gams
        *
        * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const Angular &rot);
+      constexpr Pose (const Orientation &rot);
 
       /**
        * Construct from individual Linear and Angular vectors, in the
@@ -391,7 +391,7 @@ namespace gams
        * @param loc the Linear to copy position info from.
        * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const Linear &loc, const Angular &rot);
+      constexpr Pose (const Position &loc, const Orientation &rot);
 
       /**
        * Copy constructor, but also transform to the new frame.
@@ -493,21 +493,21 @@ namespace gams
        * @param target the target orientation
        * @return shortest angle to map this pose's onto the given orientation
        **/
-      double angle_to (const Angular &target) const;
+      double angle_to (const Orientation &target) const;
 
       /**
        * Casting operator to extract Linear from this Pose
        *
        * @return Linear with same frame as this pose, and same x/y/z values
        **/
-      constexpr operator Linear () const;
+      constexpr operator Position () const;
 
       /**
        * Castig operator to extract Angular from this Pose
        *
        * @return Angular with same frame as this pose, and same rx/ry/rz values
        **/
-      constexpr operator Angular () const;
+      constexpr operator Orientation () const;
 
       /**
       * Returns a string of the values x, y, z, rx, ry, rz

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include <gams/pose/ReferenceFrame.h>
 #include <gams/pose/Euler.h>
 #include <gams/pose/Orientation.h>
 //#include <gams/pose/GPSFrame.h>

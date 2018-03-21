@@ -75,12 +75,39 @@ namespace gams
      *
      * Each of the above are bound to x/y/z respectively
      **/
-    class Acceleration : public Linear
+    class Acceleration : public Linear<Acceleration>
     {
     public:public:
       /// Inherit Linear's constructors
       using Linear::Linear;
     };
+
+    template<>
+    inline void ReferenceFrame::transform_to_origin<>(Acceleration &in)
+    {
+      in.frame().transform_linear_to_origin(in.x_, in.y_, in.z_);
+    }
+
+    template<>
+    inline void ReferenceFrame::transform_from_origin<>(
+        Acceleration &in, const ReferenceFrame &to_frame)
+    {
+      to_frame.transform_linear_from_origin(in.x_, in.y_, in.z_);
+    }
+
+    template<>
+    inline double ReferenceFrame::calc_difference<>(
+        const Acceleration &loc1, const Acceleration &loc2)
+    {
+      return loc1.frame().calc_distance(loc1.x_, loc1.y_, loc1.z_,
+                                        loc2.x_, loc2.y_, loc2.z_);
+    }
+
+    template<>
+    inline void ReferenceFrame::normalize<>(Acceleration &loc)
+    {
+      loc.frame().normalize_linear(loc.x_, loc.y_, loc.z_);
+    }
 
     // helpful typedef for vector of positions
     typedef std::vector <Acceleration>    Accelerations;

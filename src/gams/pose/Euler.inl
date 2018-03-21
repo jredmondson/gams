@@ -108,16 +108,16 @@ namespace gams
       };
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Angular Euler<A,B,C,Conv>::to_angular() const
+      inline Orientation Euler<A,B,C,Conv>::to_orientation() const
       {
-        return Angular(to_quat());
+        return Orientation(to_quat());
       };
 
       template<typename A, typename B, typename C, typename Conv>
-      inline Angular
-      Euler<A,B,C,Conv>::to_angular(const ReferenceFrame &frame) const
+      inline Orientation Euler<A,B,C,Conv>::to_orientation(
+        const ReferenceFrame &frame) const
       {
-        return Angular(frame, to_quat());
+        return Orientation(frame, to_quat());
       };
 
       template<typename A, typename B, typename C, typename Conv>

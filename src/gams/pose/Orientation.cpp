@@ -51,41 +51,8 @@
  * This file contains functions for the Orientation class
  **/
 
-#include "Orientation.h"
 #include "ReferenceFrame.h"
-
-void gams::pose::Orientation::to_container (
-  madara::knowledge::containers::NativeDoubleVector &container) const
-{
-  if (frame ().name () == "GPS")
-  {
-    container.set (0, get (order::GPS::find (0)));
-    container.set (1, get (order::GPS::find (1)));
-    container.set (2, get (order::GPS::find (2)));
-  }
-  else
-  {
-    container.set (0, get (order::XYZ::find (0)));
-    container.set (1, get (order::XYZ::find (1)));
-    container.set (2, get (order::XYZ::find (2)));
-  }
-}
-
-
-void gams::pose::Orientation::from_container (
-  const madara::knowledge::containers::NativeDoubleVector &container)
-{
-  if (frame ().name () == "GPS")
-  {
-    set (0, container[order::GPS::get (0)]);
-    set (1, container[order::GPS::get (1)]);
-    set (2, container[order::GPS::get (2)]);
-  }
-  else
-  {
-    set (0, container[order::XYZ::get (0)]);
-    set (1, container[order::XYZ::get (1)]);
-    set (2, container[order::XYZ::get (2)]);
-  }
-}
+#include "Orientation.h"
+#include "AngularVelocity.h"
+#include "AngularAcceleration.h"
 

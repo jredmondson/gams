@@ -244,10 +244,10 @@ namespace gams
 
     inline Pose::Pose() : PoseVector(), Coordinate() {}
 
-    inline constexpr Pose::Pose(const Linear &loc)
+    inline constexpr Pose::Pose(const Position &loc)
       : PoseVector(loc), Coordinate(loc.frame()) {}
 
-    inline constexpr Pose::Pose(const Angular &rot)
+    inline constexpr Pose::Pose(const Orientation &rot)
       : PoseVector(rot), Coordinate(rot.frame()) {}
 
     inline Pose::Pose(const LinearVector &loc, const AngularVector &rot)
@@ -257,7 +257,7 @@ namespace gams
                       const LinearVector &loc, const AngularVector &rot)
       : PoseVector(loc, rot), Coordinate(frame) {}
 
-    inline constexpr Pose::Pose(const Linear &loc, const Angular &rot)
+    inline constexpr Pose::Pose(const Position &loc, const Orientation &rot)
       : PoseVector(loc, rot), Coordinate(loc.frame()) {}
 
     inline Pose::Pose(const ReferenceFrame &new_frame, const Pose &orig)
@@ -306,25 +306,25 @@ namespace gams
 
     inline double Pose::angle_to(const Pose &target) const
     {
-      Angular me(*this);
-      Angular other(target);
+      Orientation me(*this);
+      Orientation other(target);
       return me.distance_to(other);
     }
 
-    inline double Pose::angle_to(const Angular &target) const
+    inline double Pose::angle_to(const Orientation &target) const
     {
-      Angular me(*this);
+      Orientation me(*this);
       return me.distance_to(target);
     }
 
-    inline constexpr Pose::operator Linear() const
+    inline constexpr Pose::operator Position() const
     {
-      return Linear(frame(), x(), y(), z());
+      return Position(frame(), x(), y(), z());
     }
 
-    inline constexpr Pose::operator Angular() const
+    inline constexpr Pose::operator Orientation() const
     {
-      return Angular(frame(), rx(), ry(), rz());
+      return Orientation(frame(), rx(), ry(), rz());
     }
 
     inline
@@ -333,11 +333,12 @@ namespace gams
     {
       std::stringstream buffer;
 
-      buffer << Linear (*this).to_string (delimiter, unset_identifier);
+      buffer << Position (*this).to_string (delimiter, unset_identifier);
 
       buffer << delimiter;
 
-      buffer << Angular (*this).to_string (delimiter, unset_identifier);
+      buffer << Orientation
+      (*this).to_string (delimiter, unset_identifier);
 
       return buffer.str ();
     }

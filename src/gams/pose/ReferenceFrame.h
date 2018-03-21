@@ -86,10 +86,7 @@ namespace gams
     /**
      * Thrown when a reference frame function is called with a Coordinate
      * type (e.g., Pose, Linear, Angular) that frame does not support.
-     *
-     * @tparam CoordType The kind of Coordinate the error was raised for.
      **/
-    template<typename CoordType>
     class bad_coord_type : public std::runtime_error
     {
     public:
@@ -102,11 +99,8 @@ namespace gams
       bad_coord_type(const ReferenceFrame &frame, const std::string &fn_name);
       ~bad_coord_type() throw();
 
-      std::string coord_type_name;
       std::string fn_name;
       const ReferenceFrame &frame;
-
-      typedef CoordType Coord;
     };
 
     /**

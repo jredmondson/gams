@@ -100,8 +100,6 @@ using std::map;
 #include <functional>
 using std::function;
 
-#define DEG_TO_RAD(x) ( (x) * M_PI / 180.0)
-
 // default transport settings
 std::string host ("");
 const std::string default_multicast ("239.255.0.1:4150");

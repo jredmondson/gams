@@ -420,15 +420,17 @@ namespace gams
       return o;
     }
 
-    inline Angular Angular::slerp(const Angular &o, double t) const
+    template<class C>
+    inline Angular<C> Angular<C>::slerp(const Angular<C> &o, double t) const
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
       q.slerp_this(qo, t);
-      return Angular(q);
+      return Angular<C>(q);
     }
 
-    inline void Angular::slerp_this(const Angular &o, double t)
+    template<class C>
+    inline void Angular<C>::slerp_this(const Angular<C> &o, double t)
     {
       Quaternion q(*this),
         qo(&frame() == &o.frame() ? o : o.transform_to(frame()));

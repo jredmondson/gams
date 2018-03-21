@@ -57,6 +57,8 @@
 #include "ReferenceFrame.h"
 
 #include <gams/pose/Pose.h>
+#include <gams/pose/Velocity.h>
+#include <gams/pose/Acceleration.h>
 
 namespace gams
 {
@@ -348,13 +350,13 @@ namespace gams
     }
 
     template<>
-    inline void ReferenceFrame::transform_to_origin<>(Linear &in)
+    inline void ReferenceFrame::transform_to_origin<>(Position &in)
     {
       in.frame().transform_linear_to_origin(in.x_, in.y_, in.z_);
     }
 
     template<>
-    inline void ReferenceFrame::transform_to_origin<>(Angular &in)
+    inline void ReferenceFrame::transform_to_origin<>(Orientation &in)
     {
       in.frame().transform_angular_to_origin(in.rx_, in.ry_, in.rz_);
     }
@@ -368,14 +370,15 @@ namespace gams
 
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
-        Linear &in, const ReferenceFrame &to_frame)
+        Position &in, const ReferenceFrame &to_frame)
     {
       to_frame.transform_linear_from_origin(in.x_, in.y_, in.z_);
     }
 
+
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
-        Angular &in, const ReferenceFrame &to_frame)
+        Orientation &in, const ReferenceFrame &to_frame)
     {
       to_frame.transform_angular_from_origin(in.rx_, in.ry_, in.rz_);
     }
@@ -390,7 +393,7 @@ namespace gams
 
     template<>
     inline double ReferenceFrame::calc_difference<>(
-        const Linear &loc1, const Linear &loc2)
+        const Position &loc1, const Position &loc2)
     {
       return loc1.frame().calc_distance(loc1.x_, loc1.y_, loc1.z_,
                                         loc2.x_, loc2.y_, loc2.z_);
@@ -398,7 +401,7 @@ namespace gams
 
     template<>
     inline double ReferenceFrame::calc_difference<>(
-        const Angular &rot1, const Angular &rot2)
+        const Orientation &rot1, const Orientation &rot2)
     {
       return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
                                      rot2.rx_, rot2.ry_, rot2.rz_);
@@ -432,13 +435,13 @@ namespace gams
     }
 
     template<>
-    inline void ReferenceFrame::normalize<>(Linear &loc)
+    inline void ReferenceFrame::normalize<>(Position &loc)
     {
       loc.frame().normalize_linear(loc.x_, loc.y_, loc.z_);
     }
 
     template<>
-    inline void ReferenceFrame::normalize<>(Angular &rot)
+    inline void ReferenceFrame::normalize<>(Orientation &rot)
     {
       rot.frame().normalize_angular(rot.rx_, rot.ry_, rot.rz_);
     }
@@ -485,15 +488,27 @@ namespace gams
 
 #endif // ifndef __INTELLISENSE__
 
-    inline std::ostream &operator<<(std::ostream &o, const Linear &loc)
+    inline std::ostream &operator<<(std::ostream &o, const Position &loc)
     {
-      o << loc.frame().name() << "Linear" << loc.as_vec();
+      o << loc.frame().name() << "Position" << loc.as_vec();
       return o;
     }
 
-    inline std::ostream &operator<<(std::ostream &o, const Angular &rot)
+    inline std::ostream &operator<<(std::ostream &o, const Velocity &loc)
     {
-      o << rot.frame().name() << "Angular" << rot.as_vec();
+      o << loc.frame().name() << "Velocity" << loc.as_vec();
+      return o;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, const Acceleration &loc)
+    {
+      o << loc.frame().name() << "Acceleration" << loc.as_vec();
+      return o;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
+    {
+      o << rot.frame().name() << "Orientation" << rot.as_vec();
       return o;
     }
 
@@ -521,17 +536,14 @@ namespace gams
     inline unrelated_frames::~unrelated_frames() throw() {}
 
 
-    template<typename CoordType>
-    inline bad_coord_type<CoordType>::bad_coord_type(
+    inline bad_coord_type::bad_coord_type(
                     const ReferenceFrame &frame, const std::string &fn_name)
-      : std::runtime_error("Coordinate type " + CoordType::name() +
+      : std::runtime_error("Coordinate type"
             " not supported by frame type " + frame.name() +
             " for operation " + fn_name + "."),
-        coord_type_name(CoordType::name()),
         fn_name(fn_name), frame(frame) {}
 
-    template<typename CoordType>
-    inline bad_coord_type<CoordType>::~bad_coord_type() throw() {}
+    inline bad_coord_type::~bad_coord_type() throw() {}
 
 
     inline undefined_transform::undefined_transform(

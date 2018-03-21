@@ -51,6 +51,15 @@
  * This file contains the Angular and AngularVector classes
  **/
 
+namespace gams
+{
+  namespace pose
+  {
+    template<class C>
+    class Angular;
+  }
+}
+
 #ifndef _GAMS_POSE_ANGULAR_H
 #define _GAMS_POSE_ANGULAR_H
 
@@ -265,7 +274,8 @@ namespace gams
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
-    class GAMSExport Angular : public AngularVector, public Coordinate<Angular>
+    template<class C>
+    class Angular : public AngularVector, public Coordinate<C>
     {
     public:
       /**
@@ -442,7 +452,7 @@ namespace gams
        * @param new_frame the new frame to convert to
        * @param orig the origin of the orientation
        **/
-      Angular (const ReferenceFrame &new_frame, const Angular &orig);
+      Angular (const ReferenceFrame &new_frame, const C &orig);
 
       /**
        * Synonym for distance_to. Returns angle of shortest orientation mapping
@@ -451,7 +461,7 @@ namespace gams
        * @param target the other Angular
        * @return the shortest angle, in radians, to orient this onto target
        **/
-      double angle_to (const Angular &target) const;
+      double angle_to (const C &target) const;
 
       /**
        * Synonym for distance_to. Returns angle of shortest orientation mapping
@@ -461,7 +471,7 @@ namespace gams
        * @param u units to use (see AngleUnits.h)
        * @return the shortest angle to orient this onto target
        **/
-      template<typename U> double angle_to (const Angular &target, U u) const;
+      template<typename U> double angle_to (const C &target, U u) const;
 
       /**
        * Interpolate a new Angular that is (t * 100)% between *this and
@@ -517,7 +527,7 @@ namespace gams
       void from_container (
         const madara::knowledge::containers::NativeDoubleVector &container);
 
-      using Coordinate<Angular>::operator==;
+      using Coordinate::operator==;
     };
   }
 }
