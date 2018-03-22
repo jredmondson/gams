@@ -10,3 +10,10 @@ group.allies.members.1="agent.1";
 group.allies.members.2="agent.2";
 group.allies.members.3="agent.3";
 group.allies.members.4="agent.4";
+
+{.prefix}.algorithm="formation sync";
+{.prefix}.algorithm.args.start = [40.443387, -79.940098];
+{.prefix}.algorithm.args.end = [40.443100, -79.940570];
+{.prefix}.algorithm.args.buffer = 1.0;
+{.prefix}.algorithm.args.group = "group.allies";
+
