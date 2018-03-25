@@ -4034,6 +4034,12 @@ Integer num_agents (-1);
 // file path to save received files to
 std::string file_path;
 
+// filename to save transport settings to
+std::string save_transport;
+std::string save_transport_prefix;
+std::string save_transport_text;
+std::string load_transport_prefix;
+
 // controller settings for controller configuration
 gams::controllers::ControllerSettings controller_settings;
 
@@ -4053,6 +4059,9 @@ void print_usage (char * prog_name)
 \" [-e |--rebroadcasts num]      number of hops for rebroadcasting messages\\n\" \
 \" [-f |--logfile file]          log to a file\\n\" \
 \" [-i |--id id]                 the id of this agent (should be non-negative)\\n\" \
+\" [-lt|--load-transport file] a file to load transport settings from\\n\" \
+\" [-ltp|--load-transport-prefix prfx] prefix of saved settings\\n\" \
+\" [-ltt|--load-transport-text file] a text file to load transport settings from\\n\" \
 \" [--madara-level level]        the MADARA logger level (0+, higher is higher detail)\\n\" \
 \" [--gams-level level]          the GAMS logger level (0+, higher is higher detail)\\n\" \
 \" [--loop-hertz hz]             hertz to run the MAPE loop\\n\"\
@@ -4067,6 +4076,9 @@ void print_usage (char * prog_name)
 \" [-q |--queue-length length]   length of transport queue in bytes\\n\" \
 \" [-r |--reduced]               use the reduced message header\\n\" \
 \" [-s |--send-hertz hertz]      send hertz rate for modifications\\n\" \
+\" [-st|--save-transport file] a file to save transport settings to\\n\" \
+\" [-stp|--save-transport-prefix prfx] prefix to save settings at\\n\" \
+\" [-stt|--save-transport-text file] a text file to save transport settings to\\n\" \
 \" [-t |--target path]           file system location to save received files (NYI)\\n\" \
 \" [-u |--udp ip:port]           a udp ip to send to (first is self to bind to)\\n\" \
 \" [--zmq proto:ip:port]         specifies a 0MQ transport endpoint\\n\"
@@ -4180,6 +4192,39 @@ void handle_arguments (int argc, char ** argv)
       }
       else
         print_usage (argv[0]);
+
+      ++i;
+    }
+    else if (arg1 == \"-lt\" || arg1 == \"--load-transport\")
+    {
+      if (i + 1 < argc)
+      {
+        if (load_transport_prefix == \"\")
+          settings.load (argv[i + 1]);
+        else
+          settings.load (argv[i + 1], load_transport_prefix);
+      }
+
+      ++i;
+    }
+    else if (arg1 == \"-ltp\" || arg1 == \"--load-transport-prefix\")
+    {
+      if (i + 1 < argc)
+      {
+        load_transport_prefix = argv[i + 1];
+      }
+
+      ++i;
+    }
+    else if (arg1 == \"-ltt\" || arg1 == \"--load-transport-text\")
+    {
+      if (i + 1 < argc)
+      {
+        if (load_transport_prefix == \"\")
+          settings.load_text (argv[i + 1]);
+        else
+          settings.load_text (argv[i + 1], load_transport_prefix);
+      }
 
       ++i;
     }
@@ -4334,6 +4379,33 @@ void handle_arguments (int argc, char ** argv)
 
       ++i;
     }
+    else if (arg1 == \"-st\" || arg1 == \"--save-transport\")
+    {
+      if (i + 1 < argc)
+      {
+        save_transport = argv[i + 1];
+      }
+
+      ++i;
+    }
+    else if (arg1 == \"-stp\" || arg1 == \"--save-transport-prefix\")
+    {
+      if (i + 1 < argc)
+      {
+        save_transport_prefix = argv[i + 1];
+      }
+
+      ++i;
+    }
+    else if (arg1 == \"-stt\" || arg1 == \"--save-transport-text\")
+    {
+      if (i + 1 < argc)
+      {
+        save_transport_text = argv[i + 1];
+      }
+
+      ++i;
+    }
     else if (arg1 == \"-u\" || arg1 == \"--udp\")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
@@ -4384,6 +4456,24 @@ int main (int argc, char ** argv)
   if (madara_debug_level >= 0)
   {
     madara::logger::global_logger->set_level (madara_debug_level);
+  }
+
+  // save transport always happens after all possible transport chagnes
+  if (save_transport != \"\")
+  {
+    if (save_transport_prefix == \"\")
+      settings.save (save_transport);
+    else
+      settings.save (save_transport, save_transport_prefix);
+  }
+
+  // save transport always happens after all possible transport chagnes
+  if (save_transport_text != \"\")
+  {
+    if (save_transport_prefix == \"\")
+      settings.save_text (save_transport_text);
+    else
+      settings.save_text (save_transport_text, save_transport_prefix);
   }
 
   // create knowledge base and a control loop
