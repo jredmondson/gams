@@ -424,7 +424,7 @@ namespace gams
     inline Angular<C> Angular<C>::slerp(const Angular<C> &o, double t) const
     {
       Quaternion q(*this),
-        qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
+        qo(&this->frame() == &o.frame() ? o : o.transform_to(this->frame()));
       q.slerp_this(qo, t);
       return Angular<C>(q);
     }
@@ -433,7 +433,7 @@ namespace gams
     inline void Angular<C>::slerp_this(const Angular<C> &o, double t)
     {
       Quaternion q(*this),
-        qo(&frame() == &o.frame() ? o : o.transform_to(frame()));
+        qo(&this->frame() == &o.frame() ? o : o.transform_to(this->frame()));
       q.slerp_this(qo, t);
       q.to_angular_vector(*this);
     }

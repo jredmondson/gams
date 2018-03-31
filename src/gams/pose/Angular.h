@@ -527,7 +527,7 @@ namespace gams
       void from_container (
         const madara::knowledge::containers::NativeDoubleVector &container);
 
-      using Coordinate::operator==;
+      using Coordinate<C>::operator==;
     };
   }
 }

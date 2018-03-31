@@ -203,76 +203,76 @@ namespace gams
 
     template<class C>
     inline Linear<C>::Linear(double x, double y, double z)
-      : LinearVector(x, y, z), Coordinate() {}
+      : LinearVector(x, y, z), Coordinate<C>() {}
 
     template<class C>
     inline constexpr Linear<C>::Linear(const ReferenceFrame &frame,
                        double x, double y, double z)
-      : LinearVector(x, y, z), Coordinate(frame) {}
+      : LinearVector(x, y, z), Coordinate<C>(frame) {}
 
     template<class C>
-    inline Linear<C>::Linear() : LinearVector(), Coordinate() {}
+    inline Linear<C>::Linear() : LinearVector(), Coordinate<C>() {}
 
     template<class C>
     inline Linear<C>::Linear(const ReferenceFrame &frame)
-      : LinearVector(), Coordinate(frame) {}
+      : LinearVector(), Coordinate<C>(frame) {}
 
     template<class C>
     inline Linear<C>::Linear(const ReferenceFrame &new_frame,
                               const C &orig)
-      : LinearVector(orig), Coordinate(orig.frame())
+      : LinearVector(orig), Coordinate<C>(orig.frame())
     {
-      transform_this_to(new_frame);
+      this->transform_this_to(new_frame);
     }
 
     template<class C>
     inline Linear<C>::Linear (const Linear & rhs)
-      : LinearVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate (rhs.frame ())
+      : LinearVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate<C> (rhs.frame ())
     {
     }
 
     template<class C>
     inline Linear<C>::Linear(const double array[])
-      : LinearVector(array), Coordinate() {}
+      : LinearVector(array), Coordinate<C>() {}
 
     template<class C>
     inline Linear<C>::Linear(const ReferenceFrame &frame, const double array[])
-      : LinearVector(array), Coordinate(frame) {}
+      : LinearVector(array), Coordinate<C>(frame) {}
 
     template<class C>
     inline Linear<C>::Linear(const float array[])
-      : LinearVector(array), Coordinate() {}
+      : LinearVector(array), Coordinate<C>() {}
 
     template<class C>
     inline Linear<C>::Linear(const ReferenceFrame &frame, const float array[])
-      : LinearVector(array), Coordinate(frame) {}
+      : LinearVector(array), Coordinate<C>(frame) {}
 
     template<class C>
     inline Linear<C>::Linear(
         const madara::knowledge::containers::DoubleVector &vec)
-      : LinearVector(vec), Coordinate() {}
+      : LinearVector(vec), Coordinate<C>() {}
 
     template<class C>
     inline Linear<C>::Linear(const ReferenceFrame &frame,
         const madara::knowledge::containers::DoubleVector &vec)
-      : LinearVector(vec), Coordinate(frame) {}
+      : LinearVector(vec), Coordinate<C>(frame) {}
 
     template<class C>
     inline Linear<C>::Linear(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : LinearVector(vec), Coordinate() {}
+      : LinearVector(vec), Coordinate<C>() {}
 
     template<class C>
     inline Linear<C>::Linear(
         const ReferenceFrame &frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : LinearVector(vec), Coordinate(frame) {}
+      : LinearVector(vec), Coordinate<C>(frame) {}
 
     template<class C>
     inline void Linear<C>::to_container (
       madara::knowledge::containers::NativeDoubleVector &container) const
     {
-      if (frame ().name () == "GPS")
+      if (this->frame ().name () == "GPS")
       {
         container.set (0, get (order::GPS::find (0)));
         container.set (1, get (order::GPS::find (1)));
@@ -291,7 +291,7 @@ namespace gams
     inline void Linear<C>::from_container (
       const madara::knowledge::containers::NativeDoubleVector &container)
     {
-      if (frame ().name () == "GPS")
+      if (this->frame ().name () == "GPS")
       {
         set (0, container[order::GPS::get (0)]);
         set (1, container[order::GPS::get (1)]);

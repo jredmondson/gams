@@ -622,7 +622,7 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &container);
 
 
-      using Coordinate::operator==;
+      using Coordinate<C>::operator==;
     };
 
     // helpful typedef for vector of positions

@@ -183,88 +183,88 @@ namespace gams
     template<class C>
     inline Angular<C>::Angular(double rx, double ry, double rz)
       : AngularVector(rx, ry, rz),
-        Coordinate() {}
+        Coordinate<C>() {}
 
     template<class C>
     inline constexpr Angular<C>::Angular(
             const ReferenceFrame &frame, double rx, double ry, double rz)
       : AngularVector(rx, ry, rz),
-        Coordinate(frame) {}
+        Coordinate<C>(frame) {}
 
     template<class C>
     inline Angular<C>::Angular(double x, double y, double z, double angle)
-      : AngularVector(x, y, z, angle), Coordinate() {}
+      : AngularVector(x, y, z, angle), Coordinate<C>() {}
 
     template<class C>
     inline constexpr Angular<C>::Angular(
        const ReferenceFrame &frame, double x, double y, double z, double angle)
-      : AngularVector(x, y, z, angle), Coordinate(frame) {}
+      : AngularVector(x, y, z, angle), Coordinate<C>(frame) {}
 
     template<class C>
     template<typename U>
     inline Angular<C>::Angular(double rx, double ry, double rz, U u)
       : AngularVector(u.to_radians(rx), u.to_radians(ry), u.to_radians(rz)),
-        Coordinate() {}
+        Coordinate<C>() {}
 
     template<class C>
     template<typename U>
     inline constexpr Angular<C>::Angular(
             const ReferenceFrame &frame, double rx, double ry, double rz, U u)
       : AngularVector(u.to_radians(rx), u.to_radians(ry), u.to_radians(rz)),
-        Coordinate(frame) {}
+        Coordinate<C>(frame) {}
 
     template<class C>
     template<typename U>
     inline Angular<C>::Angular(double x, double y, double z, double angle, U u)
-      : AngularVector(x, y, z, u.to_radians(angle)), Coordinate() {}
+      : AngularVector(x, y, z, u.to_radians(angle)), Coordinate<C>() {}
 
     template<class C>
     template<typename U>
     inline constexpr Angular<C>::Angular(
        const ReferenceFrame &frame, double x, double y, double z,
                                     double angle, U u)
-      : AngularVector(x, y, z, u.to_radians(angle)), Coordinate(frame) {}
+      : AngularVector(x, y, z, u.to_radians(angle)), Coordinate<C>(frame) {}
 
     template<class C>
-    inline Angular<C>::Angular() : AngularVector(), Coordinate() {}
+    inline Angular<C>::Angular() : AngularVector(), Coordinate<C>() {}
 
     template<class C>
     inline Angular<C>::Angular(const Quaternion &quat)
-      : AngularVector(quat), Coordinate() {}
+      : AngularVector(quat), Coordinate<C>() {}
 
     template<class C>
     inline Angular<C>::Angular(
           const ReferenceFrame &frame, const Quaternion &quat)
-      : AngularVector(quat), Coordinate(frame) {}
+      : AngularVector(quat), Coordinate<C>(frame) {}
 
     template<class C>
     inline Angular<C>::Angular(
                 const ReferenceFrame &new_frame, const C &orig)
-      : AngularVector(orig), Coordinate(orig.frame())
+      : AngularVector(orig), Coordinate<C>(orig.frame())
     {
-      transform_this_to(new_frame);
+      this->transform_this_to(new_frame);
     }
 
     template<class C>
     inline Angular<C>::Angular(
         const madara::knowledge::containers::DoubleVector &vec)
-      : AngularVector(vec), Coordinate() {}
+      : AngularVector(vec), Coordinate<C>() {}
 
     template<class C>
     inline Angular<C>::Angular(const ReferenceFrame &frame,
         const madara::knowledge::containers::DoubleVector &vec)
-      : AngularVector(vec), Coordinate(frame) {}
+      : AngularVector(vec), Coordinate<C>(frame) {}
 
     template<class C>
     inline Angular<C>::Angular(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : AngularVector(vec), Coordinate() {}
+      : AngularVector(vec), Coordinate<C>() {}
 
     template<class C>
     inline Angular<C>::Angular(
         const ReferenceFrame &frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : AngularVector(vec), Coordinate(frame) {}
+      : AngularVector(vec), Coordinate<C>(frame) {}
 
     template<class C>
     inline double Angular<C>::angle_to(const C &target) const
@@ -283,7 +283,7 @@ namespace gams
     void Angular<C>::to_container (
       madara::knowledge::containers::NativeDoubleVector &container) const
     {
-      if (frame ().name () == "GPS")
+      if (this->frame ().name () == "GPS")
       {
         container.set (0, get (order::GPS::find (0)));
         container.set (1, get (order::GPS::find (1)));
@@ -302,7 +302,7 @@ namespace gams
     void Angular<C>::from_container (
       const madara::knowledge::containers::NativeDoubleVector &container)
     {
-      if (frame ().name () == "GPS")
+      if (this->frame ().name () == "GPS")
       {
         set (0, container[order::GPS::get (0)]);
         set (1, container[order::GPS::get (1)]);
