@@ -54,8 +54,6 @@
 
 using std::stringstream;
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 gams::utility::GPSPosition::GPSPosition (double init_lat, double init_lon, double init_alt)
 : Position (init_lat, init_lon, init_alt)
 {

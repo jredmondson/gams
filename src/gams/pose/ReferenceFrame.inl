@@ -57,6 +57,8 @@
 #include "ReferenceFrame.h"
 
 #include <gams/pose/Pose.h>
+#include <gams/pose/Velocity.h>
+#include <gams/pose/Acceleration.h>
 
 namespace gams
 {
@@ -350,13 +352,13 @@ namespace gams
     template<>
     inline void ReferenceFrame::transform_to_origin<>(Position &in)
     {
-      in.frame().transform_position_to_origin(in.x_, in.y_, in.z_);
+      in.frame().transform_linear_to_origin(in.x_, in.y_, in.z_);
     }
 
     template<>
     inline void ReferenceFrame::transform_to_origin<>(Orientation &in)
     {
-      in.frame().transform_orientation_to_origin(in.rx_, in.ry_, in.rz_);
+      in.frame().transform_angular_to_origin(in.rx_, in.ry_, in.rz_);
     }
 
     template<>
@@ -370,14 +372,15 @@ namespace gams
     inline void ReferenceFrame::transform_from_origin<>(
         Position &in, const ReferenceFrame &to_frame)
     {
-      to_frame.transform_position_from_origin(in.x_, in.y_, in.z_);
+      to_frame.transform_linear_from_origin(in.x_, in.y_, in.z_);
     }
+
 
     template<>
     inline void ReferenceFrame::transform_from_origin<>(
         Orientation &in, const ReferenceFrame &to_frame)
     {
-      to_frame.transform_orientation_from_origin(in.rx_, in.ry_, in.rz_);
+      to_frame.transform_angular_from_origin(in.rx_, in.ry_, in.rz_);
     }
 
     template<>
@@ -412,16 +415,16 @@ namespace gams
                                          pose2.x_, pose2.y_, pose2.z_);
     }
 
-    inline void ReferenceFrame::normalize_position(
+    inline void ReferenceFrame::normalize_linear(
                                       double &x, double &y, double &z) const
     {
-      do_normalize_position(x, y, z);
+      do_normalize_linear(x, y, z);
     }
 
-    inline void ReferenceFrame::normalize_orientation(
+    inline void ReferenceFrame::normalize_angular(
                                       double &rx, double &ry, double &rz) const
     {
-      do_normalize_orientation(rx, ry, rz);
+      do_normalize_angular(rx, ry, rz);
     }
 
     inline void ReferenceFrame::normalize_pose(
@@ -434,13 +437,13 @@ namespace gams
     template<>
     inline void ReferenceFrame::normalize<>(Position &loc)
     {
-      loc.frame().normalize_position(loc.x_, loc.y_, loc.z_);
+      loc.frame().normalize_linear(loc.x_, loc.y_, loc.z_);
     }
 
     template<>
     inline void ReferenceFrame::normalize<>(Orientation &rot)
     {
-      rot.frame().normalize_orientation(rot.rx_, rot.ry_, rot.rz_);
+      rot.frame().normalize_angular(rot.rx_, rot.ry_, rot.rz_);
     }
 
     template<>
@@ -491,6 +494,18 @@ namespace gams
       return o;
     }
 
+    inline std::ostream &operator<<(std::ostream &o, const Velocity &loc)
+    {
+      o << loc.frame().name() << "Velocity" << loc.as_vec();
+      return o;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o, const Acceleration &loc)
+    {
+      o << loc.frame().name() << "Acceleration" << loc.as_vec();
+      return o;
+    }
+
     inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
     {
       o << rot.frame().name() << "Orientation" << rot.as_vec();
@@ -521,32 +536,29 @@ namespace gams
     inline unrelated_frames::~unrelated_frames() throw() {}
 
 
-    template<typename CoordType>
-    inline bad_coord_type<CoordType>::bad_coord_type(
+    inline bad_coord_type::bad_coord_type(
                     const ReferenceFrame &frame, const std::string &fn_name)
-      : std::runtime_error("Coordinate type " + CoordType::name() +
+      : std::runtime_error("Coordinate type"
             " not supported by frame type " + frame.name() +
             " for operation " + fn_name + "."),
-        coord_type_name(CoordType::name()),
         fn_name(fn_name), frame(frame) {}
 
-    template<typename CoordType>
-    inline bad_coord_type<CoordType>::~bad_coord_type() throw() {}
+    inline bad_coord_type::~bad_coord_type() throw() {}
 
 
     inline undefined_transform::undefined_transform(
             const ReferenceFrame &parent_frame,
             const ReferenceFrame &child_frame,
-            bool is_child_to_parent, bool unsupported_orientation)
+            bool is_child_to_parent, bool unsupported_angular)
       : std::runtime_error(is_child_to_parent ?
             ("No defined transform from embedded " + child_frame.name() +
               " frame to parent " + parent_frame.name() + " frame")
           : ("No defined transform from parent " + parent_frame.name() +
               " frame to embedded " + child_frame.name() + " frame") +
-            (unsupported_orientation ? " involving orientation." : ".")),
+            (unsupported_angular ? " involving angular." : ".")),
         parent_frame(parent_frame), child_frame(child_frame),
           is_child_to_parent(is_child_to_parent),
-          unsupported_orientation(unsupported_orientation) {}
+          unsupported_angular(unsupported_angular) {}
 
     inline undefined_transform::~undefined_transform() throw() {}
   }

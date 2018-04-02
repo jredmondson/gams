@@ -49,8 +49,6 @@
 #include "gams/utility/GPSPosition.h"
 #include "gams/loggers/GlobalLogger.h"
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 gams::utility::Position::Position (
   double init_x, double init_y, double init_z)
 : x (init_x), y (init_y), z (init_z)

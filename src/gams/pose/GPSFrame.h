@@ -68,11 +68,11 @@ namespace gams
      *    z is Altitude (above assumed perfectly spherical surface)
      * Orientations represented in Axis Angle notation
      *    Axis rx points towards north pole
-     *    Axis ry points west at current position
+     *    Axis ry points west at current linear
      *    Axis rz points upwards (i.e, normal vector)
      *
-     * Note that under this scheme, change in x and/or y position, while
-     *   maintaining the same orientation angles, implies a orientation relative
+     * Note that under this scheme, change in x and/or y linear, while
+     *   maintaining the same angular angles, implies a angular relative
      *   to the planet.
      *
      * Distances at same altitude calculated as distance along great circle of
@@ -159,21 +159,21 @@ namespace gams
       virtual std::string get_name() const;
 
       /**
-      * Transforms a position to origin
+      * Transforms a linear to origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_position_to_origin(
+      virtual void transform_linear_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
-      * Transforms a position from origin
+      * Transforms a linear from origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_position_from_origin(
+      virtual void transform_linear_from_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -190,12 +190,12 @@ namespace gams
                       double x2, double y2, double z2) const;
 
       /**
-      * Normalizes a position
+      * Normalizes a linear
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void do_normalize_position(
+      virtual void do_normalize_linear(
                       double &x, double &y, double &z) const;
 
     private:

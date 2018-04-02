@@ -52,12 +52,12 @@ namespace gams
 {
   namespace pose
   {
-    void CartesianFrame::transform_position_to_origin(
+    void CartesianFrame::transform_linear_to_origin(
                       double &x, double &y, double &z) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), CartesianFrame, frame)
       {
-        orient_position_vec(x, y, z, origin());
+        orient_linear_vec(x, y, z, origin());
 
         x += origin().x();
         y += origin().y();
@@ -66,7 +66,7 @@ namespace gams
       }
       GAMS_WITH_FRAME_TYPE(origin(), GPSFrame, frame)
       {
-        orient_position_vec(x, y, z, origin());
+        orient_linear_vec(x, y, z, origin());
 
         z += origin().z();
 
@@ -79,13 +79,13 @@ namespace gams
         double circumference = 2 * r_prime * M_PI;
         x = (x * 360.0) / circumference + origin().x();
 
-        frame->normalize_position(x, y, z);
+        frame->normalize_linear(x, y, z);
         return;
       }
 #ifdef GAMS_UTM
       GAMS_WITH_FRAME_TYPE(origin(), UTMFrame, frame)
       {
-        orient_position_vec(x, y, z, origin());
+        orient_linear_vec(x, y, z, origin());
 
         x += origin().x();
         y += origin().y();
@@ -96,12 +96,12 @@ namespace gams
       throw undefined_transform(*this, origin().frame(), true);
     }
 
-    void CartesianFrame::transform_position_from_origin(
+    void CartesianFrame::transform_linear_from_origin(
                       double &x, double &y, double &z) const
     {
       GAMS_WITH_FRAME_TYPE(origin(), CartesianFrame, frame)
       {
-        orient_position_vec(x, y, z, origin(), true);
+        orient_linear_vec(x, y, z, origin(), true);
 
         x -= origin().x();
         y -= origin().y();
@@ -112,7 +112,7 @@ namespace gams
       {
         if(!origin().is_orientation_zero())
           throw undefined_transform(*this, origin().frame(), false, true);
-        frame->normalize_position(x, y, z);
+        frame->normalize_linear(x, y, z);
 
         z -= origin().z();
 
@@ -130,7 +130,7 @@ namespace gams
 #ifdef GAMS_UTM
       GAMS_WITH_FRAME_TYPE(origin(), UTMFrame, frame)
       {
-        orient_position_vec(x, y, z, origin(), true);
+        orient_linear_vec(x, y, z, origin(), true);
 
         x -= origin().x();
         y -= origin().y();

@@ -97,21 +97,21 @@ namespace gams
       virtual std::string get_name() const;
 
       /**
-       * Transforms a position to origin
+       * Transforms a linear to origin
        * @param x   the x coordinate
        * @param y   the y coordinate
        * @param z   the z coordinate
        **/
-      virtual void transform_position_to_origin(
+      virtual void transform_linear_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
-      * Transforms a position from origin
+      * Transforms a linear from origin
       * @param x   the x coordinate
       * @param y   the y coordinate
       * @param z   the z coordinate
       **/
-      virtual void transform_position_from_origin(
+      virtual void transform_linear_from_origin(
                       double &x, double &y, double &z) const;
 
       /**

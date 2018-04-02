@@ -76,7 +76,7 @@ namespace gams
      *
      * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
-    typedef gams::pose::OrientationVector OrientationVector;
+    typedef gams::pose::AngularVector OrientationVector;
 
     /**
      * Represents a orientation or orientation within a reference frame.

@@ -49,8 +49,8 @@
  * @author James Edmondson <jedmondson@gmail.com>
  *
  * This file contains the Euler class, useful for specifying angles as euler
- * angles (a sequence of orientations about specified axes). To manipulate
- * these angles, convert them to the Quaternion or Orientation classes.
+ * angles (a sequence of angulars about specified axes). To manipulate
+ * these angles, convert them to the Quaternion or Angular classes.
  **/
 
 #ifndef _GAMS_POSE_EULER_H_
@@ -58,7 +58,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "Orientation.h"
+#include "Angular.h"
 #include "AngleUnits.h"
 #include "Quaternion.h"
 
@@ -122,8 +122,8 @@ namespace gams
     {
       /**
        * Class template for representing an angle in Euler notation. Euler
-       * notation represents an angle as a sequence of orientations about axes
-       * applied in an order. The order of orientations, and whether they are
+       * notation represents an angle as a sequence of angulars about axes
+       * applied in an order. The order of angulars, and whether they are
        * applied to axes that follow the object as it orients, or stay fixed
        * throughout, are the Euler convention. The template parameters of
        * this class template specify the convention, using type tags from the
@@ -138,14 +138,14 @@ namespace gams
        * convention, you will get a compile time error.
        *
        * Avoid manipulating angles in this notation. It is better to convert to
-       * a Quaternion (or Orientation) and back, than to try to directly manipulate
+       * a Quaternion (or Angular) and back, than to try to directly manipulate
        * a Euler angle.
        *
-       * @tparam A the first axis of orientation
-       * @tparam B the second axis of orientation
-       * @tparam C the third axis of orientation
+       * @tparam A the first axis of angular
+       * @tparam B the second axis of angular
+       * @tparam C the third axis of angular
        * @tparam Conv whether to use Extrinsic (conv::Extr) or Intrisic
-       *              (conv::Intr) orientations in this convention. Default is Intr
+       *              (conv::Intr) angulars in this convention. Default is Intr
        **/
       template<typename A, typename B, typename C, typename Conv = conv::Intr>
       class Euler
@@ -155,16 +155,16 @@ namespace gams
         typedef typename detail::GetTypes<A,B,C,Conv>::Trig Trig;
       public:
         /**
-         * Default constructor. Initializes angles to all zeroes (no orientation).
+         * Default constructor. Initializes angles to all zeroes (no angular).
          **/
         Euler() : a_(0), b_(0), c_(0) {}
 
         /**
          * Constructor from radians.
          *
-         * @param a the orientation in radians around axis A
-         * @param b the orientation in radians around axis B
-         * @param c the orientation in radians around axis C
+         * @param a the angular in radians around axis A
+         * @param b the angular in radians around axis B
+         * @param c the angular in radians around axis C
          **/
         Euler(double a, double b, double c) : a_(a), b_(b), c_(c) {}
 
@@ -172,9 +172,9 @@ namespace gams
          * Constructor from specified units.
          *
          * @param u the units flag (degrees, radians, or revolutions)
-         * @param a the orientation around axis A
-         * @param b the orientation around axis B
-         * @param c the orientation around axis C
+         * @param a the angular around axis A
+         * @param b the angular around axis B
+         * @param c the angular around axis C
          *
          * @tparam Unit the type of the units flag (inferred automatically)
          **/
@@ -200,24 +200,24 @@ namespace gams
         explicit Euler(const Euler<A2, B2, C2, Conv2> &o);
 
         /**
-         * Constructor to convert from a Orientation (or OrientationVector)
+         * Constructor to convert from a Angular (or AngularVector)
          *
-         * @param r the orientation
+         * @param r the angular
          **/
-        explicit Euler(const OrientationVector &r);
+        explicit Euler(const AngularVector &r);
 
-        /// Getter for the first orientation angle, around axis A
+        /// Getter for the first angular angle, around axis A
         double a() const { return a_; }
-        /// Getter for the first orientation angle, around axis B
+        /// Getter for the first angular angle, around axis B
         double b() const { return b_; }
-        /// Getter for the first orientation angle, around axis C
+        /// Getter for the first angular angle, around axis C
         double c() const { return c_; }
 
-        /// Setter for the first orientation angle, around axis A
+        /// Setter for the first angular angle, around axis A
         void a(double n) { a_ = n; }
-        /// Setter for the first orientation angle, around axis B
+        /// Setter for the first angular angle, around axis B
         void b(double n) { b_ = n; }
-        /// Setter for the first orientation angle, around axis C
+        /// Setter for the first angular angle, around axis C
         void c(double n) { c_ = n; }
 
         /**
@@ -236,7 +236,7 @@ namespace gams
         Orientation to_orientation() const;
 
         /**
-         * Convert this Euler angle to a Orientation (axis-angle notation),
+         * Convert this Euler angle to an Orientation (axis-angle notation),
          * within the specified frame.
          *
          * @param frame the reference frame the Orientation will belong to

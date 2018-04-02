@@ -80,16 +80,13 @@ namespace gams
   namespace pose
   {
     class ReferenceFrame;
-    class PositionVector;
-    class OrientationVector;
+    class LinearVector;
+    class AngularVector;
 
     /**
      * Thrown when a reference frame function is called with a Coordinate
-     * type (e.g., Pose, Position, Orientation) that frame does not support.
-     *
-     * @tparam CoordType The kind of Coordinate the error was raised for.
+     * type (e.g., Pose, Linear, Angular) that frame does not support.
      **/
-    template<typename CoordType>
     class bad_coord_type : public std::runtime_error
     {
     public:
@@ -102,11 +99,8 @@ namespace gams
       bad_coord_type(const ReferenceFrame &frame, const std::string &fn_name);
       ~bad_coord_type() throw();
 
-      std::string coord_type_name;
       std::string fn_name;
       const ReferenceFrame &frame;
-
-      typedef CoordType Coord;
     };
 
     /**
@@ -150,19 +144,19 @@ namespace gams
        * @param parent_frame of the two involved frames, the parent frame
        * @param child_frame of the two involved frames, the child frame
        * @param is_child_to_parent indicates direction of transformation
-       * @param unsupported_orientation true if the error was due to orientd
+       * @param unsupported_angular true if the error was due to orientd
        *   reference frames not being supported for this transformation.
        *   Defaults to false;
        **/
       undefined_transform(const ReferenceFrame &parent_frame,
         const ReferenceFrame &child_frame, bool is_child_to_parent,
-        bool unsupported_orientation = false);
+        bool unsupported_angular = false);
       ~undefined_transform() throw();
 
       const ReferenceFrame &parent_frame;
       const ReferenceFrame &child_frame;
       bool is_child_to_parent;
-      bool unsupported_orientation;
+      bool unsupported_angular;
     };
 
     /**
@@ -273,14 +267,14 @@ namespace gams
       std::string name() const;
 
       /**
-       * Normalizes individual doubles representing a position
+       * Normalizes individual doubles representing a linear
        **/
-      void normalize_position(double &x, double &y, double &z) const;
+      void normalize_linear(double &x, double &y, double &z) const;
 
       /**
-       * Normalizes individual doubles representing a orientation
+       * Normalizes individual doubles representing a angular
        **/
-      void normalize_orientation(double &rx, double &ry, double &rz) const;
+      void normalize_angular(double &rx, double &ry, double &rz) const;
 
       /**
        * Normalizes individual doubles representing a pose
@@ -303,7 +297,7 @@ namespace gams
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
        **/
-      virtual void transform_position_to_origin(
+      virtual void transform_linear_to_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -313,7 +307,7 @@ namespace gams
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
        **/
-      virtual void transform_position_from_origin(
+      virtual void transform_linear_from_origin(
                       double &x, double &y, double &z) const;
 
       /**
@@ -324,18 +318,18 @@ namespace gams
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
        **/
-      virtual void do_normalize_position(
+      virtual void do_normalize_linear(
                       double &x, double &y, double &z) const;
 
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param x1   x coordinate of first position
-       * @param y1   y coordinate of first position
-       * @param z1   z coordinate of first position
-       * @param x2   x coordinate of other position
-       * @param y2   y coordinate of other position
-       * @param z2   z coordinate of other position
+       * @param x1   x coordinate of first linear
+       * @param y1   y coordinate of first linear
+       * @param z1   z coordinate of first linear
+       * @param x2   x coordinate of other linear
+       * @param y2   y coordinate of other linear
+       * @param z2   z coordinate of other linear
        * @return distance in meters from loc1 to loc2
        **/
       virtual double calc_distance(
@@ -349,7 +343,7 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_orientation_to_origin(
+      virtual void transform_angular_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -359,7 +353,7 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_orientation_from_origin(
+      virtual void transform_angular_from_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -393,13 +387,13 @@ namespace gams
       /**
        * Override for new coordinate systems. By default, throws bad_coord_type.
        *
-       * @param rx1   x axis of first orientation
-       * @param ry1   y axis of first orientation
-       * @param rz1   z axis of first orientation
-       * @param rx2   x axis of second orientation
-       * @param ry2   y axis of second orientation
-       * @param rz2   z axis of second orientation
-       * @return orientational distance in degrees from rot1 to rot2
+       * @param rx1   x axis of first angular
+       * @param ry1   y axis of first angular
+       * @param rz1   z axis of first angular
+       * @param rx2   x axis of second angular
+       * @param ry2   y axis of second angular
+       * @param rz2   z axis of second angular
+       * @return angularal distance in degrees from rot1 to rot2
        **/
       virtual double calc_angle(
                       double rx1, double ry1, double rz1,
@@ -409,11 +403,11 @@ namespace gams
        * Override for new coordinate systems that can require normalization of
        * coordinates, e.g., angl-based systems. NOP by default.
        *
-       * @param rx   x axis of orientation
-       * @param ry   y axis of orientation
-       * @param rz   z axis of orientation
+       * @param rx   x axis of angular
+       * @param ry   y axis of angular
+       * @param rz   z axis of angular
        **/
-      virtual void do_normalize_orientation(
+      virtual void do_normalize_angular(
                       double &rx, double &ry, double &rz) const;
 
       /**
@@ -423,9 +417,9 @@ namespace gams
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
        * @param z the z axis for the coordinate to translate
-       * @param rx   x axis of orientation
-       * @param ry   y axis of orientation
-       * @param rz   z axis of orientation
+       * @param rx   x axis of angular
+       * @param ry   y axis of angular
+       * @param rz   z axis of angular
        **/
       virtual void do_normalize_pose(
                       double &x, double &y, double &z,
@@ -439,7 +433,7 @@ namespace gams
        * If adding a new composite coordinate type, specialize this template
        * function accordingly.
        * 
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param coord the Coordinate to normalize
        **/
       template<typename CoordType>
@@ -449,7 +443,7 @@ namespace gams
        * Transform input coordinates into their common parent. If no common
        * parent exists, throws, unrelated_frames exception
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param in1 the frame to transform from
        * @param in2 the frame to transform into
        * @return the common frame the coordinates were transformed to.
@@ -465,7 +459,7 @@ namespace gams
        * This transformation is in-place (modifies the in parameters.
        * Called by the transform_to member function of Coordinates
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param in the Coordinate to transform. This object may be modified.
        * @param to_frame the frame to transform into
        *
@@ -479,7 +473,7 @@ namespace gams
        * frames, first transform to their lowest common parent
        * Called by the distance_to member function of Coordinates
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param coord1 The coordinate to measure from
        * @param coord2 The coordinate to measure to
        * @return the distance, in meters, between the coordinates
@@ -492,7 +486,7 @@ namespace gams
        * For coordinate types which can be expressed in terms of existing
        * coordinate types, specialize this function to express this fact
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param in the Coordinate to transform. This object may be modified.
        **/
       template<typename CoordType>
@@ -503,7 +497,7 @@ namespace gams
        * For coordinate types which can be expressed in terms of existing
        * coordinate types, specialize this function to express this fact
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param in the Coordinate to transform. This object may be modified.
        * @param to_frame the frame to transform into. Must be origin of in.
        **/
@@ -516,7 +510,7 @@ namespace gams
        * For coordinate types which can be expressed in terms of existing
        * coordinate types, specialize this function to express this fact
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param coord1 The coordinate to measure from
        * @param coord2 The coordinate to measure to
        * @return the distance, in meters, between the coordinates
@@ -543,7 +537,7 @@ namespace gams
       /**
        * Transform into another frame, if coordinates are not directly related.
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param in the coordinate to transform (in-place)
        * @param to_frame the frame to transform into
        *
@@ -556,7 +550,7 @@ namespace gams
       /**
        * Transform into common parent, if coordinates are not directly related.
        *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
+       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
        * @param in1 the coordinate to transform (in place)
        * @param in2 the other coordinate to transform (in place)
        * @return the common frame the coordinates were transformed to.
@@ -588,8 +582,8 @@ namespace gams
     /**
      * For internal use.
      *
-     * Provides implementation of orientation and pose transforms for frames
-     * where orientation transformation is independant of position. This applies
+     * Provides implementation of angular and pose transforms for frames
+     * where angular transformation is independant of linear. This applies
      * to, for example, Cartesian and GPS frames, but not UTM frames.
      * Inherit from this to use this implementation.
      **/
@@ -618,43 +612,43 @@ namespace gams
 
     protected:
       /**
-       * Rotates a PositionVector according to a OrientationVector
+       * Rotates a LinearVector according to a AngularVector
        *
        * @param x   the x coordinate to orient (in-place)
        * @param y   the y coordinate to orient (in-place)
        * @param z   the z coordinate to orient (in-place)
-       * @param rot the orientation to apply, axis-angle notation
-       * @param reverse if true, apply orientation in opposite direction
+       * @param rot the angular to apply, axis-angle notation
+       * @param reverse if true, apply angular in opposite direction
        **/
-      void orient_position_vec(
+      void orient_linear_vec(
           double &x, double &y, double &z,
-          const OrientationVector &rot,
+          const AngularVector &rot,
           bool reverse = false) const;
 
     private:
       /**
-       * Transform OrientationVector in-place into its origin frame from this frame
+       * Transform AngularVector in-place into its origin frame from this frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_orientation_to_origin(
+      virtual void transform_angular_to_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Transform OrientationVector in-place from its origin frame
+       * Transform AngularVector in-place from its origin frame
        *
        * @param rx  the x component of the axis-angle representation
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_orientation_from_origin(
+      virtual void transform_angular_from_origin(
                       double &rx, double &ry, double &rz) const;
 
       /**
        * Transform pose in-place into its origin frame from this frame.
-       * Simply applies position and orientation transforms independantly
+       * Simply applies linear and angular transforms independantly
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -669,7 +663,7 @@ namespace gams
 
       /**
        * Transform pose in-place from its origin frame
-       * Simply applies position and orientation transforms independantly
+       * Simply applies linear and angular transforms independantly
        *
        * @param x the x axis for the coordinate to translate
        * @param y the y axis for the coordinate to translate
@@ -683,14 +677,14 @@ namespace gams
                       double &rx, double &ry, double &rz) const;
 
       /**
-       * Calculates smallest angle between two OrientationVectors
+       * Calculates smallest angle between two AngularVectors
        *
-       * @param rx1  the starting orientation on x axis
-       * @param ry1  the starting orientation on y axis
-       * @param rz1  the starting orientation on z axis
+       * @param rx1  the starting angular on x axis
+       * @param ry1  the starting angular on y axis
+       * @param rz1  the starting angular on z axis
        * @param rx2 the ending rotatation on x axis
-       * @param ry2  the ending orientation on y axis
-       * @param rz2  the ending orientation on z axis
+       * @param ry2  the ending angular on y axis
+       * @param rz2  the ending angular on z axis
        * @return the difference in radians
        **/
       virtual double calc_angle(

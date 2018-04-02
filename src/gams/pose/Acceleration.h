@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2018 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2018 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,14 +45,14 @@
  **/
 
 /**
- * @file Position.h
+ * @file Acceleration.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Position and PositionVector classes
+ * This file contains the Acceleration and AccelerationVector classes
  **/
 
-#ifndef _GAMS_POSE_POSITION_H_
-#define _GAMS_POSE_POSITION_H_
+#ifndef _GAMS_POSE_ACCELERATION_H_
+#define _GAMS_POSE_ACCELERATION_H_
 
 #include "Linear.h"
 
@@ -63,7 +63,7 @@ namespace gams
     class ReferenceFrame;
 
     /**
-     * Container for Position information, not bound to a frame.
+     * Container for Acceleration information, not bound to a frame.
      * Stores a 3-tuple, for x, y, and z.
      *
      * Provides accessor methods to support non-cartesian coordinate systems:
@@ -75,18 +75,43 @@ namespace gams
      *
      * Each of the above are bound to x/y/z respectively
      **/
-    class Position : public Linear<Position>
+    class Acceleration : public Linear<Acceleration>
     {
-    public:
+    public:public:
       /// Inherit Linear's constructors
       using Linear::Linear;
     };
 
+    template<>
+    inline void ReferenceFrame::transform_to_origin<>(Acceleration &in)
+    {
+      in.frame().transform_linear_to_origin(in.x_, in.y_, in.z_);
+    }
+
+    template<>
+    inline void ReferenceFrame::transform_from_origin<>(
+        Acceleration &in, const ReferenceFrame &to_frame)
+    {
+      to_frame.transform_linear_from_origin(in.x_, in.y_, in.z_);
+    }
+
+    template<>
+    inline double ReferenceFrame::calc_difference<>(
+        const Acceleration &loc1, const Acceleration &loc2)
+    {
+      return loc1.frame().calc_distance(loc1.x_, loc1.y_, loc1.z_,
+                                        loc2.x_, loc2.y_, loc2.z_);
+    }
+
+    template<>
+    inline void ReferenceFrame::normalize<>(Acceleration &loc)
+    {
+      loc.frame().normalize_linear(loc.x_, loc.y_, loc.z_);
+    }
+
     // helpful typedef for vector of positions
-    typedef std::vector <Position>    Positions;
+    typedef std::vector <Acceleration>    Accelerations;
   }
 }
-
-#include "Position.inl"
 
 #endif

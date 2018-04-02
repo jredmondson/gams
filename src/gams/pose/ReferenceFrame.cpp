@@ -52,8 +52,8 @@
  **/
 
 #include <gams/pose/ReferenceFrame.h>
-#include <gams/pose/Position.h>
-#include <gams/pose/Orientation.h>
+#include <gams/pose/Linear.h>
+#include <gams/pose/Angular.h>
 #include <gams/pose/Quaternion.h>
 
 namespace gams
@@ -90,73 +90,73 @@ namespace gams
       return nullptr;
     }
 
-    void ReferenceFrame::transform_position_to_origin(
+    void ReferenceFrame::transform_linear_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Position>(*this, "transform_position_to_origin");
+      throw bad_coord_type(*this, "transform_linear_to_origin");
     }
 
-    void ReferenceFrame::transform_position_from_origin(
+    void ReferenceFrame::transform_linear_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Position>(*this, "transform_position_from_origin");
+      throw bad_coord_type(*this, "transform_linear_from_origin");
     }
 
-    void ReferenceFrame::do_normalize_position(
+    void ReferenceFrame::do_normalize_linear(
                 double &, double &, double &) const {}
 
     double ReferenceFrame::calc_distance(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Position>(*this, "calc_distance");
+      throw bad_coord_type(*this, "calc_distance");
     }
 
-    void ReferenceFrame::transform_orientation_to_origin(
+    void ReferenceFrame::transform_angular_to_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_orientation_to_origin");
+      throw bad_coord_type(*this, "transform_angular_to_origin");
     }
 
-    void ReferenceFrame::transform_orientation_from_origin(
+    void ReferenceFrame::transform_angular_from_origin(
                                 double &, double &, double &) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_orientation_from_origin");
+      throw bad_coord_type(*this, "transform_angular_from_origin");
     }
 
     void ReferenceFrame::transform_pose_to_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_pose_to_origin");
+      throw bad_coord_type(*this, "transform_pose_to_origin");
     }
 
     void ReferenceFrame::transform_pose_from_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      throw bad_coord_type<Orientation>(*this, "transform_pose_from_origin");
+      throw bad_coord_type(*this, "transform_pose_from_origin");
     }
 
     double ReferenceFrame::calc_angle(
                 double, double, double, double, double, double) const
     {
-      throw bad_coord_type<Orientation>(*this, "calc_angle");
+      throw bad_coord_type(*this, "calc_angle");
     }
 
-    void ReferenceFrame::do_normalize_orientation(
+    void ReferenceFrame::do_normalize_angular(
                 double &, double &, double &) const {}
 
     void ReferenceFrame::do_normalize_pose(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      do_normalize_position(x, y, z);
-      do_normalize_orientation(rx, ry, rz);
+      do_normalize_linear(x, y, z);
+      do_normalize_angular(rx, ry, rz);
     }
 
-    void SimpleRotateFrame::orient_position_vec(
+    void SimpleRotateFrame::orient_linear_vec(
           double &x, double &y, double &z,
-          const OrientationVector &rot, bool reverse) const
+          const AngularVector &rot, bool reverse) const
     {
       if(rot.is_zero())
         return;
@@ -168,42 +168,42 @@ namespace gams
         rotq.conjugate();
 
       locq.orient_by(rotq);
-      locq.to_position_vector(x, y, z);
+      locq.to_linear_vector(x, y, z);
     }
 
-    void SimpleRotateFrame::transform_orientation_to_origin(
+    void SimpleRotateFrame::transform_angular_to_origin(
                                 double &rx, double &ry, double &rz) const
     {
       Quaternion in_quat(rx, ry, rz);
       Quaternion origin_quat(origin().as_orientation_vec());
       in_quat *= origin_quat;
-      in_quat.to_orientation_vector(rx, ry, rz);
+      in_quat.to_angular_vector(rx, ry, rz);
     }
 
-    void SimpleRotateFrame::transform_orientation_from_origin(
+    void SimpleRotateFrame::transform_angular_from_origin(
                                 double &rx, double &ry, double &rz) const
     {
       Quaternion in_quat(rx, ry, rz);
       Quaternion origin_quat(origin().as_orientation_vec());
       origin_quat.conjugate();
       in_quat *= origin_quat;
-      in_quat.to_orientation_vector(rx, ry, rz);
+      in_quat.to_angular_vector(rx, ry, rz);
     }
 
     void SimpleRotateFrame::transform_pose_to_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      transform_position_to_origin(x, y, z);
-      transform_orientation_to_origin(rx, ry, rz);
+      transform_linear_to_origin(x, y, z);
+      transform_angular_to_origin(rx, ry, rz);
     }
 
     void SimpleRotateFrame::transform_pose_from_origin(
                     double &x, double &y, double &z,
                     double &rx, double &ry, double &rz) const
     {
-      transform_position_from_origin(x, y, z);
-      transform_orientation_from_origin(rx, ry, rz);
+      transform_linear_from_origin(x, y, z);
+      transform_angular_from_origin(rx, ry, rz);
     }
 
     inline double SimpleRotateFrame::calc_angle(
