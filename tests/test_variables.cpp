@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright (c) 2014-2018 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -32,7 +32,7 @@
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
- *      INSTITUTE MATERIAL IS FURNISHED ON AN AS-IS BASIS. CARNEGIE MELLON
+ *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
  *      IMPLIED, AS TO ANY MATTER INCLUDING, BUT NOT LIMITED TO, WARRANTY OF
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
@@ -52,179 +52,267 @@
  * Tests the functionality of gams::variables classes
  **/
 
+#include <iostream>
+
 #include "gams/pose/Position.h"
+#include "gams/platforms/BasePlatform.h"
 #include "gams/pose/GPSFrame.h"
+#include "gams/variables/Agent.h"
 #include "gams/variables/Sensor.h"
+#include "gams/variables/Swarm.h"
 
 #include "gams/variables/AccentStatus.h"
 
-#include <string>
-#include <iostream>
-#include <assert.h>
-#include <vector>
-
-using gams::pose::Position;
-using gams::pose::gps_frame;
-using gams::variables::Sensor;
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
-
 namespace transport = madara::transport;
-namespace engine = madara::knowledge;
-namespace utility = madara::utility;
+namespace pose = gams::pose;
+namespace knowledge = madara::knowledge;
 namespace variables = gams::variables;
 
 void
-testing_output (const string& str, const unsigned int& tabs = 0)
+test_accent (void)
 {
-  for (unsigned int i = 0; i < tabs; ++i)
-    cout << "\t";
-  cout << "testing " << str << "..." << endl;
+
 }
 
 void
-test_accent ()
+test_agent (void)
 {
-  testing_output ("gams::variables::Accent");
+  std::cout << "Testing Agent...\n";
 
-  engine::KnowledgeBase knowledge;
-  variables::AccentStatus cur_accent;
-  cur_accent.init_vars (knowledge, "agent");
+  knowledge::KnowledgeBase context;
 
-  knowledge.print ("Check the following printout for agent.accent vars.\n");
-  knowledge.print ();
+  variables::Agent agent;
+  agent.init_vars (context, "agent.tester");
+
+  std::vector <double> position_vector = {42.214, -73.11142, 100.25};
+  std::vector <double> angle_vector = {25.214, 73.829, 342.11};
+
+  // set position-related containers
+  agent.dest.set (position_vector);
+  agent.home.set (position_vector);
+  agent.location.set (position_vector);
+  agent.source.set (position_vector); 
+
+  // set angle-related containers
+  agent.dest_orientation.set (angle_vector);
+  agent.orientation.set (angle_vector);
+  agent.source_orientation.set (angle_vector);
+
+  // set string containers
+  agent.algorithm = "search";
+  agent.coverage_type = "pac";
+  agent.last_algorithm = "search";
+  agent.next_coverage_type = "rec";
+
   
-  cur_accent.init_vars (knowledge, "swarm");
+  // set double containers
+  agent.desired_altitude = 800.24;
+  agent.loop_hz = 30.0;
+  agent.send_hz = 5.0;
+  agent.temperature = 56.5;
 
-  knowledge.print ("Check the following printout for swarm.accent vars.\n");
-  knowledge.print ();
+  // set integer containers
+  agent.algorithm_accepts = 5;
+  agent.algorithm_id = 3;
+  agent.algorithm_rejects = 12;
+  agent.battery_remaining = 82;
+  agent.bridge_id = 7;
+  agent.gams_debug_level = 4;
+  agent.is_mobile = 1;
+  agent.last_algorithm_id = 3;
+  agent.madara_debug_level = 3;
+  agent.search_area_id = 2;
+
+  // test the double vectors
+
+  std::cout << "  Testing Agent.dest: ";
+  if (agent.dest.to_record ().to_doubles () == position_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+  
+  std::cout << "  Testing Agent.home: ";
+  if (agent.home.to_record ().to_doubles () == position_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+  
+  std::cout << "  Testing Agent.location: ";
+  if (agent.location.to_record ().to_doubles () == position_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+  
+  std::cout << "  Testing Agent.source: ";
+  if (agent.source.to_record ().to_doubles () == position_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+  
+  std::cout << "  Testing Agent.dest_orientation: ";
+  if (agent.dest_orientation.to_record ().to_doubles () == angle_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+  
+  std::cout << "  Testing Agent.orientation: ";
+  if (agent.orientation.to_record ().to_doubles () == angle_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+  
+  std::cout << "  Testing Agent.source_orientation: ";
+  if (agent.source_orientation.to_record ().to_doubles () == angle_vector)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+  }
+
+  // test string containers
+
+  std::cout << "  Testing Agent.algorithm: " <<
+    (agent.algorithm == "search" ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.coverage_type: " <<
+    (agent.coverage_type == "pac" ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.last_algorithm: " <<
+    (agent.last_algorithm == "search" ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.next_coverage_type: " <<
+    (agent.next_coverage_type == "rec" ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.prefix: " <<
+    (agent.prefix == "agent.tester" ? "SUCCESS\n" : "FAIL\n");
+
+  // test double containers
+
+  std::cout << "  Testing Agent.desired_altitude: " <<
+    (agent.desired_altitude == 800.24 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.loop_hz: " <<
+    (agent.loop_hz == 30.0 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.send_hz: " <<
+    (agent.send_hz == 5.0 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.temperature: " <<
+    (agent.temperature == 56.5 ? "SUCCESS\n" : "FAIL\n");
+  
+  // test double containers
+
+  agent.algorithm_accepts = 5;
+  agent.algorithm_id = 3;
+  agent.algorithm_rejects = 12;
+  agent.battery_remaining = 82;
+  agent.bridge_id = 7;
+  agent.gams_debug_level = 4;
+  agent.is_mobile = 1;
+  agent.last_algorithm_id = 3;
+  agent.madara_debug_level = 3;
+  agent.search_area_id = 2;
+  
+  std::cout << "  Testing Agent.algorithm_accepts: " <<
+    (agent.algorithm_accepts == 5 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.algorithm_id: " <<
+    (agent.algorithm_id == 3 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.algorithm_rejects: " <<
+    (agent.algorithm_rejects == 12 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.battery_remaining: " <<
+    (agent.battery_remaining == 82 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.bridge_id: " <<
+    (agent.bridge_id == 7 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.gams_debug_level: " <<
+    (agent.gams_debug_level == 4 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.is_mobile: " <<
+    (agent.is_mobile == 1 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.last_algorithm_id: " <<
+    (agent.last_algorithm_id == 3 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.madara_debug_level: " <<
+    (agent.madara_debug_level == 3 ? "SUCCESS\n" : "FAIL\n");
+  
+  std::cout << "  Testing Agent.search_area_id: " <<
+    (agent.search_area_id == 2 ? "SUCCESS\n" : "FAIL\n");
+  
 }
 
 void
-test_Sensor ()
+test_sensor (void)
 {
-  testing_output ("gams::variables::Sensor");
 
-  // init knowledge base to use
-  std::string host ("");
-  const std::string default_multicast ("239.255.0.1:4150");
-  transport::QoSTransportSettings settings;
-  settings.type = transport::MULTICAST;
-  if (settings.hosts.size () == 0)
-  {
-    settings.hosts.push_back (default_multicast);
-  }
-  engine::KnowledgeBase test (host, settings);
+}
 
-  // test constructor
-  testing_output ("constructor", 1);
+void
+test_swarm (void)
+{
+  std::cout << "Testing Swarm...\n";
 
-  /**
-   * The name is used to when created a knowledge base map.
-   */
-  const string name ("coverage");
+  knowledge::KnowledgeBase context;
 
-  /**
-   * Range is the range in meters of the sensor being recorded by this object. 
-   * The assumption is an omnidirectional sensor with a radius, r.
-   *
-   * For example, c is a discretized Position location and each half-diagonal is 
-   * length r. We know that a sensor at any location in the square can sense at
-   * c if the sensor range is at least r.
-   *
-   * ---------------
-   * |\           /|
-   * |  \     r /  |
-   * |    \   /    |
-   * |      c      |
-   * |    /   \    |
-   * |  /       \  |
-   * |/           \|
-   * ---------------
-   */
-  const double range = 1.0;
+  variables::Swarm swarm;
+  swarm.init_vars (context);
 
-  /**
-   * The origin is the location from which discretized positions are calculated.
-   * We make the assumption that the Earth is flat over the area of operation 
-   * and overlay a cartesian grid with the origin GPS location as (0,0,0).
-   */
-  const Position origin (gps_frame(), 40, -80); 
+  swarm.algorithm = "null";
+  swarm.algorithm_id = 6;
+  swarm.min_alt = 15.0;
+  swarm.size = 5;
 
-  // actual sensor construction
-  Sensor s (name, &test, range, origin);
-  assert (s.get_name () == name);
-  assert (s.get_origin () == origin);
-  assert (s.get_range () == range);
+  std::cout << "  Testing Swarm.algorithm: " <<
+    (swarm.algorithm == "null" ? "SUCCESS\n" : "FAIL\n");
 
-  // Test get/set value
-  testing_output ("get/set", 1);
-  double value = 1;
+  std::cout << "  Testing Swarm.algorithm_id: " <<
+    (swarm.algorithm_id == 6 ? "SUCCESS\n" : "FAIL\n");
 
-  /**
-   * Here we test the set_value for a cartesian coordinate location. Since 
-   * origin_idx defaults to (0,0,0), this is equivalent to setting the value at 
-   * the origin. We use an assert call to confirm that the set is correct for
-   * both cartesian and GPS location get_value function calls.
-   */
-  Position origin_idx;
-  s.set_value (origin_idx, value);
-  assert (s.get_value (origin_idx) == value);
-  assert (s.get_value (origin) == value);
+  std::cout << "  Testing Swarm.min_alt: " <<
+    (swarm.min_alt == 15.0 ? "SUCCESS\n" : "FAIL\n");
 
-  /**
-   * A similar set_value function call can be made using a GPS coordinates as the 
-   * location of the sensor value. Again we confirm with two assert statements.
-   */
-  s.set_value (origin, value);
-  assert (s.get_value (origin) == value);
-  assert (s.get_value (origin_idx) == value);
-
-  /**
-   * Another utility functions provided by the Sensor class is the discretize()
-   * function. Given a region or a convex search area it will return a 
-   * set<Position> object with all valid discretized positions in the region or 
-   * search area. This is used by LocalPheremoneAreaCoverage, 
-   * MinTimeAreaCoverage, and some other algorithms to limit the number of 
-   * positions to be checked for maximum movement utility. 
-   *
-   * This next section shows converting between gps coordinate and cartesian 
-   * coordinate frames. Discretization is performed automatically by the Sensor 
-   * class. Every GPS location is mapped to a single Position location, but 
-   * every Position location maps to all the GPS locations within a square when 
-   * performing a set. When calling get_gps_from_index() with a Position, it 
-   * returns the GPS location of the closest discretized Position. 
-   */
-  Position g1 (origin);
-  g1.latitude (40.01);
-  value = 2;
-  s.set_value (g1, value);
-  Position p1 = s.get_index_from_gps (g1);
-  Position g2 = s.get_gps_from_index (p1);
-  assert (s.get_value (g1) == value);
-  assert (s.get_value (p1) == value);
-  assert (s.get_value (g2) == value);
-
-  /**
-   * While this class is coded for a group of homogeneous sensors, it could also
-   * be used by a group of agents with different sensor ranges. 
-   * get_discretization can be used to get the length of the sides of each 
-   * discretized cell. Currently there is no functionality to set the sensor 
-   * value for all cells within range of a location. 
-   *
-   * For further uses of Sensor, look at:
-   *  - LocalPheremoneAreaCoverage
-   *  - MinTimeAreaCoverage
-   *  - PrioritizedMinTimeAreaCoverage
-   */
+  std::cout << "  Testing Swarm.size: " <<
+    (swarm.size == 5 ? "SUCCESS\n" : "FAIL\n");
 }
 
 int
 main (int /*argc*/, char ** /*argv*/)
 {
   test_accent ();
-  test_Sensor ();
+  test_agent ();
+  test_sensor ();
+  test_swarm ();
+
   return 0;
 }
+

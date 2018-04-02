@@ -16,3 +16,11 @@ group.rectangle.members.5="agent.5";
 group.rectangle.members.6="agent.6";
 group.rectangle.members.7="agent.7";
 group.rectangle.members.8="agent.8";
+
+{.prefix}.algorithm="formation sync";
+{.prefix}.algorithm.args.start = [40.443387, -79.940098];
+{.prefix}.algorithm.args.end = [40.443100, -79.940570];
+{.prefix}.algorithm.args.buffer = 1.0;
+{.prefix}.algorithm.args.formation = "rectangle";
+{.prefix}.algorithm.args.group = "group.rectangle";
+

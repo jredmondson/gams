@@ -1,11 +1,11 @@
 
-swarm.algorithm="formation sync";
-swarm.algorithm.args.start = [40.443387, -79.940098];
-swarm.algorithm.args.end = [40.443100, -79.940570];
-swarm.algorithm.args.buffer = 1.0;
-swarm.algorithm.args.formation = "wing";
-swarm.algorithm.id = 1;
-swarm.algorithm.args.group = "group.wing";
+{.prefix}.algorithm="formation sync";
+{.prefix}.algorithm.args.start = [40.443387, -79.940098];
+{.prefix}.algorithm.args.end = [40.443100, -79.940570];
+{.prefix}.algorithm.args.buffer = 1.0;
+{.prefix}.algorithm.args.formation = "wing";
+{.prefix}.algorithm.id = 1;
+{.prefix}.algorithm.args.group = "group.wing";
 
 
 group.wing.members.size=5;

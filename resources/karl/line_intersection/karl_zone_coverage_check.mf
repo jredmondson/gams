@@ -56,8 +56,7 @@
   .tc_num[group.{.protectors}.members.size - 1] = 0.0 ;>
   .tc_denom[group.{.protectors}.members.size - 1] = 0.0 ;>
 
-  .size_expanded = #expand('group.{.protectors}.members.size') ;>
-  .n = {.size_expanded} ;>
+  .n = group.{.protectors}.members.size ;>
 
   .protector_range_squared = #pow(.protector_range, 2) ;>
 
