@@ -176,21 +176,27 @@ do
     echo "                        svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE"
     echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
     echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  ZMQ_ROOT            - location of ZeroMQ"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
-    echo "  DMPL_ROOT          - location of DART DMPL directory"
+    echo "  DMPL_ROOT           - location of DART DMPL directory"
     exit
   fi
 done
 
 # specify ACE_ROOT if missing. It's needed for most everything else.
 if [ -z $ACE_ROOT ] ; then
-  export ACE_ROOT=$INSTALL_DIR/ace/ACE_wrappers
+  export ACE_ROOT=$INSTALL_DIR/ACE_TAO/ACE
 fi
+
+if [ -z $MPC_ROOT ] ; then
+  export MPC_ROOT=$INSTALL_DIR/MPC
+fi
+
 
 # check if ACE_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
 if [[ ":$LD_LIBRARY_PATH:" == *":$ACE_ROOT/lib:"* ]]; then
@@ -262,6 +268,11 @@ if [ $PREREQS -eq 1 ]; then
     echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
   fi
   
+  if [ $ANDROID -eq 1 ]; then
+    sudo apt-get update
+    sudo apt-get install -f gcc-arm-linux-androideabi
+  fi
+  
   if [ $ROS -eq 1 ]; then
     if [ ! -d "/opt/ros/kinetic" ] ; then
       sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -308,22 +319,41 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
+
+  echo "ENTERING $MPC_ROOT"
+  # build ACE, all build information (compiler and options) will be set here
+  if [ ! -d $MPC_ROOT ] ; then
+    git clone https://github.com/DOCGroup/MPC.git
+  fi
+
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $ACE_ROOT ] ; then
-    echo "DOWNLOADING ACE"
-    svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $ACE_ROOT/../../ace
-    echo "CONFIGURING ACE"
-    if [ $ANDROID -eq 1 ]; then
-      # use the android specific files, we use custom config file for android due to build bug in ACE
-      echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
+    echo "DOWNLOADING ACE AND TAO"
+    git clone https://github.com/DOCGroup/ACE_TAO.git $($ACE_ROOT | rev | cut -d'/' -f2- | rev)
 
-      # Android does not support versioned libraries and requires cross-compiling
-      echo -e "no_hidden_visibility=1\nversioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-    else
-      # use linux defaults
-      echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-      echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-    fi
+  else
+    echo "UPDATING ACE"
+    cd $ACE_ROOT
+    git pull
+    echo "CLEANING ACE OBJECTS"
+    make realclean -j $CORES
+
+  fi
+
+  echo "CONFIGURING ACE"
+  if [ $ANDROID -eq 1 ]; then
+    echo "  CONFIGURING ANDROID BUILD"
+    # use the android specific files, we use custom config file for android due to build bug in ACE
+    # echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
+    echo "#include \"config-android.h\"" > $ACE_ROOT/ace/config.h
+
+    # Android does not support versioned libraries and requires cross-compiling
+    echo -e "no_hidden_visibility=1\nversioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+  else
+    # use linux defaults
+    echo "  CONFIGURING DEFAULT BUILD"
+    echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
+    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
   fi
   
   echo "ENTERING $ACE_ROOT"
@@ -566,7 +596,9 @@ if [ $VREP_CONFIG -eq 1 ]; then
 fi
   
 echo "BUILD COMPLETE"
+echo ""
 echo "Make sure to update your environment variables to the following"
+echo "export MPC_ROOT=$MPC_ROOT"
 echo "export ACE_ROOT=$ACE_ROOT"
 echo "export MADARA_ROOT=$MADARA_ROOT"
 echo "export GAMS_ROOT=$GAMS_ROOT"
@@ -583,15 +615,28 @@ if [ $ZMQ -eq 1 ]; then
   echo "export ZMQ_ROOT=$ZMQ_ROOT"
 fi
 
+if [ $JAVA -eq 1 ]; then
+  echo "export JAVA_HOME=$JAVA_HOME"
+fi
+
 if [ $DMPL -eq 1 ]; then
   echo "export DMPL_ROOT=$DMPL_ROOT"
 fi
 
 echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
-echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$VREP_ROOT"
+echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$MPC_ROOT:\$VREP_ROOT"
 
 
 if [ $DMPL -eq 1 ]; then
   echo "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
 fi
+
+
+echo ""
+echo "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
+echo "IN YOUR BASHRC OR TERMINAL. ACE now requires MPC_ROOT to be set. If anything"
+echo "appears to suddenly break, try \"rm -rf ACE_TAO\" (the parent dir of \$ACE_ROOT)"
+echo "and then make sure that \"ace\" is one of the options you specify on next build."
+echo ""
+
 
