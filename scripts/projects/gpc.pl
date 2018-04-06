@@ -185,7 +185,7 @@ options:
   --multicast|m host     multicast ip/host to use for network transport
   --new-algorithm|na name create infrastructure for custom algorithm
   --new-platform|np name create infrastructure for custom platform
-  --new-platform--thread|ntp name 
+  --new-platform-thread|ntp name 
                          create infrastructure for a custom platform thread
   --new-thread|nt name   create infrastructure for custom thread
   --new-transport|nr name create infrastructure for custom network transport
