@@ -630,109 +630,109 @@ echo "BUILD STATUS"
 if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   echo "  ACE"
   if [ $ACE_REPO_RESULT -eq 0 ]; then
-    echo "    REPO=PASS"
+    echo -e "    REPO=\e[92mPASS\e[39m"
   else
-    echo "    REPO=FAIL"
+    echo -e "    REPO=\e[91mFAIL\e[39m"
   fi
   if [ $ACE_BUILD_RESULT -eq 0 ]; then
-    echo "    BUILD=PASS"
+    echo -e "    BUILD=\e[92mPASS\e[39m"
   else
-    echo "    BUILD=FAIL"
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
   fi
 fi
 
 if [ $ZMQ -eq 1 ]; then
   echo "  ZMQ"
   if [ $ZMQ_REPO_RESULT -eq 0 ]; then
-    echo "    REPO=PASS"
+    echo -e "    REPO=\e[92mPASS\e[39m"
   else
-    echo "    REPO=FAIL"
+    echo -e "    REPO=\e[91mFAIL\e[39m"
   fi
   if [ $ZMQ_BUILD_RESULT -eq 0 ]; then
-    echo "    BUILD=PASS"
+    echo -e "    BUILD=\e[92mPASS\e[39m"
   else
-    echo "    BUILD=FAIL"
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
   fi
 fi
 
 if [ $VREP -eq 1 ]; then
   echo "  VREP"
   if [ $VREP_REPO_RESULT -eq 0 ]; then
-    echo "    REPO=PASS"
+    echo -e "    REPO=\e[92mPASS\e[39m"
   else
-    echo "    REPO=FAIL"
+    echo -e "    REPO=\e[91mFAIL\e[39m"
   fi
 fi
 
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   echo "  MADARA"
   if [ $MADARA_REPO_RESULT -eq 0 ]; then
-    echo "    REPO=PASS"
+    echo -e "    REPO=\e[92mPASS\e[39m"
   else
-    echo "    REPO=FAIL"
+    echo -e "    REPO=\e[91mFAIL\e[39m"
   fi
   if [ $MADARA_BUILD_RESULT -eq 0 ]; then
-    echo "    BUILD=PASS"
+    echo -e "    BUILD=\e[92mPASS\e[39m"
   else
-    echo "    BUILD=FAIL"
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
   fi
 fi
 
 if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   echo "  GAMS"
   if [ $GAMS_REPO_RESULT -eq 0 ]; then
-    echo "    REPO=PASS"
+    echo -e "    REPO=\e[92mPASS\e[39m"
   else
-    echo "    REPO=FAIL"
+    echo -e "    REPO=\e[91mFAIL\e[39m"
   fi
   if [ $GAMS_BUILD_RESULT -eq 0 ]; then
-    echo "    BUILD=PASS"
+    echo -e "    BUILD=\e[92mPASS\e[39m"
   else
-    echo "    BUILD=FAIL"
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
   fi
 fi
 
-echo ""
-echo "Make sure to update your environment variables to the following"
-echo "export MPC_ROOT=$MPC_ROOT"
-echo "export ACE_ROOT=$ACE_ROOT"
-echo "export MADARA_ROOT=$MADARA_ROOT"
-echo "export GAMS_ROOT=$GAMS_ROOT"
-echo "export VREP_ROOT=$VREP_ROOT"
+echo -e ""
+echo -e "Make sure to update your environment variables to the following"
+echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
+echo -e "export ACE_ROOT=$ACE_ROOT"
+echo -e "export MADARA_ROOT=$MADARA_ROOT"
+echo -e "export GAMS_ROOT=$GAMS_ROOT"
+echo -e "export VREP_ROOT=$VREP_ROOT"
 
 if [ $SSL -eq 1 ]; then
   if [ -z $SSL_ROOT ]; then
     export SSL_ROOT=/usr
   fi
-  echo "export SSL_ROOT=$SSL_ROOT"
+  echo -e "export SSL_ROOT=$SSL_ROOT"
 fi
 
 if [ $ZMQ -eq 1 ]; then
-  echo "export ZMQ_ROOT=$ZMQ_ROOT"
+  echo -e "export ZMQ_ROOT=$ZMQ_ROOT"
 fi
 
 if [ $JAVA -eq 1 ]; then
-  echo "export JAVA_HOME=$JAVA_HOME"
+  echo -e "export JAVA_HOME=$JAVA_HOME"
 fi
 
 if [ $DMPL -eq 1 ]; then
-  echo "export DMPL_ROOT=$DMPL_ROOT"
+  echo -e "export DMPL_ROOT=$DMPL_ROOT"
 fi
 
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
-echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$MPC_ROOT:\$VREP_ROOT"
+echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+echo -e "export PATH=\$PATH:\$ACE_ROOT/bin:\$MPC_ROOT:\$VREP_ROOT"
 
 
 if [ $DMPL -eq 1 ]; then
-  echo "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
+  echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
 fi
 
 
-echo ""
-echo "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
-echo "IN YOUR BASHRC OR TERMINAL. ACE now requires MPC_ROOT to be set. If anything"
-echo "appears to suddenly break, try \"rm -rf ACE_TAO\" (the parent dir of \$ACE_ROOT)"
-echo "and then make sure that \"ace\" is one of the options you specify on next build."
-echo ""
+echo -e "\e[39m"
+echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
+echo -e "IN YOUR BASHRC OR TERMINAL. ACE now requires MPC_ROOT to be set. If anything"
+echo -e "appears to suddenly break, try \"rm -rf ACE_TAO\" (the parent dir of \$ACE_ROOT)"
+echo -e "and then make sure that \"ace\" is one of the options you specify on next build."
+echo -e ""
 
 
