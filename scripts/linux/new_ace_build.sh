@@ -98,6 +98,19 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 
+ACE_REPO_RESULT=0
+ACE_BUILD_RESULT=0
+DART_REPO_RESULT=0
+DART_BUILD_RESULT=0
+GAMS_REPO_RESULT=0
+GAMS_BUILD_RESULT=0
+MADARA_REPO_RESULT=0
+MADARA_BUILD_RESULT=0
+MPC_REPO_RESULT=0
+VREP_REPO_RESULT=0
+ZMQ_REPO_RESULT=0
+ZMQ_BUILD_RESULT=0
+
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -324,17 +337,20 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $MPC_ROOT ] ; then
     git clone https://github.com/DOCGroup/MPC.git
+    MPC_REPO_RESULT=$?
   fi
 
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $ACE_ROOT ] ; then
     echo "DOWNLOADING ACE AND TAO"
     git clone https://github.com/DOCGroup/ACE_TAO.git $($ACE_ROOT | rev | cut -d'/' -f2- | rev)
+    ACE_REPO_RESULT=$?
 
   else
     echo "UPDATING ACE"
     cd $ACE_ROOT
     git pull
+    ACE_REPO_RESULT=$?
     echo "CLEANING ACE OBJECTS"
     make realclean -j $CORES
 
@@ -364,6 +380,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   make realclean -j $CORES
   echo "BUILDING ACE"
   make -j $CORES
+  ACE_BUILD_RESULT=$?
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING ACE"
     $STRIP_EXE libACE.so*
@@ -378,10 +395,12 @@ if [ $ZMQ -eq 1 ]; then
 
   if [ ! -d libzmq ] ; then
     git clone https://github.com/zeromq/libzmq
+    ZMQ_REPO_RESULT=$?
     cd libzmq
     ./autogen.sh && ./configure && make -j 4
     make check
     sudo make install && sudo ldconfig
+    ZMQ_BUILD_RESULT=$?
     export ZMQ_ROOT=/usr/local
   else
     if [ -z $ZMQ_ROOT ]; then
@@ -427,10 +446,12 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
     git clone http://git.code.sf.net/p/madara/code $MADARA_ROOT
+    MADARA_REPO_RESULT=$?
   else
     echo "UPDATING MADARA"
     cd $MADARA_ROOT
     git pull
+    MADARA_REPO_RESULT=$?
     echo "CLEANING MADARA OBJECTS"
     make realclean -j $CORES
 
@@ -448,6 +469,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "BUILDING MADARA"
   make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ -j $CORES
+  MADARA_BUILD_RESULT=$?
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING MADARA"
@@ -470,6 +492,7 @@ if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
     cd $INSTALL_DIR
     echo "DOWNLOADING VREP"
     wget http://coppeliarobotics.com/files/$VREP_INSTALLER
+    VREP_REPO_RESULT=$?
     mkdir $VREP_ROOT
 
     echo "UNPACKING VREP"
@@ -517,11 +540,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
     git clone -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    GAMS_REPO_RESULT=$?
     
   else
     echo "UPDATING GAMS"
     cd $GAMS_ROOT
     git pull
+    GAMS_REPO_RESULT=$?
 
     echo "CLEANING GAMS OBJECTS"
     make realclean -j $CORES
@@ -541,6 +566,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   echo "BUILDING GAMS"
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  GAMS_BUILD_RESULT=$?
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING GAMS"
@@ -567,7 +593,7 @@ if [ $DMPL -eq 1 ]; then
     echo "SETTING VREP_ROOT to $VREP_ROOT"
   fi
 
-  # build GAMS
+  # build DART
   if [ -z $DMPL_ROOT ] ; then
     export DMPL_ROOT=$INSTALL_DIR/dmplc
     echo "SETTING DMPL_ROOT to $DMPL_ROOT"
@@ -575,6 +601,7 @@ if [ $DMPL -eq 1 ]; then
   if [ ! -d $DMPL_ROOT ] ; then
     echo "DOWNLOADING GAMS"
     git clone --depth 1 -b release-0.4.0 https://github.com/cps-sei/dmplc.git $DMPL_ROOT
+    DART_REPO_RESULT=$?
     
   else
     echo "UPDATING DMPL"
@@ -588,6 +615,7 @@ if [ $DMPL -eq 1 ]; then
 
   cd $DMPL_ROOT
   make MZSRM=0 -j $CORES
+  DART_BUILD_RESULT=$?
 fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
@@ -595,7 +623,75 @@ if [ $VREP_CONFIG -eq 1 ]; then
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
   
-echo "BUILD COMPLETE"
+echo ""
+echo "BUILD STATUS"
+
+
+if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
+  echo "  ACE"
+  if [ $ACE_REPO_RESULT -eq 0 ]; then
+    echo "    REPO=PASS"
+  else
+    echo "    REPO=FAIL"
+  fi
+  if [ $ACE_BUILD_RESULT -eq 0 ]; then
+    echo "    BUILD=PASS"
+  else
+    echo "    BUILD=FAIL"
+  fi
+fi
+
+if [ $ZMQ -eq 1 ]; then
+  echo "  ZMQ"
+  if [ $ZMQ_REPO_RESULT -eq 0 ]; then
+    echo "    REPO=PASS"
+  else
+    echo "    REPO=FAIL"
+  fi
+  if [ $ZMQ_BUILD_RESULT -eq 0 ]; then
+    echo "    BUILD=PASS"
+  else
+    echo "    BUILD=FAIL"
+  fi
+fi
+
+if [ $VREP -eq 1 ]; then
+  echo "  VREP"
+  if [ $VREP_REPO_RESULT -eq 0 ]; then
+    echo "    REPO=PASS"
+  else
+    echo "    REPO=FAIL"
+  fi
+fi
+
+if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
+  echo "  MADARA"
+  if [ $MADARA_REPO_RESULT -eq 0 ]; then
+    echo "    REPO=PASS"
+  else
+    echo "    REPO=FAIL"
+  fi
+  if [ $MADARA_BUILD_RESULT -eq 0 ]; then
+    echo "    BUILD=PASS"
+  else
+    echo "    BUILD=FAIL"
+  fi
+fi
+
+if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
+  echo "  GAMS"
+  if [ $GAMS_REPO_RESULT -eq 0 ]; then
+    echo "    REPO=PASS"
+  else
+    echo "    REPO=FAIL"
+  fi
+  if [ $GAMS_BUILD_RESULT -eq 0 ]; then
+    echo "    BUILD=PASS"
+  else
+    echo "    BUILD=FAIL"
+  fi
+fi
+
 echo ""
 echo "Make sure to update your environment variables to the following"
 echo "export MPC_ROOT=$MPC_ROOT"
