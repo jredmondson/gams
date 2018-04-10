@@ -500,14 +500,14 @@ namespace gams
        *
        * @return Linear with same frame as this pose, and same x/y/z values
        **/
-      constexpr operator Position () const;
+      operator Position () const;
 
       /**
        * Castig operator to extract Angular from this Pose
        *
        * @return Angular with same frame as this pose, and same rx/ry/rz values
        **/
-      constexpr operator Orientation () const;
+      operator Orientation () const;
 
       /**
       * Returns a string of the values x, y, z, rx, ry, rz

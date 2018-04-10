@@ -317,12 +317,12 @@ namespace gams
       return me.distance_to(target);
     }
 
-    inline constexpr Pose::operator Position() const
+    inline Pose::operator Position() const
     {
       return Position(frame(), x(), y(), z());
     }
 
-    inline constexpr Pose::operator Orientation() const
+    inline Pose::operator Orientation() const
     {
       return Orientation(frame(), rx(), ry(), rz());
     }

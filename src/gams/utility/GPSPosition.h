@@ -172,7 +172,7 @@ namespace gams
        * @param  epsilon  approximation value in meters
        * @return true if position is within distance epsilon of *this
        **/
-      virtual bool approximately_equal(
+      bool approximately_equal(
         const GPSPosition & rhs, const double & epsilon) const;
 
       /**
@@ -180,14 +180,14 @@ namespace gams
        * @param rhs     other position
        * @param phi     direction to rhs
        **/
-      virtual void direction_to (const GPSPosition& rhs, double& phi) const;
+      void direction_to (const GPSPosition& rhs, double& phi) const;
 
       /**
        * Get distance between two positions
        * @param  rhs      second position
        * @return euclidean distance between the two points in meters
        **/
-      virtual double distance_to (const GPSPosition & rhs) const;
+      double distance_to (const GPSPosition & rhs) const;
 
       /**
        * Helper function for converting the position to a string
