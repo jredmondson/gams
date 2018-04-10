@@ -194,7 +194,7 @@ namespace gams
        * @param delimiter characters to insert between position components
        * @param precision precision of doubles when printing coordinates
        **/
-      virtual std::string to_string (const std::string & delimiter = ",",
+      std::string to_string (const std::string & delimiter = ",",
         const unsigned int precision = 8) const;
 
       /**

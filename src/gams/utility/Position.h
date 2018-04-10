@@ -176,7 +176,7 @@ namespace gams
        * @param  epsilon  approximation value
        * @return true if position is within epsilon in each direction of this
        **/
-      virtual bool approximately_equal (
+      bool approximately_equal (
         const Position & rhs, const double & epsilon) const;
 
       /**
@@ -185,7 +185,7 @@ namespace gams
        * @param  epsilon  approximation value
        * @return true if position is within epsilon in each direction of this
        **/
-      virtual bool approximately_equal_2d (
+      bool approximately_equal_2d (
         const Position & rhs, const double & epsilon) const;
 
       /**
@@ -194,7 +194,7 @@ namespace gams
        * @param phi     direction in x/y plane
        * @param theta   direction in z plane
        **/
-      virtual void direction_to (
+      void direction_to (
         const Position& rhs, double& phi, double& theta) const;
 
       /**
@@ -240,7 +240,7 @@ namespace gams
        * Helper function for converting the position to a string
        * @param delimiter characters to insert between position components
        **/
-      virtual std::string to_string (const std::string & delimiter = ",") const;
+      std::string to_string (const std::string & delimiter = ",") const;
 
       /**
        * Helper function for creating a Position from a string
