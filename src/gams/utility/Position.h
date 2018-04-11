@@ -202,7 +202,7 @@ namespace gams
        * @param  rhs      second position
        * @return euclidean distance between the two points
        **/
-      virtual double distance_to (const Position & rhs) const;
+      double distance_to (const Position & rhs) const;
 
       /**
        * @param  rhs      second position
