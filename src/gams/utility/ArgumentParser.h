@@ -75,7 +75,7 @@ namespace gams
     class RadixLess
     {
     public:
-      bool operator()(const std::string &lhs, const std::string &rhs)
+      bool operator()(const std::string &lhs, const std::string &rhs) const
       {
         size_t lsz = lhs.size(), rsz = rhs.size();
         if(lsz < rsz)

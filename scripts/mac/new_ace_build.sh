@@ -91,6 +91,8 @@ ZMQ=0
 SSL=0
 DMPL=0
 
+MAC_VERSION=0
+
 ACE_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
 ACE_AS_A_PREREQ=0
@@ -162,6 +164,18 @@ do
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
   elif [ "$var" = "strip" ]; then
     STRIP=1
+  elif [ "$var" = "lion" ]; then
+    MAC_VERSION="lion"
+  elif [ "$var" = "mountainlion" ]; then
+    MAC_VERSION="mountainlion"
+  elif [ "$var" = "mavericks" ]; then
+    MAC_VERSION="mavericks"
+  elif [ "$var" = "yosemite" ]; then
+    MAC_VERSION="yosemite"
+  elif [ "$var" = "sierra" ]; then
+    MAC_VERSION="sierra"
+  elif [ "$var" = "highsierra" ]; then
+    MAC_VERSION="highsierra"
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
@@ -200,6 +214,35 @@ do
     exit
   fi
 done
+
+# auto-detect Mac version string
+if [ $ANDROID -eq 0 ]; then # don't care about Mac version if compiling for Android
+  if [ $MAC_VERSION -eq 0 ]; then
+    VER_STRING=`sw_vers -productVersion`
+    if [ ${VER_STRING:0:4} = "10.7" ]; then
+      echo "Auto-detected OS X Lion"
+      MAC_VERSION="lion"
+    elif [ ${VER_STRING:0:4} = "10.8" ]; then
+      echo "Auto-detected OS X Mountain Lion"
+      MAC_VERSION="mountainlion"
+    elif [ ${VER_STRING:0:4} = "10.9" ]; then
+      echo "Auto-detected OS X Mavericks"
+      MAC_VERSION="mavericks"
+    elif [ ${VER_STRING:0:5} = "10.10" ]; then
+      echo "Auto-detected OS X Yosemite"
+      MAC_VERSION="yosemite"
+    elif [ ${VER_STRING:0:5} = "10.12" ]; then
+      echo "Auto-detected OS X High Sierra"
+      MAC_VERSION="sierra"
+    elif [ ${VER_STRING:0:5} = "10.13" ]; then
+      echo "Auto-detected OS X High Sierra"
+      MAC_VERSION="highsierra"
+    else
+      echo "Could not auto-detect Mac version"
+      exit
+    fi
+  fi
+fi
 
 # specify ACE_ROOT if missing. It's needed for most everything else.
 if [ -z $ACE_ROOT ] ; then
@@ -269,48 +312,28 @@ if [ $DOCS -eq 1 ]; then
   echo "DOCS is set to $DOCS"
 fi
 
+# auto-detect JDK
+if [ $JAVA -eq 1 ]; then
+  echo "Auto-detecting JDK"
+  if [ $JAVA_HOME = "" ]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+  fi
+  if [ $JAVA_HOME = "" ]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
+  fi
+  if [ $JAVA_HOME = "" ]; then
+    JAVA_HOME=$(/usr/libexec/java_home -v 1.6)
+  fi
+  if [ $JAVA_HOME = "" ]; then
+    echo "Failed to auto-detect JDK"
+    exit
+  fi
+fi
+
 echo ""
 
+# TO DO: no idea what the Mac prereqs are for building anything here
 if [ $PREREQS -eq 1 ]; then
-  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz
-
-  if [ $JAVA -eq 1 ]; then
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo apt-get update
-    sudo apt-get install -f oracle-java8-set-default
-    echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
-  fi
-  
-  if [ $ANDROID -eq 1 ]; then
-    sudo apt-get update
-    sudo apt-get install -f gcc-arm-linux-androideabi
-  fi
-  
-  if [ $ROS -eq 1 ]; then
-    if [ ! -d "/opt/ros/kinetic" ] ; then
-      sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-      sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-      sudo apt-get update
-      sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs ros-kinetic-navigation
-      sudo rosdep init
-      rosdep update
-      echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-      source ~/.bashrc
-    fi
-  fi
-
-  if [ $SSL -eq 1 ]; then
-    sudo apt-get install libssl-dev
-  fi
-  
-  if [ $ZMQ -eq 1 ]; then 
-    sudo apt-get install libtool pkg-config autoconf automake
-  fi
-
-  if [ $DMPL -eq 1 ]; then 
-    sudo apt-get install perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
-  fi
-
 fi
 
 # check if ACE is a prereq for later packages
@@ -368,8 +391,8 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   else
     # use linux defaults
     echo "  CONFIGURING DEFAULT BUILD"
-    echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+    echo "#include \"ace/config-macosx-$MAC_VERSION.h\"" > $ACE_ROOT/ace/config.h
+    echo "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_macosx_$MAC_VERSION.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
   fi
   
   echo "ENTERING $ACE_ROOT"

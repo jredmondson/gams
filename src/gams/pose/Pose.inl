@@ -332,18 +332,17 @@ namespace gams
       return me.angle_to(target, u);
     }
 
-    inline constexpr Pose::operator Position() const
+    inline Pose::operator Position() const
     {
       return Position(frame(), x(), y(), z());
     }
 
-    inline constexpr Pose::operator Orientation() const
+    inline Pose::operator Orientation() const
     {
       return Orientation(frame(), rx(), ry(), rz());
     }
 
-    inline
-      std::string Pose::to_string (const std::string & delimiter,
+    inline std::string Pose::to_string (const std::string & delimiter,
       const std::string & unset_identifier) const
     {
       std::stringstream buffer;
