@@ -317,6 +317,21 @@ namespace gams
       return me.distance_to(target);
     }
 
+    template<typename U>
+    inline double Pose::angle_to (const Pose &target, U u) const
+    {
+      Orientation me(*this);
+      Orientation other(target);
+      return me.angle_to(other, u);
+    }
+
+    template<typename U>
+    inline double Pose::angle_to (const Orientation &target, U u) const
+    {
+      Orientation me(*this);
+      return me.angle_to(target, u);
+    }
+
     inline constexpr Pose::operator Position() const
     {
       return Position(frame(), x(), y(), z());

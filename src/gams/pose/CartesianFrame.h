@@ -126,6 +126,16 @@ namespace gams
       virtual double calc_distance(
                       double x1, double y1, double z1,
                       double x2, double y2, double z2) const;
+
+#ifdef GAMS_NO_RTTI
+    public:
+      static type_ids::Flags get_stypes() {
+        using namespace type_ids;
+        return flags(Cartesian, SimpleRotate);
+      }
+
+      type_ids::Flags get_types() const override { return get_stypes(); }
+#endif
     };
   }
 }
