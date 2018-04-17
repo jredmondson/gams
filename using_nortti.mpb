@@ -1,0 +1,11 @@
+feature (nortti) {
+  requires += nortti
+
+  macros += GAMS_NO_RTTI
+
+  Header_Files {
+  }
+
+  Source_Files {
+  }
+}
