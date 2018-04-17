@@ -89,6 +89,13 @@ namespace algorithms = gams::algorithms;
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
+GAMSExport algorithms::AlgorithmFactoryRepository *
+    algorithms::global_algorithm_factory() {
+  static algorithms::AlgorithmFactoryRepository *algo_repo =
+    new algorithms::AlgorithmFactoryRepository();
+  return algo_repo;
+}
+
 algorithms::AlgorithmFactoryRepository::AlgorithmFactoryRepository (
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,

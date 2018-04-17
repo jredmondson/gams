@@ -165,12 +165,7 @@ namespace gams
     * the factory are started. This is not currently thread safe when adding
     * new platforms.
     **/
-    inline GAMSExport PlatformFactoryRepository *
-        global_platform_factory() {
-      static PlatformFactoryRepository *plat_repo =
-        new PlatformFactoryRepository();
-      return plat_repo;
-    }
+    GAMSExport PlatformFactoryRepository *global_platform_factory();
   }
 }
 

@@ -185,12 +185,7 @@ namespace gams
      * have all new algorithms added to it before new threads that might access
      * the factory are started. This is not currently thread safe.
      **/
-    inline GAMSExport AlgorithmFactoryRepository *
-        global_algorithm_factory() {
-      static AlgorithmFactoryRepository *algo_repo =
-        new AlgorithmFactoryRepository();
-      return algo_repo;
-    }
+    GAMSExport AlgorithmFactoryRepository *global_algorithm_factory();
   }
 }
 
