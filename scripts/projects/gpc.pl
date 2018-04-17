@@ -2787,12 +2787,6 @@ namespace platforms
   private:
     // a threader for managing platform threads
     madara::threads::Threader threader_;    
-    
-    // a default GPS frame
-    static gams::pose::GPSFrame  gps_frame;
-    
-    // a default Cartesian frame
-    static gams::pose::CartesianFrame  cartesian_frame;
   }; // end ${new_plat} class
     
 
@@ -2838,9 +2832,6 @@ namespace platforms
         }
 
         $source_contents .= "
-gams::pose::CartesianFrame  platforms::${new_plat}::cartesian_frame;   
-gams::pose::GPSFrame  platforms::${new_plat}::gps_frame;         
-        
  
 // factory class for creating a ${new_plat} 
 gams::platforms::BasePlatform *
@@ -3096,7 +3087,8 @@ platforms::${new_plat}::takeoff (void)
 const gams::pose::ReferenceFrame &
 platforms::${new_plat}::get_frame (void) const
 {
-  return gps_frame;
+  // For cartesian, replace with gams::pose::default_frame()
+  return gams::pose::gps_frame();
 }
 ";
       
