@@ -327,7 +327,7 @@ gams::algorithms::Executor::analyze (void)
       " Cycle %d: Precondition met for algorithm %d. Creating algorithm\n",
       cycles_, (int)alg_index_);
 
-    current_ = algorithms::global_algorithm_factory->create (
+    current_ = algorithms::global_algorithm_factory()->create (
       algorithms_[alg_index_].id,
       algorithms_[alg_index_].args);
 

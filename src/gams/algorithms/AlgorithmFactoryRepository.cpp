@@ -89,11 +89,6 @@ namespace algorithms = gams::algorithms;
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
-/// globally accessible algorithm factory
-madara::utility::Refcounter <algorithms::AlgorithmFactoryRepository>
-  algorithms::global_algorithm_factory (
-    new algorithms::AlgorithmFactoryRepository ());
-
 algorithms::AlgorithmFactoryRepository::AlgorithmFactoryRepository (
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,

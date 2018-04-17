@@ -289,7 +289,7 @@ gams::algorithms::FormationCoverage::FormationCoverage (
       " entering leader agent specific code\n");
 
     BaseAlgorithm * base_algo =
-      global_algorithm_factory->create (coverage, cover_args);
+      global_algorithm_factory()->create (coverage, cover_args);
     head_algo_ = dynamic_cast<area_coverage::BaseAreaCoverage*>(base_algo);
 
     if (head_algo_ == 0)

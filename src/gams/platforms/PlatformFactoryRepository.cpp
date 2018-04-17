@@ -70,13 +70,6 @@
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
-/// globally accessible algorithm factory
-madara::utility::Refcounter <platforms::PlatformFactoryRepository>
-  platforms::global_platform_factory (
-    new platforms::PlatformFactoryRepository ());
-
-
-
 platforms::PlatformFactoryRepository::PlatformFactoryRepository (
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
