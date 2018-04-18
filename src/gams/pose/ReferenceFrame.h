@@ -283,6 +283,51 @@ namespace gams
       void normalize_pose(double &x, double &y, double &z,
                           double &rx, double &ry, double &rz) const;
 
+      // **** Start prototype proposal ****
+      /**
+       * Get the ID string of this frame. By default, frames generate a
+       * random GUID as their ID
+       **/
+      const std::string &id();
+
+      /**
+       * Set the ID string of this frame. By default, frames generate a
+       * random GUID as their ID
+       **/
+      void id(const std::string &new_id);
+
+      /**
+       * Save this ReferenceFrame, and its children, to the knowledge base,
+       * The saved frames will be marked with the given version for later
+       * retrieval. These version numbers need not be contiguous, and GAMS
+       * assigns no special meaning to them.
+       **/
+      void export_tree(KnowledgeBase &kb, int64_t version = -1);
+
+      /**
+       * Load a ReferenceFrame, by ID, and its children, optionally a
+       * specific version.
+       * Returns a pointer to the imported ReferenceFrame, or nullptr if
+       * none exists.
+       **/
+      ReferenceFrame *import_tree(KnowledgeBase &kb, const std::string &id,
+                                  int64_t version = -1);
+
+      /**
+       * Save this ReferenceFrame, and its children, to the knowledge base,
+       * with a specific key value.
+       **/
+      void export_tree_as(KnowledgeBase &kb, const std::string &key);
+
+      /**
+       * Load a ReferenceFrame, by ID, and its children, using a specific
+       * key value (generally, one previously used by export_tree_as)
+       * Returns a pointer to the imported ReferenceFrame, or nullptr if
+       * none exists.
+       **/
+      ReferenceFrame *import_tree_from(KnowledgeBase &kb, const std::string &id);
+      // **** End prototype proposal ****
+
 #ifdef GAMS_NO_RTTI
       static type_ids::Flags get_stypes() { return type_ids::flags(); }
       virtual type_ids::Flags get_types() const { return get_stypes(); }
