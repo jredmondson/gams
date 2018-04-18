@@ -299,19 +299,22 @@ namespace gams
       /**
        * Save this ReferenceFrame, and its children, to the knowledge base,
        * The saved frames will be marked with the given version for later
-       * retrieval. These version numbers need not be contiguous, and GAMS
-       * assigns no special meaning to them.
+       * retrieval. These version numbers need not be contiguous,
+       * and GAMS expects newer versions to have higher values.
        **/
-      void export_tree(KnowledgeBase &kb, int64_t version = -1);
+      void export_tree(KnowledgeBase &kb, uint64_t version = -1);
 
       /**
        * Load a ReferenceFrame, by ID, and its children, optionally a
-       * specific version.
+       * specific version. If the specific version does not exist,
+       * the one with highest version less than the version given will
+       * be selected. Note that this means by default, the latest version
+       * will be selected.
        * Returns a pointer to the imported ReferenceFrame, or nullptr if
        * none exists.
        **/
       ReferenceFrame *import_tree(KnowledgeBase &kb, const std::string &id,
-                                  int64_t version = -1);
+                                  uint64_t version = -1);
 
       /**
        * Save this ReferenceFrame, and its children, to the knowledge base,
