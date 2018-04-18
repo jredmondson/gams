@@ -320,12 +320,12 @@ namespace gams
       void export_tree_as(KnowledgeBase &kb, const std::string &key);
 
       /**
-       * Load a ReferenceFrame, by ID, and its children, using a specific
+       * Load a ReferenceFrame, and its children, using a specific
        * key value (generally, one previously used by export_tree_as)
        * Returns a pointer to the imported ReferenceFrame, or nullptr if
        * none exists.
        **/
-      ReferenceFrame *import_tree_from(KnowledgeBase &kb, const std::string &id);
+      ReferenceFrame *import_tree_from(KnowledgeBase &kb, const std::string &key);
       // **** End prototype proposal ****
 
 #ifdef GAMS_NO_RTTI
