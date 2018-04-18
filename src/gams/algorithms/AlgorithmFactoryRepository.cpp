@@ -103,7 +103,8 @@ algorithms::AlgorithmFactoryRepository::AlgorithmFactoryRepository (
   variables::Self * self,
   variables::Agents * agents)
 : agents_ (agents), knowledge_ (knowledge), platform_ (platform),
-  self_ (self), sensors_ (sensors)
+  self_ (self), sensors_ (sensors), init_started_(false),
+  init_finished_(false)
 {
 }
 
