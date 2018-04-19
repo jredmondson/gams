@@ -98,6 +98,22 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 
+OLD_ACE_REMOVED=0
+ACE_REPO_RESULT=0
+ACE_BUILD_RESULT=0
+DART_REPO_RESULT=0
+DART_BUILD_RESULT=0
+GAMS_REPO_RESULT=0
+GAMS_BUILD_RESULT=0
+MADARA_REPO_RESULT=0
+MADARA_BUILD_RESULT=0
+MPC_REPO_RESULT=0
+VREP_REPO_RESULT=0
+ZMQ_REPO_RESULT=0
+ZMQ_BUILD_RESULT=0
+
+OLD_ACE_REMOVED=0
+
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
 INSTALL_DIR=`pwd`
@@ -176,21 +192,48 @@ do
     echo "                        svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE"
     echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
     echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  ZMQ_ROOT            - location of ZeroMQ"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
-    echo "  DMPL_ROOT          - location of DART DMPL directory"
+    echo "  DMPL_ROOT           - location of DART DMPL directory"
     exit
   fi
 done
 
+echo "Checking for old version of ACE that used subversion"
+
+ACE_ENDING=$(basename $ACE_ROOT)
+
+if [[ $ACE_ENDING  == "ACE_wrappers" ]] ; then
+
+  ACE_PARENT=$(dirname $ACE_ROOT)
+
+  if [ -d $ACE_ROOT ] ; then
+    echo "  Removing old ACE at $ACE_PARENT"
+    rm -rf $ACE_PARENT
+    unset ACE_ROOT
+    OLD_ACE_REMOVED=1
+  else
+    echo "  Unsetting $ACE_ROOT, which is old"
+    echo "  You really need to update ACE_ROOT"
+    unset ACE_ROOT
+    OLD_ACE_REMOVED=1
+  fi
+fi
+
 # specify ACE_ROOT if missing. It's needed for most everything else.
 if [ -z $ACE_ROOT ] ; then
-  export ACE_ROOT=$INSTALL_DIR/ace/ACE_wrappers
+  export ACE_ROOT=$INSTALL_DIR/ACE_TAO/ACE
 fi
+
+if [ -z $MPC_ROOT ] ; then
+  export MPC_ROOT=$INSTALL_DIR/MPC
+fi
+
 
 # check if ACE_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
 if [[ ":$LD_LIBRARY_PATH:" == *":$ACE_ROOT/lib:"* ]]; then
@@ -262,6 +305,11 @@ if [ $PREREQS -eq 1 ]; then
     echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
   fi
   
+  if [ $ANDROID -eq 1 ]; then
+    sudo apt-get update
+    sudo apt-get install -f gcc-arm-linux-androideabi
+  fi
+  
   if [ $ROS -eq 1 ]; then
     if [ ! -d "/opt/ros/kinetic" ] ; then
       sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -308,22 +356,44 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
+  echo "ENTERING $MPC_ROOT"
+  # build ACE, all build information (compiler and options) will be set here
+  if [ ! -d $MPC_ROOT ] ; then
+    git clone https://github.com/DOCGroup/MPC.git
+    MPC_REPO_RESULT=$?
+  fi
+
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $ACE_ROOT ] ; then
-    echo "DOWNLOADING ACE"
-    svn checkout --quiet svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE $ACE_ROOT/../../ace
-    echo "CONFIGURING ACE"
-    if [ $ANDROID -eq 1 ]; then
-      # use the android specific files, we use custom config file for android due to build bug in ACE
-      echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
+    echo "DOWNLOADING ACE AND TAO"
+    ACE_PARENT=$(dirname $ACE_ROOT)
+    git clone https://github.com/DOCGroup/ACE_TAO.git $ACE_PARENT
+    ACE_REPO_RESULT=$?
 
-      # Android does not support versioned libraries and requires cross-compiling
-      echo -e "no_hidden_visibility=1\nversioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-    else
-      # use linux defaults
-      echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-      echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-    fi
+  else
+    echo "UPDATING ACE"
+    cd $ACE_ROOT
+    git pull
+    ACE_REPO_RESULT=$?
+    echo "CLEANING ACE OBJECTS"
+    make realclean -j $CORES
+
+  fi
+
+  echo "CONFIGURING ACE"
+  if [ $ANDROID -eq 1 ]; then
+    echo "  CONFIGURING ANDROID BUILD"
+    # use the android specific files, we use custom config file for android due to build bug in ACE
+    # echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
+    echo "#include \"config-android.h\"" > $ACE_ROOT/ace/config.h
+
+    # Android does not support versioned libraries and requires cross-compiling
+    echo -e "no_hidden_visibility=1\nversioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+  else
+    # use linux defaults
+    echo "  CONFIGURING DEFAULT BUILD"
+    echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
+    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
   fi
   
   echo "ENTERING $ACE_ROOT"
@@ -334,6 +404,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   make realclean -j $CORES
   echo "BUILDING ACE"
   make -j $CORES
+  ACE_BUILD_RESULT=$?
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING ACE"
     $STRIP_EXE libACE.so*
@@ -348,10 +419,12 @@ if [ $ZMQ -eq 1 ]; then
 
   if [ ! -d libzmq ] ; then
     git clone https://github.com/zeromq/libzmq
+    ZMQ_REPO_RESULT=$?
     cd libzmq
     ./autogen.sh && ./configure && make -j 4
     make check
     sudo make install && sudo ldconfig
+    ZMQ_BUILD_RESULT=$?
     export ZMQ_ROOT=/usr/local
   else
     if [ -z $ZMQ_ROOT ]; then
@@ -397,10 +470,12 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
     git clone http://git.code.sf.net/p/madara/code $MADARA_ROOT
+    MADARA_REPO_RESULT=$?
   else
     echo "UPDATING MADARA"
     cd $MADARA_ROOT
     git pull
+    MADARA_REPO_RESULT=$?
     echo "CLEANING MADARA OBJECTS"
     make realclean -j $CORES
 
@@ -418,6 +493,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "BUILDING MADARA"
   make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ -j $CORES
+  MADARA_BUILD_RESULT=$?
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING MADARA"
@@ -440,6 +516,7 @@ if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
     cd $INSTALL_DIR
     echo "DOWNLOADING VREP"
     wget http://coppeliarobotics.com/files/$VREP_INSTALLER
+    VREP_REPO_RESULT=$?
     mkdir $VREP_ROOT
 
     echo "UNPACKING VREP"
@@ -487,11 +564,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
     git clone -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    GAMS_REPO_RESULT=$?
     
   else
     echo "UPDATING GAMS"
     cd $GAMS_ROOT
     git pull
+    GAMS_REPO_RESULT=$?
 
     echo "CLEANING GAMS OBJECTS"
     make realclean -j $CORES
@@ -511,6 +590,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   echo "BUILDING GAMS"
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  GAMS_BUILD_RESULT=$?
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING GAMS"
@@ -537,7 +617,7 @@ if [ $DMPL -eq 1 ]; then
     echo "SETTING VREP_ROOT to $VREP_ROOT"
   fi
 
-  # build GAMS
+  # build DART
   if [ -z $DMPL_ROOT ] ; then
     export DMPL_ROOT=$INSTALL_DIR/dmplc
     echo "SETTING DMPL_ROOT to $DMPL_ROOT"
@@ -545,6 +625,7 @@ if [ $DMPL -eq 1 ]; then
   if [ ! -d $DMPL_ROOT ] ; then
     echo "DOWNLOADING GAMS"
     git clone --depth 1 -b release-0.4.0 https://github.com/cps-sei/dmplc.git $DMPL_ROOT
+    DART_REPO_RESULT=$?
     
   else
     echo "UPDATING DMPL"
@@ -558,6 +639,7 @@ if [ $DMPL -eq 1 ]; then
 
   cd $DMPL_ROOT
   make MZSRM=0 -j $CORES
+  DART_BUILD_RESULT=$?
 fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
@@ -565,34 +647,119 @@ if [ $VREP_CONFIG -eq 1 ]; then
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
   
-echo "BUILD COMPLETE"
-echo "Make sure to update your environment variables to the following"
-echo "export ACE_ROOT=$ACE_ROOT"
-echo "export MADARA_ROOT=$MADARA_ROOT"
-echo "export GAMS_ROOT=$GAMS_ROOT"
-echo "export VREP_ROOT=$VREP_ROOT"
+echo ""
+echo "BUILD STATUS"
+
+
+if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
+  echo "  ACE"
+  if [ $ACE_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+  fi
+  if [ $ACE_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+  fi
+fi
+
+if [ $ZMQ -eq 1 ]; then
+  echo "  ZMQ"
+  if [ $ZMQ_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+  fi
+  if [ $ZMQ_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+  fi
+fi
+
+if [ $VREP -eq 1 ]; then
+  echo "  VREP"
+  if [ $VREP_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+  fi
+fi
+
+if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
+  echo "  MADARA"
+  if [ $MADARA_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+  fi
+  if [ $MADARA_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+  fi
+fi
+
+if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
+  echo "  GAMS"
+  if [ $GAMS_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+  fi
+  if [ $GAMS_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+  fi
+fi
+
+echo -e ""
+echo -e "Make sure to update your environment variables to the following"
+echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
+echo -e "export ACE_ROOT=$ACE_ROOT"
+echo -e "export MADARA_ROOT=$MADARA_ROOT"
+echo -e "export GAMS_ROOT=$GAMS_ROOT"
+echo -e "export VREP_ROOT=$VREP_ROOT"
 
 if [ $SSL -eq 1 ]; then
   if [ -z $SSL_ROOT ]; then
     export SSL_ROOT=/usr
   fi
-  echo "export SSL_ROOT=$SSL_ROOT"
+  echo -e "export SSL_ROOT=$SSL_ROOT"
 fi
 
 if [ $ZMQ -eq 1 ]; then
-  echo "export ZMQ_ROOT=$ZMQ_ROOT"
+  echo -e "export ZMQ_ROOT=$ZMQ_ROOT"
+fi
+
+if [ $JAVA -eq 1 ]; then
+  echo -e "export JAVA_HOME=$JAVA_HOME"
 fi
 
 if [ $DMPL -eq 1 ]; then
-  echo "export DMPL_ROOT=$DMPL_ROOT"
+  echo -e "export DMPL_ROOT=$DMPL_ROOT"
 fi
 
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
-echo "export PATH=\$PATH:\$ACE_ROOT/bin:\$VREP_ROOT"
+echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+echo -e "export PATH=\$PATH:\$ACE_ROOT/bin:\$MPC_ROOT:\$VREP_ROOT"
 
 
 if [ $DMPL -eq 1 ]; then
-  echo "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
+  echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
 fi
+
+if [ $OLD_ACE_REMOVED -eq 1 ]; then
+  echo -e "\e[93mOLD ACE was removed. Add MPC_ROOT & ACE_ROOT to .bashrc\e[39m"
+fi
+
+echo -e "\e[39m"
+echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
+echo -e "IN YOUR BASHRC OR TERMINAL. ACE now requires MPC_ROOT to be set. If anything"
+echo -e "appears to suddenly break, try \"rm -rf ACE_TAO\" (the parent dir of \$ACE_ROOT)"
+echo -e "and then make sure that \"ace\" is one of the options you specify on next build."
+echo -e ""
 
 

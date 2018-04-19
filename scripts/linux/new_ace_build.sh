@@ -98,6 +98,7 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 
+OLD_ACE_REMOVED=0
 ACE_REPO_RESULT=0
 ACE_BUILD_RESULT=0
 DART_REPO_RESULT=0
@@ -110,6 +111,8 @@ MPC_REPO_RESULT=0
 VREP_REPO_RESULT=0
 ZMQ_REPO_RESULT=0
 ZMQ_BUILD_RESULT=0
+
+OLD_ACE_REMOVED=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -200,6 +203,27 @@ do
     exit
   fi
 done
+
+echo "Checking for old version of ACE that used subversion"
+
+ACE_ENDING=$(basename $ACE_ROOT)
+
+if [[ $ACE_ENDING  == "ACE_wrappers" ]] ; then
+
+  ACE_PARENT=$(dirname $ACE_ROOT)
+
+  if [ -d $ACE_ROOT ] ; then
+    echo "  Removing old ACE at $ACE_PARENT"
+    rm -rf $ACE_PARENT
+    unset ACE_ROOT
+    OLD_ACE_REMOVED=1
+  else
+    echo "  Unsetting $ACE_ROOT, which is old"
+    echo "  You really need to update ACE_ROOT"
+    unset ACE_ROOT
+    OLD_ACE_REMOVED=1
+  fi
+fi
 
 # specify ACE_ROOT if missing. It's needed for most everything else.
 if [ -z $ACE_ROOT ] ; then
@@ -332,7 +356,6 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
-
   echo "ENTERING $MPC_ROOT"
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $MPC_ROOT ] ; then
@@ -343,7 +366,8 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $ACE_ROOT ] ; then
     echo "DOWNLOADING ACE AND TAO"
-    git clone https://github.com/DOCGroup/ACE_TAO.git $($ACE_ROOT | rev | cut -d'/' -f2- | rev)
+    ACE_PARENT=$(dirname $ACE_ROOT)
+    git clone https://github.com/DOCGroup/ACE_TAO.git $ACE_PARENT
     ACE_REPO_RESULT=$?
 
   else
@@ -727,6 +751,9 @@ if [ $DMPL -eq 1 ]; then
   echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
 fi
 
+if [ $OLD_ACE_REMOVED -eq 1 ]; then
+  echo -e "\e[93mOLD ACE was removed. Add MPC_ROOT & ACE_ROOT to .bashrc\e[39m"
+fi
 
 echo -e "\e[39m"
 echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
