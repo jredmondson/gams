@@ -174,39 +174,21 @@ namespace gams
     protected:
       /**
        * Default constructor. No parent frame.
-       **/
-      ReferenceFrame();
-
-      /**
-       * Creates a copy of the origin Pose passed in.
        *
-       * With C++11, the copy is stored within this object. Without, it is
-       * allocated onto the heap.
+       * @param id the ID string to identify this frame by. If left
+       *    empty, a randome GUID will be generated.
        **/
-      explicit ReferenceFrame(const Pose &origin);
+      ReferenceFrame(const std::string &id = "");
 
       /**
-       * Uses an existing Pose as origin, and maintains a pointer to it.
-       * Changes to it affect this frame, the the pose must outlive this
-       * object.
+       * @param origin the origin, within some other frame, that
+       *    determines the transform relative to that frame.
+       * @param id the ID string to identify this frame by. If left
+       *    empty, a randome GUID will be generated.
        **/
-      explicit ReferenceFrame(const Pose *origin);
-
-      /**
-       * Copy constructor
-       **/
-      ReferenceFrame(const ReferenceFrame &o);
-
-      /**
-       * Assignment operator
-       **/
-      void operator=(const ReferenceFrame &o);
-
-      /**
-       * Destructor. Frees the origin, if it was allocated in
-       * this frame's constructor, or by a call to the origin setter
-       **/
-      virtual ~ReferenceFrame();
+      explicit ReferenceFrame(
+            const Pose &origin,
+            const std::string &id = "");
 
     public:
       /**
@@ -219,28 +201,34 @@ namespace gams
       const Pose &origin() const;
 
       /**
-       * Sets the origin of this frame.
+       * Creates a new ReferenceFrame with modified origin
        *
        * @param new_origin the new origin
-       * @return the new origin
+       * @return the new ReferenceFrame with new origin
        **/
-      const Pose &origin(const Pose &new_origin);
+      ReferenceFrame pose(const Pose &new_origin) const;
+
+      /**
+       * Creates a new ReferenceFrame with modified origin
+       *
+       * @param new_origin the new origin
+       * @return the new ReferenceFrame with new origin
+       **/
+      ReferenceFrame move(const Position &new_origin) const;
+
+      /**
+       * Creates a new ReferenceFrame with modified origin
+       *
+       * @param new_origin the new origin
+       * @return the new ReferenceFrame with new origin
+       **/
+      ReferenceFrame orient(const Orientation &new_origin) const;
 
       /**
        * Gets the parent frame (the one the origin is within). Will be *this
        * if no parent frame.
        **/
-      const ReferenceFrame &origin_frame() const;
-
-      /**
-       * Bind this frame's origin to a Pose. Changes to that Pose will affect
-       * this frame. It must not be deallocated before this Frame is.
-       *
-       * @param new_origin the new origin, which this frame will be bound to
-       **/
-      void bind_origin(const Pose *new_origin);
-
-      bool origin_is_external() const { return extern_origin_; }
+      ReferenceFrame origin_frame() const;
 
       /**
        * Equality operator.
@@ -283,52 +271,48 @@ namespace gams
       void normalize_pose(double &x, double &y, double &z,
                           double &rx, double &ry, double &rz) const;
 
-      // **** Start prototype proposal ****
       /**
        * Get the ID string of this frame. By default, frames generate a
        * random GUID as their ID
        **/
-      const std::string &id();
+      const std::string &id() const;
 
       /**
-       * Set the ID string of this frame. By default, frames generate a
-       * random GUID as their ID
-       **/
-      void id(const std::string &new_id);
-
-      /**
-       * Save this ReferenceFrame, and its children, to the knowledge base,
-       * The saved frames will be marked with the given version for later
-       * retrieval. These version numbers need not be contiguous,
+       * Save this ReferenceFrame, and its parents, to the knowledge base,
+       * The saved frames will be marked with the given timestamp for later
+       * retrieval. If timestamp is -1, it will always be treated as the most
+       * recent frame.
        * and GAMS expects newer versions to have higher values.
        **/
-      void export_tree(KnowledgeBase &kb, uint64_t version = -1);
+      void export_tree(KnowledgeBase &kb, uint64_t timestamp = -1) const;
 
       /**
-       * Load a ReferenceFrame, by ID, and its children, optionally a
-       * specific version. If the specific version does not exist,
-       * the one with highest version less than the version given will
-       * be selected. Note that this means by default, the latest version
-       * will be selected.
+       * Load a ReferenceFrame, by ID, and its parents.
+       * If timestamp is -1, the latest frame will be returned.
+       * Otherwise, interpolated frames will be generated and returned.
        * Returns a pointer to the imported ReferenceFrame, or nullptr if
        * none exists.
        **/
-      ReferenceFrame *import_tree(KnowledgeBase &kb, const std::string &id,
-                                  uint64_t version = -1);
+      static ReferenceFrame import_tree(
+              KnowledgeBase &kb,
+              const std::string &id,
+              uint64_t timestamp = -1);
 
       /**
-       * Save this ReferenceFrame, and its children, to the knowledge base,
+       * Save this ReferenceFrame, and its parents, to the knowledge base,
        * with a specific key value.
        **/
-      void export_tree_as(KnowledgeBase &kb, const std::string &key);
+      void export_tree_as(KnowledgeBase &kb, const std::string &key) const;
 
       /**
-       * Load a ReferenceFrame, and its children, using a specific
+       * Load a ReferenceFrame, and its parents, using a specific
        * key value (generally, one previously used by export_tree_as)
        * Returns a pointer to the imported ReferenceFrame, or nullptr if
        * none exists.
        **/
-      ReferenceFrame *import_tree_from(KnowledgeBase &kb, const std::string &key);
+      static ReferenceFrame import_tree_from(
+            KnowledgeBase &kb,
+            const std::string &key);
       // **** End prototype proposal ****
 
 #ifdef GAMS_NO_RTTI
@@ -618,16 +602,7 @@ namespace gams
       friend class Coordinate;
 
     protected:
-#ifdef CPP11
-      union
-      {
-        const Pose *ptr_origin_;
-        Pose origin_;
-      };
-#else
-      const Pose *origin_;
-#endif
-      bool extern_origin_;
+      Pose origin_;
 
     public:
     };
