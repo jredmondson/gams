@@ -200,6 +200,16 @@ namespace gams
 
     private:
       double planet_radius_;
+
+#ifdef GAMS_NO_RTTI
+    public:
+      static type_ids::Flags get_stypes() {
+        using namespace type_ids;
+        return flags(GPS, SimpleRotate);
+      }
+
+      type_ids::Flags get_types() const override { return get_stypes(); }
+#endif
     };
 
     GAMSExport const GPSFrame &gps_frame (void);

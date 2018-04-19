@@ -107,14 +107,14 @@ void gams::controllers::Multicontroller::add_platform_factory (
   const std::vector <std::string> & aliases,
   platforms::PlatformFactory * factory)
 {
-  gams::platforms::global_platform_factory->add (aliases, factory);
+  gams::platforms::global_platform_factory()->add (aliases, factory);
 }
 
 void gams::controllers::Multicontroller::add_algorithm_factory (
   const std::vector <std::string> & aliases,
   algorithms::AlgorithmFactory * factory)
 {
-  gams::algorithms::global_algorithm_factory->add (aliases, factory);
+  gams::algorithms::global_algorithm_factory()->add (aliases, factory);
 }
 
 int
@@ -638,7 +638,7 @@ const madara::knowledge::KnowledgeMap & args)
       "gams::controllers::Multicontroller::init_accent:" \
       " factory is creating accent %s\n", algorithm.c_str ());
 
-    new_accent = algorithms::global_algorithm_factory->create (algorithm, args);
+    new_accent = algorithms::global_algorithm_factory()->create (algorithm, args);
 
     if (new_accent)
     {
@@ -704,7 +704,7 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
       "gams::controllers::Multicontroller::init_algorithm:" \
       " factory is creating algorithm %s\n", algorithm.c_str ());
 
-    algorithm_ = algorithms::global_algorithm_factory->create (
+    algorithm_ = algorithms::global_algorithm_factory()->create (
       algorithm, args);
 
     if (algorithm_ == 0)

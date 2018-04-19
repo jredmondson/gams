@@ -165,8 +165,7 @@ namespace gams
     * the factory are started. This is not currently thread safe when adding
     * new platforms.
     **/
-    extern GAMSExport madara::utility::Refcounter <PlatformFactoryRepository>
-      global_platform_factory;
+    GAMSExport PlatformFactoryRepository *global_platform_factory();
   }
 }
 

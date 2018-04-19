@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
   TEST(gloc6.distance_to(gloc0), gps_frame.circ()/2);
 
   std::cout << std::endl << "Testing CartesianFrame tree:" << std::endl;
-  Position gloc(gps_frame,-90,0);
+  Position gloc(gps_frame,90,0);
   CartesianFrame cart_frame0(gloc);
   CartesianFrame cart_frame1(Pose(cart_frame0, 3, 4));
   CartesianFrame cart_frame2(Pose(cart_frame1, 3, 4));
@@ -90,8 +90,10 @@ int main(int argc, char *argv[])
   LOG(cloc0);
   LOG(cloc3);
   TEST(cloc0.frame() == cloc3.frame(), 0);
+  TEST(cloc0.distance_to(cloc2), 10);
   TEST(cloc0.distance_to(cloc3), 15);
   TEST(cloc3.distance_to(cloc0), 15);
+  TEST(cloc3.distance_to(cloc2), 5);
 
   LOG(cloc3a);
   TEST(cloc0.frame() == cloc3a.frame(), 1);
@@ -103,8 +105,12 @@ int main(int argc, char *argv[])
   TEST(cloc3.distance_to(cloc0), 15);
 
   std::cout << std::endl << "Testing Cartesian/GPS conversion:" << std::endl;
-  TEST(cloc2.distance_to(gloc), 15);
-  TEST(cloc0.distance_to(gloc), 15);
+  TEST(cloc2.distance_to(gloc), 10);
+  TEST(cloc3.distance_to(gloc), 15);
+  TEST(cloc0.distance_to(gloc), 0);
+  TEST(gloc.distance_to(cloc2), 10);
+  TEST(gloc.distance_to(cloc3), 15);
+  TEST(gloc.distance_to(cloc0), 0);
   LOG(cloc3.transform_to(cloc0.frame()));
   LOG(cloc3.transform_to(gloc.frame()));
   LOG(gloc.distance_to(cloc3));
@@ -122,8 +128,8 @@ int main(int argc, char *argv[])
   LOG(Orientation(rot_frame1.origin()));
   TEST(rot1.transform_to(rot_frame0).rz(), M_PI / 2);
   TEST(rot0.transform_to(rot_frame1).rz(), - (M_PI / 2));
-  TEST(rot0.distance_to(rot1), 90);
-  TEST(rot1.distance_to(rot0), 90);
+  TEST(rot0.distance_to(rot1), M_PI / 2);
+  TEST(rot1.distance_to(rot0), M_PI / 2);
 
   Position rloc0(rot_frame0, 0, 0);
   Position rloc1(rot_frame1, 4, 0);
@@ -171,12 +177,12 @@ int main(int argc, char *argv[])
   TEST(hex0.distance_to(hex1), 10);
   TEST(hex0.distance_to(hex2), 17.32);
   TEST(hex0.distance_to(hex3), 20);
-  TEST(hex0.angle_to(hex1), 60);
-  TEST(hex0.angle_to(hex2), 120);
-  TEST(hex0.angle_to(hex3), 180);
-  TEST(hex0.angle_to(hex4), 120);
-  TEST(hex0.angle_to(hex5), 60);
-  TEST(hex0.angle_to(hex6), 0);
+  TEST(hex0.angle_to(hex1, degrees), 60);
+  TEST(hex0.angle_to(hex2, degrees), 120);
+  TEST(hex0.angle_to(hex3, degrees), 180);
+  TEST(hex0.angle_to(hex4, degrees), 120);
+  TEST(hex0.angle_to(hex5, degrees), 60);
+  TEST(hex0.angle_to(hex6, degrees), 0);
   LOG(Orientation(hex0));
   LOG(Orientation(hex6));
   LOG(Orientation(hex6.transform_to(hex_frame0)));

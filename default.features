@@ -42,3 +42,9 @@ docs                    = 0
 /// @feature ros
 /// Enable this to support ROS platforms
 ros                     = 0
+
+
+/// @feature nortti
+/// Enable this feature if you don't want GAMS to use RTTI
+/// (Run-Time Type Information, i.e., typeid and dynamic_cast)
+nortti                  = 0

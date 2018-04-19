@@ -56,6 +56,7 @@
 
 #include <gams/GAMSExport.h>
 #include <gams/CPP11_compat.h>
+#include "rtti.h"
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -71,7 +72,7 @@
  * following statement/block.
  **/
 #define GAMS_WITH_FRAME_TYPE(coord, type, frame_ptr) \
-  if(const type *frame_ptr = dynamic_cast<const type *>(&coord.frame()))
+    if(const type *frame_ptr = ::gams::pose::reference_frame_cast<type>(&coord.frame()))
 
 // note: (void)frame_ref silences warnings if frame_ref isn't used in body code
 
@@ -282,6 +283,10 @@ namespace gams
       void normalize_pose(double &x, double &y, double &z,
                           double &rx, double &ry, double &rz) const;
 
+#ifdef GAMS_NO_RTTI
+      static type_ids::Flags get_stypes() { return type_ids::flags(); }
+      virtual type_ids::Flags get_types() const { return get_stypes(); }
+#endif
     protected:
       /**
        * Override to return a human-readable name for new reference frame types
@@ -580,6 +585,29 @@ namespace gams
     };
 
     /**
+     * Cast from one child of ReferenceFrame to another.
+     * Passes through to dynamic_cast<const F*> on systems with RTTI.
+     * Uses an equivalent custom mechanism otherwise.
+     **/
+    template<class F, class I>
+    inline static const F *reference_frame_cast(const I *f) {
+#ifndef GAMS_NO_RTTI
+      return dynamic_cast<const F*>(f);
+#else
+      if (f == nullptr) {
+        return nullptr;
+      }
+      type_ids::Flags from_flags = f->get_types();
+      type_ids::Flags to_flags = F::get_stypes();
+      if ((from_flags & to_flags) == to_flags) {
+        return static_cast<const F*>(f);
+      } else {
+        return nullptr;
+      }
+#endif
+    }
+
+    /**
      * For internal use.
      *
      * Provides implementation of angular and pose transforms for frames
@@ -690,6 +718,16 @@ namespace gams
       virtual double calc_angle(
                       double rx1, double ry1, double rz1,
                       double rx2, double ry2, double rz2) const;
+
+#ifdef GAMS_NO_RTTI
+    public:
+      static type_ids::Flags get_stypes() {
+        using namespace type_ids;
+        return flags(SimpleRotate);
+      }
+
+      type_ids::Flags get_types() const override { return get_stypes(); }
+#endif
     };
 
     GAMSExport const ReferenceFrame &default_frame (void);

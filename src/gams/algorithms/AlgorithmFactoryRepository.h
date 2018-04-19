@@ -185,8 +185,7 @@ namespace gams
      * have all new algorithms added to it before new threads that might access
      * the factory are started. This is not currently thread safe.
      **/
-    extern GAMSExport madara::utility::Refcounter <AlgorithmFactoryRepository>
-      global_algorithm_factory;
+    GAMSExport AlgorithmFactoryRepository *global_algorithm_factory();
   }
 }
 

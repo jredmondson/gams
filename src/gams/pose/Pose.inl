@@ -317,6 +317,21 @@ namespace gams
       return me.distance_to(target);
     }
 
+    template<typename U>
+    inline double Pose::angle_to (const Pose &target, U u) const
+    {
+      Orientation me(*this);
+      Orientation other(target);
+      return me.angle_to(other, u);
+    }
+
+    template<typename U>
+    inline double Pose::angle_to (const Orientation &target, U u) const
+    {
+      Orientation me(*this);
+      return me.angle_to(target, u);
+    }
+
     inline Pose::operator Position() const
     {
       return Position(frame(), x(), y(), z());
@@ -327,8 +342,7 @@ namespace gams
       return Orientation(frame(), rx(), ry(), rz());
     }
 
-    inline
-      std::string Pose::to_string (const std::string & delimiter,
+    inline std::string Pose::to_string (const std::string & delimiter,
       const std::string & unset_identifier) const
     {
       std::stringstream buffer;

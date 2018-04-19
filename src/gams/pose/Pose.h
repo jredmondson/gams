@@ -54,6 +54,7 @@
 #ifndef _GAMS_POSE_POSE_H_
 #define _GAMS_POSE_POSE_H_
 
+#include "rtti.h"
 #include <iostream>
 #include <string>
 
@@ -494,6 +495,22 @@ namespace gams
        * @return shortest angle to map this pose's onto the given orientation
        **/
       double angle_to (const Orientation &target) const;
+
+      /**
+       * Finds angle to the target; transforms target to this frame if needed.
+       *
+       * @param target the pose with the target orientation
+       * @return shortest angle to map this pose's orientation onto the other pose
+       **/
+      template<typename U> double angle_to (const Pose &target, U u) const;
+
+      /**
+       * Finds angle to the target; transforms target to this frame if needed.
+       *
+       * @param target the target orientation
+       * @return shortest angle to map this pose's onto the given orientation
+       **/
+      template<typename U> double angle_to (const Orientation &target, U u) const;
 
       /**
        * Casting operator to extract Linear from this Pose

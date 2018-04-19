@@ -276,7 +276,7 @@ namespace gams
     template<typename U>
     inline double Angular<C>::angle_to (const C &target, U u) const
     {
-      return u.from_radians (distance_to (target));
+      return u.from_radians (this->distance_to (target));
     }
 
     template<class C>

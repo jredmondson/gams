@@ -89,10 +89,12 @@ namespace algorithms = gams::algorithms;
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
-/// globally accessible algorithm factory
-madara::utility::Refcounter <algorithms::AlgorithmFactoryRepository>
-  algorithms::global_algorithm_factory (
-    new algorithms::AlgorithmFactoryRepository ());
+GAMSExport algorithms::AlgorithmFactoryRepository *
+    algorithms::global_algorithm_factory() {
+  static algorithms::AlgorithmFactoryRepository *algo_repo =
+    new algorithms::AlgorithmFactoryRepository();
+  return algo_repo;
+}
 
 algorithms::AlgorithmFactoryRepository::AlgorithmFactoryRepository (
   madara::knowledge::KnowledgeBase * knowledge,
@@ -101,7 +103,8 @@ algorithms::AlgorithmFactoryRepository::AlgorithmFactoryRepository (
   variables::Self * self,
   variables::Agents * agents)
 : agents_ (agents), knowledge_ (knowledge), platform_ (platform),
-  self_ (self), sensors_ (sensors)
+  self_ (self), sensors_ (sensors), init_started_(false),
+  init_finished_(false)
 {
 }
 
