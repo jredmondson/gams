@@ -171,7 +171,7 @@ namespace gams
      **/
     class GAMSExport ReferenceFrame
     {
-    protected:
+    public:
       /**
        * Default constructor. No parent frame.
        *
@@ -190,7 +190,6 @@ namespace gams
             const Pose &origin,
             const std::string &id = "");
 
-    public:
       /**
        * Gets the origin of this Frame
        *
@@ -604,7 +603,6 @@ namespace gams
     protected:
       Pose origin_;
 
-    public:
     };
 
     /**
