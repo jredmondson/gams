@@ -359,7 +359,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   echo "ENTERING $MPC_ROOT"
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $MPC_ROOT ] ; then
-    git clone https://github.com/DOCGroup/MPC.git
+    git clone --depth 1 https://github.com/DOCGroup/MPC.git
     MPC_REPO_RESULT=$?
   fi
 
@@ -367,7 +367,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $ACE_ROOT ] ; then
     echo "DOWNLOADING ACE AND TAO"
     ACE_PARENT=$(dirname $ACE_ROOT)
-    git clone https://github.com/DOCGroup/ACE_TAO.git $ACE_PARENT
+    git clone --depth 1 https://github.com/DOCGroup/ACE_TAO.git $ACE_PARENT
     ACE_REPO_RESULT=$?
 
   else
@@ -418,7 +418,7 @@ if [ $ZMQ -eq 1 ]; then
   cd $INSTALL_DIR
 
   if [ ! -d libzmq ] ; then
-    git clone https://github.com/zeromq/libzmq
+    git clone --depth 1 https://github.com/zeromq/libzmq
     ZMQ_REPO_RESULT=$?
     cd libzmq
     ./autogen.sh && ./configure && make -j 4
@@ -469,7 +469,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
-    git clone http://git.code.sf.net/p/madara/code $MADARA_ROOT
+    git clone --depth 1 http://git.code.sf.net/p/madara/code $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
     echo "UPDATING MADARA"
@@ -563,7 +563,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
-    git clone -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    git clone --depth 1 -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
     GAMS_REPO_RESULT=$?
     
   else
