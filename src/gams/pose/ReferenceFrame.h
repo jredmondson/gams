@@ -277,42 +277,99 @@ namespace gams
       const std::string &id() const;
 
       /**
-       * Save this ReferenceFrame, and its parents, to the knowledge base,
+       * Get the timestamp assigned to this frame.
+       **/
+      uint64_t timestamp() const;
+
+      /**
+       * Returns true if this frame was interpolated from two stored frames.
+       **/
+      bool interpolated() const;
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
        * The saved frames will be marked with the given timestamp for later
        * retrieval. If timestamp is -1, it will always be treated as the most
        * recent frame.
        * and GAMS expects newer versions to have higher values.
        **/
-      void export_tree(KnowledgeBase &kb, uint64_t timestamp = -1) const;
+      void save(KnowledgeBase &kb, uint64_t timestamp = -1) const;
 
       /**
-       * Load a ReferenceFrame, by ID, and its parents.
-       * If timestamp is -1, the latest frame will be returned.
-       * Otherwise, interpolated frames will be generated and returned.
-       * Returns a pointer to the imported ReferenceFrame, or nullptr if
-       * none exists.
+       * Load a single ReferenceFrame, by ID.
+       *
+       * @param id the ID of the frame to load
+       * @param timestamp if -1, gets the latest frame (no interpolation)
+       *   Otherwise, gets the frame at a specified timestamp,
+       *   interpolated necessary.
+       *
+       * @return a pointer to the imported ReferenceFrame, or nullptr if
+       *   none exists.
        **/
-      static ReferenceFrame import_tree(
+      static ReferenceFrame load(
               KnowledgeBase &kb,
               const std::string &id,
               uint64_t timestamp = -1);
 
       /**
-       * Save this ReferenceFrame, and its parents, to the knowledge base,
-       * with a specific key value.
+       * Load ReferenceFrames, by ID, and their common ancestors. Will
+       * interpolate frames to ensure the returned frames all have a common
+       * timestamp.
+       *
+       * @tparam an InputIterator, of item type std::string
+       *
+       * @param begin beginning iterator
+       * @param end ending iterator
+       * @param timestamp if -1, the latest possible tree will be returned.
+       *   Otherwise, the specified timestamp will be returned.
+       *
+       * @return a vector of ReferenceFrames, each corresponding to the
+       *   input IDs, in the same order.
        **/
-      void export_tree_as(KnowledgeBase &kb, const std::string &key) const;
+      template<typename InputIterator>
+      static std::vector<ReferenceFrame> load_tree(
+              KnowledgeBase &kb,
+              InputIterator begin,
+              InputIterator end,
+              uint64_t timestamp = -1);
 
       /**
-       * Load a ReferenceFrame, and its parents, using a specific
-       * key value (generally, one previously used by export_tree_as)
-       * Returns a pointer to the imported ReferenceFrame, or nullptr if
+       * Load ReferenceFrames, by ID, and their common ancestors. Will
+       * interpolate frames to ensure the returned frames all have a common
+       * timestamp.
+       *
+       * @tparam a Container, supporting cbegin() and cend(),
+       *    of item type std::string
+       *
+       * @param ids a Container of ids
+       * @param timestamp if -1, the latest possible tree will be returned.
+       *   Otherwise, the specified timestamp will be returned.
+       *
+       * @return a vector of ReferenceFrames, each corresponding to the
+       *   input IDs, in the same order.
+       **/
+      template<typename Container>
+      static std::vector<ReferenceFrame> load_tree(
+              KnowledgeBase &kb,
+              const Container &ids,
+              uint64_t timestamp = -1) {
+        return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
+      }
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * with a specific key value.
+       **/
+      void save_as(KnowledgeBase &kb, const std::string &key) const;
+
+      /**
+       * Load a ReferenceFrame using a specific key value (generally, one
+       * previously used by export_tree_as). No interpolation will be done.
+       *
+       * @returns a pointer to the imported ReferenceFrame, or nullptr if
        * none exists.
        **/
-      static ReferenceFrame import_tree_from(
-            KnowledgeBase &kb,
-            const std::string &key);
-      // **** End prototype proposal ****
+      static ReferenceFrame load_as(KnowledgeBase &kb, const std::string &key);
 
 #ifdef GAMS_NO_RTTI
       static type_ids::Flags get_stypes() { return type_ids::flags(); }
