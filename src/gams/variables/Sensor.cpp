@@ -197,7 +197,7 @@ gams::variables::Sensor::get_discretization () const
 void
 gams::variables::Sensor::regenerate_local_frame ()
 {
-  local_frame_ = pose::CartesianFrame(get_origin());
+  local_frame_ = pose::ReferenceFrame(pose::Cartesian, get_origin());
 }
 
 gams::pose::Position

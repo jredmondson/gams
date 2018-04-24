@@ -60,6 +60,7 @@
 #include <cfloat>
 #include <utility>
 #include <gams/CPP11_compat.h>
+#include "ReferenceFrameFwd.h"
 
 #define INVAL_COORD DBL_MAX
 
@@ -67,8 +68,6 @@ namespace gams
 {
   namespace pose
   {
-    class ReferenceFrame;
-
     namespace order
     {
       /**
@@ -140,27 +139,6 @@ namespace gams
     }
 
     /**
-     * For internal use.
-     *
-     * Allows all specializations of Coordinate to share the same default frame.
-     * This type serves no other purpose.
-     **/
-    class CoordinateBase
-    {
-    public:
-      /**
-       * Retrieves the default frame that Coordinates (Pose, Position, Orientation)
-       * that don't specify a frame will use.
-       *
-       * @return a reference to a CartesianFrame object that serves as default
-       **/
-      GAMSExport static const ReferenceFrame &default_frame();
-
-    private:
-      GAMSExport static const ReferenceFrame *default_frame_;
-    };
-
-    /**
      * New coordinate types which are frame-dependant can inherit from this
      * class. Pass the type of the child class as CoordType
      *
@@ -172,11 +150,11 @@ namespace gams
      *      -- Implement operator==
      *      -- Implement the following methods:
      *   static std::string name() // return the type's name
-     *   static constexpr int size() // return # of values in representation
-     *   constexpr double get(int i) const // return ith value of representation
-     *   constexpr bool operator==(const BaseType &rhs) const
+     *   static int size() // return # of values in representation
+     *   double get(int i) const // return ith value of representation
+     *   bool operator==(const BaseType &rhs) const
      *   BaseType &as_vec() // return *this
-     *   constexpr const BaseType &as_vec() const // return *this
+     *   const BaseType &as_vec() const // return *this
      *
      * Additionally, new coordinate types should either:
      *   -- Specialize the ReferenceFrame::*_within_frame templates; OR
@@ -185,7 +163,7 @@ namespace gams
      *      and add transformation logic for those methods in the various frames
      **/
     template<typename CoordType>
-    class Coordinate : public CoordinateBase
+    class Coordinate
     {
     public:
       /**
@@ -199,22 +177,14 @@ namespace gams
        *
        * @param frame the reference frame this Coordinate will belong to
        **/
-      constexpr explicit Coordinate(const ReferenceFrame &frame);
-
-      /**
-       * Construct through a pointer to a frame object. This Coordinate must not
-       * outlive the ReferenceFrame that is passed in.
-       *
-       * @param frame the reference frame this Coordinate will belong to
-       **/
-      constexpr explicit Coordinate(const ReferenceFrame *frame);
+      explicit Coordinate(ReferenceFrame frame);
 
       /**
        * Getter for the reference frame this Coordinate belongs to.
        *
        * @return the frame
        **/
-      constexpr const ReferenceFrame &frame() const;
+      const ReferenceFrame &frame() const;
 
       /**
        * Setter for the reference frame this Coordinate belongs to. Any further
@@ -225,7 +195,7 @@ namespace gams
        * @param new_frame the frame the Coordinate will now belong to
        * @return the old frame
        **/
-      const ReferenceFrame &frame(const ReferenceFrame &new_frame);
+      ReferenceFrame frame(ReferenceFrame new_frame);
 
       /**
        * Evaluate equality with the other Coordinate
@@ -343,8 +313,6 @@ namespace gams
        * @param new_frame the frame to transform to
        * @return the new coordinate in the new frame
        *
-       * @throws bad_coord_type thrown if the new reference frame does
-       *      not support CoordType.
        * @throws unrelated_frames thrown if the new reference frame is not
        *      part of the same tree as the current one.
        * @throws undefined_transform thrown if no conversion between two frames
@@ -359,8 +327,6 @@ namespace gams
        *
        * @param new_frame the frame to transform to
        *
-       * @throws bad_coord_type thrown if the new reference frame does
-       *      not support CoordType.
        * @throws unrelated_frames thrown if the new reference frame is not
        *      part of the same tree as the current one.
        * @throws undefined_transform thrown if no conversion between two frames
@@ -379,8 +345,6 @@ namespace gams
        * @return the distance according to the distance metric in the common
        *   frame, for CoordType. Typically, return will be meters or degrees.
        *
-       * @throws bad_coord_type thrown if a frame along the conversion path
-       *      does not support CoordType.
        * @throws unrelated_frames thrown if the target's reference frame is not
        *      part of the same tree as the current one.
        * @throws undefined_transform thrown if no conversion between two frames
@@ -397,17 +361,17 @@ namespace gams
       void normalize();
 
     private:
-      const ReferenceFrame *frame_;
+      ReferenceFrame frame_;
 
       CoordType &as_coord_type();
 
-      constexpr const CoordType &as_coord_type() const;
+      const CoordType &as_coord_type() const;
 
       template<typename Type>
       Type &as_type();
 
       template<typename Type>
-      constexpr const Type &as_type() const;
+      const Type &as_type() const;
     };
   }
 }

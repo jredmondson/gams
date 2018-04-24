@@ -54,6 +54,7 @@
 #ifndef _GAMS_POSE_GPS_FRAME_INL_
 #define _GAMS_POSE_GPS_FRAME_INL_
 
+#if 0
 #include "ReferenceFrame.h"
 
 #include "GPSFrame.h"
@@ -101,5 +102,7 @@ namespace gams
     }
   }
 }
+
+#endif
 
 #endif

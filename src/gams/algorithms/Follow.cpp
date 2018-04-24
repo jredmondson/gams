@@ -282,8 +282,8 @@ gams::algorithms::Follow::execute (void)
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Follow::execute:" \
         " Target has location. Moving.\n");
-      
-      gams::pose::CartesianFrame target_frame;
+
+      gams::pose::ReferenceFrame target_frame;
 
       if (target_.dest.to_record ().size () >= 2)
       {
@@ -296,13 +296,13 @@ gams::algorithms::Follow::execute (void)
 
         gams::pose::Orientation dest_orientation (0, 0, dest_radians);
 
-        target_frame = gams::pose::CartesianFrame (
+        target_frame = gams::pose::ReferenceFrame (
           gams::pose::Pose (target_location_, dest_orientation));
       }
       else
       {
         // by default use a pose of the target location with a default orientation
-        target_frame = gams::pose::CartesianFrame (
+        target_frame = gams::pose::ReferenceFrame (
           gams::pose::Pose (target_location_,
           gams::pose::Orientation (0,0,0)));
       }

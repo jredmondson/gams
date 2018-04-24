@@ -81,8 +81,6 @@ namespace gams
 {
   namespace pose
   {
-    class ReferenceFrame;
-
     class Quaternion;
 
     /**
@@ -107,7 +105,7 @@ namespace gams
        * @param ry length of orientation vector in y-axis direction
        * @param rz length of orientation vector in z-axis direction
        **/
-      constexpr AngularVector (double rx, double ry, double rz);
+      AngularVector (double rx, double ry, double rz);
 
       /**
        * Constructor, taking axis and angle separately
@@ -118,7 +116,7 @@ namespace gams
        * @param z length of orientation axis unit vector in z-axis direction
        * @param angle the amount of orientation around the axis
        **/
-      constexpr AngularVector (double x, double y, double z, double angle);
+      AngularVector (double x, double y, double z, double angle);
 
       /**
        * Constructor from MADARA DoubleVector
@@ -137,7 +135,7 @@ namespace gams
       /**
        * Default Constructor. Produces an invalid orientation (INVAL_COORD)
        **/
-      constexpr AngularVector ();
+      AngularVector ();
 
       /**
        * Constructor to convert from Quaternion to equivalent
@@ -152,14 +150,14 @@ namespace gams
        *
        * @return true if any value is INVAL_COORD
        **/
-      constexpr bool is_set () const;
+      bool is_set () const;
 
       /**
        * Tests if all of rx, ry, and rz are zero
        *
        * @return true of all values are zero
        **/
-      constexpr bool is_zero () const;
+      bool is_zero () const;
 
       /**
        * Tests for perfect equality with another AngularVector
@@ -167,7 +165,7 @@ namespace gams
        * @param rhs the other vector to compare to
        * @return true if all values are equal to corresponding values
        **/
-      constexpr bool operator== (const AngularVector &rhs) const;
+      bool operator== (const AngularVector &rhs) const;
 
       static std::string name ();
 
@@ -176,21 +174,21 @@ namespace gams
        *
        * @return rx value
        **/
-      constexpr double rx () const;
+      double rx () const;
 
       /**
        * Getter for ry
        *
        * @return ry value
        **/
-      constexpr double ry () const;
+      double ry () const;
 
       /**
        * Getter for rz
        *
        * @return rz value
        **/
-      constexpr double rz () const;
+      double rz () const;
 
       /**
        * Setter for rx
@@ -230,14 +228,14 @@ namespace gams
        *
        * @return const reference to this object
        **/
-      constexpr const BaseType &as_vec () const;
+      const BaseType &as_vec () const;
 
       /**
        * Gets the size of the vector this coordinate type is represented by.
        *
        * @return 3
        **/
-      constexpr int size () const;
+      int size () const;
 
       /**
        * Retrives i'th coordinate, 0-indexed, in order rx, ry, rz
@@ -245,7 +243,7 @@ namespace gams
        * @param i the index
        * @return the i'th value
        **/
-      constexpr double get (int i) const;
+      double get (int i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order rx, ry, rz
@@ -258,8 +256,6 @@ namespace gams
 
       friend class Quaternion;
 
-      friend class ReferenceFrame;
-    private:
       double rx_, ry_, rz_;
     };
 
@@ -320,7 +316,7 @@ namespace gams
        * @param ry length of orientation vector in owning-frame's y-axis direction
        * @param rz length of orientation vector in owning-frame's z-axis direction
        **/
-      constexpr Angular (const ReferenceFrame &frame,
+      Angular (ReferenceFrame frame,
                          double rx, double ry, double rz);
 
       /**
@@ -338,7 +334,7 @@ namespace gams
        * @param u units to use (see AngleUnits.h)
        **/
       template<typename U>
-      constexpr Angular (const ReferenceFrame &frame,
+      Angular (ReferenceFrame frame,
                          double rx, double ry, double rz, U u);
 
       /**
@@ -376,7 +372,7 @@ namespace gams
        * @param z length of orientation axis vector in frame's z-axis direction
        * @param angle the amount of orientation, default radians, around the axis
        **/
-      constexpr Angular (const ReferenceFrame &frame,
+      Angular (ReferenceFrame frame,
                          double x, double y, double z, double angle);
 
       /**
@@ -390,7 +386,7 @@ namespace gams
        * @param angle the amount of orientation around the axis
        * @param u units to use (see AngleUnits.h)
        **/
-      template<typename U> constexpr Angular (const ReferenceFrame &frame,
+      template<typename U> Angular (ReferenceFrame frame,
                                               double x, double y, double z,
                                               double angle, U u);
 
@@ -406,7 +402,7 @@ namespace gams
        * @param frame the frame to belong to
        * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
        **/
-      Angular (const ReferenceFrame &frame,
+      Angular (ReferenceFrame frame,
                const madara::knowledge::containers::DoubleVector &vec);
 
       /**
@@ -423,7 +419,7 @@ namespace gams
        * @param frame the frame to belong to
        * @param vec the vector to get values from (0, 1, 2 go to rx, ry, rz)
        **/
-      Angular (const ReferenceFrame &frame,
+      Angular (ReferenceFrame frame,
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
@@ -444,7 +440,7 @@ namespace gams
        * @param frame the frame that this orientation belongs to
        * @param quat the Quaternion to converto to a orientation vector
        **/
-      explicit Angular (const ReferenceFrame &frame, const Quaternion &quat);
+      explicit Angular (ReferenceFrame frame, const Quaternion &quat);
 
       /**
        * Copy constructor, but also convert to a new frame
@@ -452,7 +448,7 @@ namespace gams
        * @param new_frame the new frame to convert to
        * @param orig the origin of the orientation
        **/
-      Angular (const ReferenceFrame &new_frame, const C &orig);
+      Angular (ReferenceFrame new_frame, const C &orig);
 
       /**
        * Synonym for distance_to. Returns angle of shortest orientation mapping

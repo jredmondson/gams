@@ -62,7 +62,7 @@
 #include <array>
 
 #include "gams/algorithms/AlgorithmFactory.h"
-#include "gams/utility/CartesianFrame.h"
+#include "gams/pose/CartesianFrame.h"
 #include "gams/groups/GroupFactoryRepository.h"
 #include "madara/utility/Utility.h"
 
@@ -719,8 +719,8 @@ gams::algorithms::Spell::plan (void)
   }
 
   double offset = count_ * (width_ + buffer_);
-  pose::CartesianFrame base_frame (origin_);
-  pose::CartesianFrame frame (pose::Position(base_frame, offset, 0));
+  pose::ReferenceFrame base_frame (origin_);
+  pose::ReferenceFrame frame (pose::Position(base_frame, offset, 0));
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_WARNING,

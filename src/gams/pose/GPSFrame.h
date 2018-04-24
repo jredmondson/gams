@@ -60,6 +60,7 @@ namespace gams
 {
   namespace pose
   {
+#if 0
     /**
      * Positions represented as GPS coordinates, and an altitude,
      * assuming a spherical planet (by default, Earth):
@@ -211,11 +212,17 @@ namespace gams
       type_ids::Flags get_types() const override { return get_stypes(); }
 #endif
     };
+#endif
 
-    GAMSExport const GPSFrame &gps_frame (void);
+    constexpr double EARTH_RADIUS = 6371000.0;
+    constexpr double EARTH_CIRC = EARTH_RADIUS * 2 * M_PI;
+
+    extern const ReferenceFrameType *GPS;
+
+    GAMSExport const ReferenceFrame &gps_frame (void);
   }
 }
 
 #include "GPSFrame.inl"
-
 #endif
+

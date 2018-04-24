@@ -60,11 +60,11 @@ namespace gams
 {
   namespace pose
   {
-    inline constexpr LinearVector::LinearVector(
+    inline LinearVector::LinearVector(
                             double x, double y, double z)
       : x_(x), y_(y), z_(z) {}
 
-    inline constexpr LinearVector::LinearVector()
+    inline LinearVector::LinearVector()
       : x_(0), y_(0), z_(0) {}
 
     inline LinearVector::LinearVector(const double array[])
@@ -81,18 +81,18 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
 
-    inline constexpr bool LinearVector::is_set() const
+    inline bool LinearVector::is_set() const
     {
       return x_ != INVAL_COORD || y_ != INVAL_COORD || z_ != INVAL_COORD;
     }
 
-    inline constexpr bool
+    inline bool
         LinearVector::operator==(const LinearVector &other) const
     {
       return x_ == other.x_ && y_ == other.y_ && z_ == other.z_;
     }
 
-    inline constexpr bool LinearVector::is_zero() const
+    inline bool LinearVector::is_zero() const
     {
       return x_ == 0 && y_ == 0 && z_ == 0;
     }
@@ -102,21 +102,21 @@ namespace gams
       return "Linear";
     }
 
-    inline constexpr double LinearVector::x() const { return x_; }
-    inline constexpr double LinearVector::y() const { return y_; }
-    inline constexpr double LinearVector::z() const { return z_; }
+    inline double LinearVector::x() const { return x_; }
+    inline double LinearVector::y() const { return y_; }
+    inline double LinearVector::z() const { return z_; }
 
     inline double LinearVector::x(double new_x) { return x_ = new_x; }
     inline double LinearVector::y(double new_y) { return y_ = new_y; }
     inline double LinearVector::z(double new_z) { return z_ = new_z; }
 
-    inline constexpr double LinearVector::lon() const { return x_; }
-    inline constexpr double LinearVector::lng() const { return x_; }
-    inline constexpr double LinearVector::longitude() const { return x_; }
-    inline constexpr double LinearVector::lat() const { return y_; }
-    inline constexpr double LinearVector::latitude() const { return y_; }
-    inline constexpr double LinearVector::alt() const { return z_; }
-    inline constexpr double LinearVector::altitude() const { return z_; }
+    inline double LinearVector::lon() const { return x_; }
+    inline double LinearVector::lng() const { return x_; }
+    inline double LinearVector::longitude() const { return x_; }
+    inline double LinearVector::lat() const { return y_; }
+    inline double LinearVector::latitude() const { return y_; }
+    inline double LinearVector::alt() const { return z_; }
+    inline double LinearVector::altitude() const { return z_; }
 
     inline double LinearVector::lon(double new_x) { return x_ = new_x; }
     inline double LinearVector::lng(double new_x) { return x_ = new_x; }
@@ -126,22 +126,22 @@ namespace gams
     inline double LinearVector::alt(double new_z) { return z_ = new_z; }
     inline double LinearVector::altitude(double new_z) { return z_ = new_z; }
 
-    inline constexpr double LinearVector::rho() const { return x_; }
-    inline constexpr double LinearVector::theta() const { return x_; }
-    inline constexpr double LinearVector::phi() const { return y_; }
-    inline constexpr double LinearVector::r() const { return z_; }
+    inline double LinearVector::rho() const { return x_; }
+    inline double LinearVector::theta() const { return x_; }
+    inline double LinearVector::phi() const { return y_; }
+    inline double LinearVector::r() const { return z_; }
 
     inline double LinearVector::rho(double new_x) { return x_ = new_x; }
     inline double LinearVector::theta(double new_x) { return x_ = new_x; }
     inline double LinearVector::phi(double new_y) { return y_ = new_y; }
     inline double LinearVector::r(double new_z) { return z_ = new_z; }
 
-    inline constexpr int LinearVector::size()
+    inline int LinearVector::size()
     {
       return 3;
     }
 
-    inline constexpr double LinearVector::get(int i) const
+    inline double LinearVector::get(int i) const
     {
       return i == 0 ? x() :
              i == 1 ? y() :
@@ -162,7 +162,7 @@ namespace gams
       return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const LinearVector &LinearVector::as_vec() const
+    inline const LinearVector &LinearVector::as_vec() const
     {
       return static_cast<const BaseType &>(*this);
     }
@@ -206,7 +206,7 @@ namespace gams
       : LinearVector(x, y, z), Coordinate<C>() {}
 
     template<class C>
-    inline constexpr Linear<C>::Linear(const ReferenceFrame &frame,
+    inline Linear<C>::Linear(ReferenceFrame frame,
                        double x, double y, double z)
       : LinearVector(x, y, z), Coordinate<C>(frame) {}
 
@@ -214,11 +214,11 @@ namespace gams
     inline Linear<C>::Linear() : LinearVector(), Coordinate<C>() {}
 
     template<class C>
-    inline Linear<C>::Linear(const ReferenceFrame &frame)
+    inline Linear<C>::Linear(ReferenceFrame frame)
       : LinearVector(), Coordinate<C>(frame) {}
 
     template<class C>
-    inline Linear<C>::Linear(const ReferenceFrame &new_frame,
+    inline Linear<C>::Linear(ReferenceFrame new_frame,
                               const C &orig)
       : LinearVector(orig), Coordinate<C>(orig.frame())
     {
@@ -226,17 +226,11 @@ namespace gams
     }
 
     template<class C>
-    inline Linear<C>::Linear (const Linear & rhs)
-      : LinearVector (rhs.x (), rhs.y (), rhs.z ()), Coordinate<C> (rhs.frame ())
-    {
-    }
-
-    template<class C>
     inline Linear<C>::Linear(const double array[])
       : LinearVector(array), Coordinate<C>() {}
 
     template<class C>
-    inline Linear<C>::Linear(const ReferenceFrame &frame, const double array[])
+    inline Linear<C>::Linear(ReferenceFrame frame, const double array[])
       : LinearVector(array), Coordinate<C>(frame) {}
 
     template<class C>
@@ -244,7 +238,7 @@ namespace gams
       : LinearVector(array), Coordinate<C>() {}
 
     template<class C>
-    inline Linear<C>::Linear(const ReferenceFrame &frame, const float array[])
+    inline Linear<C>::Linear(ReferenceFrame frame, const float array[])
       : LinearVector(array), Coordinate<C>(frame) {}
 
     template<class C>
@@ -253,7 +247,7 @@ namespace gams
       : LinearVector(vec), Coordinate<C>() {}
 
     template<class C>
-    inline Linear<C>::Linear(const ReferenceFrame &frame,
+    inline Linear<C>::Linear(ReferenceFrame frame,
         const madara::knowledge::containers::DoubleVector &vec)
       : LinearVector(vec), Coordinate<C>(frame) {}
 
@@ -264,7 +258,7 @@ namespace gams
 
     template<class C>
     inline Linear<C>::Linear(
-        const ReferenceFrame &frame,
+        ReferenceFrame frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : LinearVector(vec), Coordinate<C>(frame) {}
 
@@ -304,7 +298,6 @@ namespace gams
         set (2, container[order::XYZ::get (2)]);
       }
     }
-
   }
 }
 

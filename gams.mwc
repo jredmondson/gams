@@ -9,7 +9,7 @@ workspace {
   }
 
   specific(gnuace) {
-    cmdline += -value_template "compile_flags+=-std=c++11 -g -Og"
+    cmdline += -value_template "compile_flags+=-std=c++11 -g -O0"
     cmdline += -value_template compile_flags+=-Wextra
     cmdline += -value_template compile_flags+=-pedantic
   }

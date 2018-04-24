@@ -252,9 +252,9 @@ namespace gams
       pose::Pose sw_pose_;
 
       /**
-       * CartesianFrame representing vrep coordinate system.
+       * Cartesian frame representing vrep coordinate system.
        **/
-      pose::CartesianFrame vrep_frame_;
+      pose::ReferenceFrame vrep_frame_;
 
       madara::knowledge::containers::Double thread_rate_;
 

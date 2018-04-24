@@ -59,11 +59,11 @@
 #include "rtti.h"
 #include <vector>
 #include <string>
+#include <utility>
 #include <stdexcept>
-
-#define GAMS_NO_INL
+#include "ReferenceFrameFwd.h"
+#include "CartesianFrame.h"
 #include "Pose.h"
-#undef GAMS_NO_INL
 
 /**
  * Following statement or block is executed only if the frame `coord` belongs
@@ -71,8 +71,8 @@
  * is provided as a const pointer in `frame_ptr`, in scope only within the
  * following statement/block.
  **/
-#define GAMS_WITH_FRAME_TYPE(coord, type, frame_ptr) \
-    if(const type *frame_ptr = ::gams::pose::reference_frame_cast<type>(&coord.frame()))
+//#define GAMS_WITH_FRAME_TYPE(coord, type, frame_ptr) \
+    //if(const type *frame_ptr = ::gams::pose::reference_frame_cast<type>(&coord.frame()))
 
 // note: (void)frame_ref silences warnings if frame_ref isn't used in body code
 
@@ -80,29 +80,343 @@ namespace gams
 {
   namespace pose
   {
-    class ReferenceFrame;
-    class LinearVector;
-    class AngularVector;
+    class GAMSExport ReferenceFrameIdentity
+    {
+    private:
+        const ReferenceFrameType *type_;
+        std::string id_;
+
+    public:
+        ReferenceFrameIdentity(const ReferenceFrameType *type,
+                               std::string id)
+          : type_(type), id_(std::move(id)) {}
+
+        ReferenceFrameIdentity(const ReferenceFrameType *type)
+          : type_(type), id_("DEFAULT") {}
+
+        const ReferenceFrameType *type() const { return type_; }
+        const std::string &id() const { return id_; }
+    };
+
+    class GAMSExport ReferenceFrameVersion
+    {
+    private:
+      std::shared_ptr<ReferenceFrameIdentity> ident_;
+      Pose origin_;
+      uint64_t timestamp_ = -1;
+
+    public:
+      explicit ReferenceFrameVersion(
+          Pose origin,
+          uint64_t timestamp = -1)
+        : ident_(std::make_shared<ReferenceFrameIdentity>(Cartesian)),
+          origin_(std::move(origin)),
+          timestamp_(timestamp) {}
+
+      ReferenceFrameVersion(
+          const ReferenceFrameType *type,
+          Pose origin,
+          uint64_t timestamp = -1)
+        : ident_(std::make_shared<ReferenceFrameIdentity>(type)),
+          origin_(std::move(origin)),
+          timestamp_(timestamp) {}
+
+      ReferenceFrameVersion(
+          std::string name,
+          Pose origin,
+          uint64_t timestamp = -1)
+        : ident_(std::make_shared<ReferenceFrameIdentity>(
+              Cartesian,
+              std::move(name))),
+          origin_(std::move(origin)),
+          timestamp_(timestamp) {}
+
+      ReferenceFrameVersion(
+          const ReferenceFrameType *type,
+          std::string name,
+          Pose origin,
+          uint64_t timestamp = -1)
+        : ident_(std::make_shared<ReferenceFrameIdentity>(
+              type,
+              std::move(name))),
+          origin_(std::move(origin)),
+          timestamp_(timestamp) {}
+
+      ReferenceFrameVersion(
+          std::shared_ptr<ReferenceFrameIdentity> ident,
+          Pose origin,
+          uint64_t timestamp = -1)
+        : ident_(std::move(ident)),
+          origin_(std::move(origin)),
+          timestamp_(timestamp) {}
+
+      const ReferenceFrameIdentity &ident() const { return *ident_; }
+
+      const ReferenceFrameType *type() const { return ident().type(); }
+
+      /**
+       * Gets the origin of this Frame
+       *
+       * @return the Pose which is the origin within this frame's parent,
+       * or, a Pose within this own frame, with all zeros for coordinates,
+       * if this frame has no parent.
+       **/
+      const Pose &origin() const {
+        return origin_;
+      }
+
+      /**
+       * Creates a new ReferenceFrame with modified origin
+       *
+       * @param new_origin the new origin
+       * @return the new ReferenceFrame with new origin
+       **/
+      ReferenceFrame pose(Pose new_origin) const {
+        return ReferenceFrame(ident_, new_origin, timestamp_);
+      }
+
+      /**
+       * Creates a new ReferenceFrame with modified origin
+       *
+       * @param new_origin the new origin
+       * @return the new ReferenceFrame with new origin
+       **/
+      ReferenceFrame move(Position new_origin) const {
+        return pose(Pose(new_origin, Orientation(origin_)));
+      }
+
+      /**
+       * Creates a new ReferenceFrame with modified origin
+       *
+       * @param new_origin the new origin
+       * @return the new ReferenceFrame with new origin
+       **/
+      ReferenceFrame orient(Orientation new_origin) const {
+        return pose(Pose(Position(origin_), new_origin));
+      }
+
+      /**
+       * Gets the parent frame (the one the origin is within). Will be *this
+       * if no parent frame.
+       **/
+      ReferenceFrame origin_frame() const {
+        return origin_.frame();
+      }
+
+      /**
+       * Equality operator.
+       *
+       * @param other the frame to compare to.
+       * @return true if both frames are the same object (i.e., same address).
+       *    Otherwise, frames are not considered equal (returns false).
+       **/
+      bool operator==(const ReferenceFrame &other) const;
+
+      /**
+       * Inequality operator.
+       *
+       * @param other the frame to compare to.
+       * @return false if both frames are the same object (i.e., same address).
+       *    Otherwise, frames are not considered equal (returns true).
+       **/
+      bool operator!=(const ReferenceFrame &other) const;
+
+      /**
+       * Equality operator.
+       *
+       * @param other the frame to compare to.
+       * @return true if both frames are the same object (i.e., same address).
+       *    Otherwise, frames are not considered equal (returns false).
+       **/
+      bool operator==(const ReferenceFrameVersion &other) const;
+
+      /**
+       * Inequality operator.
+       *
+       * @param other the frame to compare to.
+       * @return false if both frames are the same object (i.e., same address).
+       *    Otherwise, frames are not considered equal (returns true).
+       **/
+      bool operator!=(const ReferenceFrameVersion &other) const;
+
+      /**
+       * Returns a human-readable name for the reference frame type
+       *
+       * @return the name reference frame type (e.g., GPS, Cartesian)
+       **/
+      const char *name() const {
+        return ident().type()->name;
+      }
+
+#if 0
+      /**
+       * Normalizes individual doubles representing a linear
+       **/
+      void normalize_linear(double &x, double &y, double &z) const;
+
+      /**
+       * Normalizes individual doubles representing a angular
+       **/
+      void normalize_angular(double &rx, double &ry, double &rz) const;
+
+      /**
+       * Normalizes individual doubles representing a pose
+       **/
+      void normalize_pose(double &x, double &y, double &z,
+                          double &rx, double &ry, double &rz) const;
+#endif
+
+      /**
+       * Get the ID string of this frame. By default, frames generate a
+       * random GUID as their ID
+       **/
+      const std::string &id() const {
+        return ident_->id();
+      }
+
+      /**
+       * Get the timestamp assigned to this frame.
+       **/
+      uint64_t timestamp() const {
+        return timestamp_;
+      }
+
+      /**
+       * Returns true if this frame was interpolated from two stored frames.
+       **/
+      bool interpolated() const {
+        return false;
+      }
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * The saved frames will be marked with the given timestamp for later
+       * retrieval. If timestamp is -1, it will always be treated as the most
+       * recent frame.
+       * and GAMS expects newer versions to have higher values.
+       **/
+      void save(madara::knowledge::KnowledgeBase &kb, uint64_t timestamp = -1) const {}
+
+      /**
+       * Load a single ReferenceFrame, by ID.
+       *
+       * @param id the ID of the frame to load
+       * @param timestamp if -1, gets the latest frame (no interpolation)
+       *   Otherwise, gets the frame at a specified timestamp,
+       *   interpolated necessary.
+       *
+       * @return a pointer to the imported ReferenceFrame, or nullptr if
+       *   none exists.
+       **/
+      static ReferenceFrame load(
+              madara::knowledge::KnowledgeBase &kb,
+              const std::string &id,
+              uint64_t timestamp = -1) { return default_frame(); }
+
+      /**
+       * Load ReferenceFrames, by ID, and their common ancestors. Will
+       * interpolate frames to ensure the returned frames all have a common
+       * timestamp.
+       *
+       * @tparam an InputIterator, of item type std::string
+       *
+       * @param begin beginning iterator
+       * @param end ending iterator
+       * @param timestamp if -1, the latest possible tree will be returned.
+       *   Otherwise, the specified timestamp will be returned.
+       *
+       * @return a vector of ReferenceFrames, each corresponding to the
+       *   input IDs, in the same order.
+       **/
+      template<typename InputIterator>
+      static std::vector<ReferenceFrame> load_tree(
+              madara::knowledge::KnowledgeBase &kb,
+              InputIterator begin,
+              InputIterator end,
+              uint64_t timestamp = -1) { return std::vector<ReferenceFrame>{}; }
+
+      /**
+       * Load ReferenceFrames, by ID, and their common ancestors. Will
+       * interpolate frames to ensure the returned frames all have a common
+       * timestamp.
+       *
+       * @tparam a Container, supporting cbegin() and cend(),
+       *    of item type std::string
+       *
+       * @param ids a Container of ids
+       * @param timestamp if -1, the latest possible tree will be returned.
+       *   Otherwise, the specified timestamp will be returned.
+       *
+       * @return a vector of ReferenceFrames, each corresponding to the
+       *   input IDs, in the same order.
+       **/
+      template<typename Container>
+      static std::vector<ReferenceFrame> load_tree(
+              madara::knowledge::KnowledgeBase &kb,
+              const Container &ids,
+              uint64_t timestamp = -1) {
+        return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
+      }
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * with a specific key value.
+       **/
+      void save_as(madara::knowledge::KnowledgeBase &kb, const std::string &key) const {}
+
+      /**
+       * Load a ReferenceFrame using a specific key value (generally, one
+       * previously used by export_tree_as). No interpolation will be done.
+       *
+       * @returns a pointer to the imported ReferenceFrame, or nullptr if
+       * none exists.
+       **/
+      static ReferenceFrame load_as(madara::knowledge::KnowledgeBase &kb,
+                                    const std::string &key) {
+        return default_frame();
+      }
+
+      template<typename CoordType>
+      friend class Coordinate;
+    };
 
     /**
-     * Thrown when a reference frame function is called with a Coordinate
-     * type (e.g., Pose, Linear, Angular) that frame does not support.
+     * Helper function to find the common frame between two frames.
+     *
+     * @param from the initial frame
+     * @param to the target frame
+     * @param to_stack if not nullptr, the frames needed to go from base to
+     *  target frame will be pushed to pointed to vector
      **/
-    class bad_coord_type : public std::runtime_error
-    {
-    public:
-      /**
-       * The only Constructor.
-       *
-       * @param frame the ReferenceFrame that the coordinate belongs to
-       * @param fn_name the name of the function that was called
-       **/
-      bad_coord_type(const ReferenceFrame &frame, const std::string &fn_name);
-      ~bad_coord_type() throw();
+    const ReferenceFrame *find_common_frame(
+        const ReferenceFrame *from,
+        const ReferenceFrame *to,
+        std::vector<const ReferenceFrame *> *to_stack = nullptr);
 
-      std::string fn_name;
-      const ReferenceFrame &frame;
-    };
+#if 0
+    /**
+     * Cast from one child of ReferenceFrame to another.
+     * Passes through to dynamic_cast<const F*> on systems with RTTI.
+     * Uses an equivalent custom mechanism otherwise.
+     **/
+    template<class F, class I>
+    inline static const F *reference_frame_cast(const I *f) {
+#ifndef GAMS_NO_RTTI
+      return dynamic_cast<const F*>(f);
+#else
+      if (f == nullptr) {
+        return nullptr;
+      }
+      type_ids::Flags from_flags = f->get_types();
+      type_ids::Flags to_flags = F::get_stypes();
+      if ((from_flags & to_flags) == to_flags) {
+        return static_cast<const F*>(f);
+      } else {
+        return nullptr;
+      }
+#endif
+    }
+#endif
 
     /**
      * Thrown when an an attempt is made to transform between frames
@@ -117,12 +431,11 @@ namespace gams
        * @param from_frame the frame the coordinate belongs to
        * @param to_frame the frame the coordinate is being transformed to
        **/
-      unrelated_frames(const ReferenceFrame &from_frame,
-        const ReferenceFrame &to_frame);
+      unrelated_frames(ReferenceFrame from_frame, ReferenceFrame to_frame);
       ~unrelated_frames() throw();
 
-      const ReferenceFrame &from_frame;
-      const ReferenceFrame &to_frame;
+      ReferenceFrame from_frame;
+      ReferenceFrame to_frame;
     };
 
     /**
@@ -149,541 +462,18 @@ namespace gams
        *   reference frames not being supported for this transformation.
        *   Defaults to false;
        **/
-      undefined_transform(const ReferenceFrame &parent_frame,
-        const ReferenceFrame &child_frame, bool is_child_to_parent,
+      undefined_transform(
+        const ReferenceFrameType *parent_frame,
+        const ReferenceFrameType *child_frame,
+        bool is_child_to_parent,
         bool unsupported_angular = false);
       ~undefined_transform() throw();
 
-      const ReferenceFrame &parent_frame;
-      const ReferenceFrame &child_frame;
+      const ReferenceFrameType *parent_frame;
+      const ReferenceFrameType *child_frame;
       bool is_child_to_parent;
       bool unsupported_angular;
     };
-
-    /**
-     * Base class for Reference Frames.
-     * Inherit from this class if implementing a new reference frame.
-     * Otherwise, do not use directly.
-     *
-     * If implementing a new reference frame, you will need to modify the
-     * transform_to_origin and transform_from_origin methods of the reference
-     * frames the new reference frame should be able to transform to and from.
-     **/
-    class GAMSExport ReferenceFrame
-    {
-    public:
-      /**
-       * Default constructor. No parent frame.
-       *
-       * @param id the ID string to identify this frame by. If left
-       *    empty, a randome GUID will be generated.
-       **/
-      ReferenceFrame(const std::string &id = "");
-
-      /**
-       * @param origin the origin, within some other frame, that
-       *    determines the transform relative to that frame.
-       * @param id the ID string to identify this frame by. If left
-       *    empty, a randome GUID will be generated.
-       **/
-      explicit ReferenceFrame(
-            const Pose &origin,
-            const std::string &id = "");
-
-      /**
-       * Gets the origin of this Frame
-       *
-       * @return the Pose which is the origin within this frame's parent,
-       * or, a Pose within this own frame, with all zeros for coordinates,
-       * if this frame has no parent.
-       **/
-      const Pose &origin() const;
-
-      /**
-       * Creates a new ReferenceFrame with modified origin
-       *
-       * @param new_origin the new origin
-       * @return the new ReferenceFrame with new origin
-       **/
-      ReferenceFrame pose(const Pose &new_origin) const;
-
-      /**
-       * Creates a new ReferenceFrame with modified origin
-       *
-       * @param new_origin the new origin
-       * @return the new ReferenceFrame with new origin
-       **/
-      ReferenceFrame move(const Position &new_origin) const;
-
-      /**
-       * Creates a new ReferenceFrame with modified origin
-       *
-       * @param new_origin the new origin
-       * @return the new ReferenceFrame with new origin
-       **/
-      ReferenceFrame orient(const Orientation &new_origin) const;
-
-      /**
-       * Gets the parent frame (the one the origin is within). Will be *this
-       * if no parent frame.
-       **/
-      ReferenceFrame origin_frame() const;
-
-      /**
-       * Equality operator.
-       *
-       * @param other the frame to compare to.
-       * @return true if both frames are the same object (i.e., same address).
-       *    Otherwise, frames are not considered equal (returns false).
-       **/
-      bool operator==(const ReferenceFrame &other) const;
-
-      /**
-       * Inequality operator.
-       *
-       * @param other the frame to compare to.
-       * @return false if both frames are the same object (i.e., same address).
-       *    Otherwise, frames are not considered equal (returns true).
-       **/
-      bool operator!=(const ReferenceFrame &other) const;
-
-      /**
-       * Returns a human-readable name for the reference frame type
-       *
-       * @return the name reference frame type (e.g., GPS, Cartesian)
-       **/
-      std::string name() const;
-
-      /**
-       * Normalizes individual doubles representing a linear
-       **/
-      void normalize_linear(double &x, double &y, double &z) const;
-
-      /**
-       * Normalizes individual doubles representing a angular
-       **/
-      void normalize_angular(double &rx, double &ry, double &rz) const;
-
-      /**
-       * Normalizes individual doubles representing a pose
-       **/
-      void normalize_pose(double &x, double &y, double &z,
-                          double &rx, double &ry, double &rz) const;
-
-      /**
-       * Get the ID string of this frame. By default, frames generate a
-       * random GUID as their ID
-       **/
-      const std::string &id() const;
-
-      /**
-       * Get the timestamp assigned to this frame.
-       **/
-      uint64_t timestamp() const;
-
-      /**
-       * Returns true if this frame was interpolated from two stored frames.
-       **/
-      bool interpolated() const;
-
-      /**
-       * Save this ReferenceFrame to the knowledge base,
-       * The saved frames will be marked with the given timestamp for later
-       * retrieval. If timestamp is -1, it will always be treated as the most
-       * recent frame.
-       * and GAMS expects newer versions to have higher values.
-       **/
-      void save(KnowledgeBase &kb, uint64_t timestamp = -1) const;
-
-      /**
-       * Load a single ReferenceFrame, by ID.
-       *
-       * @param id the ID of the frame to load
-       * @param timestamp if -1, gets the latest frame (no interpolation)
-       *   Otherwise, gets the frame at a specified timestamp,
-       *   interpolated necessary.
-       *
-       * @return a pointer to the imported ReferenceFrame, or nullptr if
-       *   none exists.
-       **/
-      static ReferenceFrame load(
-              KnowledgeBase &kb,
-              const std::string &id,
-              uint64_t timestamp = -1);
-
-      /**
-       * Load ReferenceFrames, by ID, and their common ancestors. Will
-       * interpolate frames to ensure the returned frames all have a common
-       * timestamp.
-       *
-       * @tparam an InputIterator, of item type std::string
-       *
-       * @param begin beginning iterator
-       * @param end ending iterator
-       * @param timestamp if -1, the latest possible tree will be returned.
-       *   Otherwise, the specified timestamp will be returned.
-       *
-       * @return a vector of ReferenceFrames, each corresponding to the
-       *   input IDs, in the same order.
-       **/
-      template<typename InputIterator>
-      static std::vector<ReferenceFrame> load_tree(
-              KnowledgeBase &kb,
-              InputIterator begin,
-              InputIterator end,
-              uint64_t timestamp = -1);
-
-      /**
-       * Load ReferenceFrames, by ID, and their common ancestors. Will
-       * interpolate frames to ensure the returned frames all have a common
-       * timestamp.
-       *
-       * @tparam a Container, supporting cbegin() and cend(),
-       *    of item type std::string
-       *
-       * @param ids a Container of ids
-       * @param timestamp if -1, the latest possible tree will be returned.
-       *   Otherwise, the specified timestamp will be returned.
-       *
-       * @return a vector of ReferenceFrames, each corresponding to the
-       *   input IDs, in the same order.
-       **/
-      template<typename Container>
-      static std::vector<ReferenceFrame> load_tree(
-              KnowledgeBase &kb,
-              const Container &ids,
-              uint64_t timestamp = -1) {
-        return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
-      }
-
-      /**
-       * Save this ReferenceFrame to the knowledge base,
-       * with a specific key value.
-       **/
-      void save_as(KnowledgeBase &kb, const std::string &key) const;
-
-      /**
-       * Load a ReferenceFrame using a specific key value (generally, one
-       * previously used by export_tree_as). No interpolation will be done.
-       *
-       * @returns a pointer to the imported ReferenceFrame, or nullptr if
-       * none exists.
-       **/
-      static ReferenceFrame load_as(KnowledgeBase &kb, const std::string &key);
-
-#ifdef GAMS_NO_RTTI
-      static type_ids::Flags get_stypes() { return type_ids::flags(); }
-      virtual type_ids::Flags get_types() const { return get_stypes(); }
-#endif
-    protected:
-      /**
-       * Override to return a human-readable name for new reference frame types
-       *
-       * @return the name
-       **/
-      virtual std::string get_name() const = 0;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param x the x axis for the coordinate to translate
-       * @param y the y axis for the coordinate to translate
-       * @param z the z axis for the coordinate to translate
-       **/
-      virtual void transform_linear_to_origin(
-                      double &x, double &y, double &z) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param x the x axis for the coordinate to translate
-       * @param y the y axis for the coordinate to translate
-       * @param z the z axis for the coordinate to translate
-       **/
-      virtual void transform_linear_from_origin(
-                      double &x, double &y, double &z) const;
-
-      /**
-       * Override for new coordinate systems that can require normalization of
-       * coordinates, e.g., angle-based systems. NOP by default.
-       *
-       * @param x the x axis for the coordinate to translate
-       * @param y the y axis for the coordinate to translate
-       * @param z the z axis for the coordinate to translate
-       **/
-      virtual void do_normalize_linear(
-                      double &x, double &y, double &z) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param x1   x coordinate of first linear
-       * @param y1   y coordinate of first linear
-       * @param z1   z coordinate of first linear
-       * @param x2   x coordinate of other linear
-       * @param y2   y coordinate of other linear
-       * @param z2   z coordinate of other linear
-       * @return distance in meters from loc1 to loc2
-       **/
-      virtual double calc_distance(
-                      double x1, double y1, double z1,
-                      double x2, double y2, double z2) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param rx  the x component of the axis-angle representation
-       * @param ry  the y component of the axis-angle representation
-       * @param rz  the z component of the axis-angle representation
-       **/
-      virtual void transform_angular_to_origin(
-                      double &rx, double &ry, double &rz) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param rx  the x component of the axis-angle representation
-       * @param ry  the y component of the axis-angle representation
-       * @param rz  the z component of the axis-angle representation
-       **/
-      virtual void transform_angular_from_origin(
-                      double &rx, double &ry, double &rz) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param x the x axis for the coordinate to translate
-       * @param y the y axis for the coordinate to translate
-       * @param z the z axis for the coordinate to translate
-       * @param rx  the x component of the axis-angle representation
-       * @param ry  the y component of the axis-angle representation
-       * @param rz  the z component of the axis-angle representation
-       **/
-      virtual void transform_pose_to_origin(
-                      double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param x the x axis for the coordinate to translate
-       * @param y the y axis for the coordinate to translate
-       * @param z the z axis for the coordinate to translate
-       * @param rx  the x component of the axis-angle representation
-       * @param ry  the y component of the axis-angle representation
-       * @param rz  the z component of the axis-angle representation
-       **/
-      virtual void transform_pose_from_origin(
-                      double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz) const;
-
-      /**
-       * Override for new coordinate systems. By default, throws bad_coord_type.
-       *
-       * @param rx1   x axis of first angular
-       * @param ry1   y axis of first angular
-       * @param rz1   z axis of first angular
-       * @param rx2   x axis of second angular
-       * @param ry2   y axis of second angular
-       * @param rz2   z axis of second angular
-       * @return angularal distance in degrees from rot1 to rot2
-       **/
-      virtual double calc_angle(
-                      double rx1, double ry1, double rz1,
-                      double rx2, double ry2, double rz2) const;
-
-      /**
-       * Override for new coordinate systems that can require normalization of
-       * coordinates, e.g., angl-based systems. NOP by default.
-       *
-       * @param rx   x axis of angular
-       * @param ry   y axis of angular
-       * @param rz   z axis of angular
-       **/
-      virtual void do_normalize_angular(
-                      double &rx, double &ry, double &rz) const;
-
-      /**
-       * Override for new coordinate systems that can require normalization of
-       * coordinates, e.g., angle-based systems. NOP by default.
-       *
-       * @param x the x axis for the coordinate to translate
-       * @param y the y axis for the coordinate to translate
-       * @param z the z axis for the coordinate to translate
-       * @param rx   x axis of angular
-       * @param ry   y axis of angular
-       * @param rz   z axis of angular
-       **/
-      virtual void do_normalize_pose(
-                      double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz) const;
-
-      /**
-       * Normalizes any angular values in coord according to the conventions
-       * of the frame it belongs to. This is called automatically by any methods
-       * that require normalized angles.
-       *
-       * If adding a new composite coordinate type, specialize this template
-       * function accordingly.
-       * 
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param coord the Coordinate to normalize
-       **/
-      template<typename CoordType>
-      static void normalize(CoordType &coord);
-
-      /**
-       * Transform input coordinates into their common parent. If no common
-       * parent exists, throws, unrelated_frames exception
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param in1 the frame to transform from
-       * @param in2 the frame to transform into
-       * @return the common frame the coordinates were transformed to.
-       *
-       * @throws unrelated_frame if no common parent.
-       **/
-      template<typename CoordType>
-      static const ReferenceFrame &common_parent_transform(
-            CoordType &in1, CoordType &in2);
-
-      /**
-       * Transform coordinate from its current from, to the specified frame
-       * This transformation is in-place (modifies the in parameters.
-       * Called by the transform_to member function of Coordinates
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param in the Coordinate to transform. This object may be modified.
-       * @param to_frame the frame to transform into
-       *
-       * @throws unrelated_frame if no common parent.
-       **/
-      template<typename CoordType>
-      static void transform(CoordType &in, const ReferenceFrame &to_frame);
-
-      /**
-       * Calculate distances between coordinates. If they have different
-       * frames, first transform to their lowest common parent
-       * Called by the distance_to member function of Coordinates
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param coord1 The coordinate to measure from
-       * @param coord2 The coordinate to measure to
-       * @return the distance, in meters, between the coordinates
-       **/
-      template<typename CoordType>
-      static double distance(const CoordType &coord1, const CoordType &coord2);
-
-      /**
-       * Transforms a coordinate into a frame's origin frame.
-       * For coordinate types which can be expressed in terms of existing
-       * coordinate types, specialize this function to express this fact
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param in the Coordinate to transform. This object may be modified.
-       **/
-      template<typename CoordType>
-      static void transform_to_origin(CoordType &in);
-
-      /**
-       * Transforms a coordinate into a frame from its origin frame.
-       * For coordinate types which can be expressed in terms of existing
-       * coordinate types, specialize this function to express this fact
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param in the Coordinate to transform. This object may be modified.
-       * @param to_frame the frame to transform into. Must be origin of in.
-       **/
-      template<typename CoordType>
-      static void transform_from_origin(CoordType &in,
-          const ReferenceFrame &to_frame);
-
-      /**
-       * Calculates distance between coordinates within a specific frame
-       * For coordinate types which can be expressed in terms of existing
-       * coordinate types, specialize this function to express this fact
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param coord1 The coordinate to measure from
-       * @param coord2 The coordinate to measure to
-       * @return the distance, in meters, between the coordinates
-       *
-       * @pre coord1 and coord2 must have same frame, passed as "frame"
-       **/
-      template<typename CoordType>
-      static double calc_difference(const CoordType &coord1,
-                                    const CoordType &coord2);
-
-      /**
-       * Helper function to find the common frame between two frames.
-       *
-       * @param from the initial frame
-       * @param to the target frame
-       * @param to_stack if not nullptr, the frames needed to go from base to
-       *  target frame will be pushed to pointed to vector
-       **/
-      static const ReferenceFrame *find_common_frame(
-          const ReferenceFrame *from,
-          const ReferenceFrame *to,
-          std::vector<const ReferenceFrame *> *to_stack = nullptr);
-
-      /**
-       * Transform into another frame, if coordinates are not directly related.
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param in the coordinate to transform (in-place)
-       * @param to_frame the frame to transform into
-       *
-       * @throws unrelated_frame if no common parent.
-       **/
-      template<typename CoordType>
-      inline static void transform_other(
-          CoordType &in, const ReferenceFrame &to_frame);
-
-      /**
-       * Transform into common parent, if coordinates are not directly related.
-       *
-       * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
-       * @param in1 the coordinate to transform (in place)
-       * @param in2 the other coordinate to transform (in place)
-       * @return the common frame the coordinates were transformed to.
-       *
-       * @throws unrelated_frame if no common parent.
-       **/
-      template<typename CoordType>
-      static const ReferenceFrame &common_parent_transform_other(
-          CoordType &in1, CoordType &in2);
-
-      template<typename CoordType>
-      friend class Coordinate;
-
-    protected:
-      Pose origin_;
-
-    };
-
-    /**
-     * Cast from one child of ReferenceFrame to another.
-     * Passes through to dynamic_cast<const F*> on systems with RTTI.
-     * Uses an equivalent custom mechanism otherwise.
-     **/
-    template<class F, class I>
-    inline static const F *reference_frame_cast(const I *f) {
-#ifndef GAMS_NO_RTTI
-      return dynamic_cast<const F*>(f);
-#else
-      if (f == nullptr) {
-        return nullptr;
-      }
-      type_ids::Flags from_flags = f->get_types();
-      type_ids::Flags to_flags = F::get_stypes();
-      if ((from_flags & to_flags) == to_flags) {
-        return static_cast<const F*>(f);
-      } else {
-        return nullptr;
-      }
-#endif
-    }
 
     /**
      * For internal use.
@@ -693,30 +483,7 @@ namespace gams
      * to, for example, Cartesian and GPS frames, but not UTM frames.
      * Inherit from this to use this implementation.
      **/
-    class GAMSExport SimpleRotateFrame : public ReferenceFrame
-    {
-    protected:
-      /**
-       * Default constructor. No parent frame.
-       **/
-      SimpleRotateFrame();
-
-      /**
-       * Creates a copy of the origin Pose passed in.
-       *
-       * @param origin the frame's origin
-       **/
-      explicit SimpleRotateFrame(const Pose &origin);
-
-      /**
-       * Uses an existing Pose as origin, and maintains
-       * a pointer to it. Changes to it affect this frame
-       *
-       * @param origin the origin to bind to
-       **/
-      explicit SimpleRotateFrame(Pose *origin);
-
-    protected:
+    namespace simple_rotate {
       /**
        * Rotates a LinearVector according to a AngularVector
        *
@@ -728,10 +495,9 @@ namespace gams
        **/
       void orient_linear_vec(
           double &x, double &y, double &z,
-          const AngularVector &rot,
-          bool reverse = false) const;
+          double rx, double ry, double rz,
+          bool reverse = false);
 
-    private:
       /**
        * Transform AngularVector in-place into its origin frame from this frame
        *
@@ -739,8 +505,11 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_angular_to_origin(
-                      double &rx, double &ry, double &rz) const;
+      void transform_angular_to_origin(
+                      const ReferenceFrameType *origin,
+                      const ReferenceFrameType *self,
+                      double orx, double ory, double orz,
+                      double &rx, double &ry, double &rz);
 
       /**
        * Transform AngularVector in-place from its origin frame
@@ -749,8 +518,11 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_angular_from_origin(
-                      double &rx, double &ry, double &rz) const;
+      void transform_angular_from_origin(
+                      const ReferenceFrameType *origin,
+                      const ReferenceFrameType *self,
+                      double orx, double ory, double orz,
+                      double &rx, double &ry, double &rz);
 
       /**
        * Transform pose in-place into its origin frame from this frame.
@@ -763,9 +535,13 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_pose_to_origin(
+      void transform_pose_to_origin(
+                      const ReferenceFrameType *origin,
+                      const ReferenceFrameType *self,
+                      double ox, double oy, double oz,
+                      double orx, double ory, double orz,
                       double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz) const;
+                      double &rx, double &ry, double &rz);
 
       /**
        * Transform pose in-place from its origin frame
@@ -778,9 +554,13 @@ namespace gams
        * @param ry  the y component of the axis-angle representation
        * @param rz  the z component of the axis-angle representation
        **/
-      virtual void transform_pose_from_origin(
+      void transform_pose_from_origin(
+                      const ReferenceFrameType *origin,
+                      const ReferenceFrameType *self,
+                      double ox, double oy, double oz,
+                      double orx, double ory, double orz,
                       double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz) const;
+                      double &rx, double &ry, double &rz);
 
       /**
        * Calculates smallest angle between two AngularVectors
@@ -793,10 +573,12 @@ namespace gams
        * @param rz2  the ending angular on z axis
        * @return the difference in radians
        **/
-      virtual double calc_angle(
+      double calc_angle(
+                      const ReferenceFrameType *self,
                       double rx1, double ry1, double rz1,
-                      double rx2, double ry2, double rz2) const;
+                      double rx2, double ry2, double rz2);
 
+#if 0
 #ifdef GAMS_NO_RTTI
     public:
       static type_ids::Flags get_stypes() {
@@ -806,7 +588,25 @@ namespace gams
 
       type_ids::Flags get_types() const override { return get_stypes(); }
 #endif
-    };
+#endif
+    }
+
+    inline void default_normalize_linear(
+                const ReferenceFrameType *,
+                double &, double &, double &) {}
+
+    inline void default_normalize_angular(
+                const ReferenceFrameType *,
+                double &, double &, double &) {}
+
+    inline void default_normalize_pose(
+                    const ReferenceFrameType *self,
+                    double &x, double &y, double &z,
+                    double &rx, double &ry, double &rz)
+    {
+      self->normalize_linear(self, x, y, z);
+      self->normalize_angular(self, rx, ry, rz);
+    }
 
     GAMSExport const ReferenceFrame &default_frame (void);
   }

@@ -64,23 +64,13 @@ namespace gams
 {
   namespace pose
   {
-    inline const ReferenceFrame &CoordinateBase::default_frame()
-    {
-      return *default_frame_;
-    }
-
     template<typename CoordType>
     inline Coordinate<CoordType>::Coordinate()
-      : frame_(&default_frame()) {}
+      : frame_(default_frame()) {}
 
     template<typename CoordType>
-    inline constexpr Coordinate<CoordType>::Coordinate(
-                            const ReferenceFrame &frame)
-      : frame_(&frame) {}
-
-    template<typename CoordType>
-    inline constexpr Coordinate<CoordType>::Coordinate(
-                            const ReferenceFrame *frame)
+    inline Coordinate<CoordType>::Coordinate(
+                            ReferenceFrame frame)
       : frame_(frame) {}
 
     template<typename CoordType>
@@ -90,7 +80,7 @@ namespace gams
     }
 
     template<typename CoordType>
-    inline constexpr const CoordType &
+    inline const CoordType &
             Coordinate<CoordType>::as_coord_type() const
     {
       return static_cast<const CoordType &>(*this);
@@ -105,25 +95,24 @@ namespace gams
 
     template<typename CoordType>
     template<typename Type>
-    inline constexpr const Type &Coordinate<CoordType>::as_type() const
+    inline const Type &Coordinate<CoordType>::as_type() const
     {
         return static_cast<const Type &>(as_coord_type());
     }
 
     template<typename CoordType>
-    inline constexpr const ReferenceFrame &Coordinate<CoordType>::frame() const
+    inline const ReferenceFrame &Coordinate<CoordType>::frame() const
     {
-      return *frame_;
+      return frame_;
     }
 
     template<typename CoordType>
-    inline const ReferenceFrame &Coordinate<CoordType>::frame(
-        const ReferenceFrame &new_frame)
+    inline ReferenceFrame Coordinate<CoordType>::frame(
+        ReferenceFrame new_frame)
     {
-      const ReferenceFrame *ret = &new_frame;
       using std::swap;
-      swap(frame_, ret);
-      return *ret;
+      swap(frame_, new_frame);
+      return new_frame;
     }
 
     template<typename CoordType>

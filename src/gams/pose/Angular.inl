@@ -62,11 +62,11 @@ namespace gams
 {
   namespace pose
   {
-    inline constexpr AngularVector::AngularVector(
+    inline AngularVector::AngularVector(
             double rx, double ry, double rz)
       : rx_(rx), ry_(ry), rz_(rz) {}
 
-    inline constexpr AngularVector::AngularVector(
+    inline AngularVector::AngularVector(
             double x, double y, double z, double angle)
       : rx_(x * DEG_TO_RAD(angle)),
         ry_(y * DEG_TO_RAD(angle)),
@@ -80,20 +80,20 @@ namespace gams
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
 
-    inline constexpr AngularVector::AngularVector()
+    inline AngularVector::AngularVector()
       : rx_(0), ry_(0), rz_(0) {}
 
-    inline constexpr bool AngularVector::is_set () const
+    inline bool AngularVector::is_set () const
     {
       return rx_ != INVAL_COORD || ry_ != INVAL_COORD || rz_ != INVAL_COORD;
     }
 
-    inline constexpr bool AngularVector::is_zero() const
+    inline bool AngularVector::is_zero() const
     {
       return rx_ == 0 && ry_ == 0 && rz_ == 0;
     }
 
-    inline constexpr bool AngularVector::operator==(
+    inline bool AngularVector::operator==(
             const AngularVector &other) const
     {
       return rx_ == other.rx_ && ry_ == other.ry_ && rz_ == other.rz_;
@@ -104,9 +104,9 @@ namespace gams
       return "Angular";
     }
 
-    inline constexpr double AngularVector::rx() const { return rx_; }
-    inline constexpr double AngularVector::ry() const { return ry_; }
-    inline constexpr double AngularVector::rz() const { return rz_; }
+    inline double AngularVector::rx() const { return rx_; }
+    inline double AngularVector::ry() const { return ry_; }
+    inline double AngularVector::rz() const { return rz_; }
 
     inline double AngularVector::rx(double new_rx) { return rx_ = new_rx; }
     inline double AngularVector::ry(double new_ry) { return ry_ = new_ry; }
@@ -117,17 +117,17 @@ namespace gams
       return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const AngularVector &AngularVector::as_vec() const
+    inline const AngularVector &AngularVector::as_vec() const
     {
       return static_cast<const BaseType &>(*this);
     }
 
-    inline constexpr int AngularVector::size() const
+    inline int AngularVector::size() const
     {
       return 3;
     }
 
-    inline constexpr double AngularVector::get(int i) const
+    inline double AngularVector::get(int i) const
     {
       return i == 0 ? rx() :
              i == 1 ? ry() :
@@ -186,8 +186,8 @@ namespace gams
         Coordinate<C>() {}
 
     template<class C>
-    inline constexpr Angular<C>::Angular(
-            const ReferenceFrame &frame, double rx, double ry, double rz)
+    inline Angular<C>::Angular(
+            ReferenceFrame frame, double rx, double ry, double rz)
       : AngularVector(rx, ry, rz),
         Coordinate<C>(frame) {}
 
@@ -196,8 +196,8 @@ namespace gams
       : AngularVector(x, y, z, angle), Coordinate<C>() {}
 
     template<class C>
-    inline constexpr Angular<C>::Angular(
-       const ReferenceFrame &frame, double x, double y, double z, double angle)
+    inline Angular<C>::Angular(
+       ReferenceFrame frame, double x, double y, double z, double angle)
       : AngularVector(x, y, z, angle), Coordinate<C>(frame) {}
 
     template<class C>
@@ -208,8 +208,8 @@ namespace gams
 
     template<class C>
     template<typename U>
-    inline constexpr Angular<C>::Angular(
-            const ReferenceFrame &frame, double rx, double ry, double rz, U u)
+    inline Angular<C>::Angular(
+            ReferenceFrame frame, double rx, double ry, double rz, U u)
       : AngularVector(u.to_radians(rx), u.to_radians(ry), u.to_radians(rz)),
         Coordinate<C>(frame) {}
 
@@ -220,8 +220,8 @@ namespace gams
 
     template<class C>
     template<typename U>
-    inline constexpr Angular<C>::Angular(
-       const ReferenceFrame &frame, double x, double y, double z,
+    inline Angular<C>::Angular(
+       ReferenceFrame frame, double x, double y, double z,
                                     double angle, U u)
       : AngularVector(x, y, z, u.to_radians(angle)), Coordinate<C>(frame) {}
 
@@ -234,12 +234,12 @@ namespace gams
 
     template<class C>
     inline Angular<C>::Angular(
-          const ReferenceFrame &frame, const Quaternion &quat)
+          ReferenceFrame frame, const Quaternion &quat)
       : AngularVector(quat), Coordinate<C>(frame) {}
 
     template<class C>
     inline Angular<C>::Angular(
-                const ReferenceFrame &new_frame, const C &orig)
+                ReferenceFrame new_frame, const C &orig)
       : AngularVector(orig), Coordinate<C>(orig.frame())
     {
       this->transform_this_to(new_frame);
@@ -251,7 +251,7 @@ namespace gams
       : AngularVector(vec), Coordinate<C>() {}
 
     template<class C>
-    inline Angular<C>::Angular(const ReferenceFrame &frame,
+    inline Angular<C>::Angular(ReferenceFrame frame,
         const madara::knowledge::containers::DoubleVector &vec)
       : AngularVector(vec), Coordinate<C>(frame) {}
 
@@ -262,7 +262,7 @@ namespace gams
 
     template<class C>
     inline Angular<C>::Angular(
-        const ReferenceFrame &frame,
+        ReferenceFrame frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : AngularVector(vec), Coordinate<C>(frame) {}
 

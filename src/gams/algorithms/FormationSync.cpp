@@ -381,7 +381,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
      * will contain the latitude (x) and longitude (y) differences
      * between the points in meters.
      **/
-    pose::CartesianFrame start_frame (start_);
+    pose::ReferenceFrame start_frame (start_);
     pose::Position distances = end_.transform_to (start_frame);
 
     /**
@@ -661,7 +661,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     init = move_start.transform_to (platform_->get_frame ());
 
     // the ending position for this specific agent
-    pose::CartesianFrame end_frame (start_);
+    pose::ReferenceFrame end_frame (start_);
     pose::Position move_end = movement.to_pos (end_frame);
     position_end = move_end.transform_to (platform_->get_frame ());
 
@@ -683,7 +683,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     // move latitude until done
     for (int i = 0; i < x_moves; ++i)
     {
-      pose::CartesianFrame last_frame (last);
+      pose::ReferenceFrame last_frame (last);
       pose::Position move_last = movement.to_pos (last_frame);
       last = move_last.transform_to (platform_->get_frame ());
       plan_.push_back (last);
@@ -703,7 +703,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
     // move latitude until done
     for (int i = 0; i < y_moves; ++i)
     {
-      pose::CartesianFrame last_frame (last);
+      pose::ReferenceFrame last_frame (last);
       pose::Position move_last = movement.to_pos (last_frame);
       last = move_last.transform_to (platform_->get_frame ());
       plan_.push_back (last);
@@ -733,7 +733,7 @@ gams::pose::Position
 gams::algorithms::FormationSync::generate_position (pose::Position reference,
 double angle, double distance)
 {
-  pose::CartesianFrame local (reference);
+  pose::ReferenceFrame local (reference);
 
   // compute the offset position
   pose::Position offset (local, distance * cos(angle), distance * sin(angle));

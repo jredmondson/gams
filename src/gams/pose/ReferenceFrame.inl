@@ -59,160 +59,243 @@
 #include <gams/pose/Pose.h>
 #include <gams/pose/Velocity.h>
 #include <gams/pose/Acceleration.h>
+#include <gams/pose/AngularVelocity.h>
+#include <gams/pose/AngularAcceleration.h>
 
 namespace gams
 {
   namespace pose
   {
-#ifdef CPP11
-    inline ReferenceFrame::ReferenceFrame()
-      : extern_origin_(false)
+    /// Implementation details
+    namespace impl
     {
-      new (&origin_) Pose(*this, 0, 0, 0, 0, 0, 0);
-    }
-
-    inline ReferenceFrame::ReferenceFrame(const Pose &origin)
-      : extern_origin_(false)
-    {
-      new (&origin_) Pose(origin);
-    }
-
-    inline ReferenceFrame::ReferenceFrame(const Pose *origin)
-      : ptr_origin_(origin),
-        extern_origin_(true) {}
-
-    inline ReferenceFrame::ReferenceFrame(const ReferenceFrame &o)
-      : extern_origin_(o.origin_is_external())
-    {
-      if(extern_origin_)
-        ptr_origin_ = o.ptr_origin_;
-      else
-        new (&origin_) Pose(o.origin_);
-    }
-
-    inline void ReferenceFrame::operator=(const ReferenceFrame &o)
-    {
-      extern_origin_ = o.origin_is_external();
-      if(extern_origin_)
-        ptr_origin_ = o.ptr_origin_;
-      else
-        new (&origin_) Pose(o.origin_);
-    }
-
-    inline ReferenceFrame::~ReferenceFrame()
-    {
-      if(!extern_origin_)
-        origin_.~Pose();
-    }
-
-    inline const Pose &ReferenceFrame::origin() const
-    {
-      return extern_origin_ ? *ptr_origin_ : origin_;
-    }
-
-    inline const Pose &ReferenceFrame::origin(const Pose &new_origin)
-    {
-      if(!extern_origin_)
-        origin_.~Pose();
-      extern_origin_ = false;
-      new (&origin_) Pose(new_origin);
-      return origin_;
-    }
-
-    inline void ReferenceFrame::bind_origin(const Pose *new_origin)
-    {
-      if(!extern_origin_)
-        origin_.~Pose();
-      extern_origin_ = true;
-      ptr_origin_ = new_origin;
-    }
-#else
-    inline ReferenceFrame::ReferenceFrame()
-      : origin_(new Pose(*this, 0, 0, 0, 0, 0, 0)),
-        extern_origin_(false) {}
-
-    inline ReferenceFrame::ReferenceFrame(const Pose &origin)
-      : origin_(new Pose(origin)),
-        extern_origin_(false) {}
-
-    inline ReferenceFrame::ReferenceFrame(const Pose *origin)
-      : origin_(origin),
-        extern_origin_(true) {}
-
-    inline ReferenceFrame::ReferenceFrame(const ReferenceFrame &o)
-      : extern_origin_(o.origin_is_external())
-    {
-      if(extern_origin_)
-        origin_ = o.origin_;
-      else
-        origin_ = new Pose(*o.origin_);
-    }
-
-    inline void ReferenceFrame::operator=(
-      const ReferenceFrame &o)
-    {
-      extern_origin_ = o.origin_is_external();
-
-      if(extern_origin_)
-        origin_ = o.origin_;
-      else
-        origin_ = new Pose(*o.origin_);
-    }
-
-    inline ReferenceFrame::~ReferenceFrame()
-    {
-      if(!extern_origin_)
-      {
-        delete origin_;
+      template<class C, class Func>
+      inline void to_origin(C &in, Func func) {
+        ReferenceFrame self_frame = in.frame();
+        if (!self_frame.valid()) {
+          return;
+        }
+        const Pose &origin = self_frame.origin();
+        ReferenceFrame origin_frame = origin.frame();
+        if (origin_frame.valid() && self_frame != origin_frame) {
+          const ReferenceFrameType *s = self_frame.type();
+          const ReferenceFrameType *o = origin_frame.type();
+          func(s, o, origin, in);
+        }
       }
     }
 
-    inline const Pose &ReferenceFrame::origin() const
+    template<typename C>
+    inline void transform_to_origin(Linear<C> &in)
     {
-      return *origin_;
+      impl::to_origin(in, [](
+              const ReferenceFrameType *s,
+              const ReferenceFrameType *o,
+              const Pose &origin,
+              Linear<C> &in) {
+          s->transform_linear_to_origin(o, s,
+              origin.x_, origin.y_, origin.z_,
+              origin.rx_, origin.ry_, origin.rz_,
+              in.x_, in.y_, in.z_);
+        });
     }
 
-    inline const Pose &ReferenceFrame::origin(const Pose &new_origin)
+    template<typename C>
+    inline void transform_to_origin(Angular<C> &in)
     {
-      if(!extern_origin_)
-        delete origin_;
-      origin_ = nullptr;
-      extern_origin_ = false;
-      return *(origin_ = new Pose(new_origin));
+      impl::to_origin(in, [](
+              const ReferenceFrameType *s,
+              const ReferenceFrameType *o,
+              const Pose &origin,
+              Angular<C> &in) {
+          s->transform_angular_to_origin(o, s,
+              origin.rx_, origin.ry_, origin.rz_,
+              in.rx_, in.ry_, in.rz_);
+        });
     }
 
-    inline void ReferenceFrame::bind_origin(const Pose *new_origin)
+    inline void transform_to_origin(Pose &in)
     {
-      if(!extern_origin_)
-        delete origin_;
-      origin_ = nullptr;
-      extern_origin_ = true;
-      origin_ = new_origin;
+      impl::to_origin(in, [](
+              const ReferenceFrameType *s,
+              const ReferenceFrameType *o,
+              const Pose &origin,
+              Pose &in) {
+          s->transform_pose_to_origin(o, s,
+              origin.x_, origin.y_, origin.z_,
+              origin.rx_, origin.ry_, origin.rz_,
+              in.x_, in.y_, in.z_,
+              in.rx_, in.ry_, in.rz_);
+        });
     }
-#endif
 
-    inline const ReferenceFrame &ReferenceFrame::origin_frame() const {
-      return origin().frame();
-    }
-
-    inline bool ReferenceFrame::operator==(const ReferenceFrame &other) const
+    namespace impl
     {
-      return this == &other;
+      template<class C, class Func>
+      inline void from_origin(C &in, const ReferenceFrame &to_frame, Func func) {
+        ReferenceFrame from_frame = in.frame();
+        if (!to_frame.valid()) {
+          return;
+        }
+        if (from_frame.valid() && from_frame != to_frame) {
+          const Pose &to = to_frame.origin();
+          const ReferenceFrameType *t = to_frame.type();
+          const ReferenceFrameType *f = from_frame.type();
+          func(f, t, to, in);
+        }
+      }
     }
 
-    inline bool ReferenceFrame::operator!=(const ReferenceFrame &other) const
+    template<typename C>
+    inline void transform_from_origin(
+        Linear<C> &in, const ReferenceFrame &to_frame)
+    {
+      impl::from_origin(in, to_frame, [](
+              const ReferenceFrameType *t,
+              const ReferenceFrameType *f,
+              const Pose &to,
+              Linear<C> &in) {
+          f->transform_linear_from_origin(t, f,
+              to.x_, to.y_, to.z_,
+              to.rx_, to.ry_, to.rz_,
+              in.x_, in.y_, in.z_);
+        });
+    }
+
+
+    template<typename C>
+    inline void transform_from_origin(
+        Angular<C> &in, const ReferenceFrame &to_frame)
+    {
+      impl::from_origin(in, to_frame, [](
+              const ReferenceFrameType *t,
+              const ReferenceFrameType *f,
+              const Pose &to,
+              Angular<C> &in) {
+          f->transform_angular_from_origin(t, f,
+              to.rx_, to.ry_, to.rz_,
+              in.rx_, in.ry_, in.rz_);
+        });
+    }
+
+    inline void transform_from_origin(
+      Pose &in, const ReferenceFrame &to_frame)
+    {
+      impl::from_origin(in, to_frame, [](
+              const ReferenceFrameType *t,
+              const ReferenceFrameType *f,
+              const Pose &to,
+              Pose &in) {
+          f->transform_pose_from_origin(t, f,
+              to.x_, to.y_, to.z_,
+              to.rx_, to.ry_, to.rz_,
+              in.x_, in.y_, in.z_,
+              in.rx_, in.ry_, in.rz_);
+        });
+    }
+
+    template<typename C>
+    inline double difference(
+        const Linear<C> &loc1, const Linear<C> &loc2)
+    {
+      const ReferenceFrameType *ft = loc1.frame().type();
+      return ft->calc_distance(ft, loc1.x_, loc1.y_, loc1.z_,
+                                   loc2.x_, loc2.y_, loc2.z_);
+    }
+
+    template<typename C>
+    inline double difference(
+        const Angular<C> &rot1, const Angular<C> &rot2)
+    {
+      const ReferenceFrameType *ft = rot1.frame().type();
+      return ft->calc_angle(ft, rot1.rx_, rot1.ry_, rot1.rz_,
+                                rot2.rx_, rot2.ry_, rot2.rz_);
+    }
+
+    inline double difference(
+          const Pose &pose1, const Pose &pose2)
+    {
+      const ReferenceFrameType *ft = pose1.frame().type();
+      return ft->calc_distance(ft, pose1.x_, pose1.y_, pose1.z_,
+                                   pose2.x_, pose2.y_, pose2.z_);
+    }
+
+    template<typename C>
+    inline void normalize(Linear<C> &loc)
+    {
+      const ReferenceFrameType *ft = loc.frame().type();
+      ft->normalize_linear(ft, loc.x_, loc.y_, loc.z_);
+    }
+
+    template<typename C>
+    inline void normalize(Angular<C> &rot)
+    {
+      const ReferenceFrameType *ft = rot.frame().type();
+      ft->normalize_angular(ft, rot.rx_, rot.ry_, rot.rz_);
+    }
+
+    inline void normalize(Pose &pose)
+    {
+      const ReferenceFrameType *ft = pose.frame().type();
+      ft->normalize_pose(ft, pose.x_, pose.y_, pose.z_,
+                             pose.rx_, pose.ry_, pose.rz_);
+    }
+
+    /*
+    inline void ReferenceFrame::normalize_linear(
+                                      double &x, double &y, double &z) const
+    {
+      do_normalize_linear(x, y, z);
+    }
+
+    inline void ReferenceFrame::normalize_angular(
+                                      double &rx, double &ry, double &rz) const
+    {
+      do_normalize_angular(rx, ry, rz);
+    }
+
+    inline void ReferenceFrame::normalize_pose(
+                                      double &x, double &y, double &z,
+                                      double &rx, double &ry, double &rz) const
+    {
+      do_normalize_pose(x, y, z, rx, ry, rz);
+    }*/
+
+    inline bool ReferenceFrameVersion::operator==(const ReferenceFrame &other) const
+    {
+      return operator==(*other.impl_);
+    }
+
+    inline bool ReferenceFrameVersion::operator!=(const ReferenceFrame &other) const
     {
       return !(*this == other);
     }
 
-    inline std::string ReferenceFrame::name() const
+    inline bool ReferenceFrameVersion::operator==(const ReferenceFrameVersion &other) const
     {
-      return get_name();
+      return this == &other;
     }
 
+    inline bool ReferenceFrameVersion::operator!=(const ReferenceFrameVersion &other) const
+    {
+      return !(*this == other);
+    }
+
+    /**
+     * Transform coordinate from its current from, to the specified frame
+     * This transformation is in-place (modifies the in parameters.
+     * Called by the transform_to member function of Coordinates
+     *
+     * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+     * @param in the Coordinate to transform. This object may be modified.
+     * @param to_frame the frame to transform into
+     *
+     * @throws unrelated_frame if no common parent.
+     **/
     template<typename CoordType>
-    inline void ReferenceFrame::transform(
-              CoordType &in, const ReferenceFrame &to_frame)
+    inline void transform(
+              CoordType &in,
+              const ReferenceFrame &to_frame)
     {
       if (to_frame == in.frame())
         return;
@@ -230,9 +313,19 @@ namespace gams
         transform_other(in, to_frame);
     }
 
+    /**
+     * Transform into another frame, if coordinates are not directly related.
+     *
+     * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+     * @param in the coordinate to transform (in-place)
+     * @param to_frame the frame to transform into
+     *
+     * @throws unrelated_frame if no common parent.
+     **/
     template<typename CoordType>
-    inline void ReferenceFrame::transform_other(
-                                CoordType &in, const ReferenceFrame &to_frame)
+    inline void transform_other(
+                  CoordType &in,
+                  const ReferenceFrame &to_frame)
     {
       std::vector<const ReferenceFrame *> to_stack;
       const ReferenceFrame *transform_via =
@@ -256,9 +349,20 @@ namespace gams
       }
     }
 
+    /**
+     * Transform input coordinates into their common parent. If no common
+     * parent exists, throws, unrelated_frames exception
+     *
+     * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+     * @param in1 the frame to transform from
+     * @param in2 the frame to transform into
+     * @return the common frame the coordinates were transformed to.
+     *
+     * @throws unrelated_frame if no common parent.
+     **/
     template<typename CoordType>
-    inline const ReferenceFrame &ReferenceFrame::common_parent_transform(
-                                                CoordType &in1, CoordType &in2)
+    inline const ReferenceFrame &common_parent_transform(
+                       CoordType &in1, CoordType &in2)
     {
       if(in1.frame() == in2.frame())
         return in1.frame();
@@ -276,10 +380,19 @@ namespace gams
         return common_parent_transform_other(in1, in2);
     }
 
+    /**
+     * Transform into common parent, if coordinates are not directly related.
+     *
+     * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+     * @param in1 the coordinate to transform (in place)
+     * @param in2 the other coordinate to transform (in place)
+     * @return the common frame the coordinates were transformed to.
+     *
+     * @throws unrelated_frame if no common parent.
+     **/
     template<typename CoordType>
-    inline const ReferenceFrame &
-            ReferenceFrame::common_parent_transform_other(
-                                        CoordType &in1, CoordType &in2)
+    inline const ReferenceFrame & common_parent_transform_other(
+                         CoordType &in1, CoordType &in2)
     {
       const ReferenceFrame *common_parent =
                      find_common_frame(&in1.frame(), &in2.frame());
@@ -288,7 +401,6 @@ namespace gams
         throw unrelated_frames(in1.frame(), in2.frame());
       else
       {
-        std::cout << common_parent->origin() << std::endl;
         while(in1.frame() != *common_parent)
         {
           transform_to_origin(in1);
@@ -303,13 +415,24 @@ namespace gams
       return *common_parent;
     }
 
+    /**
+     * Calculate distances between coordinates. If they have different
+     * frames, first transform to their lowest common parent
+     * Called by the distance_to member function of Coordinates
+     *
+     * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+     * @param coord1 The coordinate to measure from
+     * @param coord2 The coordinate to measure to
+     * @return the distance, in meters, between the coordinates
+     **/
     template<typename CoordType>
-    inline double ReferenceFrame::distance(
-                    const CoordType &coord1, const CoordType &coord2)
+    inline double distance(
+               const CoordType &coord1,
+               const CoordType &coord2)
     {
       if (coord1.frame() == coord2.frame())
       {
-        return calc_difference(coord1, coord2);
+        return difference(coord1, coord2);
       }
       else
       {
@@ -318,139 +441,8 @@ namespace gams
         const ReferenceFrame &pframe =
              common_parent_transform(coord1_conv, coord2_conv);
 
-        return calc_difference(coord1_conv, coord2_conv);
+        return difference(coord1_conv, coord2_conv);
       }
-    }
-
-
-    template<typename CoordType>
-    inline void ReferenceFrame::transform_to_origin(CoordType &in)
-    {
-      static_assert(sizeof(in)<0, "must specialize ReferenceFrame::transform_to_origin for this coordinate type");
-    }
-
-    template<typename CoordType>
-    inline void ReferenceFrame::transform_from_origin(
-            CoordType &in, const ReferenceFrame &to_frame)
-    {
-      static_assert(sizeof(in)<0, "must specialize ReferenceFrame::transform_from_origin for this coordinate type");
-    }
-
-    template<typename CoordType>
-    inline double ReferenceFrame::calc_difference(const CoordType &in1,
-                                                   const CoordType &in2)
-    {
-      static_assert(sizeof(in1)<0, "must specialize ReferenceFrame::calc_difference for this coordinate type");
-    }
-
-    template<typename CoordType>
-    inline void ReferenceFrame::normalize(CoordType &in)
-    {
-      static_assert(sizeof(in)<0, "must specialize ReferenceFrame::normalize for this coordinate type");
-    }
-
-    template<>
-    inline void ReferenceFrame::transform_to_origin<>(Position &in)
-    {
-      in.frame().transform_linear_to_origin(in.x_, in.y_, in.z_);
-    }
-
-    template<>
-    inline void ReferenceFrame::transform_to_origin<>(Orientation &in)
-    {
-      in.frame().transform_angular_to_origin(in.rx_, in.ry_, in.rz_);
-    }
-
-    template<>
-    inline void ReferenceFrame::transform_to_origin<>(Pose &in)
-    {
-      in.frame().transform_pose_to_origin(in.x_, in.y_, in.z_,
-                                          in.rx_, in.ry_, in.rz_);
-    }
-
-    template<>
-    inline void ReferenceFrame::transform_from_origin<>(
-        Position &in, const ReferenceFrame &to_frame)
-    {
-      to_frame.transform_linear_from_origin(in.x_, in.y_, in.z_);
-    }
-
-
-    template<>
-    inline void ReferenceFrame::transform_from_origin<>(
-        Orientation &in, const ReferenceFrame &to_frame)
-    {
-      to_frame.transform_angular_from_origin(in.rx_, in.ry_, in.rz_);
-    }
-
-    template<>
-    inline void ReferenceFrame::transform_from_origin<>(
-      Pose &in, const ReferenceFrame &to_frame)
-    {
-      to_frame.transform_pose_from_origin(in.x_, in.y_, in.z_,
-                                          in.rx_, in.ry_, in.rz_);
-    }
-
-    template<>
-    inline double ReferenceFrame::calc_difference<>(
-        const Position &loc1, const Position &loc2)
-    {
-      return loc1.frame().calc_distance(loc1.x_, loc1.y_, loc1.z_,
-                                        loc2.x_, loc2.y_, loc2.z_);
-    }
-
-    template<>
-    inline double ReferenceFrame::calc_difference<>(
-        const Orientation &rot1, const Orientation &rot2)
-    {
-      return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
-                                     rot2.rx_, rot2.ry_, rot2.rz_);
-    }
-
-    template<>
-    inline double ReferenceFrame::calc_difference<>(
-          const Pose &pose1, const Pose &pose2)
-    {
-      return pose1.frame().calc_distance(pose1.x_, pose1.y_, pose1.z_,
-                                         pose2.x_, pose2.y_, pose2.z_);
-    }
-
-    inline void ReferenceFrame::normalize_linear(
-                                      double &x, double &y, double &z) const
-    {
-      do_normalize_linear(x, y, z);
-    }
-
-    inline void ReferenceFrame::normalize_angular(
-                                      double &rx, double &ry, double &rz) const
-    {
-      do_normalize_angular(rx, ry, rz);
-    }
-
-    inline void ReferenceFrame::normalize_pose(
-                                      double &x, double &y, double &z,
-                                      double &rx, double &ry, double &rz) const
-    {
-      do_normalize_pose(x, y, z, rx, ry, rz);
-    }
-
-    template<>
-    inline void ReferenceFrame::normalize<>(Position &loc)
-    {
-      loc.frame().normalize_linear(loc.x_, loc.y_, loc.z_);
-    }
-
-    template<>
-    inline void ReferenceFrame::normalize<>(Orientation &rot)
-    {
-      rot.frame().normalize_angular(rot.rx_, rot.ry_, rot.rz_);
-    }
-
-    template<>
-    inline void ReferenceFrame::normalize<>(Pose &pose)
-    {
-      pose.frame().normalize_pose(pose.x_, pose.y_, pose.z_,
-                                  pose.rx_, pose.ry_, pose.rz_);
     }
 
 // Make Visual Studio Intellisense ignore these definitions; it gets confused
@@ -459,31 +451,31 @@ namespace gams
 
     template<typename CoordType>
     inline CoordType Coordinate<CoordType>::transform_to(
-                                const ReferenceFrame &new_frame) const
+                            const ReferenceFrame &new_frame) const
     {
       CoordType ret(as_coord_type());
-      ReferenceFrame::transform(ret, new_frame);
+      transform(ret, new_frame);
       return ret;
     }
 
     template<typename CoordType>
     inline void Coordinate<CoordType>::transform_this_to(
-                                            const ReferenceFrame &new_frame)
+                            const ReferenceFrame &new_frame)
     {
-      ReferenceFrame::transform(as_coord_type(), new_frame);
+      transform(as_coord_type(), new_frame);
     }
 
     template<typename CoordType>
     inline double Coordinate<CoordType>::distance_to(
-                                                const CoordType &target) const
+                            const CoordType &target) const
     {
-      return ReferenceFrame::distance(as_coord_type(), target.as_coord_type());
+      return distance(as_coord_type(), target.as_coord_type());
     }
 
     template<typename CoordType>
     inline void Coordinate<CoordType>::normalize()
     {
-      frame().normalize(as_coord_type());
+      pose::normalize(as_coord_type());
     }
 
 #endif // ifndef __INTELLISENSE__
@@ -506,6 +498,19 @@ namespace gams
       return o;
     }
 
+    inline std::ostream &operator<<(std::ostream &o, const AngularVelocity &loc)
+    {
+      o << loc.frame().name() << "AngularVelocity" << loc.as_vec();
+      return o;
+    }
+
+    inline std::ostream &operator<<(std::ostream &o,
+                                    const AngularAcceleration &loc)
+    {
+      o << loc.frame().name() << "AngularAcceleration" << loc.as_vec();
+      return o;
+    }
+
     inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
     {
       o << rot.frame().name() << "Orientation" << rot.as_vec();
@@ -518,44 +523,118 @@ namespace gams
       return o;
     }
 
+    inline const Pose &ReferenceFrame::origin() const {
+      return impl_->origin();
+    }
 
-    inline SimpleRotateFrame::SimpleRotateFrame() : ReferenceFrame() {}
+    inline ReferenceFrame ReferenceFrame::pose(
+        const Pose &new_origin) const {
+      return impl_->pose(new_origin);
+    }
 
-    inline SimpleRotateFrame::SimpleRotateFrame(const Pose &origin)
-      : ReferenceFrame(origin) {}
+    inline ReferenceFrame ReferenceFrame::move(
+        const Position &new_origin) const {
+      return impl_->move(new_origin);
+    }
 
-    inline SimpleRotateFrame::SimpleRotateFrame(Pose *origin)
-      : ReferenceFrame(origin) {}
+    inline ReferenceFrame ReferenceFrame::orient(
+        const Orientation &new_origin) const {
+      return impl_->orient(new_origin);
+    }
 
+    inline ReferenceFrame ReferenceFrame::origin_frame() const {
+      return impl_->origin_frame();
+    }
 
-    inline unrelated_frames::unrelated_frames(const ReferenceFrame &from_frame,
-      const ReferenceFrame &to_frame) :
+    inline bool ReferenceFrame::operator==(
+        const ReferenceFrame &other) const {
+      return impl_->operator==(other);
+    }
+
+    inline bool ReferenceFrame::operator!=(
+          const ReferenceFrame &other) const {
+      return impl_->operator!=(other);
+    }
+
+    inline std::string ReferenceFrame::name() const {
+      return impl_->name();
+    }
+
+    inline const ReferenceFrameType *ReferenceFrame::type() const {
+      return impl_->type();
+    }
+
+    inline const std::string &ReferenceFrame::id() const {
+      return impl_->id();
+    }
+
+    inline uint64_t ReferenceFrame::timestamp() const {
+      return impl_->timestamp();
+    }
+
+    inline bool ReferenceFrame::interpolated() const {
+      return impl_->interpolated();
+    }
+
+    inline void ReferenceFrame::save(
+          madara::knowledge::KnowledgeBase &kb,
+          uint64_t timestamp) const {
+      return impl_->save(kb, timestamp);
+    }
+
+    inline ReferenceFrame ReferenceFrame::load(
+            madara::knowledge::KnowledgeBase &kb,
+            const std::string &id,
+            uint64_t timestamp) {
+      return ReferenceFrameVersion::load(kb, id, timestamp);
+    }
+
+    template<typename InputIterator>
+    inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
+          madara::knowledge::KnowledgeBase &kb,
+          InputIterator begin,
+          InputIterator end,
+          uint64_t timestamp) {
+      return ReferenceFrameVersion::load(kb, begin, end, timestamp);
+    }
+
+    template<typename Container>
+    inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
+          madara::knowledge::KnowledgeBase &kb,
+          const Container &ids,
+          uint64_t timestamp) {
+      return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
+    }
+
+    inline void ReferenceFrame::save_as(
+          madara::knowledge::KnowledgeBase &kb,
+          const std::string &key) const {
+      return impl_->save_as(kb, key);
+    }
+
+    inline ReferenceFrame ReferenceFrame::load_as(
+          madara::knowledge::KnowledgeBase &kb,
+          const std::string &key) {
+      return ReferenceFrameVersion::load_as(kb, key);
+    }
+
+    inline unrelated_frames::unrelated_frames(ReferenceFrame from_frame,
+      ReferenceFrame to_frame) :
       std::runtime_error("No transform path found between frames."),
       from_frame(from_frame), to_frame(to_frame) {}
 
     inline unrelated_frames::~unrelated_frames() throw() {}
 
-
-    inline bad_coord_type::bad_coord_type(
-                    const ReferenceFrame &frame, const std::string &fn_name)
-      : std::runtime_error("Coordinate type"
-            " not supported by frame type " + frame.name() +
-            " for operation " + fn_name + "."),
-        fn_name(fn_name), frame(frame) {}
-
-    inline bad_coord_type::~bad_coord_type() throw() {}
-
-
     inline undefined_transform::undefined_transform(
-            const ReferenceFrame &parent_frame,
-            const ReferenceFrame &child_frame,
+            const ReferenceFrameType *parent_frame,
+            const ReferenceFrameType *child_frame,
             bool is_child_to_parent, bool unsupported_angular)
       : std::runtime_error(is_child_to_parent ?
-            ("No defined transform from embedded " + child_frame.name() +
-              " frame to parent " + parent_frame.name() + " frame")
-          : ("No defined transform from parent " + parent_frame.name() +
-              " frame to embedded " + child_frame.name() + " frame") +
-            (unsupported_angular ? " involving angular." : ".")),
+          (std::string("No transform from embedded ") + child_frame->name +
+            " frame to parent " + parent_frame->name + " frame defined")
+        : (std::string("No transform from parent ") + parent_frame->name +
+            " frame to embedded " + child_frame->name + " frame defined") +
+          (unsupported_angular ? " involving rotation." : ".")),
         parent_frame(parent_frame), child_frame(child_frame),
           is_child_to_parent(is_child_to_parent),
           unsupported_angular(unsupported_angular) {}

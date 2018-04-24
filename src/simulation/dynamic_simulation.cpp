@@ -436,7 +436,7 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
     const Position gps_pos_1 = reg.vertices[j];
     const Position gps_pos_2 = reg.vertices[next];
 
-    gams::pose::CartesianFrame local_frame(origin);
+    gams::pose::ReferenceFrame local_frame(origin);
 
     const Position pos_1 = gps_pos_1.transform_to (local_frame);
     const Position pos_2 = gps_pos_2.transform_to (local_frame);

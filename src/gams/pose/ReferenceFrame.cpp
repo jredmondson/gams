@@ -52,6 +52,7 @@
  **/
 
 #include <gams/pose/ReferenceFrame.h>
+#include <gams/pose/CartesianFrame.h>
 #include <gams/pose/Linear.h>
 #include <gams/pose/Angular.h>
 #include <gams/pose/Quaternion.h>
@@ -61,7 +62,7 @@ namespace gams
   namespace pose
   {
     // TODO implement O(height) algo instead of O(height ^ 2)
-    const ReferenceFrame *ReferenceFrame::find_common_frame(
+    const ReferenceFrame *find_common_frame(
       const ReferenceFrame *from, const ReferenceFrame *to,
       std::vector<const ReferenceFrame *> *to_stack)
     {
@@ -71,153 +72,116 @@ namespace gams
         const ReferenceFrame *cur_from = from;
         for(;;)
         {
-          if(cur_to == cur_from)
+          if(*cur_to == *cur_from)
           {
             return cur_to;
           }
-          const ReferenceFrame *next_cur_from = &cur_from->origin().frame();
-          if(cur_from == next_cur_from)
+          cur_from = &cur_from->origin().frame();
+          if(!cur_from->valid())
             break;
-          cur_from = next_cur_from;
         }
         if(to_stack)
           to_stack->push_back(cur_to);
-        const ReferenceFrame *next_cur_to = &cur_to->origin().frame();
-        if(cur_to == next_cur_to)
+        cur_to = &cur_to->origin().frame();
+        if(!cur_to->valid())
           break;
-        cur_to = next_cur_to;
       }
       return nullptr;
     }
 
-    void ReferenceFrame::transform_linear_to_origin(
-                                double &, double &, double &) const
-    {
-      throw bad_coord_type(*this, "transform_linear_to_origin");
+    namespace simple_rotate {
+      void orient_linear_vec(
+            double &x, double &y, double &z,
+            double rx, double ry, double rz,
+            bool reverse)
+      {
+        if(rx == 0 && ry == 0 && rz == 0)
+          return;
+
+        Quaternion locq(x, y, z, 0);
+        Quaternion rotq(rx, ry, rz);
+
+        if(reverse)
+          rotq.conjugate();
+
+        locq.orient_by(rotq);
+        locq.to_linear_vector(x, y, z);
+      }
+
+      void transform_angular_to_origin(
+                        const ReferenceFrameType *,
+                        const ReferenceFrameType *,
+                        double orx, double ory, double orz,
+                        double &rx, double &ry, double &rz)
+      {
+        Quaternion in_quat(rx, ry, rz);
+        Quaternion origin_quat(orx, ory, orz);
+        in_quat *= origin_quat;
+        in_quat.to_angular_vector(rx, ry, rz);
+      }
+
+      void transform_angular_from_origin(
+                        const ReferenceFrameType *,
+                        const ReferenceFrameType *,
+                        double orx, double ory, double orz,
+                        double &rx, double &ry, double &rz)
+      {
+        Quaternion in_quat(rx, ry, rz);
+        Quaternion origin_quat(orx, ory, orz);
+        origin_quat.conjugate();
+        in_quat *= origin_quat;
+        in_quat.to_angular_vector(rx, ry, rz);
+      }
+
+      void transform_pose_to_origin(
+                      const ReferenceFrameType *other,
+                      const ReferenceFrameType *self,
+                      double ox, double oy, double oz,
+                      double orx, double ory, double orz,
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz)
+      {
+        self->transform_linear_to_origin(other, self,
+                          ox, oy, oz,
+                          orx, ory,
+                          orz, x, y, z);
+        self->transform_angular_to_origin(other, self,
+                          orx, ory, orz,
+                          rx, ry, rz);
+      }
+
+      void transform_pose_from_origin(
+                      const ReferenceFrameType *other,
+                      const ReferenceFrameType *self,
+                      double ox, double oy, double oz,
+                      double orx, double ory, double orz,
+                      double &x, double &y, double &z,
+                      double &rx, double &ry, double &rz)
+      {
+        self->transform_linear_from_origin(other, self,
+                          ox, oy, oz,
+                          orx, ory,
+                          orz, x, y, z);
+        self->transform_angular_from_origin(other, self,
+                          orx, ory, orz,
+                          rx, ry, rz);
+      }
+
+      double calc_angle(
+                  const ReferenceFrameType *,
+                  double rx1, double ry1, double rz1,
+                  double rx2, double ry2, double rz2)
+      {
+        Quaternion quat1(rx1, ry1, rz1);
+        Quaternion quat2(ry2, ry2, rz2);
+        return quat1.angle_to(quat2);
+      }
     }
 
-    void ReferenceFrame::transform_linear_from_origin(
-                                double &, double &, double &) const
+    const ReferenceFrame &default_frame (void)
     {
-      throw bad_coord_type(*this, "transform_linear_from_origin");
-    }
-
-    void ReferenceFrame::do_normalize_linear(
-                double &, double &, double &) const {}
-
-    double ReferenceFrame::calc_distance(
-                double, double, double, double, double, double) const
-    {
-      throw bad_coord_type(*this, "calc_distance");
-    }
-
-    void ReferenceFrame::transform_angular_to_origin(
-                                double &, double &, double &) const
-    {
-      throw bad_coord_type(*this, "transform_angular_to_origin");
-    }
-
-    void ReferenceFrame::transform_angular_from_origin(
-                                double &, double &, double &) const
-    {
-      throw bad_coord_type(*this, "transform_angular_from_origin");
-    }
-
-    void ReferenceFrame::transform_pose_to_origin(
-                    double &x, double &y, double &z,
-                    double &rx, double &ry, double &rz) const
-    {
-      throw bad_coord_type(*this, "transform_pose_to_origin");
-    }
-
-    void ReferenceFrame::transform_pose_from_origin(
-                    double &x, double &y, double &z,
-                    double &rx, double &ry, double &rz) const
-    {
-      throw bad_coord_type(*this, "transform_pose_from_origin");
-    }
-
-    double ReferenceFrame::calc_angle(
-                double, double, double, double, double, double) const
-    {
-      throw bad_coord_type(*this, "calc_angle");
-    }
-
-    void ReferenceFrame::do_normalize_angular(
-                double &, double &, double &) const {}
-
-    void ReferenceFrame::do_normalize_pose(
-                    double &x, double &y, double &z,
-                    double &rx, double &ry, double &rz) const
-    {
-      do_normalize_linear(x, y, z);
-      do_normalize_angular(rx, ry, rz);
-    }
-
-    void SimpleRotateFrame::orient_linear_vec(
-          double &x, double &y, double &z,
-          const AngularVector &rot, bool reverse) const
-    {
-      if(rot.is_zero())
-        return;
-
-      Quaternion locq(x, y, z, 0);
-      Quaternion rotq(rot);
-
-      if(reverse)
-        rotq.conjugate();
-
-      locq.orient_by(rotq);
-      locq.to_linear_vector(x, y, z);
-    }
-
-    void SimpleRotateFrame::transform_angular_to_origin(
-                                double &rx, double &ry, double &rz) const
-    {
-      Quaternion in_quat(rx, ry, rz);
-      Quaternion origin_quat(origin().as_orientation_vec());
-      in_quat *= origin_quat;
-      in_quat.to_angular_vector(rx, ry, rz);
-    }
-
-    void SimpleRotateFrame::transform_angular_from_origin(
-                                double &rx, double &ry, double &rz) const
-    {
-      Quaternion in_quat(rx, ry, rz);
-      Quaternion origin_quat(origin().as_orientation_vec());
-      origin_quat.conjugate();
-      in_quat *= origin_quat;
-      in_quat.to_angular_vector(rx, ry, rz);
-    }
-
-    void SimpleRotateFrame::transform_pose_to_origin(
-                    double &x, double &y, double &z,
-                    double &rx, double &ry, double &rz) const
-    {
-      transform_linear_to_origin(x, y, z);
-      transform_angular_to_origin(rx, ry, rz);
-    }
-
-    void SimpleRotateFrame::transform_pose_from_origin(
-                    double &x, double &y, double &z,
-                    double &rx, double &ry, double &rz) const
-    {
-      transform_linear_from_origin(x, y, z);
-      transform_angular_from_origin(rx, ry, rz);
-    }
-
-    inline double SimpleRotateFrame::calc_angle(
-                double rx1, double ry1, double rz1,
-                double rx2, double ry2, double rz2) const
-    {
-      Quaternion quat1(rx1, ry1, rz1);
-      Quaternion quat2(ry2, ry2, rz2);
-      return quat1.angle_to(quat2);
-    }
-
-    GAMSExport const ReferenceFrame &default_frame (void)
-    {
-      return CoordinateBase::default_frame();
+      static ReferenceFrame frame{"default_frame", Pose(ReferenceFrame(), 0, 0)};
+      return frame;
     }
   }
 }

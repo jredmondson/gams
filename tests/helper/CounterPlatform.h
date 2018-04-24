@@ -59,7 +59,7 @@
 #include "gams/variables/PlatformStatus.h"
 #include "gams/platforms/BasePlatform.h"
 #include "gams/utility/GPSPosition.h"
-#include "gams/utility/CartesianFrame.h"
+#include "gams/pose/CartesianFrame.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/knowledge/containers/Integer.h"
 
@@ -160,12 +160,9 @@ namespace gams
       * Method for returning the platform's current frame
       * @return frame that the platform's coordinate system is operating in
       **/
-      virtual const utility::ReferenceFrame & get_frame (void) const;
+      virtual const pose::ReferenceFrame & get_frame (void) const;
 
     protected:
-      /// a cartesian frame for coordinates
-      utility::CartesianFrame frame_;
-
       /// current position
       utility::GPSPosition position_;
 
