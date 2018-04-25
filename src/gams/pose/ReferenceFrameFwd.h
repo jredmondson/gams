@@ -58,7 +58,6 @@
 #include <gams/CPP11_compat.h>
 #include <madara/knowledge/KnowledgeBase.h>
 #include <stdexcept>
-#include <madara/utility/support_test.h>
 
 namespace gams
 {
