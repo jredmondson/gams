@@ -256,6 +256,9 @@ namespace gams
 
       friend class Quaternion;
 
+      /**
+       * Underlying member variables. Use accessor methods when possible.
+       **/
       double rx_, ry_, rz_;
     };
 

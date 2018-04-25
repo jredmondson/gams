@@ -56,7 +56,6 @@
 
 #include <gams/GAMSExport.h>
 #include <gams/CPP11_compat.h>
-#include "rtti.h"
 #include <vector>
 #include <string>
 #include <utility>
@@ -65,21 +64,16 @@
 #include "CartesianFrame.h"
 #include "Pose.h"
 
-/**
- * Following statement or block is executed only if the frame `coord` belongs
- * to is of type `type` (i.e., can be dynamic_cast to it). The casted frame
- * is provided as a const pointer in `frame_ptr`, in scope only within the
- * following statement/block.
- **/
-//#define GAMS_WITH_FRAME_TYPE(coord, type, frame_ptr) \
-    //if(const type *frame_ptr = ::gams::pose::reference_frame_cast<type>(&coord.frame()))
-
-// note: (void)frame_ref silences warnings if frame_ref isn't used in body code
-
 namespace gams
 {
   namespace pose
   {
+    /**
+     * For internal use.
+     *
+     * Represents a frame's identity, persisting across timestamped versions,
+     * including id and type.
+     **/
     class GAMSExport ReferenceFrameIdentity
     {
     private:
@@ -98,6 +92,11 @@ namespace gams
         const std::string &id() const { return id_; }
     };
 
+    /**
+     * For internal use.
+     *
+     * Represents a specific frame version.
+     **/
     class GAMSExport ReferenceFrameVersion
     {
     private:
@@ -106,6 +105,15 @@ namespace gams
       uint64_t timestamp_ = -1;
 
     public:
+      /**
+       * Constructor from an origin, and optional timestamp. Will be
+       * constructed with Cartesian type, and a random id.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
       explicit ReferenceFrameVersion(
           Pose origin,
           uint64_t timestamp = -1)
@@ -113,6 +121,17 @@ namespace gams
           origin_(std::move(origin)),
           timestamp_(timestamp) {}
 
+      /**
+       * Constructor from a type, an origin, and optional timestamp. Will be
+       * constructed with a random id.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param type a pointer to a ReferenceFrameType struct; typically,
+       *        either Cartesian, or GPS.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
       ReferenceFrameVersion(
           const ReferenceFrameType *type,
           Pose origin,
@@ -121,6 +140,16 @@ namespace gams
           origin_(std::move(origin)),
           timestamp_(timestamp) {}
 
+      /**
+       * Constructor from a id, an origin, and optional timestamp. Will be
+       * constructed with Cartesian type.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param id a string identifier for this frame.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
       ReferenceFrameVersion(
           std::string name,
           Pose origin,
@@ -131,6 +160,17 @@ namespace gams
           origin_(std::move(origin)),
           timestamp_(timestamp) {}
 
+      /**
+       * Constructor from a type, id, an origin, and optional timestamp.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param type a pointer to a ReferenceFrameType struct; typically,
+       *        either Cartesian, or GPS.
+       * @param id a string identifier for this frame.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
       ReferenceFrameVersion(
           const ReferenceFrameType *type,
           std::string name,
@@ -142,6 +182,18 @@ namespace gams
           origin_(std::move(origin)),
           timestamp_(timestamp) {}
 
+      /**
+       * Constructor from an existing ReferenceFrameIdentity, an origin,
+       * and optional timestamp. Typical users should not use this constructor.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param ident shared_ptr to a ReferenceFrameIdentity, which holds
+       *        type and id information.
+       * @param id a string identifier for this frame.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
       ReferenceFrameVersion(
           std::shared_ptr<ReferenceFrameIdentity> ident,
           Pose origin,
@@ -150,8 +202,21 @@ namespace gams
           origin_(std::move(origin)),
           timestamp_(timestamp) {}
 
+      /**
+       * Retrieve a reference to the ReferenceFrameIdentity object
+       * holding the information common to all versions: id and type.
+       *
+       * @return a reference to the ReferenceFrameIdentity object
+       **/
       const ReferenceFrameIdentity &ident() const { return *ident_; }
 
+      /**
+       * Retrieve the frame type object for this frame. Mostly useful for
+       * comparing to the pose::Cartesian or pose::GPS instances to test
+       * what kind of frame this is.
+       *
+       * @return a pointer to this frames ReferenceFrameType
+       **/
       const ReferenceFrameType *type() const { return ident().type(); }
 
       /**
@@ -172,7 +237,7 @@ namespace gams
        * @return the new ReferenceFrame with new origin
        **/
       ReferenceFrame pose(Pose new_origin) const {
-        return ReferenceFrame(ident_, new_origin, timestamp_);
+        return pose(new_origin, timestamp_);
       }
 
       /**
@@ -182,7 +247,7 @@ namespace gams
        * @return the new ReferenceFrame with new origin
        **/
       ReferenceFrame move(Position new_origin) const {
-        return pose(Pose(new_origin, Orientation(origin_)));
+        return move(new_origin, timestamp_);
       }
 
       /**
@@ -192,7 +257,42 @@ namespace gams
        * @return the new ReferenceFrame with new origin
        **/
       ReferenceFrame orient(Orientation new_origin) const {
-        return pose(Pose(Position(origin_), new_origin));
+        return orient(new_origin, timestamp_);
+      }
+
+      /**
+       * Creates a new ReferenceFrame with modified origin and timestamp
+       *
+       * @param new_origin the new origin
+       * @param timestamp the new timestamp
+       * @return the new ReferenceFrame with new origin and timestamp
+       **/
+      ReferenceFrame pose(const Pose &new_origin, uint64_t timestamp) const {
+        return ReferenceFrame(ident_, new_origin, timestamp);
+      }
+
+      /**
+       * Creates a new ReferenceFrame with modified origin and timestamp
+       *
+       * @param new_origin the new origin
+       * @param timestamp the new timestamp
+       * @return the new ReferenceFrame with new origin and timestamp
+       **/
+      ReferenceFrame move(const Position &new_origin,
+                          uint64_t timestamp) const {
+        return pose(Pose(new_origin, Orientation(origin_)), timestamp);
+      }
+
+      /**
+       * Creates a new ReferenceFrame with modified origin and timestamp
+       *
+       * @param new_origin the new origin
+       * @param timestamp the new timestamp
+       * @return the new ReferenceFrame with new origin and timestamp
+       **/
+      ReferenceFrame orient(const Orientation &new_origin,
+                            uint64_t timestamp) const {
+        return pose(Pose(Position(origin_), new_origin), timestamp);
       }
 
       /**
@@ -248,24 +348,6 @@ namespace gams
         return ident().type()->name;
       }
 
-#if 0
-      /**
-       * Normalizes individual doubles representing a linear
-       **/
-      void normalize_linear(double &x, double &y, double &z) const;
-
-      /**
-       * Normalizes individual doubles representing a angular
-       **/
-      void normalize_angular(double &rx, double &ry, double &rz) const;
-
-      /**
-       * Normalizes individual doubles representing a pose
-       **/
-      void normalize_pose(double &x, double &y, double &z,
-                          double &rx, double &ry, double &rz) const;
-#endif
-
       /**
        * Get the ID string of this frame. By default, frames generate a
        * random GUID as their ID
@@ -282,6 +364,15 @@ namespace gams
       }
 
       /**
+       * Clone the this frame, but with new timestamp.
+       *
+       * @return the new frame object
+       **/
+      ReferenceFrame timestamp(uint64_t timestamp) const {
+        return ReferenceFrame(ident_, origin_, timestamp);
+      }
+
+      /**
        * Returns true if this frame was interpolated from two stored frames.
        **/
       bool interpolated() const {
@@ -290,12 +381,13 @@ namespace gams
 
       /**
        * Save this ReferenceFrame to the knowledge base,
-       * The saved frames will be marked with the given timestamp for later
+       * The saved frames will be marked with their timestamp for later
        * retrieval. If timestamp is -1, it will always be treated as the most
        * recent frame.
-       * and GAMS expects newer versions to have higher values.
+       *
+       * @param kb the KnowledgeBase to store into
        **/
-      void save(madara::knowledge::KnowledgeBase &kb, uint64_t timestamp = -1) const {}
+      void save(madara::knowledge::KnowledgeBase &kb) const {}
 
       /**
        * Load a single ReferenceFrame, by ID.
@@ -305,8 +397,8 @@ namespace gams
        *   Otherwise, gets the frame at a specified timestamp,
        *   interpolated necessary.
        *
-       * @return a pointer to the imported ReferenceFrame, or nullptr if
-       *   none exists.
+       * @return the imported ReferenceFrame, or an invalid frame if none
+       *         exists.
        **/
       static ReferenceFrame load(
               madara::knowledge::KnowledgeBase &kb,
@@ -326,14 +418,19 @@ namespace gams
        *   Otherwise, the specified timestamp will be returned.
        *
        * @return a vector of ReferenceFrames, each corresponding to the
-       *   input IDs, in the same order.
+       *   input IDs, in the same order. If the timestamp specified cannot
+       *   be satisfied, returns an empty vector.
        **/
       template<typename InputIterator>
       static std::vector<ReferenceFrame> load_tree(
               madara::knowledge::KnowledgeBase &kb,
               InputIterator begin,
               InputIterator end,
-              uint64_t timestamp = -1) { return std::vector<ReferenceFrame>{}; }
+              uint64_t timestamp = -1) {
+        size_t count = std::distance(begin, end);
+        std::vector<ReferenceFrame> ret(count, default_frame());
+        return ret;
+      }
 
       /**
        * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -348,7 +445,8 @@ namespace gams
        *   Otherwise, the specified timestamp will be returned.
        *
        * @return a vector of ReferenceFrames, each corresponding to the
-       *   input IDs, in the same order.
+       *   input IDs, in the same order. If the timestamp specified cannot
+       *   be satisfied, returns an empty vector.
        **/
       template<typename Container>
       static std::vector<ReferenceFrame> load_tree(
@@ -361,13 +459,19 @@ namespace gams
       /**
        * Save this ReferenceFrame to the knowledge base,
        * with a specific key value.
+       *
+       * @param kb the KnowledgeBase to save to
+       * @param key a key prefix to save with
        **/
-      void save_as(madara::knowledge::KnowledgeBase &kb, const std::string &key) const {}
+      void save_as(madara::knowledge::KnowledgeBase &kb,
+                   const std::string &key) const {}
 
       /**
        * Load a ReferenceFrame using a specific key value (generally, one
        * previously used by export_tree_as). No interpolation will be done.
        *
+       * @param kb the KnowledgeBase to load from
+       * @param key a key prefix to load with
        * @returns a pointer to the imported ReferenceFrame, or nullptr if
        * none exists.
        **/
@@ -392,31 +496,6 @@ namespace gams
         const ReferenceFrame *from,
         const ReferenceFrame *to,
         std::vector<const ReferenceFrame *> *to_stack = nullptr);
-
-#if 0
-    /**
-     * Cast from one child of ReferenceFrame to another.
-     * Passes through to dynamic_cast<const F*> on systems with RTTI.
-     * Uses an equivalent custom mechanism otherwise.
-     **/
-    template<class F, class I>
-    inline static const F *reference_frame_cast(const I *f) {
-#ifndef GAMS_NO_RTTI
-      return dynamic_cast<const F*>(f);
-#else
-      if (f == nullptr) {
-        return nullptr;
-      }
-      type_ids::Flags from_flags = f->get_types();
-      type_ids::Flags to_flags = F::get_stypes();
-      if ((from_flags & to_flags) == to_flags) {
-        return static_cast<const F*>(f);
-      } else {
-        return nullptr;
-      }
-#endif
-    }
-#endif
 
     /**
      * Thrown when an an attempt is made to transform between frames
@@ -577,18 +656,6 @@ namespace gams
                       const ReferenceFrameType *self,
                       double rx1, double ry1, double rz1,
                       double rx2, double ry2, double rz2);
-
-#if 0
-#ifdef GAMS_NO_RTTI
-    public:
-      static type_ids::Flags get_stypes() {
-        using namespace type_ids;
-        return flags(SimpleRotate);
-      }
-
-      type_ids::Flags get_types() const override { return get_stypes(); }
-#endif
-#endif
     }
 
     inline void default_normalize_linear(
@@ -607,8 +674,6 @@ namespace gams
       self->normalize_linear(self, x, y, z);
       self->normalize_angular(self, rx, ry, rz);
     }
-
-    GAMSExport const ReferenceFrame &default_frame (void);
   }
 }
 

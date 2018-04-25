@@ -241,26 +241,6 @@ namespace gams
                              pose.rx_, pose.ry_, pose.rz_);
     }
 
-    /*
-    inline void ReferenceFrame::normalize_linear(
-                                      double &x, double &y, double &z) const
-    {
-      do_normalize_linear(x, y, z);
-    }
-
-    inline void ReferenceFrame::normalize_angular(
-                                      double &rx, double &ry, double &rz) const
-    {
-      do_normalize_angular(rx, ry, rz);
-    }
-
-    inline void ReferenceFrame::normalize_pose(
-                                      double &x, double &y, double &z,
-                                      double &rx, double &ry, double &rz) const
-    {
-      do_normalize_pose(x, y, z, rx, ry, rz);
-    }*/
-
     inline bool ReferenceFrameVersion::operator==(const ReferenceFrame &other) const
     {
       return operator==(*other.impl_);
@@ -542,6 +522,24 @@ namespace gams
       return impl_->orient(new_origin);
     }
 
+    inline ReferenceFrame ReferenceFrame::pose(
+        const Pose &new_origin,
+        uint64_t timestamp) const {
+      return impl_->pose(new_origin, timestamp);
+    }
+
+    inline ReferenceFrame ReferenceFrame::move(
+        const Position &new_origin,
+        uint64_t timestamp) const {
+      return impl_->move(new_origin, timestamp);
+    }
+
+    inline ReferenceFrame ReferenceFrame::orient(
+        const Orientation &new_origin,
+        uint64_t timestamp) const {
+      return impl_->orient(new_origin, timestamp);
+    }
+
     inline ReferenceFrame ReferenceFrame::origin_frame() const {
       return impl_->origin_frame();
     }
@@ -572,14 +570,17 @@ namespace gams
       return impl_->timestamp();
     }
 
+    inline ReferenceFrame ReferenceFrame::timestamp(uint64_t timestamp) const {
+      return impl_->timestamp(timestamp);
+    }
+
     inline bool ReferenceFrame::interpolated() const {
       return impl_->interpolated();
     }
 
     inline void ReferenceFrame::save(
-          madara::knowledge::KnowledgeBase &kb,
-          uint64_t timestamp) const {
-      return impl_->save(kb, timestamp);
+          madara::knowledge::KnowledgeBase &kb) const {
+      return impl_->save(kb);
     }
 
     inline ReferenceFrame ReferenceFrame::load(

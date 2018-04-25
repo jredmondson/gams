@@ -54,7 +54,6 @@
 #ifndef _GAMS_POSE_POSE_H_
 #define _GAMS_POSE_POSE_H_
 
-#include "rtti.h"
 #include <iostream>
 #include <string>
 
@@ -380,8 +379,8 @@ namespace gams
        * @param rot the Angular to copy orientation info from.
        **/
       Pose (const ReferenceFrame &frame,
-                     const LinearVector &loc,
-                     const AngularVector &rot);
+            const LinearVector &loc,
+            const AngularVector &rot);
 
       /**
        * Construct from individual Linear and Angular.

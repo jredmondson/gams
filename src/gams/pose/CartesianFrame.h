@@ -61,10 +61,12 @@ namespace gams
   namespace pose
   {
     /**
+     * Contains frame translation functions for Cartesian reference frames.
+     *
      * Positions represented as meters distance, in x, y, and z, from an origin
      * Orientations represented in Axis Angle notation
      *
-     * All conversions to/from child and parent CartesianFrames are supported.
+     * All conversions to/from child and parent Cartesian frames are supported.
      * Conversions to/from a parent GPSFrame are supported, except converting
      * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
      * Converting to GPSFrame from a orientd child Cartesian is supported.
@@ -72,6 +74,10 @@ namespace gams
     namespace cartesian {
     }
 
+    /**
+     * ReferenceFrameType struct for Cartesian frames. Used by default by
+     * ReferenceFrame objects, or can be passed as first parameter.
+     **/
     extern const ReferenceFrameType *Cartesian;
   }
 }

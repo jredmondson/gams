@@ -53,9 +53,13 @@
 
 #ifdef GAMS_UTM
 
+#error UTM support disabled temporarily.
+
 #include "UTMFrame.h"
 #include "GPSFrame.h"
 #include "Quaternion.h"
+
+#if 0
 
 #include <GeographicLib/UTMUPS.hpp>
 
@@ -246,4 +250,5 @@ void UTMFrame::do_normalize_pose(
   }
 }
 
+#endif
 #endif

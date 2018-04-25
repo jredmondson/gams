@@ -55,7 +55,6 @@
 #define _GAMS_POSE_COORDINATE_H_
 
 #include "gams/GAMSExport.h"
-#include "rtti.h"
 #include <string>
 #include <cfloat>
 #include <utility>
@@ -68,6 +67,9 @@ namespace gams
 {
   namespace pose
   {
+    /**
+     * Contains ordering configurations for to_container and from_container
+     **/
     namespace order
     {
       /**

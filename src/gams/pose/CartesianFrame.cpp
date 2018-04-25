@@ -163,15 +163,6 @@ namespace gams { namespace pose {
       throw undefined_transform(self, origin, false);
     }
 
-    /*
-    namespace
-    {
-      CartesianFrame cartesian_default_frame;
-    }
-
-    const ReferenceFrame *CoordinateBase::default_frame_ =
-           &cartesian_default_frame;*/
-
     const ReferenceFrameType CartesianImpl = {
       1, "Cartesian",
       transform_linear_to_origin,

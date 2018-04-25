@@ -297,7 +297,6 @@ namespace gams
       }
     }
 
-
     template<class C>
     void Angular<C>::from_container (
       const madara::knowledge::containers::NativeDoubleVector &container)
