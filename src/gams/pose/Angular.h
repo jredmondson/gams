@@ -304,7 +304,8 @@ namespace gams
        * @param rz length of orientation vector in default-frame's z-axis direction
        * @param u units to use (see AngleUnits.h)
        **/
-      template<typename U> Angular (double rx, double ry, double rz, U u);
+      template<typename U>
+      Angular (double rx, double ry, double rz, U u);
 
       /**
        * Constructor, for given frame, taking values forming an angle-axis
@@ -320,7 +321,7 @@ namespace gams
        * @param rz length of orientation vector in owning-frame's z-axis direction
        **/
       Angular (ReferenceFrame frame,
-                         double rx, double ry, double rz);
+               double rx, double ry, double rz);
 
       /**
        * Constructor, for given frame, taking values forming an angle-axis
@@ -338,7 +339,7 @@ namespace gams
        **/
       template<typename U>
       Angular (ReferenceFrame frame,
-                         double rx, double ry, double rz, U u);
+               double rx, double ry, double rz, U u);
 
       /**
        * Constructor, for default frame taking axis and angle separately
@@ -362,8 +363,9 @@ namespace gams
        * @param angle the amount of orientation around the axis
        * @param u units to use (see AngleUnits.h)
        **/
-      template<typename U> Angular (double x, double y, double z,
-                                    double angle, U u);
+      template<typename U>
+      Angular (double x, double y, double z,
+               double angle, U u);
 
       /**
        * Constructor, for a given frame taking axis and angle separately
@@ -376,7 +378,7 @@ namespace gams
        * @param angle the amount of orientation, default radians, around the axis
        **/
       Angular (ReferenceFrame frame,
-                         double x, double y, double z, double angle);
+               double x, double y, double z, double angle);
 
       /**
        * Constructor, for a given frame taking axis and angle separately
@@ -389,9 +391,10 @@ namespace gams
        * @param angle the amount of orientation around the axis
        * @param u units to use (see AngleUnits.h)
        **/
-      template<typename U> Angular (ReferenceFrame frame,
-                                              double x, double y, double z,
-                                              double angle, U u);
+      template<typename U>
+      Angular (ReferenceFrame frame,
+               double x, double y, double z,
+               double angle, U u);
 
       /**
        * Constructor from MADARA DoubleVector, into default ReferenceFrame
@@ -470,7 +473,8 @@ namespace gams
        * @param u units to use (see AngleUnits.h)
        * @return the shortest angle to orient this onto target
        **/
-      template<typename U> double angle_to (const C &target, U u) const;
+      template<typename U>
+      double angle_to (const C &target, U u) const;
 
       /**
        * Interpolate a new Angular that is (t * 100)% between *this and

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <gams/pose/CartesianFrame.h>
 #include <gams/pose/GPSFrame.h>
+#include <madara/knowledge/KnowledgeBase.h>
 
 using namespace gams::pose;
 
@@ -15,6 +16,20 @@ double round_nearest(double in)
 
 #define LOG(expr) \
   std::cout << #expr << " == " << (expr) << std::endl
+
+#define TEST_EQ(expr, expect) \
+  do {\
+    auto v = (expr); \
+    auto e = (expect); \
+    if(v == e) \
+    { \
+      std::cout << #expr << " ?= " << e << "  SUCCESS! got " << v << std::endl; \
+    } \
+    else \
+    { \
+      std::cout << #expr << " ?= " << e << "  FAIL! got " << v << " instead" << std::endl; \
+    } \
+  } while(0)
 
 #define TEST(expr, expect) \
   do {\
@@ -185,5 +200,49 @@ int main(int argc, char *argv[])
   LOG(Orientation(hex6));
   LOG(Orientation(hex6.transform_to(hex_frame0)));
   TEST(hex0.angle_to(hex0), 0);
+
+  std::cout << std::endl << "Test saving and loading frame tree (TODO):"
+            << std::endl;
+  ReferenceFrame building_frame("Building", Position(gps_frame(), 70, -40), -1);
+  ReferenceFrame room_frame("LivingRoom", Position(building_frame, 10, 20), -1);
+  ReferenceFrame kitchen_frame("Kitchen", Position(building_frame, 30, 50), -1);
+  ReferenceFrame drone_frame("Drone", Position(kitchen_frame, 3, 2, 2), 1000);
+  ReferenceFrame camera_frame("Camera", Position(drone_frame, 0, 0, -0.5), 1000);
+
+  madara::knowledge::KnowledgeBase kb;
+
+  building_frame.save(kb);
+  room_frame.save(kb);
+  kitchen_frame.save(kb);
+  drone_frame.save(kb);
+  camera_frame.save(kb);
+
+  ReferenceFrame drone_frame1 = drone_frame.move(Position(kitchen_frame, 3, 4, 2), 2000);
+  ReferenceFrame camera_frame1 =
+      camera_frame.orient(Orientation(drone_frame1, 0, 0, M_PI/4), 1500);
+
+  drone_frame1.save(kb);
+  camera_frame1.save(kb);
+
+  std::vector<std::string> ids = {"Drone", "Camera"};
+  std::vector<ReferenceFrame> latest = ReferenceFrame::load_tree(kb, ids, 1500);
+
+  TEST(latest.size(), 2);
+
+  if (latest.size() == 2) {
+    TEST_EQ(latest[0].id(), "Drone");
+    TEST_EQ(latest[1].id(), "Camera");
+
+    TEST(latest[0].timestamp(), 1500);
+    TEST(latest[1].timestamp(), 1500);
+
+    TEST_EQ(latest[0].interpolated(), true);
+    TEST_EQ(latest[1].interpolated(), false);
+
+    TEST(latest[0].origin().x(), 3);
+    TEST(latest[0].origin().y(), 3);
+    TEST(latest[1].origin().rz(), M_PI/4);
+  }
+
   return 0;
 }

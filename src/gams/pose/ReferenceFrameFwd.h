@@ -71,13 +71,27 @@ namespace gams
     class Orientation;
 
     /**
-     * Base class for Reference Frames.
-     * Inherit from this class if implementing a new reference frame.
-     * Otherwise, do not use directly.
+     * Provides Reference Frame (i.e., coordinate systemm) transforms.
      *
-     * If implementing a new reference frame, you will need to modify the
-     * transform_to_origin and transform_from_origin methods of the reference
-     * frames the new reference frame should be able to transform to and from.
+     * A ReferenceFrame has:
+     * * a type: either GPS or Cartesian (the default). Others may be
+     *    implemented in the future.
+     * * an ID: some string that should be unique within each knowledge base.
+     *    By default, a random GUID will be generated if none is given when
+     *    constructing a ReferenceFrame.
+     * * a timestamp: a timestamp representing at what time the transform was
+     *    measured or derived. No units are assumed by GAMS, but interpolation
+     *    assumes that timestamps progress linearly with respect to real time,
+     *    and monotonically. A -1, the default if none is given, is treated
+     *    as "always correct" at all times.
+     * * an origin: a Pose in another frame which is the location and
+     *    of this frame's origin with respect to that frame.
+     *
+     * ReferenceFrame objects are immutable. "Setters" like timestamp() and
+     * pose() return a new ReferenceFrame object modified accordingly.
+     *
+     * ReferenceFrame objects are ref-counted proxies for an underlying object.
+     * As such, they are cheap and safe to pass by value.
      **/
     class GAMSExport ReferenceFrame
     {

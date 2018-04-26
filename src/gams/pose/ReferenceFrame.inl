@@ -596,7 +596,7 @@ namespace gams
           InputIterator begin,
           InputIterator end,
           uint64_t timestamp) {
-      return ReferenceFrameVersion::load(kb, begin, end, timestamp);
+      return ReferenceFrameVersion::load_tree(kb, begin, end, timestamp);
     }
 
     template<typename Container>

@@ -460,8 +460,6 @@ namespace gams
     };
 
     /**
-     * Represents a Linear within a reference frame.
-     * This position always has x, y, and z coordinates, but interpretation
      * of those coordinates can vary according to the reference frame.
      *
      * Provides accessor methods to support non-cartesian coordinate systems:
@@ -495,8 +493,7 @@ namespace gams
       /**
        * Primary constructor
        *
-       * @param frame the reference frame to bind to. This object must not
-       *    outlive this ReferenceFrame object.
+       * @param frame the ReferenceFrame to bind to.
        * @param x the x coordinate of the new Linear
        * @param y the y coordinate of the new Linear
        * @param z the z coordinate of the new Linear; defaults to zero

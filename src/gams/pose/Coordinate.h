@@ -174,22 +174,21 @@ namespace gams
       Coordinate();
 
       /**
-       * Construct through a reference to a frame object. This Coordinate must
-       * not outlive the ReferenceFrame that is passed in.
+       * Construct using a ReferenceFrame object.
        *
-       * @param frame the reference frame this Coordinate will belong to
+       * @param frame the ReferenceFrame this Coordinate will belong to
        **/
       explicit Coordinate(ReferenceFrame frame);
 
       /**
-       * Getter for the reference frame this Coordinate belongs to.
+       * Getter for the ReferenceFrame this Coordinate belongs to.
        *
        * @return the frame
        **/
       const ReferenceFrame &frame() const;
 
       /**
-       * Setter for the reference frame this Coordinate belongs to. Any further
+       * Setter for the ReferenceFrame this Coordinate belongs to. Any further
        * calculations using this Coordinate will use this frame.
        *
        * Not thread-safe.
