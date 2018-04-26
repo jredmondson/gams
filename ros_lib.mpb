@@ -1,8 +1,6 @@
 feature (ros) {
   requires += ros
   libpaths += $(ROS_ROOT)/../../lib
-  libs += roscpp
-  libs += actionlib
   
   macros += _GAMS_ROS_
   
