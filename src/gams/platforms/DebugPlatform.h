@@ -150,8 +150,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const pose::Position & position,
-        const double & epsilon = 0.1);
+      int move (const pose::Position & position,
+        const PositionBounds &bounds = Epsilon()) override;
       
       /**
        * Polls the sensor environment for useful information

@@ -140,7 +140,7 @@ gams::platforms::BasePlatform::move (const utility::Position & target,
 
 int
 gams::platforms::BasePlatform::move (const pose::Position & target,
-  double epsilon)
+    const PositionBounds &bounds)
 {
   int result = 0;
 
@@ -170,7 +170,7 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
    * otherwise, if we are approximately at the target location,
    * change status and paused to 0 and return 2 (arrived)
    **/
-  else if (target.approximately_equal (current, epsilon))
+  else if (bounds.check_position(target, current))
   {
     status_.moving = 0;
     status_.paused_moving = 0;
@@ -183,7 +183,7 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
 
 int
 gams::platforms::BasePlatform::orient (const pose::Orientation & target,
-  double epsilon)
+    const OrientationBounds &bounds)
 {
   int result (0);
 
@@ -208,7 +208,7 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
    * otherwise, if we are approximately at the target angle,
    * change status and paused to 0 and return 2 (arrived)
    **/
-  else if (target.approximately_equal (current, epsilon))
+  else if (bounds.check_orientation(target, current))
   {
     status_.rotating = 0;
     status_.paused_rotating = 0;
@@ -220,10 +220,10 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
 
 int
 gams::platforms::BasePlatform::pose (const pose::Pose & target,
-  double loc_epsilon, double rot_epsilon)
+    const PoseBounds &bounds)
 {
-  int move_status = move(pose::Position(target), loc_epsilon);
-  int orient_status = orient(pose::Orientation(target), rot_epsilon);
+  int move_status = move(pose::Position(target), bounds);
+  int orient_status = orient(pose::Orientation(target), bounds);
   if(move_status == 0 || orient_status == 0)
     return 0;
   if(move_status == 2 && orient_status == 2)

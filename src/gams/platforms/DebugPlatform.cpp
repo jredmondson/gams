@@ -335,7 +335,7 @@ gams::platforms::DebugPlatform::land (void)
 
 int
 gams::platforms::DebugPlatform::move (const pose::Position & position,
-  const double & /*epsilon*/)
+  const PositionBounds & /*bounds*/)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_ALWAYS,

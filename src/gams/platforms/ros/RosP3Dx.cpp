@@ -151,7 +151,8 @@ gams::platforms::RosP3Dx::get_name () const
 }
 
 int
-gams::platforms::RosP3Dx::move (const pose::Position & position, const double & epsilon)
+gams::platforms::RosP3Dx::move (const pose::Position & position,
+        const PositionBounds &bounds)
 {
   // generate message
   move_base_msgs::MoveBaseGoal goal;
@@ -165,6 +166,8 @@ gams::platforms::RosP3Dx::move (const pose::Position & position, const double & 
   // send the goal
   ROS_INFO("Sending goal");
   move_client_.sendGoal(goal);
+
+  return 0;
 }
 
 void

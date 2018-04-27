@@ -120,7 +120,8 @@ land ()
 }
 
 int
-gams::platforms::RosBase::move (const pose::Position & position, const double & epsilon)
+gams::platforms::RosBase::move (const pose::Position & position,
+        const PositionBounds &bounds);
 {
   return 1;
 }
