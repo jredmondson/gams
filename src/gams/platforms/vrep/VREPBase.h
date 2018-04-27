@@ -158,7 +158,7 @@ namespace gams
        * @return the status of the move operation, @see PlatformReturnValues
        **/
       int move (const pose::Position & location,
-        const PositionBounds &bounds = Epsilon()) override;
+        const PositionBounds &bounds) override;
 
       /**
        * Rotates the platform to a specified Orientation
@@ -167,7 +167,7 @@ namespace gams
        * @return the status of the orient operation, @see PlatformReturnValues
        **/
       int orient (const pose::Orientation & location,
-        const OrientationBounds &bounds = Epsilon()) override;
+        const OrientationBounds &bounds) override;
 
       /**
        * Set move speed

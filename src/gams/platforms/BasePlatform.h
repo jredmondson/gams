@@ -299,15 +299,48 @@ namespace gams
       /**
        * Moves the platform to a location
        * @param   location    the coordinates to move to
-       * @param   epsilon     approximation value
+       * @return the status of the move operation, @see PlatformReturnValues
+       **/
+      virtual int move (const pose::Position & target) {
+        return move (target, Epsilon());
+      }
+
+      /**
+       * Moves the platform to a location
+       * @param   location    the coordinates to move to
+       * @param   bounds      object to compute if platform has arrived
        * @return the status of the move operation, @see PlatformReturnValues
        **/
       virtual int move (const pose::Position & target,
-        const PositionBounds &bounds = Epsilon());
+        const PositionBounds &bounds);
 
+      /**
+       * Moves the platform to a location
+       * @param   location    the coordinates to move to
+       * @param   epsilon     approximation value
+       * @return the status of the move operation, @see PlatformReturnValues
+       **/
       int move (const pose::Position & target, double epsilon) {
-        return move(target, Epsilon(epsilon));
+        return move (target, Epsilon(epsilon));
       }
+
+      /**
+       * Rotates the platform to match a given angle
+       * @param   target    the orientation to move to
+       * @return the status of the orient, @see PlatformReturnValues
+       **/
+      virtual int orient (const pose::Orientation & target) {{
+        return orient (target, Epsilon());
+      }
+
+      /**
+       * Rotates the platform to match a given angle
+       * @param   target    the orientation to move to
+       * @param   bounds      object to compute if platform has arrived
+       * @return the status of the orient, @see PlatformReturnValues
+       **/
+      virtual int orient (const pose::Orientation & target,
+        const OrientationBounds &bounds);
 
       /**
        * Rotates the platform to match a given angle
@@ -315,12 +348,46 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int orient (const pose::Orientation & target,
-        const OrientationBounds &bounds = Epsilon());
-
       int orient (const pose::Orientation & target, double epsilon) {
-        return orient(target, Epsilon(epsilon));
+        return orient(target, Epsilon (epsilon));
       }
+
+      /**
+       * Moves the platform to a pose (location and orientation)
+       *
+       * This default implementation calls move and orient with the
+       * Location and Orientation portions of the target Pose. The return value
+       * is composed as follows: if either call returns ERROR (0), this call
+       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
+       * this call also returns ARRIVED (2). Otherwise, this call returns
+       * MOVING (1)
+       *
+       * Overrides might function differently.
+       *
+       * @param   target        the coordinates to move to
+       * @return the status of the operation, @see PlatformReturnValues
+       **/
+      virtual int pose (const pose::Pose & target) {
+        return pose (target, Epsilon());
+      }
+
+      /**
+       * Moves the platform to a pose (location and orientation)
+       *
+       * This default implementation calls move and orient with the
+       * Location and Orientation portions of the target Pose. The return value
+       * is composed as follows: if either call returns ERROR (0), this call
+       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
+       * this call also returns ARRIVED (2). Otherwise, this call returns
+       * MOVING (1)
+       *
+       * Overrides might function differently.
+       *
+       * @param   target        the coordinates to move to
+       * @param   bounds      object to compute if platform has arrived
+       * @return the status of the operation, @see PlatformReturnValues
+       **/
+      virtual int pose (const pose::Pose & target, const PoseBounds &bounds);
 
       /**
        * Moves the platform to a pose (location and orientation)
@@ -339,9 +406,6 @@ namespace gams
        * @param   rot_epsilon   approximation value for the orientation
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      virtual int pose (const pose::Pose & target,
-        const PoseBounds &bounds = Epsilon());
-
       int pose (const pose::Pose & target,
         double loc_epsilon, double rot_epsilon = M_PI/16) {
         return pose(target, Epsilon(loc_epsilon, rot_epsilon));
