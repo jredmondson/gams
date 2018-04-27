@@ -329,7 +329,7 @@ namespace gams
        * @param   target    the orientation to move to
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int orient (const pose::Orientation & target) {{
+      virtual int orient (const pose::Orientation & target) {
         return orient (target, Epsilon());
       }
 
