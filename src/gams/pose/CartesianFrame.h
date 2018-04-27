@@ -64,12 +64,13 @@ namespace gams
      * Contains frame translation functions for Cartesian reference frames.
      *
      * Positions represented as meters distance, in x, y, and z, from an origin
-     * Orientations represented in Axis Angle notation
+     * Orientations represented in Axis Angle notation. The z-axis points
+     * downwards, so higher elevations imply lower z value. If embeded within a
+     * GPS frame with no relative orientation, +x will point North, +y East,
+     * and +z downwards.
      *
      * All conversions to/from child and parent Cartesian frames are supported.
-     * Conversions to/from a parent GPSFrame are supported, except converting
-     * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
-     * Converting to GPSFrame from a orientd child Cartesian is supported.
+     * Conversions to/from a parent GPS frame are supported.
      **/
     namespace cartesian {
     }

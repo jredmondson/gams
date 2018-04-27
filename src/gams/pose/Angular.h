@@ -65,6 +65,7 @@ namespace gams
 
 #include <iostream>
 #include <string>
+#include <array>
 #include <gams/CPP11_compat.h>
 #include <gams/pose/Coordinate.h>
 #include "gams/GAMSExport.h"
@@ -257,9 +258,9 @@ namespace gams
       friend class Quaternion;
 
       /**
-       * Underlying member variables. Use accessor methods when possible.
+       * Underlying values. Use accessor methods when possible.
        **/
-      double rx_, ry_, rz_;
+      std::array<double, 3> rv_;
     };
 
     /**

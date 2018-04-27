@@ -56,6 +56,7 @@
 
 #include <iostream>
 #include <string>
+#include <array>
 
 #include <stdexcept>
 #include <gams/pose/Coordinate.h>
@@ -456,7 +457,7 @@ namespace gams
 
       friend class Quaternion;
 
-      double x_, y_, z_;
+      std::array<double, 3> v_;
     };
 
     /**

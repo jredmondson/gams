@@ -83,20 +83,22 @@ namespace gams
                 double x1, double y1, double z1,
                 double x2, double y2, double z2)
       {
-        double alt = z1;
-        double alt_diff = z2 - z1;
-        if(z2 < alt)
-          alt = z2;
+        double alt1 = -z1;
+        double alt2 = -z2;
+        double alt_diff = alt2 - alt1;
+        double alt = alt1;
+        if(alt2 < alt1)
+          alt = alt2;
 
         /**
          * Calculate great circle distance using numerically stable formula from
          * http://en.wikipedia.org/w/index.php?title=Great-circle_distance&oldid=659855779
          * Second formula in "Computational formulas"
          **/
-        double lat1 = DEG_TO_RAD(y1);
-        double lng1 = DEG_TO_RAD(x1);
-        double lat2 = DEG_TO_RAD(y2);
-        double lng2 = DEG_TO_RAD(x2);
+        double lat1 = DEG_TO_RAD(x1);
+        double lng1 = DEG_TO_RAD(y1);
+        double lat2 = DEG_TO_RAD(x2);
+        double lng2 = DEG_TO_RAD(y2);
 
         double sin_lat1 = sin(lat1);
         double sin_lat2 = sin(lat2);

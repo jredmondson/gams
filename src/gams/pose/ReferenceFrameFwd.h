@@ -128,12 +128,28 @@ namespace gams
        * @param timestamp the timestamp of this frame. By default, will be
        *        treated as "always most current".
        **/
-      template<typename C>
+      template<typename = void>
       explicit ReferenceFrame(
-          C origin,
+          const Pose &origin,
           uint64_t timestamp = -1)
         : impl_(std::make_shared<ReferenceFrameVersion>(
               origin, timestamp)) {}
+
+      /**
+       * Constructor from an origin, and optional timestamp. Will be
+       * constructed with Cartesian type, and a random id.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
+      template<typename = void>
+      explicit ReferenceFrame(
+          Pose &&origin,
+          uint64_t timestamp = -1)
+        : impl_(std::make_shared<ReferenceFrameVersion>(
+              std::move(origin), timestamp)) {}
 
       /**
        * Constructor from a type, an origin, and optional timestamp. Will be
@@ -146,13 +162,32 @@ namespace gams
        * @param timestamp the timestamp of this frame. By default, will be
        *        treated as "always most current".
        **/
-      template<typename C>
+      template<typename = void>
       ReferenceFrame(
           const ReferenceFrameType *type,
-          C origin,
+          const Pose &origin,
           uint64_t timestamp = -1)
         : impl_(std::make_shared<ReferenceFrameVersion>(
               type, origin, timestamp)) {}
+
+      /**
+       * Constructor from a type, an origin, and optional timestamp. Will be
+       * constructed with a random id.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param type a pointer to a ReferenceFrameType struct; typically,
+       *        either Cartesian, or GPS.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
+      template<typename = void>
+      ReferenceFrame(
+          const ReferenceFrameType *type,
+          Pose &&origin,
+          uint64_t timestamp = -1)
+        : impl_(std::make_shared<ReferenceFrameVersion>(
+              type, std::move(origin), timestamp)) {}
 
       /**
        * Constructor from a id, an origin, and optional timestamp. Will be
@@ -164,13 +199,31 @@ namespace gams
        * @param timestamp the timestamp of this frame. By default, will be
        *        treated as "always most current".
        **/
-      template<typename C>
+      template<typename = void>
       ReferenceFrame(
           std::string id,
-          C origin,
+          const Pose &origin,
           uint64_t timestamp = -1)
         : impl_(std::make_shared<ReferenceFrameVersion>(
               id, origin, timestamp)) {}
+
+      /**
+       * Constructor from a id, an origin, and optional timestamp. Will be
+       * constructed with Cartesian type.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param id a string identifier for this frame.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
+      template<typename = void>
+      ReferenceFrame(
+          std::string id,
+          Pose &&origin,
+          uint64_t timestamp = -1)
+        : impl_(std::make_shared<ReferenceFrameVersion>(
+              id, std::move(origin), timestamp)) {}
 
       /**
        * Constructor from a type, id, an origin, and optional timestamp.
@@ -183,14 +236,34 @@ namespace gams
        * @param timestamp the timestamp of this frame. By default, will be
        *        treated as "always most current".
        **/
-      template<typename C>
+      template<typename = void>
       ReferenceFrame(
           const ReferenceFrameType *type,
           std::string id,
-          C origin,
+          const Pose &origin,
           uint64_t timestamp = -1)
         : impl_(std::make_shared<ReferenceFrameVersion>(
               type, id, origin, timestamp)) {}
+
+      /**
+       * Constructor from a type, id, an origin, and optional timestamp.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param type a pointer to a ReferenceFrameType struct; typically,
+       *        either Cartesian, or GPS.
+       * @param id a string identifier for this frame.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
+      template<typename = void>
+      ReferenceFrame(
+          const ReferenceFrameType *type,
+          std::string id,
+          Pose &&origin,
+          uint64_t timestamp = -1)
+        : impl_(std::make_shared<ReferenceFrameVersion>(
+              type, id, std::move(origin), timestamp)) {}
 
       /**
        * Constructor from an existing ReferenceFrameIdentity, an origin,
@@ -204,13 +277,33 @@ namespace gams
        * @param timestamp the timestamp of this frame. By default, will be
        *        treated as "always most current".
        **/
-      template<typename C>
+      template<typename = void>
       ReferenceFrame(
           std::shared_ptr<ReferenceFrameIdentity> ident,
-          C origin,
+          const Pose &origin,
           uint64_t timestamp = -1)
         : impl_(std::make_shared<ReferenceFrameVersion>(
               ident, origin, timestamp)) {}
+
+      /**
+       * Constructor from an existing ReferenceFrameIdentity, an origin,
+       * and optional timestamp. Typical users should not use this constructor.
+       *
+       * @tparam a Coordinate type convertible to Pose
+       * @param ident shared_ptr to a ReferenceFrameIdentity, which holds
+       *        type and id information.
+       * @param id a string identifier for this frame.
+       * @param origin the origin of this frame, relative to another frame.
+       * @param timestamp the timestamp of this frame. By default, will be
+       *        treated as "always most current".
+       **/
+      template<typename = void>
+      ReferenceFrame(
+          std::shared_ptr<ReferenceFrameIdentity> ident,
+          Pose &&origin,
+          uint64_t timestamp = -1)
+        : impl_(std::make_shared<ReferenceFrameVersion>(
+              ident, std::move(origin), timestamp)) {}
 
       /**
        * Test whether this frame is valid. If not, all other methods will

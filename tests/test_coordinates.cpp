@@ -7,7 +7,7 @@
 using namespace gams::pose;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
-const double TEST_epsilon = 0.0001;
+const double TEST_epsilon = 0.01;
 
 double round_nearest(double in)
 {
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   ReferenceFrame gpsframe = gps_frame();
   Position gloc0(gpsframe,0,0);
   Position gloc1(gpsframe,1,1);
-  Position gloc2(gpsframe,0,90);
+  Position gloc2(gpsframe,90,0);
   Position gloc3(gpsframe,90,90);
   LOG(gloc0);
   LOG(gloc1);
@@ -76,12 +76,12 @@ int main(int argc, char *argv[])
   TEST(gloc0.distance_to(gloc2), EARTH_CIRC/4);
   TEST(gloc0.distance_to(gloc3), EARTH_CIRC/4);
   TEST(gloc2.distance_to(gloc3), 0);
-  Position gloc4(gpsframe,0,120);
-  Position gloc5(gpsframe,180,60);
+  Position gloc4(gpsframe,120,0);
+  Position gloc5(gpsframe,60,180);
   LOG(gloc4);
   LOG(gloc5);
   TEST(gloc4.distance_to(gloc5), 0);
-  Position gloc6(gpsframe,180,360);
+  Position gloc6(gpsframe,360,180);
   LOG(gloc6);
   TEST(gloc6.distance_to(gloc0), EARTH_CIRC/2);
   gloc6.normalize();
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   TEST(gloc6.distance_to(gloc0), EARTH_CIRC/2);
 
   std::cout << std::endl << "Testing CartesianFrame tree:" << std::endl;
-  Position gloc(gpsframe,90,0);
+  Position gloc(gpsframe,0,90);
   ReferenceFrame cart_frame0(gloc);
   ReferenceFrame cart_frame1(Pose(cart_frame0, 3, 4));
   ReferenceFrame cart_frame2(Pose(cart_frame1, 3, 4));
@@ -171,25 +171,31 @@ int main(int argc, char *argv[])
   TEST(pose1.transform_to(gpsframe).rz(), M_PI / 2);
 
   std::cout << std::endl << "Forming a hexagon with a chain of Cartesian frames:" << std::endl;
-  ReferenceFrame hex_frame0(gloc0);
+  Orientation sixty_degrees(0, 0, 60, degrees);
+  ReferenceFrame hex_frame0({gps_frame(), gloc0, sixty_degrees});
   Pose hex0(hex_frame0, 0, 0);
-  ReferenceFrame hex_frame1(Pose(hex_frame0, Position(10, 0), Orientation(0, 0, 60, degrees)));
+  ReferenceFrame hex_frame1({hex_frame0, {10, 0}, sixty_degrees});
   Pose hex1(hex_frame1, 0, 0);
-  ReferenceFrame hex_frame2(Pose(hex_frame1, Position(10, 0), Orientation(0, 0, 60, degrees)));
+  ReferenceFrame hex_frame2({hex_frame1, {10, 0}, sixty_degrees});
   Pose hex2(hex_frame2, 0, 0);
-  ReferenceFrame hex_frame3(Pose(hex_frame2, Position(10, 0), Orientation(0, 0, 60, degrees)));
+  ReferenceFrame hex_frame3({hex_frame2, {10, 0}, sixty_degrees});
   Pose hex3(hex_frame3, 0, 0);
-  ReferenceFrame hex_frame4(Pose(hex_frame3, Position(10, 0), Orientation(0, 0, 60, degrees)));
+  ReferenceFrame hex_frame4({hex_frame3, {10, 0}, sixty_degrees});
   Pose hex4(hex_frame4, 0, 0);
-  ReferenceFrame hex_frame5(Pose(hex_frame4, Position(10, 0), Orientation(0, 0, 60, degrees)));
+  ReferenceFrame hex_frame5({hex_frame4, {10, 0}, sixty_degrees});
   Pose hex5(hex_frame5, 0, 0);
-  ReferenceFrame hex_frame6(Pose(hex_frame5, Position(10, 0), Orientation(0, 0, 60, degrees)));
+  ReferenceFrame hex_frame6({hex_frame5, {10, 0}, sixty_degrees});
   Pose hex6(hex_frame6, 0, 0);
   TEST(hex6.distance_to(hex0), 0);
   TEST(hex0.distance_to(hex6), 0);
   TEST(hex0.distance_to(hex1), 10);
   TEST(hex0.distance_to(hex2), 17.32);
   TEST(hex0.distance_to(hex3), 20);
+  TEST(hex6.distance_to(gloc0), 0);
+  TEST(gloc0.distance_to(hex6), 0);
+  TEST(gloc0.distance_to(hex1), 10);
+  TEST(gloc0.distance_to(hex2), 17.32);
+  TEST(gloc0.distance_to(hex3), 20);
   TEST(hex0.angle_to(hex1, degrees), 60);
   TEST(hex0.angle_to(hex2, degrees), 120);
   TEST(hex0.angle_to(hex3, degrees), 180);
@@ -203,11 +209,11 @@ int main(int argc, char *argv[])
 
   std::cout << std::endl << "Test saving and loading frame tree (TODO):"
             << std::endl;
-  ReferenceFrame building_frame("Building", Position(gps_frame(), 70, -40), -1);
-  ReferenceFrame room_frame("LivingRoom", Position(building_frame, 10, 20), -1);
-  ReferenceFrame kitchen_frame("Kitchen", Position(building_frame, 30, 50), -1);
-  ReferenceFrame drone_frame("Drone", Position(kitchen_frame, 3, 2, 2), 1000);
-  ReferenceFrame camera_frame("Camera", Position(drone_frame, 0, 0, -0.5), 1000);
+  ReferenceFrame building_frame("Building", {gps_frame(), 70, -40}, -1);
+  ReferenceFrame room_frame("LivingRoom", {building_frame, 10, 20}, -1);
+  ReferenceFrame kitchen_frame("Kitchen", {building_frame, 30, 50}, -1);
+  ReferenceFrame drone_frame("Drone", {kitchen_frame, 3, 2, -2}, 1000);
+  ReferenceFrame camera_frame("Camera", {drone_frame, 0, 0, 0.5}, 1000);
 
   madara::knowledge::KnowledgeBase kb;
 
@@ -217,7 +223,7 @@ int main(int argc, char *argv[])
   drone_frame.save(kb);
   camera_frame.save(kb);
 
-  ReferenceFrame drone_frame1 = drone_frame.move(Position(kitchen_frame, 3, 4, 2), 2000);
+  ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
   ReferenceFrame camera_frame1 =
       camera_frame.orient(Orientation(drone_frame1, 0, 0, M_PI/4), 1500);
 

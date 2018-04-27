@@ -70,11 +70,11 @@ namespace gams
      *    z is Altitude (above assumed perfectly spherical surface)
      * Orientations represented in Axis Angle notation
      *    Axis rx points towards north pole
-     *    Axis ry points west at current linear
-     *    Axis rz points upwards (i.e, normal vector)
+     *    Axis ry points east at current position
+     *    Axis rz points downwards (i.e, reverse normal vector)
      *
-     * Note that under this scheme, change in x and/or y linear, while
-     *   maintaining the same angular angles, implies a angular relative
+     * Note that under this scheme, change in x and/or y position, while
+     *   maintaining the same orientation angles, implies a rotation relative
      *   to the planet.
      *
      * Distances at same altitude calculated as distance along great circle of

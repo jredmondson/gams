@@ -47,6 +47,7 @@
 #include "CartesianFrame.h"
 #include "GPSFrame.h"
 #include "UTMFrame.h"
+#include "geodetic_utils/geodetic_conv.h"
 
 namespace gams { namespace pose {
   namespace cartesian {
@@ -76,25 +77,22 @@ namespace gams { namespace pose {
         x += ox;
         y += oy;
         z += oz;
-        return;
-      }
-      if (origin->type_id == GPS->type_id)
-      {
+      } else if (origin->type_id == GPS->type_id) {
         simple_rotate::orient_linear_vec(x, y, z, orx, ory, orz);
 
-        z += oz;
+        geodetic_util::GeodeticConverter conv(ox, oy, oz);
 
-        // convert the latitude/y coordinates
-        y = (y * 360.0) / EARTH_CIRC + oy;
+        double lat, lon, alt;
+        conv.ned2Geodetic(x, y, z, &lat, &lon, &alt);
 
-        // assume the meters/degree longitude is constant throughout environment
-        // convert the longitude/x coordinates
-        double r_prime = EARTH_RADIUS * cos (DEG_TO_RAD (y));
-        double circumference = 2 * r_prime * M_PI;
-        x = (x * 360.0) / circumference + ox;
+        std::cerr << x << " " << y << " " << z << " -> " <<
+                     lat << " " << lon << " " << alt << std::endl;
+
+        x = lat;
+        y = lon;
+        z = alt;
 
         self->normalize_linear(self, x, y, z);
-        return;
       }
 #if 0
 #ifdef GAMS_UTM
@@ -109,7 +107,9 @@ namespace gams { namespace pose {
       }
 #endif
 #endif
-      throw undefined_transform(self, origin, true);
+      else {
+        throw undefined_transform(self, origin, true);
+      }
     }
 
     void transform_linear_from_origin(
@@ -126,26 +126,22 @@ namespace gams { namespace pose {
         x -= ox;
         y -= oy;
         z -= oz;
-        return;
-      }
-      if (origin->type_id == GPS->type_id)
-      {
-        if(orx != 0 || ory != 0 || orz != 0)
-          throw undefined_transform(self, origin, false, true);
+      } else if (origin->type_id == GPS->type_id) {
         self->normalize_linear(self, x, y, z);
 
-        z -= oz;
+        geodetic_util::GeodeticConverter conv(ox, oy, oz);
 
-        // convert the latitude/y coordinates
-        double new_y = ((y - oy) * EARTH_CIRC) / 360.0;
+        double north, east, down;
+        conv.geodetic2Ned(x, y, z, &north, &east, &down);
 
-        // assume the meters/degree longitude is constant throughout environment
-        // convert the longitude/x coordinates
-        double r_prime = EARTH_RADIUS * cos (DEG_TO_RAD (y));
-        double circumference = 2 * r_prime * M_PI;
-        y = new_y;
-        x = ((x - ox) * circumference) / 360.0;
-        return;
+        std::cerr << x << " " << y << " " << z << " -> " <<
+                     north << " " << east << " " << down << std::endl;
+
+        x = north;
+        y = east;
+        z = down;
+
+        simple_rotate::orient_linear_vec(x, y, z, orx, ory, orz, true);
       }
 #if 0
 #ifdef GAMS_UTM
@@ -160,7 +156,9 @@ namespace gams { namespace pose {
       }
 #endif
 #endif
-      throw undefined_transform(self, origin, false);
+      else {
+        throw undefined_transform(self, origin, false);
+      }
     }
 
     const ReferenceFrameType CartesianImpl = {

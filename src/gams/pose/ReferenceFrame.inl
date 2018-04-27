@@ -94,9 +94,9 @@ namespace gams
               const Pose &origin,
               Linear<C> &in) {
           s->transform_linear_to_origin(o, s,
-              origin.x_, origin.y_, origin.z_,
-              origin.rx_, origin.ry_, origin.rz_,
-              in.x_, in.y_, in.z_);
+              origin.x(), origin.y(), origin.z(),
+              origin.rx(), origin.ry(), origin.rz(),
+              in.v_[0], in.v_[1], in.v_[2]);
         });
     }
 
@@ -109,8 +109,8 @@ namespace gams
               const Pose &origin,
               Angular<C> &in) {
           s->transform_angular_to_origin(o, s,
-              origin.rx_, origin.ry_, origin.rz_,
-              in.rx_, in.ry_, in.rz_);
+              origin.rx(), origin.ry(), origin.rz(),
+              in.rv_[0], in.rv_[1], in.rv_[2]);
         });
     }
 
@@ -122,10 +122,10 @@ namespace gams
               const Pose &origin,
               Pose &in) {
           s->transform_pose_to_origin(o, s,
-              origin.x_, origin.y_, origin.z_,
-              origin.rx_, origin.ry_, origin.rz_,
-              in.x_, in.y_, in.z_,
-              in.rx_, in.ry_, in.rz_);
+              origin.x(), origin.y(), origin.z(),
+              origin.rx(), origin.ry(), origin.rz(),
+              in.v_[0], in.v_[1], in.v_[2],
+              in.rv_[0], in.rv_[1], in.rv_[2]);
         });
     }
 
@@ -156,9 +156,9 @@ namespace gams
               const Pose &to,
               Linear<C> &in) {
           f->transform_linear_from_origin(t, f,
-              to.x_, to.y_, to.z_,
-              to.rx_, to.ry_, to.rz_,
-              in.x_, in.y_, in.z_);
+              to.x(), to.y(), to.z(),
+              to.rx(), to.ry(), to.rz(),
+              in.v_[0], in.v_[1], in.v_[2]);
         });
     }
 
@@ -173,8 +173,8 @@ namespace gams
               const Pose &to,
               Angular<C> &in) {
           f->transform_angular_from_origin(t, f,
-              to.rx_, to.ry_, to.rz_,
-              in.rx_, in.ry_, in.rz_);
+              to.rx(), to.ry(), to.rz(),
+              in.rv_[0], in.rv_[1], in.rv_[2]);
         });
     }
 
@@ -187,10 +187,10 @@ namespace gams
               const Pose &to,
               Pose &in) {
           f->transform_pose_from_origin(t, f,
-              to.x_, to.y_, to.z_,
-              to.rx_, to.ry_, to.rz_,
-              in.x_, in.y_, in.z_,
-              in.rx_, in.ry_, in.rz_);
+              to.x(), to.y(), to.z(),
+              to.rx(), to.ry(), to.rz(),
+              in.v_[0], in.v_[1], in.v_[2],
+              in.rv_[0], in.rv_[1], in.rv_[2]);
         });
     }
 
@@ -199,8 +199,8 @@ namespace gams
         const Linear<C> &loc1, const Linear<C> &loc2)
     {
       const ReferenceFrameType *ft = loc1.frame().type();
-      return ft->calc_distance(ft, loc1.x_, loc1.y_, loc1.z_,
-                                   loc2.x_, loc2.y_, loc2.z_);
+      return ft->calc_distance(ft, loc1.x(), loc1.y(), loc1.z(),
+                                   loc2.x(), loc2.y(), loc2.z());
     }
 
     template<typename C>
@@ -208,37 +208,37 @@ namespace gams
         const Angular<C> &rot1, const Angular<C> &rot2)
     {
       const ReferenceFrameType *ft = rot1.frame().type();
-      return ft->calc_angle(ft, rot1.rx_, rot1.ry_, rot1.rz_,
-                                rot2.rx_, rot2.ry_, rot2.rz_);
+      return ft->calc_angle(ft, rot1.rx(), rot1.ry(), rot1.rz(),
+                                rot2.rx(), rot2.ry(), rot2.rz());
     }
 
     inline double difference(
           const Pose &pose1, const Pose &pose2)
     {
       const ReferenceFrameType *ft = pose1.frame().type();
-      return ft->calc_distance(ft, pose1.x_, pose1.y_, pose1.z_,
-                                   pose2.x_, pose2.y_, pose2.z_);
+      return ft->calc_distance(ft, pose1.x(), pose1.y(), pose1.z(),
+                                   pose2.x(), pose2.y(), pose2.z());
     }
 
     template<typename C>
     inline void normalize(Linear<C> &loc)
     {
       const ReferenceFrameType *ft = loc.frame().type();
-      ft->normalize_linear(ft, loc.x_, loc.y_, loc.z_);
+      ft->normalize_linear(ft, loc.v_[0], loc.v_[1], loc.v_[2]);
     }
 
     template<typename C>
     inline void normalize(Angular<C> &rot)
     {
       const ReferenceFrameType *ft = rot.frame().type();
-      ft->normalize_angular(ft, rot.rx_, rot.ry_, rot.rz_);
+      ft->normalize_angular(ft, rot.rv_[0], rot.rv_[1], rot.rv_[2]);
     }
 
     inline void normalize(Pose &pose)
     {
       const ReferenceFrameType *ft = pose.frame().type();
-      ft->normalize_pose(ft, pose.x_, pose.y_, pose.z_,
-                             pose.rx_, pose.ry_, pose.rz_);
+      ft->normalize_pose(ft, pose.v_[0], pose.v_[1], pose.v_[2],
+                             pose.rv_[0], pose.rv_[1], pose.rv_[2]);
     }
 
     inline bool ReferenceFrameVersion::operator==(const ReferenceFrame &other) const

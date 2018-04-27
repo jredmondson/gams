@@ -62,39 +62,39 @@ namespace gams
   {
     inline LinearVector::LinearVector(
                             double x, double y, double z)
-      : x_(x), y_(y), z_(z) {}
+      : v_{x, y, z} {}
 
     inline LinearVector::LinearVector()
-      : x_(0), y_(0), z_(0) {}
+      : v_{0, 0, 0} {}
 
     inline LinearVector::LinearVector(const double array[])
-      : x_(array[0]), y_(array[1]), z_(array[2]) {}
+      : v_{array[0], array[1], array[2]} {}
 
     inline LinearVector::LinearVector(const float array[])
-      : x_(array[0]), y_(array[1]), z_(array[2]) {}
+      : v_{array[0], array[1], array[2]} {}
 
     inline LinearVector::LinearVector(
         const madara::knowledge::containers::DoubleVector &vec)
-      : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
+      : v_{vec[0], vec[1], vec[2]} {}
 
     inline LinearVector::LinearVector(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : x_(vec[0]), y_(vec[1]), z_(vec[2]) {}
+      : v_{vec[0], vec[1], vec[2]} {}
 
     inline bool LinearVector::is_set() const
     {
-      return x_ != INVAL_COORD || y_ != INVAL_COORD || z_ != INVAL_COORD;
+      return x() != INVAL_COORD || y() != INVAL_COORD || z() != INVAL_COORD;
     }
 
     inline bool
         LinearVector::operator==(const LinearVector &other) const
     {
-      return x_ == other.x_ && y_ == other.y_ && z_ == other.z_;
+      return x() == other.x() && y() == other.y() && z() == other.z();
     }
 
     inline bool LinearVector::is_zero() const
     {
-      return x_ == 0 && y_ == 0 && z_ == 0;
+      return x() == 0 && y() == 0 && z() == 0;
     }
 
     inline std::string LinearVector::name()
@@ -102,39 +102,39 @@ namespace gams
       return "Linear";
     }
 
-    inline double LinearVector::x() const { return x_; }
-    inline double LinearVector::y() const { return y_; }
-    inline double LinearVector::z() const { return z_; }
+    inline double LinearVector::x() const { return v_[0]; }
+    inline double LinearVector::y() const { return v_[1]; }
+    inline double LinearVector::z() const { return v_[2]; }
 
-    inline double LinearVector::x(double new_x) { return x_ = new_x; }
-    inline double LinearVector::y(double new_y) { return y_ = new_y; }
-    inline double LinearVector::z(double new_z) { return z_ = new_z; }
+    inline double LinearVector::x(double in) { return v_[0] = in; }
+    inline double LinearVector::y(double in) { return v_[1] = in; }
+    inline double LinearVector::z(double in) { return v_[2] = in; }
 
-    inline double LinearVector::lon() const { return x_; }
-    inline double LinearVector::lng() const { return x_; }
-    inline double LinearVector::longitude() const { return x_; }
-    inline double LinearVector::lat() const { return y_; }
-    inline double LinearVector::latitude() const { return y_; }
-    inline double LinearVector::alt() const { return z_; }
-    inline double LinearVector::altitude() const { return z_; }
+    inline double LinearVector::lat() const { return x(); }
+    inline double LinearVector::latitude() const { return x(); }
+    inline double LinearVector::lon() const { return y(); }
+    inline double LinearVector::lng() const { return y(); }
+    inline double LinearVector::longitude() const { return y(); }
+    inline double LinearVector::alt() const { return -z(); }
+    inline double LinearVector::altitude() const { return -z(); }
 
-    inline double LinearVector::lon(double new_x) { return x_ = new_x; }
-    inline double LinearVector::lng(double new_x) { return x_ = new_x; }
-    inline double LinearVector::longitude(double new_x) { return x_ = new_x; }
-    inline double LinearVector::lat(double new_y) { return y_ = new_y; }
-    inline double LinearVector::latitude(double new_y) { return y_ = new_y; }
-    inline double LinearVector::alt(double new_z) { return z_ = new_z; }
-    inline double LinearVector::altitude(double new_z) { return z_ = new_z; }
+    inline double LinearVector::lat(double in) { return x(in); }
+    inline double LinearVector::latitude(double in) { return x(in); }
+    inline double LinearVector::lon(double in) { return y(in); }
+    inline double LinearVector::lng(double in) { return y(in); }
+    inline double LinearVector::longitude(double in) { return y(in); }
+    inline double LinearVector::alt(double in) { return z(in); }
+    inline double LinearVector::altitude(double in) { return z(in); }
 
-    inline double LinearVector::rho() const { return x_; }
-    inline double LinearVector::theta() const { return x_; }
-    inline double LinearVector::phi() const { return y_; }
-    inline double LinearVector::r() const { return z_; }
+    inline double LinearVector::rho() const { return x(); }
+    inline double LinearVector::theta() const { return x(); }
+    inline double LinearVector::phi() const { return y(); }
+    inline double LinearVector::r() const { return z(); }
 
-    inline double LinearVector::rho(double new_x) { return x_ = new_x; }
-    inline double LinearVector::theta(double new_x) { return x_ = new_x; }
-    inline double LinearVector::phi(double new_y) { return y_ = new_y; }
-    inline double LinearVector::r(double new_z) { return z_ = new_z; }
+    inline double LinearVector::rho(double in) { return x(in); }
+    inline double LinearVector::theta(double in) { return x(in); }
+    inline double LinearVector::phi(double in) { return y(in); }
+    inline double LinearVector::r(double in) { return z(in); }
 
     inline int LinearVector::size()
     {
@@ -143,18 +143,18 @@ namespace gams
 
     inline double LinearVector::get(int i) const
     {
-      return i == 0 ? x() :
-             i == 1 ? y() :
-             i == 2 ? z() :
-             throw std::range_error("Index out of bounds for Linear");
+      if (i < 0 || i >= v_.size()) {
+       throw std::range_error("Index out of bounds for Linear");
+      }
+      return v_[i];
     }
 
     inline double LinearVector::set(int i, double val)
     {
-      return i == 0 ? x(val) :
-             i == 1 ? y(val) :
-             i == 2 ? z(val) :
-             throw std::range_error("Index out of bounds for Linear");
+      if (i < 0 || i >= v_.size()) {
+       throw std::range_error("Index out of bounds for Linear");
+      }
+      return v_[i] = val;
     }
 
     inline LinearVector &LinearVector::as_vec()
@@ -266,18 +266,9 @@ namespace gams
     inline void Linear<C>::to_container (
       madara::knowledge::containers::NativeDoubleVector &container) const
     {
-      if (this->frame ().name () == "GPS")
-      {
-        container.set (0, get (order::GPS::find (0)));
-        container.set (1, get (order::GPS::find (1)));
-        container.set (2, get (order::GPS::find (2)));
-      }
-      else
-      {
-        container.set (0, get (order::XYZ::find (0)));
-        container.set (1, get (order::XYZ::find (1)));
-        container.set (2, get (order::XYZ::find (2)));
-      }
+      container.set (0, get (0));
+      container.set (1, get (1));
+      container.set (2, get (2));
     }
 
 
@@ -285,18 +276,9 @@ namespace gams
     inline void Linear<C>::from_container (
       const madara::knowledge::containers::NativeDoubleVector &container)
     {
-      if (this->frame ().name () == "GPS")
-      {
-        set (0, container[order::GPS::get (0)]);
-        set (1, container[order::GPS::get (1)]);
-        set (2, container[order::GPS::get (2)]);
-      }
-      else
-      {
-        set (0, container[order::XYZ::get (0)]);
-        set (1, container[order::XYZ::get (1)]);
-        set (2, container[order::XYZ::get (2)]);
-      }
+      set (0, container[0]);
+      set (1, container[1]);
+      set (2, container[2]);
     }
   }
 }
