@@ -12,7 +12,8 @@
 #include "madara/logger/GlobalLogger.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
-//#include "gams/pose/Quaternion.h"
+#include "madara/knowledge/containers/Double.h"
+//#include "gams/pose/ReferenceFrame.h"
 
 
 
@@ -23,8 +24,10 @@
 #include <tf/transform_datatypes.h>
 
 #include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/Imu.h>
+#include <sensor_msgs/LaserScan.h>
 
 
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -47,16 +50,25 @@ std::string rosbag_path = "";
 std::string checkpoint_prefix = "checkpoint_";
 
 
-void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string agent_prefix);
-void parse_imu (sensor_msgs::Imu * imu, knowledge::KnowledgeBase * knowledge, std::string agent_prefix);
+void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name);
+void parse_imu (sensor_msgs::Imu * imu, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name);
+void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name);
 void parse_quaternion (geometry_msgs::Quaternion *quat, containers::NativeDoubleVector *orientation);
 void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVector *point);
+void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name);
+void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target);
+
+
+template <size_t N>
+void parse_float64_array(boost::array<double, N> *array, containers::NativeDoubleVector *target);
+void parse_float64_array(std::vector<float> *array, containers::NativeDoubleVector *target);
 
 
 
 void save_checkpoint (knowledge::KnowledgeBase *knowledge,
     knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
 std::string get_agent_var_prefix(std::string ros_topic_name);
+std::string ros_to_gams_name(std::string topic_name);
 
 
 // handle command line arguments
@@ -102,9 +114,9 @@ int main (int argc, char ** argv)
 
 
 	// Select the ROS topics
-	std::vector<std::string> selected_topics;
+	/*std::vector<std::string> selected_topics;
 	selected_topics.push_back("imu/data");
-	selected_topics.push_back("gps/map");
+	selected_topics.push_back("gps/map");*/
 
 	if (rosbag_path == "")
 		exit(0);
@@ -125,37 +137,43 @@ int main (int argc, char ** argv)
     }
 
     // Filter topics
-    rosbag::View view;
+    /*rosbag::View view;
     rosbag::TopicQuery topics (selected_topics);
-    view.addQuery (bag, topics);
+    view.addQuery (bag, topics);*/
 
     // Iterate the messages
-  	std::cout << "\n\nMessageInstances in the bagfile: \n";
+  	//std::cout << "\n\nMessageInstances in the bagfile: \n";
   	settings.initial_lamport_clock = 0;
   	settings.last_lamport_clock = 0;
-    for (const rosbag::MessageInstance m: view)
+  	cout << "Converting...\n";
+    for (const rosbag::MessageInstance m: full_view)
     {
 	    std::string topic   = m.getTopic();
 	    ros::Time time = m.getTime();
 	    std::string callerid       = m.getCallerId();
-	    std::cout << time.toSec() << ": " << topic << " from " << callerid;
+	    //std::cout << time.toSec() << ": " << topic << " from " << callerid << "\n";
 	    std::string agent_prefix = get_agent_var_prefix(topic);
+	    std::string container_name = ros_to_gams_name(topic);
 	    if (m.isType<nav_msgs::Odometry>())
 	    {
-	    	parse_odometry(m.instantiate<nav_msgs::Odometry>().get(), &kb, agent_prefix);
+	    	parse_odometry(m.instantiate<nav_msgs::Odometry>().get(), &kb, agent_prefix, container_name);
 	    }
 	    else if (m.isType<sensor_msgs::Imu>())
 	    {
-	    	parse_imu(m.instantiate<sensor_msgs::Imu>().get(), &kb, agent_prefix);
+	    	parse_imu(m.instantiate<sensor_msgs::Imu>().get(), &kb, agent_prefix, container_name);
+	    }
+	    else if (m.isType<sensor_msgs::LaserScan>())
+	    {
+	    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), &kb, agent_prefix, container_name);
 	    }
 	    else
 	    {
-	    	cout << topic << ": Type not supported\n";
+	    	//cout << topic << ": Type not supported\n";
 	    	continue;
 	    }
 
-	    kb.print();
-	    settings.filename = checkpoint_prefix + std::to_string(settings.last_lamport_clock) + ".kb";
+	    //kb.print();
+	    settings.filename = checkpoint_prefix + "_" + std::to_string(settings.last_lamport_clock) + ".kb";
 
 	    //Set time settings
 	    if (settings.last_lamport_clock == 0)
@@ -166,8 +184,11 @@ int main (int argc, char ** argv)
 
 	    save_checkpoint(&kb, &settings);
 
-	    std::cout << "\n-------- \n" << std::flush;
+	    //if (settings.last_lamport_clock > 100)
+	    //	exit(0);
     }
+    std::cout << "Done!\n";
+	//std::cout << "Converted " + settings.last_lamport_clock << " messages.\n" << std::flush;
 }
 
 
@@ -178,14 +199,19 @@ int main (int argc, char ** argv)
 * @param  knowledge 	Knowledbase
 * @param  agent_prefix  variable namespace (e.g. "agent.0"s)
 **/
-void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string agent_prefix)
+void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name)
 {
 
-	containers::NativeDoubleVector location(agent_prefix + ".location", *knowledge, 3);
-	containers::NativeDoubleVector orientation(agent_prefix + ".orientation", *knowledge, 3);
+	containers::NativeDoubleVector location(agent_prefix + "." + container_name + ".pose.position", *knowledge, 3);
+	containers::NativeDoubleVector orientation(agent_prefix + "." + container_name + ".pose.orientation", *knowledge, 3);
+	containers::NativeDoubleVector odom_covariance(agent_prefix + "." + container_name + ".pose.covariance", *knowledge, 36);
+	containers::NativeDoubleVector twist_covariance(agent_prefix + "." + container_name + ".pose.covariance", *knowledge, 36);
+
 	parse_quaternion(&odom->pose.pose.orientation, &orientation);
 	parse_point(&odom->pose.pose.position, &location);
-	// Todo: Parse Twist
+	parse_float64_array(&odom->pose.covariance, &odom_covariance);
+	parse_float64_array(&odom->twist.covariance, &twist_covariance);
+	parse_twist(&odom->twist.twist, knowledge, agent_prefix, container_name + ".twist");
 }
 
 /**
@@ -194,14 +220,80 @@ void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowl
 * @param  knowledge 	Knowledgbase
 * @param  agent_prefix  variable namespace (e.g. "agent.0"s)
 **/
-void parse_imu (sensor_msgs::Imu *imu, knowledge::KnowledgeBase * knowledge, std::string agent_prefix)
+void parse_imu (sensor_msgs::Imu *imu, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name)
 {
-	containers::NativeDoubleVector orientation(agent_prefix + ".imu.readings", *knowledge, 3);
-	parse_quaternion(&imu->orientation, &orientation);
+	containers::NativeDoubleVector orientation(agent_prefix + "." + container_name + ".orientation", *knowledge, 3);
+	containers::NativeDoubleVector angular_velocity(agent_prefix + "." + container_name + ".angular_velocity", *knowledge, 3);
+	containers::NativeDoubleVector linear_acceleration(agent_prefix + "." + container_name + ".linear_acceleration", *knowledge, 3);
+	containers::NativeDoubleVector orientation_covariance(agent_prefix + "." + container_name + ".orientation_covariance", *knowledge, 9);
+	containers::NativeDoubleVector angular_velocity_covariance(agent_prefix + "." + container_name + ".angular_velocity_covariance", *knowledge, 9);
+	containers::NativeDoubleVector linear_acceleration_covariance(agent_prefix + "." + container_name + ".linear_acceleration_covariance", *knowledge, 9);
 
-	// Todo: Parse angular and linear velocity. both geometry_msgs/Vector3
+
+	parse_quaternion(&imu->orientation, &orientation);
+	parse_vector3(&imu->angular_velocity, &angular_velocity);
+	parse_vector3(&imu->linear_acceleration, &linear_acceleration);
+	parse_float64_array(&imu->orientation_covariance, &orientation_covariance);
+	parse_float64_array(&imu->angular_velocity_covariance, &angular_velocity_covariance);
+	parse_float64_array(&imu->linear_acceleration_covariance, &linear_acceleration_covariance);
 }
 
+/**
+* Parses a ROS LaserScan Message
+* @param  laser   			the sensor_msgs::LaserScan message
+* @param  knowledge 		Knowledgbase
+* @param  agent_prefix  	variable namespace (e.g. "agent.0")
+* @param  container_name  	container namespace (e.g. "laser")
+**/
+void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name)
+{
+	//Ranges
+	int ranges_size = laser->ranges.size();
+	containers::NativeDoubleVector ranges(agent_prefix + "." + container_name + ".ranges", *knowledge, ranges_size);
+	parse_float64_array(&laser->ranges, &ranges);
+	//Intensities
+	int intensities_size = laser->intensities.size();
+	containers::NativeDoubleVector intensities(agent_prefix + "." + container_name + ".intensities", *knowledge, intensities_size);
+	parse_float64_array(&laser->intensities, &intensities);
+	//Parameters
+	containers::Double angle_min(agent_prefix + "." + container_name + ".angle_min", *knowledge);
+	angle_min = laser->angle_min;
+	containers::Double angle_max(agent_prefix + "." + container_name + ".angle_max", *knowledge);
+	angle_max = laser->angle_max;
+	containers::Double angle_increment(agent_prefix + "." + container_name + ".angle_increment", *knowledge);
+	angle_increment = laser->angle_increment;
+	containers::Double time_increment(agent_prefix + "." + container_name + ".time_increment", *knowledge);
+	time_increment = laser->time_increment;
+	containers::Double scan_time(agent_prefix + "." + container_name + ".scan_time", *knowledge);
+	scan_time = laser->scan_time;
+	containers::Double range_min(agent_prefix + "." + container_name + ".range_min", *knowledge);
+	range_min = laser->range_min;
+	containers::Double range_max(agent_prefix + "." + container_name + ".range_max", *knowledge);
+	range_max = laser->range_max;
+
+}
+
+/**
+* Parses a ROS Twist Message
+* @param  twist   			the geometry_msgs::Twist message
+* @param  knowledge 		Knowledgbase
+* @param  agent_prefix  	variable namespace (e.g. "agent.0")
+* @param  container_name  	container namespace (e.g. "laser")
+**/
+void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name)
+{
+	containers::NativeDoubleVector linear(agent_prefix + "." + container_name + ".linear", *knowledge, 3);
+	containers::NativeDoubleVector angular(agent_prefix + "." + container_name + ".angular", *knowledge, 3);
+	parse_vector3(&twist->linear, &linear);
+	parse_vector3(&twist->angular, &angular);
+}
+
+void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target)
+{
+	target->set(0, vec->x);
+	target->set(1, vec->y);
+	target->set(2, vec->z);
+}
 /**
 * Parses a ROS geometry_msgs::Point message
 * @param  point_msg		the geometry_msgs::Point message
@@ -221,16 +313,39 @@ void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVecto
 **/
 void parse_quaternion (geometry_msgs::Quaternion *quat, containers::NativeDoubleVector *orientation)
 {
-	std::cout << "o:[" << quat->x << ", " << quat->y << ", " << quat->z << ", " << quat->w <<"]\n";
+	//std::cout << "o:[" << quat->x << ", " << quat->y << ", " << quat->z << ", " << quat->w <<"]\n";
 	// Todo: Use gams Quaternion instead
 	tf::Quaternion tfquat(quat->x, quat->y, quat->z, quat->w);
     tf::Matrix3x3 m(tfquat);
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
 
-	orientation->set(0, (roll * 180) / M_PI);
-	orientation->set(1, (pitch * 180) / M_PI);
-	orientation->set(2, (yaw * 180) / M_PI);
+	orientation->set(0, roll);
+	orientation->set(1, pitch);
+	orientation->set(2, yaw);
+}
+
+
+
+template <size_t N>
+void parse_float64_array(boost::array<double, N> *array, containers::NativeDoubleVector *target)
+{
+	int i = 0;
+	for (boost::array<double, 36>::iterator iter(array->begin()); iter != array->end(); ++iter)
+	{
+		target->set(i, *iter);
+		i++;
+	}
+}
+
+void parse_float64_array(std::vector<float> *array, containers::NativeDoubleVector *target)
+{
+	int i = 0;
+	for (std::vector<float>::iterator iter = array->begin(); iter != array->end(); ++iter)
+	{
+		target->set(i, *iter);
+		i++;
+	}
 }
 
 
@@ -283,4 +398,25 @@ std::string get_agent_var_prefix(std::string ros_topic_name)
 	{
 		return "agent.0";
 	}
+}
+
+std::string ros_to_gams_name(std::string ros_topic_name)
+{
+	// Convert ros_topic_name to lower case
+	std::transform(ros_topic_name.begin(), ros_topic_name.end(), ros_topic_name.begin(), ::tolower);
+	std::string name = ros_topic_name.substr(1);
+	std::string rosbag_robot_prefix = "robot_";
+ 	
+ 	std::string topic = ros_topic_name;
+	if(name.find(rosbag_robot_prefix) == 0)
+	{
+		//remove the robot prefix
+		int namespace_end = name.find("/") + 1;
+		//cut the prefix
+		topic = name.substr(namespace_end);
+	}
+	std::replace(topic.begin(), topic.end(), '/', '.');
+
+
+	return topic;
 }
