@@ -85,8 +85,8 @@ namespace gams { namespace pose {
         double lat, lon, alt;
         conv.ned2Geodetic(x, y, z, &lat, &lon, &alt);
 
-        std::cerr << x << " " << y << " " << z << " -> " <<
-                     lat << " " << lon << " " << alt << std::endl;
+        //std::cerr << x << " " << y << " " << z << " -> " <<
+        //             lat << " " << lon << " " << alt << std::endl;
 
         x = lat;
         y = lon;
@@ -134,8 +134,8 @@ namespace gams { namespace pose {
         double north, east, down;
         conv.geodetic2Ned(x, y, z, &north, &east, &down);
 
-        std::cerr << x << " " << y << " " << z << " -> " <<
-                     north << " " << east << " " << down << std::endl;
+        //std::cerr << x << " " << y << " " << z << " -> " <<
+        //             north << " " << east << " " << down << std::endl;
 
         x = north;
         y = east;
