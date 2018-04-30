@@ -80,6 +80,7 @@ namespace gams
         if (origin_frame.valid() && self_frame != origin_frame) {
           const ReferenceFrameType *s = self_frame.type();
           const ReferenceFrameType *o = origin_frame.type();
+          std::cerr << "Transform from " << in.frame().id() << " to " << in.frame().origin_frame().id() << std::endl;
           func(s, o, origin, in);
         }
       }
@@ -138,6 +139,7 @@ namespace gams
           return;
         }
         if (from_frame.valid() && from_frame != to_frame) {
+          std::cerr << "Transform from " << in.frame().id() << " to " << to_frame.id() << std::endl;
           const Pose &to = to_frame.origin();
           const ReferenceFrameType *t = to_frame.type();
           const ReferenceFrameType *f = from_frame.type();
@@ -566,6 +568,10 @@ namespace gams
       return impl_->id();
     }
 
+    inline std::string ReferenceFrame::key() const {
+      return impl_->key();
+    }
+
     inline uint64_t ReferenceFrame::timestamp() const {
       return impl_->timestamp();
     }
@@ -613,11 +619,18 @@ namespace gams
       return impl_->save_as(kb, key);
     }
 
+    inline ReferenceFrame ReferenceFrame::interpolate(
+          const ReferenceFrame &other, ReferenceFrame parent, uint64_t time) const {
+      return impl_->interpolate(other, std::move(parent), time);
+    }
+
+#if 0
     inline ReferenceFrame ReferenceFrame::load_as(
           madara::knowledge::KnowledgeBase &kb,
           const std::string &key) {
       return ReferenceFrameVersion::load_as(kb, key);
     }
+#endif
 
     inline unrelated_frames::unrelated_frames(ReferenceFrame from_frame,
       ReferenceFrame to_frame) :

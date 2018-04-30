@@ -58,16 +58,23 @@
 #include <gams/CPP11_compat.h>
 #include <vector>
 #include <string>
+#include <cstring>
+#include <sstream>
 #include <utility>
+#include <memory>
 #include <stdexcept>
+#include <mutex>
 #include "ReferenceFrameFwd.h"
 #include "CartesianFrame.h"
 #include "Pose.h"
+#include "Quaternion.h"
 
 namespace gams
 {
   namespace pose
   {
+    class ReferenceFrameVersion;
+
     /**
      * For internal use.
      *
@@ -77,32 +84,120 @@ namespace gams
     class GAMSExport ReferenceFrameIdentity
     {
     private:
-        const ReferenceFrameType *type_;
         std::string id_;
 
+        static std::map<std::string,
+            std::weak_ptr<ReferenceFrameIdentity>> idents_;
+
+        static std::mutex idents_lock_;
+
+        mutable std::map<uint64_t, std::weak_ptr<ReferenceFrameVersion>>
+          versions_;
+
+        mutable std::mutex versions_lock_;
+
     public:
-        ReferenceFrameIdentity(const ReferenceFrameType *type,
-                               std::string id)
-          : type_(type), id_(std::move(id)) {}
+        ReferenceFrameIdentity(std::string id)
+          : id_(std::move(id)) {}
 
-        ReferenceFrameIdentity(const ReferenceFrameType *type)
-          : type_(type), id_("DEFAULT") {}
+        static std::shared_ptr<ReferenceFrameIdentity> lookup(std::string id);
 
-        const ReferenceFrameType *type() const { return type_; }
+        static std::shared_ptr<ReferenceFrameIdentity> find(std::string id);
+
+        void register_version(uint64_t timestamp,
+            std::shared_ptr<ReferenceFrameVersion> ver) const
+        {
+          std::lock_guard<std::mutex> guard(versions_lock_);
+
+          std::weak_ptr<ReferenceFrameVersion> weak(ver);
+          versions_[timestamp] = ver;
+        }
+
+        std::shared_ptr<ReferenceFrameVersion> get_version(uint64_t timestamp) const
+        {
+          std::lock_guard<std::mutex> guard(versions_lock_);
+
+          auto find = versions_.find(timestamp);
+
+          if (find == versions_.end()) {
+            return nullptr;
+          }
+
+          return find->second.lock();
+        }
+
+        static std::shared_ptr<ReferenceFrameIdentity> make_guid();
+
         const std::string &id() const { return id_; }
+
+        /**
+         * Old versions of frames can remain loaded in memory after they are no
+         * longer needed. Call this function to clean them out.
+         **/
+        static void gc();
     };
+
+    /// Private implementation details
+    namespace impl {
+      inline static std::string make_kb_prefix() {
+        return ".gams.frames";
+      }
+
+      inline static std::string &make_kb_key(
+          std::string &prefix,
+          const std::string &id)
+      {
+        prefix.reserve(prefix.capacity() + 1 + id.size());
+
+        prefix += ".";
+        prefix += id;
+
+        return prefix;
+      }
+
+      inline static std::string &make_kb_key(
+          std::string &prefix, uint64_t timestamp)
+      {
+        if (timestamp == -1) {
+          prefix += ".default";
+        } else {
+          prefix += ".";
+
+          std::ostringstream oss;
+          oss.fill('0');
+          oss.width(16);
+          oss << std::hex << timestamp;
+
+          prefix += oss.str();
+        }
+
+        return prefix;
+      }
+
+      inline static std::string &make_kb_key(
+          std::string &prefix,
+          const std::string &id, uint64_t timestamp)
+      {
+        make_kb_key(prefix, id);
+        make_kb_key(prefix, timestamp);
+        return prefix;
+      }
+    }
 
     /**
      * For internal use.
      *
      * Represents a specific frame version.
      **/
-    class GAMSExport ReferenceFrameVersion
+    class GAMSExport ReferenceFrameVersion :
+      public std::enable_shared_from_this<ReferenceFrameVersion>
     {
     private:
-      std::shared_ptr<ReferenceFrameIdentity> ident_;
+      mutable std::shared_ptr<ReferenceFrameIdentity> ident_;
+      const ReferenceFrameType *type_;
       Pose origin_;
       uint64_t timestamp_ = -1;
+      mutable bool interpolated_ = false;
 
     public:
       /**
@@ -117,9 +212,7 @@ namespace gams
       explicit ReferenceFrameVersion(
           Pose origin,
           uint64_t timestamp = -1)
-        : ident_(std::make_shared<ReferenceFrameIdentity>(Cartesian)),
-          origin_(std::move(origin)),
-          timestamp_(timestamp) {}
+        : ReferenceFrameVersion({}, Cartesian, std::move(origin), timestamp) {}
 
       /**
        * Constructor from a type, an origin, and optional timestamp. Will be
@@ -136,9 +229,7 @@ namespace gams
           const ReferenceFrameType *type,
           Pose origin,
           uint64_t timestamp = -1)
-        : ident_(std::make_shared<ReferenceFrameIdentity>(type)),
-          origin_(std::move(origin)),
-          timestamp_(timestamp) {}
+        : ReferenceFrameVersion({}, type, std::move(origin), timestamp) {}
 
       /**
        * Constructor from a id, an origin, and optional timestamp. Will be
@@ -154,11 +245,9 @@ namespace gams
           std::string name,
           Pose origin,
           uint64_t timestamp = -1)
-        : ident_(std::make_shared<ReferenceFrameIdentity>(
-              Cartesian,
-              std::move(name))),
-          origin_(std::move(origin)),
-          timestamp_(timestamp) {}
+        : ReferenceFrameVersion(
+            ReferenceFrameIdentity::lookup(std::move(name)), Cartesian,
+            std::move(origin), timestamp) {}
 
       /**
        * Constructor from a type, id, an origin, and optional timestamp.
@@ -176,11 +265,9 @@ namespace gams
           std::string name,
           Pose origin,
           uint64_t timestamp = -1)
-        : ident_(std::make_shared<ReferenceFrameIdentity>(
-              type,
-              std::move(name))),
-          origin_(std::move(origin)),
-          timestamp_(timestamp) {}
+        : ReferenceFrameVersion(
+            ReferenceFrameIdentity::lookup(std::move(name)), type,
+            std::move(origin), timestamp) {}
 
       /**
        * Constructor from an existing ReferenceFrameIdentity, an origin,
@@ -196,19 +283,22 @@ namespace gams
        **/
       ReferenceFrameVersion(
           std::shared_ptr<ReferenceFrameIdentity> ident,
+          const ReferenceFrameType *type,
           Pose origin,
           uint64_t timestamp = -1)
-        : ident_(std::move(ident)),
-          origin_(std::move(origin)),
+        : ident_(std::move(ident)), type_(type), origin_(std::move(origin)),
           timestamp_(timestamp) {}
 
       /**
-       * Retrieve a reference to the ReferenceFrameIdentity object
-       * holding the information common to all versions: id and type.
-       *
-       * @return a reference to the ReferenceFrameIdentity object
+       * Get the ReferenceFrameIdentity object associated with this frame,
+       * creating one with random ID if none exists.
        **/
-      const ReferenceFrameIdentity &ident() const { return *ident_; }
+      const ReferenceFrameIdentity &ident() const {
+        if (!ident_) {
+          ident_ = ReferenceFrameIdentity::make_guid();
+        }
+        return *ident_;
+      }
 
       /**
        * Retrieve the frame type object for this frame. Mostly useful for
@@ -217,7 +307,7 @@ namespace gams
        *
        * @return a pointer to this frames ReferenceFrameType
        **/
-      const ReferenceFrameType *type() const { return ident().type(); }
+      const ReferenceFrameType *type() const { return type_; }
 
       /**
        * Gets the origin of this Frame
@@ -227,6 +317,17 @@ namespace gams
        * if this frame has no parent.
        **/
       const Pose &origin() const {
+        return origin_;
+      }
+
+      /**
+       * Gets the origin of this Frame
+       *
+       * @return the Pose which is the origin within this frame's parent,
+       * or, a Pose within this own frame, with all zeros for coordinates,
+       * if this frame has no parent.
+       **/
+      Pose &mut_origin() {
         return origin_;
       }
 
@@ -268,7 +369,8 @@ namespace gams
        * @return the new ReferenceFrame with new origin and timestamp
        **/
       ReferenceFrame pose(const Pose &new_origin, uint64_t timestamp) const {
-        return ReferenceFrame(ident_, new_origin, timestamp);
+        return ReferenceFrame(std::make_shared<ReferenceFrameVersion>(
+              ident_, type(), new_origin, timestamp));
       }
 
       /**
@@ -345,15 +447,39 @@ namespace gams
        * @return the name reference frame type (e.g., GPS, Cartesian)
        **/
       const char *name() const {
-        return ident().type()->name;
+        return type()->name;
       }
 
       /**
-       * Get the ID string of this frame. By default, frames generate a
-       * random GUID as their ID
+       * Get the ID string of this frame. Generates a random ID for this frame
+       * if it doesn't already have one. This ID will not change until this
+       * frame is destructed.
        **/
       const std::string &id() const {
-        return ident_->id();
+        return ident().id();
+      }
+
+      /**
+       * Does this frame have an ID? Frames gain an ID either at construction,
+       * or lazily as needed (by having the id() method, or save* methods
+       * called). This method can be useful to prevent, e.g., logging code from
+       * incurring the overhead of generating an ID for an ephemeral frame.
+       *
+       * @return true if this frame already has an ID, false if not
+       **/
+      bool has_id() const {
+        return (bool)ident_;
+      }
+
+      /**
+       * Get the ID string of this frame. Will not generate an ID if this frame
+       * doesn't have one. In that case, returns nullptr.
+       *
+       * @return nullptr has_id() is false; otherwise, a pointer to the result
+       *         of id()
+       **/
+      const std::string *id_ptr() const {
+        return has_id() ? nullptr : &id();
       }
 
       /**
@@ -369,14 +495,26 @@ namespace gams
        * @return the new frame object
        **/
       ReferenceFrame timestamp(uint64_t timestamp) const {
-        return ReferenceFrame(ident_, origin_, timestamp);
+        return ReferenceFrame(std::make_shared<ReferenceFrameVersion>(
+              ident_, type(), origin(), timestamp));
       }
 
       /**
        * Returns true if this frame was interpolated from two stored frames.
+       * If this frame is itself stored, it will no longer be considered as
+       * interpolated.
        **/
       bool interpolated() const {
-        return false;
+        return interpolated_;
+      }
+
+      /**
+       * Returns the key that save() will use to store this frame.
+       **/
+      std::string key() const {
+        auto prefix = impl::make_kb_prefix();
+        impl::make_kb_key(prefix, id(), timestamp());
+        return prefix;
       }
 
       /**
@@ -387,30 +525,117 @@ namespace gams
        *
        * @param kb the KnowledgeBase to store into
        **/
-      void save(madara::knowledge::KnowledgeBase &kb) const {}
+      void save(madara::knowledge::KnowledgeBase &kb) const {
+        std::string key = this->key();
+        save_as(kb, std::move(key));
+      }
 
       /**
-       * Load a single ReferenceFrame, by ID.
+       * Load a single ReferenceFrame, by ID and timestamp. Will not
+       * interpolate. Returns an invalid frame if none exists with given
+       * ID and timestamp.
+       *
+       * @param id the ID of the frame to load
+       * @param timestamp of frame to load. -1 is matched exactly; it
+       *   will only return a frame if one with that timestamp exists.
+       *
+       * @return the loaded ReferenceFrame, or an invalid frame if none
+       *         exists.
+       **/
+      static ReferenceFrame load_exact(
+              madara::knowledge::KnowledgeBase &kb,
+              const std::string &id,
+              uint64_t timestamp = -1);
+
+      /**
+       * Load a single ReferenceFrame, by ID and timestamp, interpolated
+       * if applicable.
        *
        * @param id the ID of the frame to load
        * @param timestamp if -1, gets the latest frame (no interpolation)
        *   Otherwise, gets the frame at a specified timestamp,
        *   interpolated necessary.
        *
-       * @return the imported ReferenceFrame, or an invalid frame if none
+       * @return the loaded ReferenceFrame, or an invalid frame if none
        *         exists.
        **/
       static ReferenceFrame load(
               madara::knowledge::KnowledgeBase &kb,
               const std::string &id,
-              uint64_t timestamp = -1) { return default_frame(); }
+              uint64_t timestamp = -1);
+
+      /**
+       * Get the latest available timestamp in the knowledge base
+       * for the given id.
+       *
+       * @param kb the knowledge base to search
+       * @param id the id to search for
+       *
+       * @return the latest timestamp for the id in kb. If timestamp -1 is
+       *         available, that will be returned.
+       **/
+      static uint64_t latest_timestamp(
+              madara::knowledge::KnowledgeBase &kb,
+              const std::string &id);
+
+      /**
+       * Get the latest available timestamp in the knowledge base
+       * common to all the given ids. Will return -1 if no common
+       * timestamp is available.
+       *
+       * @param kb the knowledge base to search
+       * @param begin iterator which derences to std::string
+       * @param end ending iterator
+       * @tparam ForwardIterator a ForwardIterator type
+       *         such as std::vector::iterator
+       *
+       * @return the latest timestamp for the id in kb. If timestamp -1 is
+       *         available, that will be returned.
+       **/
+      template<typename ForwardIterator>
+      static uint64_t latest_common_timestamp(
+              madara::knowledge::KnowledgeBase &kb,
+              ForwardIterator begin,
+              ForwardIterator end)
+      {
+        uint64_t timestamp = -1;
+        ForwardIterator cur = begin;
+        while (cur != end) {
+          uint64_t time = latest_timestamp(kb, *cur);
+          if (time < timestamp) {
+            timestamp = time;
+          }
+          ++cur;
+        }
+        return timestamp;
+      }
+
+      /**
+       * Get the latest available timestamp in the knowledge base
+       * common to all the given ids. Will return -1 if no common
+       * timestamp is available.
+       *
+       * @param kb the knowledge base to search
+       * @param container container of std::string
+       * @tparam Container a container type (such as std::vector)
+       *
+       * @return the latest timestamp for the id in kb. If timestamp -1 is
+       *         available, that will be returned.
+       **/
+      template<typename Container>
+      static uint64_t latest_common_timestamp(
+              madara::knowledge::KnowledgeBase &kb,
+              const Container &ids)
+      {
+        return latest_common_timestamp(kb, ids.cbegin(), ids.cend());
+      }
 
       /**
        * Load ReferenceFrames, by ID, and their common ancestors. Will
        * interpolate frames to ensure the returned frames all have a common
        * timestamp.
        *
-       * @tparam an InputIterator, of item type std::string
+       * @tparam a ForwardIterator, of item type std::string
        *
        * @param begin beginning iterator
        * @param end ending iterator
@@ -421,14 +646,30 @@ namespace gams
        *   input IDs, in the same order. If the timestamp specified cannot
        *   be satisfied, returns an empty vector.
        **/
-      template<typename InputIterator>
+      template<typename ForwardIterator>
       static std::vector<ReferenceFrame> load_tree(
               madara::knowledge::KnowledgeBase &kb,
-              InputIterator begin,
-              InputIterator end,
-              uint64_t timestamp = -1) {
-        size_t count = std::distance(begin, end);
-        std::vector<ReferenceFrame> ret(count, default_frame());
+              ForwardIterator begin,
+              ForwardIterator end,
+              uint64_t timestamp = -1)
+      {
+        std::vector<ReferenceFrame> ret;
+        if (std::is_same<typename ForwardIterator::iterator_category,
+            std::random_access_iterator_tag>::value) {
+          size_t count = std::distance(begin, end);
+          ret.reserve(count);
+        }
+        if (timestamp == -1) {
+          timestamp = latest_common_timestamp(kb, begin, end);
+        }
+        while (begin != end) {
+          ReferenceFrame frame = load(kb, *begin, timestamp);
+          if (!frame.valid()) {
+            return {};
+          }
+          ret.push_back(frame);
+          ++begin;
+        }
         return ret;
       }
 
@@ -452,7 +693,8 @@ namespace gams
       static std::vector<ReferenceFrame> load_tree(
               madara::knowledge::KnowledgeBase &kb,
               const Container &ids,
-              uint64_t timestamp = -1) {
+              uint64_t timestamp = -1)
+      {
         return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
       }
 
@@ -464,20 +706,44 @@ namespace gams
        * @param key a key prefix to save with
        **/
       void save_as(madara::knowledge::KnowledgeBase &kb,
-                   const std::string &key) const {}
+                   std::string key) const;
 
       /**
-       * Load a ReferenceFrame using a specific key value (generally, one
-       * previously used by export_tree_as). No interpolation will be done.
+       * Interpolate a frame between the given frame; use the given parent.
+       * Note: no sanity checking is done. Ensure that parent has a compatible
+       * timestamp, and that this and other are the same frame at different
+       * times.
        *
-       * @param kb the KnowledgeBase to load from
-       * @param key a key prefix to load with
-       * @returns a pointer to the imported ReferenceFrame, or nullptr if
-       * none exists.
+       * @param other the other frame to interpolate towards.
+       * @param parent the parent the returned frame will have.
+       * @param time the timestamp to interpolate at.
+       * @return the interpolated frame.
        **/
-      static ReferenceFrame load_as(madara::knowledge::KnowledgeBase &kb,
-                                    const std::string &key) {
-        return default_frame();
+      ReferenceFrame interpolate(const ReferenceFrame &other, ReferenceFrame parent, uint64_t time) const
+      {
+        double fraction = (time - timestamp()) / (double)(other.timestamp() - timestamp());
+
+        Pose interp = origin();
+        const Pose &opose = other.origin();
+
+        interp.frame(std::move(parent));
+
+        interp.x((fraction * (opose.x() - interp.x())) + interp.x());
+        interp.y((fraction * (opose.y() - interp.y())) + interp.y());
+        interp.z((fraction * (opose.z() - interp.z())) + interp.z());
+
+        Quaternion iq(origin().as_orientation_vec());
+        Quaternion oq(opose.as_orientation_vec());
+
+        iq.slerp_this(oq, fraction);
+        iq.to_angular_vector(interp.as_orientation_vec());
+
+        std::cerr << "Interp " << fraction << " " << origin() << "  " << interp << "  " << opose << std::endl;
+
+        auto ret = std::make_shared<ReferenceFrameVersion>(
+            ident_, type(), std::move(interp), time);
+        ret->interpolated_ = true;
+        return ret;
       }
 
       template<typename CoordType>

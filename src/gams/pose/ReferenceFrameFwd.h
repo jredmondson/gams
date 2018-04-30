@@ -58,6 +58,7 @@
 #include <gams/CPP11_compat.h>
 #include <madara/knowledge/KnowledgeBase.h>
 #include <stdexcept>
+#include <sstream>
 
 namespace gams
 {
@@ -74,24 +75,34 @@ namespace gams
      * Provides Reference Frame (i.e., coordinate systemm) transforms.
      *
      * A ReferenceFrame has:
+     *
      * * a type: either GPS or Cartesian (the default). Others may be
      *    implemented in the future.
+     *
      * * an ID: some string that should be unique within each knowledge base.
      *    By default, a random GUID will be generated if none is given when
-     *    constructing a ReferenceFrame.
+     *    constructing a ReferenceFrame. The ID should be unique per platform,
+     *    across all KnowledgeBases that platform might use.
+     *    The same ID saved to different KnowledgeBase objects will be assumed
+     *    to represent the same frame, interchangeably.
+     *
      * * a timestamp: a timestamp representing at what time the transform was
      *    measured or derived. No units are assumed by GAMS, but interpolation
      *    assumes that timestamps progress linearly with respect to real time,
      *    and monotonically. A -1, the default if none is given, is treated
      *    as "always correct" at all times.
+     *
      * * an origin: a Pose in another frame which is the location and
      *    of this frame's origin with respect to that frame.
      *
      * ReferenceFrame objects are immutable. "Setters" like timestamp() and
      * pose() return a new ReferenceFrame object modified accordingly.
      *
+     * ReferenceFrames get saved to KnowledgeBases under the ".gams.frames"
+     * prefix. Do not modify keys under this prefix directly.
+     *
      * ReferenceFrame objects are ref-counted proxies for an underlying object.
-     * As such, they are cheap and safe to pass by value.
+     * As such, they are cheap and safe to pass and return by value.
      **/
     class GAMSExport ReferenceFrame
     {
@@ -266,46 +277,6 @@ namespace gams
               type, id, std::move(origin), timestamp)) {}
 
       /**
-       * Constructor from an existing ReferenceFrameIdentity, an origin,
-       * and optional timestamp. Typical users should not use this constructor.
-       *
-       * @tparam a Coordinate type convertible to Pose
-       * @param ident shared_ptr to a ReferenceFrameIdentity, which holds
-       *        type and id information.
-       * @param id a string identifier for this frame.
-       * @param origin the origin of this frame, relative to another frame.
-       * @param timestamp the timestamp of this frame. By default, will be
-       *        treated as "always most current".
-       **/
-      template<typename = void>
-      ReferenceFrame(
-          std::shared_ptr<ReferenceFrameIdentity> ident,
-          const Pose &origin,
-          uint64_t timestamp = -1)
-        : impl_(std::make_shared<ReferenceFrameVersion>(
-              ident, origin, timestamp)) {}
-
-      /**
-       * Constructor from an existing ReferenceFrameIdentity, an origin,
-       * and optional timestamp. Typical users should not use this constructor.
-       *
-       * @tparam a Coordinate type convertible to Pose
-       * @param ident shared_ptr to a ReferenceFrameIdentity, which holds
-       *        type and id information.
-       * @param id a string identifier for this frame.
-       * @param origin the origin of this frame, relative to another frame.
-       * @param timestamp the timestamp of this frame. By default, will be
-       *        treated as "always most current".
-       **/
-      template<typename = void>
-      ReferenceFrame(
-          std::shared_ptr<ReferenceFrameIdentity> ident,
-          Pose &&origin,
-          uint64_t timestamp = -1)
-        : impl_(std::make_shared<ReferenceFrameVersion>(
-              ident, std::move(origin), timestamp)) {}
-
-      /**
        * Test whether this frame is valid. If not, all other methods will
        * have undefined behavior.
        *
@@ -409,6 +380,10 @@ namespace gams
        * random GUID as their ID
        **/
       const std::string &id() const;
+
+      std::ostringstream key_stream() const;
+
+      std::string key() const;
 
       /**
        * Retrieve the frame type object for this frame. Mostly useful for
@@ -524,17 +499,19 @@ namespace gams
             const std::string &key) const;
 
       /**
-       * Load a ReferenceFrame using a specific key value (generally, one
-       * previously used by export_tree_as). No interpolation will be done.
+       * Interpolate a frame between the given frame; use the given parent.
+       * Note: no sanity checking is done. Ensure that parent has a compatible
+       * timestamp, and that this and other are the same frame at different
+       * times. Users should generally not call this directly. Use load() or
+       * load_tree() instead.
        *
-       * @param kb the KnowledgeBase to load from
-       * @param key a key prefix to load with
-       * @returns the imported ReferenceFrame, marked invalid if none exists
-       *          with the given key.
+       * @param other the other frame to interpolate towards.
+       * @param parent the parent the returned frame will have.
+       * @param time the timestamp to interpolate at.
+       * @return the interpolated frame.
        **/
-      static ReferenceFrame load_as(
-            madara::knowledge::KnowledgeBase &kb,
-            const std::string &key);
+      ReferenceFrame interpolate(const ReferenceFrame &other,
+          ReferenceFrame parent, uint64_t time) const;
 
       friend class ReferenceFrameVersion;
     };

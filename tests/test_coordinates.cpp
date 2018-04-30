@@ -209,46 +209,111 @@ int main(int argc, char *argv[])
 
   std::cout << std::endl << "Test saving and loading frame tree (TODO):"
             << std::endl;
-  ReferenceFrame building_frame("Building", {gps_frame(), 70, -40}, -1);
-  ReferenceFrame room_frame("LivingRoom", {building_frame, 10, 20}, -1);
-  ReferenceFrame kitchen_frame("Kitchen", {building_frame, 30, 50}, -1);
-  ReferenceFrame drone_frame("Drone", {kitchen_frame, 3, 2, -2}, 1000);
-  ReferenceFrame camera_frame("Camera", {drone_frame, 0, 0, 0.5}, 1000);
 
   madara::knowledge::KnowledgeBase kb;
 
-  building_frame.save(kb);
-  room_frame.save(kb);
-  kitchen_frame.save(kb);
-  drone_frame.save(kb);
-  camera_frame.save(kb);
+  {
+    ReferenceFrame building_frame("Building", {gps_frame(), 70, -40}, -1);
+    ReferenceFrame room_frame("LivingRoom", {building_frame, 10, 20}, -1);
+    ReferenceFrame kitchen_frame("Kitchen", {building_frame, 30, 50}, -1);
+    ReferenceFrame drone_frame("Drone", {kitchen_frame, 3, 2, -2}, 1000);
+    ReferenceFrame camera_frame("Camera", {drone_frame, 0, 0, 0.5}, 1000);
+    ReferenceFrame drone2_frame("Drone2", {room_frame, 3, 2, -2}, 1000);
 
-  ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
-  ReferenceFrame camera_frame1 =
-      camera_frame.orient(Orientation(drone_frame1, 0, 0, M_PI/4), 1500);
+    gps_frame().save(kb);
+    building_frame.save(kb);
+    room_frame.save(kb);
+    kitchen_frame.save(kb);
+    drone_frame.save(kb);
+    camera_frame.save(kb);
+    drone2_frame.save(kb);
 
-  drone_frame1.save(kb);
-  camera_frame1.save(kb);
+    ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
+    ReferenceFrame camera_frame1 = camera_frame.orient({drone_frame1, 0, 0, M_PI/4}, 2000);
+    ReferenceFrame drone2_frame1 = drone2_frame.move({room_frame, 3, 6, -2}, 2000);
 
-  std::vector<std::string> ids = {"Drone", "Camera"};
-  std::vector<ReferenceFrame> latest = ReferenceFrame::load_tree(kb, ids, 1500);
+    drone_frame1.save(kb);
+    camera_frame1.save(kb);
+    drone2_frame1.save(kb);
 
-  TEST(latest.size(), 2);
-
-  if (latest.size() == 2) {
-    TEST_EQ(latest[0].id(), "Drone");
-    TEST_EQ(latest[1].id(), "Camera");
-
-    TEST(latest[0].timestamp(), 1500);
-    TEST(latest[1].timestamp(), 1500);
-
-    TEST_EQ(latest[0].interpolated(), true);
-    TEST_EQ(latest[1].interpolated(), false);
-
-    TEST(latest[0].origin().x(), 3);
-    TEST(latest[0].origin().y(), 3);
-    TEST(latest[1].origin().rz(), M_PI/4);
+    drone_frame.move({room_frame, 3, 6, -2}, 2250).save(kb);
+    camera_frame1.orient({drone_frame1, 0, 0, M_PI/2}, 2250).save(kb);
+    drone2_frame.move({room_frame, 3, 7, -2}, 2500).save(kb);
   }
+
+  ReferenceFrameIdentity::gc();
+
+  std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
+
+  std::vector<ReferenceFrame> frames = ReferenceFrame::load_tree(kb, ids, 1000);
+
+  TEST_EQ(frames.size(), ids.size());
+
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
+
+    TEST(frames[0].timestamp(), 1000);
+    TEST(frames[1].timestamp(), 1000);
+
+    TEST_EQ(frames[0].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), false);
+
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 2);
+    TEST(frames[1].origin().rz(), 0);
+
+    Position d2pos(frames[1], 1, 1);
+    Position d1pos = d2pos.transform_to(frames[0]);
+    LOG(d2pos);
+    LOG(d1pos);
+  }
+
+  frames = ReferenceFrame::load_tree(kb, ids, 1500);
+
+  TEST_EQ(frames.size(), ids.size());
+
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
+
+    TEST(frames[0].timestamp(), 1500);
+    TEST(frames[1].timestamp(), 1500);
+
+    TEST_EQ(frames[0].interpolated(), true);
+    TEST_EQ(frames[1].interpolated(), false);
+
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 3);
+    TEST(frames[2].origin().rz(), M_PI/8);
+  }
+
+  frames = ReferenceFrame::load_tree(kb, ids);
+
+  TEST_EQ(frames.size(), ids.size());
+
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
+
+    TEST(frames[0].timestamp(), 2250);
+    TEST(frames[1].timestamp(), 2250);
+
+    TEST_EQ(frames[0].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), true);
+
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 6);
+    TEST(frames[2].origin().rz(), M_PI/2);
+  }
+
+  frames = ReferenceFrame::load_tree(kb, ids, 2500);
+
+  TEST_EQ(frames.size(), 0);
+
+  std::string dump;
+  kb.to_string(dump);
+  LOG(dump);
 
   return 0;
 }

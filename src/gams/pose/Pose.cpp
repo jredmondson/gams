@@ -57,17 +57,10 @@
 void gams::pose::Pose::to_container (
   madara::knowledge::containers::NativeDoubleVector &container) const
 {
-  if (frame ().name () == "GPS")
+  container.resize (6);
+  for (int i = 0; i < 6; ++i)
   {
-    container.set (0, get (order::GPS::find (0)));
-    container.set (1, get (order::GPS::find (1)));
-    container.set (2, get (order::GPS::find (2)));
-  }
-  else
-  {
-    container.set (0, get (order::XYZ::find (0)));
-    container.set (1, get (order::XYZ::find (1)));
-    container.set (2, get (order::XYZ::find (2)));
+    container.set (i, get (i));
   }
 }
 
@@ -75,63 +68,25 @@ void gams::pose::Pose::to_container (
 void gams::pose::Pose::from_container (
   const madara::knowledge::containers::NativeDoubleVector &container)
 {
-  if (frame ().name () == "GPS")
+  for (int i = 0; i < 6; ++i)
   {
-    set (0, container[order::GPS::get (0)]);
-    set (1, container[order::GPS::get (1)]);
-  }
-  else
-  {
-    set (0, container[order::XYZ::get (0)]);
-    set (1, container[order::XYZ::get (1)]);
-  }
-
-  for (int i = 2; i < container.size (); ++i)
-  {
-    set (i, container[i]);
-  }
-
-  if (container.size () <= 3)
-  {
-    if (container.size () == 2)
-    {
-      set (2, 0);
+    if (i < container.size ()) {
+      set (i, container[i]);
+    } else {
+      set (i, 0);
     }
-
-    set (3, 0);
-    set (4, 0);
-    set (5, 0);
   }
 }
 
 void gams::pose::Pose::from_container (
   const std::vector <double> &container)
 {
-  if (frame ().name () == "GPS")
+  for (int i = 0; i < 6; ++i)
   {
-    set (0, container[order::GPS::get (0)]);
-    set (1, container[order::GPS::get (1)]);
-  }
-  else
-  {
-    set (0, container[order::XYZ::get (0)]);
-    set (1, container[order::XYZ::get (1)]);
-  }
-
-  for (int i = 2; i < container.size (); ++i)
-  {
-    set (i, container[i]);
-  }
-
-  if (container.size () <= 3)
-  {
-    if (container.size () == 2)
-    {
-      set (2, 0);
+    if (i < container.size ()) {
+      set (i, container[i]);
+    } else {
+      set (i, 0);
     }
-
-    set (3, 0);
-    set (4, 0);
-    set (5, 0);
   }
 }
