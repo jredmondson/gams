@@ -305,6 +305,8 @@ int main(int argc, char *argv[])
     TEST(frames[0].origin().x(), 3);
     TEST(frames[0].origin().y(), 6);
     TEST(frames[2].origin().rz(), M_PI/2);
+
+    Linear<Position> cpose = frames[0].origin();
   }
 
   frames = ReferenceFrame::load_tree(kb, ids, 2500);

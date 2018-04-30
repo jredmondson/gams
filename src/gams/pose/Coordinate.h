@@ -167,7 +167,7 @@ namespace gams
     template<typename CoordType>
     class Coordinate
     {
-    public:
+    protected:
       /**
        * Default Constructor. Initializes frame as default_frame()
        **/
@@ -180,6 +180,13 @@ namespace gams
        **/
       explicit Coordinate(ReferenceFrame frame);
 
+      Coordinate(const Coordinate&) = default;
+      Coordinate& operator=(const Coordinate&) = default;
+
+      Coordinate(Coordinate&&) = default;
+      Coordinate& operator=(Coordinate&&) = default;
+
+    public:
       /**
        * Getter for the ReferenceFrame this Coordinate belongs to.
        *

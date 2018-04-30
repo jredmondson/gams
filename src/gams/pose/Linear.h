@@ -461,7 +461,8 @@ namespace gams
     };
 
     /**
-     * of those coordinates can vary according to the reference frame.
+     * Base class for Position, Velocity, and Acceleration.
+     * Do not use this directly. Use the above child classes.
      *
      * Provides accessor methods to support non-cartesian coordinate systems:
      *
