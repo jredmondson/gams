@@ -98,6 +98,10 @@ namespace gams
      * ReferenceFrame objects are immutable. "Setters" like timestamp() and
      * pose() return a new ReferenceFrame object modified accordingly.
      *
+     * If you use gps_frame() or default_frame(), and wish to save any frames
+     * which involve them as ancestors, ensure you save them to any
+     * KnowledgeBase you will be saving such frames to.
+     *
      * ReferenceFrames get saved to KnowledgeBases under the ".gams.frames"
      * prefix. Do not modify keys under this prefix directly.
      *

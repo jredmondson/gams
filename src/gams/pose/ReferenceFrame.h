@@ -738,7 +738,7 @@ namespace gams
         iq.slerp_this(oq, fraction);
         iq.to_angular_vector(interp.as_orientation_vec());
 
-        std::cerr << "Interp " << fraction << " " << origin() << "  " << interp << "  " << opose << std::endl;
+        //std::cerr << "Interp " << fraction << " " << origin() << "  " << interp << "  " << opose << std::endl;
 
         auto ret = std::make_shared<ReferenceFrameVersion>(
             ident_, type(), std::move(interp), time);

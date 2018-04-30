@@ -71,7 +71,7 @@ namespace gams
   namespace pose
   {
     std::map<std::string, std::weak_ptr<ReferenceFrameIdentity>>
-        ReferenceFrameIdentity::idents_;
+      ReferenceFrameIdentity::idents_;
 
     std::mutex ReferenceFrameIdentity::idents_lock_;
 
@@ -191,7 +191,7 @@ namespace gams
 
       if (type() != Cartesian) {
         key += "type";
-        std::cerr << "saving " << name() << " frame: " << id() << std::endl;
+        //std::cerr << "saving " << name() << " frame: " << id() << std::endl;
         kb.set(key, name());
         key.resize(pos);
       }
@@ -273,7 +273,7 @@ namespace gams
         if (ident) {
           auto ver = ident->get_version(timestamp);
           if (ver) {
-            std::cerr << id << " already loaded" << std::endl;
+            //std::cerr << id << " already loaded" << std::endl;
             return std::make_pair(std::move(ver), std::string());
           }
         }
@@ -299,10 +299,10 @@ namespace gams
         const ReferenceFrameType *type = Cartesian;
         key += "type";
         find = map.find(key);
-        std::cerr << "Looking for " << key << std::endl;
+        //std::cerr << "Looking for " << key << std::endl;
         if (find != map.end()) {
           std::string type_name = find->second.to_string();
-          std::cerr << "loaded " << type_name << " frame: " << id << std::endl;
+          //std::cerr << "loaded " << type_name << " frame: " << id << std::endl;
           if (type_name == "GPS") {
             type = GPS;
           }
@@ -323,7 +323,7 @@ namespace gams
         auto ret = std::make_shared<ReferenceFrameVersion>(
             type, id, std::move(origin), timestamp);
 
-        std::cerr << "Made new " << id << " at " << (void*)ret.get() << std::endl;
+        //std::cerr << "Made new " << id << " at " << (void*)ret.get() << std::endl;
 
         return std::make_pair(std::move(ret), std::move(parent_name));
       }
@@ -341,7 +341,7 @@ namespace gams
       if (ret.second.size() > 0) {
         auto parent = load(kb, ret.second, timestamp);
         if (!parent.valid()) {
-          std::cerr << "Couldn't find " << ret.second << std::endl;
+          //std::cerr << "Couldn't find " << ret.second << std::endl;
           return ReferenceFrame();
         }
         ret.first->mut_origin().frame(parent);
@@ -436,7 +436,7 @@ namespace gams
             const std::string &id)
     {
       auto ret = find_nearest_neighbors(kb, id, -1).first;
-      std::cerr << "Latest for " << id << " is " << ret << std::endl;
+      //std::cerr << "Latest for " << id << " is " << ret << std::endl;
 
       auto key = impl::make_kb_prefix();
       impl::make_kb_key(key, id, ret);
@@ -473,7 +473,7 @@ namespace gams
 
       auto pair = find_nearest_neighbors(kb, id, timestamp);
 
-      std::cerr << "Nearest " << id << " " << pair.first << " " << timestamp << " " << pair.second << std::endl;
+      //std::cerr << "Nearest " << id << " " << pair.first << " " << timestamp << " " << pair.second << std::endl;
 
       if (pair.first == -1 || pair.second == -1) {
         return {};
@@ -489,7 +489,7 @@ namespace gams
         const std::string &next_parent_id = next.origin_frame().id();
 
         if (parent_id != next_parent_id) {
-          std::cerr << "Mismatched frame parents " << parent_id << "  " << next_parent_id << std::endl;
+          //std::cerr << "Mismatched frame parents " << parent_id << "  " << next_parent_id << std::endl;
           return {};
         }
 
@@ -500,7 +500,7 @@ namespace gams
         return prev.interpolate(next, std::move(parent), timestamp);
       }
 
-      std::cerr << "No interpolation found for " << id << std::endl;
+      //std::cerr << "No interpolation found for " << id << std::endl;
       return {};
     }
 

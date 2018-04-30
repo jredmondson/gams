@@ -80,7 +80,7 @@ namespace gams
         if (origin_frame.valid() && self_frame != origin_frame) {
           const ReferenceFrameType *s = self_frame.type();
           const ReferenceFrameType *o = origin_frame.type();
-          std::cerr << "Transform from " << in.frame().id() << " to " << in.frame().origin_frame().id() << std::endl;
+          //std::cerr << "Transform from " << in.frame().id() << " to " << in.frame().origin_frame().id() << std::endl;
           func(s, o, origin, in);
         }
       }
@@ -139,7 +139,7 @@ namespace gams
           return;
         }
         if (from_frame.valid() && from_frame != to_frame) {
-          std::cerr << "Transform from " << in.frame().id() << " to " << to_frame.id() << std::endl;
+          //std::cerr << "Transform from " << in.frame().id() << " to " << to_frame.id() << std::endl;
           const Pose &to = to_frame.origin();
           const ReferenceFrameType *t = to_frame.type();
           const ReferenceFrameType *f = from_frame.type();
