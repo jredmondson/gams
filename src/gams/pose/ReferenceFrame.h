@@ -598,6 +598,8 @@ namespace gams
               ForwardIterator begin,
               ForwardIterator end)
       {
+        madara::knowledge::ContextGuard guard(kb);
+
         uint64_t timestamp = -1;
         ForwardIterator cur = begin;
         while (cur != end) {
@@ -627,6 +629,8 @@ namespace gams
               madara::knowledge::KnowledgeBase &kb,
               const Container &ids)
       {
+        madara::knowledge::ContextGuard guard(kb);
+
         return latest_common_timestamp(kb, ids.cbegin(), ids.cend());
       }
 
@@ -659,6 +663,9 @@ namespace gams
           size_t count = std::distance(begin, end);
           ret.reserve(count);
         }
+
+        madara::knowledge::ContextGuard guard(kb);
+
         if (timestamp == -1) {
           timestamp = latest_common_timestamp(kb, begin, end);
         }

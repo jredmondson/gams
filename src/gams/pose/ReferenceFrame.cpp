@@ -334,6 +334,8 @@ namespace gams
           const std::string &id,
           uint64_t timestamp)
     {
+      ContextGuard guard(kb);
+
       auto ret = load_single(kb, id, timestamp);
       if (!ret.first) {
         return ReferenceFrame();
@@ -435,6 +437,8 @@ namespace gams
             madara::knowledge::KnowledgeBase &kb,
             const std::string &id)
     {
+      ContextGuard guard(kb);
+
       auto ret = find_nearest_neighbors(kb, id, -1).first;
       //std::cerr << "Latest for " << id << " is " << ret << std::endl;
 
@@ -457,6 +461,8 @@ namespace gams
             const std::string &id,
             uint64_t timestamp)
     {
+      ContextGuard guard(kb);
+
       if (timestamp == -1) {
         return load_exact(kb, id, timestamp);
       }
