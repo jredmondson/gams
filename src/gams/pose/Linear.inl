@@ -141,17 +141,17 @@ namespace gams
       return 3;
     }
 
-    inline double LinearVector::get(int i) const
+    inline double LinearVector::get(size_t i) const
     {
-      if (i < 0 || i >= v_.size()) {
+      if (i >= v_.size()) {
        throw std::range_error("Index out of bounds for Linear");
       }
       return v_[i];
     }
 
-    inline double LinearVector::set(int i, double val)
+    inline double LinearVector::set(size_t i, double val)
     {
-      if (i < 0 || i >= v_.size()) {
+      if (i >= v_.size()) {
        throw std::range_error("Index out of bounds for Linear");
       }
       return v_[i] = val;

@@ -343,7 +343,7 @@ namespace gams
      * @throws unrelated_frame if no common parent.
      **/
     template<typename CoordType>
-    inline const ReferenceFrame &common_parent_transform(
+    inline ReferenceFrame common_parent_transform(
                        CoordType &in1, CoordType &in2)
     {
       if(in1.frame() == in2.frame())
@@ -373,7 +373,7 @@ namespace gams
      * @throws unrelated_frame if no common parent.
      **/
     template<typename CoordType>
-    inline const ReferenceFrame & common_parent_transform_other(
+    inline ReferenceFrame common_parent_transform_other(
                          CoordType &in1, CoordType &in2)
     {
       const ReferenceFrame *common_parent =

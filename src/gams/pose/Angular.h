@@ -244,7 +244,7 @@ namespace gams
        * @param i the index
        * @return the i'th value
        **/
-      double get (int i) const;
+      double get (size_t i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order rx, ry, rz
@@ -253,7 +253,7 @@ namespace gams
        * @param val the new value
        * @return the new i'th value
        **/
-      double set (int i, double val);
+      double set (size_t i, double val);
 
       friend class Quaternion;
 

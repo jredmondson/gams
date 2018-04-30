@@ -127,17 +127,17 @@ namespace gams
       return 3;
     }
 
-    inline double AngularVector::get(int i) const
+    inline double AngularVector::get(size_t i) const
     {
-      if (i < 0 || i >= rv_.size()) {
+      if (i >= rv_.size()) {
        throw std::range_error("Index out of bounds for Linear");
       }
       return rv_[i];
     }
 
-    inline double AngularVector::set(int i, double val)
+    inline double AngularVector::set(size_t i, double val)
     {
-      if (i < 0 || i >= rv_.size()) {
+      if (i >= rv_.size()) {
        throw std::range_error("Index out of bounds for Linear");
       }
       return rv_[i] = val;

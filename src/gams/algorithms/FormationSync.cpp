@@ -440,8 +440,8 @@ gams::algorithms::FormationSync::generate_plan (int formation)
       else
       {
         bool position_found = false;
-        int row_length = (int)group_members_.size () / 4;
-        int last_position = (int)group_members_.size () / 2;
+        size_t row_length = (int)group_members_.size () / 4;
+        size_t last_position = (int)group_members_.size () / 2;
         for (int row = 1; !position_found; ++row, last_position += row_length, row_length /= 2)
         {
           if (row_length < 1)
@@ -449,7 +449,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
 
           if (position_ <= last_position + row_length)
           {
-            int column = position_ - last_position - 1;
+            size_t column = position_ - last_position - 1;
             position_found = true;
 
             // stagger the rows for a seamless buffer space for neighbor rows
@@ -566,7 +566,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
          * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
          * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
          **/
-        int cols = (int)group_members_.size () / 2 + 1;
+        size_t cols = (int)group_members_.size () / 2 + 1;
         if (position_ >= cols)
         {
           col = cols - position_ % cols - 2;
@@ -591,7 +591,7 @@ gams::algorithms::FormationSync::generate_plan (int formation)
           * [ ][3][ ] pos = 3, row = 3, col = 3 - 3 % 3 - 2 = 1
           * [4][ ][ ] pos = 4, row = 4, col = 3 - 4 % 3 - 2 = 3 - 1 - 2 = 0
           **/
-          int cols = (int)group_members_.size () / 2;
+          size_t cols = group_members_.size () / 2;
           row = position_;
 
           if (position_ >= cols)

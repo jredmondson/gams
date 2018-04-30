@@ -189,7 +189,7 @@ namespace gams
       int formation_;
 
       /// position in member assignment
-      int position_;
+      size_t position_;
 
       /// the move total before a pivot. Used for debugging
       int move_pivot_;

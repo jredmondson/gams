@@ -494,7 +494,7 @@ gams::algorithms::ZoneCoverage::update_arrays (
   arrays.clear ();
 
   arrays.resize (names.size ());
-  for (int i = 0; i < names.size (); ++i)
+  for (size_t i = 0; i < names.size (); ++i)
   {
     arrays[i].set_name (names[i] + ".location", *knowledge_, 3);
   }
@@ -513,7 +513,7 @@ gams::algorithms::ZoneCoverage::update_locs (
       " resizing locs array\n");
     locs.resize (arrays.size (), Position (platform_->get_frame ()));
   }
-  for (int i = 0; i < arrays.size (); ++i)
+  for (size_t i = 0; i < arrays.size (); ++i)
   {
     if (arrays[i].size () >= 2)
     {
@@ -743,16 +743,16 @@ namespace onion
 {
   struct placement
   {
-    int rank;
+    unsigned int rank;
     int offset;
   };
 
-  void init_placements (std::vector<placement> &placements, int index)
+  void init_placements (std::vector<placement> &placements, size_t index)
   {
     if (index >= placements.size ())
     {
       std::vector<int> counts;
-      int i = 0;
+      size_t i = 0;
       size_t last_rank = 0;
       counts.resize (1);
       for (; i < placements.size (); ++i)
@@ -787,7 +787,7 @@ namespace onion
               counts.push_back (0);
           }
         }
-        placement p = { (int)last_rank, counts[last_rank]};
+        placement p = { last_rank, counts[last_rank]};
         placements[i] = p;
         ++counts[last_rank];
         //cout << i << ": " << placements[i].rank << " " << placements[i].offset << endl;
@@ -832,7 +832,7 @@ gams::algorithms::ZoneCoverage::onion_formation () const
         Position enemy_cart_loc (frame, enemy_loc);
 
         int even_rank = p.rank % 2 == 0;
-        int rank = (even_rank) ? (p.rank / 2) : (- (p.rank + 1) / 2);
+        int rank = (even_rank) ? (p.rank / 2) : (- ((int)p.rank + 1) / 2);
         int offset = (p.offset % 2 == 0) ? (p.offset / 2) : (- (p.offset + 1) / 2);
 
         double distance = asset_loc.distance_to (middle) + rank * buffer_;

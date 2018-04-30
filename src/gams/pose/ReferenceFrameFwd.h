@@ -66,7 +66,7 @@ namespace gams
   {
     class ReferenceFrameIdentity;
     class ReferenceFrameVersion;
-    class ReferenceFrameType;
+    struct ReferenceFrameType;
     class Pose;
     class Position;
     class Orientation;

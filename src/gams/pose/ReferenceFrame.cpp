@@ -59,6 +59,8 @@
 #include <gams/pose/Angular.h>
 #include <gams/pose/Quaternion.h>
 
+#include <random>
+
 using madara::knowledge::KnowledgeBase;
 using madara::knowledge::KnowledgeRecord;
 using madara::knowledge::ContextGuard;
@@ -224,7 +226,7 @@ namespace gams
       template<size_t N>
       std::array<const char *, N> split_string_array(std::string &s, char delim) {
         std::array<const char *, N> ret;
-        size_t i;
+        size_t i = 0;
         char *cur = &s[0];
 
         while (i < N) {

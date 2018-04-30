@@ -765,7 +765,7 @@ namespace gams
      * @param to_stack if not nullptr, the frames needed to go from base to
      *  target frame will be pushed to pointed to vector
      **/
-    const ReferenceFrame *find_common_frame(
+    GAMSExport const ReferenceFrame *find_common_frame(
         const ReferenceFrame *from,
         const ReferenceFrame *to,
         std::vector<const ReferenceFrame *> *to_stack = nullptr);

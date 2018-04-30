@@ -68,7 +68,7 @@ void gams::pose::Pose::to_container (
 void gams::pose::Pose::from_container (
   const madara::knowledge::containers::NativeDoubleVector &container)
 {
-  for (int i = 0; i < 6; ++i)
+  for (size_t i = 0; i < 6; ++i)
   {
     if (i < container.size ()) {
       set (i, container[i]);
@@ -81,7 +81,7 @@ void gams::pose::Pose::from_container (
 void gams::pose::Pose::from_container (
   const std::vector <double> &container)
 {
-  for (int i = 0; i < 6; ++i)
+  for (size_t i = 0; i < 6; ++i)
   {
     if (i < container.size ()) {
       set (i, container[i]);

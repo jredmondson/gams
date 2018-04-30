@@ -427,7 +427,7 @@ namespace gams
        * @param i the index
        * @return the i'th value
        **/
-      double get (int i) const;
+      double get (size_t i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order x, y, z
@@ -435,7 +435,7 @@ namespace gams
        * @param i the index to set
        * @param val the value to set to
        **/
-      double set (int i, double val);
+      double set (size_t i, double val);
 
       typedef LinearVector BaseType;
 
