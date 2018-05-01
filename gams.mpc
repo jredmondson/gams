@@ -255,3 +255,37 @@ project (gams_controller) : using_gams, using_madara, using_ace, using_vrep {
     src/gams/programs/gams_controller.cpp
   }
 }
+
+project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
+  exeout = $(GAMS_ROOT)/bin
+  exename = ros2gams
+  libpaths += $(ROS_ROOT)/../../lib
+
+  macros +=  _USE_MATH_DEFINES
+
+  libs += roscpp
+  libs += cpp_common
+  libs += roscpp_serialization
+  libs += rostime
+  libs += rosbag
+  libs += rosbag_storage
+
+  verbatim (gnuace, local) {
+    CPPFLAGS += -w -std=c++11
+  }
+
+  Documentation_Files {
+  }
+
+  Build_Files {
+    using_gams.mpb
+    gams.mpc
+  }
+                                                                
+  Header_Files {
+  }
+
+  Source_Files {
+    src/gams/programs/ros2gams.cpp
+  }
+}

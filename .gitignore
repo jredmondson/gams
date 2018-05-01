@@ -13,6 +13,7 @@ lib*
 .*.swp
 *.class
 *.log
+*.bag
 *.vcxproj
 *.vcxproj.filters
 
@@ -24,6 +25,7 @@ gams.vcxproj.user
 
 resource/vrep/starting.ttt
 
+ros2gams
 gams_controller
 test_controller
 test_controller_run
@@ -44,3 +46,5 @@ test_euler
 test_utm
 
 bin/*
+ACE_TAO/*
+MPC/*

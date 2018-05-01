@@ -1,6 +1,6 @@
 feature (ros) {
   requires += ros
-
+  
   macros += _GAMS_ROS_
 
   includes += $(ROS_ROOT)/../../include
