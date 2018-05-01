@@ -787,7 +787,7 @@ namespace onion
               counts.push_back (0);
           }
         }
-        placement p = { last_rank, counts[last_rank]};
+        placement p = { static_cast<unsigned int>(last_rank), counts[last_rank]};
         placements[i] = p;
         ++counts[last_rank];
         //cout << i << ": " << placements[i].rank << " " << placements[i].offset << endl;

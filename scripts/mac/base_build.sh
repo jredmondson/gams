@@ -339,6 +339,7 @@ echo ""
 
 # TO DO: no idea what the Mac prereqs are for building anything here
 if [ $PREREQS -eq 1 ]; then
+  true
 fi
 
 # check if ACE is a prereq for later packages
@@ -397,7 +398,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
     # use linux defaults
     echo "  CONFIGURING DEFAULT BUILD"
     echo "#include \"ace/config-macosx-$MAC_VERSION.h\"" > $ACE_ROOT/ace/config.h
-    echo "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_macosx_$MAC_VERSION.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_macosx_$MAC_VERSION.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
   fi
   
   echo "ENTERING $ACE_ROOT"
