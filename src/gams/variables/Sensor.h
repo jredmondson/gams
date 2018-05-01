@@ -231,7 +231,7 @@ namespace gams
       madara::knowledge::containers::NativeDoubleArray origin_;
 
       /// local cartesian frame
-      pose::CartesianFrame local_frame_;
+      pose::ReferenceFrame local_frame_;
     };
 
     /// a map of sensor names to the sensor information

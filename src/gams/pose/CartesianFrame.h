@@ -54,89 +54,32 @@
 #ifndef _GAMS_POSE_CARTESIAN_FRAME_H_
 #define _GAMS_POSE_CARTESIAN_FRAME_H_
 
-#include "ReferenceFrame.h"
+#include "ReferenceFrameFwd.h"
 
 namespace gams
 {
   namespace pose
   {
     /**
-     * Positions represented as meters distance, in x, y, and z, from an origin
-     * Orientations represented in Axis Angle notation
+     * Contains frame translation functions for Cartesian reference frames.
      *
-     * All conversions to/from child and parent CartesianFrames are supported.
-     * Conversions to/from a parent GPSFrame are supported, except converting
-     * GPSFrame to a child CartesianFrame that is orientd w.r.t. the GPSFrame
-     * Converting to GPSFrame from a orientd child Cartesian is supported.
+     * Positions represented as meters distance, in x, y, and z, from an origin
+     * Orientations represented in Axis Angle notation. The z-axis points
+     * downwards, so higher elevations imply lower z value. If embeded within a
+     * GPS frame with no relative orientation, +x will point North, +y East,
+     * and +z downwards.
+     *
+     * All conversions to/from child and parent Cartesian frames are supported.
+     * Conversions to/from a parent GPS frame are supported.
      **/
-    class GAMSExport CartesianFrame : public SimpleRotateFrame
-    {
-    public:
-      /**
-       * Default constructor. No parent frame.
-       **/
-      CartesianFrame();
+    namespace cartesian {
+    }
 
-      /**
-       * Creates a copy of the origin Pose passed in.
-       **/
-      explicit CartesianFrame(const Pose &origin);
-
-      /**
-       * Uses an existing Pose as origin, and maintains
-       * a pointer to it. Changes to it affect this frame
-       **/
-      explicit CartesianFrame(Pose *origin);
-
-    protected:
-      /**
-       * Returns the name of this type of reference frame.
-       *
-       * @return the string "Cartesian"
-       **/
-      virtual std::string get_name() const;
-
-      /**
-       * Transforms a linear to origin
-       * @param x   the x coordinate
-       * @param y   the y coordinate
-       * @param z   the z coordinate
-       **/
-      virtual void transform_linear_to_origin(
-                      double &x, double &y, double &z) const;
-
-      /**
-      * Transforms a linear from origin
-      * @param x   the x coordinate
-      * @param y   the y coordinate
-      * @param z   the z coordinate
-      **/
-      virtual void transform_linear_from_origin(
-                      double &x, double &y, double &z) const;
-
-      /**
-      * Calculates distance from one point to another
-      * @param x1   the x coordinate of the first point
-      * @param y1   the y coordinate of the first point
-      * @param z1   the z coordinate of the first point
-      * @param x2   the x coordinate of the second point
-      * @param y2   the y coordinate of the second point
-      * @param z2   the z coordinate of the second point
-      **/
-      virtual double calc_distance(
-                      double x1, double y1, double z1,
-                      double x2, double y2, double z2) const;
-
-#ifdef GAMS_NO_RTTI
-    public:
-      static type_ids::Flags get_stypes() {
-        using namespace type_ids;
-        return flags(Cartesian, SimpleRotate);
-      }
-
-      type_ids::Flags get_types() const override { return get_stypes(); }
-#endif
-    };
+    /**
+     * ReferenceFrameType struct for Cartesian frames. Used by default by
+     * ReferenceFrame objects, or can be passed as first parameter.
+     **/
+    extern const ReferenceFrameType *Cartesian;
   }
 }
 

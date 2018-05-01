@@ -62,28 +62,8 @@ namespace gams
 {
   namespace pose
   {
-    inline CartesianFrame::CartesianFrame() : SimpleRotateFrame() {}
-
-    inline CartesianFrame::CartesianFrame(const Pose &origin)
-              : SimpleRotateFrame(origin) {}
-
-    inline CartesianFrame::CartesianFrame(Pose *origin)
-              : SimpleRotateFrame(origin) {}
-
-    inline std::string CartesianFrame::get_name() const
+    namespace cartesian
     {
-      return "Cartesian";
-    }
-
-    inline double CartesianFrame::calc_distance(
-                      double x1, double y1, double z1,
-                      double x2, double y2, double z2) const
-    {
-      double x_dist = x2 - x1;
-      double y_dist = y2 - y1;
-      double z_dist = z2 - z2;
-
-      return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
     }
   }
 }

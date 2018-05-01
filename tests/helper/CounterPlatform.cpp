@@ -170,8 +170,8 @@ gams::platforms::CounterPlatform::takeoff (void)
   return 0;
 }
 
-const gams::utility::ReferenceFrame &
+const gams::pose::ReferenceFrame &
 gams::platforms::CounterPlatform::get_frame (void) const
 {
-  return frame_;
+  return gams::pose::default_frame();
 }

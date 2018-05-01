@@ -57,100 +57,126 @@ namespace gams
 {
   namespace pose
   {
-    const double GPSFrame::EARTH_RADIUS = 6371000.0;
-    const double GPSFrame::MOON_RADIUS  = 1737100.0;
-    const double GPSFrame::MARS_RADIUS  = 3389500.0;
+    namespace gps {
+      void transform_linear_to_origin(
+                      const ReferenceFrameType *origin,
+                      const ReferenceFrameType *self,
+                      double /*ox*/, double /*oy*/, double /*oz*/,
+                      double /*orx*/, double /*ory*/, double /*orz*/,
+                      double &/*x*/, double &/*y*/, double &/*z*/)
+      {
+        throw undefined_transform(self, origin, true);
+      }
 
-    GAMSExport const GPSFrame &gps_frame (void)
-    {
-      static const GPSFrame frame;
+      void transform_linear_from_origin(
+                      const ReferenceFrameType *origin,
+                      const ReferenceFrameType *self,
+                      double /*ox*/, double /*oy*/, double /*oz*/,
+                      double /*orx*/, double /*ory*/, double /*orz*/,
+                      double &/*x*/, double &/*y*/, double &/*z*/)
+      {
+        throw undefined_transform(self, origin, false);
+      }
+
+      double calc_distance(
+                const ReferenceFrameType *,
+                double x1, double y1, double z1,
+                double x2, double y2, double z2)
+      {
+        double alt1 = -z1;
+        double alt2 = -z2;
+        double alt_diff = alt2 - alt1;
+        double alt = alt1;
+        if(alt2 < alt1)
+          alt = alt2;
+
+        /**
+         * Calculate great circle distance using numerically stable formula from
+         * http://en.wikipedia.org/w/index.php?title=Great-circle_distance&oldid=659855779
+         * Second formula in "Computational formulas"
+         **/
+        double lat1 = DEG_TO_RAD(x1);
+        double lng1 = DEG_TO_RAD(y1);
+        double lat2 = DEG_TO_RAD(x2);
+        double lng2 = DEG_TO_RAD(y2);
+
+        double sin_lat1 = sin(lat1);
+        double sin_lat2 = sin(lat2);
+        double cos_lat1 = cos(lat1);
+        double cos_lat2 = cos(lat2);
+
+        double delta_lng = lng2 - lng1;
+        if(delta_lng < 0)
+          delta_lng = -delta_lng;
+
+        double sin_delta_lng = sin(delta_lng);
+        double cos_delta_lng = cos(delta_lng);
+
+        double top_first = cos_lat2 * sin_delta_lng;
+        double top_second =
+            cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_delta_lng;
+
+        double top = sqrt(top_first * top_first + top_second * top_second);
+
+        double bottom = sin_lat1 * cos_lat2 + cos_lat1 * cos_lat2 * cos_delta_lng;
+
+        const double epsilon = 0.000001;
+        /**
+         * atan2(0, 0) is undefined, but for our purposes, we can treat it as 0
+         **/
+        double central_angle =
+            (fabs(top) < epsilon && fabs(bottom) < epsilon)
+                 ? 0 : atan2(top, bottom);
+
+        double great_circle_dist = (EARTH_RADIUS + alt) * central_angle;
+
+        if(alt_diff == 0)
+          return great_circle_dist;
+        else
+          return sqrt(great_circle_dist * great_circle_dist + alt_diff*alt_diff);
+      }
+
+      void normalize_linear(
+                const ReferenceFrameType *,
+                double &x, double &y, double &z)
+      {
+        while(y > 90.000001)
+        {
+          y -= 180;
+          x += 180;
+        }
+        while(y < -90.000001)
+        {
+          y += 180;
+          x -= 180;
+        }
+        while(x > 180.000001)
+          x -= 180;
+        while(x < -180.000001)
+          x += 180;
+      }
+
+      const ReferenceFrameType GPSImpl = {
+        2, "GPS",
+        transform_linear_to_origin,
+        transform_linear_from_origin,
+        normalize_linear,
+        calc_distance,
+        simple_rotate::transform_angular_to_origin,
+        simple_rotate::transform_angular_from_origin,
+        default_normalize_angular,
+        simple_rotate::calc_angle,
+        simple_rotate::transform_pose_to_origin,
+        simple_rotate::transform_pose_from_origin,
+        default_normalize_pose,
+      };
+    }
+
+    const ReferenceFrameType *GPS = &gps::GPSImpl;
+
+    const ReferenceFrame &gps_frame (void) {
+      static ReferenceFrame frame{GPS, "gps_frame", Pose(ReferenceFrame(), 0, 0)};
       return frame;
-    }
-
-    void GPSFrame::transform_linear_to_origin(
-                                            double &, double &, double &) const
-    {
-      throw undefined_transform(*this, origin().frame(), true);
-    }
-
-    void GPSFrame::transform_linear_from_origin(
-                                            double &, double &, double &) const
-    {
-      throw undefined_transform(*this, origin().frame(), false);
-    }
-
-    double GPSFrame::calc_distance(
-                      double x1, double y1, double z1,
-                      double x2, double y2, double z2) const
-    {
-      double alt = z1;
-      double alt_diff = z2 - z1;
-      if(z2 < alt)
-        alt = z2;
-
-      /**
-       * Calculate great circle distance using numerically stable formula from
-       * http://en.wikipedia.org/w/index.php?title=Great-circle_distance&oldid=659855779
-       * Second formula in "Computational formulas"
-       **/
-      double lat1 = DEG_TO_RAD(y1);
-      double lng1 = DEG_TO_RAD(x1);
-      double lat2 = DEG_TO_RAD(y2);
-      double lng2 = DEG_TO_RAD(x2);
-
-      double sin_lat1 = sin(lat1);
-      double sin_lat2 = sin(lat2);
-      double cos_lat1 = cos(lat1);
-      double cos_lat2 = cos(lat2);
-
-      double delta_lng = lng2 - lng1;
-      if(delta_lng < 0)
-        delta_lng = -delta_lng;
-
-      double sin_delta_lng = sin(delta_lng);
-      double cos_delta_lng = cos(delta_lng);
-
-      double top_first = cos_lat2 * sin_delta_lng;
-      double top_second =
-          cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_delta_lng;
-
-      double top = sqrt(top_first * top_first + top_second * top_second);
-
-      double bottom = sin_lat1 * cos_lat2 + cos_lat1 * cos_lat2 * cos_delta_lng;
-
-      const double epsilon = 0.000001;
-      /**
-       * atan2(0, 0) is undefined, but for our purposes, we can treat it as 0
-       **/
-      double central_angle =
-          (fabs(top) < epsilon && fabs(bottom) < epsilon)
-               ? 0 : atan2(top, bottom);
-
-      double great_circle_dist = (planet_radius_ + alt) * central_angle;
-
-      if(alt_diff == 0)
-        return great_circle_dist;
-      else
-        return sqrt(great_circle_dist * great_circle_dist + alt_diff*alt_diff);
-    }
-
-    void GPSFrame::do_normalize_linear(
-                      double &x, double &y, double &z) const
-    {
-      while(y > 90.000001)
-      {
-        y -= 180;
-        x += 180;
-      }
-      while(y < -90.000001)
-      {
-        y += 180;
-        x -= 180;
-      }
-      while(x > 180.000001)
-        x -= 180;
-      while(x < -180.000001)
-        x += 180;
     }
   }
 }

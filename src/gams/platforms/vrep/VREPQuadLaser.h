@@ -79,24 +79,28 @@ namespace gams
     {
     public:
       virtual double get_range() const = 0;
+      virtual ~HasRangeSensor() = default;
     };
 
     class GAMSExport HasAltitudeSensor
     {
     public:
       virtual double get_altitude() const = 0;
+      virtual ~HasAltitudeSensor() = default;
     };
 
     class GAMSExport HasColorSensor
     {
     public:
       virtual uint32_t get_color() const = 0;
+      virtual ~HasColorSensor() = default;
     };
 
     class GAMSExport HasColor
     {
     public:
       virtual void set_color(uint32_t color) const = 0;
+      virtual ~HasColor() = default;
     };
 
     /**

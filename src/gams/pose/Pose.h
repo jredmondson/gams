@@ -54,7 +54,6 @@
 #ifndef _GAMS_POSE_POSE_H_
 #define _GAMS_POSE_POSE_H_
 
-#include "rtti.h"
 #include <iostream>
 #include <string>
 
@@ -82,7 +81,7 @@ namespace gams
        * @param ry length of orientation vector along y-axis
        * @param rz length of orientation vector along z-axis
        **/
-      constexpr PoseVector (double x, double y, double z,
+      PoseVector (double x, double y, double z,
                             double rx, double ry, double rz);
 
       /**
@@ -91,7 +90,7 @@ namespace gams
        *
        * @param loc the LinearVector to get position info from.
        **/
-      constexpr PoseVector (const LinearVector &loc);
+      PoseVector (const LinearVector &loc);
 
       /**
        * Construct a PoseVector from a AngularVector. Linear info will
@@ -99,7 +98,7 @@ namespace gams
        *
        * @param rot the AngularVector to get position info from.
        **/
-      constexpr PoseVector (const AngularVector &rot);
+      PoseVector (const AngularVector &rot);
 
       /**
        * Construct from individual LinearVector and AngularVector
@@ -107,13 +106,13 @@ namespace gams
        * @param loc the LinearVector
        * @param rot the AngularVector
        **/
-      constexpr PoseVector (const LinearVector &loc,
+      PoseVector (const LinearVector &loc,
                             const AngularVector &rot);
 
       /**
        * Default constructor. All values will be INVAL_COORD
        **/
-      constexpr PoseVector ();
+      PoseVector ();
 
       /**
        * Constructor from MADARA DoubleVector
@@ -154,37 +153,37 @@ namespace gams
        *
        * @return true if at least one value is INVAL_COORD
        **/
-      constexpr bool is_set () const;
+      bool is_set () const;
 
       /**
       * Tests if the position is set (valid).
       *
       * @return true if position has been set to something valid
       **/
-      constexpr bool is_position_set () const;
-      constexpr bool is_location_set () const;
+      bool is_position_set () const;
+      bool is_location_set () const;
 
       /**
       * Tests if the orientation/orientation has been set
       *
       * @return true if orientation has been set to something valid
       **/
-      constexpr bool is_orientation_set () const;
+      bool is_orientation_set () const;
 
       /**
        * Tests if all position information is zero.
        *
        * @return true if all position information is zero
        **/
-      constexpr bool is_position_zero () const;
-      constexpr bool is_location_zero () const;
+      bool is_position_zero () const;
+      bool is_location_zero () const;
 
       /**
        * Tests if all orientation information is zero.
        *
        * @return true if all orientation information is zero
        **/
-      constexpr bool is_orientation_zero () const;
+      bool is_orientation_zero () const;
 
       /**
        * Tests if all pose information is zero.
@@ -192,7 +191,7 @@ namespace gams
        *
        * @return true if all pose information is zero
        **/
-      constexpr bool is_zero () const;
+      bool is_zero () const;
 
       /**
        * Tests for exact equality
@@ -200,7 +199,7 @@ namespace gams
        * @param rhs the other pose to test against
        * @return true if all values equal corresponding values in other pose
        **/
-      constexpr bool operator== (const PoseVector &rhs) const;
+      bool operator== (const PoseVector &rhs) const;
 
       /**
        * Get the name of this coordinate type
@@ -214,7 +213,7 @@ namespace gams
        *
        * @return 6
        **/
-      constexpr int size () const;
+      int size () const;
 
       /**
        * Retrives i'th coordinate, 0-indexed, in order x, y, z, rx, ry, rz
@@ -223,7 +222,7 @@ namespace gams
        * @return the i'th coordinate value
        * @throws std::range_error if index is less than 0, or greater than 6
        **/
-      constexpr double get (int i) const;
+      double get (int i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order x, y, z, rx, ry, rz
@@ -249,7 +248,7 @@ namespace gams
        *
        * @return const reference to this object.
        **/
-      constexpr const BaseType &as_vec () const;
+      const BaseType &as_vec () const;
 
       /**
        * Gets a reference to this object's Linear part.
@@ -264,8 +263,8 @@ namespace gams
        *
        * @return const reference to the LinearVector
        **/
-      constexpr const LinearVector &as_position_vec () const;
-      constexpr const LinearVector &as_location_vec () const;
+      const LinearVector &as_position_vec () const;
+      const LinearVector &as_location_vec () const;
 
       /**
        * Gets a reference to this object's Angular part.
@@ -279,7 +278,7 @@ namespace gams
        *
        * @return const reference to the AngularVector
        **/
-      constexpr const AngularVector &as_orientation_vec () const;
+      const AngularVector &as_orientation_vec () const;
     };
 
     /**
@@ -324,7 +323,7 @@ namespace gams
        * @param ry length of orientation vector along y-axis
        * @param rz length of orientation vector along z-axis
        **/
-      constexpr Pose (const ReferenceFrame &frame,
+      Pose (const ReferenceFrame &frame,
                      double x, double y, double z,
                      double rx, double ry, double rz);
 
@@ -338,7 +337,7 @@ namespace gams
        * @param y position along y-axis
        * @param z position along z-axis
        **/
-      constexpr Pose (const ReferenceFrame &frame,
+      Pose (const ReferenceFrame &frame,
                      double x, double y, double z = 0.0);
 
       /**
@@ -352,7 +351,7 @@ namespace gams
        *
        * @param loc the Linear to copy position info from.
        **/
-      constexpr Pose (const Position &loc);
+      Pose (const Position &loc);
 
       /**
        * Construct from a Angular. All position info set to zero.
@@ -360,7 +359,7 @@ namespace gams
        *
        * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const Orientation &rot);
+      Pose (const Orientation &rot);
 
       /**
        * Construct from individual Linear and Angular vectors, in the
@@ -379,9 +378,9 @@ namespace gams
        * @param loc the Linear to copy position info from.
        * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const ReferenceFrame &frame,
-                     const LinearVector &loc,
-                     const AngularVector &rot);
+      Pose (const ReferenceFrame &frame,
+            const LinearVector &loc,
+            const AngularVector &rot);
 
       /**
        * Construct from individual Linear and Angular.
@@ -392,7 +391,7 @@ namespace gams
        * @param loc the Linear to copy position info from.
        * @param rot the Angular to copy orientation info from.
        **/
-      constexpr Pose (const Position &loc, const Orientation &rot);
+      Pose (const Position &loc, const Orientation &rot);
 
       /**
        * Copy constructor, but also transform to the new frame.

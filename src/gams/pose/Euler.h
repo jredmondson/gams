@@ -66,6 +66,10 @@ namespace gams
 {
   namespace pose
   {
+    /**
+     * Contains support for manipulating Euler angles and converting to
+     * more useful forms, such as Quaternions.
+     **/
     namespace euler
     {
       /**

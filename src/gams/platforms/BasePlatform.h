@@ -105,6 +105,85 @@ namespace gams
       PLATFORM_ARRIVED = 2
     };
 
+    /// Interface for defining a bounds checker for Positions
+    class GAMSExport PositionBounds {
+    public:
+      /// Override to return whether the current position
+      /// is within the expected bounds of target
+      virtual bool check_position(
+          const pose::Position &current,
+          const pose::Position &target) const = 0;
+
+      virtual ~PositionBounds() = default;
+    };
+
+    /// Interface for defining a bounds checker for Orientations
+    class GAMSExport OrientationBounds {
+    public:
+      /// Override to return whether the current orientation
+      /// is within the expected bounds of target
+      virtual bool check_orientation(
+          const pose::Orientation &current,
+          const pose::Orientation &target) const = 0;
+
+      virtual ~OrientationBounds() = default;
+    };
+
+    /// Interface for defining a bounds checker for Poses,
+    /// a combination of position and orientation checking.
+    class GAMSExport PoseBounds :
+      public PositionBounds, public OrientationBounds {};
+
+    /// A simple bounds checker which tests whether the
+    /// current position is within the given number of
+    /// meters of the expected position, and whether the
+    /// difference in angles is within the given number
+    /// of radians.
+    class GAMSExport Epsilon : public PoseBounds {
+    private:
+      double dist_ = 0.1, radians_ = M_PI/16;
+    public:
+      /// Use default values for position and angle tolerance.
+      Epsilon() {}
+
+      /// Use default value for angle tolerance.
+      ///
+      /// @param dist the position tolerance (in meters)
+      Epsilon(double dist)
+        : dist_(dist) {}
+
+      /// Use specified tolerances
+      ///
+      /// @param dist the position tolerance (in meters)
+      /// @param radians the angle tolerance (in radians)
+      Epsilon(double dist, double radians)
+        : dist_(dist), radians_(radians) {}
+
+      /// Use specified tolerances, with custom angle units
+      ///
+      /// @param dist the position tolerance (in meters)
+      /// @param angle the angle tolerance (in units given)
+      /// @param u an angle units object (such as pose::radians,
+      ///      pose::degrees, or pose::revolutions)
+      //
+      /// @tparam AngleUnits the units type for angle (inferred from u)
+      template<typename AngleUnits>
+      Epsilon(double dist, double angle, AngleUnits u)
+        : dist_(dist), radians_(u.to_radians(angle)) {}
+
+      bool check_position(
+          const pose::Position &current,
+          const pose::Position &target) const override {
+        return current.distance_to(target) <= dist_;
+      }
+
+      bool check_orientation(
+          const pose::Orientation &current,
+          const pose::Orientation &target) const override {
+        return fabs(current.angle_to(target)) <= radians_;
+      }
+    };
+
     /**
     * The base platform for all platforms to use
     **/
@@ -224,11 +303,48 @@ namespace gams
       /**
        * Moves the platform to a location
        * @param   location    the coordinates to move to
+       * @return the status of the move operation, @see PlatformReturnValues
+       **/
+      virtual int move (const pose::Position & target) {
+        return move (target, Epsilon());
+      }
+
+      /**
+       * Moves the platform to a location
+       * @param   location    the coordinates to move to
+       * @param   bounds      object to compute if platform has arrived
+       * @return the status of the move operation, @see PlatformReturnValues
+       **/
+      virtual int move (const pose::Position & target,
+        const PositionBounds &bounds);
+
+      /**
+       * Moves the platform to a location
+       * @param   location    the coordinates to move to
        * @param   epsilon     approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const pose::Position & location,
-        double epsilon = 0.1);
+      int move (const pose::Position & target, double epsilon) {
+        return move (target, Epsilon(epsilon));
+      }
+
+      /**
+       * Rotates the platform to match a given angle
+       * @param   target    the orientation to move to
+       * @return the status of the orient, @see PlatformReturnValues
+       **/
+      virtual int orient (const pose::Orientation & target) {
+        return orient (target, Epsilon());
+      }
+
+      /**
+       * Rotates the platform to match a given angle
+       * @param   target    the orientation to move to
+       * @param   bounds      object to compute if platform has arrived
+       * @return the status of the orient, @see PlatformReturnValues
+       **/
+      virtual int orient (const pose::Orientation & target,
+        const OrientationBounds &bounds);
 
       /**
        * Rotates the platform to match a given angle
@@ -236,8 +352,46 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int orient (const pose::Orientation & target,
-        double epsilon = M_PI/16);
+      int orient (const pose::Orientation & target, double epsilon) {
+        return orient(target, Epsilon (epsilon));
+      }
+
+      /**
+       * Moves the platform to a pose (location and orientation)
+       *
+       * This default implementation calls move and orient with the
+       * Location and Orientation portions of the target Pose. The return value
+       * is composed as follows: if either call returns ERROR (0), this call
+       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
+       * this call also returns ARRIVED (2). Otherwise, this call returns
+       * MOVING (1)
+       *
+       * Overrides might function differently.
+       *
+       * @param   target        the coordinates to move to
+       * @return the status of the operation, @see PlatformReturnValues
+       **/
+      virtual int pose (const pose::Pose & target) {
+        return pose (target, Epsilon());
+      }
+
+      /**
+       * Moves the platform to a pose (location and orientation)
+       *
+       * This default implementation calls move and orient with the
+       * Location and Orientation portions of the target Pose. The return value
+       * is composed as follows: if either call returns ERROR (0), this call
+       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
+       * this call also returns ARRIVED (2). Otherwise, this call returns
+       * MOVING (1)
+       *
+       * Overrides might function differently.
+       *
+       * @param   target        the coordinates to move to
+       * @param   bounds      object to compute if platform has arrived
+       * @return the status of the operation, @see PlatformReturnValues
+       **/
+      virtual int pose (const pose::Pose & target, const PoseBounds &bounds);
 
       /**
        * Moves the platform to a pose (location and orientation)
@@ -256,8 +410,10 @@ namespace gams
        * @param   rot_epsilon   approximation value for the orientation
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      virtual int pose (const pose::Pose & target,
-        double loc_epsilon = 0.1, double rot_epsilon = M_PI/16);
+      int pose (const pose::Pose & target,
+        double loc_epsilon, double rot_epsilon = M_PI/16) {
+        return pose(target, Epsilon(loc_epsilon, rot_epsilon));
+      }
 
       /**
        * Pauses movement, keeps source and dest at current values

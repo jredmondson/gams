@@ -14,6 +14,14 @@ lib*
 *.class
 *.log
 *.bag
+*.vcxproj
+*.vcxproj.filters
+
+gams.VC.db
+gams.sdf
+gams.sln
+gams.v12.suo
+gams.vcxproj.user
 
 resource/vrep/starting.ttt
 

@@ -56,6 +56,7 @@
 
 #include <iostream>
 #include <string>
+#include <array>
 
 #include <stdexcept>
 #include <gams/pose/Coordinate.h>
@@ -66,8 +67,6 @@ namespace gams
 {
   namespace pose
   {
-    class ReferenceFrame;
-
     /**
      * Container for Linear information, not bound to a frame.
      * Stores a 3-tuple, for x, y, and z.
@@ -91,12 +90,12 @@ namespace gams
        * @param y the y coordinate of the new Linear
        * @param z the z coordinate of the new Linear; defaults to zero
        **/
-      constexpr LinearVector (double x, double y, double z = 0.0);
+      LinearVector (double x, double y, double z = 0.0);
 
       /**
        * Default constructor. Initializes an invalid Linear (INVAL_COORD).
        **/
-      constexpr LinearVector ();
+      LinearVector ();
 
       /**
        * Constructor from C array
@@ -131,7 +130,7 @@ namespace gams
        *
        * @return true if no values in this Linear are INVAL_COORD
        **/
-      constexpr bool is_set () const;
+      bool is_set () const;
 
       /**
        * Tests if all values in this Linear are the same
@@ -139,14 +138,14 @@ namespace gams
        *
        * @param rhs the other Linear to check against
        **/
-      constexpr bool operator== (const LinearVector &rhs) const;
+      bool operator== (const LinearVector &rhs) const;
 
       /**
        * Tests if all values in this Linear are zero
        *
        * @return true of all values are zero
        **/
-      constexpr bool is_zero () const;
+      bool is_zero () const;
 
       /**
        * Returns the name of this coordinate type
@@ -160,21 +159,21 @@ namespace gams
        *
        * @return x value
        **/
-      constexpr double x () const;
+      double x () const;
 
       /**
        * Getter for y
        *
        * @return y value
        **/
-      constexpr double y () const;
+      double y () const;
 
       /**
        * Getter for z
        *
        * @return z value
        **/
-      constexpr double z () const;
+      double z () const;
 
       /**
        * Setter for x
@@ -205,25 +204,25 @@ namespace gams
        *
        * @return longitude value
        **/
-      constexpr double lng () const;
-      constexpr double lon () const;
-      constexpr double longitude () const;
+      double lng () const;
+      double lon () const;
+      double longitude () const;
 
       /**
        * Getter for latitude, a synonym for y
        *
        * @return latitude value
        **/
-      constexpr double lat () const;
-      constexpr double latitude () const;
+      double lat () const;
+      double latitude () const;
 
       /**
        * Getter for altitude, a synonym for z
        *
        * @return altitude value
        **/
-      constexpr double alt () const;
-      constexpr double altitude () const;
+      double alt () const;
+      double altitude () const;
 
       /**
        * Setter for longitude, a synonym for x
@@ -258,28 +257,28 @@ namespace gams
        *
        * @return rho value
        **/
-      constexpr double rho () const;
+      double rho () const;
 
       /**
        * Getter for theta, a synonym for x for Spherical systems
        *
        * @return theta value
        **/
-      constexpr double theta () const;
+      double theta () const;
 
       /**
        * Getter for phi, a synonym for y for Cylindrical and Spherical systems
        *
        * @return phi value
        **/
-      constexpr double phi () const;
+      double phi () const;
 
       /**
        * Getter for r, a synonym for z for Cylindrical and Spherical systems
        *
        * @return r value
        **/
-      constexpr double r () const;
+      double r () const;
 
       /**
        * Setter for rho, a synonym for x for Cylindrical systems
@@ -321,7 +320,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr double northing () const;
+      double northing () const;
 
       /**
        * Gets the UTM easting for this position.
@@ -329,7 +328,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr double easting () const;
+      double easting () const;
 
       /**
        * Gets the UTM zone (longitudinal) for this position: 0 if USP (near
@@ -338,7 +337,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr int zone () const;
+      int zone () const;
 
       /**
        * Gets the UTM hemisphere for this position. True if northern.
@@ -346,7 +345,7 @@ namespace gams
        *
        * Defined in UTMFrame.inl
        **/
-      constexpr bool hemi () const;
+      bool hemi () const;
 
       /**
        * Set UTM northing and hemisphere (true is northern) simultaneously
@@ -420,7 +419,7 @@ namespace gams
        *
        * @return the integer 3
        **/
-      constexpr static int size ();
+      static int size ();
 
       /**
        * Retrives i'th coordinate, 0-indexed, in order x, y, z
@@ -428,7 +427,7 @@ namespace gams
        * @param i the index
        * @return the i'th value
        **/
-      constexpr double get (int i) const;
+      double get (size_t i) const;
 
       /**
        * Sets i'th coordinate, 0-indexed, in order x, y, z
@@ -436,7 +435,7 @@ namespace gams
        * @param i the index to set
        * @param val the value to set to
        **/
-      double set (int i, double val);
+      double set (size_t i, double val);
 
       typedef LinearVector BaseType;
 
@@ -454,20 +453,16 @@ namespace gams
        *
        * @return const reference to this as BaseType
        **/
-      constexpr const BaseType &as_vec () const;
+      const BaseType &as_vec () const;
 
       friend class Quaternion;
 
-      friend class ReferenceFrame;
-
-    private:
-      double x_, y_, z_;
+      std::array<double, 3> v_;
     };
 
     /**
-     * Represents a Linear within a reference frame.
-     * This position always has x, y, and z coordinates, but interpretation
-     * of those coordinates can vary according to the reference frame.
+     * Base class for Position, Velocity, and Acceleration.
+     * Do not use this directly. Use the above child classes.
      *
      * Provides accessor methods to support non-cartesian coordinate systems:
      *
@@ -500,13 +495,12 @@ namespace gams
       /**
        * Primary constructor
        *
-       * @param frame the reference frame to bind to. This object must not
-       *    outlive this ReferenceFrame object.
+       * @param frame the ReferenceFrame to bind to.
        * @param x the x coordinate of the new Linear
        * @param y the y coordinate of the new Linear
        * @param z the z coordinate of the new Linear; defaults to zero
        **/
-      constexpr Linear (const ReferenceFrame &frame,
+      Linear (ReferenceFrame frame,
                          double x, double y, double z = 0.0);
 
       /**
@@ -517,18 +511,12 @@ namespace gams
       explicit Linear (const double array[]);
 
       /**
-      * Copy constructor
-      * @param rhs the source of the copy
-      **/
-      Linear (const Linear & rhs);
-
-      /**
        * Constructor from C array, into specified ReferenceFrame
        * @param frame the frame to belong to
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit Linear (const ReferenceFrame &frame, const double array[]);
+      explicit Linear (ReferenceFrame frame, const double array[]);
 
       /**
        * Constructor from C array, into default ReferenceFrame
@@ -543,7 +531,7 @@ namespace gams
        * @param array the array to get values from (index 0, 1, 2 go to x, y, z)
        *              if array's size is less than 3, behavior is undefined
        **/
-      explicit Linear (const ReferenceFrame &frame, const float array[]);
+      explicit Linear (ReferenceFrame frame, const float array[]);
 
       /**
        * Constructor from MADARA DoubleVector, into default ReferenceFrame
@@ -557,7 +545,7 @@ namespace gams
        * @param frame the frame to belong to
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      Linear (const ReferenceFrame &frame,
+      Linear (ReferenceFrame frame,
                const madara::knowledge::containers::DoubleVector &vec);
 
       /**
@@ -574,7 +562,7 @@ namespace gams
        * @param frame the frame to belong to
        * @param vec the vector to get values from (index 0, 1, 2 go to x, y, z)
        **/
-      Linear (const ReferenceFrame &frame,
+      Linear (ReferenceFrame frame,
          const madara::knowledge::containers::NativeDoubleVector &vec);
 
       /**
@@ -587,7 +575,7 @@ namespace gams
        *
        * @param frame the frame to belong to
        **/
-      Linear (const ReferenceFrame &frame);
+      Linear (ReferenceFrame frame);
 
       /**
        * Copy constructor, but transform into the new frame as well.
@@ -595,7 +583,7 @@ namespace gams
        * @param new_frame the new frame to transform to
        * @param orig    the origin position to use as a reference point
        **/
-      Linear (const ReferenceFrame &new_frame, const C &orig);
+      Linear (ReferenceFrame new_frame, const C &orig);
 
       /**
       * Returns a string of the values x, y, z

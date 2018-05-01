@@ -283,7 +283,7 @@ gams::pose::SearchArea::get_convex_hull () const
     " building lower hull.\n");
 
   // build lower hull
-  for (int i = 0; i < positions.size (); ++i)
+  for (int i = 0; i < (int)positions.size (); ++i)
   {
     while (k >= 2 && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
       k--;
@@ -302,7 +302,7 @@ gams::pose::SearchArea::get_convex_hull () const
     for (int i = (int)positions.size () - 2, t = (int)k + 1;
          i >= 0; i--)
     {
-      while (k >= t && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
+      while ((int)k >= t && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
         k--;
 
       hull[k++] = positions[i];

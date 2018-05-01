@@ -5,21 +5,7 @@ project (gams) : using_madara, using_ace, using_utm, vrep_lib, ros_lib, port/jav
   dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
 
   verbatim (gnuace, local) {
-    CPPFLAGS += -w
-  }
-
-  verbatim (gnuace, bottom) {
-    DEPFILES=$(patsubst %.cpp,%.d,$(filter %.cpp,$(FILES)))
-
-    %.d : %.cpp
-    "	$(CXX) $(CPPFLAGS) -MM -MG -MT .shobj/$(@:.d=.o) -o $@ $<"
-
-    cleandep :
-    "	rm -f $(DEPFILES)"
-
-    clean : cleandep
-
-    -include $(DEPFILES)
+    CPPFLAGS +=
   }
 
   Documentation_Files {

@@ -197,7 +197,7 @@ gams::pose::Region::distance (const Position& p) const
 
   // convert to cartesian coords with equirectangular projection
   const Position sw (pose::gps_frame(), min_lon_, min_lat_);
-  CartesianFrame local_frame(sw);
+  ReferenceFrame local_frame(sw);
 
   vector<Position> local_vertices;
   for (size_t i = 0; i < vertices.size (); ++i)
@@ -269,7 +269,7 @@ gams::pose::Region::get_area () const
 
   // convert to cartesian coords with equirectangular projection
   const Position sw (pose::gps_frame(), min_lon_, min_lat_);
-  CartesianFrame local_frame(sw);
+  ReferenceFrame local_frame(sw);
   vector<Position> cart_vertices;
   for (unsigned int i = 0; i < vertices.size(); ++i)
   {

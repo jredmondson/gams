@@ -139,7 +139,7 @@ gams::platforms::NullPlatform::land (void)
 
 int
 gams::platforms::NullPlatform::move (const pose::Position & /*position*/,
-  const double & /*epsilon*/)
+  const PositionBounds & /*bounds*/)
 {
   return 0;
 }

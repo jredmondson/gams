@@ -138,7 +138,7 @@ namespace gams
 
       public:
         my_iterator(const my_iterator &o)
-          : dummy_(0), parent_(o.parent_), it_k_(o.it_k_), it_v_(it_v_),
+          : dummy_(0), parent_(o.parent_), it_k_(o.it_k_), it_v_(o.it_v_),
             cache_valid_(0) {}
 
         my_iterator &operator=(const my_iterator &o)
