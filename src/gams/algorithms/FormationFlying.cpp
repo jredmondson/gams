@@ -553,7 +553,7 @@ gams::algorithms::FormationFlying::plan (void)
         double angle = phi_ + phi_dir_;
         pose::Position ref_location (platform_->get_frame());
         ref_location.from_container (head_location_);
-        pose::CartesianFrame local (ref_location);
+        pose::ReferenceFrame local (ref_location);
         pose::Position offset (local, rho_ * cos (angle), rho_ * sin (angle), z_);
 
         // hold position until everybody is ready
@@ -581,13 +581,13 @@ gams::algorithms::FormationFlying::plan (void)
               dist * cos (phi_dir_), dist * sin (phi_dir_));
             pose::Position predicted =
               direction.transform_to (platform_->get_frame());
-            pose::CartesianFrame pred_local (predicted);
+            pose::ReferenceFrame pred_local (predicted);
             offset.frame (pred_local);
             next_position_ = offset.transform_to (platform_->get_frame());
           }
           else // close enough, just go to final location
           {
-            pose::CartesianFrame dest_local (get_destination());
+            pose::ReferenceFrame dest_local (get_destination());
             offset.frame (dest_local);
             next_position_ = offset.transform_to (platform_->get_frame());
           }

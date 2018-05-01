@@ -110,14 +110,6 @@ namespace gams
     }
 
     /**
-     * For internal use.
-     *
-     * Allows all specializations of Coordinate to share the same default frame.
-     * This type serves no other purpose.
-     **/
-    using CoordinateBase = gams::pose::CoordinateBase;
-
-    /**
      * New coordinate types which are frame-dependant can inherit from this
      * class. Pass the type of the child class as CoordType
      *
@@ -129,11 +121,11 @@ namespace gams
      *      -- Implement operator==
      *      -- Implement the following methods:
      *   static std::string name() // return the type's name
-     *   static constexpr int size() // return # of values in representation
-     *   constexpr double get(int i) const // return ith value of representation
-     *   constexpr bool operator==(const BaseType &rhs) const
+     *   static int size() // return # of values in representation
+     *   double get(int i) const // return ith value of representation
+     *   bool operator==(const BaseType &rhs) const
      *   BaseType &as_vec() // return *this
-     *   constexpr const BaseType &as_vec() const // return *this
+     *   const BaseType &as_vec() const // return *this
      *
      * Additionally, new coordinate types should either:
      *   -- Specialize the ReferenceFrame::*_within_frame templates; OR

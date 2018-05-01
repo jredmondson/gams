@@ -92,7 +92,7 @@ namespace gams
        **/
       Position(const Position & source);
 
-      constexpr Position (const pose::Position & pos)
+      Position (const pose::Position & pos)
         : x(pos.x()), y(pos.y()), z(pos.z()) {}
 
       pose::Position to_pos (const pose::ReferenceFrame &frame) const {

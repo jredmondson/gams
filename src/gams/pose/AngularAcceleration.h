@@ -90,28 +90,7 @@ namespace gams
       using Angular::Angular;
     };
 
-    template<>
-    inline void ReferenceFrame::transform_to_origin<>(AngularAcceleration &in)
-    {
-      in.frame().transform_angular_to_origin(in.rx_, in.ry_, in.rz_);
-    }
-    template<>
-    inline void ReferenceFrame::transform_from_origin<>(
-        AngularAcceleration &in, const ReferenceFrame &to_frame)
-    {
-      to_frame.transform_angular_from_origin(in.rx_, in.ry_, in.rz_);
-    }
-
-    template<>
-    inline double ReferenceFrame::calc_difference<>(
-        const AngularAcceleration &rot1, const AngularAcceleration &rot2)
-    {
-      return rot1.frame().calc_angle(rot1.rx_, rot1.ry_, rot1.rz_,
-                                     rot2.rx_, rot2.ry_, rot2.rz_);
-    }
-
-    template<>
-    inline void ReferenceFrame::normalize<>(AngularAcceleration &rot) {}
+    inline void normalize(AngularAcceleration &/*rot*/) {}
   }
 }
 

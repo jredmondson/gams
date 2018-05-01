@@ -62,41 +62,41 @@ namespace gams
 {
   namespace pose
   {
-    inline constexpr AngularVector::AngularVector(
+    inline AngularVector::AngularVector(
             double rx, double ry, double rz)
-      : rx_(rx), ry_(ry), rz_(rz) {}
+      : rv_{rx, ry, rz} {}
 
-    inline constexpr AngularVector::AngularVector(
+    inline AngularVector::AngularVector(
             double x, double y, double z, double angle)
-      : rx_(x * DEG_TO_RAD(angle)),
-        ry_(y * DEG_TO_RAD(angle)),
-        rz_(z * DEG_TO_RAD(angle)) {}
+      : rv_{x * DEG_TO_RAD(angle),
+            y * DEG_TO_RAD(angle),
+            z * DEG_TO_RAD(angle)} {}
 
     inline AngularVector::AngularVector(
         const madara::knowledge::containers::DoubleVector &vec)
-      : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
+      : rv_{vec[0], vec[1], vec[2]} {}
 
     inline AngularVector::AngularVector(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : rx_(vec[0]), ry_(vec[1]), rz_(vec[2]) {}
+      : rv_{vec[0], vec[1], vec[2]} {}
 
-    inline constexpr AngularVector::AngularVector()
-      : rx_(0), ry_(0), rz_(0) {}
+    inline AngularVector::AngularVector()
+      : rv_{0, 0, 0} {}
 
-    inline constexpr bool AngularVector::is_set () const
+    inline bool AngularVector::is_set () const
     {
-      return rx_ != INVAL_COORD || ry_ != INVAL_COORD || rz_ != INVAL_COORD;
+      return rx() != INVAL_COORD || ry() != INVAL_COORD || rz() != INVAL_COORD;
     }
 
-    inline constexpr bool AngularVector::is_zero() const
+    inline bool AngularVector::is_zero() const
     {
-      return rx_ == 0 && ry_ == 0 && rz_ == 0;
+      return rx() == 0 && ry() == 0 && rz() == 0;
     }
 
-    inline constexpr bool AngularVector::operator==(
+    inline bool AngularVector::operator==(
             const AngularVector &other) const
     {
-      return rx_ == other.rx_ && ry_ == other.ry_ && rz_ == other.rz_;
+      return rx() == other.rx() && ry() == other.ry() && rz() == other.rz();
     }
 
     inline std::string AngularVector::name()
@@ -104,46 +104,43 @@ namespace gams
       return "Angular";
     }
 
-    inline constexpr double AngularVector::rx() const { return rx_; }
-    inline constexpr double AngularVector::ry() const { return ry_; }
-    inline constexpr double AngularVector::rz() const { return rz_; }
+    inline double AngularVector::rx() const { return rv_[0]; }
+    inline double AngularVector::ry() const { return rv_[1]; }
+    inline double AngularVector::rz() const { return rv_[2]; }
 
-    inline double AngularVector::rx(double new_rx) { return rx_ = new_rx; }
-    inline double AngularVector::ry(double new_ry) { return ry_ = new_ry; }
-    inline double AngularVector::rz(double new_rz) { return rz_ = new_rz; }
+    inline double AngularVector::rx(double in) { return rv_[0] = in; }
+    inline double AngularVector::ry(double in) { return rv_[1] = in; }
+    inline double AngularVector::rz(double in) { return rv_[2] = in; }
 
     inline AngularVector &AngularVector::as_vec()
     {
       return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const AngularVector &AngularVector::as_vec() const
+    inline const AngularVector &AngularVector::as_vec() const
     {
       return static_cast<const BaseType &>(*this);
     }
 
-    inline constexpr int AngularVector::size() const
+    inline int AngularVector::size() const
     {
       return 3;
     }
 
-    inline constexpr double AngularVector::get(int i) const
+    inline double AngularVector::get(size_t i) const
     {
-      return i == 0 ? rx() :
-             i == 1 ? ry() :
-             i == 2 ? rz() :
-            throw std::range_error("Index out of bounds for Angular");
+      if (i >= rv_.size()) {
+       throw std::range_error("Index out of bounds for Linear");
+      }
+      return rv_[i];
     }
 
-    inline double AngularVector::set(int i, double val)
+    inline double AngularVector::set(size_t i, double val)
     {
-      if(i == 0)
-        return rx(val);
-      else if(i == 1)
-        return ry(val);
-      else if(i == 2)
-        return rz(val);
-      throw std::range_error("Index out of bounds for Angular");
+      if (i >= rv_.size()) {
+       throw std::range_error("Index out of bounds for Linear");
+      }
+      return rv_[i] = val;
     }
 
     inline std::ostream &operator<<(std::ostream &o, const AngularVector &rot)
@@ -186,8 +183,8 @@ namespace gams
         Coordinate<C>() {}
 
     template<class C>
-    inline constexpr Angular<C>::Angular(
-            const ReferenceFrame &frame, double rx, double ry, double rz)
+    inline Angular<C>::Angular(
+            ReferenceFrame frame, double rx, double ry, double rz)
       : AngularVector(rx, ry, rz),
         Coordinate<C>(frame) {}
 
@@ -196,8 +193,8 @@ namespace gams
       : AngularVector(x, y, z, angle), Coordinate<C>() {}
 
     template<class C>
-    inline constexpr Angular<C>::Angular(
-       const ReferenceFrame &frame, double x, double y, double z, double angle)
+    inline Angular<C>::Angular(
+       ReferenceFrame frame, double x, double y, double z, double angle)
       : AngularVector(x, y, z, angle), Coordinate<C>(frame) {}
 
     template<class C>
@@ -208,8 +205,8 @@ namespace gams
 
     template<class C>
     template<typename U>
-    inline constexpr Angular<C>::Angular(
-            const ReferenceFrame &frame, double rx, double ry, double rz, U u)
+    inline Angular<C>::Angular(
+            ReferenceFrame frame, double rx, double ry, double rz, U u)
       : AngularVector(u.to_radians(rx), u.to_radians(ry), u.to_radians(rz)),
         Coordinate<C>(frame) {}
 
@@ -220,8 +217,8 @@ namespace gams
 
     template<class C>
     template<typename U>
-    inline constexpr Angular<C>::Angular(
-       const ReferenceFrame &frame, double x, double y, double z,
+    inline Angular<C>::Angular(
+       ReferenceFrame frame, double x, double y, double z,
                                     double angle, U u)
       : AngularVector(x, y, z, u.to_radians(angle)), Coordinate<C>(frame) {}
 
@@ -234,12 +231,12 @@ namespace gams
 
     template<class C>
     inline Angular<C>::Angular(
-          const ReferenceFrame &frame, const Quaternion &quat)
+          ReferenceFrame frame, const Quaternion &quat)
       : AngularVector(quat), Coordinate<C>(frame) {}
 
     template<class C>
     inline Angular<C>::Angular(
-                const ReferenceFrame &new_frame, const C &orig)
+                ReferenceFrame new_frame, const C &orig)
       : AngularVector(orig), Coordinate<C>(orig.frame())
     {
       this->transform_this_to(new_frame);
@@ -251,7 +248,7 @@ namespace gams
       : AngularVector(vec), Coordinate<C>() {}
 
     template<class C>
-    inline Angular<C>::Angular(const ReferenceFrame &frame,
+    inline Angular<C>::Angular(ReferenceFrame frame,
         const madara::knowledge::containers::DoubleVector &vec)
       : AngularVector(vec), Coordinate<C>(frame) {}
 
@@ -262,14 +259,14 @@ namespace gams
 
     template<class C>
     inline Angular<C>::Angular(
-        const ReferenceFrame &frame,
+        ReferenceFrame frame,
         const madara::knowledge::containers::NativeDoubleVector &vec)
       : AngularVector(vec), Coordinate<C>(frame) {}
 
     template<class C>
     inline double Angular<C>::angle_to(const C &target) const
     {
-      return distance_to(target);
+      return this->distance_to(target);
     }
 
     template<class C>
@@ -283,37 +280,18 @@ namespace gams
     void Angular<C>::to_container (
       madara::knowledge::containers::NativeDoubleVector &container) const
     {
-      if (this->frame ().name () == "GPS")
-      {
-        container.set (0, get (order::GPS::find (0)));
-        container.set (1, get (order::GPS::find (1)));
-        container.set (2, get (order::GPS::find (2)));
-      }
-      else
-      {
-        container.set (0, get (order::XYZ::find (0)));
-        container.set (1, get (order::XYZ::find (1)));
-        container.set (2, get (order::XYZ::find (2)));
-      }
+      container.set (0, get (0));
+      container.set (1, get (1));
+      container.set (2, get (2));
     }
-
 
     template<class C>
     void Angular<C>::from_container (
       const madara::knowledge::containers::NativeDoubleVector &container)
     {
-      if (this->frame ().name () == "GPS")
-      {
-        set (0, container[order::GPS::get (0)]);
-        set (1, container[order::GPS::get (1)]);
-        set (2, container[order::GPS::get (2)]);
-      }
-      else
-      {
-        set (0, container[order::XYZ::get (0)]);
-        set (1, container[order::XYZ::get (1)]);
-        set (2, container[order::XYZ::get (2)]);
-      }
+      set (0, container[0]);
+      set (1, container[1]);
+      set (2, container[2]);
     }
   }
 }

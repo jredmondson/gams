@@ -55,49 +55,14 @@
 #define _GAMS_POSE_GPS_FRAME_INL_
 
 #include "ReferenceFrame.h"
-
 #include "GPSFrame.h"
 
 namespace gams
 {
   namespace pose
   {
-    inline GPSFrame::GPSFrame(double planet_radius)
-      : SimpleRotateFrame(), planet_radius_(planet_radius) {}
-
-    inline GPSFrame::GPSFrame(
-          const Pose &origin,
-          double planet_radius)
-      : SimpleRotateFrame(origin), planet_radius_(planet_radius) {}
-
-    inline GPSFrame::GPSFrame(
-          Pose *origin,
-          double planet_radius)
-      : SimpleRotateFrame(origin), planet_radius_(planet_radius) {}
-
-    inline double GPSFrame::radius() const
+    namespace gps
     {
-      return planet_radius_;
-    }
-
-    inline double GPSFrame::circ() const
-    {
-      return 2 * planet_radius_ * M_PI;
-    }
-
-    inline double GPSFrame::radius(double new_radius)
-    {
-      return planet_radius_ = new_radius;
-    }
-
-    inline double GPSFrame::circ(double new_circ)
-    {
-      return planet_radius_ = new_circ / (2 * M_PI);
-    }
-
-    inline std::string GPSFrame::get_name() const
-    {
-      return "GPS";
     }
   }
 }

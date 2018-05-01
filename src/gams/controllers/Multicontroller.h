@@ -92,7 +92,7 @@ namespace gams
       /**
        * Destructor
        **/
-      ~Multicontroller ();
+      virtual ~Multicontroller ();
 
       /**
       * Defines the monitor function (the M of MAPE). This function should

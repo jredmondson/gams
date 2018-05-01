@@ -105,7 +105,7 @@ namespace gams
 
     inline void Quaternion::to_linear_vector(LinearVector &loc) const
     {
-      to_linear_vector(loc.x_, loc.y_, loc.z_);
+      to_linear_vector(loc.v_[0], loc.v_[1], loc.v_[2]);
     }
 
     inline void Quaternion::from_angular_vector(
@@ -131,7 +131,7 @@ namespace gams
 
     inline void Quaternion::from_angular_vector(const AngularVector &rot)
     {
-      from_angular_vector(rot.rx(), rot.ry(), rot.rz());
+      from_angular_vector(rot.rv_[0], rot.rv_[1], rot.rv_[2]);
     }
 
     inline void Quaternion::to_angular_vector(
@@ -154,7 +154,7 @@ namespace gams
 
     inline void Quaternion::to_angular_vector(AngularVector &rot) const
     {
-      to_angular_vector(rot.rx_, rot.ry_, rot.rz_);
+      to_angular_vector(rot.rv_[0], rot.rv_[1], rot.rv_[2]);
     }
 
     inline void Quaternion::hamilton_product(
@@ -408,7 +408,7 @@ namespace gams
 
     inline AngularVector::AngularVector(const Quaternion &quat)
     {
-      quat.to_angular_vector(rx_, ry_, rz_);
+      quat.to_angular_vector(rv_[0], rv_[1], rv_[2]);
     }
 
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)

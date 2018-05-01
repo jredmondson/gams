@@ -157,8 +157,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const pose::Position & location,
-        double epsilon = 0.1);
+      int move (const pose::Position & location,
+        const PositionBounds &bounds) override;
 
       /**
        * Rotates the platform to a specified Orientation
@@ -166,8 +166,8 @@ namespace gams
        * @param   epsilon   approximation value, in radians
        * @return the status of the orient operation, @see PlatformReturnValues
        **/
-      virtual int orient (const pose::Orientation & location,
-        double epsilon = M_PI/32);
+      int orient (const pose::Orientation & location,
+        const OrientationBounds &bounds) override;
 
       /**
        * Set move speed
@@ -252,9 +252,9 @@ namespace gams
       pose::Pose sw_pose_;
 
       /**
-       * CartesianFrame representing vrep coordinate system.
+       * Cartesian frame representing vrep coordinate system.
        **/
-      pose::CartesianFrame vrep_frame_;
+      pose::ReferenceFrame vrep_frame_;
 
       madara::knowledge::containers::Double thread_rate_;
 

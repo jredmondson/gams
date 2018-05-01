@@ -105,27 +105,27 @@ namespace gams
         Trig trig(Conv::reverse ? c_ : a_, b_, Conv::reverse ? a_ : c_);
         return Quaternion(F::quat_x(trig), F::quat_y(trig),
                           F::quat_z(trig), F::quat_w(trig));
-      };
+      }
 
       template<typename A, typename B, typename C, typename Conv>
       inline Orientation Euler<A,B,C,Conv>::to_orientation() const
       {
         return Orientation(to_quat());
-      };
+      }
 
       template<typename A, typename B, typename C, typename Conv>
       inline Orientation Euler<A,B,C,Conv>::to_orientation(
         const ReferenceFrame &frame) const
       {
         return Orientation(frame, to_quat());
-      };
+      }
 
       template<typename A, typename B, typename C, typename Conv>
       inline Euler<A,B,C,Conv>
       Euler<A,B,C,Conv>::from_quat(const Quaternion &quat)
       {
         return Euler(quat);
-      };
+      }
 
       template<typename A, typename B, typename C, typename Conv>
       inline std::ostream &

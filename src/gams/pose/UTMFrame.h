@@ -62,7 +62,7 @@ namespace gams
 {
   namespace pose
   {
-
+#if 0
     /**
      * A reference frame type  which handles UTM (between 84/-84 latitude)
      * and UPS coordinates (otherwise). All math is provided by GeographicLib
@@ -287,5 +287,6 @@ namespace gams
 
 #include "UTMFrame.inl"
 
+#endif
 #endif
 #endif

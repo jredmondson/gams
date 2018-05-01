@@ -120,7 +120,7 @@ namespace gams
        * @param name   new name of the region
        */
       void set_name (const std::string& name);
-      
+
       /**
        * Determines if GPSPosition is in region
        * @param   position   point to check if in region

@@ -179,7 +179,7 @@ gams::platforms::VREPBase::get_sw_pose(const pose::ReferenceFrame &frame)
 
 gams::platforms::VREPBase::~VREPBase ()
 {
-  simxInt retVal;
+  simxInt retVal = -1;
   simxInt childId = 0;
 
   if(mover_ != NULL)
@@ -347,41 +347,6 @@ gams::platforms::VREPBase::land (void)
 
   return 0;
 }
-
-#if 0
-int
-gams::platforms::VREPBase::move (const utility::Position & position,
-  const double & epsilon)
-{
-  if (get_ready ())
-  {
-    const utility::GPSPosition *gps_pos =
-      dynamic_cast<const utility::GPSPosition *>(&position);
-
-    if (gps_pos != NULL)
-    {
-      return move (pose::Position (pose::gps_frame(),
-        gps_pos->longitude (), gps_pos->latitude (), gps_pos->altitude ()),
-        epsilon);
-    }
-    else
-    {
-      return move (pose::Position (get_vrep_frame (),
-        position.x, position.y, position.z),
-        epsilon);
-    }
-  }
-  else
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::platforms::VREPBase::move:" \
-      " Unable to move. Waiting on vrep_ready and begin_sim\n");
-  }
-
-  return 0;
-}
-#endif
 
 int
 gams::platforms::VREPBase::do_move (const pose::Position & target,
@@ -557,7 +522,7 @@ gams::platforms::VREPBase::do_orient (pose::Orientation target,
 
 int
 gams::platforms::VREPBase::move (const pose::Position & target,
-  double epsilon)
+        const PositionBounds &bounds)
 {
   if (get_ready ())
   {
@@ -614,7 +579,7 @@ gams::platforms::VREPBase::move (const pose::Position & target,
 
     pose::Position vrep_node_loc(get_vrep_frame (), curr_arr);
     // return code
-    if (vrep_node_loc.distance_to (vrep_target) < epsilon)
+    if (bounds.check_position(vrep_node_loc, vrep_target))
       return 2;
   }
   else
@@ -630,7 +595,7 @@ gams::platforms::VREPBase::move (const pose::Position & target,
 
 int
 gams::platforms::VREPBase::orient (const pose::Orientation & target,
-  double epsilon)
+        const OrientationBounds &bounds)
 {
   if (get_ready ())
   {
@@ -672,7 +637,7 @@ gams::platforms::VREPBase::orient (const pose::Orientation & target,
       euler_node_curr.to_orientation (get_vrep_frame ()));
 
     // return code
-    if (vrep_node_rot.distance_to (vrep_target) < epsilon)
+    if (bounds.check_orientation(vrep_node_rot, vrep_target))
       return 2;
   }
   else

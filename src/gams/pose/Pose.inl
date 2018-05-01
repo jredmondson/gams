@@ -62,25 +62,25 @@ namespace gams
 {
   namespace pose
   {
-    inline constexpr PoseVector::PoseVector(double x, double y, double z,
+    inline PoseVector::PoseVector(double x, double y, double z,
                                               double rx, double ry, double rz)
       : LinearVector(x, y, z), AngularVector(rx, ry, rz) {}
 
-    inline constexpr PoseVector::PoseVector(const LinearVector &loc)
+    inline PoseVector::PoseVector(const LinearVector &loc)
       : LinearVector (loc), AngularVector (0, 0, 0)
     {
     }
 
-    inline constexpr PoseVector::PoseVector(const AngularVector &rot)
+    inline PoseVector::PoseVector(const AngularVector &rot)
       : LinearVector (0, 0, 0), AngularVector (rot)
     {
     }
 
-    inline constexpr PoseVector::PoseVector(const LinearVector &loc,
+    inline PoseVector::PoseVector(const LinearVector &loc,
                                             const AngularVector &rot)
       : LinearVector(loc), AngularVector(rot) {}
 
-    inline constexpr PoseVector::PoseVector()
+    inline PoseVector::PoseVector()
       : LinearVector(), AngularVector() {}
 
     inline PoseVector::PoseVector(
@@ -108,47 +108,47 @@ namespace gams
       : LinearVector(vec_loc),
         AngularVector(vec_rot) {}
 
-    inline constexpr bool PoseVector::is_set() const
+    inline bool PoseVector::is_set() const
     {
       return LinearVector::is_set() || AngularVector::is_set();
     }
 
-    inline constexpr bool PoseVector::is_position_set () const
+    inline bool PoseVector::is_position_set () const
     {
       return LinearVector::is_set ();
     }
 
-    inline constexpr bool PoseVector::is_location_set () const
+    inline bool PoseVector::is_location_set () const
     {
       return is_position_set ();
     }
 
-    inline constexpr bool PoseVector::is_orientation_set () const
+    inline bool PoseVector::is_orientation_set () const
     {
       return AngularVector::is_set ();
     }
 
-    inline constexpr bool PoseVector::is_position_zero() const
+    inline bool PoseVector::is_position_zero() const
     {
       return as_position_vec().is_zero();
     }
 
-    inline constexpr bool PoseVector::is_location_zero() const
+    inline bool PoseVector::is_location_zero() const
     {
       return is_position_zero ();
     }
 
-    inline constexpr bool PoseVector::is_orientation_zero() const
+    inline bool PoseVector::is_orientation_zero() const
     {
       return as_orientation_vec().is_zero();
     }
 
-    inline constexpr bool PoseVector::is_zero() const
+    inline bool PoseVector::is_zero() const
     {
       return is_position_zero() && is_orientation_zero();
     }
 
-    inline constexpr bool PoseVector::operator==(
+    inline bool PoseVector::operator==(
                                 const PoseVector &other) const
     {
       return as_position_vec() == other.as_position_vec() &&
@@ -160,12 +160,12 @@ namespace gams
       return "Pose";
     }
 
-    inline constexpr int PoseVector::size() const
+    inline int PoseVector::size() const
     {
       return as_position_vec().size() + as_orientation_vec().size();
     }
 
-    inline constexpr double PoseVector::get(int i) const
+    inline double PoseVector::get(int i) const
     {
       return i <= 2 ? as_position_vec().get(i) :
                       as_orientation_vec().get(i - 3);
@@ -184,7 +184,7 @@ namespace gams
       return static_cast<BaseType &>(*this);
     }
 
-    inline constexpr const PoseVector &PoseVector::as_vec() const
+    inline const PoseVector &PoseVector::as_vec() const
     {
       return static_cast<const BaseType &>(*this);
     }
@@ -194,7 +194,7 @@ namespace gams
       return static_cast<LinearVector &>(*this);
     }
 
-    inline constexpr const LinearVector &PoseVector::as_position_vec() const
+    inline const LinearVector &PoseVector::as_position_vec() const
     {
       return static_cast<const LinearVector &>(*this);
     }
@@ -204,7 +204,7 @@ namespace gams
       return as_position_vec ();
     }
 
-    inline constexpr const LinearVector &PoseVector::as_location_vec() const
+    inline const LinearVector &PoseVector::as_location_vec() const
     {
       return as_position_vec ();
     }
@@ -214,7 +214,7 @@ namespace gams
       return static_cast<AngularVector &>(*this);
     }
 
-    inline constexpr const AngularVector &PoseVector::as_orientation_vec() const
+    inline const AngularVector &PoseVector::as_orientation_vec() const
     {
       return static_cast<const AngularVector &>(*this);
     }
@@ -233,31 +233,31 @@ namespace gams
     inline Pose::Pose(double x, double y, double z)
       : PoseVector(x, y, z, 0, 0, 0), Coordinate() {}
 
-    inline constexpr Pose::Pose(const ReferenceFrame &frame,
+    inline Pose::Pose(const ReferenceFrame &frame,
                                 double x, double y, double z,
                                 double rx, double ry, double rz)
       : PoseVector(x, y, z, rx, ry, rz), Coordinate(frame) {}
 
-    inline constexpr Pose::Pose(const ReferenceFrame &frame,
+    inline Pose::Pose(const ReferenceFrame &frame,
                                 double x, double y, double z)
       : PoseVector(x, y, z, 0, 0, 0), Coordinate(frame) {}
 
     inline Pose::Pose() : PoseVector(), Coordinate() {}
 
-    inline constexpr Pose::Pose(const Position &loc)
+    inline Pose::Pose(const Position &loc)
       : PoseVector(loc), Coordinate(loc.frame()) {}
 
-    inline constexpr Pose::Pose(const Orientation &rot)
+    inline Pose::Pose(const Orientation &rot)
       : PoseVector(rot), Coordinate(rot.frame()) {}
 
     inline Pose::Pose(const LinearVector &loc, const AngularVector &rot)
       : PoseVector(loc, rot), Coordinate() {}
 
-    inline constexpr Pose::Pose(const ReferenceFrame &frame,
+    inline Pose::Pose(const ReferenceFrame &frame,
                       const LinearVector &loc, const AngularVector &rot)
       : PoseVector(loc, rot), Coordinate(frame) {}
 
-    inline constexpr Pose::Pose(const Position &loc, const Orientation &rot)
+    inline Pose::Pose(const Position &loc, const Orientation &rot)
       : PoseVector(loc, rot), Coordinate(loc.frame()) {}
 
     inline Pose::Pose(const ReferenceFrame &new_frame, const Pose &orig)
@@ -356,8 +356,6 @@ namespace gams
 
       return buffer.str ();
     }
-
-
   }
 }
 
