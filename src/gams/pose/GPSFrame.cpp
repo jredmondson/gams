@@ -61,9 +61,9 @@ namespace gams
       void transform_linear_to_origin(
                       const ReferenceFrameType *origin,
                       const ReferenceFrameType *self,
-                      double ox, double oy, double oz,
-                      double orx, double ory, double orz,
-                      double &x, double &y, double &z)
+                      double /*ox*/, double /*oy*/, double /*oz*/,
+                      double /*orx*/, double /*ory*/, double /*orz*/,
+                      double &/*x*/, double &/*y*/, double &/*z*/)
       {
         throw undefined_transform(self, origin, true);
       }
@@ -71,9 +71,9 @@ namespace gams
       void transform_linear_from_origin(
                       const ReferenceFrameType *origin,
                       const ReferenceFrameType *self,
-                      double ox, double oy, double oz,
-                      double orx, double ory, double orz,
-                      double &x, double &y, double &z)
+                      double /*ox*/, double /*oy*/, double /*oz*/,
+                      double /*orx*/, double /*ory*/, double /*orz*/,
+                      double &/*x*/, double &/*y*/, double &/*z*/)
       {
         throw undefined_transform(self, origin, false);
       }

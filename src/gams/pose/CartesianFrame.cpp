@@ -53,13 +53,13 @@ namespace gams { namespace pose {
   namespace cartesian {
 
     double calc_distance(
-                      const ReferenceFrameType *self,
+                      const ReferenceFrameType * /*self*/,
                       double x1, double y1, double z1,
                       double x2, double y2, double z2)
     {
       double x_dist = x2 - x1;
       double y_dist = y2 - y1;
-      double z_dist = z2 - z2;
+      double z_dist = z2 - z1;
 
       return sqrt(x_dist * x_dist + y_dist * y_dist + z_dist * z_dist);
     }

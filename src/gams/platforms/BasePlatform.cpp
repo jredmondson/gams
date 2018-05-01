@@ -215,7 +215,7 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
     result = 2;
   }
 
-  return 0;
+  return result;
 }
 
 int

@@ -158,7 +158,7 @@ namespace gams
       inline static std::string &make_kb_key(
           std::string &prefix, uint64_t timestamp)
       {
-        if (timestamp == -1) {
+        if (timestamp == (uint64_t)-1) {
           prefix += ".default";
         } else {
           prefix += ".";
@@ -666,7 +666,7 @@ namespace gams
 
         madara::knowledge::ContextGuard guard(kb);
 
-        if (timestamp == -1) {
+        if (timestamp == (uint64_t)-1) {
           timestamp = latest_common_timestamp(kb, begin, end);
         }
         while (begin != end) {

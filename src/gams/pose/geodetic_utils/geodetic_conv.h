@@ -298,8 +298,8 @@ class GeodeticConverter
   bool haveReference_;
 
 }; // class GeodeticConverter
-}; // namespace geodetic_util
-}; // namespace pose
-}; // namespace gams
+} // namespace geodetic_util
+} // namespace pose
+} // namespace gams
 
 #endif // GEODETIC_CONVERTER_H_

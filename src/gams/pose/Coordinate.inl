@@ -160,21 +160,6 @@ namespace gams
       return false;
     }
 
-    namespace
-    {
-      static std::istream &skip_nonnum(std::istream &s)
-      {
-        int next;
-        while(s && (next = s.peek()) != EOF)
-        {
-          if(next == '.' || next == '-' || (next >= '0' && next <= '9'))
-            break;
-          s.get();
-        }
-        return s;
-      }
-    }
-
     template<typename CoordType>
     template<typename ContainType>
     inline void Coordinate<CoordType>::to_array(

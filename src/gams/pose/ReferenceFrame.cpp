@@ -215,58 +215,6 @@ namespace gams
     }
 
     namespace {
-      kmiter next_prefix(const KnowledgeMap &map, kmiter cur, const std::string &prefix)
-      {
-        while (cur != map.end() && cur->first.compare(0, prefix.size(), prefix) == 0) {
-          ++cur;
-        }
-        return cur;
-      }
-
-      template<size_t N>
-      std::array<const char *, N> split_string_array(std::string &s, char delim) {
-        std::array<const char *, N> ret;
-        size_t i = 0;
-        char *cur = &s[0];
-
-        while (i < N) {
-          char *next = std::strchr(cur, delim);
-          ret[i] = cur;
-          if (next) {
-            cur = next + 1;
-            ++i;
-          } else {
-            ++i;
-            break;
-          }
-        }
-
-        while (i < N) {
-          ret[i] = nullptr;
-          ++i;
-        }
-
-        return ret;
-      }
-
-      std::pair<std::string, uint64_t> parse_frame_key(std::string key)
-      {
-        auto parts = split_string_array<2>(key, '.');
-        size_t id_len = parts[1] - parts[0] - 1;
-
-        uint64_t timestamp;
-        if (std::strcmp(parts[1], "default") == 0) {
-          timestamp = -1;
-        } else {
-          std::istringstream iss(parts[1]);
-          iss >> std::hex >> timestamp;
-        }
-
-        key.resize(id_len);
-        key.shrink_to_fit();
-        return std::make_pair(key, timestamp);
-      }
-
       std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
         load_single( KnowledgeBase &kb, const std::string &id,
             uint64_t timestamp)
@@ -465,7 +413,7 @@ namespace gams
     {
       ContextGuard guard(kb);
 
-      if (timestamp == -1) {
+      if (timestamp == (uint64_t)-1) {
         return load_exact(kb, id, timestamp);
       }
 
@@ -483,7 +431,7 @@ namespace gams
 
       //std::cerr << "Nearest " << id << " " << pair.first << " " << timestamp << " " << pair.second << std::endl;
 
-      if (pair.first == -1 || pair.second == -1) {
+      if (pair.first == (uint64_t)-1 || pair.second == (uint64_t)-1) {
         return {};
       }
 
@@ -624,7 +572,7 @@ namespace gams
                   double rx2, double ry2, double rz2)
       {
         Quaternion quat1(rx1, ry1, rz1);
-        Quaternion quat2(ry2, ry2, rz2);
+        Quaternion quat2(rx2, ry2, rz2);
         return quat1.angle_to(quat2);
       }
     }

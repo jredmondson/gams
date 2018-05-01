@@ -179,7 +179,7 @@ gams::platforms::VREPBase::get_sw_pose(const pose::ReferenceFrame &frame)
 
 gams::platforms::VREPBase::~VREPBase ()
 {
-  simxInt retVal;
+  simxInt retVal = -1;
   simxInt childId = 0;
 
   if(mover_ != NULL)

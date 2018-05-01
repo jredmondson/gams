@@ -55,8 +55,6 @@
 
 #include "gams/platforms/ros/RosP3Dx.h"
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 #include <iostream>
 using std::endl;
 using std::cout;

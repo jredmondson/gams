@@ -5,7 +5,7 @@ project (gams) : using_madara, using_ace, using_utm, vrep_lib, ros_lib, port/jav
   dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
 
   verbatim (gnuace, local) {
-    CPPFLAGS += -w
+    CPPFLAGS +=
   }
 
   Documentation_Files {

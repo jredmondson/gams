@@ -113,6 +113,8 @@ namespace gams
       virtual bool check_position(
           const pose::Position &current,
           const pose::Position &target) const = 0;
+
+      virtual ~PositionBounds() = default;
     };
 
     /// Interface for defining a bounds checker for Orientations
@@ -123,6 +125,8 @@ namespace gams
       virtual bool check_orientation(
           const pose::Orientation &current,
           const pose::Orientation &target) const = 0;
+
+      virtual ~OrientationBounds() = default;
     };
 
     /// Interface for defining a bounds checker for Poses,

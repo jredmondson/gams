@@ -57,8 +57,6 @@
 
 #include "ros/ros.h"
 
-#define DEG_TO_RAD(x) ((x) * M_PI / 180.0)
-
 using std::endl;
 using std::cout;
 using std::cerr;
@@ -121,7 +119,7 @@ land ()
 
 int
 gams::platforms::RosBase::move (const pose::Position & position,
-        const PositionBounds &bounds);
+        const PositionBounds &bounds)
 {
   return 1;
 }

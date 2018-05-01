@@ -90,7 +90,7 @@ namespace gams
       using Angular::Angular;
     };
 
-    inline void normalize(AngularAcceleration &rot) {}
+    inline void normalize(AngularAcceleration &/*rot*/) {}
   }
 }
 
