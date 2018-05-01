@@ -10,14 +10,14 @@ make -f GNUmakefile.ros2madara ros=1
 
 Commandline-Parameters:
 
-  [-r|--rosbag]                   Path to the rosbag file
-  [-rp|--ros-robot-prefix]        Topic prefix of each robot if multiple robots are used in the bagfile (default: '/robot_')
-  [-c|--checkpoint-prefix]        Prefix for the madara checkpoint files (default: 'checkpoint_')
-
-
+  [-r|--rosbag]                        Path to the rosbag file
+  [-rp|--ros-robot-prefix]             Topic prefix of each robot if multiple robots are used in the bagfile (default: '/robot_')
+  [-scp|--save-checkpoint-prefix prfx] prefix of knowledge to save in checkpoint
+  [-sb|--save-binary]                  save the resulting knowledge base as a binary checkpoint
 
 Example:
 
-./ros2gams -r test.bag -c mycheckpoint
+./ros2gams -r test.bag -scp mycheckpoint -sb
 
-will read the file test.bag and create several checkpoints named mycheckpoint_1.kb, mycheckpoint_2.kb, etc.
+will read the file test.bag and create several checkpoints named mycheckpoint_1.kb, mycheckpoint_2.kb, etc. in the binary format.
+Without the option -sb all files are stored in karl format.

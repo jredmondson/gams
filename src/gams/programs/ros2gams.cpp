@@ -49,6 +49,9 @@ std::string rosbag_path = "";
 // prefix for the madara checkoints
 std::string checkpoint_prefix = "checkpoint_";
 
+// save as a karl or binary file
+bool save_as_karl = true;
+
 
 void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name);
 void parse_imu (sensor_msgs::Imu * imu, knowledge::KnowledgeBase * knowledge, std::string agent_prefix, std::string container_name);
@@ -83,7 +86,7 @@ void handle_arguments (int argc, char ** argv)
 	      rosbag_path = argv[i + 1];
 	      i++;
 	    }
-	    else if (arg1 == "-c" || arg1 == "--checkpoint-prefix")
+	    else if (arg1 == "-scp" || arg1 == "--save-checkpoint-prefix")
 	    {
 	      checkpoint_prefix = argv[i + 1];
 	      i++;
@@ -93,14 +96,20 @@ void handle_arguments (int argc, char ** argv)
 	      //rosbag_robot_prefix = argv[i + 1];
 	      i++;
 	    }
+	    else if (arg1 == "-sb" || arg1 == "--save-binary")
+	    {
+	      save_as_karl = false;
+	    }
 	    else if (arg1 == "-h" || arg1 == "--help")
 	    {
-	      cout << "\nProgram summary for ros2madara [options] [Logic]:\n\n" \
+	      cout << "\nProgram summary for ros2gams [options] [Logic]:\n\n" \
 	        "Converts rosbag files to madara checkpoints.\n\noptions:\n" \
-	        "  [-r|--rosbag]                   Path to the rosbag file\n" \
-	        "  [-rp|--ros-robot-prefix]        Topic prefix of each robot (default: '/robot_')\n" \
-	        "  [-c|--checkpoint-prefix]        Prefix for the madara checkpoint files (default: 'checkpoint_')\n";
-	      exit(0);
+	        "  [-r|--rosbag]                        Path to the rosbag file\n" \
+	        "  [-rp|--ros-robot-prefix]             Topic prefix of each robot (default: '/robot_')\n" \
+	        "  [-scp|--save-checkpoint-prefix prfx] prefix of knowledge to save in checkpoint\n" \
+        	"  [-sb|--save-binary]                  save the resulting knowledge base as a\n" \
+        	"                                       binary checkpoint\n";
+        	exit(0);
 	    }
 	}
 }
@@ -372,7 +381,11 @@ void save_checkpoint (knowledge::KnowledgeBase * knowledge,
   	knowledge->set (meta_prefix + ".initial_lamport_clock",
     	(Integer) settings->initial_lamport_clock);
 	
-	knowledge->save_as_karl(*settings);
+  	if (save_as_karl)
+  		knowledge->save_as_karl(*settings);
+	else
+		knowledge->save_context(*settings);
+
 }
 
 
