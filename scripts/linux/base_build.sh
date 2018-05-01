@@ -311,11 +311,17 @@ if [ $PREREQS -eq 1 ]; then
   fi
   
   if [ $ROS -eq 1 ]; then
+    ROS_FIRST_SETUP=0
     if [ ! -d "/opt/ros/kinetic" ] ; then
+      ROS_FIRST_SETUP=1
       sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
       sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-      sudo apt-get update
-      sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs ros-kinetic-navigation
+    fi
+
+    sudo apt-get update
+    sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
+
+    if [ $ROS_FIRST_SETUP -eq 1 ]; then
       sudo rosdep init
       rosdep update
       echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc

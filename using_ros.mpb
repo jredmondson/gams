@@ -1,7 +1,9 @@
 feature (ros) {
   requires += ros
-  
+
   macros += _GAMS_ROS_
 
   includes += $(ROS_ROOT)/../../include
+  libpaths += $(ROS_ROOT)/../../lib
+  libs += actionlib rosbag_storage rosbag rostime roscpp_serialization cpp_common roscpp roslib
 }
