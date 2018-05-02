@@ -3,7 +3,7 @@ feature (ros) {
 
   macros += _GAMS_ROS_
 
-  includes += $(ROS_ROOT)/../../include
+  includes += $(ROS_ROOT)/../../include /usr/include/libcxxabi
   libpaths += $(ROS_ROOT)/../../lib
-  libs += actionlib rosbag_storage rosbag rostime roscpp_serialization cpp_common roscpp roslib
+  libs += rosconsole actionlib rosbag_storage rosbag rostime roscpp_serialization cpp_common roscpp roslib
 }

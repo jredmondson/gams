@@ -261,6 +261,8 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   exename = ros2gams
   libpaths += $(ROS_ROOT)/../../lib
 
+  requires += ros
+
   macros +=  _USE_MATH_DEFINES
 
   libs += roscpp
@@ -271,7 +273,7 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   libs += rosbag_storage
 
   verbatim (gnuace, local) {
-    CPPFLAGS += -w -std=c++11
+    CPPFLAGS += -std=c++11
   }
 
   Documentation_Files {
