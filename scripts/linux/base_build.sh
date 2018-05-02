@@ -482,7 +482,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $ACE_ROOT ] ; then
     echo "DOWNLOADING ACE AND TAO"
     ACE_PARENT=$(dirname $ACE_ROOT)
-    git clone --depth 1 https://github.com/DOCGroup/ACE_TAO.git $ACE_PARENT
+    git clone --depth 1 https://github.com/jredmondson/ACE_TAO.git $ACE_PARENT
     ACE_REPO_RESULT=$?
 
   else
