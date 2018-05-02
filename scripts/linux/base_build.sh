@@ -287,6 +287,68 @@ fi
 echo "ANDROID has been set to $ANDROID"
 if [ $ANDROID -eq 1 ]; then
   echo "CROSS_COMPILE is set to $LOCAL_CROSS_PREFIX"
+  if [ -z "$ANDROID_API" ]; then
+    export ANDROID_API=27
+    echo "ANDROID_API is unset; defaulting to $ANDROID_API"
+  else
+    echo "ANDROID_API has been set to $ANDROID_API"
+  fi
+  if [ -z "$ANDROID_ABI" ]; then
+    export ANDROID_ABI=4.9
+    echo "ANDROID_ABI is unset; defaulting to $ANDROID_ABI"
+  else
+    echo "ANDROID_ABI has been set to $ANDROID_ABI"
+  fi
+  if [ -z "$ANDROID_ARCH" ]; then
+    export ANDROID_ARCH=arm
+    echo "ANDROID_ARCH is unset; defaulting to $ANDROID_ARCH"
+  else
+    echo "ANDROID_ARCH has been set to $ANDROID_ARCH"
+  fi
+  if [ -z "$NDK_VERSION" ]; then
+    export NDK_VERSION=r16b
+    echo "NDK_VERSION is unset; defaulting to $NDK_VERSION"
+  else
+    echo "NDK_VERSION has been set to $NDK_VERSION"
+  fi
+  if [ -z "$NDK_ROOT" ]; then
+    export NDK_ROOT=$INSTALL_DIR/ndk
+    echo "NDK_ROOT is unset; defaulting to $NDK_ROOT"
+  else
+    echo "NDK_ROOT has been set to $NDK_ROOT"
+  fi
+  if [ -z "$NDK_TOOLS" ]; then
+    export NDK_TOOLS=$NDK_ROOT/custom_toolchain
+    echo "NDK_TOOLS is unset; defaulting to $NDK_TOOLS"
+  else
+    echo "NDK_TOOLS has been set to $NDK_TOOLS"
+  fi
+  if [ -z "$SYSROOT" ]; then
+    export SYSROOT=$NDK_TOOLS/sysroot
+    echo "SYSROOT is unset; defaulting to $SYSROOT"
+  else
+    echo "SYSROOT has been set to $SYSROOT"
+  fi
+
+  case $ANDROID_ARCH in
+    arm)
+      export ANDROID_TOOLCHAIN=arm-linux-androidabi-$ANDROID_ABI;;
+
+    arm64|aarch64)
+      export ANDROID_ARCH=arm64;
+      export ANDROID_TOOLCHAIN=aarch64-linux-android-$ANDROID_ABI;;
+
+    x86)
+      export ANDROID_TOOLCHAIN=x86-$ANDROID_ABI;;
+
+    x64|x86_64)
+      export ANDROID_ARCH=x86_64;
+      export ANDROID_TOOLCHAIN=x86_64-$ANDROID_ABI;;
+
+    *)
+      echo "Unknown ANDROID_ABI: $ANDROID_ABI"; exit 1 ;;
+  esac
+  export PATH="$NDK_TOOLS/bin:$PATH"
 fi
 
 if [ $DOCS -eq 1 ]; then
@@ -295,21 +357,31 @@ fi
 
 echo ""
 
-if [ $PREREQS -eq 1 ]; then
-  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz
+unzip_strip() (
+  local zip=$1
+  local dest=${2:-.}
+  local temp=$(mktemp -d) && unzip -d "$temp" "$zip" && mkdir -p "$dest" &&
+  shopt -s dotglob && local f=("$temp"/*) &&
+  if (( ${#f[@]} == 1 )) && [[ -d "${f[0]}" ]] ; then
+    mv "$temp"/*/* "$dest"
+  else
+    mv "$temp"/* "$dest"
+  fi && rmdir "$temp"/* "$temp"
+)
 
+append_if_needed() (
+  if grep -q "$1" $2; then
+    true
+  else
+    echo "$1" >> $2
+  fi
+)
+
+if [ $PREREQS -eq 1 ]; then
   if [ $JAVA -eq 1 ]; then
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo apt-get update
-    sudo apt-get install -f oracle-java8-set-default
-    echo "export JAVA_HOME=/usr/lib/jvm/java-8-oracle" >> $HOME/.bashrc
+    sudo add-apt-repository -y ppa:webupd8team/java
   fi
-  
-  if [ $ANDROID -eq 1 ]; then
-    sudo apt-get update
-    sudo apt-get install -f gcc-arm-linux-androideabi
-  fi
-  
+
   if [ $ROS -eq 1 ]; then
     ROS_FIRST_SETUP=0
     if [ ! -d "/opt/ros/kinetic" ] ; then
@@ -317,8 +389,45 @@ if [ $PREREQS -eq 1 ]; then
       sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
       sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
     fi
+  fi
 
-    sudo apt-get update
+  sudo apt-get update
+  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz
+
+  if [ $JAVA -eq 1 ]; then
+    sudo apt-get install -f oracle-java8-set-default
+    export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+    rc_str="export JAVA_HOME=$JAVA_HOME"
+    append_if_needed "$rc_str" "$HOME/.bashrc"
+  fi
+  
+  if [ $ANDROID -eq 1 ]; then
+    sudo apt-get install -f gcc-arm-linux-androideabi
+
+    if [ ! -f $NDK_ROOT/README.md ]; then
+      mkdir -p $NDK_ROOT;
+      (
+        cd $NDK_ROOT;
+        NDK_ZIP="android-ndk-${NDK_VERSION}-linux-x86_64.zip"
+        if [ ! -f $NDK_ZIP ]; then
+          wget "https://dl.google.com/android/repository/$NDK_ZIP" || exit $?
+        fi
+        if [ ! -f $NDK_ZIP ]; then
+          echo Failed to download $NDK_ZIP
+          exit 1
+        fi
+        unzip_strip $NDK_ZIP . || exit $?
+      ) || exit $?
+    fi
+    (
+      cd $NDK_ROOT;
+      ./build/tools/make-standalone-toolchain.sh --force \
+            --toolchain=$ANDROID_TOOLCHAIN --platform=android-$ANDROID_API \
+            --install-dir=$NDK_TOOLS --arch=$ANDROID_ARCH || exit $?
+    ) || exit $?
+  fi
+  
+  if [ $ROS -eq 1 ]; then
     sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
 
     if [ $ROS_FIRST_SETUP -eq 1 ]; then
@@ -399,7 +508,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
     # use linux defaults
     echo "  CONFIGURING DEFAULT BUILD"
     echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux_clang.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
   fi
   
   echo "ENTERING $ACE_ROOT"
@@ -411,6 +520,9 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   echo "BUILDING ACE"
   make -j $CORES
   ACE_BUILD_RESULT=$?
+  if [ ! -f $ACE_ROOT/lib/libACE.so ]; then
+    ACE_BUILD_RESULT=1
+  fi
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING ACE"
     $STRIP_EXE libACE.so*
@@ -500,6 +612,9 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   echo "BUILDING MADARA"
   make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ -j $CORES
   MADARA_BUILD_RESULT=$?
+  if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
+    MADARA_BUILD_RESULT=1
+  fi
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING MADARA"
@@ -597,6 +712,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   echo "BUILDING GAMS"
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
+  GAMS_BUILD_RESULT=$?
+  if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
+    GAMS_BUILD_RESULT=1
+  fi
 
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING GAMS"
@@ -747,6 +866,13 @@ fi
 
 if [ $DMPL -eq 1 ]; then
   echo -e "export DMPL_ROOT=$DMPL_ROOT"
+fi
+
+if [ $ANDROID -eq 1 ]; then
+  echo -e "export NDK_ROOT=$NDK_ROOT"
+  echo -e "export NDK_TOOLS=$NDK_TOOLS"
+  echo -e "export SYSROOT=$SYSROOT"
+  echo -e "export ANDROID_ARCH=$ANDROID_ARCH"
 fi
 
 echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
