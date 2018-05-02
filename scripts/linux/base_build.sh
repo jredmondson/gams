@@ -331,23 +331,27 @@ if [ $ANDROID -eq 1 ]; then
   fi
 
   case $ANDROID_ARCH in
-    arm)
+    arm32|arm)
+      export ANDROID_ARCH=arm;
       export ANDROID_TOOLCHAIN=arm-linux-androidabi-$ANDROID_ABI;;
 
     arm64|aarch64)
-      export ANDROID_ARCH=arm64;
+      export ANDROID_ARCH=aarch64;
+      export ANDROID_TOOLCHAIN_ARCH=arm64;
       export ANDROID_TOOLCHAIN=aarch64-linux-android-$ANDROID_ABI;;
 
     x86)
-      export ANDROID_TOOLCHAIN=x86-$ANDROID_ABI;;
+      true;;
 
     x64|x86_64)
-      export ANDROID_ARCH=x86_64;
-      export ANDROID_TOOLCHAIN=x86_64-$ANDROID_ABI;;
+      export ANDROID_ARCH=x86_64;;
 
     *)
       echo "Unknown ANDROID_ABI: $ANDROID_ABI"; exit 1 ;;
   esac
+  export ANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN:-${ANDROID_ARCH}-$ANDROID_ABI}
+  export ANDROID_TOOLCHAIN_ARCH=${ANDROID_TOOLCHAIN_ARCH:-$ANDROID_ARCH}
+
   export PATH="$NDK_TOOLS/bin:$PATH"
 fi
 
@@ -423,7 +427,7 @@ if [ $PREREQS -eq 1 ]; then
       cd $NDK_ROOT;
       ./build/tools/make-standalone-toolchain.sh --force \
             --toolchain=$ANDROID_TOOLCHAIN --platform=android-$ANDROID_API \
-            --install-dir=$NDK_TOOLS --arch=$ANDROID_ARCH || exit $?
+            --install-dir=$NDK_TOOLS --arch=$ANDROID_TOOLCHAIN_ARCH || exit $?
     ) || exit $?
   fi
   
