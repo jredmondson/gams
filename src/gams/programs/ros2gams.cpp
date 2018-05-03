@@ -34,7 +34,7 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/PointField.h>
+#include <sensor_msgs/Range.h>
 
 
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -73,6 +73,7 @@ void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector 
 void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
@@ -239,6 +240,10 @@ int main (int argc, char ** argv)
 	    {
 	    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), &kb, container_name);
 	    }
+	    else if (m.isType<sensor_msgs::Range>())
+	    {
+	    	parse_range(m.instantiate<sensor_msgs::Range>().get(), &kb, container_name);
+	    }
 	    else
 	    {
 	    	//cout << topic << ": Type not supported\n";
@@ -335,6 +340,26 @@ void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase *
 	containers::Double range_max(container_name + ".range_max", *knowledge);
 	range_max = laser->range_max;
 
+}
+
+/**
+* Parses a ROS Range Message
+* @param  range   			the sensor_msgs::Range message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "range")
+**/
+void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::Double field_of_view(container_name + ".field_of_view", *knowledge);
+	field_of_view = range->field_of_view;
+	containers::Double min_range(container_name + ".min_range", *knowledge);
+	min_range = range->min_range;
+	containers::Double max_range(container_name + ".max_range", *knowledge);
+	max_range = range->max_range;
+	containers::Double range_val(container_name + ".range", *knowledge);
+	range_val = range->range;
+	containers::Integer radiation_type(container_name + ".radiation_type", *knowledge);
+	radiation_type = range->radiation_type;
 }
 
 /**
