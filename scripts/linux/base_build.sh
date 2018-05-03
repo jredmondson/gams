@@ -591,7 +591,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
-    git clone --depth 1 http://git.code.sf.net/p/madara/code $MADARA_ROOT
+    git clone --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
     echo "UPDATING MADARA"
