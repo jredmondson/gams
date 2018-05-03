@@ -12,7 +12,9 @@
 #include "madara/logger/GlobalLogger.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
+#include "madara/knowledge/containers/NativeIntegerVector.h"
 #include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/String.h"
 //#include "gams/pose/ReferenceFrame.h"
 
 
@@ -29,6 +31,7 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/CompressedImage.h>
 
 
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -65,12 +68,18 @@ void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVecto
 void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target);
 void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
 void parse_float64_array(boost::array<double, N> *array, containers::NativeDoubleVector *target);
 void parse_float64_array(std::vector<float> *array, containers::NativeDoubleVector *target);
 
+
+template <size_t N>
+void parse_int_array(boost::array<int, N> *array, containers::NativeIntegerVector *target);
+template <class T>
+void parse_int_array(std::vector<T> *array, containers::NativeIntegerVector *target);
 
 
 void save_checkpoint (knowledge::KnowledgeBase *knowledge,
@@ -218,6 +227,10 @@ int main (int argc, char ** argv)
 	    {
 	    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, &kb, container_name);
 	    }
+	    else if (m.isType<sensor_msgs::CompressedImage>())
+	    {
+	    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), &kb, container_name);
+	    }
 	    else
 	    {
 	    	//cout << topic << ": Type not supported\n";
@@ -320,6 +333,23 @@ void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase *
 }
 
 /**
+* Parses a ROS CompressedImage Message
+* @param  laser   			the sensor_msgs::CompressedImage message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "image")
+**/
+void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::String format(container_name + ".format", *knowledge);
+	int len = img->data.size();
+	//TODO: data is a vector of int8 which is parsed into an NativeIntegerVector -> change to NativeCharVector etc???
+	containers::NativeIntegerVector data(container_name + ".data", *knowledge, len);
+	parse_int_array(&img->data, &data);
+
+
+}
+
+/**
 * Parses a ROS Twist Message
 * @param  twist   			the geometry_msgs::Twist message
 * @param  knowledge 		Knowledgbase
@@ -391,7 +421,7 @@ template <size_t N>
 void parse_float64_array(boost::array<double, N> *array, containers::NativeDoubleVector *target)
 {
 	int i = 0;
-	for (boost::array<double, 36>::iterator iter(array->begin()); iter != array->end(); ++iter)
+	for (typename boost::array<double, N>::iterator iter(array->begin()); iter != array->end(); ++iter)
 	{
 		target->set(i, *iter);
 		i++;
@@ -407,6 +437,29 @@ void parse_float64_array(std::vector<float> *array, containers::NativeDoubleVect
 		i++;
 	}
 }
+
+template <class T>
+void parse_int_array(std::vector<T> *array, containers::NativeIntegerVector *target)
+{
+	int i = 0;
+	for (typename std::vector<T>::iterator iter = array->begin(); iter != array->end(); ++iter)
+	{
+		target->set(i, *iter);
+		i++;
+	}
+}
+
+template <size_t N>
+void parse_int_array(boost::array<int, N> *array, containers::NativeIntegerVector *target)
+{
+	int i = 0;
+	for (typename boost::array<int, N>::iterator iter(array->begin()); iter != array->end(); ++iter)
+	{
+		target->set(i, *iter);
+		i++;
+	}
+}
+
 
 
 /**
