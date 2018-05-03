@@ -374,10 +374,10 @@ unzip_strip() (
 )
 
 append_if_needed() (
-  if grep -q "$1" $2; then
+  if grep -q "$1" "$2"; then
     true
   else
-    echo "$1" >> $2
+    echo "$1" >> "$2"
   fi
 )
 
