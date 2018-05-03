@@ -5,21 +5,6 @@ project {
   libs += GAMS
 
   verbatim (gnuace, local) {
-    CPPFLAGS += -w
+    CPPFLAGS +=
   }
-
-  verbatim (gnuace, bottom) {
-    DEPFILES=$(patsubst %.cpp,%.d,$(filter %.cpp,$(FILES)))
-
-    %.d : %.cpp
-    "	$(CXX) $(CPPFLAGS) -MM -MG -MT .obj/$(@:.d=.o) -o $@ $<"
-
-    cleandep :
-    "	rm -f $(DEPFILES)"
-
-    clean : cleandep
-
-    -include $(DEPFILES)
-  }
-
 }
