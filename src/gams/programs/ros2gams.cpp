@@ -15,6 +15,7 @@
 #include "madara/knowledge/containers/NativeIntegerVector.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Integer.h"
 //#include "gams/pose/ReferenceFrame.h"
 
 
@@ -32,6 +33,8 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/CompressedImage.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/PointField.h>
 
 
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -69,6 +72,7 @@ void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowle
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target);
 void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
@@ -180,8 +184,8 @@ int main (int argc, char ** argv)
     }
 
   	// Query the bag's stats
-    std::cout << "Size of the bagfile: " << view.size() << "\n";
-  	std::cout << "Topics in the bagfile: \n";
+    std::cout << "Size of the selected topics: " << view.size() << "\n";
+  	std::cout << "Selected topics in the bagfile: \n";
 	for (const rosbag::ConnectionInfo* c: view.getConnections())
 	{
     	std::cout << c->topic << "(" << c->datatype << ")\n";
@@ -231,6 +235,10 @@ int main (int argc, char ** argv)
 	    {
 	    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), &kb, container_name);
 	    }
+	    else if (m.isType<sensor_msgs::PointCloud2>())
+	    {
+	    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), &kb, container_name);
+	    }
 	    else
 	    {
 	    	//cout << topic << ": Type not supported\n";
@@ -248,9 +256,6 @@ int main (int argc, char ** argv)
      	settings.last_lamport_clock += 1;
 
 	    save_checkpoint(&kb, &settings);
-
-	    //if (settings.last_lamport_clock > 100)
-	    //	exit(0);
     }
     std::cout << "Done!\n";
 	//std::cout << "Converted " + settings.last_lamport_clock << " messages.\n" << std::flush;
@@ -345,8 +350,50 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 	//TODO: data is a vector of int8 which is parsed into an NativeIntegerVector -> change to NativeCharVector etc???
 	containers::NativeIntegerVector data(container_name + ".data", *knowledge, len);
 	parse_int_array(&img->data, &data);
+}
 
 
+/**
+* Parses a ROS PointCloud2 Message
+* @param  laser   			the sensor_msgs::PointCloud2 message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "pointcloud")
+**/
+void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::Integer height(container_name + ".height", *knowledge);
+	height = pointcloud->height;
+	containers::Integer width(container_name + ".width", *knowledge);
+	width = pointcloud->width;
+	containers::Integer point_step(container_name + ".point_step", *knowledge);
+	point_step = pointcloud->point_step;
+	containers::Integer row_step(container_name + ".row_step", *knowledge);
+	row_step = pointcloud->row_step;
+
+	//TODO: data is a vector of int8 which is parsed into an NativeIntegerVector -> change to NativeCharVector etc???
+	int len = pointcloud->data.size();
+	containers::NativeIntegerVector data(container_name + ".data", *knowledge, len);
+	parse_int_array(&pointcloud->data, &data);
+
+	int field_index = 0;
+	for (sensor_msgs::PointCloud2::_fields_type::iterator iter = pointcloud->fields.begin(); iter != pointcloud->fields.end(); ++iter)
+	{
+		std::string name = container_name + ".fields." + std::to_string(field_index);
+		containers::Integer offset(name + ".offset", *knowledge);
+		offset = iter->offset;
+		containers::Integer datatype(name + ".datatype", *knowledge);
+		datatype = iter->datatype;
+		containers::Integer count(name + ".count", *knowledge);
+		count = iter->count;
+		containers::String fieldname(name + ".name", *knowledge);
+		fieldname = iter->name;
+		++field_index;
+	}
+
+	containers::Integer is_bigendian(container_name + ".is_bigendian", *knowledge);
+	is_bigendian = pointcloud->is_bigendian;
+	containers::Integer is_dense(container_name + ".is_dense", *knowledge);
+	is_dense = pointcloud->is_dense;
 }
 
 /**
