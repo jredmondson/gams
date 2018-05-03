@@ -25,6 +25,7 @@
 
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/LaserScan.h>
@@ -63,6 +64,7 @@ void parse_quaternion (geometry_msgs::Quaternion *quat, containers::NativeDouble
 void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVector *point);
 void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target);
+void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
@@ -208,6 +210,14 @@ int main (int argc, char ** argv)
 	    {
 	    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), &kb, container_name);
 	    }
+	    else if (m.isType<geometry_msgs::Pose>())
+	    {
+	    	parse_pose(m.instantiate<geometry_msgs::Pose>().get(), &kb, container_name);
+	    }
+	    else if (m.isType<geometry_msgs::PoseStamped>())
+	    {
+	    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, &kb, container_name);
+	    }
 	    else
 	    {
 	    	//cout << topic << ": Type not supported\n";
@@ -243,13 +253,10 @@ int main (int argc, char ** argv)
 void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
 
-	containers::NativeDoubleVector location(container_name + ".pose.position", *knowledge, 3);
-	containers::NativeDoubleVector orientation(container_name + ".pose.orientation", *knowledge, 3);
 	containers::NativeDoubleVector odom_covariance(container_name + ".pose.covariance", *knowledge, 36);
 	containers::NativeDoubleVector twist_covariance(container_name + ".pose.covariance", *knowledge, 36);
 
-	parse_quaternion(&odom->pose.pose.orientation, &orientation);
-	parse_point(&odom->pose.pose.position, &location);
+	parse_pose(&odom->pose.pose, knowledge, container_name + ".pose");
 	parse_float64_array(&odom->pose.covariance, &odom_covariance);
 	parse_float64_array(&odom->twist.covariance, &twist_covariance);
 	parse_twist(&odom->twist.twist, knowledge, container_name + ".twist");
@@ -324,6 +331,21 @@ void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowle
 	containers::NativeDoubleVector angular(container_name + ".angular", *knowledge, 3);
 	parse_vector3(&twist->linear, &linear);
 	parse_vector3(&twist->angular, &angular);
+}
+
+
+/**
+* Parses a ROS Pose Message
+* @param  pose   			the geometry_msgs::Pose message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "pose")
+**/
+void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::NativeDoubleVector location(container_name + ".position", *knowledge, 3);
+	containers::NativeDoubleVector orientation(container_name + ".orientation", *knowledge, 3);
+	parse_quaternion(&pose->orientation, &orientation);
+	parse_point(&pose->position, &location);
 }
 
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target)
