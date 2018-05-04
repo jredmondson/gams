@@ -66,7 +66,11 @@ namespace gams
     {
       CHECKPOINT_NONE = 0,
       CHECKPOINT_EVERY_LOOP = 1,
-      CHECKPOINT_EVERY_SEND =2
+      CHECKPOINT_EVERY_SEND = 2,
+      CHECKPOINT_SAVE_DIFFS = 4,
+      CHECKPOINT_SAVE_FULL_CONTEXTS = 8,
+      CHECKPOINT_SAVE_ONE_FILE = 16,
+      CHECKPOINT_SAVE_DIFFS_IN_ONE_FILE = 20
     };
 
     /**
@@ -80,7 +84,7 @@ namespace gams
        **/
       ControllerSettings ()
         : agent_prefix ("agent.0"), checkpoint_prefix ("checkpoint"),
-          checkpoint_strategy (0), gams_log_level (-1), loop_hertz (2.0),
+          checkpoint_strategy (CHECKPOINT_NONE), gams_log_level (-1), loop_hertz (2.0),
           madara_log_level (-1), run_time (-1), send_hertz (1.0)
       {
       }

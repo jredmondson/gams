@@ -105,6 +105,8 @@ void print_usage (char * prog_name)
 " [-b |--broadcast ip:port]     the broadcast ip to send and listen to\n" \
 " [--checkpoint-on-loop]        save checkpoint after each control loop\n" \
 " [--checkpoint-on-send]        save checkpoint before send of updates\n" \
+" [--checkpoint-diffs]          save checkpoint diffs instead of full saves\n" \
+" [--checkpoint-single-file]    save checkpoints to a single file\n" \
 " [-c |--checkpoint prefix]     the filename prefix for checkpointing\n" \
 " [-d |--domain domain]         the knowledge domain to send and listen to\n" \
 " [-e |--rebroadcasts num]      number of hops for rebroadcasting messages\n" \
@@ -182,13 +184,23 @@ void handle_arguments (int argc, char ** argv)
     }
     else if (arg1 == "--checkpoint-on-loop")
     {
-      controller_settings.checkpoint_strategy =
+      controller_settings.checkpoint_strategy |=
         gams::controllers::CHECKPOINT_EVERY_LOOP;
     }
     else if (arg1 == "--checkpoint-on-send")
     {
-      controller_settings.checkpoint_strategy =
+      controller_settings.checkpoint_strategy |=
         gams::controllers::CHECKPOINT_EVERY_SEND;
+    }
+    else if (arg1 == "--checkpoint-diffs")
+    {
+      controller_settings.checkpoint_strategy |=
+        gams::controllers::CHECKPOINT_SAVE_DIFFS;
+    }
+    else if (arg1 == "--checkpoint-single-file")
+    {
+      controller_settings.checkpoint_strategy |=
+        gams::controllers::CHECKPOINT_SAVE_ONE_FILE;
     }
     else if (arg1 == "-d" || arg1 == "--domain")
     {

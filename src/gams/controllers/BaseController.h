@@ -342,6 +342,11 @@ namespace gams
       **/
       variables::Sensors * get_sensors (void);
 
+      /**
+       * Saves a checkpoint according to the configured settings
+       **/
+      void save_checkpoint (void);
+
     protected:
 
       /// Accents on the primary algorithm

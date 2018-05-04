@@ -605,6 +605,68 @@ gams::controllers::BaseController::run (void)
     settings_.run_time, settings_.send_hertz);
 }
 
+void
+gams::controllers::BaseController::save_checkpoint (void)
+{
+  if (settings_.checkpoint_strategy != CHECKPOINT_NONE)
+  {
+    madara::knowledge::CheckpointSettings checkpoint_settings;
+    checkpoint_settings.reset_checkpoint = true;
+
+    // build the filename
+    const std::string checkpoint_prefix (
+      settings_.checkpoint_prefix + "_" + settings_.agent_prefix + "_");
+
+    std::stringstream filename;
+    filename << checkpoint_prefix << checkpoint_count_ << ".kb";
+    checkpoint_settings.filename = filename.str ();
+
+    // check if the user wants diffs saved
+    if (CHECKPOINT_SAVE_DIFFS & settings_.checkpoint_strategy)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::run:" \
+        " saving checkpoint to %s%d.kb\n",
+        checkpoint_prefix.c_str (), checkpoint_count_);
+
+      knowledge_.save_checkpoint (checkpoint_settings);
+    }
+
+    // default is to save the full context
+    else
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::controllers::BaseController::run:" \
+        " saving context to %s%d.kb\n",
+        checkpoint_prefix.c_str (), checkpoint_count_);
+
+      knowledge_.save_context (checkpoint_settings);
+    }
+
+    // if user selects single file, then never increment checkpoint_count_
+    if (CHECKPOINT_SAVE_ONE_FILE & settings_.checkpoint_strategy)
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::controllers::BaseController::run:" \
+        " all checkpoints will be saved to %s%d.kb\n",
+        checkpoint_prefix.c_str (), checkpoint_count_);
+    }
+    else
+    {
+      ++checkpoint_count_;
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+        "gams::controllers::BaseController::run:" \
+        " next checkpoint will be %s%d.kb\n",
+        checkpoint_prefix.c_str (), checkpoint_count_);
+    }
+  }
+
+}
 
 int
 gams::controllers::BaseController::run (double loop_period,
@@ -613,8 +675,6 @@ gams::controllers::BaseController::run (double loop_period,
   // return value
   int return_value (0);
   bool first_execute (true);
-  const std::string checkpoint_prefix (
-    settings_.checkpoint_prefix + "_" + settings_.agent_prefix + "_");
 
   // for checking for potential user commands
   double loop_hz = 1.0 / loop_period;
@@ -641,21 +701,8 @@ gams::controllers::BaseController::run (double loop_period,
     "gams::controllers::BaseController::run:" \
     " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
     loop_period, max_runtime, send_period);
-
-  if (settings_.checkpoint_strategy != CHECKPOINT_NONE)
-  {
-    std::stringstream filename;
-    filename << checkpoint_prefix << checkpoint_count_ << ".kb";
-
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_MAJOR,
-      "gams::controllers::BaseController::run:" \
-      " saving initial context to %s%d.kb\n",
-      checkpoint_prefix.c_str (), checkpoint_count_);
-
-    knowledge_.save_context (filename.str ());
-    ++checkpoint_count_;
-  }
+  
+  save_checkpoint ();
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -685,19 +732,9 @@ gams::controllers::BaseController::run (double loop_period,
         " calling system_analyze ()\n");
       return_value |= system_analyze ();
 
-      if (settings_.checkpoint_strategy == CHECKPOINT_EVERY_LOOP)
+      if (CHECKPOINT_EVERY_LOOP & settings_.checkpoint_strategy)
       {
-        std::stringstream filename;
-        filename << checkpoint_prefix << checkpoint_count_ << ".kb";
-
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_MAJOR,
-          "gams::controllers::BaseController::run:" \
-          " saving context after loop to %s%d.kb\n",
-          checkpoint_prefix.c_str (), checkpoint_count_);
-
-        knowledge_.save_context (filename.str ());
-        ++checkpoint_count_;
+        save_checkpoint ();
       }
 
       // grab current time
@@ -711,19 +748,9 @@ gams::controllers::BaseController::run (double loop_period,
           "gams::controllers::BaseController::run:" \
           " sending updates\n");
 
-        if (settings_.checkpoint_strategy == CHECKPOINT_EVERY_SEND)
+        if (CHECKPOINT_EVERY_SEND & settings_.checkpoint_strategy)
         {
-          std::stringstream filename;
-          filename << checkpoint_prefix << checkpoint_count_ << ".kb";
-
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
-            gams::loggers::LOG_MAJOR,
-            "gams::controllers::BaseController::run:" \
-            " saving context before send_modifieds to %s%d.kb\n",
-            checkpoint_prefix.c_str (), checkpoint_count_);
-
-          knowledge_.save_context (filename.str ());
-          ++checkpoint_count_;
+          save_checkpoint ();
         }
 
         // send modified values through network
