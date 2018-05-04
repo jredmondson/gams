@@ -45,7 +45,7 @@ using std::endl;
 
 #endif // GAMS_UTM
 
-int main(int argc, char *argv[])
+int main(int , char **)
 {
 #ifdef GAMS_UTM
 

@@ -240,7 +240,7 @@ void test_repository (knowledge::KnowledgeBase & knowledge)
   }
 }
 
-int main(int argc, char *argv[])
+int main(int , char **)
 {
   knowledge::KnowledgeRecord::set_precision (6);
   loggers::global_logger->set_level (loggers::LOG_DETAILED);

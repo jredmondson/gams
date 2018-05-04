@@ -33,7 +33,7 @@ double round_nearest(double in)
     } \
   } while(0)
 
-int main(int argc, char *argv[])
+int main(int , char **)
 {
   std::cout.precision(4);
   std::cout << std::fixed;

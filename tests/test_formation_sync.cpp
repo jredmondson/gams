@@ -372,7 +372,7 @@ void test_groups (void)
   loggers::global_logger->log (0, "  Finished group default formation sync");
 }
 
-int main(int argc, char *argv[])
+int main(int , char **)
 {
   madara::knowledge::KnowledgeRecord::set_precision (6);
   loggers::global_logger->set_level (loggers::LOG_DETAILED);
