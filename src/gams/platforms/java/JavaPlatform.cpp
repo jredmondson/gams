@@ -474,7 +474,7 @@ gams::platforms::JavaPlatform::land (void)
 
 int
 gams::platforms::JavaPlatform::move (const pose::Position & position,
-  double epsilon)
+        const PositionBounds &bounds)
 {
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
@@ -507,7 +507,7 @@ gams::platforms::JavaPlatform::move (const pose::Position & position,
 
       jobject inpos = jvm.env->NewObject (
         pos_class, pos_const, position.x (), position.y (), position.z ());
-      jdouble inepsilon (epsilon);
+      jdouble inepsilon (0.1); // TODO support bounds checking in Java
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -542,7 +542,8 @@ gams::platforms::JavaPlatform::move (const pose::Position & position,
 }
 
 int
-gams::platforms::JavaPlatform::orient (const pose::Orientation & axes)
+gams::platforms::JavaPlatform::orient (const pose::Orientation & axes,
+    const OrientationBounds &bounds)
 {
   gams::utility::java::Acquire_VM jvm;
   jint result (0);

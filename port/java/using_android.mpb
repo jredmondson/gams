@@ -4,6 +4,7 @@ feature (android) {
   macros += _GAMS_ANDROID_  __STDC_FORMAT_MACROS
 
   libpaths += $(SYSROOT)/usr/lib
+  libpaths += $(SYSROOT)/usr/lib64
   includes += $(SYSROOT)/usr/include
 
   libs += log

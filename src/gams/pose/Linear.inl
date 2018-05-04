@@ -62,24 +62,24 @@ namespace gams
   {
     inline LinearVector::LinearVector(
                             double x, double y, double z)
-      : v_{x, y, z} {}
+      : v_{{x, y, z}} {}
 
     inline LinearVector::LinearVector()
-      : v_{0, 0, 0} {}
+      : v_{{0, 0, 0}} {}
 
     inline LinearVector::LinearVector(const double array[])
-      : v_{array[0], array[1], array[2]} {}
+      : v_{{array[0], array[1], array[2]}} {}
 
     inline LinearVector::LinearVector(const float array[])
-      : v_{array[0], array[1], array[2]} {}
+      : v_{{array[0], array[1], array[2]}} {}
 
     inline LinearVector::LinearVector(
         const madara::knowledge::containers::DoubleVector &vec)
-      : v_{vec[0], vec[1], vec[2]} {}
+      : v_{{vec[0], vec[1], vec[2]}} {}
 
     inline LinearVector::LinearVector(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : v_{vec[0], vec[1], vec[2]} {}
+      : v_{{vec[0], vec[1], vec[2]}} {}
 
     inline bool LinearVector::is_set() const
     {

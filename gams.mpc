@@ -237,12 +237,12 @@ project (gams_jar) : using_gams, using_madara, using_ace {
 project (gams_controller) : using_gams, using_madara, using_ace, using_vrep {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
-  
+
   macros +=  _USE_MATH_DEFINES
 
   Documentation_Files {
   }
-  
+
   Build_Files {
     using_gams.mpb
     gams.mpc
@@ -261,6 +261,8 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   exename = ros2gams
   libpaths += $(ROS_ROOT)/../../lib
 
+  requires += ros
+
   macros +=  _USE_MATH_DEFINES
 
   libs += roscpp
@@ -271,7 +273,7 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   libs += rosbag_storage
 
   verbatim (gnuace, local) {
-    CPPFLAGS += -w -std=c++11
+    CPPFLAGS += -std=c++11
   }
 
   Documentation_Files {
@@ -281,7 +283,7 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
     using_gams.mpb
     gams.mpc
   }
-                                                                
+
   Header_Files {
   }
 

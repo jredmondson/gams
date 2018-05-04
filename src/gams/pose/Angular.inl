@@ -64,24 +64,24 @@ namespace gams
   {
     inline AngularVector::AngularVector(
             double rx, double ry, double rz)
-      : rv_{rx, ry, rz} {}
+      : rv_{{rx, ry, rz}} {}
 
     inline AngularVector::AngularVector(
             double x, double y, double z, double angle)
-      : rv_{x * DEG_TO_RAD(angle),
-            y * DEG_TO_RAD(angle),
-            z * DEG_TO_RAD(angle)} {}
+      : rv_{{x * DEG_TO_RAD(angle),
+             y * DEG_TO_RAD(angle),
+             z * DEG_TO_RAD(angle)}} {}
 
     inline AngularVector::AngularVector(
         const madara::knowledge::containers::DoubleVector &vec)
-      : rv_{vec[0], vec[1], vec[2]} {}
+      : rv_{{vec[0], vec[1], vec[2]}} {}
 
     inline AngularVector::AngularVector(
         const madara::knowledge::containers::NativeDoubleVector &vec)
-      : rv_{vec[0], vec[1], vec[2]} {}
+      : rv_{{vec[0], vec[1], vec[2]}} {}
 
     inline AngularVector::AngularVector()
-      : rv_{0, 0, 0} {}
+      : rv_{{0, 0, 0}} {}
 
     inline bool AngularVector::is_set () const
     {

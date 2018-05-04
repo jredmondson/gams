@@ -12,7 +12,10 @@
 #include "madara/logger/GlobalLogger.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
+#include "madara/knowledge/containers/NativeIntegerVector.h"
 #include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/containers/String.h"
+#include "madara/knowledge/containers/Integer.h"
 //#include "gams/pose/ReferenceFrame.h"
 
 
@@ -25,9 +28,13 @@
 
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/CompressedImage.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/Range.h>
 
 
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -63,12 +70,21 @@ void parse_quaternion (geometry_msgs::Quaternion *quat, containers::NativeDouble
 void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVector *point);
 void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target);
+void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
 void parse_float64_array(boost::array<double, N> *array, containers::NativeDoubleVector *target);
 void parse_float64_array(std::vector<float> *array, containers::NativeDoubleVector *target);
 
+
+template <size_t N>
+void parse_int_array(boost::array<int, N> *array, containers::NativeIntegerVector *target);
+template <class T>
+void parse_int_array(std::vector<T> *array, containers::NativeIntegerVector *target);
 
 
 void save_checkpoint (knowledge::KnowledgeBase *knowledge,
@@ -169,8 +185,8 @@ int main (int argc, char ** argv)
     }
 
   	// Query the bag's stats
-    std::cout << "Size of the bagfile: " << view.size() << "\n";
-  	std::cout << "Topics in the bagfile: \n";
+    std::cout << "Size of the selected topics: " << view.size() << "\n";
+  	std::cout << "Selected topics in the bagfile: \n";
 	for (const rosbag::ConnectionInfo* c: view.getConnections())
 	{
     	std::cout << c->topic << "(" << c->datatype << ")\n";
@@ -208,6 +224,26 @@ int main (int argc, char ** argv)
 	    {
 	    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), &kb, container_name);
 	    }
+	    else if (m.isType<geometry_msgs::Pose>())
+	    {
+	    	parse_pose(m.instantiate<geometry_msgs::Pose>().get(), &kb, container_name);
+	    }
+	    else if (m.isType<geometry_msgs::PoseStamped>())
+	    {
+	    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, &kb, container_name);
+	    }
+	    else if (m.isType<sensor_msgs::CompressedImage>())
+	    {
+	    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), &kb, container_name);
+	    }
+	    else if (m.isType<sensor_msgs::PointCloud2>())
+	    {
+	    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), &kb, container_name);
+	    }
+	    else if (m.isType<sensor_msgs::Range>())
+	    {
+	    	parse_range(m.instantiate<sensor_msgs::Range>().get(), &kb, container_name);
+	    }
 	    else
 	    {
 	    	//cout << topic << ": Type not supported\n";
@@ -225,9 +261,6 @@ int main (int argc, char ** argv)
      	settings.last_lamport_clock += 1;
 
 	    save_checkpoint(&kb, &settings);
-
-	    //if (settings.last_lamport_clock > 100)
-	    //	exit(0);
     }
     std::cout << "Done!\n";
 	//std::cout << "Converted " + settings.last_lamport_clock << " messages.\n" << std::flush;
@@ -243,13 +276,10 @@ int main (int argc, char ** argv)
 void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
 
-	containers::NativeDoubleVector location(container_name + ".pose.position", *knowledge, 3);
-	containers::NativeDoubleVector orientation(container_name + ".pose.orientation", *knowledge, 3);
 	containers::NativeDoubleVector odom_covariance(container_name + ".pose.covariance", *knowledge, 36);
 	containers::NativeDoubleVector twist_covariance(container_name + ".pose.covariance", *knowledge, 36);
 
-	parse_quaternion(&odom->pose.pose.orientation, &orientation);
-	parse_point(&odom->pose.pose.position, &location);
+	parse_pose(&odom->pose.pose, knowledge, container_name + ".pose");
 	parse_float64_array(&odom->pose.covariance, &odom_covariance);
 	parse_float64_array(&odom->twist.covariance, &twist_covariance);
 	parse_twist(&odom->twist.twist, knowledge, container_name + ".twist");
@@ -313,6 +343,85 @@ void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase *
 }
 
 /**
+* Parses a ROS Range Message
+* @param  range   			the sensor_msgs::Range message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "range")
+**/
+void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::Double field_of_view(container_name + ".field_of_view", *knowledge);
+	field_of_view = range->field_of_view;
+	containers::Double min_range(container_name + ".min_range", *knowledge);
+	min_range = range->min_range;
+	containers::Double max_range(container_name + ".max_range", *knowledge);
+	max_range = range->max_range;
+	containers::Double range_val(container_name + ".range", *knowledge);
+	range_val = range->range;
+	containers::Integer radiation_type(container_name + ".radiation_type", *knowledge);
+	radiation_type = range->radiation_type;
+}
+
+/**
+* Parses a ROS CompressedImage Message
+* @param  laser   			the sensor_msgs::CompressedImage message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "image")
+**/
+void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::String format(container_name + ".format", *knowledge);
+	int len = img->data.size();
+	//TODO: data is a vector of int8 which is parsed into an NativeIntegerVector -> change to NativeCharVector etc???
+	containers::NativeIntegerVector data(container_name + ".data", *knowledge, len);
+	parse_int_array(&img->data, &data);
+}
+
+
+/**
+* Parses a ROS PointCloud2 Message
+* @param  laser   			the sensor_msgs::PointCloud2 message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "pointcloud")
+**/
+void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::Integer height(container_name + ".height", *knowledge);
+	height = pointcloud->height;
+	containers::Integer width(container_name + ".width", *knowledge);
+	width = pointcloud->width;
+	containers::Integer point_step(container_name + ".point_step", *knowledge);
+	point_step = pointcloud->point_step;
+	containers::Integer row_step(container_name + ".row_step", *knowledge);
+	row_step = pointcloud->row_step;
+
+	//TODO: data is a vector of int8 which is parsed into an NativeIntegerVector -> change to NativeCharVector etc???
+	int len = pointcloud->data.size();
+	containers::NativeIntegerVector data(container_name + ".data", *knowledge, len);
+	parse_int_array(&pointcloud->data, &data);
+
+	int field_index = 0;
+	for (sensor_msgs::PointCloud2::_fields_type::iterator iter = pointcloud->fields.begin(); iter != pointcloud->fields.end(); ++iter)
+	{
+		std::string name = container_name + ".fields." + std::to_string(field_index);
+		containers::Integer offset(name + ".offset", *knowledge);
+		offset = iter->offset;
+		containers::Integer datatype(name + ".datatype", *knowledge);
+		datatype = iter->datatype;
+		containers::Integer count(name + ".count", *knowledge);
+		count = iter->count;
+		containers::String fieldname(name + ".name", *knowledge);
+		fieldname = iter->name;
+		++field_index;
+	}
+
+	containers::Integer is_bigendian(container_name + ".is_bigendian", *knowledge);
+	is_bigendian = pointcloud->is_bigendian;
+	containers::Integer is_dense(container_name + ".is_dense", *knowledge);
+	is_dense = pointcloud->is_dense;
+}
+
+/**
 * Parses a ROS Twist Message
 * @param  twist   			the geometry_msgs::Twist message
 * @param  knowledge 		Knowledgbase
@@ -324,6 +433,21 @@ void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowle
 	containers::NativeDoubleVector angular(container_name + ".angular", *knowledge, 3);
 	parse_vector3(&twist->linear, &linear);
 	parse_vector3(&twist->angular, &angular);
+}
+
+
+/**
+* Parses a ROS Pose Message
+* @param  pose   			the geometry_msgs::Pose message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace (e.g. "pose")
+**/
+void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::NativeDoubleVector location(container_name + ".position", *knowledge, 3);
+	containers::NativeDoubleVector orientation(container_name + ".orientation", *knowledge, 3);
+	parse_quaternion(&pose->orientation, &orientation);
+	parse_point(&pose->position, &location);
 }
 
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target)
@@ -369,7 +493,7 @@ template <size_t N>
 void parse_float64_array(boost::array<double, N> *array, containers::NativeDoubleVector *target)
 {
 	int i = 0;
-	for (boost::array<double, 36>::iterator iter(array->begin()); iter != array->end(); ++iter)
+	for (typename boost::array<double, N>::iterator iter(array->begin()); iter != array->end(); ++iter)
 	{
 		target->set(i, *iter);
 		i++;
@@ -385,6 +509,29 @@ void parse_float64_array(std::vector<float> *array, containers::NativeDoubleVect
 		i++;
 	}
 }
+
+template <class T>
+void parse_int_array(std::vector<T> *array, containers::NativeIntegerVector *target)
+{
+	int i = 0;
+	for (typename std::vector<T>::iterator iter = array->begin(); iter != array->end(); ++iter)
+	{
+		target->set(i, *iter);
+		i++;
+	}
+}
+
+template <size_t N>
+void parse_int_array(boost::array<int, N> *array, containers::NativeIntegerVector *target)
+{
+	int i = 0;
+	for (typename boost::array<int, N>::iterator iter(array->begin()); iter != array->end(); ++iter)
+	{
+		target->set(i, *iter);
+		i++;
+	}
+}
+
 
 
 /**
