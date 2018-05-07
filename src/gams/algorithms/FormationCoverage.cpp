@@ -251,7 +251,7 @@ gams::algorithms::FormationCoverageFactory::create (
 gams::algorithms::FormationCoverage::FormationCoverage (
   const std::string & head_id,
   const std::vector<double> & offset,
-  const std::vector<double> & destination,
+  const std::vector<double> & /*destination*/,
   const std::string & group_name,
   const std::string & modifier,
   const std::string & coverage,

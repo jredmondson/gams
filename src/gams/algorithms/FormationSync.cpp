@@ -76,7 +76,7 @@ madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
 variables::Self * self,
-variables::Agents * agents)
+variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
 

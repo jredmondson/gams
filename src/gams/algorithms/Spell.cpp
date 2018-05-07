@@ -81,7 +81,7 @@ madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
 variables::Sensors * sensors,
 variables::Self * self,
-variables::Agents * agents)
+variables::Agents * /*agents*/)
 {
   BaseAlgorithm * result (0);
 
@@ -699,7 +699,7 @@ gams::algorithms::Spell::plan (void)
       " invalid index: %i\n", index_);
     return OK;
   }
-  if (count_ >= text_.size()) {
+  if ((size_t)count_ >= text_.size()) {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_WARNING,
       "gams::algorithms::Spell::plan:" \

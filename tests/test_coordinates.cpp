@@ -49,7 +49,7 @@ double round_nearest(double in)
     } \
   } while(0)
 
-int main(int argc, char *argv[])
+int main(int, char *[])
 {
   std::cout.precision(4);
   std::cout << std::fixed;
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 
   frames = ReferenceFrame::load_tree(kb, ids, 2500);
 
-  TEST_EQ(frames.size(), 0);
+  TEST_EQ(frames.size(), 0UL);
 
   std::string dump;
   kb.to_string(dump);

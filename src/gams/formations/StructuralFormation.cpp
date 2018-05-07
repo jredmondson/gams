@@ -59,7 +59,7 @@ gams::formations::StructuralFormation::~StructuralFormation ()
 
 void
 gams::formations::StructuralFormation::from_args (
-  madara::knowledge::FunctionArguments & args)
+  madara::knowledge::FunctionArguments & /*args*/)
 {
 
 }
@@ -67,20 +67,20 @@ gams::formations::StructuralFormation::from_args (
 
 double
 gams::formations::StructuralFormation::goodness (
-  const std::string & id, double buffer) const
+  const std::string & /*id*/, double /*buffer*/) const
 {
   return 0.0;
 }
 
 bool
 gams::formations::StructuralFormation::is_member (
-  const std::string & id) const
+  const std::string & /*id*/) const
 {
   return false;
 }
 
 bool gams::formations::StructuralFormation::is_extra (
-  const std::string & id) const
+  const std::string & /*id*/) const
 {
   return false;
 }

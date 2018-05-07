@@ -39,7 +39,7 @@ using namespace gams::pose::euler;
 using std::cout;
 using std::endl;
 
-int main(int argc, char *argv[])
+int main(int, char *[])
 {
   {
     EulerXYZ e(0, 0, M_PI/2);

@@ -138,7 +138,7 @@ namespace gams
 
       void normalize_linear(
                 const ReferenceFrameType *,
-                double &x, double &y, double &z)
+                double &x, double &y, double &/* z */)
       {
         while(y > 90.000001)
         {

@@ -35,7 +35,7 @@ double round_nearest(double in)
     } \
   } while(0)
 
-int main(int argc, char *argv[])
+int main(int, char *[])
 {
   knowledge::KnowledgeBase kbase;
   kbase.set("not_args.asdf", "shouldn't appear");
