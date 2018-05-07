@@ -177,7 +177,7 @@ variables::Agents * agents)
       for (Integer i = 0; i < processes; ++i)
       {
         madara::knowledge::KnowledgeRecord temp ("agent.");
-        temp += i;
+        temp += madara::knowledge::KnowledgeRecord(i);
         members.push_back (temp.to_string ());
       }
     }
@@ -211,7 +211,7 @@ gams::algorithms::GroupBarrier::GroupBarrier (
     barrier_name.c_str ());
 
   madara::knowledge::KnowledgeRecord temp ("agent.");
-  temp += self_->id.to_string ();
+  temp += madara::knowledge::KnowledgeRecord(self_->id.to_string ());
 
   position_ = this->get_position_in_member_list (temp.to_string (), members_);
 

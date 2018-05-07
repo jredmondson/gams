@@ -505,7 +505,7 @@ int main (int argc, char ** argv)
 
   if (payload_size > 0)
   {
-    alg_args["payload"] = payload_size;
+    alg_args["payload"] = madara::knowledge::KnowledgeRecord(payload_size);
   }
 
   if (settings.hosts.size () == 0)

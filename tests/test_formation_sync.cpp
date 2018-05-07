@@ -13,6 +13,8 @@ namespace containers = engine::containers;
 
 void test_defaults (void)
 {
+  using Record = madara::knowledge::KnowledgeRecord;
+
   transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
@@ -41,8 +43,8 @@ void test_defaults (void)
   end.push_back (-79.947911);
 
   madara::knowledge::KnowledgeMap args;
-  args["end"] = end;
-  args["start"] = start;
+  args["end"] = Record(end);
+  args["start"] = Record(start);
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
@@ -98,6 +100,8 @@ void test_defaults (void)
 
 void test_triangle (void)
 {
+  using Record = madara::knowledge::KnowledgeRecord;
+
   transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
@@ -126,9 +130,9 @@ void test_triangle (void)
   end.push_back (-79.947911);
 
   madara::knowledge::KnowledgeMap args;
-  args["end"] = (end);
-  args["start"] = (start);
-  args["formation"] = ("triangle");
+  args["end"] = Record(end);
+  args["start"] = Record(start);
+  args["formation"] = Record("triangle");
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
@@ -184,6 +188,8 @@ void test_triangle (void)
 
 void test_rectangle (void)
 {
+  using Record = madara::knowledge::KnowledgeRecord;
+
   transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
@@ -212,9 +218,9 @@ void test_rectangle (void)
   end.push_back (-79.947911);
 
   madara::knowledge::KnowledgeMap args;
-  args["end"] = (end);
-  args["start"] = (start);
-  args["formation"] = ("rectangle");
+  args["end"] = Record(end);
+  args["start"] = Record(start);
+  args["formation"] = Record("rectangle");
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);
@@ -270,6 +276,8 @@ void test_rectangle (void)
 
 void test_groups (void)
 {
+  using Record = madara::knowledge::KnowledgeRecord;
+
   transport::QoSTransportSettings settings;
   settings.hosts.push_back ("239.255.0.1:4150");
   settings.type = transport::MULTICAST;
@@ -324,9 +332,9 @@ void test_groups (void)
   end.push_back (-79.947911);
 
   madara::knowledge::KnowledgeMap args;
-  args["end"] = (end);
-  args["start"] = (start);
-  args["group"] = ("3");
+  args["end"] = Record(end);
+  args["start"] = Record(start);
+  args["group"] = Record("3");
 
   platforms::DebugPlatform platform1 (&knowledge1, &sensors, 0, &self1);
   platforms::DebugPlatform platform2 (&knowledge2, &sensors, 0, &self2);

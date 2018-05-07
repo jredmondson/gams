@@ -113,7 +113,7 @@ to_legible_hertz (engine::FunctionArguments & args, engine::Variables & /*vars*/
       buffer << std::setprecision (2) << std::fixed;
       buffer << freq;
       buffer << " ghz";
-      result = buffer.str ().c_str ();
+      result = Record (buffer.str ().c_str ());
     }
     else
     {
@@ -124,7 +124,7 @@ to_legible_hertz (engine::FunctionArguments & args, engine::Variables & /*vars*/
         buffer << std::setprecision (2) << std::fixed;
         buffer << freq;
         buffer << " mhz";
-        result = buffer.str ().c_str ();
+        result = Record (buffer.str ().c_str ());
       }
       else
       {
@@ -135,7 +135,7 @@ to_legible_hertz (engine::FunctionArguments & args, engine::Variables & /*vars*/
           buffer << std::setprecision (2) << std::fixed;
           buffer << freq;
           buffer << " khz";
-          result = buffer.str ().c_str ();
+          result = Record (buffer.str ().c_str ());
         }
         else
         {
@@ -144,7 +144,7 @@ to_legible_hertz (engine::FunctionArguments & args, engine::Variables & /*vars*/
           buffer << std::setprecision (2) << std::fixed;
           buffer << freq;
           buffer << " hz";
-          result = buffer.str ().c_str ();
+          result = Record (buffer.str ().c_str ());
         }
       }
     }

@@ -88,6 +88,7 @@ PREREQS=0
 DOCS=0
 VREP_CONFIG=0
 ZMQ=0
+SIMTIME=0
 SSL=0
 DMPL=0
 
@@ -154,6 +155,8 @@ do
     DMPL=1
   elif [ "$var" = "zmq" ]; then
     ZMQ=1
+  elif [ "$var" = "simtime" ]; then
+    SIMTIME=1
   elif [ "$var" = "ssl" ]; then
     SSL=1
   elif [ "$var" = "odroid" ]; then
@@ -184,6 +187,7 @@ do
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
+    echo "  simtime         build with simtime support in Madara"
     echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
@@ -604,7 +608,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ MADARA.mwc
+  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -614,7 +618,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ -j $CORES
+  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1

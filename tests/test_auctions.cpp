@@ -67,6 +67,8 @@ namespace containers = knowledge::containers;
 
 void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
 {
+  using madara::knowledge::KnowledgeRecord;
+
   loggers::global_logger->log (
     loggers::LOG_ALWAYS, "Testing AuctionMinimumBid\n");
 
@@ -82,7 +84,7 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
     "auction.distances", "agent.0", &knowledge);
 
   // do a self bid for agent.0
-  auction.bid (2.0);
+  auction.bid (KnowledgeRecord(2.0));
 
   if (*agent0bid == 2.0)
   {
@@ -107,9 +109,9 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
   }
 
   // do bids for other agents
-  auction.bid ("agent.1", 7.0);
-  auction.bid ("agent.2", 1.0);
-  auction.bid ("agent.3", 10.0);
+  auction.bid ("agent.1", KnowledgeRecord(7.0));
+  auction.bid ("agent.2", KnowledgeRecord(1.0));
+  auction.bid ("agent.3", KnowledgeRecord(10.0));
 
   if (*agent1bid == 7.0 && *agent2bid == 1.0 && *agent3bid == 10.0)
   {
@@ -147,6 +149,8 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
 
 void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
 {
+  using madara::knowledge::KnowledgeRecord;
+
   loggers::global_logger->log (
     loggers::LOG_ALWAYS, "Testing AuctionMaximumBid\n");
 
@@ -162,7 +166,7 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
     "auction.distances", "agent.0", &knowledge);
 
   // do a self bid for agent.0
-  auction.bid (2.0);
+  auction.bid (KnowledgeRecord(2.0));
 
   if (*agent0bid == 2.0)
   {
@@ -187,9 +191,9 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
   }
 
   // do bids for other agents
-  auction.bid ("agent.1", 7.0);
-  auction.bid ("agent.2", 1.0);
-  auction.bid ("agent.3", 10.0);
+  auction.bid ("agent.1", KnowledgeRecord(7.0));
+  auction.bid ("agent.2", KnowledgeRecord(1.0));
+  auction.bid ("agent.3", KnowledgeRecord(10.0));
 
   if (*agent1bid == 7.0 && *agent2bid == 1.0 && *agent3bid == 10.0)
   {

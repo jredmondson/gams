@@ -69,7 +69,7 @@ Record monitor (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".monitor");
 
-  return Integer (0);
+  return Record (0);
 }
 
 /**
@@ -81,7 +81,7 @@ Record analyze (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".analyze");
 
-  return Integer (0);
+  return Record (0);
 }
 
 /**
@@ -93,7 +93,7 @@ Record plan (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   Record value = vars.inc (".plan");
 
-  return Integer (value == Integer (20));
+  return Record (value == Integer (20));
 }
 
 /**
@@ -105,7 +105,7 @@ Record execute (engine::FunctionArguments & /*args*/, engine::Variables & vars)
 {
   vars.inc (".execute");
 
-  return Integer (0);
+  return Record (0);
 }
 
 // perform main logic of program
