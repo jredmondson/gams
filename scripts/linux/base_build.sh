@@ -516,7 +516,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
     # use linux defaults
     echo "  CONFIGURING DEFAULT BUILD"
     echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux_clang.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
+    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
   fi
   
   echo "ENTERING $ACE_ROOT"
