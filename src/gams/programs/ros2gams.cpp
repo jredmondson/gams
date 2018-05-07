@@ -20,6 +20,12 @@
 
 
 
+// ROS includes
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
 #include "ros/ros.h"
 #include "rosbag/bag.h"
 #include "rosbag/view.h"
@@ -35,6 +41,10 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Range.h>
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
 #include "boost/date_time/posix_time/posix_time.hpp"

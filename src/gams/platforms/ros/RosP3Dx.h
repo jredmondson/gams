@@ -65,10 +65,20 @@
 #include "gams/platforms/PlatformFactory.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
+// ROS includes
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
 #include "ros/ros.h"
 #include "move_base_msgs/MoveBaseAction.h"
 #include "actionlib/client/simple_action_client.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 namespace gams
 {
@@ -93,19 +103,19 @@ namespace gams
       /**
        * Destructor
        */
-      virtual ~RosP3Dx ();
+      virtual ~RosP3Dx () override = default;
       
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
        * variable (e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const;
+      virtual std::string get_id () const override;
 
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const;
+      virtual std::string get_name () const override;
 
       /**
        * Moves the platform to a position

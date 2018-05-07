@@ -54,6 +54,8 @@
 #ifndef   _GAMS_PLATFORM_ROS_BASE_H_
 #define   _GAMS_PLATFORM_ROS_BASE_H_
 
+#ifdef _GAMS_ROS_
+
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
 #include "gams/variables/PlatformStatus.h"
@@ -63,12 +65,19 @@
 #include "madara/knowledge/KnowledgeBase.h"
 
 // ROS includes
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+
 #include "ros/ros.h"
 #include "move_base_msgs/MoveBaseAction.h"
 #include "actionlib/client/simple_action_client.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#ifdef _GAMS_ROS_
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 namespace gams
 {
@@ -90,39 +99,28 @@ namespace gams
         variables::Self * self);
 
       /**
-       * Destructor
-       **/
-      virtual ~RosBase ();
-
-      /**
-       * Assignment operator
-       * @param  rhs   values to copy
-       **/
-      void operator= (const RosBase & rhs);
-
-      /**
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void);
+      virtual int sense (void) override;
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze (void) override;
 
       /**
        * Get the position accuracy in meters
        * @return position accuracy
        **/
-      virtual double get_accuracy () const;
+      virtual double get_accuracy () const override;
 
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void);
+      virtual int land (void) override;
 
       /**
        * Moves the platform to a position
@@ -137,19 +135,19 @@ namespace gams
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed);
+      virtual void set_move_speed (const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void);
+      virtual int takeoff (void) override;
 
       /**
        * Returns the reference frame for the platform (usually GPS)
        * @return the platform's reference frame for positions
        **/
-      virtual const pose::ReferenceFrame & get_frame (void) const;
+      virtual const pose::ReferenceFrame & get_frame (void) const override;
 
       /**
        * Initialize the ros node

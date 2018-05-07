@@ -220,12 +220,14 @@ gams::algorithms::Spell::Spell (
   variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self),
+  text_ (std::move(text)),
   group_factory_ (knowledge),
   group_ (0),
-  text_ (std::move(text)), origin_ (origin),
+  origin_ (origin),
   height_ (height), width_ (width), buffer_ (buffer),
-  index_ (-1), step_ (0),
-  next_pos_ (INVAL_COORD, INVAL_COORD, INVAL_COORD)
+  index_ (-1),
+  next_pos_ (INVAL_COORD, INVAL_COORD, INVAL_COORD),
+  step_ (0)
 {
   if (knowledge && self)
   {

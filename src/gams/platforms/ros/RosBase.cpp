@@ -78,15 +78,6 @@ gams::platforms::RosBase::RosBase (madara::knowledge::KnowledgeBase * knowledge,
   }
 }
 
-gams::platforms::RosBase::~RosBase ()
-{
-}
-
-void
-gams::platforms::RosBase::operator= (const RosBase & rhs)
-{
-}
-
 int
 gams::platforms::RosBase::sense ()
 {
@@ -118,27 +109,28 @@ land ()
 }
 
 int
-gams::platforms::RosBase::move (const pose::Position & position,
-        const PositionBounds &bounds)
+gams::platforms::RosBase::move (const pose::Position & /*position*/,
+        const PositionBounds & /*bounds*/)
 {
   return 1;
 }
 
 void
-gams::platforms::RosBase::set_move_speed (const double& speed)
+gams::platforms::RosBase::set_move_speed (const double & /*speed*/)
 {
 }
 
 int
 gams::platforms::RosBase::takeoff ()
 {
+  return 1;
 }
 
 void
 gams::platforms::RosBase::ros_init(const std::string& n)
 {
   static bool has_init = false;
-  
+
   if(!has_init)
   {
     std::map<std::string, std::string> remap;

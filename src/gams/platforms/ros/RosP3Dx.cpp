@@ -71,7 +71,7 @@ namespace knowledge = madara::knowledge;
 
 gams::platforms::BasePlatform *
 gams::platforms::RosP3DxFactory::create (
-  const knowledge::KnowledgeMap & args,
+  const knowledge::KnowledgeMap & /*args*/,
   knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Platforms * platforms,
   variables::Self * self)
@@ -132,10 +132,6 @@ gams::platforms::RosP3Dx::RosP3Dx (
   ready_ = true;
 }
 
-gams::platforms::RosP3Dx::~RosP3Dx ()
-{
-}
-
 std::string
 gams::platforms::RosP3Dx::get_id () const
 {
@@ -150,7 +146,7 @@ gams::platforms::RosP3Dx::get_name () const
 
 int
 gams::platforms::RosP3Dx::move (const pose::Position & position,
-        const PositionBounds &bounds)
+        const PositionBounds &/*bounds*/)
 {
   // generate message
   move_base_msgs::MoveBaseGoal goal;

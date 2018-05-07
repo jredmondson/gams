@@ -80,7 +80,6 @@ gams::algorithms::FollowFactory::create (
 
   // set defaults
   std::string target;
-  Integer delay (Integer (5));
   std::vector <double> offset;
   
 
