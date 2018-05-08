@@ -36,3 +36,7 @@ will map the topic imu/data_raw to the madara variable agent.0.raw_imu and the t
 
 All other topics in the bagfile will be ignored if there is a mapfile given.
 If no mapfile is given all the parseable topics are converted.
+Please keep in mind that the transform tree is the only topic which starts with a leading slash.
+So to convert the tree you need to add for example:
+
+/tf
