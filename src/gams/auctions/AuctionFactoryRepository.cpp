@@ -51,7 +51,7 @@
 gams::auctions::AuctionFactoryRepository::AuctionFactoryRepository (
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-: agent_prefix_ (agent_prefix), knowledge_ (knowledge)
+: knowledge_ (knowledge), agent_prefix_ (agent_prefix)
 {
   init ();
 }

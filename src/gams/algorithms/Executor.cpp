@@ -246,7 +246,8 @@ gams::algorithms::Executor::Executor (
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents),
   algorithms_ (algorithms), repeat_ (repeat), alg_index_ (0), cycles_ (0),
-  precond_met_ (false), current_ (0)
+  current_ (0),
+  precond_met_ (false)
 {
   status_.init_vars (*knowledge, "executor", self->agent.prefix);
   status_.init_variable_values ();
