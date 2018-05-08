@@ -16,7 +16,9 @@
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Integer.h"
-//#include "gams/pose/ReferenceFrame.h"
+#include "gams/pose/ReferenceFrame.h"
+#include "gams/pose/Pose.h"
+#include "gams/pose/Quaternion.h"
 
 
 
@@ -41,6 +43,8 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Range.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf2_msgs/TFMessage.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -84,6 +88,7 @@ void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge
 void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name);
+void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge);
 
 
 template <size_t N>
@@ -254,6 +259,10 @@ int main (int argc, char ** argv)
 	    {
 	    	parse_range(m.instantiate<sensor_msgs::Range>().get(), &kb, container_name);
 	    }
+	    else if (m.isType<tf2_msgs::TFMessage>())
+	    {
+	    	parse_tf_message(m.instantiate<tf2_msgs::TFMessage>().get(), &kb);
+	    }
 	    else
 	    {
 	    	//cout << topic << ": Type not supported\n";
@@ -387,6 +396,37 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 	parse_int_array(&img->data, &data);
 }
 
+/**
+* Parses a ROS TF Message
+* @param  tf   				the tf2_msgs::TFMessage message
+* @param  knowledge 		Knowledgbase
+**/
+void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge)
+{
+	for (tf2_msgs::TFMessage::_transforms_type::iterator iter = tf->transforms.begin(); iter != tf->transforms.end(); ++iter)
+	{
+		// read frame names_ 
+		std::string frame_id = iter->header.frame_id;
+		//std::replace(frame_id.begin(), frame_id.end(), '/', '_');
+		std::string child_frame_id = iter->child_frame_id;
+		//std::replace(child_frame_id.begin(), child_frame_id.end(), '/', '_');
+
+		// parse the rotation and orientation
+		gams::pose::ReferenceFrame parent(frame_id, gams::pose::Pose());
+		gams::pose::Quaternion quat(iter->transform.rotation.x,
+									iter->transform.rotation.y,
+									iter->transform.rotation.z,
+									iter->transform.rotation.w);
+		gams::pose::Position position(iter->transform.translation.x,
+									  iter->transform.translation.y,
+									  iter->transform.translation.z);
+
+		gams::pose::Pose pose(parent, position, gams::pose::Orientation(quat));
+		gams::pose::ReferenceFrame child_frame(child_frame_id, pose);
+		child_frame.save(*knowledge);
+	}
+}
+
 
 /**
 * Parses a ROS PointCloud2 Message
@@ -454,10 +494,16 @@ void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowle
 **/
 void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
-	containers::NativeDoubleVector location(container_name + ".position", *knowledge, 3);
-	containers::NativeDoubleVector orientation(container_name + ".orientation", *knowledge, 3);
-	parse_quaternion(&pose->orientation, &orientation);
-	parse_point(&pose->position, &location);
+	containers::NativeDoubleVector cont(container_name, *knowledge, 6);
+	gams::pose::Quaternion quat(pose->orientation.x,
+								pose->orientation.y,
+								pose->orientation.z,
+								pose->orientation.w);
+	gams::pose::Position position(pose->position.x,
+								  pose->position.y,
+								  pose->position.z);
+	gams::pose::Pose p(position, gams::pose::Orientation(quat));
+	p.to_container(cont);
 }
 
 void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target)
