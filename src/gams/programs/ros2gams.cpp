@@ -154,6 +154,7 @@ void handle_arguments (int argc, char ** argv)
 	}
 }
 
+#ifndef TEST_ROS2GAMS
 int main (int argc, char ** argv)
 {
 	handle_arguments(argc, argv);
@@ -284,6 +285,7 @@ int main (int argc, char ** argv)
     std::cout << "Done!\n";
 	//std::cout << "Converted " + settings.last_lamport_clock << " messages.\n" << std::flush;
 }
+#endif
 
 
 /**
@@ -412,7 +414,13 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
 		//std::replace(child_frame_id.begin(), child_frame_id.end(), '/', '_');
 
 		// parse the rotation and orientation
-		gams::pose::ReferenceFrame parent(frame_id, gams::pose::Pose());
+		gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load(*knowledge, frame_id);
+		if (!parent.valid())
+		{
+			parent = gams::pose::ReferenceFrame(frame_id, gams::pose::Pose(gams::pose::ReferenceFrame(), 0, 0));
+
+			parent.save(*knowledge);
+		}
 		gams::pose::Quaternion quat(iter->transform.rotation.x,
 									iter->transform.rotation.y,
 									iter->transform.rotation.z,
