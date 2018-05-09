@@ -313,7 +313,24 @@ int main(int, char *[])
 
   TEST_EQ(frames.size(), 0UL);
 
+  ReferenceFrameIdentity::default_expiry(4000);
+  for (int x = 0; x <= 10000; x += 500) {
+    ReferenceFrame exp("expiring", Pose(), x);
+    exp.save(kb);
+  }
+
   std::string dump;
+  kb.to_string(dump);
+  LOG(dump);
+
+  ReferenceFrame exp("expiring", Pose(), -1);
+  exp.save(kb, -1);
+
+  kb.to_string(dump);
+  LOG(dump);
+
+  exp.save(kb);
+
   kb.to_string(dump);
   LOG(dump);
 

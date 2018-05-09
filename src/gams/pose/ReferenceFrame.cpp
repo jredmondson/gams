@@ -67,6 +67,7 @@ using madara::knowledge::ContextGuard;
 using madara::knowledge::KnowledgeMap;
 using madara::knowledge::containers::NativeDoubleVector;
 using kmiter = KnowledgeMap::iterator;
+using kmpair = KnowledgeMap::value_type;
 
 namespace gams
 {
@@ -74,6 +75,8 @@ namespace gams
   {
     std::map<std::string, std::weak_ptr<ReferenceFrameIdentity>>
       ReferenceFrameIdentity::idents_;
+
+    uint64_t ReferenceFrameIdentity::default_expiry_ = -1;
 
     std::mutex ReferenceFrameIdentity::idents_lock_;
 
@@ -128,7 +131,7 @@ namespace gams
           return ret;
         }
       }
-      auto val = std::make_shared<ReferenceFrameIdentity>(id);
+      auto val = std::make_shared<ReferenceFrameIdentity>(id, default_expiry_);
       std::weak_ptr<ReferenceFrameIdentity> weak{val};
       if (find != idents_.end()) {
         find->second = std::move(weak);
@@ -164,54 +167,161 @@ namespace gams
       decltype(idents_)::iterator find;
       for (;;) {
         key = make_random_id(30); // Over 128 bits of randomness
+
+        std::lock_guard<std::mutex> guard(idents_lock_);
         find = idents_.find(key);
         if (find != idents_.end()) {
           if (!find->second.expired()) {
             continue;
           }
         }
-        break;
+
+        auto val = std::make_shared<ReferenceFrameIdentity>(key, default_expiry_);
+
+        std::weak_ptr<ReferenceFrameIdentity> weak{val};
+        if (find != idents_.end()) {
+          find->second = std::move(weak);
+        } else {
+          idents_.insert(std::make_pair(std::move(key), std::move(weak)));
+        }
+        return val;
       }
-      auto val = std::make_shared<ReferenceFrameIdentity>(key);
-      std::weak_ptr<ReferenceFrameIdentity> weak{val};
-      if (find != idents_.end()) {
-        find->second = std::move(weak);
-      } else {
-        idents_.insert(std::make_pair(std::move(key), std::move(weak)));
+    }
+
+    namespace {
+      int match_prefix(const std::string &s,
+          const char *prefix, size_t prefix_size)
+      {
+        return (s.compare(0, prefix_size, prefix, prefix_size));
       }
-      return val;
+
+      bool match_affixes(const std::string &s,
+          const char *prefix, size_t prefix_size,
+          const std::string &suffix = std::string())
+      {
+        return (s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0 &&
+                match_prefix(s, prefix, prefix_size) == 0);
+      }
+
+      template<typename Iter>
+      Iter find_prev(Iter i, Iter begin,
+          const char *prefix, size_t prefix_size,
+          const std::string &suffix = std::string())
+      {
+        while (i != begin) {
+          --i;
+          const std::string &key = i->first;
+          if (match_affixes(key, prefix, prefix_size, suffix) == 0) {
+            break;
+          }
+        }
+        return i;
+      }
+
+      template<typename Iter>
+      std::reverse_iterator<Iter> rev(Iter i) {
+        return std::reverse_iterator<Iter>(i);
+      }
+
+      template<typename Iter>
+      Iter rev(std::reverse_iterator<Iter> i) {
+        return i.base();
+      }
+
+      std::pair<kmiter, kmiter> get_range(KnowledgeMap &map,
+          std::string low, std::string high)
+      {
+        auto iter_low = rev(map.lower_bound(low));
+        auto iter_high = rev(map.upper_bound(high));
+
+        auto lambda_for = [](const std::string &s) {
+          return [&s](const kmpair &p){
+              return match_prefix(p.first, s.c_str(), s.size()) < 0; };
+        };
+
+        iter_low = std::find_if(iter_low, map.rend(), lambda_for(low));
+        iter_high = std::find_if(iter_high, map.rend(), lambda_for(high));
+
+        return {rev(iter_low), rev(iter_high)};
+      }
+    }
+
+    void ReferenceFrameIdentity::expire_older_than(
+        KnowledgeBase &kb,
+        uint64_t time) const
+    {
+      std::string prefix = impl::make_kb_prefix();
+      impl::make_kb_key(prefix, id_);
+      std::string key_low = std::move(prefix);
+      std::string key_high = key_low;
+      impl::make_kb_key(key_low, 0UL);
+      impl::make_kb_key(key_high, time);
+
+      {
+        ContextGuard guard(kb);
+
+        KnowledgeMap &map = kb.get_context().get_map_unsafe();
+        auto range = get_range(map, std::move(key_low), std::move(key_high));
+        map.erase(range.first, range.second);
+      }
+
+      {
+        std::lock_guard<std::mutex> guard(versions_lock_);
+
+        auto iter = versions_.begin();
+        while (iter != versions_.end()) {
+          auto cur = iter;
+          ++iter;
+          if (cur->first >= time) {
+            break;
+          }
+          versions_.erase(cur);
+        }
+      }
     }
 
     void ReferenceFrameVersion::save_as(
             KnowledgeBase &kb,
-            std::string key) const
+            std::string key,
+            uint64_t expiry) const
     {
       key += ".";
       size_t pos = key.size();
 
-      ContextGuard guard(kb);
+      {
+        ContextGuard guard(kb);
 
-      if (type() != Cartesian) {
-        key += "type";
-        //std::cerr << "saving " << name() << " frame: " << id() << std::endl;
-        kb.set(key, name());
-        key.resize(pos);
+        if (type() != Cartesian) {
+          key += "type";
+          kb.set(key, name());
+          key.resize(pos);
+        }
+
+        const ReferenceFrame &parent = origin_frame();
+        if (parent.valid()) {
+          key += "parent";
+          kb.set(key, parent.id());
+          key.resize(pos);
+        }
+
+        key += "origin";
+        NativeDoubleVector vec(key, kb, 6);
+        origin().to_container(vec);
+
+        interpolated_ = false;
+        ident().register_version(timestamp(),
+            const_cast<ReferenceFrameVersion*>(this)->shared_from_this());
       }
 
-      const ReferenceFrame &parent = origin_frame();
-      if (parent.valid()) {
-        key += "parent";
-        kb.set(key, parent.id());
-        key.resize(pos);
+      if (timestamp() > expiry) {
+        uint64_t cap;
+        if (timestamp() == (uint64_t)-1) {
+          cap = timestamp() - 1;
+        } else {
+          cap = timestamp() - expiry;
+        }
+        ident().expire_older_than(kb, cap);
       }
-
-      key += "origin";
-      NativeDoubleVector vec(key, kb, 6);
-      origin().to_container(vec);
-
-      interpolated_ = false;
-      ident().register_version(timestamp(),
-          const_cast<ReferenceFrameVersion*>(this)->shared_from_this());
     }
 
     namespace {
@@ -304,26 +414,6 @@ namespace gams
     }
 
     namespace {
-      bool match_affixes(const std::string s,
-          const char *prefix, size_t prefix_size, const std::string &suffix)
-      {
-        return (s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0 &&
-                s.compare(0, prefix_size, prefix, prefix_size) == 0);
-      }
-
-      kmiter find_prev(kmiter i, kmiter begin,
-          const char *prefix, size_t prefix_size, const std::string &suffix)
-      {
-        while (i != begin) {
-          --i;
-          const std::string &key = i->first;
-          if (match_affixes(key, prefix, prefix_size, suffix)) {
-            break;
-          }
-        }
-        return i;
-      }
-
       uint64_t timestamp_from_key(const char *key)
       {
         char *end;

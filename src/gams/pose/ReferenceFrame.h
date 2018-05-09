@@ -75,6 +75,14 @@ namespace gams
   {
     class ReferenceFrameVersion;
 
+    class ReferenceFrameSettings
+    {
+    private:
+      uint64_t expiry_ = -1;
+
+    public:
+    };
+
     /**
      * For internal use.
      *
@@ -89,20 +97,27 @@ namespace gams
         static std::map<std::string,
             std::weak_ptr<ReferenceFrameIdentity>> idents_;
 
+        static uint64_t default_expiry_;
+
         static std::mutex idents_lock_;
 
         mutable std::map<uint64_t, std::weak_ptr<ReferenceFrameVersion>>
           versions_;
 
+        mutable uint64_t expiry_ = -1;
+
         mutable std::mutex versions_lock_;
 
     public:
-        ReferenceFrameIdentity(std::string id)
-          : id_(std::move(id)) {}
+        /// Public by necessity. Use lookup instead.
+        ReferenceFrameIdentity(std::string id, uint64_t expiry)
+          : id_(std::move(id)), expiry_(expiry) {}
 
         static std::shared_ptr<ReferenceFrameIdentity> lookup(std::string id);
 
         static std::shared_ptr<ReferenceFrameIdentity> find(std::string id);
+
+        static std::shared_ptr<ReferenceFrameIdentity> make_guid();
 
         void register_version(uint64_t timestamp,
             std::shared_ptr<ReferenceFrameVersion> ver) const
@@ -126,9 +141,69 @@ namespace gams
           return find->second.lock();
         }
 
-        static std::shared_ptr<ReferenceFrameIdentity> make_guid();
-
         const std::string &id() const { return id_; }
+
+        /**
+         * Set the default expiry value for new frames IDs. Setting this will
+         * not change any already created frame IDs.
+         *
+         * If a frame newer than its expiry is saved, saved frames expire
+         * of the same ID older than this duration into the past from the
+         * timestamp of the new frame.
+         *
+         * Expired frames are deleted from the KnowledgeBase.
+         *
+         * Set to -1 (the default) to never expire frames.
+         *
+         * Note: if a timestamp -1 frame is saved and this is not -1, all
+         * other frames will expire immediately.
+         *
+         * @return previous default expiry
+         **/
+        static uint64_t default_expiry(uint64_t age) {
+          std::lock_guard<std::mutex> guard(idents_lock_);
+
+          uint64_t ret = default_expiry_;
+          default_expiry_ = age;
+          return ret;
+        }
+
+        /// Return the default expiry for new frame IDs
+        static uint64_t default_expiry() {
+          std::lock_guard<std::mutex> guard(idents_lock_);
+          return default_expiry_;
+        }
+
+        /**
+         * If a frame newer than this time is saved, expire saved frames
+         * of the same ID older than this duration into the past from the
+         * timestamp of the new frame.
+         *
+         * Expired frames are deleted from the KnowledgeBase.
+         *
+         * Set to -1 (the default) to never expire frames.
+         *
+         * Note: if a timestamp -1 frame is saved and this is not -1, all
+         * other frames will expire immediately.
+         *
+         * @return previous expiry
+         **/
+        uint64_t expiry(uint64_t age) const {
+          std::lock_guard<std::mutex> guard(versions_lock_);
+
+          uint64_t ret = expiry_;
+          expiry_ = age;
+          return ret;
+        }
+
+        /// Return the current expiry
+        uint64_t expiry() const {
+          std::lock_guard<std::mutex> guard(versions_lock_);
+          return expiry_;
+        }
+
+        void expire_older_than(madara::knowledge::KnowledgeBase &kb,
+            uint64_t time) const;
 
         /**
          * Old versions of frames can remain loaded in memory after they are no
@@ -159,7 +234,7 @@ namespace gams
           std::string &prefix, uint64_t timestamp)
       {
         if (timestamp == (uint64_t)-1) {
-          prefix += ".default";
+          prefix += ".inf";
         } else {
           prefix += ".";
 
@@ -524,6 +599,21 @@ namespace gams
        * recent frame.
        *
        * @param kb the KnowledgeBase to store into
+       * @param expiry use this expiry time instead of the one set on this ID
+       **/
+      void save(madara::knowledge::KnowledgeBase &kb,
+                uint64_t expiry) const {
+        std::string key = this->key();
+        save_as(kb, std::move(key), expiry);
+      }
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * The saved frames will be marked with their timestamp for later
+       * retrieval. If timestamp is -1, it will always be treated as the most
+       * recent frame.
+       *
+       * @param kb the KnowledgeBase to store into
        **/
       void save(madara::knowledge::KnowledgeBase &kb) const {
         std::string key = this->key();
@@ -711,9 +801,22 @@ namespace gams
        *
        * @param kb the KnowledgeBase to save to
        * @param key a key prefix to save with
+       * @param expiry use this expiry time instead of the one set on this ID
        **/
       void save_as(madara::knowledge::KnowledgeBase &kb,
-                   std::string key) const;
+                   std::string key, uint64_t expiry) const;
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * with a specific key value.
+       *
+       * @param kb the KnowledgeBase to save to
+       * @param key a key prefix to save with
+       **/
+      void save_as(madara::knowledge::KnowledgeBase &kb,
+                   std::string key) const
+      {
+        save_as(kb, key, ident().expiry());
+      }
 
       /**
        * Interpolate a frame between the given frame; use the given parent.

@@ -413,6 +413,49 @@ namespace gams
       ReferenceFrame timestamp(uint64_t) const;
 
       /**
+       * Sets configuration for all frames of this frames ID.
+       *
+       * If a frame newer than this time is saved, expire saved frames
+       * of the same ID older than this duration into the past from the
+       * timestamp of the new frame.
+       *
+       * Expired frames are deleted from the KnowledgeBase.
+       *
+       * Set to -1 (the default) to never expire frames.
+       *
+       * Note: if a timestamp -1 frame is saved and this is not -1, all
+       * other frames will expire immediately.
+       *
+       * @return previous expiry
+       **/
+      uint64_t expiry(uint64_t age = -1) const;
+
+      /// Return the current expiry for frames of this ID
+      uint64_t expiry() const;
+
+        /**
+         * Set the default expiry value for new frames IDs. Setting this will
+         * not change any already created frame IDs.
+         *
+         * If a frame newer than its expiry is saved, saved frames expire
+         * of the same ID older than this duration into the past from the
+         * timestamp of the new frame.
+         *
+         * Expired frames are deleted from the KnowledgeBase.
+         *
+         * Set to -1 (the default) to never expire frames.
+         *
+         * Note: if a timestamp -1 frame is saved and this is not -1, all
+         * other frames will expire immediately.
+         *
+         * @return previous default expiry
+         **/
+      static uint64_t default_expiry(uint64_t age);
+
+      /// Return the default expiry for new frame IDs
+      static uint64_t default_expiry();
+
+      /**
        * Test if frame is interpolated.
        *
        * @eturn true if this frame was interpolated from two stored frames,
@@ -429,6 +472,18 @@ namespace gams
        * @param kb the KnowledgeBase to store into
        **/
       void save(madara::knowledge::KnowledgeBase &kb) const;
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * The saved frames will be marked with their timestamp for later
+       * retrieval. If timestamp is -1, it will always be treated as the most
+       * recent frame.
+       *
+       * @param kb the KnowledgeBase to store into
+       * @param expiry use this expiry time instead of the one set on this ID
+       **/
+      void save(madara::knowledge::KnowledgeBase &kb,
+                uint64_t expiry) const;
 
       /**
        * Load a single ReferenceFrame, by ID.
@@ -501,6 +556,17 @@ namespace gams
       void save_as(
             madara::knowledge::KnowledgeBase &kb,
             const std::string &key) const;
+
+      /**
+       * Save this ReferenceFrame to the knowledge base,
+       * with a specific key value.
+       *
+       * @param kb the KnowledgeBase to save to
+       * @param key a key prefix to save with
+       * @param expiry use this expiry time instead of the one set on this ID
+       **/
+      void save_as(madara::knowledge::KnowledgeBase &kb,
+                   const std::string &key, uint64_t expiry) const;
 
       /**
        * Interpolate a frame between the given frame; use the given parent.
