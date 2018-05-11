@@ -455,6 +455,10 @@ namespace gams
       /// Return the default expiry for new frame IDs
       static uint64_t default_expiry();
 
+      /// Return the default prefix for load/save operations
+      /// @return std::string holding ".gams.frames"
+      static const std::string &default_prefix();
+
       /**
        * Test if frame is interpolated.
        *
@@ -471,7 +475,8 @@ namespace gams
        *
        * @param kb the KnowledgeBase to store into
        **/
-      void save(madara::knowledge::KnowledgeBase &kb) const;
+      void save(madara::knowledge::KnowledgeBase &kb,
+                std::string prefix = default_prefix()) const;
 
       /**
        * Save this ReferenceFrame to the knowledge base,
@@ -483,7 +488,8 @@ namespace gams
        * @param expiry use this expiry time instead of the one set on this ID
        **/
       void save(madara::knowledge::KnowledgeBase &kb,
-                uint64_t expiry) const;
+                uint64_t expiry,
+                std::string prefix = default_prefix()) const;
 
       /**
        * Load a single ReferenceFrame, by ID.
@@ -499,7 +505,8 @@ namespace gams
       static ReferenceFrame load(
               madara::knowledge::KnowledgeBase &kb,
               const std::string &id,
-              uint64_t timestamp = -1);
+              uint64_t timestamp = -1,
+              std::string prefix = default_prefix());
 
       /**
        * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -522,7 +529,8 @@ namespace gams
             madara::knowledge::KnowledgeBase &kb,
             InputIterator begin,
             InputIterator end,
-            uint64_t timestamp = -1);
+            uint64_t timestamp = -1,
+            std::string prefix = default_prefix());
 
       /**
        * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -544,7 +552,8 @@ namespace gams
       static std::vector<ReferenceFrame> load_tree(
             madara::knowledge::KnowledgeBase &kb,
             const Container &ids,
-            uint64_t timestamp = -1);
+            uint64_t timestamp = -1,
+            std::string prefix = default_prefix());
 
       /**
        * Save this ReferenceFrame to the knowledge base, with a specific key
@@ -555,7 +564,8 @@ namespace gams
        **/
       void save_as(
             madara::knowledge::KnowledgeBase &kb,
-            const std::string &key) const;
+            const std::string &key,
+            const std::string &prefix) const;
 
       /**
        * Save this ReferenceFrame to the knowledge base,
@@ -566,7 +576,8 @@ namespace gams
        * @param expiry use this expiry time instead of the one set on this ID
        **/
       void save_as(madara::knowledge::KnowledgeBase &kb,
-                   const std::string &key, uint64_t expiry) const;
+                   const std::string &key, uint64_t expiry,
+                   const std::string &prefix) const;
 
       /**
        * Interpolate a frame between the given frame; use the given parent.

@@ -236,6 +236,14 @@ int main(int, char *[])
     camera_frame1.save(kb);
     drone2_frame1.save(kb);
 
+    gps_frame().save(kb, "public_frames");
+    building_frame.save(kb, "public_frames");
+    room_frame.save(kb, "public_frames");
+    kitchen_frame.save(kb, "public_frames");
+    drone_frame1.save(kb, "public_frames");
+    camera_frame1.save(kb, "public_frames");
+    drone2_frame1.save(kb, "public_frames");
+
     drone_frame.move({room_frame, 3, 6, -2}, 2250).save(kb);
     camera_frame1.orient({drone_frame1, 0, 0, M_PI/2}, 2250).save(kb);
     drone2_frame.move({room_frame, 3, 7, -2}, 2500).save(kb);
@@ -268,6 +276,32 @@ int main(int, char *[])
     LOG(d2pos);
     LOG(d1pos);
   }
+
+  frames = ReferenceFrame::load_tree(kb, ids, 1000, "public_frames");
+
+  TEST_EQ(frames.size(), ids.size());
+
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
+
+    TEST(frames[0].timestamp(), 1000);
+    TEST(frames[1].timestamp(), 1000);
+
+    TEST_EQ(frames[0].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), false);
+
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 2);
+    TEST(frames[1].origin().rz(), 0);
+
+    Position d2pos(frames[1], 1, 1);
+    Position d1pos = d2pos.transform_to(frames[0]);
+    LOG(d2pos);
+    LOG(d1pos);
+  }
+
+  frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
   frames = ReferenceFrame::load_tree(kb, ids, 1500);
 

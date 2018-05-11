@@ -597,22 +597,29 @@ inline uint64_t ReferenceFrame::default_expiry() {
   return ReferenceFrameIdentity::default_expiry();
 }
 
-inline void ReferenceFrame::save(
-      madara::knowledge::KnowledgeBase &kb) const {
-  return impl_->save(kb);
+inline const std::string &ReferenceFrame::default_prefix() {
+  return ReferenceFrameIdentity::default_prefix();
 }
 
 inline void ReferenceFrame::save(
       madara::knowledge::KnowledgeBase &kb,
-      uint64_t expiry) const {
-  return impl_->save(kb, expiry);
+      std::string prefix) const {
+  return impl_->save(kb, std::move(prefix));
+}
+
+inline void ReferenceFrame::save(
+      madara::knowledge::KnowledgeBase &kb,
+      uint64_t expiry,
+      std::string prefix) const {
+  return impl_->save(kb, expiry, std::move(prefix));
 }
 
 inline ReferenceFrame ReferenceFrame::load(
         madara::knowledge::KnowledgeBase &kb,
         const std::string &id,
-        uint64_t timestamp) {
-  return ReferenceFrameVersion::load(kb, id, timestamp);
+        uint64_t timestamp,
+        std::string prefix) {
+  return ReferenceFrameVersion::load(kb, id, timestamp, std::move(prefix));
 }
 
 template<typename InputIterator>
@@ -620,43 +627,40 @@ inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
       madara::knowledge::KnowledgeBase &kb,
       InputIterator begin,
       InputIterator end,
-      uint64_t timestamp) {
-  return ReferenceFrameVersion::load_tree(kb, begin, end, timestamp);
+      uint64_t timestamp,
+      std::string prefix) {
+  return ReferenceFrameVersion::load_tree(kb, begin, end,
+                                          timestamp, std::move(prefix));
 }
 
 template<typename Container>
 inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
       madara::knowledge::KnowledgeBase &kb,
       const Container &ids,
-      uint64_t timestamp) {
-  return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
-}
-
-inline void ReferenceFrame::save_as(
-      madara::knowledge::KnowledgeBase &kb,
-      const std::string &key) const {
-  return impl_->save_as(kb, key);
+      uint64_t timestamp,
+      std::string prefix) {
+  return load_tree(kb, ids.cbegin(), ids.cend(), timestamp, std::move(prefix));
 }
 
 inline void ReferenceFrame::save_as(
       madara::knowledge::KnowledgeBase &kb,
       const std::string &key,
-      uint64_t expiry) const {
-  return impl_->save_as(kb, key, expiry);
+      const std::string &prefix) const {
+  return impl_->save_as(kb, key, prefix);
+}
+
+inline void ReferenceFrame::save_as(
+      madara::knowledge::KnowledgeBase &kb,
+      const std::string &key,
+      uint64_t expiry,
+      const std::string &prefix) const {
+  return impl_->save_as(kb, key, expiry, prefix);
 }
 
 inline ReferenceFrame ReferenceFrame::interpolate(
       const ReferenceFrame &other, ReferenceFrame parent, uint64_t time) const {
   return impl_->interpolate(other, std::move(parent), time);
 }
-
-#if 0
-inline ReferenceFrame ReferenceFrame::load_as(
-      madara::knowledge::KnowledgeBase &kb,
-      const std::string &key) {
-  return ReferenceFrameVersion::load_as(kb, key);
-}
-#endif
 
 inline unrelated_frames::unrelated_frames(ReferenceFrame from_frame,
   ReferenceFrame to_frame) :

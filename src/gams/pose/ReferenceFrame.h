@@ -203,7 +203,12 @@ namespace gams
         }
 
         void expire_older_than(madara::knowledge::KnowledgeBase &kb,
-            uint64_t time) const;
+            uint64_t time, std::string prefix) const;
+
+        static const std::string &default_prefix() {
+          static const std::string prefix(".gams.frames");
+          return prefix;
+        }
 
         /**
          * Old versions of frames can remain loaded in memory after they are no
@@ -214,10 +219,6 @@ namespace gams
 
     /// Private implementation details
     namespace impl {
-      inline static std::string make_kb_prefix() {
-        return ".gams.frames";
-      }
-
       inline static std::string &make_kb_key(
           std::string &prefix,
           const std::string &id)
@@ -583,11 +584,14 @@ namespace gams
         return interpolated_;
       }
 
+      static const std::string &default_prefix() {
+        return ReferenceFrameIdentity::default_prefix();
+      }
+
       /**
        * Returns the key that save() will use to store this frame.
        **/
-      std::string key() const {
-        auto prefix = impl::make_kb_prefix();
+      std::string key(std::string prefix = default_prefix()) const {
         impl::make_kb_key(prefix, id(), timestamp());
         return prefix;
       }
@@ -602,9 +606,10 @@ namespace gams
        * @param expiry use this expiry time instead of the one set on this ID
        **/
       void save(madara::knowledge::KnowledgeBase &kb,
-                uint64_t expiry) const {
-        std::string key = this->key();
-        save_as(kb, std::move(key), expiry);
+                uint64_t expiry,
+                std::string prefix = default_prefix()) const {
+        std::string key = this->key(prefix);
+        save_as(kb, std::move(key), expiry, prefix);
       }
 
       /**
@@ -615,9 +620,10 @@ namespace gams
        *
        * @param kb the KnowledgeBase to store into
        **/
-      void save(madara::knowledge::KnowledgeBase &kb) const {
-        std::string key = this->key();
-        save_as(kb, std::move(key));
+      void save(madara::knowledge::KnowledgeBase &kb,
+          std::string prefix = default_prefix()) const {
+        std::string key = this->key(prefix);
+        save_as(kb, std::move(key), prefix);
       }
 
       /**
@@ -635,7 +641,8 @@ namespace gams
       static ReferenceFrame load_exact(
               madara::knowledge::KnowledgeBase &kb,
               const std::string &id,
-              uint64_t timestamp = -1);
+              uint64_t timestamp = -1,
+              std::string prefix = default_prefix());
 
       /**
        * Load a single ReferenceFrame, by ID and timestamp, interpolated
@@ -652,7 +659,8 @@ namespace gams
       static ReferenceFrame load(
               madara::knowledge::KnowledgeBase &kb,
               const std::string &id,
-              uint64_t timestamp = -1);
+              uint64_t timestamp = -1,
+              std::string prefix = default_prefix());
 
       /**
        * Get the latest available timestamp in the knowledge base
@@ -666,7 +674,8 @@ namespace gams
        **/
       static uint64_t latest_timestamp(
               madara::knowledge::KnowledgeBase &kb,
-              const std::string &id);
+              const std::string &id,
+              std::string prefix = default_prefix());
 
       /**
        * Get the latest available timestamp in the knowledge base
@@ -686,14 +695,15 @@ namespace gams
       static uint64_t latest_common_timestamp(
               madara::knowledge::KnowledgeBase &kb,
               ForwardIterator begin,
-              ForwardIterator end)
+              ForwardIterator end,
+              const std::string &prefix = default_prefix())
       {
         madara::knowledge::ContextGuard guard(kb);
 
         uint64_t timestamp = -1;
         ForwardIterator cur = begin;
         while (cur != end) {
-          uint64_t time = latest_timestamp(kb, *cur);
+          uint64_t time = latest_timestamp(kb, *cur, prefix);
           if (time < timestamp) {
             timestamp = time;
           }
@@ -717,7 +727,8 @@ namespace gams
       template<typename Container>
       static uint64_t latest_common_timestamp(
               madara::knowledge::KnowledgeBase &kb,
-              const Container &ids)
+              const Container &ids,
+              const std::string &prefix = default_prefix())
       {
         madara::knowledge::ContextGuard guard(kb);
 
@@ -745,7 +756,8 @@ namespace gams
               madara::knowledge::KnowledgeBase &kb,
               ForwardIterator begin,
               ForwardIterator end,
-              uint64_t timestamp = -1)
+              uint64_t timestamp = -1,
+              std::string prefix = default_prefix())
       {
         std::vector<ReferenceFrame> ret;
         if (std::is_same<typename ForwardIterator::iterator_category,
@@ -757,10 +769,10 @@ namespace gams
         madara::knowledge::ContextGuard guard(kb);
 
         if (timestamp == (uint64_t)-1) {
-          timestamp = latest_common_timestamp(kb, begin, end);
+          timestamp = latest_common_timestamp(kb, begin, end, prefix);
         }
         while (begin != end) {
-          ReferenceFrame frame = load(kb, *begin, timestamp);
+          ReferenceFrame frame = load(kb, *begin, timestamp, prefix);
           if (!frame.valid()) {
             return {};
           }
@@ -790,9 +802,11 @@ namespace gams
       static std::vector<ReferenceFrame> load_tree(
               madara::knowledge::KnowledgeBase &kb,
               const Container &ids,
-              uint64_t timestamp = -1)
+              uint64_t timestamp = -1,
+              std::string prefix = default_prefix())
       {
-        return load_tree(kb, ids.cbegin(), ids.cend(), timestamp);
+        return load_tree(kb, ids.cbegin(), ids.cend(),
+                         timestamp, std::move(prefix));
       }
 
       /**
@@ -804,7 +818,8 @@ namespace gams
        * @param expiry use this expiry time instead of the one set on this ID
        **/
       void save_as(madara::knowledge::KnowledgeBase &kb,
-                   std::string key, uint64_t expiry) const;
+                   std::string key, uint64_t expiry,
+                   const std::string &prefix = default_prefix()) const;
       /**
        * Save this ReferenceFrame to the knowledge base,
        * with a specific key value.
@@ -813,9 +828,10 @@ namespace gams
        * @param key a key prefix to save with
        **/
       void save_as(madara::knowledge::KnowledgeBase &kb,
-                   std::string key) const
+                   std::string key,
+                   const std::string &prefix = default_prefix()) const
       {
-        save_as(kb, key, ident().expiry());
+        save_as(kb, key, ident().expiry(), prefix);
       }
 
       /**

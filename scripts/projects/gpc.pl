@@ -2780,7 +2780,7 @@ namespace platforms
     virtual int takeoff (void);
     
     /**
-     * Returns the reference frame for the platform (e.g. GPS or cartesian)
+     * Returns the world reference frame for the platform (e.g. GPS or cartesian)
      **/
     virtual const gams::pose::ReferenceFrame & get_frame (void) const;
     
@@ -3274,7 +3274,7 @@ namespace transports
      *          been updated and could be sent.
      * \@return  result of operation or -1 if we are shutting down
      **/
-    long send_data (const madara::knowledge::KnowledgeRecords & modifieds);
+    long send_data (const madara::knowledge::VariableReferenceMap & modifieds);
     
   protected:
     /// threads for monitoring knowledge updates
@@ -3335,7 +3335,7 @@ transports::${new_trans}::~${new_trans} ()
 
 long
 transports::${new_trans}::send_data (
-  const madara::knowledge::KnowledgeRecords & modifieds)
+  const madara::knowledge::VariableReferenceMap & modifieds)
 {
   /**
    * Return number of bytes sent or negative for error

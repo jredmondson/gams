@@ -248,9 +248,9 @@ namespace gams
 
     void ReferenceFrameIdentity::expire_older_than(
         KnowledgeBase &kb,
-        uint64_t time) const
+        uint64_t time,
+        std::string prefix) const
     {
-      std::string prefix = impl::make_kb_prefix();
       impl::make_kb_key(prefix, id_);
       std::string key_low = std::move(prefix);
       std::string key_high = key_low;
@@ -283,7 +283,8 @@ namespace gams
     void ReferenceFrameVersion::save_as(
             KnowledgeBase &kb,
             std::string key,
-            uint64_t expiry) const
+            uint64_t expiry,
+            const std::string &prefix) const
     {
       key += ".";
       size_t pos = key.size();
@@ -320,14 +321,14 @@ namespace gams
         } else {
           cap = timestamp() - expiry;
         }
-        ident().expire_older_than(kb, cap);
+        ident().expire_older_than(kb, cap, prefix);
       }
     }
 
     namespace {
       std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
         load_single( KnowledgeBase &kb, const std::string &id,
-            uint64_t timestamp)
+            uint64_t timestamp, std::string prefix)
       {
         auto ident = ReferenceFrameIdentity::find(id);
         if (ident) {
@@ -338,7 +339,7 @@ namespace gams
           }
         }
 
-        auto key = impl::make_kb_prefix();
+        auto key = std::move(prefix);
         impl::make_kb_key(key, id, timestamp);
 
         key += ".";
@@ -392,16 +393,17 @@ namespace gams
     ReferenceFrame ReferenceFrameVersion::load_exact(
           KnowledgeBase &kb,
           const std::string &id,
-          uint64_t timestamp)
+          uint64_t timestamp,
+          std::string prefix)
     {
       ContextGuard guard(kb);
 
-      auto ret = load_single(kb, id, timestamp);
+      auto ret = load_single(kb, id, timestamp, prefix);
       if (!ret.first) {
         return ReferenceFrame();
       }
       if (ret.second.size() > 0) {
-        auto parent = load(kb, ret.second, timestamp);
+        auto parent = load(kb, ret.second, timestamp, std::move(prefix));
         if (!parent.valid()) {
           //std::cerr << "Couldn't find " << ret.second << std::endl;
           return ReferenceFrame();
@@ -425,11 +427,12 @@ namespace gams
       }
 
       std::pair<uint64_t, uint64_t> find_nearest_neighbors(
-          KnowledgeBase &kb, const std::string &id, uint64_t timestamp)
+          KnowledgeBase &kb, const std::string &id,
+          uint64_t timestamp, std::string prefix)
       {
         static const char suffix[] = ".origin";
 
-        auto key = impl::make_kb_prefix();
+        auto key = std::move(prefix);
 
         impl::make_kb_key(key, id);
 
@@ -475,14 +478,15 @@ namespace gams
 
     uint64_t ReferenceFrameVersion::latest_timestamp(
             madara::knowledge::KnowledgeBase &kb,
-            const std::string &id)
+            const std::string &id,
+            std::string prefix)
     {
       ContextGuard guard(kb);
 
-      auto ret = find_nearest_neighbors(kb, id, -1).first;
+      auto ret = find_nearest_neighbors(kb, id, -1, prefix).first;
       //std::cerr << "Latest for " << id << " is " << ret << std::endl;
 
-      auto key = impl::make_kb_prefix();
+      auto key = std::move(prefix);
       impl::make_kb_key(key, id, ret);
       key += ".parent";
       KnowledgeMap &map = kb.get_context().get_map_unsafe();
@@ -499,7 +503,8 @@ namespace gams
     ReferenceFrame ReferenceFrameVersion::load(
             KnowledgeBase &kb,
             const std::string &id,
-            uint64_t timestamp)
+            uint64_t timestamp,
+            std::string prefix)
     {
       ContextGuard guard(kb);
 
@@ -507,7 +512,7 @@ namespace gams
         return load_exact(kb, id, timestamp);
       }
 
-      ReferenceFrame ret = load_exact(kb, id, timestamp);
+      ReferenceFrame ret = load_exact(kb, id, timestamp, prefix);
       if (ret.valid()) {
         return ret;
       }
@@ -517,7 +522,7 @@ namespace gams
         return ret;
       }
 
-      auto pair = find_nearest_neighbors(kb, id, timestamp);
+      auto pair = find_nearest_neighbors(kb, id, timestamp, prefix);
 
       //std::cerr << "Nearest " << id << " " << pair.first << " " << timestamp << " " << pair.second << std::endl;
 
@@ -525,8 +530,8 @@ namespace gams
         return {};
       }
 
-      ReferenceFrame prev = load_exact(kb, id, pair.first);
-      ReferenceFrame next = load_exact(kb, id, pair.second);
+      ReferenceFrame prev = load_exact(kb, id, pair.first, prefix);
+      ReferenceFrame next = load_exact(kb, id, pair.second, prefix);
 
       ReferenceFrame parent;
 
@@ -539,7 +544,7 @@ namespace gams
           return {};
         }
 
-        parent = load_exact(kb, parent_id, timestamp);
+        parent = load_exact(kb, parent_id, timestamp, prefix);
       }
 
       if (prev.valid() && next.valid()) {
