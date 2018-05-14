@@ -51,6 +51,8 @@
  * This file contains the AngularAcceleration class
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_ANGULAR_ACCELERATION_H
 #define _GAMS_POSE_ANGULAR_ACCELERATION_H
 

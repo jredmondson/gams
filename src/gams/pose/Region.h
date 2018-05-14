@@ -51,6 +51,8 @@
  * This file contains a utility class for working with position
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef  _GAMS_UTILITY_REGION_H_
 #define  _GAMS_UTILITY_REGION_H_
 

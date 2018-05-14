@@ -417,8 +417,7 @@ inline double distance(
   {
     CoordType coord1_conv(coord1);
     CoordType coord2_conv(coord2);
-    const ReferenceFrame &pframe =
-         common_parent_transform(coord1_conv, coord2_conv);
+    common_parent_transform(coord1_conv, coord2_conv);
 
     return difference(coord1_conv, coord2_conv);
   }

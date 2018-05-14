@@ -51,6 +51,8 @@
  * This file contains the Position, Orientation, and Pose classes
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_COORDINATE_H_
 #define _GAMS_POSE_COORDINATE_H_
 

@@ -51,6 +51,8 @@
  * This file contains the Linear and LinearVector classes
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_LINEAR_H_
 #define _GAMS_POSE_LINEAR_H_
 

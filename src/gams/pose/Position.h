@@ -51,6 +51,8 @@
  * This file contains the Position and PositionVector classes
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_POSITION_H_
 #define _GAMS_POSE_POSITION_H_
 

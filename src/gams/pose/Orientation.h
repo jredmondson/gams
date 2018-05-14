@@ -51,6 +51,8 @@
  * This file contains the Orientation and OrientationVector classes
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_ORIENTATION_H
 #define _GAMS_POSE_ORIENTATION_H
 

@@ -53,6 +53,8 @@
  * these angles, convert them to the Quaternion or Angular classes.
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_EULER_H_
 #define _GAMS_POSE_EULER_H_
 

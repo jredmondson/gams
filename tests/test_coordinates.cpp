@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include <gams/pose/Position.h>
 #include <gams/pose/CartesianFrame.h>
 #include <gams/pose/GPSFrame.h>
 #include <madara/knowledge/KnowledgeBase.h>
@@ -240,6 +241,9 @@ int main(int, char *[])
     building_frame.save(kb, "public_frames");
     room_frame.save(kb, "public_frames");
     kitchen_frame.save(kb, "public_frames");
+    drone_frame.save(kb, "public_frames");
+    camera_frame.save(kb, "public_frames");
+    drone2_frame.save(kb, "public_frames");
     drone_frame1.save(kb, "public_frames");
     camera_frame1.save(kb, "public_frames");
     drone2_frame1.save(kb, "public_frames");
@@ -277,7 +281,7 @@ int main(int, char *[])
     LOG(d1pos);
   }
 
-  frames = ReferenceFrame::load_tree(kb, ids, 1000, "public_frames");
+  frames = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
 
   TEST_EQ(frames.size(), ids.size());
 
@@ -343,14 +347,14 @@ int main(int, char *[])
     Linear<Position> cpose = frames[0].origin();
   }
 
-  frames = ReferenceFrame::load_tree(kb, ids, 2500);
+  FrameStore frame_store(kb, 4000);
+  frames = frame_store.load_tree(ids, 2500);
 
   TEST_EQ(frames.size(), 0UL);
 
-  ReferenceFrameIdentity::default_expiry(4000);
   for (int x = 0; x <= 10000; x += 500) {
     ReferenceFrame exp("expiring", Pose(), x);
-    exp.save(kb);
+    frame_store.save(std::move(exp));
   }
 
   std::string dump;
@@ -364,6 +368,7 @@ int main(int, char *[])
   LOG(dump);
 
   exp.save(kb);
+  frame_store.save(std::move(exp));
 
   kb.to_string(dump);
   LOG(dump);

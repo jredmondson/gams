@@ -51,6 +51,8 @@
  * This file contains the Velocity and VelocityVector classes
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_VELOCITY_H_
 #define _GAMS_POSE_VELOCITY_H_
 

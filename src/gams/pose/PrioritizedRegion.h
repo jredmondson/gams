@@ -51,6 +51,8 @@
  * Prioritized region associates a priority with a region
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef  _GAMS_UTILITY_PRIORITIZED_REGION_H_
 #define  _GAMS_UTILITY_PRIORITIZED_REGION_H_
 

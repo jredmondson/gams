@@ -51,6 +51,8 @@
  * This file contains the Quaternion class, useful for performing angle math
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_QUATERNION_H_
 #define _GAMS_POSE_QUATERNION_H_
 
