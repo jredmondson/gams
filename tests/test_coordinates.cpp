@@ -255,6 +255,10 @@ int main(int, char *[])
 
   ReferenceFrameIdentity::gc();
 
+  std::string dump;
+  kb.to_string(dump);
+  LOG(dump);
+
   std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
 
   std::vector<ReferenceFrame> frames = ReferenceFrame::load_tree(kb, ids, 1000);
@@ -272,7 +276,7 @@ int main(int, char *[])
     TEST_EQ(frames[1].interpolated(), false);
 
     TEST(frames[0].origin().x(), 3);
-    TEST(frames[0].origin().y(), 2);
+    TEST(frames[0].origin().y(), 3);
     TEST(frames[1].origin().rz(), 0);
 
     Position d2pos(frames[1], 1, 1);
@@ -281,31 +285,29 @@ int main(int, char *[])
     LOG(d1pos);
   }
 
-  frames = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
+  auto pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
 
-  TEST_EQ(frames.size(), ids.size());
+  TEST_EQ(pframes.size(), ids.size());
 
-  if (frames.size() == ids.size()) {
-    TEST_EQ(frames[0].id(), "Drone");
-    TEST_EQ(frames[1].id(), "Drone2");
+  if (pframes.size() == ids.size()) {
+    TEST_EQ(pframes[0].id(), "Drone");
+    TEST_EQ(pframes[1].id(), "Drone2");
 
-    TEST(frames[0].timestamp(), 1000);
-    TEST(frames[1].timestamp(), 1000);
+    TEST(pframes[0].timestamp(), 1500);
+    TEST(pframes[1].timestamp(), 1500);
 
-    TEST_EQ(frames[0].interpolated(), false);
-    TEST_EQ(frames[1].interpolated(), false);
+    TEST_EQ(pframes[0].interpolated(), true);
+    TEST_EQ(pframes[1].interpolated(), true);
 
-    TEST(frames[0].origin().x(), 3);
-    TEST(frames[0].origin().y(), 2);
-    TEST(frames[1].origin().rz(), 0);
+    TEST(pframes[0].origin().x(), 3);
+    TEST(pframes[0].origin().y(), 3);
+    TEST(pframes[1].origin().rz(), 0);
 
-    Position d2pos(frames[1], 1, 1);
-    Position d1pos = d2pos.transform_to(frames[0]);
+    Position d2pos(pframes[1], 1, 1);
+    Position d1pos = d2pos.transform_to(pframes[0]);
     LOG(d2pos);
     LOG(d1pos);
   }
-
-  frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
   frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
@@ -319,11 +321,16 @@ int main(int, char *[])
     TEST(frames[1].timestamp(), 1500);
 
     TEST_EQ(frames[0].interpolated(), true);
-    TEST_EQ(frames[1].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), true);
 
     TEST(frames[0].origin().x(), 3);
     TEST(frames[0].origin().y(), 3);
     TEST(frames[2].origin().rz(), M_PI/8);
+
+    Position d2pos(pframes[1], 1, 1);
+    Position d1pos = d2pos.transform_to(pframes[0]);
+    LOG(d2pos);
+    LOG(d1pos);
   }
 
   frames = ReferenceFrame::load_tree(kb, ids);
@@ -357,7 +364,6 @@ int main(int, char *[])
     frame_store.save(std::move(exp));
   }
 
-  std::string dump;
   kb.to_string(dump);
   LOG(dump);
 

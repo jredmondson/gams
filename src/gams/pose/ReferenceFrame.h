@@ -114,7 +114,7 @@ public:
     {
       std::lock_guard<std::mutex> guard(versions_lock_);
 
-      std::weak_ptr<ReferenceFrameVersion> weak(ver);
+      std::weak_ptr<ReferenceFrameVersion> weak(std::move(ver));
       versions_[timestamp] = ver;
     }
 
@@ -838,6 +838,13 @@ public:
    **/
   ReferenceFrame interpolate(const ReferenceFrame &other, ReferenceFrame parent, uint64_t time) const
   {
+    //std::cerr << "Interpolate has_id: " << has_id() << std::endl;
+    if (has_id()) {
+      auto ret = ident().get_version(time);
+      if (ret) {
+        return ret;
+      }
+    }
     double fraction = (time - timestamp()) / (double)(other.timestamp() - timestamp());
 
     Pose interp = origin();
@@ -859,6 +866,11 @@ public:
 
     auto ret = std::make_shared<ReferenceFrameVersion>(
         ident_, type(), std::move(interp), time);
+
+    if (has_id()) {
+      ident().register_version(time, ret);
+    }
+
     ret->interpolated_ = true;
     return ret;
   }
