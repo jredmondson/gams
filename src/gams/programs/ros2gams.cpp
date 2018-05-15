@@ -29,6 +29,7 @@
 #endif
 
 #include "ros/ros.h"
+#include "ros/serialization.h"
 #include "rosbag/bag.h"
 #include "rosbag/view.h"
 #include "rosbag/message_instance.h"
@@ -45,6 +46,7 @@
 #include <sensor_msgs/Range.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_msgs/TFMessage.h>
+#include <std_msgs/String.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -212,6 +214,7 @@ int main (int argc, char ** argv)
   	//std::cout << "\n\nMessageInstances in the bagfile: \n";
   	settings.initial_lamport_clock = 0;
   	settings.last_lamport_clock = 0;
+  	settings.buffer_size = 10240000;
   	cout << "Converting...\n";
     for (const rosbag::MessageInstance m: view)
     {
@@ -266,8 +269,12 @@ int main (int argc, char ** argv)
 	    }
 	    else
 	    {
-	    	//cout << topic << ": Type not supported\n";
-	    	continue;
+	    	//cout << topic << ": Type not supported\nSize: " << m.size() << std::endl;
+	    	unsigned char * buff = new unsigned char[m.size()];
+	    	ros::serialization::OStream stream(buff, m.size());
+	    	m.write(stream);
+	    	kb.set_file(container_name, buff, m.size());
+	    	delete[] buff;
 	    }
 
 	    //kb.print();
@@ -405,6 +412,8 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 **/
 void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge)
 {
+	// Expire frames after 60 seconds
+	gams::pose::ReferenceFrame::default_expiry(60*1000);
 	for (tf2_msgs::TFMessage::_transforms_type::iterator iter = tf->transforms.begin(); iter != tf->transforms.end(); ++iter)
 	{
 		// read frame names_ 
@@ -430,7 +439,7 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
 									  iter->transform.translation.z);
 
 		gams::pose::Pose pose(parent, position, gams::pose::Orientation(quat));
-		gams::pose::ReferenceFrame child_frame(child_frame_id, pose);
+		gams::pose::ReferenceFrame child_frame(child_frame_id, pose, iter->header.stamp.sec*1000*1000 + iter->header.stamp.nsec);
 		child_frame.save(*knowledge);
 	}
 }
