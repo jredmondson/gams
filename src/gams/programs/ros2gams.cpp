@@ -78,7 +78,11 @@ std::string map_file = "";
 // save as a karl or binary file
 bool save_as_karl = true;
 
+// the world and the base frame of the robot
+std::string base_frame = "";
+std::string world_frame = "";
 
+void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name);
 void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_imu (sensor_msgs::Imu * imu, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase * knowledge, std::string container_name);
@@ -189,8 +193,26 @@ int main (int argc, char ** argv)
 				//split the line in topic name and madara var name
 				std::string topic_name = line.substr(0, ros_topic_end);
 				std::string var_name = line.substr(ros_topic_end+1);
-				selected_topics.push_back(topic_name);
-				topic_map[topic_name] = var_name;
+				if (topic_name == "base_frame:")
+				{
+					// definition of the base_frame
+					base_frame = var_name;
+					cout << "Base frame: " << base_frame << std::endl;
+				}
+				else if (topic_name == "world_frame:")
+				{
+					// definition of the world_frame
+					world_frame = var_name;
+					cout << "World frame: " << world_frame << std::endl;
+					gams::pose::ReferenceFrame frame(world_frame, gams::pose::Pose(gams::pose::ReferenceFrame(), 0, 0));
+					frame.save(kb);
+
+				}
+				else
+				{
+					selected_topics.push_back(topic_name);
+					topic_map[topic_name] = var_name;
+				}
 			}
 			myfile.close();
 		}
@@ -211,10 +233,8 @@ int main (int argc, char ** argv)
     }
 
     // Iterate the messages
-  	//std::cout << "\n\nMessageInstances in the bagfile: \n";
   	settings.initial_lamport_clock = 0;
   	settings.last_lamport_clock = 0;
-  	settings.buffer_size = 10240000;
   	cout << "Converting...\n";
     for (const rosbag::MessageInstance m: view)
     {
@@ -231,51 +251,7 @@ int main (int argc, char ** argv)
 	    else
 	    	container_name = get_agent_var_prefix(topic) + "." + ros_to_gams_name(topic);
 
-	    if (m.isType<nav_msgs::Odometry>())
-	    {
-	    	parse_odometry(m.instantiate<nav_msgs::Odometry>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::Imu>())
-	    {
-	    	parse_imu(m.instantiate<sensor_msgs::Imu>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::LaserScan>())
-	    {
-	    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<geometry_msgs::Pose>())
-	    {
-	    	parse_pose(m.instantiate<geometry_msgs::Pose>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<geometry_msgs::PoseStamped>())
-	    {
-	    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::CompressedImage>())
-	    {
-	    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::PointCloud2>())
-	    {
-	    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::Range>())
-	    {
-	    	parse_range(m.instantiate<sensor_msgs::Range>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<tf2_msgs::TFMessage>())
-	    {
-	    	parse_tf_message(m.instantiate<tf2_msgs::TFMessage>().get(), &kb);
-	    }
-	    else
-	    {
-	    	//cout << topic << ": Type not supported\nSize: " << m.size() << std::endl;
-	    	unsigned char * buff = new unsigned char[m.size()];
-	    	ros::serialization::OStream stream(buff, m.size());
-	    	m.write(stream);
-	    	kb.set_file(container_name, buff, m.size());
-	    	delete[] buff;
-	    }
+	    parse_message(m, &kb, container_name);
 
 	    //kb.print();
 	    settings.filename = checkpoint_prefix + "_" + std::to_string(settings.last_lamport_clock) + ".kb";
@@ -290,9 +266,58 @@ int main (int argc, char ** argv)
 	    save_checkpoint(&kb, &settings);
     }
     std::cout << "Done!\n";
-	//std::cout << "Converted " + settings.last_lamport_clock << " messages.\n" << std::flush;
 }
 #endif
+
+void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name)
+{
+
+    if (m.isType<nav_msgs::Odometry>())
+    {
+    	parse_odometry(m.instantiate<nav_msgs::Odometry>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::Imu>())
+    {
+    	parse_imu(m.instantiate<sensor_msgs::Imu>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::LaserScan>())
+    {
+    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), kb, container_name);
+    }
+    else if (m.isType<geometry_msgs::Pose>())
+    {
+    	parse_pose(m.instantiate<geometry_msgs::Pose>().get(), kb, container_name);
+    }
+    else if (m.isType<geometry_msgs::PoseStamped>())
+    {
+    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::CompressedImage>())
+    {
+    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::PointCloud2>())
+    {
+    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::Range>())
+    {
+    	parse_range(m.instantiate<sensor_msgs::Range>().get(), kb, container_name);
+    }
+    else if (m.isType<tf2_msgs::TFMessage>())
+    {
+    	parse_tf_message(m.instantiate<tf2_msgs::TFMessage>().get(), kb);
+    }
+    else
+    {
+    	//cout << topic << ": Type not supported\nSize: " << m.size() << std::endl;
+    	unsigned char * buff = new unsigned char[m.size()];
+    	ros::serialization::OStream stream(buff, m.size());
+    	m.write(stream);
+    	kb->set_file(container_name, buff, m.size());
+    	delete[] buff;
+    }
+}
 
 
 /**
@@ -413,22 +438,19 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge)
 {
 	// Expire frames after 60 seconds
-	gams::pose::ReferenceFrame::default_expiry(60*1000);
+	gams::pose::ReferenceFrame::default_expiry(1000000000);
+	uint64_t max_timestamp = 0;
 	for (tf2_msgs::TFMessage::_transforms_type::iterator iter = tf->transforms.begin(); iter != tf->transforms.end(); ++iter)
 	{
 		// read frame names_ 
 		std::string frame_id = iter->header.frame_id;
-		//std::replace(frame_id.begin(), frame_id.end(), '/', '_');
 		std::string child_frame_id = iter->child_frame_id;
-		//std::replace(child_frame_id.begin(), child_frame_id.end(), '/', '_');
 
 		// parse the rotation and orientation
 		gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load(*knowledge, frame_id);
 		if (!parent.valid())
 		{
 			parent = gams::pose::ReferenceFrame(frame_id, gams::pose::Pose(gams::pose::ReferenceFrame(), 0, 0));
-
-			parent.save(*knowledge);
 		}
 		gams::pose::Quaternion quat(iter->transform.rotation.x,
 									iter->transform.rotation.y,
@@ -439,9 +461,30 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
 									  iter->transform.translation.z);
 
 		gams::pose::Pose pose(parent, position, gams::pose::Orientation(quat));
-		gams::pose::ReferenceFrame child_frame(child_frame_id, pose, iter->header.stamp.sec*1000*1000 + iter->header.stamp.nsec);
+		uint64_t timestamp = iter->header.stamp.sec*1000*1000 + iter->header.stamp.nsec;
+		gams::pose::ReferenceFrame child_frame(child_frame_id, pose, timestamp);
 		child_frame.save(*knowledge);
+		if (timestamp > max_timestamp)
+			max_timestamp = timestamp;
 	}
+	/*knowledge->print();
+	cout << "Determine base->world transform (" << base_frame << " in "<< world_frame << ")" << std::endl;
+	if (base_frame != "" && world_frame != "")
+	{
+		// World and base frames are defined so we can calculate the agent location and orientation
+		gams::pose::ReferenceFrame world  = gams::pose::ReferenceFrame::load(*knowledge, world_frame);
+		cout << "## World valid " << world.valid() << std::endl;
+		gams::pose::ReferenceFrame base  = gams::pose::ReferenceFrame::load(*knowledge, base_frame, max_timestamp);
+		cout << "Test" << std::endl << std::flush;
+		cout << "## Base valid " << base.valid() << std::endl;
+		if(world.valid() && base.valid())
+		{
+			//gams::pose::Pose base_pose = base.origin().transform_to(world);
+			//cout << "Pose: " << base_pose << std::endl;
+			cout << "IT WORKS!!!!!!" << std::endl;
+		}
+
+	}*/
 }
 
 

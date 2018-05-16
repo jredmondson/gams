@@ -294,9 +294,6 @@ class GeodeticConverter
 
   Matrix3 ecef_to_ned_matrix_;
   Matrix3 ned_to_ecef_matrix_;
-
-  bool haveReference_;
-
 }; // class GeodeticConverter
 } // namespace geodetic_util
 } // namespace pose

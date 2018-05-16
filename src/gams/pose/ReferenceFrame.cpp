@@ -199,6 +199,9 @@ namespace gams
           const char *prefix, size_t prefix_size,
           const std::string &suffix = std::string())
       {
+        //std::cerr << "match_affixes: \"" << s <<
+          //"\"  Prefix: \"" << std::string(prefix, prefix_size) <<
+          //"\"  Suffix: \"" << suffix << std::endl;
         return (s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0 &&
                 match_prefix(s, prefix, prefix_size) == 0);
       }
@@ -211,7 +214,7 @@ namespace gams
         while (i != begin) {
           --i;
           const std::string &key = i->first;
-          if (match_affixes(key, prefix, prefix_size, suffix) == 0) {
+          if (match_affixes(key, prefix, prefix_size, suffix)) {
             break;
           }
         }
@@ -447,7 +450,10 @@ namespace gams
 
         auto next = map.lower_bound(key);
 
+        //std::cerr << "Looking for " << key << std::endl;
+
         if (next->first == key) {
+          //std::cerr << "Found it exactly." << std::endl;
           return std::make_pair(timestamp, timestamp);
         }
 
@@ -455,8 +461,12 @@ namespace gams
 
         if (prev == next || prev->first.size() <= len + 1 ||
                             next->first.size() <= len + 1) {
+          //std::cerr << "It doesn't exist." << std::endl;
           return std::make_pair(-1, -1);
         }
+
+        //std::cerr << "Found prev: " << prev->first << std::endl;
+        //std::cerr << "Found next: " << next->first << std::endl;
 
         uint64_t next_time;
         if (!match_affixes(next->first, key.c_str(), len, suffix)) {
@@ -509,7 +519,7 @@ namespace gams
       ContextGuard guard(kb);
 
       if (timestamp == (uint64_t)-1) {
-        return load_exact(kb, id, timestamp);
+        return load_exact(kb, id, timestamp, prefix);
       }
 
       ReferenceFrame ret = load_exact(kb, id, timestamp, prefix);
@@ -517,7 +527,7 @@ namespace gams
         return ret;
       }
 
-      ret = load_exact(kb, id, -1);
+      ret = load_exact(kb, id, -1, prefix);
       if (ret.valid()) {
         return ret;
       }
@@ -527,6 +537,7 @@ namespace gams
       //std::cerr << "Nearest " << id << " " << pair.first << " " << timestamp << " " << pair.second << std::endl;
 
       if (pair.first == (uint64_t)-1 || pair.second == (uint64_t)-1) {
+        //std::cerr << "No valid timestamp pair for " << id << std::endl;
         return {};
       }
 
@@ -544,10 +555,13 @@ namespace gams
           return {};
         }
 
-        parent = load_exact(kb, parent_id, timestamp, prefix);
+        //std::cerr << "Loading " << id << "'s parent " << parent_id << std::endl;
+        parent = load(kb, parent_id, timestamp, prefix);
       }
 
       if (prev.valid() && next.valid()) {
+        //std::cerr << "Interpolating " << id << " with parent " <<
+          //(parent.valid() ? parent.id() : "INVALID") << std::endl;
         return prev.interpolate(next, std::move(parent), timestamp);
       }
 
