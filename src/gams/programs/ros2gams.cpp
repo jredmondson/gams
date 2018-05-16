@@ -44,6 +44,7 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Range.h>
+#include <sensor_msgs/FluidPressure.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_msgs/TFMessage.h>
 #include <std_msgs/String.h>
@@ -95,6 +96,7 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge);
+void parse_fluidpressure (sensor_msgs::FluidPressure * press, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
@@ -304,6 +306,10 @@ void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * k
     {
     	parse_range(m.instantiate<sensor_msgs::Range>().get(), kb, container_name);
     }
+    else if (m.isType<sensor_msgs::FluidPressure>())
+    {
+    	parse_fluidpressure(m.instantiate<sensor_msgs::FluidPressure>().get(), kb, container_name);
+    }
     else if (m.isType<tf2_msgs::TFMessage>())
     {
     	parse_tf_message(m.instantiate<tf2_msgs::TFMessage>().get(), kb);
@@ -413,6 +419,20 @@ void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowled
 	range_val = range->range;
 	containers::Integer radiation_type(container_name + ".radiation_type", *knowledge);
 	radiation_type = range->radiation_type;
+}
+
+/**
+* Parses a ROS FluidPressure Message
+* @param  press   			the sensor_msgs::FluidPressure message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace
+**/
+void parse_fluidpressure (sensor_msgs::FluidPressure * press, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::Double fluid_pressure(container_name + ".fluid_pressure", *knowledge);
+	fluid_pressure = press->fluid_pressure;
+	containers::Double variance(container_name + ".variance", *knowledge);
+	variance = press->variance;
 }
 
 /**
