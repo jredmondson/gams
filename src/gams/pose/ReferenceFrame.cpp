@@ -189,36 +189,17 @@ namespace gams
     }
 
     namespace {
-      int match_prefix(const std::string &s,
+      int compare_prefix(const std::string &s,
           const char *prefix, size_t prefix_size)
       {
         return (s.compare(0, prefix_size, prefix, prefix_size));
       }
 
-      bool match_affixes(const std::string &s,
-          const char *prefix, size_t prefix_size,
-          const std::string &suffix = std::string())
+      int compare_suffix(const std::string &s,
+          const char *suffix, size_t suffix_size)
       {
-        //std::cerr << "match_affixes: \"" << s <<
-          //"\"  Prefix: \"" << std::string(prefix, prefix_size) <<
-          //"\"  Suffix: \"" << suffix << std::endl;
-        return (s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0 &&
-                match_prefix(s, prefix, prefix_size) == 0);
-      }
-
-      template<typename Iter>
-      Iter find_prev(Iter i, Iter begin,
-          const char *prefix, size_t prefix_size,
-          const std::string &suffix = std::string())
-      {
-        while (i != begin) {
-          --i;
-          const std::string &key = i->first;
-          if (match_affixes(key, prefix, prefix_size, suffix)) {
-            break;
-          }
-        }
-        return i;
+        return (s.compare(s.size() - suffix_size, suffix_size,
+              suffix, suffix_size));
       }
 
       template<typename Iter>
@@ -239,7 +220,7 @@ namespace gams
 
         auto lambda_for = [](const std::string &s) {
           return [&s](const kmpair &p){
-              return match_prefix(p.first, s.c_str(), s.size()) < 0; };
+              return compare_prefix(p.first, s.c_str(), s.size()) < 0; };
         };
 
         iter_low = std::find_if(iter_low, map.rend(), lambda_for(low));
@@ -363,7 +344,7 @@ namespace gams
         const ReferenceFrameType *type = Cartesian;
         key += "type";
         find = map.find(key);
-        //std::cerr << "Looking for " << key << std::endl;
+        //std::cerr << "Looking for single " << key << std::endl;
         if (find != map.end()) {
           std::string type_name = find->second.to_string();
           //std::cerr << "loaded " << type_name << " frame: " << id << std::endl;
@@ -434,6 +415,7 @@ namespace gams
           uint64_t timestamp, std::string prefix)
       {
         static const char suffix[] = ".origin";
+        static const size_t suffix_len = sizeof(suffix) - 1;
 
         auto key = std::move(prefix);
 
@@ -448,37 +430,53 @@ namespace gams
         ContextGuard guard(kb);
         KnowledgeMap &map = kb.get_context().get_map_unsafe();
 
-        auto next = map.lower_bound(key);
+        auto find = map.lower_bound(key);
+        auto next = find;
 
-        //std::cerr << "Looking for " << key << std::endl;
+        //std::cerr << "Looking for neighbors " << key << std::endl;
 
         if (next->first == key) {
           //std::cerr << "Found it exactly." << std::endl;
           return std::make_pair(timestamp, timestamp);
         }
 
-        auto prev = find_prev(next, map.begin(), key.c_str(), len, suffix);
-
-        if (prev == next || prev->first.size() <= len + 1 ||
-                            next->first.size() <= len + 1) {
-          //std::cerr << "It doesn't exist." << std::endl;
-          return std::make_pair(-1, -1);
+        while (next != map.end()) {
+          const std::string &cur = next->first;
+          if (compare_prefix(cur, key.c_str(), len) != 0) {
+            next = map.end();
+          } else if (compare_suffix(cur, suffix, suffix_len) == 0) {
+            break;
+          } else {
+            ++next;
+          }
         }
 
-        //std::cerr << "Found prev: " << prev->first << std::endl;
-        //std::cerr << "Found next: " << next->first << std::endl;
+        auto prev = find;
 
-        uint64_t next_time;
-        if (!match_affixes(next->first, key.c_str(), len, suffix)) {
-          next_time = -1;
-        } else {
+        if (prev != map.begin()) {
+          --prev;
+        }
+
+        while (prev != map.end()) {
+          const std::string &cur = prev->first;
+          if (compare_prefix(cur, key.c_str(), len) != 0) {
+            prev = map.end();
+          } else if (compare_suffix(cur, suffix, suffix_len) == 0) {
+            break;
+          } else if (prev == map.begin()) {
+            prev = map.end();
+          } else {
+            --prev;
+          }
+        }
+
+        uint64_t next_time = -1;
+        if (next != map.end()) {
           next_time = timestamp_from_key(&next->first[len + 1]);
         }
 
-        uint64_t prev_time;
-        if (!match_affixes(prev->first, key.c_str(), len, suffix)) {
-          prev_time = -1;
-        } else {
+        uint64_t prev_time = -1;
+        if (prev != map.end()) {
           prev_time = timestamp_from_key(&prev->first[len + 1]);
         }
 
@@ -504,7 +502,7 @@ namespace gams
       if (find != map.end()) {
         auto p = latest_timestamp(kb, find->second.to_string());
         if (p < ret) {
-          return ret;
+          return p;
         }
       }
       return ret;
@@ -519,7 +517,7 @@ namespace gams
       ContextGuard guard(kb);
 
       if (timestamp == (uint64_t)-1) {
-        return load_exact(kb, id, timestamp, prefix);
+        timestamp = latest_timestamp(kb, id, prefix);
       }
 
       ReferenceFrame ret = load_exact(kb, id, timestamp, prefix);
@@ -541,28 +539,30 @@ namespace gams
         return {};
       }
 
-      ReferenceFrame prev = load_exact(kb, id, pair.first, prefix);
-      ReferenceFrame next = load_exact(kb, id, pair.second, prefix);
+      auto prev = load_single(kb, id, pair.first, prefix);
+      auto next = load_single(kb, id, pair.second, prefix);
 
       ReferenceFrame parent;
 
-      if (prev.origin_frame().valid() && next.origin_frame().valid()) {
-        const std::string &parent_id = prev.origin_frame().id();
-        const std::string &next_parent_id = next.origin_frame().id();
+      if (prev.first && next.first) {
+        const std::string &parent_id = prev.second;
+        const std::string &next_parent_id = next.second;
 
         if (parent_id != next_parent_id) {
           //std::cerr << "Mismatched frame parents " << parent_id << "  " << next_parent_id << std::endl;
           return {};
         }
 
-        //std::cerr << "Loading " << id << "'s parent " << parent_id << std::endl;
-        parent = load(kb, parent_id, timestamp, prefix);
-      }
+        if (parent_id != "") {
+          //std::cerr << "Loading " << id << "'s parent " << parent_id << std::endl;
+          parent = load(kb, parent_id, timestamp, prefix);
 
-      if (prev.valid() && next.valid()) {
-        //std::cerr << "Interpolating " << id << " with parent " <<
-          //(parent.valid() ? parent.id() : "INVALID") << std::endl;
-        return prev.interpolate(next, std::move(parent), timestamp);
+          //std::cerr << "Interpolating " << id << " with parent " <<
+            //(parent.valid() ? parent.id() : "INVALID") << std::endl;
+        } else {
+          //std::cerr << "Frame " << id << " has no parent" << std::endl;
+        }
+        return prev.first->interpolate(next.first, std::move(parent), timestamp);
       }
 
       //std::cerr << "No interpolation found for " << id << std::endl;

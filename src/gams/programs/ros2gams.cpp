@@ -435,6 +435,9 @@ void parse_fluidpressure (sensor_msgs::FluidPressure * press, knowledge::Knowled
 	variance = press->variance;
 }
 
+
+
+
 /**
 * Parses a ROS CompressedImage Message
 * @param  laser   			the sensor_msgs::CompressedImage message
@@ -487,24 +490,29 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
 		if (timestamp > max_timestamp)
 			max_timestamp = timestamp;
 	}
-	/*knowledge->print();
-	cout << "Determine base->world transform (" << base_frame << " in "<< world_frame << ")" << std::endl;
 	if (base_frame != "" && world_frame != "")
 	{
 		// World and base frames are defined so we can calculate the agent location and orientation
 		gams::pose::ReferenceFrame world  = gams::pose::ReferenceFrame::load(*knowledge, world_frame);
-		cout << "## World valid " << world.valid() << std::endl;
 		gams::pose::ReferenceFrame base  = gams::pose::ReferenceFrame::load(*knowledge, base_frame, max_timestamp);
-		cout << "Test" << std::endl << std::flush;
-		cout << "## Base valid " << base.valid() << std::endl;
 		if(world.valid() && base.valid())
 		{
-			//gams::pose::Pose base_pose = base.origin().transform_to(world);
-			//cout << "Pose: " << base_pose << std::endl;
-			cout << "IT WORKS!!!!!!" << std::endl;
+			try
+			{
+				gams::pose::Pose base_pose = base.origin().transform_to(world);
+				containers::NativeDoubleVector location("agents.0.location", *knowledge, 3);
+				containers::NativeDoubleVector orientation("agents.0.orientation", *knowledge, 3);
+				location.set(0, base_pose.as_location_vec().get(0));
+				location.set(1, base_pose.as_location_vec().get(1));
+				location.set(2, base_pose.as_location_vec().get(2));
+				orientation.set(0, base_pose.as_orientation_vec().get(0));
+				orientation.set(1, base_pose.as_orientation_vec().get(1));
+				orientation.set(2, base_pose.as_orientation_vec().get(2));
+			}
+			catch ( gams::pose::unrelated_frames ex){}
 		}
 
-	}*/
+	}
 }
 
 
