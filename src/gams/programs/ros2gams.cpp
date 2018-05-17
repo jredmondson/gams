@@ -214,12 +214,16 @@ int main (int argc, char ** argv)
 				{
 					// definition of the base_frame
 					base_frame = var_name;
+			        std::replace( base_frame.begin(), base_frame.end(), '/', '_');
+
 					cout << "Base frame: " << base_frame << std::endl;
 				}
 				else if (topic_name == "world_frame:")
 				{
 					// definition of the world_frame
 					world_frame = var_name;
+			        std::replace( world_frame.begin(), world_frame.end(), '/', '_');
+
 					cout << "World frame: " << world_frame << std::endl;
 					gams::pose::ReferenceFrame frame(world_frame, gams::pose::Pose(gams::pose::ReferenceFrame(), 0, 0));
 					frame.save(kb);
@@ -563,13 +567,16 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge)
 {
 	// Expire frames after 60 seconds
-	gams::pose::ReferenceFrame::default_expiry(1000000000);
+	gams::pose::ReferenceFrame::default_expiry(100000000);
 	uint64_t max_timestamp = 0;
 	for (tf2_msgs::TFMessage::_transforms_type::iterator iter = tf->transforms.begin(); iter != tf->transforms.end(); ++iter)
 	{
 		// read frame names_ 
 		std::string frame_id = iter->header.frame_id;
 		std::string child_frame_id = iter->child_frame_id;
+		std::replace( frame_id.begin(), frame_id.end(), '/', '_');
+		std::replace( child_frame_id.begin(), child_frame_id.end(), '/', '_');
+
 
 		// parse the rotation and orientation
 		gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load(*knowledge, frame_id);
