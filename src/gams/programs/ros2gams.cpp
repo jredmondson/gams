@@ -33,6 +33,9 @@
 #include "rosbag/bag.h"
 #include "rosbag/view.h"
 #include "rosbag/message_instance.h"
+#include <ros_type_introspection/ros_introspection.hpp>
+#include <topic_tools/shape_shifter.h>
+
 #include <tf/transform_datatypes.h>
 
 #include <geometry_msgs/Quaternion.h>
@@ -82,6 +85,18 @@ bool save_as_karl = true;
 // the world and the base frame of the robot
 std::string base_frame = "";
 std::string world_frame = "";
+
+// ros introspection parser for unknown types
+RosIntrospection::Parser parser;
+
+//to reduce the amount of memory allocations these maps are reused for all
+// unknown topic types which are not parsed directly
+std::map<std::string, RosIntrospection::FlatMessage>   parser_flat_containers;
+std::map<std::string, RosIntrospection::RenamedValues> parser_renamed_vectors;
+std::vector<uint8_t> parser_buffer;
+
+
+void parse_unknown(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name);
 
 void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name);
 void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string container_name);
@@ -236,6 +251,16 @@ int main (int argc, char ** argv)
     	std::cout << c->topic << "(" << c->datatype << ")\n";
     }
 
+    //Prepare the parser to be able to introspect unknown types
+    for(const rosbag::ConnectionInfo* connection: view.getConnections() )
+    {
+        const std::string  topic_name =  connection->topic;
+        const std::string  datatype   =  connection->datatype;
+        const std::string  definition =  connection->msg_def;
+        // register the type using the topic_name as identifier.
+        parser.registerMessageDefinition(topic_name, RosIntrospection::ROSType(datatype), definition);
+    }
+
     // Iterate the messages
   	settings.initial_lamport_clock = 0;
   	settings.last_lamport_clock = 0;
@@ -321,15 +346,87 @@ void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * k
     }
     else
     {
-    	//cout << topic << ": Type not supported\nSize: " << m.size() << std::endl;
-    	unsigned char * buff = new unsigned char[m.size()];
-    	ros::serialization::OStream stream(buff, m.size());
-    	m.write(stream);
-    	kb->set_file(container_name, buff, m.size());
-    	delete[] buff;
+    	parse_unknown(m, kb, container_name);
     }
 }
 
+
+/**
+* Parses unknown messages using ros_type_introspection
+* DO NOT USE THIS FOR TYPES WITH LARGE ARRAYS
+**/
+void parse_unknown(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name)
+{
+	// see https://github.com/facontidavide/type_introspection_tests/blob/master/example/rosbag_example.cpp
+	// see http://wiki.ros.org/ros_type_introspection chapter "3.2 The Deserializer"
+	// this is not recommend to be done to known types because of it's huge memory usage!
+	
+    const std::string& topic_name  = m.getTopic();
+
+	// write the message into the buffer
+    const size_t msg_size  = m.size();
+    parser_buffer.resize(msg_size);
+    ros::serialization::OStream stream(parser_buffer.data(), parser_buffer.size());
+    m.write(stream);
+
+    RosIntrospection::FlatMessage&   flat_container = parser_flat_containers[topic_name];
+    RosIntrospection::RenamedValues& renamed_values = parser_renamed_vectors[topic_name];
+
+    // deserialize and rename the vectors
+    bool success = parser.deserializeIntoFlatContainer( topic_name,
+                                         absl::Span<uint8_t>(parser_buffer),
+                                         &flat_container, 100 );
+
+    if (!success)
+    	cout << "Topic " << topic_name << "could not be parsed successfully due to large array sizes!" << std::endl;
+
+    parser.applyNameTransform( topic_name,
+                               flat_container,
+                               &renamed_values );
+
+    // Save the content of the message to the knowledgebase
+    int topic_len = topic_name.length();
+    for (auto it: renamed_values)
+    {
+        const std::string& key = it.first;
+        const RosIntrospection::Variant& value   = it.second;
+
+        std::string var_name = key.substr(topic_len);
+        std::replace( var_name.begin(), var_name.end(), '/', '.');
+        if (value.getTypeID() == RosIntrospection::BuiltinType::BOOL ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::BYTE ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::CHAR ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT8 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT16 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT32 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT64 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT8 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT16 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT32 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT64)
+        {
+        	// Use Integer container for these types
+            containers::Integer value_container(container_name + var_name, *kb);
+            value_container = value.convert<int>();
+        }
+        else
+        {
+        	// otherwise convert to double
+            containers::Double value_container(container_name + var_name, *kb);
+            value_container = value.convert<double>();
+        }
+    }
+    for (auto it: flat_container.name)
+    {
+        const std::string& key    = it.first.toStdString();
+        const std::string& value  = it.second;
+
+        std::string var_name = key.substr(topic_len);
+        std::replace( var_name.begin(), var_name.end(), '/', '.');
+        containers::String value_container(container_name + var_name, *kb);
+		value_container = value;
+    }
+}
 
 /**
 * Parses a ROS Odometry Message into two Madara Containers. One for the location and a
