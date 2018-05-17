@@ -229,6 +229,8 @@ int main (int argc, char ** argv)
   	// Query the bag's stats
     std::cout << "Size of the selected topics: " << view.size() << "\n";
   	std::cout << "Selected topics in the bagfile: \n";
+  	int count = view.size();
+  	int id_digit_count = 0; do { count /= 10; id_digit_count++; } while (count != 0);
 	for (const rosbag::ConnectionInfo* c: view.getConnections())
 	{
     	std::cout << c->topic << "(" << c->datatype << ")\n";
@@ -256,7 +258,10 @@ int main (int argc, char ** argv)
 	    parse_message(m, &kb, container_name);
 
 	    //kb.print();
-	    settings.filename = checkpoint_prefix + "_" + std::to_string(settings.last_lamport_clock) + ".kb";
+	    std::stringstream id_ss;
+		id_ss << std::setw(id_digit_count) << std::setfill('0') << settings.last_lamport_clock;
+		std::string id_str = id_ss.str();
+	    settings.filename = checkpoint_prefix + "_" + id_str + ".kb";
 
 	    //Set time settings
 	    if (settings.last_lamport_clock == 0)
