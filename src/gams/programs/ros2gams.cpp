@@ -26,6 +26,7 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wreorder"
 #endif
 
 #include "ros/ros.h"
@@ -268,6 +269,7 @@ int main (int argc, char ** argv)
     // Iterate the messages
   	settings.initial_lamport_clock = 0;
   	settings.last_lamport_clock = 0;
+  	settings.buffer_size = 10240000;
   	cout << "Converting...\n";
     for (const rosbag::MessageInstance m: view)
     {
@@ -379,10 +381,10 @@ void parse_unknown(const rosbag::MessageInstance m, knowledge::KnowledgeBase * k
     // deserialize and rename the vectors
     bool success = parser.deserializeIntoFlatContainer( topic_name,
                                          absl::Span<uint8_t>(parser_buffer),
-                                         &flat_container, 100 );
+                                         &flat_container, 500 );
 
     if (!success)
-    	cout << "Topic " << topic_name << "could not be parsed successfully due to large array sizes!" << std::endl;
+    	cout << "Topic " << topic_name << " could not be parsed successfully due to large array sizes!" << std::endl;
 
     parser.applyNameTransform( topic_name,
                                flat_container,
@@ -411,7 +413,7 @@ void parse_unknown(const rosbag::MessageInstance m, knowledge::KnowledgeBase * k
         {
         	// Use Integer container for these types
             containers::Integer value_container(container_name + var_name, *kb);
-            value_container = value.convert<int>();
+            value_container = value.convert<double>();
         }
         else
         {
