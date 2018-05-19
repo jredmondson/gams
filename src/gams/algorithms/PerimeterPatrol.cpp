@@ -190,7 +190,7 @@ gams::algorithms::PerimeterPatrol::PerimeterPatrol (
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents),
   area_ (area), max_time_ (max_time), counter_ (counter), move_index_ (0),
-  initialized_ (false)
+  initialized_ (false), enforcer_ (max_time, max_time)
 {
   status_.init_vars (*knowledge, "patrol", self->agent.prefix);
   status_.init_variable_values ();
@@ -208,9 +208,9 @@ gams::algorithms::PerimeterPatrol::operator= (const PerimeterPatrol & rhs)
     this->area_ = rhs.area_;
     this->counter_ = rhs.counter_;
     this->max_time_ = rhs.max_time_;
-    this->end_time_ = rhs.end_time_;
     this->locations_ = rhs.locations_;
     this->move_index_ = rhs.move_index_;
+    this->enforcer_ = rhs.enforcer_;
 
     this->BaseAlgorithm::operator=(rhs);
   }
@@ -221,7 +221,7 @@ gams::algorithms::PerimeterPatrol::analyze (void)
 {
   int result (OK);
 
-  if (initialized_ && max_time_ > 0 && ACE_OS::gettimeofday () > end_time_)
+  if (initialized_ && max_time_ > 0 && enforcer_.is_done ())
   {
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
@@ -390,7 +390,7 @@ gams::algorithms::PerimeterPatrol::generate_locations (void)
       }
     }
 
-    if (max_time_ >= 0)
+    if (max_time_ > 0)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
@@ -398,9 +398,8 @@ gams::algorithms::PerimeterPatrol::generate_locations (void)
         " max_time has been set to %f. Setting timer.\n",
         max_time_);
 
-      ACE_Time_Value delay;
-      delay.set (max_time_);
-      end_time_ = ACE_OS::gettimeofday () + delay;
+      enforcer_.start ();
+      enforcer_.set_duration (max_time_);
     }
 
     initialized_ = true;

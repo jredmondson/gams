@@ -101,7 +101,7 @@ gams::algorithms::Wait::Wait (
   variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self),
-  wait_time_ (length), end_time_ (ACE_OS::gettimeofday () + wait_time_)
+  enforcer_ (length, length)
 {
   status_.init_vars (*knowledge, "wait", self->agent.prefix);
   status_.init_variable_values ();
@@ -125,10 +125,8 @@ gams::algorithms::Wait::operator= (const Wait & rhs)
 int
 gams::algorithms::Wait::analyze (void)
 {
-  const ACE_Time_Value now (ACE_OS::gettimeofday ());
-
   int ret_val (OK);
-  if (now > end_time_)
+  if (enforcer_.is_done ())
   {
     ret_val = FINISHED;
     status_.finished = 1;

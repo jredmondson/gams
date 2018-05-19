@@ -58,7 +58,8 @@
 
 #include "gams/utility/GPSPosition.h"
 
-#include "ace/OS_NS_sys_time.h"
+#include "madara/utility/Utility.h"
+#include "madara/utility/EpochEnforcer.h"
 
 namespace gams
 {
@@ -87,7 +88,7 @@ namespace gams
           variables::Sensors * sensors = 0,
           variables::Self * self = 0,
           variables::Agents * agents = 0,
-          const ACE_Time_Value& e_time = ACE_Time_Value(0.0));
+          double e_time = -1.0);
   
         /**
          * Destructor
@@ -138,14 +139,14 @@ namespace gams
         /// next position
         utility::GPSPosition next_position_;
 
-        /// execution time
-        ACE_Time_Value exec_time_;
-
-        /// end time
-        ACE_Time_Value end_time_;
-
         /// indicates whether the algorithm is initialized
         bool initialized_;
+
+        /// for keeping track of the time set for maximum coverage time
+        double max_time_;
+
+        /// enforcer for maximum time
+        madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
       };
     } // namespace area_coverage
   } // namespace algorithms

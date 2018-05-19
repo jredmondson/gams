@@ -62,9 +62,8 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
 #include "gams/algorithms/AlgorithmFactory.h"
+#include "madara/utility/EpochEnforcer.h"
 
 namespace gams
 {
@@ -121,10 +120,8 @@ namespace gams
       virtual int plan (void);
       
     protected:
-      /// length of time to wait
-      const ACE_Time_Value wait_time_;
-      /// the end time
-      const ACE_Time_Value end_time_;
+      /// an enforcer for max wait time
+      madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
     };
 
     /**

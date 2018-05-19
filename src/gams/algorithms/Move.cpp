@@ -210,7 +210,8 @@ gams::algorithms::Move::Move (
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
   poses_ (locations), repeat_ (repeat), move_index_ (0), cycles_ (0),
-  wait_time_ (wait_time), waiting_ (false), finished_moving_ (false)
+  wait_time_ (wait_time), waiting_ (false), finished_moving_ (false),
+  enforcer_ (wait_time, wait_time)
 {
   status_.init_vars (*knowledge, "move", self->agent.prefix);
   status_.init_variable_values ();
@@ -274,7 +275,7 @@ gams::algorithms::Move::analyze (void)
       } // end next move is within the locations list
       else
       {
-        if (!waiting_ || ACE_OS::gettimeofday () > end_time_)
+        if (!waiting_ || enforcer_.has_reached_next ())
         {
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_ERROR,
@@ -318,7 +319,7 @@ gams::algorithms::Move::execute (void)
 
   int move_result (-1);
 
-  if (waiting_ && ACE_OS::gettimeofday () > end_time_)
+  if (waiting_ && enforcer_.has_reached_next ())
   {
     waiting_ = false;
   }
@@ -394,9 +395,7 @@ gams::algorithms::Move::execute (void)
       {
         if (!waiting_ && wait_time_ > 0.0)
         {
-          ACE_Time_Value delay;
-          delay.set (wait_time_);
-          end_time_ = ACE_OS::gettimeofday () + delay;
+          enforcer_.advance_next ();
           waiting_ = true;
         }
 

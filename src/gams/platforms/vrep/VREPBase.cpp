@@ -84,17 +84,18 @@ gams::platforms::VREPBase::VREPBase (
   variables::Sensors * sensors,
   variables::Self * self)
   : BasePlatform (knowledge, sensors, self), airborne_ (false),
-    move_speed_ (0.8), sw_pose_ (get_sw_pose(pose::gps_frame())),
+    move_speed_ (0.8), 
+    node_target_ (-1),
+    sw_pose_ (get_sw_pose(pose::gps_frame())),
     vrep_frame_ (sw_pose_), mover_ (NULL),
     agent_is_ready_ (false),
-    begin_sim_ ("begin_sim", *knowledge),
     vrep_is_ready_ (false),
     sim_is_running_ (false),
+    model_file_ (model_file),
     is_client_side_ (is_client_side),
+    begin_sim_ ("begin_sim", *knowledge),
     vrep_ready_ ("vrep_ready", *knowledge),
-    agent_ready_ ("S" + self->id.to_string () + ".init", *knowledge_),
-    node_target_ (-1),
-    model_file_ (model_file)
+    agent_ready_ ("S" + self->id.to_string () + ".init", *knowledge_)
 {
   if (sensors && knowledge)
   {

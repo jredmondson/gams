@@ -145,7 +145,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
     else
     {
       result = new area_coverage::UniformRandomAreaCoverage (
-        search_area, ACE_Time_Value (time),
+        search_area, time,
         knowledge, platform, sensors, self, agents);
     }
   }
@@ -156,7 +156,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
 gams::algorithms::area_coverage::UniformRandomAreaCoverage::
   UniformRandomAreaCoverage (
   const string& search_area_id,
-  const ACE_Time_Value& e_time,
+  double e_time,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,

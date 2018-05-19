@@ -49,8 +49,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
 #include "madara/utility/Utility.h"
 #include "gams/algorithms/AlgorithmFactoryRepository.h"
 #include "gams/platforms/PlatformFactoryRepository.h"
@@ -466,14 +464,10 @@ gams::controllers::Multicontroller::run_once (void)
 }
 
 int
-gams::controllers::Multicontroller::run (double loop_period,
-  double max_runtime, double send_period)
+gams::controllers::Multicontroller::run (double ,
+  double , double )
 {
-  // return value
-  int return_value (0);
-  bool first_execute (true);
-
-  return return_value;
+  return 0;
 }
 
 void

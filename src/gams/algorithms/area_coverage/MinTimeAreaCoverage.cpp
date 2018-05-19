@@ -166,7 +166,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
     else
     {
       result = new area_coverage::MinTimeAreaCoverage (
-        search_area, ACE_Time_Value (time),
+        search_area, time,
         knowledge, platform, sensors, self, agents);
     }
   }
@@ -176,7 +176,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 
 gams::algorithms::area_coverage::MinTimeAreaCoverage::
   MinTimeAreaCoverage (
-  const std::string & search_id, const ACE_Time_Value & e_time, 
+  const std::string & search_id, double e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents,

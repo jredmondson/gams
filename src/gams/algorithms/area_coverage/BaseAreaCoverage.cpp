@@ -64,10 +64,9 @@ gams::algorithms::area_coverage::BaseAreaCoverage::BaseAreaCoverage (
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Agents * agents,
-  const ACE_Time_Value& e_time) :
+  double e_time) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents), 
-  exec_time_ (e_time), end_time_(ACE_OS::gettimeofday () + e_time),
-  initialized_ (false)
+  max_time_ (e_time), enforcer_ (e_time, e_time)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -86,8 +85,8 @@ gams::algorithms::area_coverage::BaseAreaCoverage::operator= (
   if (this != &rhs)
   {
     this->next_position_ = rhs.next_position_;
-    this->exec_time_ = rhs.exec_time_;
-    this->end_time_ = rhs.end_time_;
+    this->max_time_ = rhs.max_time_;
+    this->enforcer_ = rhs.enforcer_;
 
     this->BaseAlgorithm::operator= (rhs);
   }
@@ -201,8 +200,7 @@ int
 gams::algorithms::area_coverage::BaseAreaCoverage::check_if_finished (
   int ret_val) const
 {
-  if (exec_time_ != ACE_Time_Value (0.0) && ret_val == OK && 
-    (ACE_OS::gettimeofday () > end_time_))
+  if (max_time_ > 0 && ret_val == OK && enforcer_.is_done ())
   {
     ret_val = FINISHED;
   }

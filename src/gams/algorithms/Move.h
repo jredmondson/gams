@@ -62,10 +62,9 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
 #include "gams/pose/Position.h"
 #include "gams/algorithms/AlgorithmFactory.h"
+#include "madara/utility/EpochEnforcer.h"
 
 #include "gams/GAMSExport.h"
 
@@ -146,9 +145,6 @@ namespace gams
       /// reference frame for coordinates
       std::string frame_;
 
-      /// the end time
-      ACE_Time_Value end_time_;
-
       /// global wait time for each waypoint
       double wait_time_;
 
@@ -157,6 +153,9 @@ namespace gams
 
       /// if true, all movements are completed
       bool finished_moving_;
+
+      /// the timing enforcer
+      madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
     };
 
     /**

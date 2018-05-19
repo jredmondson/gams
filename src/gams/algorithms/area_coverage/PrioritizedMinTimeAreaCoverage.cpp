@@ -169,7 +169,7 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverageFactory::create (
     else
     {
       result = new area_coverage::PrioritizedMinTimeAreaCoverage (
-        search_area, ACE_Time_Value (time),
+        search_area, time,
         knowledge, platform, sensors, self, agents);
     }
   }
@@ -180,7 +180,7 @@ gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverageFactory::create (
 gams::algorithms::area_coverage::PrioritizedMinTimeAreaCoverage::
   PrioritizedMinTimeAreaCoverage (
   const string& search_id,
-  const ACE_Time_Value& e_time, 
+  double e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents,

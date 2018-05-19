@@ -89,7 +89,7 @@ namespace gams
          **/
         PrioritizedMinTimeAreaCoverage (
           const std::string& search_id, 
-          const ACE_Time_Value& e_time,
+          double e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
           platforms::BasePlatform * platform = 0,
           variables::Sensors * sensors = 0,

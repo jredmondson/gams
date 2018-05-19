@@ -197,19 +197,13 @@ gams::algorithms::KarlEvaluator::KarlEvaluator (
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
   BaseAlgorithm (knowledge, platform, sensors, self, agents),
-  logic_ (logic), is_wait_ (is_wait), wait_time_ (wait_time)
+  logic_ (logic), is_wait_ (is_wait), wait_time_ (wait_time),
+  enforcer_ (wait_time, wait_time)
 {
   if (knowledge)
   {
     status_.init_vars (*knowledge, "karl", self->agent.prefix);
     status_.init_variable_values ();
-
-    if (is_wait && wait_time > 0)
-    {
-      ACE_Time_Value delay;
-      delay.set (wait_time);
-      end_time_ = ACE_OS::gettimeofday () + delay;
-    }
 
     // do not send modifications every eval. Let GAMS handle that.
     settings_.delay_sending_modifieds = true;
@@ -285,7 +279,7 @@ gams::algorithms::KarlEvaluator::execute (void)
 
     if (eval_result.is_false () && is_wait_ && wait_time_ > 0)
     {
-      if (ACE_OS::gettimeofday () > end_time_)
+      if (enforcer_.is_done ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,

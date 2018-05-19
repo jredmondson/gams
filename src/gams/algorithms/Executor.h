@@ -62,6 +62,7 @@
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/algorithms/AlgorithmFactoryRepository.h"
+#include "madara/utility/EpochEnforcer.h"
 
 namespace gams
 {
@@ -160,11 +161,11 @@ namespace gams
       /// current executing algorithm
       BaseAlgorithm * current_;
 
-      /// the end time
-      ACE_Time_Value end_time_;
-
       /// indicates if the precondition has been met for current algorithm
       bool precond_met_;
+
+      /// enforcer for time
+      madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
     };
     
     /**

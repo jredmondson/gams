@@ -54,17 +54,13 @@
 #include <iostream>
 #include <iomanip>
 
-#include "ace/Log_Msg.h"
-#include "ace/Get_Opt.h"
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_Thread.h"
-#include "ace/Sched_Params.h"
-
 #include "madara/knowledge/KnowledgeBase.h"
 #include "gams/controllers/BaseController.h"
 
 #include "helper/CounterAlgorithm.h"
 #include "helper/CounterPlatform.h"
+
+#include "madara/utility/Utility.h"
 
 // default transport settings
 std::string host ("");
@@ -195,12 +191,8 @@ int main (int /*argc*/, char ** /*argv*/)
   algorithm =
     new algorithms::CounterAlgorithm (knowledge);
   
-  // use ACE real time scheduling class
-  int prio  = ACE_Sched_Params::next_priority
-    (ACE_SCHED_FIFO,
-     ACE_Sched_Params::priority_max (ACE_SCHED_FIFO),
-     ACE_SCOPE_THREAD);
-  ACE_OS::thr_setprio (prio);
+  // set our priority to the default high priority
+  madara::utility::set_thread_priority ();
 
   knowledge.define_function ("to_legible_hertz", to_legible_hertz);
 

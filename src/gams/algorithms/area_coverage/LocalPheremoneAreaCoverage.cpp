@@ -165,7 +165,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
     else
     {
       result = new area_coverage::LocalPheremoneAreaCoverage (
-        search_area, ACE_Time_Value (time),
+        search_area, time,
         knowledge, platform, sensors, self, agents);
     }
   }
@@ -176,7 +176,7 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
 gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
 LocalPheremoneAreaCoverage (
   const std::string& search_id,
-  const ACE_Time_Value& e_time,
+  double e_time,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :

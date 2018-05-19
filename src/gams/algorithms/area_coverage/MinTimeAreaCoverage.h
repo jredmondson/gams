@@ -96,7 +96,7 @@ namespace gams
          * @param  algo_name    name to use in Sensor for differentiation
          **/
         MinTimeAreaCoverage (
-          const std::string& search_id, const ACE_Time_Value& e_time, 
+          const std::string& search_id, double e_time, 
           madara::knowledge::KnowledgeBase * knowledge = 0,
           platforms::BasePlatform * platform = 0, variables::Sensors * sensors = 0,
           variables::Self * self = 0, variables::Agents * agents = 0, 

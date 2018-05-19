@@ -54,8 +54,6 @@
 
 #include <sstream>
 
-#include "ace/OS_NS_sys_time.h"
-
 #include "gams/algorithms/Executor.h"
 
 #include "gams/algorithms/AlgorithmFactoryRepository.h"
@@ -247,7 +245,7 @@ gams::algorithms::Executor::Executor (
   BaseAlgorithm (knowledge, platform, sensors, self, agents),
   algorithms_ (algorithms), repeat_ (repeat), alg_index_ (0), cycles_ (0),
   current_ (0),
-  precond_met_ (false)
+  precond_met_ (false), enforcer_ (0.0, 0.0)
 {
   status_.init_vars (*knowledge, "executor", self->agent.prefix);
   status_.init_variable_values ();
@@ -340,9 +338,8 @@ gams::algorithms::Executor::analyze (void)
         " Cycle %d: Maximum time for algorithm %d set to %f\n",
         cycles_, (int)alg_index_, algorithms_[alg_index_].max_time);
 
-      ACE_Time_Value delay;
-      delay.set (algorithms_[alg_index_].max_time);
-      end_time_ = ACE_OS::gettimeofday () + delay;
+      enforcer_.start ();
+      enforcer_.set_duration (algorithms_[alg_index_].max_time);
     }
   }
 
@@ -386,8 +383,7 @@ gams::algorithms::Executor::execute (void)
 
     // check if the algorithm status is finished or we've hit end time
     if (current_->get_algorithm_status ()->finished.is_true () ||
-      (algorithms_[alg_index_].max_time > 0 &&
-         ACE_OS::gettimeofday () > end_time_))
+      (algorithms_[alg_index_].max_time > 0 && enforcer_.is_done ()))
     {
       // if we are at the end of the algorithms list
       if (alg_index_ == algorithms_.size () - 1)

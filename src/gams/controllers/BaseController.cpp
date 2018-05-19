@@ -63,9 +63,6 @@
 #include "gams/utility/java/Acquire_VM.h"
 #endif
 
-using std::cerr;
-using std::endl;
-
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 typedef  madara::utility::EpochEnforcer<

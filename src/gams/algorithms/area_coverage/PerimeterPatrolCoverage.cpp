@@ -163,7 +163,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
     else
     {
       result = new area_coverage::PerimeterPatrolCoverage (
-        search_area, ACE_Time_Value (time),
+        search_area, time,
         knowledge, platform, sensors, self, agents);
     }
   }
@@ -176,7 +176,7 @@ gams::algorithms::area_coverage::PerimeterPatrolCoverageFactory::create (
  * of the region in order
  */
 gams::algorithms::area_coverage::PerimeterPatrolCoverage::PerimeterPatrolCoverage (
-  const string & region_id, const ACE_Time_Value & e_time, 
+  const string & region_id, double e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :

@@ -49,8 +49,6 @@
  * @author James Edmondson <jedmondson@gmail.com>
  **/
 
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
 #include "gams/algorithms/GroupBarrier.h"
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/utility/Utility.h"
@@ -67,6 +65,9 @@ namespace engine = madara::knowledge;
 namespace containers = engine::containers;
 
 using namespace gams::utility;
+
+typedef  madara::utility::EpochEnforcer<
+  std::chrono::steady_clock> EpochEnforcer;
 
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
@@ -198,7 +199,7 @@ gams::algorithms::GroupBarrier::GroupBarrier (
   variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm (knowledge, platform, sensors, self),
-  members_ (members)
+  members_ (members), enforcer_ (interval, interval)
 {
   status_.init_vars (*knowledge, "barrier", self->agent.prefix);
   status_.init_variable_values ();
@@ -214,11 +215,6 @@ gams::algorithms::GroupBarrier::GroupBarrier (
   temp += madara::knowledge::KnowledgeRecord(self_->id.to_string ());
 
   position_ = this->get_position_in_member_list (temp.to_string (), members_);
-
-  interval_.set (interval);
-
-  next_barrier_ = ACE_OS::gettimeofday ();
-  next_barrier_ += interval_;
 
   if (position_ >= 0)
   {
@@ -295,16 +291,11 @@ gams::algorithms::GroupBarrier::analyze (void)
         " %d: Round %d: Proceeding to next barrier round\n",
         position_, round);
 
-      ACE_Time_Value current = ACE_OS::gettimeofday ();
-
-      if (current > next_barrier_)
+      if (enforcer_.has_reached_next ())
       {
         barrier_.next ();
 
-        while (current > next_barrier_)
-        {
-          next_barrier_ += interval_;
-        }
+        enforcer_.advance_next ();
       }
     }
     else

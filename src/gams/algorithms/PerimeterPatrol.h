@@ -64,8 +64,7 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/AlgorithmStatus.h"
 #include "gams/variables/Self.h"
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
+#include "madara/utility/EpochEnforcer.h"
 #include "gams/utility/Position.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
@@ -145,9 +144,6 @@ namespace gams
       /// patrol counter clockwise
       bool counter_;
 
-      /// the end time
-      ACE_Time_Value end_time_;
-
       /// the locations to visit
       std::vector<pose::Position> locations_;
 
@@ -156,6 +152,9 @@ namespace gams
 
       /// indicates whether or not generate_locations has been succeeded
       bool initialized_;
+
+      /// max run time enforcer
+      madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
     };
 
     /**

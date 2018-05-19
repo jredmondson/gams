@@ -66,6 +66,7 @@
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Barrier.h"
+#include "madara/utility/EpochEnforcer.h"
 
 namespace gams
 {
@@ -145,12 +146,8 @@ namespace gams
       /// movement barrier
       madara::knowledge::containers::Barrier barrier_;
 
-      // next barrier time
-      ACE_Time_Value next_barrier_;
-
-      // the epoch between barriers
-      ACE_Time_Value interval_;
-
+      /// enforcer of barrier times
+      madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
     };
     
     /**

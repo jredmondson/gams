@@ -56,9 +56,7 @@
 
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/algorithms/AlgorithmFactory.h"
-
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
+#include "madara/utility/EpochEnforcer.h"
 
 namespace gams
 {
@@ -142,8 +140,8 @@ namespace gams
       /// indicates the time to wait. -1 means wait forever.
       double wait_time_;
 
-      /// the end time
-      ACE_Time_Value end_time_;
+      /// an enforcer for maximum time taken
+      madara::utility::EpochEnforcer<std::chrono::steady_clock> enforcer_;
     };
     
     /**
