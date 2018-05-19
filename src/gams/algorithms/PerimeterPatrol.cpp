@@ -46,8 +46,6 @@
 #include "gams/loggers/GlobalLogger.h"
 #include "PerimeterPatrol.h"
 
-#include "ace/OS_NS_sys_time.h"
-
 #include <string>
 #include <iostream>
 #include <vector>

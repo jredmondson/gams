@@ -45,6 +45,10 @@ jstring JNICALL Java_com_gams_utility_Region_jni_1getName
   {
     result = env->NewStringUTF (current->get_name ().c_str ());
   }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -139,6 +143,10 @@ jstring JNICALL Java_com_gams_utility_Region_jni_1toString
     std::string result = current->to_string();
     ret_val = env->NewStringUTF(result.c_str());
   }
+  else
+  {
+    ret_val = env->NewStringUTF ("");
+  }
 
   return ret_val;
 }
@@ -164,7 +172,7 @@ void JNICALL Java_com_gams_utility_Region_jni_1addGpsVertex
 jlongArray JNICALL Java_com_gams_utility_Region_jni_1getVertices
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jlongArray result;
+  jlongArray result (0);
   pose::Region * current = (pose::Region *) cptr;
 
   if (current)

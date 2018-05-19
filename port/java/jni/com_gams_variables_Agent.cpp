@@ -76,7 +76,13 @@ jstring JNICALL Java_com_gams_variables_Agent_jni_1toString
 
   variables::Agent * current = (variables::Agent *) cptr;
   if (current)
+  {
     result = env->NewStringUTF("Agent");
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }

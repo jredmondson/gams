@@ -70,7 +70,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1freeBaseController
 jstring JNICALL Java_com_gams_controllers_BaseController_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
@@ -159,7 +159,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAccent
     jlong * elements = env->GetLongArrayElements (argslist, 0);
 
     // iterate through arguments and copy the knowledge record for each arg
-    for (size_t i = 0; i < argsLen; ++i)
+    for (int i = 0; i < argsLen; ++i)
     {
       madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
@@ -217,7 +217,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initAlgorithm__JLjava
         (int)env->GetArrayLength (argslist));
 
       // iterate through arguments and copy the knowledge record for each arg
-      for (size_t i = 0; i < argsLen; ++i)
+      for (int i = 0; i < argsLen; ++i)
       {
         madara::knowledge::KnowledgeRecord * cur_record = (madara::knowledge::KnowledgeRecord *)elements[i];
 
@@ -304,7 +304,7 @@ void JNICALL Java_com_gams_controllers_BaseController_jni_1initPlatform__JLjava_
     madara::knowledge::KnowledgeMap args;
 
     // iterate through arguments and copy the knowledge record for each arg
-    for (size_t i = 0; i < argsLen; ++i)
+    for (int i = 0; i < argsLen; ++i)
     {
       madara::knowledge::KnowledgeRecord * cur_record =
         (madara::knowledge::KnowledgeRecord *)elements[i];

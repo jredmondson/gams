@@ -52,7 +52,13 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1getName
 
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->name.c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -98,7 +104,13 @@ jstring JNICALL Java_com_gams_variables_AlgorithmStatus_jni_1toString
 
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->name.c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }

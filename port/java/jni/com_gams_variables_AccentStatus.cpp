@@ -52,7 +52,13 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1getName
 
   variables::AccentStatus * current = (variables::AccentStatus *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->command.get_name ().c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -98,7 +104,13 @@ jstring JNICALL Java_com_gams_variables_AccentStatus_jni_1toString
 
   variables::AccentStatus * current = (variables::AccentStatus *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->command.get_name ().c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }

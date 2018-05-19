@@ -56,7 +56,13 @@ jstring JNICALL Java_com_gams_variables_Sensor_jni_1getName
 
   variables::Sensor * current = (variables::Sensor *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->get_name ().c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -98,7 +104,13 @@ jstring JNICALL Java_com_gams_variables_Sensor_jni_1toString
 
   variables::Sensor * current = (variables::Sensor *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->get_name ().c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -313,7 +325,7 @@ jdouble JNICALL Java_com_gams_variables_Sensor_jni_1getDiscretization
 jlongArray JNICALL Java_com_gams_variables_Sensor_jni_1discretizeRegion
   (JNIEnv * env, jobject, jlong cptr, jlong region_ptr)
 {
-  jlongArray result;
+  jlongArray result (0);
   variables::Sensor * current = (variables::Sensor *) cptr;
   pose::Region * region = (pose::Region *) region_ptr;
   
@@ -346,7 +358,7 @@ jlongArray JNICALL Java_com_gams_variables_Sensor_jni_1discretizeRegion
 jlongArray JNICALL Java_com_gams_variables_Sensor_jni_1discretizeSearchArea
   (JNIEnv * env, jobject, jlong cptr, jlong area_ptr)
 {
-  jlongArray result;
+  jlongArray result (0);
   variables::Sensor * current = (variables::Sensor *) cptr;
   pose::SearchArea * area = (pose::SearchArea *) area_ptr;
   

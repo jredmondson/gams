@@ -52,7 +52,13 @@ jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1getName
 
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->name.c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -98,7 +104,13 @@ jstring JNICALL Java_com_gams_variables_PlatformStatus_jni_1toString
 
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->name.c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }

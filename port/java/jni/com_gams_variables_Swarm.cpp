@@ -75,7 +75,13 @@ jstring JNICALL Java_com_gams_variables_Swarm_jni_1toString
 
   variables::Swarm * current = (variables::Swarm *) cptr;
   if (current)
+  {
     result = env->NewStringUTF("Swarm");
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }

@@ -32,6 +32,10 @@ jstring JNICALL Java_com_gams_utility_PrioritizedRegion_jni_1toString
     std::string result = current->to_string();
     ret_val = env->NewStringUTF(result.c_str());
   }
+  else
+  {
+    ret_val = env->NewStringUTF ("");
+  }
 
   return ret_val;
 }

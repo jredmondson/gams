@@ -51,7 +51,13 @@ jstring JNICALL Java_com_gams_variables_Region_jni_1getName
 
   variables::Region * current = (variables::Region *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->name.c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -97,7 +103,13 @@ jstring JNICALL Java_com_gams_variables_Region_jni_1toString
 
   variables::Region * current = (variables::Region *) cptr;
   if (current)
+  {
     result = env->NewStringUTF(current->name.c_str ());
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }

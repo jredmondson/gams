@@ -31,6 +31,10 @@ jstring JNICALL Java_com_gams_utility_SearchArea_jni_1getName
   {
     result = env->NewStringUTF (current->get_name ().c_str ());
   }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -127,7 +131,13 @@ jstring JNICALL Java_com_gams_utility_SearchArea_jni_1toString
 
   pose::Position * current = (pose::Position *) cptr;
   if (current)
+  {
     result = env->NewStringUTF("SearchArea");
+  }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
@@ -310,7 +320,7 @@ jlong JNICALL Java_com_gams_utility_SearchArea_jni_1getGpsPriority
 jlongArray JNICALL Java_com_gams_utility_SearchArea_jni_1getRegions
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jlongArray result;
+  jlongArray result (0);
   pose::SearchArea * current = (pose::SearchArea *) cptr;
 
   if (current)

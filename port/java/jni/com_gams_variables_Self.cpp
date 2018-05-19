@@ -83,6 +83,10 @@ jstring JNICALL Java_com_gams_variables_Self_jni_1toString
     buffer << *(current->id);
     result = env->NewStringUTF(buffer.str ().c_str ());
   }
+  else
+  {
+    result = env->NewStringUTF ("");
+  }
 
   return result;
 }
