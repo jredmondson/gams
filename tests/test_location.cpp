@@ -37,13 +37,14 @@ int main(int , char **)
 {
   std::cout.precision(4);
   std::cout << std::fixed;
-  std::cout << "Testing Location (without ReferenceFrame.h):" << std::endl;
+  std::cout << "Testing Location:" << std::endl;
   Location dloc0(0,0,0);
   Location dloc1(3,4,0);
+
   LOG(dloc0);
   LOG(dloc1);
-  // These won't work without including ReferenceFrame.h
-  //TEST(dloc0.distance_to(dloc1), 5);
-  //TEST(dloc1.distance_to(dloc0), 5);
+
+  TEST(dloc0.distance_to(dloc1), 5);
+  TEST(dloc1.distance_to(dloc0), 5);
   return 0;
 }

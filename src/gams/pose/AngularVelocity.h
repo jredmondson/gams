@@ -51,6 +51,8 @@
  * This file contains the AngularVelocity class
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_ANGULAR_VELOCITY_H
 #define _GAMS_POSE_ANGULAR_VELOCITY_H
 

@@ -51,6 +51,8 @@
  * This file contains the Angular and AngularVector classes
  **/
 
+#include "ReferenceFrame.h"
+
 namespace gams
 {
   namespace pose

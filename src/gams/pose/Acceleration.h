@@ -51,6 +51,8 @@
  * This file contains the Acceleration and AccelerationVector classes
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_ACCELERATION_H_
 #define _GAMS_POSE_ACCELERATION_H_
 

@@ -92,42 +92,42 @@ namespace gams
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      int analyze (void) override;
        
       /**
        * Get the location aproximation value of what is considered close enough
        * @return location approximation radius
        **/
-      virtual double get_accuracy () const;
+      double get_accuracy () const override;
       
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
        * variable (e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const;
+      std::string get_id () const override;
 
       /**
        * Get move speed
        **/
-      virtual double get_move_speed () const;
+      double get_move_speed () const override;
       
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const;
+      std::string get_name () const override;
 
       /**
        * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int home (void);
+      int home (void) override;
       
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void);
+      int land (void) override;
       
       /**
        * Moves the platform to a position
@@ -135,32 +135,32 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const utility::Position & position,
-        const double & epsilon = 0.1);
+      int move (const pose::Position & position,
+        const PositionBounds &bounds) override;
       
       /**
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void);
+      int sense (void) override;
       
       /**
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed);
+      void set_move_speed (const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void);
+      int takeoff (void) override;
 
       /**
       * Method for returning the platform's current frame
       * @return frame that the platform's coordinate system is operating in
       **/
-      virtual const pose::ReferenceFrame & get_frame (void) const;
+      const pose::ReferenceFrame & get_frame (void) const override;
 
     protected:
       /// current position

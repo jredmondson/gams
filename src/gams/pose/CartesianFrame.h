@@ -51,6 +51,8 @@
  * This file contains the base reference Frame class
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_CARTESIAN_FRAME_H_
 #define _GAMS_POSE_CARTESIAN_FRAME_H_
 

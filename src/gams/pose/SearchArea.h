@@ -51,6 +51,8 @@
  * Search Area is a collection of regions, possibly with priority
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef  _GAMS_UTILITY_SEARCH_AREA_H_
 #define  _GAMS_UTILITY_SEARCH_AREA_H_
 

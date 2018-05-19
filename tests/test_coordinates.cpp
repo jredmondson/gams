@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include <gams/pose/Position.h>
 #include <gams/pose/CartesianFrame.h>
 #include <gams/pose/GPSFrame.h>
 #include <madara/knowledge/KnowledgeBase.h>
@@ -240,6 +241,9 @@ int main(int, char *[])
     building_frame.save(kb, "public_frames");
     room_frame.save(kb, "public_frames");
     kitchen_frame.save(kb, "public_frames");
+    drone_frame.save(kb, "public_frames");
+    camera_frame.save(kb, "public_frames");
+    drone2_frame.save(kb, "public_frames");
     drone_frame1.save(kb, "public_frames");
     camera_frame1.save(kb, "public_frames");
     drone2_frame1.save(kb, "public_frames");
@@ -250,6 +254,10 @@ int main(int, char *[])
   }
 
   ReferenceFrameIdentity::gc();
+
+  std::string dump;
+  kb.to_string(dump);
+  LOG(dump);
 
   std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
 
@@ -268,7 +276,7 @@ int main(int, char *[])
     TEST_EQ(frames[1].interpolated(), false);
 
     TEST(frames[0].origin().x(), 3);
-    TEST(frames[0].origin().y(), 2);
+    TEST(frames[0].origin().y(), 3);
     TEST(frames[1].origin().rz(), 0);
 
     Position d2pos(frames[1], 1, 1);
@@ -277,31 +285,29 @@ int main(int, char *[])
     LOG(d1pos);
   }
 
-  frames = ReferenceFrame::load_tree(kb, ids, 1000, "public_frames");
+  auto pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
 
-  TEST_EQ(frames.size(), ids.size());
+  TEST_EQ(pframes.size(), ids.size());
 
-  if (frames.size() == ids.size()) {
-    TEST_EQ(frames[0].id(), "Drone");
-    TEST_EQ(frames[1].id(), "Drone2");
+  if (pframes.size() == ids.size()) {
+    TEST_EQ(pframes[0].id(), "Drone");
+    TEST_EQ(pframes[1].id(), "Drone2");
 
-    TEST(frames[0].timestamp(), 1000);
-    TEST(frames[1].timestamp(), 1000);
+    TEST(pframes[0].timestamp(), 1500);
+    TEST(pframes[1].timestamp(), 1500);
 
-    TEST_EQ(frames[0].interpolated(), false);
-    TEST_EQ(frames[1].interpolated(), false);
+    TEST_EQ(pframes[0].interpolated(), true);
+    TEST_EQ(pframes[1].interpolated(), true);
 
-    TEST(frames[0].origin().x(), 3);
-    TEST(frames[0].origin().y(), 2);
-    TEST(frames[1].origin().rz(), 0);
+    TEST(pframes[0].origin().x(), 3);
+    TEST(pframes[0].origin().y(), 3);
+    TEST(pframes[1].origin().rz(), 0);
 
-    Position d2pos(frames[1], 1, 1);
-    Position d1pos = d2pos.transform_to(frames[0]);
+    Position d2pos(pframes[1], 1, 1);
+    Position d1pos = d2pos.transform_to(pframes[0]);
     LOG(d2pos);
     LOG(d1pos);
   }
-
-  frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
   frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
@@ -315,11 +321,16 @@ int main(int, char *[])
     TEST(frames[1].timestamp(), 1500);
 
     TEST_EQ(frames[0].interpolated(), true);
-    TEST_EQ(frames[1].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), true);
 
     TEST(frames[0].origin().x(), 3);
     TEST(frames[0].origin().y(), 3);
     TEST(frames[2].origin().rz(), M_PI/8);
+
+    Position d2pos(pframes[1], 1, 1);
+    Position d1pos = d2pos.transform_to(pframes[0]);
+    LOG(d2pos);
+    LOG(d1pos);
   }
 
   frames = ReferenceFrame::load_tree(kb, ids);
@@ -343,17 +354,16 @@ int main(int, char *[])
     Linear<Position> cpose = frames[0].origin();
   }
 
-  frames = ReferenceFrame::load_tree(kb, ids, 2500);
+  FrameStore frame_store(kb, 4000);
+  frames = frame_store.load_tree(ids, 2500);
 
   TEST_EQ(frames.size(), 0UL);
 
-  ReferenceFrameIdentity::default_expiry(4000);
   for (int x = 0; x <= 10000; x += 500) {
     ReferenceFrame exp("expiring", Pose(), x);
-    exp.save(kb);
+    frame_store.save(std::move(exp));
   }
 
-  std::string dump;
   kb.to_string(dump);
   LOG(dump);
 
@@ -364,6 +374,7 @@ int main(int, char *[])
   LOG(dump);
 
   exp.save(kb);
+  frame_store.save(std::move(exp));
 
   kb.to_string(dump);
   LOG(dump);

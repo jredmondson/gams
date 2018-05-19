@@ -140,8 +140,8 @@ gams::platforms::CounterPlatform::land (void)
 }
 
 int
-gams::platforms::CounterPlatform::move (const utility::Position & /*position*/,
-  const double & /*epsilon*/)
+gams::platforms::CounterPlatform::move (const pose::Position & /*position*/,
+  const PositionBounds & /*bounds*/)
 {
   //++move_counter_;
   

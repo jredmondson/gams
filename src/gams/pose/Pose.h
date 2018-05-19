@@ -51,6 +51,8 @@
  * This file contains the Pose class
  **/
 
+#include "ReferenceFrame.h"
+
 #ifndef _GAMS_POSE_POSE_H_
 #define _GAMS_POSE_POSE_H_
 
