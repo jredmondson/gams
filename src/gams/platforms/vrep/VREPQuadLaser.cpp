@@ -50,6 +50,7 @@
 
 
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 
 #include "madara/knowledge/containers/DoubleVector.h"
@@ -161,7 +162,7 @@ uint32_t gams::platforms::VREPQuadLaser::get_color() const
         else if(c >= 'a' && c <= 'f')
           c |= c - 'a' + 10;
       }
-      else if(msg[i] = '#')
+      else if(msg[i] == '#')
         started = true;
     }
     return ret;
@@ -179,7 +180,7 @@ void gams::platforms::VREPQuadLaser::set_color(uint32_t color) const
 
   std::string name = ss_name.str();
   std::string val = ss_val.str();
-  simxInt result = (simxInt) simxSetStringSignal(
+  simxSetStringSignal(
     client_id_, (const char *) name.c_str(),
     (const unsigned char *) val.c_str(), (simxInt)val.size(),
     simx_opmode_oneshot_wait);

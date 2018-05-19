@@ -49,13 +49,12 @@
 #include <iostream>
 #include <sstream>
 
-#include "ace/High_Res_Timer.h"
-#include "ace/OS_NS_sys_time.h"
 #include "madara/utility/Utility.h"
 #include "gams/algorithms/AlgorithmFactoryRepository.h"
 #include "gams/platforms/PlatformFactoryRepository.h"
 #include "gams/loggers/GlobalLogger.h"
 #include "gams/groups/GroupFactoryRepository.h"
+#include "madara/utility/EpochEnforcer.h"
 
 // Java-specific header includes
 #ifdef _GAMS_JAVA_
@@ -68,6 +67,9 @@ using std::cerr;
 using std::endl;
 
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
+
+typedef  madara::utility::EpochEnforcer<
+  std::chrono::steady_clock> EpochEnforcer;
 
 gams::controllers::BaseController::BaseController (
   madara::knowledge::KnowledgeBase & knowledge,
@@ -689,12 +691,8 @@ gams::controllers::BaseController::run (double loop_period,
     send_period = loop_period;
   }
 
-  // loop every period until a max run time has been reached
-  ACE_Time_Value current = ACE_OS::gettimeofday ();
-  ACE_Time_Value max_wait, sleep_time, next_epoch;
-  ACE_Time_Value send_sleep_time, send_next_epoch;
-  ACE_Time_Value poll_frequency, send_poll_frequency;
-  ACE_Time_Value last (current), last_send (current);
+  EpochEnforcer loop_enforcer (loop_period, max_runtime);
+  EpochEnforcer send_enforcer (send_period, max_runtime);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -712,16 +710,8 @@ gams::controllers::BaseController::run (double loop_period,
 
   if (loop_period >= 0.0)
   {
-    max_wait.set (max_runtime);
-    max_wait = current + max_wait;
-
-    poll_frequency.set (loop_period);
-    send_poll_frequency.set (send_period);
-    next_epoch = current + poll_frequency;
-    send_next_epoch = current;
-
     //unsigned int iterations = 0;
-    while (first_execute || max_runtime < 0 || current < max_wait)
+    while (first_execute || max_runtime < 0 || !loop_enforcer.is_done ())
     {
       // return value should be last return value of mape loop
       return_value = run_once_ ();
@@ -737,11 +727,8 @@ gams::controllers::BaseController::run (double loop_period,
         save_checkpoint ();
       }
 
-      // grab current time
-      current = ACE_OS::gettimeofday ();
-
       // run will always try to send at least once
-      if (first_execute || current > send_next_epoch)
+      if (first_execute || !send_enforcer.has_reached_next ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
@@ -759,24 +746,20 @@ gams::controllers::BaseController::run (double loop_period,
         // setup the next send epoch
         if (send_period > 0)
         {
-          while (send_next_epoch < current)
-            send_next_epoch += send_poll_frequency;
+          send_enforcer.advance_next ();
         }
       }
 
       // check to see if we need to sleep for next loop epoch
-      if (loop_period > 0.0 && current < next_epoch)
+      if (loop_period > 0.0 && !loop_enforcer.is_done ())
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "gams::controllers::BaseController::run:" \
           " sleeping until next epoch\n");
 
-        madara::utility::sleep (next_epoch - current);
+        loop_enforcer.sleep_until_next ();
       }
-
-      // setup the next 
-      next_epoch += poll_frequency;
 
       // run will always execute at least one time. Update flag for execution.
       if (first_execute)
@@ -794,8 +777,7 @@ gams::controllers::BaseController::run (double loop_period,
 
         send_hz = self_.agent.send_hz.to_double ();
         send_period = 1 / send_hz;
-        send_poll_frequency.set (send_period);
-        send_next_epoch = current + send_poll_frequency;
+        send_enforcer.set_period (send_period);
       }
 
       // if loop herz difference is more than .001 hz different, change epoch
@@ -810,8 +792,7 @@ gams::controllers::BaseController::run (double loop_period,
 
         loop_hz = self_.agent.loop_hz.to_double ();
         loop_period = 1 / loop_hz;
-        poll_frequency.set (loop_period);
-        next_epoch = current + poll_frequency;
+        loop_enforcer.set_period (loop_period);
       }
 
       // if our loop hertz is not fast enough for sending, change it
@@ -825,8 +806,7 @@ gams::controllers::BaseController::run (double loop_period,
 
         loop_hz = send_hz;
         loop_period = 1 / loop_hz;
-        poll_frequency.set (loop_period);
-        next_epoch = current + poll_frequency;
+        loop_enforcer.set_period (loop_period);
 
         // update container so others know we are changing rate
         self_.agent.loop_hz = loop_hz;

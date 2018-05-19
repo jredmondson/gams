@@ -187,9 +187,6 @@ gams::algorithms::area_coverage::SnakeAreaCoverage::SnakeAreaCoverage (
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::SnakeAreaCoverage::constructor:" \
     " selected \"%s\"\n", next_position_.to_string ().c_str ());
-
-  cerr << "exec_time_: " << exec_time_ << endl;
-  cerr << "end_time_: " << end_time_ << endl;
 }
 
 gams::algorithms::area_coverage::SnakeAreaCoverage::~SnakeAreaCoverage ()

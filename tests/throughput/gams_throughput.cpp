@@ -8,6 +8,8 @@
 
 #include "utility/MovingAverage.h"
 #include "madara/utility/Utility.h"
+#include "madara/utility/EpochEnforcer.h"
+#include "madara/utility/Timer.h"
 
 // DO NOT DELETE THIS SECTION
 
@@ -29,6 +31,12 @@
 // end filter includes
 
 // END DO NOT DELETE THIS SECTION
+
+typedef  madara::utility::EpochEnforcer<
+  std::chrono::steady_clock> EpochEnforcer;
+typedef  madara::utility::Timer<
+  std::chrono::steady_clock> Timer;
+
 
 const std::string default_broadcast ("192.168.1.255:15000");
 // default transport settings
@@ -68,8 +76,8 @@ Integer num_agents (-1);
 std::string file_path;
 
 // keep track of time
-ACE_hrtime_t elapsed_time, maximum_time;
-ACE_High_Res_Timer timer;
+uint64_t elapsed_ns (0);
+Timer timer;
 
 // the number of latencies to use in moving latency calculations
 size_t max_latencies (500);
@@ -761,9 +769,9 @@ int main (int argc, char ** argv)
     gams::loggers::LOG_ALWAYS,
     "%d: Experiment stopped. Calculating time.\n", ++log_count);
 
-  timer.elapsed_time (elapsed_time);
-
-  double elapsed_seconds = (double)elapsed_time * 0.000000001;
+  // provide convenience elapsed durations
+  elapsed_ns = timer.duration_ns ();
+  double elapsed_seconds = timer.duration_ds ();
 
   gams::loggers::global_logger->log (
     gams::loggers::LOG_ALWAYS,

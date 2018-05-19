@@ -6,6 +6,7 @@
  */
 
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/utility/EpochEnforcer.h"
 
 #include <string>
 #include <iostream>
@@ -16,6 +17,9 @@ using std::endl;
 
 double num_sec = 12;
 double poll_period = 0.001;
+
+typedef  madara::utility::EpochEnforcer<
+  std::chrono::steady_clock> EpochEnforcer;
 
 madara::transport::QoSTransportSettings settings;
 
@@ -105,12 +109,6 @@ int main(int argc, char** argv)
 
   madara::knowledge::KnowledgeBase knowledge("", settings);
 
-  // get start time
-  time_t start_time;
-  time(&start_time);
-  time_t end;
-  time(&end);
-
   // number of seconds to test
   std::string val("hello");
   for(size_t i = 0; i < 5; ++i)
@@ -119,34 +117,14 @@ int main(int argc, char** argv)
   const std::string key("data");
   knowledge.set(key, val);
 
-  //ACE_Time_Value current = ACE_OS::gettimeofday();
-  ACE_Time_Value current;
+  EpochEnforcer enforcer (poll_period, num_sec);
 
-  ACE_Time_Value publish_period;
-  publish_period.set(poll_period);
-
-  ACE_Time_Value max_runtime;
-  max_runtime.set(num_sec);
-  max_runtime = current + max_runtime;
-
-  ACE_Time_Value next_epoch = current + publish_period;
-
-  //ACE_Time_Value start = ACE_OS::gettimeofday();
-  ACE_Time_Value start;
-
-  while(end - start_time < num_sec)
+  while(!enforcer.is_done ())
   {
     knowledge.set(key, val);
     ++updates;
 
-    //ACE_Time_Value current = ACE_OS::gettimeofday ();
-	ACE_Time_Value current;
-    madara::utility::sleep (next_epoch - current);  
-      
-    // setup the next 
-    next_epoch += publish_period;
-
-    time(&end);
+    enforcer.sleep_until_next ();
   }
 
   cerr << double(updates) / num_sec << " Hz knowledge update rate" << endl;

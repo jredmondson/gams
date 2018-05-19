@@ -46,6 +46,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <iomanip>
 
 #include "gams/utility/GPSPosition.h"
 #include "gams/utility/Position.h"

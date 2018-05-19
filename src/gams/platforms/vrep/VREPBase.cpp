@@ -60,7 +60,7 @@
 
 #include <ace/Guard_T.h>
 
-typedef ACE_Guard<MADARA_LOCK_TYPE> Guard;
+typedef MADARA_GUARD_TYPE Guard;
 
 #define VREP_LOCK_MUTEX(mutex) \
   for(Guard guard__(mutex), *ptr__ = &guard__; ptr__; ptr__ = NULL)
@@ -86,14 +86,15 @@ gams::platforms::VREPBase::VREPBase (
   : BasePlatform (knowledge, sensors, self), airborne_ (false),
     move_speed_ (0.8), sw_pose_ (get_sw_pose(pose::gps_frame())),
     vrep_frame_ (sw_pose_), mover_ (NULL),
+    agent_is_ready_ (false),
     begin_sim_ ("begin_sim", *knowledge),
+    vrep_is_ready_ (false),
+    sim_is_running_ (false),
+    is_client_side_ (is_client_side),
     vrep_ready_ ("vrep_ready", *knowledge),
     agent_ready_ ("S" + self->id.to_string () + ".init", *knowledge_),
-    sim_is_running_ (false),
-    agent_is_ready_ (false),
-    vrep_is_ready_ (false),
     node_target_ (-1),
-    model_file_ (model_file), is_client_side_ (is_client_side)
+    model_file_ (model_file)
 {
   if (sensors && knowledge)
   {
@@ -197,7 +198,13 @@ gams::platforms::VREPBase::~VREPBase ()
     }
 
     if (retVal != simx_error_noerror)
-      cerr << "error getting child of node: " << node_id_ << endl;
+    {
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MAJOR,
+        "gams::platforms::VREPBase ~():" \
+        " error getting child of node: %d\n",
+        (int)node_id_);
+    }
 
     if(childId != -1)
     {
@@ -208,7 +215,13 @@ gams::platforms::VREPBase::~VREPBase ()
       }
 
       if(retVal != simx_error_noerror)
-        cerr << "error removing child id " << childId << endl;
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MAJOR,
+          "gams::platforms::VREPBase ~():" \
+          " error removing child id %d\n",
+          (int)childId);
+      }
     }
   }
 
@@ -220,7 +233,11 @@ gams::platforms::VREPBase::~VREPBase ()
 
   if (retVal != simx_error_noerror)
   {
-    cerr << "error deleting node " << node_id_ << endl;
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase ~():" \
+      " error deleting node %d\n",
+      (int)node_id_);
   }
 }
 
@@ -364,7 +381,7 @@ gams::platforms::VREPBase::do_move (const pose::Position & target,
     double distance = target.distance_to (current);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_TRACE,
+      gams::loggers::LOG_DETAILED,
       "gams::platforms::VREPBase::do_move:" \
       " moving from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
       current.x (), current.y (), current.z (),
@@ -376,7 +393,7 @@ gams::platforms::VREPBase::do_move (const pose::Position & target,
       if (distance < max_delta) // we can get to target in one step
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_TRACE,
+          gams::loggers::LOG_DETAILED,
           "gams::platforms::VREPBase::do_move:" \
           " moving to target instantly\n");
 
@@ -387,7 +404,7 @@ gams::platforms::VREPBase::do_move (const pose::Position & target,
       else // we cannot reach target in this step
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_TRACE,
+          gams::loggers::LOG_DETAILED,
           "gams::platforms::VREPBase::do_move:" \
           " calculating new target location\n");
 
@@ -411,7 +428,7 @@ gams::platforms::VREPBase::do_move (const pose::Position & target,
       }
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_TRACE,
+        gams::loggers::LOG_DETAILED,
         "gams::platforms::VREPBase::do_move:" \
         " setting target to \"%f,%f,%f\"\n",
         curr_arr[0], curr_arr[1], curr_arr[2]);
@@ -419,7 +436,7 @@ gams::platforms::VREPBase::do_move (const pose::Position & target,
     else
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_TRACE,
+        gams::loggers::LOG_DETAILED,
         "gams::platforms::VREPBase::do_move:" \
         " setting target to \"%f,%f,%f\"\n",
         dest_arr[0], dest_arr[1], dest_arr[2]);
