@@ -26,12 +26,17 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wreorder"
 #endif
 
 #include "ros/ros.h"
+#include "ros/serialization.h"
 #include "rosbag/bag.h"
 #include "rosbag/view.h"
 #include "rosbag/message_instance.h"
+#include <ros_type_introspection/ros_introspection.hpp>
+#include <topic_tools/shape_shifter.h>
+
 #include <tf/transform_datatypes.h>
 
 #include <geometry_msgs/Quaternion.h>
@@ -43,8 +48,10 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/Range.h>
+#include <sensor_msgs/FluidPressure.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_msgs/TFMessage.h>
+#include <std_msgs/String.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -76,7 +83,23 @@ std::string map_file = "";
 // save as a karl or binary file
 bool save_as_karl = true;
 
+// the world and the base frame of the robot
+std::string base_frame = "";
+std::string world_frame = "";
 
+// ros introspection parser for unknown types
+RosIntrospection::Parser parser;
+
+//to reduce the amount of memory allocations these maps are reused for all
+// unknown topic types which are not parsed directly
+std::map<std::string, RosIntrospection::FlatMessage>   parser_flat_containers;
+std::map<std::string, RosIntrospection::RenamedValues> parser_renamed_vectors;
+std::vector<uint8_t> parser_buffer;
+
+
+void parse_unknown(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name);
+
+void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name);
 void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_imu (sensor_msgs::Imu * imu, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_laserscan (sensor_msgs::LaserScan * laser, knowledge::KnowledgeBase * knowledge, std::string container_name);
@@ -89,6 +112,7 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowledge, std::string container_name);
 void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge);
+void parse_fluidpressure (sensor_msgs::FluidPressure * press, knowledge::KnowledgeBase * knowledge, std::string container_name);
 
 
 template <size_t N>
@@ -187,8 +211,30 @@ int main (int argc, char ** argv)
 				//split the line in topic name and madara var name
 				std::string topic_name = line.substr(0, ros_topic_end);
 				std::string var_name = line.substr(ros_topic_end+1);
-				selected_topics.push_back(topic_name);
-				topic_map[topic_name] = var_name;
+				if (topic_name == "base_frame:")
+				{
+					// definition of the base_frame
+					base_frame = var_name;
+			        std::replace( base_frame.begin(), base_frame.end(), '/', '_');
+
+					cout << "Base frame: " << base_frame << std::endl;
+				}
+				else if (topic_name == "world_frame:")
+				{
+					// definition of the world_frame
+					world_frame = var_name;
+			        std::replace( world_frame.begin(), world_frame.end(), '/', '_');
+
+					cout << "World frame: " << world_frame << std::endl;
+					gams::pose::ReferenceFrame frame(world_frame, gams::pose::Pose(gams::pose::ReferenceFrame(), 0, 0));
+					frame.save(kb);
+
+				}
+				else
+				{
+					selected_topics.push_back(topic_name);
+					topic_map[topic_name] = var_name;
+				}
 			}
 			myfile.close();
 		}
@@ -203,15 +249,27 @@ int main (int argc, char ** argv)
   	// Query the bag's stats
     std::cout << "Size of the selected topics: " << view.size() << "\n";
   	std::cout << "Selected topics in the bagfile: \n";
+  	int count = view.size();
+  	int id_digit_count = 0; do { count /= 10; id_digit_count++; } while (count != 0);
 	for (const rosbag::ConnectionInfo* c: view.getConnections())
 	{
     	std::cout << c->topic << "(" << c->datatype << ")\n";
     }
 
+    //Prepare the parser to be able to introspect unknown types
+    for(const rosbag::ConnectionInfo* connection: view.getConnections() )
+    {
+        const std::string  topic_name =  connection->topic;
+        const std::string  datatype   =  connection->datatype;
+        const std::string  definition =  connection->msg_def;
+        // register the type using the topic_name as identifier.
+        parser.registerMessageDefinition(topic_name, RosIntrospection::ROSType(datatype), definition);
+    }
+
     // Iterate the messages
-  	//std::cout << "\n\nMessageInstances in the bagfile: \n";
   	settings.initial_lamport_clock = 0;
   	settings.last_lamport_clock = 0;
+  	settings.buffer_size = 10240000;
   	cout << "Converting...\n";
     for (const rosbag::MessageInstance m: view)
     {
@@ -228,50 +286,13 @@ int main (int argc, char ** argv)
 	    else
 	    	container_name = get_agent_var_prefix(topic) + "." + ros_to_gams_name(topic);
 
-	    if (m.isType<nav_msgs::Odometry>())
-	    {
-	    	parse_odometry(m.instantiate<nav_msgs::Odometry>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::Imu>())
-	    {
-	    	parse_imu(m.instantiate<sensor_msgs::Imu>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::LaserScan>())
-	    {
-	    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<geometry_msgs::Pose>())
-	    {
-	    	parse_pose(m.instantiate<geometry_msgs::Pose>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<geometry_msgs::PoseStamped>())
-	    {
-	    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::CompressedImage>())
-	    {
-	    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::PointCloud2>())
-	    {
-	    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<sensor_msgs::Range>())
-	    {
-	    	parse_range(m.instantiate<sensor_msgs::Range>().get(), &kb, container_name);
-	    }
-	    else if (m.isType<tf2_msgs::TFMessage>())
-	    {
-	    	parse_tf_message(m.instantiate<tf2_msgs::TFMessage>().get(), &kb);
-	    }
-	    else
-	    {
-	    	//cout << topic << ": Type not supported\n";
-	    	continue;
-	    }
+	    parse_message(m, &kb, container_name);
 
 	    //kb.print();
-	    settings.filename = checkpoint_prefix + "_" + std::to_string(settings.last_lamport_clock) + ".kb";
+	    std::stringstream id_ss;
+		id_ss << std::setw(id_digit_count) << std::setfill('0') << settings.last_lamport_clock;
+		std::string id_str = id_ss.str();
+	    settings.filename = checkpoint_prefix + "_" + id_str + ".kb";
 
 	    //Set time settings
 	    if (settings.last_lamport_clock == 0)
@@ -283,10 +304,135 @@ int main (int argc, char ** argv)
 	    save_checkpoint(&kb, &settings);
     }
     std::cout << "Done!\n";
-	//std::cout << "Converted " + settings.last_lamport_clock << " messages.\n" << std::flush;
 }
 #endif
 
+void parse_message(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name)
+{
+
+    if (m.isType<nav_msgs::Odometry>())
+    {
+    	parse_odometry(m.instantiate<nav_msgs::Odometry>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::Imu>())
+    {
+    	parse_imu(m.instantiate<sensor_msgs::Imu>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::LaserScan>())
+    {
+    	parse_laserscan(m.instantiate<sensor_msgs::LaserScan>().get(), kb, container_name);
+    }
+    else if (m.isType<geometry_msgs::Pose>())
+    {
+    	parse_pose(m.instantiate<geometry_msgs::Pose>().get(), kb, container_name);
+    }
+    else if (m.isType<geometry_msgs::PoseStamped>())
+    {
+    	parse_pose(&m.instantiate<geometry_msgs::PoseStamped>().get()->pose, kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::CompressedImage>())
+    {
+    	parse_compressed_image(m.instantiate<sensor_msgs::CompressedImage>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::PointCloud2>())
+    {
+    	parse_pointcloud2(m.instantiate<sensor_msgs::PointCloud2>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::Range>())
+    {
+    	parse_range(m.instantiate<sensor_msgs::Range>().get(), kb, container_name);
+    }
+    else if (m.isType<sensor_msgs::FluidPressure>())
+    {
+    	parse_fluidpressure(m.instantiate<sensor_msgs::FluidPressure>().get(), kb, container_name);
+    }
+    else if (m.isType<tf2_msgs::TFMessage>())
+    {
+    	parse_tf_message(m.instantiate<tf2_msgs::TFMessage>().get(), kb);
+    }
+    else
+    {
+    	parse_unknown(m, kb, container_name);
+    }
+}
+
+
+/**
+* Parses unknown messages using ros_type_introspection
+* DO NOT USE THIS FOR TYPES WITH LARGE ARRAYS
+**/
+void parse_unknown(const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name)
+{
+	// see https://github.com/facontidavide/type_introspection_tests/blob/master/example/rosbag_example.cpp
+	// see http://wiki.ros.org/ros_type_introspection chapter "3.2 The Deserializer"
+	// this is not recommend to be done to known types because of it's huge memory usage!
+	
+    const std::string& topic_name  = m.getTopic();
+
+	// write the message into the buffer
+    const size_t msg_size  = m.size();
+    parser_buffer.resize(msg_size);
+    ros::serialization::OStream stream(parser_buffer.data(), parser_buffer.size());
+    m.write(stream);
+
+    RosIntrospection::FlatMessage&   flat_container = parser_flat_containers[topic_name];
+    RosIntrospection::RenamedValues& renamed_values = parser_renamed_vectors[topic_name];
+
+    // deserialize and rename the vectors
+    bool success = parser.deserializeIntoFlatContainer( topic_name,
+                                         absl::Span<uint8_t>(parser_buffer),
+                                         &flat_container, 500 );
+
+    if (!success)
+    	cout << "Topic " << topic_name << " could not be parsed successfully due to large array sizes!" << std::endl;
+
+    parser.applyNameTransform( topic_name,
+                               flat_container,
+                               &renamed_values );
+
+    // Save the content of the message to the knowledgebase
+    int topic_len = topic_name.length();
+    for (auto it: renamed_values)
+    {
+        const std::string& key = it.first;
+        const RosIntrospection::Variant& value   = it.second;
+
+        std::string var_name = key.substr(topic_len);
+        std::replace( var_name.begin(), var_name.end(), '/', '.');
+        if (value.getTypeID() == RosIntrospection::BuiltinType::BOOL ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::BYTE ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::CHAR ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT8 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT16 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT32 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::UINT64 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT8 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT16 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT32 ||
+        	value.getTypeID() == RosIntrospection::BuiltinType::INT64)
+        {
+        	// Use Integer container for these types
+            containers::Integer value_container(container_name + var_name, *kb);
+            value_container = value.convert<double>();
+        }
+        else
+        {
+        	// otherwise convert to double
+            containers::Double value_container(container_name + var_name, *kb);
+            value_container = value.convert<double>();
+        }
+    }
+    for (auto it: flat_container.name)
+    {
+        const std::string& key    = it.first.toStdString();
+        const std::string& value  = it.second;
+
+        std::string var_name = key.substr(topic_len);
+        std::replace( var_name.begin(), var_name.end(), '/', '.');
+        containers::String value_container(container_name + var_name, *kb);
+		value_container = value;
+    }
+}
 
 /**
 * Parses a ROS Odometry Message into two Madara Containers. One for the location and a
@@ -384,6 +530,23 @@ void parse_range (sensor_msgs::Range * range, knowledge::KnowledgeBase * knowled
 }
 
 /**
+* Parses a ROS FluidPressure Message
+* @param  press   			the sensor_msgs::FluidPressure message
+* @param  knowledge 		Knowledgbase
+* @param  container_name  	container namespace
+**/
+void parse_fluidpressure (sensor_msgs::FluidPressure * press, knowledge::KnowledgeBase * knowledge, std::string container_name)
+{
+	containers::Double fluid_pressure(container_name + ".fluid_pressure", *knowledge);
+	fluid_pressure = press->fluid_pressure;
+	containers::Double variance(container_name + ".variance", *knowledge);
+	variance = press->variance;
+}
+
+
+
+
+/**
 * Parses a ROS CompressedImage Message
 * @param  laser   			the sensor_msgs::CompressedImage message
 * @param  knowledge 		Knowledgbase
@@ -405,21 +568,23 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img, knowledge::Know
 **/
 void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge)
 {
+	// Expire frames after 60 seconds
+	gams::pose::ReferenceFrame::default_expiry(100000000);
+	uint64_t max_timestamp = 0;
 	for (tf2_msgs::TFMessage::_transforms_type::iterator iter = tf->transforms.begin(); iter != tf->transforms.end(); ++iter)
 	{
 		// read frame names_ 
 		std::string frame_id = iter->header.frame_id;
-		//std::replace(frame_id.begin(), frame_id.end(), '/', '_');
 		std::string child_frame_id = iter->child_frame_id;
-		//std::replace(child_frame_id.begin(), child_frame_id.end(), '/', '_');
+		std::replace( frame_id.begin(), frame_id.end(), '/', '_');
+		std::replace( child_frame_id.begin(), child_frame_id.end(), '/', '_');
+
 
 		// parse the rotation and orientation
 		gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load(*knowledge, frame_id);
 		if (!parent.valid())
 		{
 			parent = gams::pose::ReferenceFrame(frame_id, gams::pose::Pose(gams::pose::ReferenceFrame(), 0, 0));
-
-			parent.save(*knowledge);
 		}
 		gams::pose::Quaternion quat(iter->transform.rotation.x,
 									iter->transform.rotation.y,
@@ -430,8 +595,34 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
 									  iter->transform.translation.z);
 
 		gams::pose::Pose pose(parent, position, gams::pose::Orientation(quat));
-		gams::pose::ReferenceFrame child_frame(child_frame_id, pose);
+		uint64_t timestamp = iter->header.stamp.sec*1000*1000 + iter->header.stamp.nsec;
+		gams::pose::ReferenceFrame child_frame(child_frame_id, pose, timestamp);
 		child_frame.save(*knowledge);
+		if (timestamp > max_timestamp)
+			max_timestamp = timestamp;
+	}
+	if (base_frame != "" && world_frame != "")
+	{
+		// World and base frames are defined so we can calculate the agent location and orientation
+		gams::pose::ReferenceFrame world  = gams::pose::ReferenceFrame::load(*knowledge, world_frame);
+		gams::pose::ReferenceFrame base  = gams::pose::ReferenceFrame::load(*knowledge, base_frame, max_timestamp);
+		if(world.valid() && base.valid())
+		{
+			try
+			{
+				gams::pose::Pose base_pose = base.origin().transform_to(world);
+				containers::NativeDoubleVector location("agents.0.location", *knowledge, 3);
+				containers::NativeDoubleVector orientation("agents.0.orientation", *knowledge, 3);
+				location.set(0, base_pose.as_location_vec().get(0));
+				location.set(1, base_pose.as_location_vec().get(1));
+				location.set(2, base_pose.as_location_vec().get(2));
+				orientation.set(0, base_pose.as_orientation_vec().get(0));
+				orientation.set(1, base_pose.as_orientation_vec().get(1));
+				orientation.set(2, base_pose.as_orientation_vec().get(2));
+			}
+			catch ( gams::pose::unrelated_frames ex){}
+		}
+
 	}
 }
 
