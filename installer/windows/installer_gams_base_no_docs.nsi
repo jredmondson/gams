@@ -7,8 +7,7 @@
 !define PRODUCT_WEB_SITE "http://jredmondson.github.io/gams/"
 
 !define MADARA_WEB_SITE "http://madara.sourceforge.net/"
-!define ACE_WEB_SITE "http://www.cs.wustl.edu/~schmidt/ACE.html"
-  
+
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define env_hklm 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
@@ -69,9 +68,6 @@ Section "debug-libs" SEC01
   SetOutPath "$INSTDIR\lib"
   SetOverwrite ifnewer
   
-  File "$%ACE_ROOT%\lib\ACEd.dll"
-  File "$%ACE_ROOT%\lib\ACEd.lib"
-  
   File "$%MADARA_ROOT%\lib\MADARAd.dll"
   File "$%MADARA_ROOT%\lib\MADARAd.lib"
   
@@ -82,9 +78,7 @@ SectionEnd
 Section "-release-libs" SEC02
   SetOutPath "$INSTDIR\lib"
   SetOverwrite ifnewer
-  File "$%ACE_ROOT%\lib\ACE.dll"
-  File "$%ACE_ROOT%\lib\ACE.lib"
-  
+
   File "$%MADARA_ROOT%\lib\MADARA.dll"
   File "$%MADARA_ROOT%\lib\MADARA.lib"
   
@@ -110,7 +104,6 @@ Section "-include" SEC07
   SetOutPath "$INSTDIR\src"
   
   ; copy the ace, madara and gams source directories
-  File /r /x *.svn /x *.obj /x *.sln /x *.sdf /x *.vcxproj /x *.filters /x *.user /x *.log /x *.tlog /x *.pdb /x Static_Debug /x Static_Release /x Debug /x Release "$%ACE_ROOT%\ace"
   File /r /x *.obj /x *.sln /x *.sdf /x *.vcxproj /x *.filters /x *.user /x *.log /x *.tlog /x *.pdb /x Static_Debug /x Static_Release /x Debug /x Release "$%MADARA_ROOT%\include\madara"
   File /r /x *.obj /x *.sln /x *.sdf /x *.vcxproj /x *.filters /x *.user /x *.log /x *.tlog /x *.pdb /x Static_Debug /x Static_Release /x Debug /x Release "$%GAMS_ROOT%\src\gams"
   
@@ -142,7 +135,7 @@ Section "-vcredist" SEC11
 
   sp164_not_exists:
     # From http://blogs.msdn.com/astebner/archive/2007/02/07/update-regarding-silent-install-of-the-vc-8-0-runtime-vcredist-packages.aspx
-    # “qb!” for progress with no cancel, “qb” for progress and cancel, “qn” for no interaction
+    # ï¿½qb!ï¿½ for progress with no cancel, ï¿½qbï¿½ for progress and cancel, ï¿½qnï¿½ for no interaction
 
     DetailPrint "Installing VC 13 64-bit Redistributable."  
 
@@ -164,7 +157,7 @@ Section "-vcredist" SEC11
 
   sp1_not_exists:
     # From http://blogs.msdn.com/astebner/archive/2007/02/07/update-regarding-silent-install-of-the-vc-8-0-runtime-vcredist-packages.aspx
-    # “qb!” for progress with no cancel, “qb” for progress and cancel, “qn” for no interaction
+    # ï¿½qb!ï¿½ for progress with no cancel, ï¿½qbï¿½ for progress and cancel, ï¿½qnï¿½ for no interaction
     DetailPrint "Installing VC 13 32-bit Redistributable."  
     ExecWait '$INSTDIR\vcredist\vcredist_x86.exe /q' $0 # Only progress bar
     DetailPrint "vcredist_x86 SP1 Update returned $0"
@@ -192,13 +185,9 @@ SectionEnd
 Section "-exes" SEC09
   SetOutPath "$INSTDIR"
 
-  File /r /x *.svn "$%ACE_ROOT%\MPC"
+  File /r /x "$%MPC_ROOT%"
 
   SetOutPath "$INSTDIR\bin"
-  
-  File /r /x *.svn "$%ACE_ROOT%\bin\MakeProjectCreator"
-  File "$%ACE_ROOT%\bin\mwc.pl"
-  File "$%ACE_ROOT%\bin\mpc.pl"
   
   File "$%MADARA_ROOT%\bin\karl.exe"
   File "$%MADARA_ROOT%\bin\madara_version.exe"
@@ -213,11 +202,9 @@ Section "-basic" SEC08
   SetShellVarContext all
   
   SetOutPath "$INSTDIR"
-  File /oname=$INSTDIR\ACE-VERSION.txt "$%ACE_ROOT%\VERSION"
   File /oname=$INSTDIR\MADARA-VERSION.txt "$%MADARA_ROOT%\VERSION.txt"
   File /oname=$INSTDIR\GAMS-VERSION.txt "$%GAMS_ROOT%\VERSION.txt"
   
-  File /oname=$INSTDIR\ACE-LICENSE.txt "$%ACE_ROOT%\COPYING"
   File /oname=$INSTDIR\MADARA-LICENSE.txt "$%MADARA_ROOT%\LICENSE.txt"
   File /oname=$INSTDIR\GAMS-LICENSE.txt "$%GAMS_ROOT%\LICENSE.txt"
   
@@ -225,14 +212,11 @@ Section "-basic" SEC08
   File /oname=$INSTDIR\GAMS-README.txt "$%GAMS_ROOT%\README.txt"
   
   CreateDirectory "$SMPROGRAMS\GAMS"
-  CreateDirectory "$SMPROGRAMS\GAMS\ACE"
   CreateDirectory "$SMPROGRAMS\GAMS\MADARA"
   
-  CreateShortCut "$SMPROGRAMS\GAMS\ACE\VERSION.lnk" "$INSTDIR\ACE-VERSION.txt"
-  CreateShortCut "$SMPROGRAMS\GAMS\MADARA\VERSION.lnk" "$INSTDIR\MADARA-VERSION.txt"
+ CreateShortCut "$SMPROGRAMS\GAMS\MADARA\VERSION.lnk" "$INSTDIR\MADARA-VERSION.txt"
   CreateShortCut "$SMPROGRAMS\GAMS\VERSION.lnk" "$INSTDIR\GAMS-VERSION.txt"
   
-  CreateShortCut "$SMPROGRAMS\GAMS\ACE\LICENSE.lnk" "$INSTDIR\ACE-LICENSE.txt"
   CreateShortCut "$SMPROGRAMS\GAMS\MADARA\LICENSE.lnk" "$INSTDIR\MADARA-LICENSE.txt"
   CreateShortCut "$SMPROGRAMS\GAMS\LICENSE.lnk" "$INSTDIR\GAMS-LICENSE.txt"
   
@@ -246,11 +230,9 @@ Section -AdditionalIcons
 
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   WriteIniStr "$INSTDIR\MADARA.url" "InternetShortcut" "URL" "${MADARA_WEB_SITE}"
-  WriteIniStr "$INSTDIR\ACE.url" "InternetShortcut" "URL" "${ACE_WEB_SITE}"
   
   CreateShortCut "$SMPROGRAMS\GAMS\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
   CreateShortCut "$SMPROGRAMS\GAMS\MADARA\Website.lnk" "$INSTDIR\MADARA.url"
-  CreateShortCut "$SMPROGRAMS\GAMS\ACE\Website.lnk" "$INSTDIR\ACE.url"
   
   CreateShortCut "$SMPROGRAMS\GAMS\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
@@ -278,14 +260,12 @@ Section -Post
 
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "OldMadaraRoot" "$%MADARA_ROOT%"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "OldGamsRoot" "$%GAMS_ROOT%"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "OldAceRoot" "$%ACE_ROOT%"
 
 ; set environment variables
    ; include for some of the windows messages defines
    ; HKLM (all users) vs HKCU (current user) defines
    ; set variable
    WriteRegExpandStr ${env_hkcu} GAMS_ROOT $INSTDIR
-   WriteRegExpandStr ${env_hkcu} ACE_ROOT $INSTDIR
    WriteRegExpandStr ${env_hkcu} MADARA_ROOT $INSTDIR
    
    ; read the path variable
@@ -336,7 +316,6 @@ Section Uninstall
 
   StrCmp $0 '' 0 revert
    ; delete variable
-   DeleteRegValue ${env_hkcu} ACE_ROOT
    DeleteRegValue ${env_hkcu} MADARA_ROOT
    DeleteRegValue ${env_hkcu} GAMS_ROOT
    ReadRegStr $1 ${env_hkcu} PATH
@@ -351,7 +330,6 @@ Section Uninstall
    revert:
    WriteRegExpandStr ${env_hkcu} GAMS_ROOT $0
    WriteRegExpandStr ${env_hkcu} MADARA_ROOT $3
-   WriteRegExpandStr ${env_hkcu} ACE_ROOT $4
    ; make sure windows knows about the change
 
    SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000

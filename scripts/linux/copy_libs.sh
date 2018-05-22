@@ -10,7 +10,6 @@ do
   LIB_DIR=$GAMS_ROOT/src/android/$app/app/libs
   rm -rf $LIB_DIR
   mkdir -p $LIB_DIR/armeabi
-  cp $ACE_ROOT/ace/libACE.so $LIB_DIR/armeabi
   cp $MADARA_ROOT/libMADARA.so $LIB_DIR/armeabi
   cp $MADARA_ROOT/lib/madara.jar $LIB_DIR
   cp $GAMS_ROOT/libGAMS.so $LIB_DIR/armeabi
