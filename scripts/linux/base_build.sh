@@ -436,7 +436,7 @@ if [ $PREREQS -eq 1 ]; then
   fi
   
   if [ $ROS -eq 1 ]; then
-    sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
+    sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
 
     if [ $ROS_FIRST_SETUP -eq 1 ]; then
       sudo rosdep init
