@@ -688,8 +688,15 @@ gams::controllers::BaseController::run (double loop_period,
     send_period = loop_period;
   }
 
-  EpochEnforcer loop_enforcer (loop_period, max_runtime);
-  EpochEnforcer send_enforcer (send_period, max_runtime);
+  madara::utility::TimeValue current = madara::utility::Clock::now ();
+  madara::utility::Duration loop_window =
+    madara::utility::seconds_to_duration (loop_period);
+  madara::utility::Duration send_window =
+    madara::utility::seconds_to_duration (send_period);
+  madara::utility::TimeValue next_loop = current + loop_window;
+  madara::utility::TimeValue next_send = current + send_window;
+  madara::utility::TimeValue end_time = current +
+    madara::utility::seconds_to_duration (max_runtime);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -708,7 +715,7 @@ gams::controllers::BaseController::run (double loop_period,
   if (loop_period >= 0.0)
   {
     //unsigned int iterations = 0;
-    while (first_execute || max_runtime < 0 || !loop_enforcer.is_done ())
+    while (first_execute || max_runtime < 0 || current < end_time)
     {
       // return value should be last return value of mape loop
       return_value = run_once_ ();
@@ -724,8 +731,10 @@ gams::controllers::BaseController::run (double loop_period,
         save_checkpoint ();
       }
 
+      current = madara::utility::Clock::now ();
+
       // run will always try to send at least once
-      if (first_execute || !send_enforcer.has_reached_next ())
+      if (first_execute || current > next_send)
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
@@ -743,24 +752,37 @@ gams::controllers::BaseController::run (double loop_period,
         // setup the next send epoch
         if (send_period > 0)
         {
-          send_enforcer.advance_next ();
+          while (next_send <= current)
+          {
+            next_send += send_window;
+          }
         }
       }
 
+      current = madara::utility::Clock::now ();
+
       // check to see if we need to sleep for next loop epoch
-      if (loop_period > 0.0 && !loop_enforcer.is_done ())
+      if (loop_period > 0.0 && (max_runtime < 0 || current < end_time))
       {
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MINOR,
           "gams::controllers::BaseController::run:" \
           " sleeping until next epoch\n");
 
-        loop_enforcer.sleep_until_next ();
+        std::this_thread::sleep_until (next_loop);
+
+        current = madara::utility::Clock::now ();
+        while (next_loop <= current)
+        {
+          next_loop += loop_window;
+        }
       }
 
       // run will always execute at least one time. Update flag for execution.
       if (first_execute)
         first_execute = false;
+
+      current = madara::utility::Clock::now ();
 
       // if send herz difference is more than .001 hz different, change epoch
       if (!madara::utility::approx_equal (
@@ -774,7 +796,9 @@ gams::controllers::BaseController::run (double loop_period,
 
         send_hz = self_.agent.send_hz.to_double ();
         send_period = 1 / send_hz;
-        send_enforcer.set_period (send_period);
+
+        send_window = madara::utility::seconds_to_duration (send_period);
+        next_send = current + send_window;
       }
 
       // if loop herz difference is more than .001 hz different, change epoch
@@ -789,7 +813,9 @@ gams::controllers::BaseController::run (double loop_period,
 
         loop_hz = self_.agent.loop_hz.to_double ();
         loop_period = 1 / loop_hz;
-        loop_enforcer.set_period (loop_period);
+        
+        loop_window = madara::utility::seconds_to_duration (loop_period);
+        next_loop = current + loop_window;
       }
 
       // if our loop hertz is not fast enough for sending, change it
@@ -803,11 +829,14 @@ gams::controllers::BaseController::run (double loop_period,
 
         loop_hz = send_hz;
         loop_period = 1 / loop_hz;
-        loop_enforcer.set_period (loop_period);
+        
+        loop_window = madara::utility::seconds_to_duration (loop_period);
+        next_loop = current + loop_window;
 
         // update container so others know we are changing rate
         self_.agent.loop_hz = loop_hz;
       }
+
     }
   }
 
