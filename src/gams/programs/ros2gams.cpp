@@ -96,6 +96,9 @@ std::map<std::string, RosIntrospection::FlatMessage>   parser_flat_containers;
 std::map<std::string, RosIntrospection::RenamedValues> parser_renamed_vectors;
 std::vector<uint8_t> parser_buffer;
 
+//checkpoint frequency
+int checkpoint_frequency = 0;
+
 
 void parse_unknown (const rosbag::MessageInstance m,
   knowledge::KnowledgeBase * kb, std::string container_name);
@@ -181,6 +184,11 @@ void handle_arguments (int argc, char ** argv)
     {
       save_as_karl = false;
     }
+    else if (arg1 == "-y" || arg1 == "--frequency")
+    {
+      checkpoint_frequency = std::stoi(argv[i + 1]);
+      i++;
+    }
     else if (arg1 == "-h" || arg1 == "--help")
     {
       std::cout << "\nProgram summary for ros2gams [options] [Logic]:\n\n" \
@@ -192,7 +200,10 @@ void handle_arguments (int argc, char ** argv)
       "                                       in each checkpoint\n" \
       "  [-sb|--save-binary]                  save the resulting knowledge \n"\
       "                                       base as a binary checkpoint\n" \
-      "  [-m|--map-file file]                 File with filter information";
+      "  [-m|--map-file file]                 File with filter information\n" \
+      "  [-y|--frequency hz]                  Checkpoint frequency\n" \
+      "                                       (default:checkpoint with each\n" \
+      "                                        message in the bagfile)";
       exit (0);
     }
   }
@@ -275,7 +286,7 @@ int main (int argc, char ** argv)
 
   for (const rosbag::ConnectionInfo* c: view.getConnections ())
   {
-    std::cout   << c->topic << " (" << c->datatype << ")\n";
+    std::cout << "    " << c->topic << " (" << c->datatype << ")\n";
   }
 
   //Prepare the parser to be able to introspect unknown types
@@ -295,6 +306,18 @@ int main (int argc, char ** argv)
   settings.override_lamport = true;
   settings.override_timestamp = true;
   settings.buffer_size = 10240000;
+
+  uint64_t last_checkpoint_timestamp = 0;
+  // checkpoint intervall
+  uint64_t checkpoint_intervall = 1000000000;
+  int checkpoint_id = 0;
+  if ( checkpoint_frequency > 0 )
+  {
+    checkpoint_intervall = checkpoint_intervall / checkpoint_frequency;
+    std::cout << "\nCreating a checkpoint each " <<
+      (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
+  }
+
   std::cout << "Converting...\n";
   for (const rosbag::MessageInstance m: view)
   {
@@ -317,20 +340,38 @@ int main (int argc, char ** argv)
     //kb.print ();
     std::stringstream id_ss;
     id_ss << std::setw (id_digit_count) << std::setfill ('0') <<
-    settings.last_lamport_clock;
+      checkpoint_id;
     std::string id_str = id_ss.str ();
     settings.filename = checkpoint_prefix + "_" + id_str + ".kb";
 
+    uint64_t stamp = time.sec;
+    stamp = stamp * 1000000000 + time.nsec;
+    settings.last_timestamp = stamp;
     //Set time settings
     if (settings.last_lamport_clock == 0)
     {
       // this is the first message
-      settings.initial_timestamp = time.toSec ();
+      settings.initial_timestamp = settings.last_timestamp;
     }
-
-    settings.last_timestamp = time.toSec ();
     settings.last_lamport_clock += 1;
-    save_checkpoint (&kb, &settings);
+
+
+
+    // Save checkpoint
+    if ( checkpoint_frequency == 0 )
+    {
+      // Save checkpoint with each message
+      save_checkpoint (&kb, &settings);
+      checkpoint_id++;
+    }
+    else if (last_checkpoint_timestamp + checkpoint_intervall < stamp ||
+      last_checkpoint_timestamp == 0)
+    {
+      // Save checkpoint with a given frequency
+      save_checkpoint (&kb, &settings);
+      last_checkpoint_timestamp = stamp;
+      checkpoint_id++;
+    }
   }
 }
 #endif
@@ -638,7 +679,7 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img,
 void parse_tf_message (tf2_msgs::TFMessage * tf,
   knowledge::KnowledgeBase * knowledge)
 {
-  // Expire frames after 60 seconds
+  // Expire frames after 0.1 seconds
   gams::pose::ReferenceFrame::default_expiry (100000000);
   uint64_t max_timestamp = 0;
   for (tf2_msgs::TFMessage::_transforms_type::iterator iter =
