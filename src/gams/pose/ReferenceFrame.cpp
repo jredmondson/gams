@@ -246,7 +246,7 @@ namespace gams
 
         KnowledgeMap &map = kb.get_context().get_map_unsafe();
         auto range = get_range(map, std::move(key_low), std::move(key_high));
-        map.erase(range.first, range.second);
+        kb.get_context().delete_variables(range.first, range.second);
       }
 
       {
