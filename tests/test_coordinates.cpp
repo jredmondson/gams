@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <streambuf>
 #include <math.h>
 #include <gams/pose/Position.h>
 #include <gams/pose/CartesianFrame.h>
@@ -377,6 +379,25 @@ int main(int, char *[])
   frame_store.save(std::move(exp));
 
   kb.to_string(dump);
+  LOG(dump);
+
+  madara::knowledge::KnowledgeBase tkb;
+  std::ifstream t("frames.kb");
+  std::string karl((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+  tkb.evaluate (karl);
+
+  tkb.to_string(dump);
+  LOG(dump);
+
+  auto f = ReferenceFrame::load(tkb, "p1base_link");
+  LOG (f.valid());
+
+  Pose pf(f, 1, 2, 3);
+  Position loc(pf);
+  madara::knowledge::containers::NativeDoubleArray nda(".foo", tkb);
+  loc.to_container(nda);
+
+  tkb.to_string(dump);
   LOG(dump);
 
   return 0;
