@@ -13,6 +13,10 @@
 debug                   = 0
 
 
+/// @feature clang
+/// Enable this feature if you want to compile with clang++ and libc++
+clang                   = 0
+
 /// @feature tests
 /// Enable this feature if you want to generate test applications
 tests                   = 1

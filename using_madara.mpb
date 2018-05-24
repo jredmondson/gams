@@ -1,4 +1,4 @@
-project : debug_build {
+project : debug_build, using_clang {
   includes += $(MADARA_ROOT)/include
   libpaths += $(MADARA_ROOT)/lib
   after += Madara  
