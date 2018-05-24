@@ -8,6 +8,10 @@
 ///
 ///============================================================================
 
+/// @feature debug
+/// Enable this feature if you want to generate debug build
+debug                   = 0
+
 
 /// @feature tests
 /// Enable this feature if you want to generate test applications
@@ -16,7 +20,7 @@ tests                   = 1
 
 /// @feature vrep
 /// Enable this feature if you want to support the VREP simulator
-vrep                      = 1
+vrep                      = 0
 
 /// @feature utm
 /// Enable this feature if you want to support the UTM coordinate system using GeographicLib

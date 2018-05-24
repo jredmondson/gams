@@ -1,6 +1,11 @@
-project {
+project : debug_build {
   includes += $(MADARA_ROOT)/include
   libpaths += $(MADARA_ROOT)/lib
   after += Madara  
   libs += MADARA
+
+  verbatim (make, local, true) {
+    CPPFLAGS := -std=c++11 -Wall -Wextra -Wnon-virtual-dtor \
+      -Woverloaded-virtual -O3 $(CPPFLAGS)
+  }
 }
