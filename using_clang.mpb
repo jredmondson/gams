@@ -1,0 +1,11 @@
+feature (clang) {
+  specific (prop:make) {
+    includes += /usr/include/libcxxabi
+  }
+
+  verbatim (make, local, true) {
+    CXX = clang++-5.0
+    CC = clang-5.0
+    CPPFLAGS := -stdlib=libc++ $(CPPFLAGS)
+  }
+}
