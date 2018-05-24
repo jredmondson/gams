@@ -1,4 +1,4 @@
-project (test_mape_loop) : using_gams, using_madara, using_ace {
+project (test_mape_loop) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_mape_loop
   
@@ -7,11 +7,6 @@ project (test_mape_loop) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -22,7 +17,7 @@ project (test_mape_loop) : using_gams, using_madara, using_ace {
   }
 }
 
-project (gams_throughput) : using_gams, using_madara, using_ace {
+project (gams_throughput) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_throughput
   
@@ -32,11 +27,7 @@ project (gams_throughput) : using_gams, using_madara, using_ace {
 
   Documentation_Files {
   }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
-  }
+
 
   Header_Files {
     tests/throughput/utility
@@ -54,7 +45,7 @@ project (gams_throughput) : using_gams, using_madara, using_ace {
 }
 
 
-project (test_controller) : using_gams, using_madara, using_ace {
+project (test_controller) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_controller
   
@@ -63,11 +54,6 @@ project (test_controller) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -78,7 +64,7 @@ project (test_controller) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_controller_run) : using_gams, using_madara, using_ace {
+project (test_controller_run) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_controller_run
   
@@ -87,11 +73,6 @@ project (test_controller_run) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -104,7 +85,7 @@ project (test_controller_run) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_utility) : using_gams, using_madara, using_ace {
+project (test_utility) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_utility
 
@@ -113,11 +94,6 @@ project (test_utility) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -128,7 +104,7 @@ project (test_utility) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_auctions) : using_gams, using_madara, using_ace {
+project (test_auctions) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_auctions
 
@@ -137,11 +113,6 @@ project (test_auctions) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -152,7 +123,7 @@ project (test_auctions) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_elections) : using_gams, using_madara, using_ace {
+project (test_elections) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_elections
 
@@ -161,11 +132,6 @@ project (test_elections) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -176,7 +142,7 @@ project (test_elections) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_variables) : using_gams, using_madara, using_ace {
+project (test_variables) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_variables
 
@@ -185,11 +151,6 @@ project (test_variables) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -200,37 +161,29 @@ project (test_variables) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_madara_reader) : using_madara, using_ace {
+project (test_madara_reader) : using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_madara_reader
 
   requires += tests
-
-  Build_Files {
-    tests.mpc
-  }
 
   Source_Files {
     tests/message_performance/madara/ContinuousMadaraReader.cpp
   }
 }
 
-project (test_madara_writer) : using_madara, using_ace {
+project (test_madara_writer) : using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_madara_writer
 
   requires += tests
-
-  Build_Files {
-    tests.mpc
-  }
 
   Source_Files {
     tests/message_performance/madara/ContinuousMadaraWriter.cpp
   }
 }
 
-project (test_coordinates) : using_gams, using_madara, using_ace {
+project (test_coordinates) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_coordinates
 
@@ -239,11 +192,6 @@ project (test_coordinates) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -254,7 +202,7 @@ project (test_coordinates) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_location) : using_gams, using_madara, using_ace {
+project (test_location) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_location
 
@@ -263,11 +211,6 @@ project (test_location) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -278,7 +221,7 @@ project (test_location) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_euler) : using_gams, using_madara, using_ace {
+project (test_euler) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_euler
 
@@ -287,11 +230,6 @@ project (test_euler) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -302,7 +240,7 @@ project (test_euler) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_utm) : using_gams, using_madara, using_ace, using_utm {
+project (test_utm) : using_gams, using_madara, using_utm {
   exeout = $(GAMS_ROOT)/bin
   exename = test_utm
 
@@ -311,11 +249,6 @@ project (test_utm) : using_gams, using_madara, using_ace, using_utm {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -326,7 +259,7 @@ project (test_utm) : using_gams, using_madara, using_ace, using_utm {
   }
 }
 
-project (test_arguments_parser) : using_gams, using_madara, using_ace {
+project (test_arguments_parser) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_arguments_parser
 
@@ -335,11 +268,6 @@ project (test_arguments_parser) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -350,7 +278,7 @@ project (test_arguments_parser) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_formation_sync) : using_gams, using_madara, using_ace {
+project (test_formation_sync) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_formation_sync
 
@@ -359,11 +287,6 @@ project (test_formation_sync) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -374,7 +297,7 @@ project (test_formation_sync) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_groups) : using_gams, using_madara, using_ace {
+project (test_groups) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
   exename = test_groups
 
@@ -383,11 +306,6 @@ project (test_groups) : using_gams, using_madara, using_ace {
   requires += tests
 
   Documentation_Files {
-  }
-  
-  Build_Files {
-    using_gams.mpb
-    tests.mpc
   }
 
   Header_Files {
@@ -398,7 +316,7 @@ project (test_groups) : using_gams, using_madara, using_ace {
   }
 }
 
-project (test_ros2gams) : using_madara, using_ace, using_ros, using_gams {
+project (test_ros2gams) : using_madara, using_ros, using_gams {
   exeout = $(GAMS_ROOT)/bin
   exename = test_ros2gams
   libpaths += $(ROS_ROOT)/../../lib
@@ -414,16 +332,7 @@ project (test_ros2gams) : using_madara, using_ace, using_ros, using_gams {
   libs += rosbag
   libs += rosbag_storage
 
-  verbatim (gnuace, local) {
-    CPPFLAGS += -std=c++11
-  }
-
   Documentation_Files {
-  }
-
-  Build_Files {
-    using_gams.mpb
-    gams.mpc
   }
 
   Header_Files {
