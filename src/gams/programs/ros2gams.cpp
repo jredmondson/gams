@@ -99,6 +99,9 @@ std::vector<uint8_t> parser_buffer;
 //checkpoint frequency
 int checkpoint_frequency = 0;
 
+// Differential checkpointing
+bool differential_checkpoints = false;
+
 
 void parse_unknown (const rosbag::MessageInstance m,
   knowledge::KnowledgeBase * kb, std::string container_name);
@@ -184,6 +187,10 @@ void handle_arguments (int argc, char ** argv)
     {
       save_as_karl = false;
     }
+    else if (arg1 == "-d" || arg1 == "--differential")
+    {
+      differential_checkpoints = true;
+    }
     else if (arg1 == "-y" || arg1 == "--frequency")
     {
       checkpoint_frequency = std::stoi(argv[i + 1]);
@@ -203,7 +210,9 @@ void handle_arguments (int argc, char ** argv)
       "  [-m|--map-file file]                 File with filter information\n" \
       "  [-y|--frequency hz]                  Checkpoint frequency\n" \
       "                                       (default:checkpoint with each\n" \
-      "                                        message in the bagfile)";
+      "                                        message in the bagfile)\n" \
+      "  [-d|--differential]                  differential checkpoints\n" \
+      "                                       only for binary checkpoints";
       exit (0);
     }
   }
@@ -691,7 +700,6 @@ void parse_tf_message (tf2_msgs::TFMessage * tf,
     std::replace ( frame_id.begin (), frame_id.end (), '/', '_');
     std::replace ( child_frame_id.begin (), child_frame_id.end (), '/', '_');
 
-
     // parse the rotation and orientation
     gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load (
       *knowledge, frame_id);
@@ -711,8 +719,8 @@ void parse_tf_message (tf2_msgs::TFMessage * tf,
                     iter->transform.translation.z);
 
     gams::pose::Pose pose (parent, position, gams::pose::Orientation (quat));
-    uint64_t timestamp = iter->header.stamp.sec*1000*1000 +
-      iter->header.stamp.nsec;
+    uint64_t timestamp = iter->header.stamp.sec;
+    timestamp = timestamp*1000000000 + iter->header.stamp.nsec;
     gams::pose::ReferenceFrame child_frame (child_frame_id, pose, timestamp);
     child_frame.save (*knowledge);
     if (timestamp > max_timestamp)
@@ -954,10 +962,21 @@ void save_checkpoint (knowledge::KnowledgeBase * knowledge,
   knowledge->set (meta_prefix + ".initial_lamport_clock",
     (Integer) settings->initial_lamport_clock);
 
-  if (save_as_karl)
+  if ( save_as_karl )
+  {
     knowledge->save_as_karl (*settings);
+  }
   else
-    knowledge->save_context (*settings);
+  {
+    if ( differential_checkpoints == true )
+    {
+      knowledge->save_checkpoint (*settings);
+    }
+    else
+    {
+      knowledge->save_context (*settings);
+    }
+  }
 }
 
 
