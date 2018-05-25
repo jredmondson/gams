@@ -16,6 +16,7 @@
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/StringVector.h"
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
@@ -150,7 +151,7 @@ void parse_int_array (std::vector<T> *array,
   containers::NativeIntegerVector *target);
 
 
-void save_checkpoint (knowledge::KnowledgeBase *knowledge,
+int save_checkpoint (knowledge::KnowledgeBase *knowledge,
   knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
 std::string get_agent_var_prefix (std::string ros_topic_name);
 std::string ros_to_gams_name (std::string topic_name);
@@ -203,8 +204,8 @@ void handle_arguments (int argc, char ** argv)
       "  [-r|--rosbag]                        Path to the rosbag file\n" \
       "  [-rp|--ros-robot-prefix prfx]        Topic prefix of each robot\n" \
       "                                       (default: '/robot_')\n" \
-      "  [-scp|--save-checkpoint-prefix prfx] prefix of knowledge to save\n"\
-      "                                       in each checkpoint\n" \
+      "  [-scp|--save-checkpoint-prefix prfx] filname prefix to save\n"\
+      "                                       for checkpoint\n" \
       "  [-sb|--save-binary]                  save the resulting knowledge \n"\
       "                                       base as a binary checkpoint\n" \
       "  [-m|--map-file file]                 File with filter information\n" \
@@ -212,7 +213,7 @@ void handle_arguments (int argc, char ** argv)
       "                                       (default:checkpoint with each\n" \
       "                                        message in the bagfile)\n" \
       "  [-d|--differential]                  differential checkpoints\n" \
-      "                                       only for binary checkpoints";
+      "                                       only for binary checkpoints\n";
       exit (0);
     }
   }
@@ -223,6 +224,8 @@ int main (int argc, char ** argv)
 {
   handle_arguments (argc, argv);
   knowledge::KnowledgeBase kb;
+  knowledge::KnowledgeBase manifest;
+
   knowledge::CheckpointSettings settings;
 
   if (rosbag_path == "")
@@ -290,12 +293,26 @@ int main (int argc, char ** argv)
   std::cout   << "Selected topics in the bagfile: \n";
   int count = view.size ();
   int id_digit_count = 0;
-  do { count /= 10; id_digit_count++; }
-    while (count != 0);
+  do {
+    count /= 10;
+    id_digit_count++;
+  }
+  while (count != 0);
 
+  // Log the queried topic names to the console and the manifest knowledge
+  containers::StringVector ros_topic_names("ros_topic_names", manifest,
+    view.getConnections().size());
+  containers::StringVector gams_names("gams_names", manifest,
+    view.getConnections().size());
+  int i = 0;
   for (const rosbag::ConnectionInfo* c: view.getConnections ())
   {
     std::cout << "    " << c->topic << " (" << c->datatype << ")\n";
+    ros_topic_names.set(i, c->topic);
+    std::map<std::string, std::string>::iterator it = topic_map.find (c->topic);
+    if (it != topic_map.end ())
+      gams_names.set(i, it->second);
+    ++i;
   }
 
   //Prepare the parser to be able to introspect unknown types
@@ -317,6 +334,7 @@ int main (int argc, char ** argv)
   settings.buffer_size = 10240000;
 
   uint64_t last_checkpoint_timestamp = 0;
+
   // checkpoint intervall
   uint64_t checkpoint_intervall = 1000000000;
   int checkpoint_id = 0;
@@ -327,6 +345,7 @@ int main (int argc, char ** argv)
       (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
   }
 
+  // Iterate through all topics in the bagfile
   std::cout << "Converting...\n";
   for (const rosbag::MessageInstance m: view)
   {
@@ -339,11 +358,14 @@ int main (int argc, char ** argv)
     std::string container_name;
 
     if (it != topic_map.end ())
+    {
       container_name = it->second;
+    }
     else
+    {
       container_name = get_agent_var_prefix (topic) + "." +
-      ros_to_gams_name (topic);
-
+        ros_to_gams_name (topic);
+    }
     parse_message (m, &kb, container_name);
 
     //kb.print ();
@@ -364,24 +386,40 @@ int main (int argc, char ** argv)
     }
     settings.last_lamport_clock += 1;
 
-
-
     // Save checkpoint
+    int ret = 0;
     if ( checkpoint_frequency == 0 )
     {
       // Save checkpoint with each message
-      save_checkpoint (&kb, &settings);
+      ret = save_checkpoint (&kb, &settings);
       checkpoint_id++;
     }
     else if (last_checkpoint_timestamp + checkpoint_intervall < stamp ||
       last_checkpoint_timestamp == 0)
     {
       // Save checkpoint with a given frequency
-      save_checkpoint (&kb, &settings);
+      ret = save_checkpoint (&kb, &settings);
       last_checkpoint_timestamp = stamp;
       checkpoint_id++;
     }
+    // Check if the checkpoint was written correctly
+    if ( ret == -1 )
+    {
+      std::cout << "Failed to write " << settings.filename << "!" << std::endl;
+      exit(-1);
+    }
   }
+  
+  // Storing stats in the manifest knowledge
+  manifest.set ("last_timestamp", (Integer) settings.last_timestamp);
+  manifest.set ("initial_timestamp", (Integer) settings.initial_timestamp);
+  manifest.set ("duration_ns", (Integer)
+    ( settings.last_timestamp - settings.initial_timestamp));
+  manifest.set ("last_lamport_clock", (Integer) settings.last_lamport_clock-1);
+  manifest.set ("initial_lamport_clock",
+    (Integer) settings.initial_lamport_clock);
+  manifest.set ("last_checkpoint_id", checkpoint_id-1);
+  manifest.save_as_karl(checkpoint_prefix + "_manifest.kb");
 }
 #endif
 
@@ -944,7 +982,7 @@ void parse_int_array (boost::array<int, N> *array,
 * The path ,the timestamps, and lamport_clocks habe to be set in advance.
 * The values are stored with a meta_prefix.
 **/
-void save_checkpoint (knowledge::KnowledgeBase * knowledge,
+int save_checkpoint (knowledge::KnowledgeBase * knowledge,
     knowledge::CheckpointSettings * settings, std::string meta_prefix)
 {
   /*knowledge->set (meta_prefix + ".originator",
@@ -962,21 +1000,23 @@ void save_checkpoint (knowledge::KnowledgeBase * knowledge,
   knowledge->set (meta_prefix + ".initial_lamport_clock",
     (Integer) settings->initial_lamport_clock);
 
+  int ret = 0;
   if ( save_as_karl )
   {
-    knowledge->save_as_karl (*settings);
+    ret = knowledge->save_as_karl (*settings);
   }
   else
   {
     if ( differential_checkpoints == true )
     {
-      knowledge->save_checkpoint (*settings);
+      ret = knowledge->save_checkpoint (*settings);
     }
     else
     {
-      knowledge->save_context (*settings);
+      ret= knowledge->save_context (*settings);
     }
   }
+  return ret;
 }
 
 
