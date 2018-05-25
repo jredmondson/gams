@@ -297,6 +297,10 @@ if [ $ANDROID -eq 1 ]; then
   else
     echo "SYSROOT has been set to $SYSROOT"
   fi
+  if [ -z "$BOOST_ANDROID_ROOT" ]; then
+    echo "BOOST_ANDROID_ROOT is not set. See README-ANDROID.md for instructions"
+    exit 1
+  fi
 
   case $ANDROID_ARCH in
     arm32|arm)
@@ -443,24 +447,6 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
     git clone --depth 1 https://github.com/DOCGroup/MPC.git
     MPC_REPO_RESULT=$?
   fi
-
-  if false; then
-    echo "CONFIGURING ACE"
-    if [ $ANDROID -eq 1 ]; then
-      echo "  CONFIGURING ANDROID BUILD"
-      # use the android specific files, we use custom config file for android due to build bug in ACE
-      # echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
-      echo "#include \"config-android.h\"" > $ACE_ROOT/ace/config.h
-
-      # Android does not support versioned libraries and requires cross-compiling
-      echo -e "no_hidden_visibility=1\nversioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-    else
-      # use linux defaults
-      echo "  CONFIGURING DEFAULT BUILD"
-      echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-      echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-    fi
-  fi
 else
   echo "NOT CHECKING MPC"
 fi
@@ -521,7 +507,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
-    git clone --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
+    git clone -b aceless --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
     echo "UPDATING MADARA"
@@ -618,7 +604,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
-    git clone --depth 1 -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    git clone -b aceless --depth 1 -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
     GAMS_REPO_RESULT=$?
     
   else
