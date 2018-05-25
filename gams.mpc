@@ -204,9 +204,19 @@ project (gams_jar) : using_gams, using_madara {
   }
   
   Header_Files {
+    Java {
+      port/java/jni
+      src/gams/platforms/java
+      src/gams/algorithms/java
+    }
   }
 
   Source_Files {
+    Java {
+      port/java/jni
+      src/gams/platforms/java
+      src/gams/algorithms/java
+    }
   }
 }
 

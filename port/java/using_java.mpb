@@ -7,12 +7,6 @@ feature (java) {
   
   macros += _GAMS_JAVA_
 
-  Build_Files {
-    port/java/using_android.mpb
-    port/java/using_java.mpb
-    port/java/using_openjdk.mpb
-  }
-  
   specific (prop:windows) {
     includes += $(JAVA_HOME)/include/win32
   } else {

@@ -444,7 +444,7 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
 
   echo "ENTERING $MPC_ROOT"
   if [ ! -d $MPC_ROOT ] ; then
-    git clone --depth 1 https://github.com/DOCGroup/MPC.git
+    git clone --depth 1 https://github.com/DOCGroup/MPC.git $MPC_ROOT
     MPC_REPO_RESULT=$?
   fi
 else
@@ -520,7 +520,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  perl $MPC_ROOT/bin/mwc.pl -type make -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
+  perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -604,7 +604,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
-    git clone -b aceless --depth 1 -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    git clone -b aceless --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
     GAMS_REPO_RESULT=$?
     
   else
@@ -621,7 +621,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  perl $MPC_ROOT/bin/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
+  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
 
   if [ $JAVA -eq 1 ]; then
     # sometimes the jar'ing will occur before all classes are actually built when performing
