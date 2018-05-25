@@ -91,6 +91,7 @@ ZMQ=0
 SIMTIME=0
 SSL=0
 DMPL=0
+MAC=${MAC:-0}
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -353,7 +354,7 @@ append_if_needed() (
   fi
 )
 
-if [ $PREREQS -eq 1 ]; then
+if [ $PREREQS -eq 1 ] && [ $MAC -eq 0]; then
   if [ $JAVA -eq 1 ]; then
     sudo add-apt-repository -y ppa:webupd8team/java
   fi
