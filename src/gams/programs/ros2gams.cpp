@@ -16,6 +16,7 @@
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/StringVector.h"
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
@@ -96,6 +97,12 @@ std::map<std::string, RosIntrospection::FlatMessage>   parser_flat_containers;
 std::map<std::string, RosIntrospection::RenamedValues> parser_renamed_vectors;
 std::vector<uint8_t> parser_buffer;
 
+//checkpoint frequency
+int checkpoint_frequency = 0;
+
+// Differential checkpointing
+bool differential_checkpoints = false;
+
 
 void parse_unknown (const rosbag::MessageInstance m,
   knowledge::KnowledgeBase * kb, std::string container_name);
@@ -144,8 +151,8 @@ void parse_int_array (std::vector<T> *array,
   containers::NativeIntegerVector *target);
 
 
-void save_checkpoint (knowledge::KnowledgeBase *knowledge,
-    knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
+int save_checkpoint (knowledge::KnowledgeBase *knowledge,
+  knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
 std::string get_agent_var_prefix (std::string ros_topic_name);
 std::string ros_to_gams_name (std::string topic_name);
 
@@ -181,18 +188,32 @@ void handle_arguments (int argc, char ** argv)
     {
       save_as_karl = false;
     }
+    else if (arg1 == "-d" || arg1 == "--differential")
+    {
+      differential_checkpoints = true;
+    }
+    else if (arg1 == "-y" || arg1 == "--frequency")
+    {
+      checkpoint_frequency = std::stoi(argv[i + 1]);
+      i++;
+    }
     else if (arg1 == "-h" || arg1 == "--help")
     {
       std::cout << "\nProgram summary for ros2gams [options] [Logic]:\n\n" \
       "Converts rosbag files to madara checkpoints.\n\noptions:\n" \
       "  [-r|--rosbag]                        Path to the rosbag file\n" \
       "  [-rp|--ros-robot-prefix prfx]        Topic prefix of each robot\n" \
-	  "                                       (default: '/robot_')\n" \
-      "  [-scp|--save-checkpoint-prefix prfx] prefix of knowledge to save\n"\
-	  "                                       in each checkpoint\n" \
+      "                                       (default: '/robot_')\n" \
+      "  [-scp|--save-checkpoint-prefix prfx] filname prefix to save\n"\
+      "                                       for checkpoint\n" \
       "  [-sb|--save-binary]                  save the resulting knowledge \n"\
       "                                       base as a binary checkpoint\n" \
-      "  [-m|--map-file file]                 File with filter information";
+      "  [-m|--map-file file]                 File with filter information\n" \
+      "  [-y|--frequency hz]                  Checkpoint frequency\n" \
+      "                                       (default:checkpoint with each\n" \
+      "                                        message in the bagfile)\n" \
+      "  [-d|--differential]                  differential checkpoints\n" \
+      "                                       only for binary checkpoints\n";
       exit (0);
     }
   }
@@ -203,6 +224,8 @@ int main (int argc, char ** argv)
 {
   handle_arguments (argc, argv);
   knowledge::KnowledgeBase kb;
+  knowledge::KnowledgeBase manifest;
+
   knowledge::CheckpointSettings settings;
 
   if (rosbag_path == "")
@@ -242,11 +265,11 @@ int main (int argc, char ** argv)
           // definition of the world_frame
           world_frame = var_name;
           std::replace (
-			world_frame.begin (), world_frame.end (), '/', '_');
+            world_frame.begin (), world_frame.end (), '/', '_');
 
           std::cout << "World frame: " << world_frame << std::endl;
           gams::pose::ReferenceFrame frame (world_frame,
-		    gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
+            gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
           frame.save (kb);
         }
         else
@@ -270,12 +293,26 @@ int main (int argc, char ** argv)
   std::cout   << "Selected topics in the bagfile: \n";
   int count = view.size ();
   int id_digit_count = 0;
-  do { count /= 10; id_digit_count++; }
-    while (count != 0);
+  do {
+    count /= 10;
+    id_digit_count++;
+  }
+  while (count != 0);
 
+  // Log the queried topic names to the console and the manifest knowledge
+  containers::StringVector ros_topic_names("ros_topic_names", manifest,
+    view.getConnections().size());
+  containers::StringVector gams_names("gams_names", manifest,
+    view.getConnections().size());
+  int i = 0;
   for (const rosbag::ConnectionInfo* c: view.getConnections ())
   {
-    std::cout   << c->topic << " (" << c->datatype << ")\n";
+    std::cout << "    " << c->topic << " (" << c->datatype << ")\n";
+    ros_topic_names.set(i, c->topic);
+    std::map<std::string, std::string>::iterator it = topic_map.find (c->topic);
+    if (it != topic_map.end ())
+      gams_names.set(i, it->second);
+    ++i;
   }
 
   //Prepare the parser to be able to introspect unknown types
@@ -286,7 +323,7 @@ int main (int argc, char ** argv)
     const std::string  definition =  connection->msg_def;
     // register the type using the topic_name as identifier.
     parser.registerMessageDefinition (topic_name,
-	  RosIntrospection::ROSType (datatype), definition);
+    RosIntrospection::ROSType (datatype), definition);
   }
 
   // Iterate the messages
@@ -295,6 +332,20 @@ int main (int argc, char ** argv)
   settings.override_lamport = true;
   settings.override_timestamp = true;
   settings.buffer_size = 10240000;
+
+  uint64_t last_checkpoint_timestamp = 0;
+
+  // checkpoint intervall
+  uint64_t checkpoint_intervall = 1000000000;
+  int checkpoint_id = 0;
+  if ( checkpoint_frequency > 0 )
+  {
+    checkpoint_intervall = checkpoint_intervall / checkpoint_frequency;
+    std::cout << "\nCreating a checkpoint each " <<
+      (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
+  }
+
+  // Iterate through all topics in the bagfile
   std::cout << "Converting...\n";
   for (const rosbag::MessageInstance m: view)
   {
@@ -307,32 +358,68 @@ int main (int argc, char ** argv)
     std::string container_name;
 
     if (it != topic_map.end ())
+    {
       container_name = it->second;
+    }
     else
+    {
       container_name = get_agent_var_prefix (topic) + "." +
-	    ros_to_gams_name (topic);
-
+        ros_to_gams_name (topic);
+    }
     parse_message (m, &kb, container_name);
 
     //kb.print ();
     std::stringstream id_ss;
     id_ss << std::setw (id_digit_count) << std::setfill ('0') <<
-	  settings.last_lamport_clock;
+      checkpoint_id;
     std::string id_str = id_ss.str ();
     settings.filename = checkpoint_prefix + "_" + id_str + ".kb";
 
+    uint64_t stamp = time.sec;
+    stamp = stamp * 1000000000 + time.nsec;
+    settings.last_timestamp = stamp;
     //Set time settings
     if (settings.last_lamport_clock == 0)
-	{
+    {
       // this is the first message
-      settings.initial_timestamp = time.toSec ();
-	}
-
-    settings.last_timestamp = time.toSec ();
+      settings.initial_timestamp = settings.last_timestamp;
+    }
     settings.last_lamport_clock += 1;
-    save_checkpoint (&kb, &settings);
-    std::cout   << "Done!\n";
+
+    // Save checkpoint
+    int ret = 0;
+    if ( checkpoint_frequency == 0 )
+    {
+      // Save checkpoint with each message
+      ret = save_checkpoint (&kb, &settings);
+      checkpoint_id++;
+    }
+    else if (last_checkpoint_timestamp + checkpoint_intervall < stamp ||
+      last_checkpoint_timestamp == 0)
+    {
+      // Save checkpoint with a given frequency
+      ret = save_checkpoint (&kb, &settings);
+      last_checkpoint_timestamp = stamp;
+      checkpoint_id++;
+    }
+    // Check if the checkpoint was written correctly
+    if ( ret == -1 )
+    {
+      std::cout << "Failed to write " << settings.filename << "!" << std::endl;
+      exit(-1);
+    }
   }
+  
+  // Storing stats in the manifest knowledge
+  manifest.set ("last_timestamp", (Integer) settings.last_timestamp);
+  manifest.set ("initial_timestamp", (Integer) settings.initial_timestamp);
+  manifest.set ("duration_ns", (Integer)
+    ( settings.last_timestamp - settings.initial_timestamp));
+  manifest.set ("last_lamport_clock", (Integer) settings.last_lamport_clock-1);
+  manifest.set ("initial_lamport_clock",
+    (Integer) settings.initial_lamport_clock);
+  manifest.set ("last_checkpoint_id", checkpoint_id-1);
+  manifest.save_as_karl(checkpoint_prefix + "_manifest.kb");
 }
 #endif
 
@@ -342,7 +429,8 @@ void parse_message (const rosbag::MessageInstance m,
 
   if (m.isType<nav_msgs::Odometry> ())
   {
-    parse_odometry (m.instantiate<nav_msgs::Odometry> ().get (), kb, container_name);
+    parse_odometry (m.instantiate<nav_msgs::Odometry> ().get (), kb,
+        container_name);
   }
   else if (m.isType<sensor_msgs::Imu> ())
   {
@@ -350,31 +438,39 @@ void parse_message (const rosbag::MessageInstance m,
   }
   else if (m.isType<sensor_msgs::LaserScan> ())
   {
-    parse_laserscan (m.instantiate<sensor_msgs::LaserScan> ().get (), kb, container_name);
+    parse_laserscan (m.instantiate<sensor_msgs::LaserScan> ().get (), kb,
+        container_name);
   }
   else if (m.isType<geometry_msgs::Pose> ())
   {
-    parse_pose (m.instantiate<geometry_msgs::Pose> ().get (), kb, container_name);
+    parse_pose (m.instantiate<geometry_msgs::Pose> ().get (), kb,
+        container_name);
   }
   else if (m.isType<geometry_msgs::PoseStamped> ())
   {
-    parse_pose (&m.instantiate<geometry_msgs::PoseStamped> ().get ()->pose, kb, container_name);
+    parse_pose (&m.instantiate<geometry_msgs::PoseStamped> ().get ()->pose, kb,
+        container_name);
   }
   else if (m.isType<sensor_msgs::CompressedImage> ())
   {
-    parse_compressed_image (m.instantiate<sensor_msgs::CompressedImage> ().get (), kb, container_name);
+    parse_compressed_image (
+        m.instantiate<sensor_msgs::CompressedImage> ().get (), kb,
+        container_name);
   }
   else if (m.isType<sensor_msgs::PointCloud2> ())
   {
-    parse_pointcloud2 (m.instantiate<sensor_msgs::PointCloud2> ().get (), kb, container_name);
+    parse_pointcloud2 (m.instantiate<sensor_msgs::PointCloud2> ().get (), kb,
+        container_name);
   }
   else if (m.isType<sensor_msgs::Range> ())
   {
-    parse_range (m.instantiate<sensor_msgs::Range> ().get (), kb, container_name);
+    parse_range (m.instantiate<sensor_msgs::Range> ().get (), kb,
+        container_name);
   }
   else if (m.isType<sensor_msgs::FluidPressure> ())
   {
-    parse_fluidpressure (m.instantiate<sensor_msgs::FluidPressure> ().get (), kb, container_name);
+    parse_fluidpressure (m.instantiate<sensor_msgs::FluidPressure> ().get (),
+        kb, container_name);
   }
   else if (m.isType<tf2_msgs::TFMessage> ())
   {
@@ -391,22 +487,27 @@ void parse_message (const rosbag::MessageInstance m,
 * Parses unknown messages using ros_type_introspection
 * DO NOT USE THIS FOR TYPES WITH LARGE ARRAYS
 **/
-void parse_unknown (const rosbag::MessageInstance m, knowledge::KnowledgeBase * kb, std::string container_name)
+void parse_unknown (const rosbag::MessageInstance m,
+  knowledge::KnowledgeBase * kb, std::string container_name)
 {
   // see https://github.com/facontidavide/type_introspection_tests/blob/master/example/rosbag_example.cpp
-  // see http://wiki.ros.org/ros_type_introspection chapter "3.2 The Deserializer"
-  // this is not recommend to be done to known types because of it's huge memory usage!
+  // see http://wiki.ros.org/ros_type_introspection chapter "The Deserializer"
+  // this is not recommend to be done to known types because of it's huge
+  // memory usage!
   
   const std::string& topic_name  = m.getTopic ();
 
   // write the message into the buffer
   const size_t msg_size  = m.size ();
   parser_buffer.resize (msg_size);
-  ros::serialization::OStream stream (parser_buffer.data (), parser_buffer.size ());
+  ros::serialization::OStream stream (parser_buffer.data (),
+    parser_buffer.size ());
   m.write (stream);
 
-  RosIntrospection::FlatMessage&   flat_container = parser_flat_containers[topic_name];
-  RosIntrospection::RenamedValues& renamed_values = parser_renamed_vectors[topic_name];
+  RosIntrospection::FlatMessage& flat_container =
+    parser_flat_containers[topic_name];
+  RosIntrospection::RenamedValues& renamed_values =
+    parser_renamed_vectors[topic_name];
 
   // deserialize and rename the vectors
   bool success = parser.deserializeIntoFlatContainer ( topic_name,
@@ -414,7 +515,11 @@ void parse_unknown (const rosbag::MessageInstance m, knowledge::KnowledgeBase * 
   &flat_container, 500 );
 
   if (!success)
-    std::cout << "Topic " << topic_name << " could not be parsed successfully due to large array sizes!" << std::endl;
+  {
+    std::cout << "Topic " << topic_name <<
+      " could not be parsed successfully due to large array sizes!" <<
+      std::endl;
+  }
 
   parser.applyNameTransform ( topic_name,
     flat_container, &renamed_values );
@@ -464,16 +569,19 @@ void parse_unknown (const rosbag::MessageInstance m, knowledge::KnowledgeBase * 
 }
 
 /**
-* Parses a ROS Odometry Message into two Madara Containers. One for the location and a
-* second one for the orientation.
+* Parses a ROS Odometry Message into two Madara Containers. One for the
+* location and a second one for the orientation.
 * @param  odom       the nav_msgs::Odometry message
 * @param  knowledge   Knowledbase
 **/
-void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowledge, std::string container_name)
+void parse_odometry (nav_msgs::Odometry * odom,
+  knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
 
-  containers::NativeDoubleVector odom_covariance (container_name + ".pose.covariance", *knowledge, 36);
-  containers::NativeDoubleVector twist_covariance (container_name + ".pose.covariance", *knowledge, 36);
+  containers::NativeDoubleVector odom_covariance (
+    container_name + ".pose.covariance", *knowledge, 36);
+  containers::NativeDoubleVector twist_covariance (
+    container_name + ".pose.covariance", *knowledge, 36);
 
   parse_pose (&odom->pose.pose, knowledge, container_name + ".pose");
   parse_float64_array (&odom->pose.covariance, &odom_covariance);
@@ -486,7 +594,8 @@ void parse_odometry (nav_msgs::Odometry * odom, knowledge::KnowledgeBase * knowl
 * @param  imu       the sensor_msgs::Imu message
 * @param  knowledge   Knowledgbase
 **/
-void parse_imu (sensor_msgs::Imu *imu, knowledge::KnowledgeBase * knowledge, std::string container_name)
+void parse_imu (sensor_msgs::Imu *imu, knowledge::KnowledgeBase * knowledge,
+  std::string container_name)
 {
   containers::NativeDoubleVector orientation (
     container_name + ".orientation", *knowledge, 3);
@@ -498,16 +607,18 @@ void parse_imu (sensor_msgs::Imu *imu, knowledge::KnowledgeBase * knowledge, std
     ".orientation_covariance", *knowledge, 9);
   containers::NativeDoubleVector angular_velocity_covariance (container_name +
     ".angular_velocity_covariance", *knowledge, 9);
-  containers::NativeDoubleVector linear_acceleration_covariance (container_name +
-    ".linear_acceleration_covariance", *knowledge, 9);
+  containers::NativeDoubleVector linear_acceleration_covariance (
+    container_name + ".linear_acceleration_covariance", *knowledge, 9);
 
 
   parse_quaternion (&imu->orientation, &orientation);
   parse_vector3 (&imu->angular_velocity, &angular_velocity);
   parse_vector3 (&imu->linear_acceleration, &linear_acceleration);
   parse_float64_array (&imu->orientation_covariance, &orientation_covariance);
-  parse_float64_array (&imu->angular_velocity_covariance, &angular_velocity_covariance);
-  parse_float64_array (&imu->linear_acceleration_covariance, &linear_acceleration_covariance);
+  parse_float64_array (&imu->angular_velocity_covariance,
+    &angular_velocity_covariance);
+  parse_float64_array (&imu->linear_acceleration_covariance,
+    &linear_acceleration_covariance);
 }
 
 /**
@@ -559,7 +670,7 @@ void parse_range (sensor_msgs::Range * range,
   knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
   containers::Double field_of_view (
-	container_name + ".field_of_view", *knowledge);
+    container_name + ".field_of_view", *knowledge);
   field_of_view = range->field_of_view;
   containers::Double min_range (container_name + ".min_range", *knowledge);
   min_range = range->min_range;
@@ -582,13 +693,11 @@ void parse_fluidpressure (sensor_msgs::FluidPressure * press,
   knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
   containers::Double fluid_pressure (
-	container_name + ".fluid_pressure", *knowledge);
+    container_name + ".fluid_pressure", *knowledge);
   fluid_pressure = press->fluid_pressure;
   containers::Double variance (container_name + ".variance", *knowledge);
   variance = press->variance;
 }
-
-
 
 
 /**
@@ -604,7 +713,8 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img,
   int len = img->data.size ();
   //TODO: data is a vector of int8 which is parsed into an
   // NativeIntegerVector -> change to NativeCharVector etc???
-  containers::NativeIntegerVector data (container_name + ".data", *knowledge, len);
+  containers::NativeIntegerVector data (container_name + ".data",
+    *knowledge, len);
   parse_int_array (&img->data, &data);
 }
 
@@ -613,9 +723,10 @@ void parse_compressed_image (sensor_msgs::CompressedImage * img,
 * @param  tf           the tf2_msgs::TFMessage message
 * @param  knowledge     Knowledgbase
 **/
-void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * knowledge)
+void parse_tf_message (tf2_msgs::TFMessage * tf,
+  knowledge::KnowledgeBase * knowledge)
 {
-  // Expire frames after 60 seconds
+  // Expire frames after 0.1 seconds
   gams::pose::ReferenceFrame::default_expiry (100000000);
   uint64_t max_timestamp = 0;
   for (tf2_msgs::TFMessage::_transforms_type::iterator iter =
@@ -627,15 +738,14 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
     std::replace ( frame_id.begin (), frame_id.end (), '/', '_');
     std::replace ( child_frame_id.begin (), child_frame_id.end (), '/', '_');
 
-
     // parse the rotation and orientation
     gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load (
-	  *knowledge, frame_id);
+      *knowledge, frame_id);
 
     if (!parent.valid ())
     {
       parent = gams::pose::ReferenceFrame (frame_id,
-	    gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
+        gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
     }
 
     gams::pose::Quaternion quat (iter->transform.rotation.x,
@@ -647,7 +757,8 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
                     iter->transform.translation.z);
 
     gams::pose::Pose pose (parent, position, gams::pose::Orientation (quat));
-    uint64_t timestamp = iter->header.stamp.sec*1000*1000 + iter->header.stamp.nsec;
+    uint64_t timestamp = iter->header.stamp.sec;
+    timestamp = timestamp*1000000000 + iter->header.stamp.nsec;
     gams::pose::ReferenceFrame child_frame (child_frame_id, pose, timestamp);
     child_frame.save (*knowledge);
     if (timestamp > max_timestamp)
@@ -655,19 +766,22 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
   }
   if (base_frame != "" && world_frame != "")
   {
-    // World and base frames are defined so we can calculate the agent location and orientation
+    // World and base frames are defined so we can calculate the agent
+    // location and orientation
     gams::pose::ReferenceFrame world  = gams::pose::ReferenceFrame::load (
-	  *knowledge, world_frame);
+    *knowledge, world_frame);
     gams::pose::ReferenceFrame base  = gams::pose::ReferenceFrame::load (
-	  *knowledge, base_frame, max_timestamp);
+    *knowledge, base_frame, max_timestamp);
 
     if (world.valid () && base.valid ())
     {
       try
       {
         gams::pose::Pose base_pose = base.origin ().transform_to (world);
-        containers::NativeDoubleVector location ("agents.0.location", *knowledge, 3);
-        containers::NativeDoubleVector orientation ("agents.0.orientation", *knowledge, 3);
+        containers::NativeDoubleVector location ("agents.0.location",
+          *knowledge, 3);
+        containers::NativeDoubleVector orientation ("agents.0.orientation",
+          *knowledge, 3);
         location.set (0, base_pose.as_location_vec ().get (0));
         location.set (1, base_pose.as_location_vec ().get (1));
         location.set (2, base_pose.as_location_vec ().get (2));
@@ -688,7 +802,8 @@ void parse_tf_message (tf2_msgs::TFMessage * tf, knowledge::KnowledgeBase * know
 * @param  knowledge     Knowledgbase
 * @param  container_name    container namespace (e.g. "pointcloud")
 **/
-void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::KnowledgeBase * knowledge, std::string container_name)
+void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud,
+  knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
   containers::Integer height (container_name + ".height", *knowledge);
   height = pointcloud->height;
@@ -699,15 +814,19 @@ void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::Knowle
   containers::Integer row_step (container_name + ".row_step", *knowledge);
   row_step = pointcloud->row_step;
 
-  //TODO: data is a vector of int8 which is parsed into an NativeIntegerVector -> change to NativeCharVector etc???
+  //TODO: data is a vector of int8 which is parsed into an NativeIntegerVector
+  //-> change to NativeCharVector etc???
   int len = pointcloud->data.size ();
-  containers::NativeIntegerVector data (container_name + ".data", *knowledge, len);
+  containers::NativeIntegerVector data (container_name + ".data",
+    *knowledge, len);
   parse_int_array (&pointcloud->data, &data);
 
   int field_index = 0;
-  for (sensor_msgs::PointCloud2::_fields_type::iterator iter = pointcloud->fields.begin (); iter != pointcloud->fields.end (); ++iter)
+  for (sensor_msgs::PointCloud2::_fields_type::iterator iter =
+        pointcloud->fields.begin (); iter != pointcloud->fields.end (); ++iter)
   {
-    std::string name = container_name + ".fields." + std::to_string (field_index);
+    std::string name = container_name +
+      ".fields." + std::to_string (field_index);
     containers::Integer offset (name + ".offset", *knowledge);
     offset = iter->offset;
     containers::Integer datatype (name + ".datatype", *knowledge);
@@ -719,7 +838,8 @@ void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::Knowle
     ++field_index;
   }
 
-  containers::Integer is_bigendian (container_name + ".is_bigendian", *knowledge);
+  containers::Integer is_bigendian (container_name + ".is_bigendian",
+    *knowledge);
   is_bigendian = pointcloud->is_bigendian;
   containers::Integer is_dense (container_name + ".is_dense", *knowledge);
   is_dense = pointcloud->is_dense;
@@ -731,10 +851,13 @@ void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud, knowledge::Knowle
 * @param  knowledge     Knowledgbase
 * @param  container_name    container namespace (e.g. "laser")
 **/
-void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowledge, std::string container_name)
+void parse_twist (geometry_msgs::Twist *twist,
+  knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
-  containers::NativeDoubleVector linear (container_name + ".linear", *knowledge, 3);
-  containers::NativeDoubleVector angular (container_name + ".angular", *knowledge, 3);
+  containers::NativeDoubleVector linear (container_name + ".linear",
+    *knowledge, 3);
+  containers::NativeDoubleVector angular (container_name + ".angular",
+    *knowledge, 3);
   parse_vector3 (&twist->linear, &linear);
   parse_vector3 (&twist->angular, &angular);
 }
@@ -746,7 +869,8 @@ void parse_twist (geometry_msgs::Twist *twist, knowledge::KnowledgeBase * knowle
 * @param  knowledge     Knowledgbase
 * @param  container_name    container namespace (e.g. "pose")
 **/
-void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge, std::string container_name)
+void parse_pose (geometry_msgs::Pose *pose,
+  knowledge::KnowledgeBase * knowledge, std::string container_name)
 {
   containers::NativeDoubleVector cont (container_name, *knowledge, 6);
   gams::pose::Quaternion quat (pose->orientation.x,
@@ -760,7 +884,8 @@ void parse_pose (geometry_msgs::Pose *pose, knowledge::KnowledgeBase * knowledge
   p.to_container (cont);
 }
 
-void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector *target)
+void parse_vector3 (geometry_msgs::Vector3 *vec,
+  containers::NativeDoubleVector *target)
 {
   target->set (0, vec->x);
   target->set (1, vec->y);
@@ -771,7 +896,8 @@ void parse_vector3 (geometry_msgs::Vector3 *vec, containers::NativeDoubleVector 
 * @param  point_msg    the geometry_msgs::Point message
 * @param  point      the container
 **/
-void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVector *point)
+void parse_point (geometry_msgs::Point *point_msg,
+  containers::NativeDoubleVector *point)
 {
   point->set (0, point_msg->x);
   point->set (1, point_msg->y);
@@ -783,10 +909,9 @@ void parse_point (geometry_msgs::Point *point_msg, containers::NativeDoubleVecto
 * @param  quat      the geometry_msgs::Quaternion message
 * @param  orientatiom   the container 
 **/
-void parse_quaternion (geometry_msgs::Quaternion *quat, containers::NativeDoubleVector *orientation)
+void parse_quaternion (geometry_msgs::Quaternion *quat,
+  containers::NativeDoubleVector *orientation)
 {
-  //std::cout   << "o:[" << quat->x << ", " << quat->y << ", " << quat->z << ", " << quat->w <<"]\n";
-  // Todo: Use gams Quaternion instead
   tf::Quaternion tfquat (quat->x, quat->y, quat->z, quat->w);
     tf::Matrix3x3 m (tfquat);
     double roll, pitch, yaw;
@@ -800,20 +925,24 @@ void parse_quaternion (geometry_msgs::Quaternion *quat, containers::NativeDouble
 
 
 template <size_t N>
-void parse_float64_array (boost::array<double, N> *array, containers::NativeDoubleVector *target)
+void parse_float64_array (boost::array<double, N> *array,
+  containers::NativeDoubleVector *target)
 {
   int i = 0;
-  for (typename boost::array<double, N>::iterator iter (array->begin ()); iter != array->end (); ++iter)
+  for (typename boost::array<double, N>::iterator iter (array->begin ());
+    iter != array->end (); ++iter)
   {
     target->set (i, *iter);
     i++;
   }
 }
 
-void parse_float64_array (std::vector<float> *array, containers::NativeDoubleVector *target)
+void parse_float64_array (std::vector<float> *array,
+  containers::NativeDoubleVector *target)
 {
   int i = 0;
-  for (std::vector<float>::iterator iter = array->begin (); iter != array->end (); ++iter)
+  for (std::vector<float>::iterator iter = array->begin ();
+    iter != array->end (); ++iter)
   {
     target->set (i, *iter);
     i++;
@@ -821,10 +950,12 @@ void parse_float64_array (std::vector<float> *array, containers::NativeDoubleVec
 }
 
 template <class T>
-void parse_int_array (std::vector<T> *array, containers::NativeIntegerVector *target)
+void parse_int_array (std::vector<T> *array,
+  containers::NativeIntegerVector *target)
 {
   int i = 0;
-  for (typename std::vector<T>::iterator iter = array->begin (); iter != array->end (); ++iter)
+  for (typename std::vector<T>::iterator iter = array->begin ();
+    iter != array->end (); ++iter)
   {
     target->set (i, *iter);
     i++;
@@ -832,10 +963,12 @@ void parse_int_array (std::vector<T> *array, containers::NativeIntegerVector *ta
 }
 
 template <size_t N>
-void parse_int_array (boost::array<int, N> *array, containers::NativeIntegerVector *target)
+void parse_int_array (boost::array<int, N> *array,
+  containers::NativeIntegerVector *target)
 {
   int i = 0;
-  for (typename boost::array<int, N>::iterator iter (array->begin ()); iter != array->end (); ++iter)
+  for (typename boost::array<int, N>::iterator iter (array->begin ());
+    iter != array->end (); ++iter)
   {
     target->set (i, *iter);
     i++;
@@ -849,7 +982,7 @@ void parse_int_array (boost::array<int, N> *array, containers::NativeIntegerVect
 * The path ,the timestamps, and lamport_clocks habe to be set in advance.
 * The values are stored with a meta_prefix.
 **/
-void save_checkpoint (knowledge::KnowledgeBase * knowledge,
+int save_checkpoint (knowledge::KnowledgeBase * knowledge,
     knowledge::CheckpointSettings * settings, std::string meta_prefix)
 {
   /*knowledge->set (meta_prefix + ".originator",
@@ -867,10 +1000,23 @@ void save_checkpoint (knowledge::KnowledgeBase * knowledge,
   knowledge->set (meta_prefix + ".initial_lamport_clock",
     (Integer) settings->initial_lamport_clock);
 
-  if (save_as_karl)
-    knowledge->save_as_karl (*settings);
+  int ret = 0;
+  if ( save_as_karl )
+  {
+    ret = knowledge->save_as_karl (*settings);
+  }
   else
-    knowledge->save_context (*settings);
+  {
+    if ( differential_checkpoints == true )
+    {
+      ret = knowledge->save_checkpoint (*settings);
+    }
+    else
+    {
+      ret= knowledge->save_context (*settings);
+    }
+  }
+  return ret;
 }
 
 
