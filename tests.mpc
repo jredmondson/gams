@@ -424,14 +424,13 @@ project (test_ros2gams) : using_madara, using_ace, using_ros, using_gams {
   Build_Files {
     using_gams.mpb
     gams.mpc
+    ros_lib.mpb
   }
 
   Header_Files {
-    src/gams/ROS/TopicParser.h
   }
 
   Source_Files {
     tests/test_ros2gams.cpp
-    src/gams/ROS/TopicParser.cpp
   }
 }

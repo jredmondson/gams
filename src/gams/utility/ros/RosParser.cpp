@@ -14,6 +14,13 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   world_frame_ = world_frame;
   base_frame_ = base_frame;
   knowledge_ = kb;
+
+  if ( world_frame != "" )
+  {
+    gams::pose::ReferenceFrame frame (world_frame,
+      gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
+    frame.save (*knowledge_);
+  }
 }
 
 

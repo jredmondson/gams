@@ -215,9 +215,6 @@ int main (int argc, char ** argv)
             world_frame.begin (), world_frame.end (), '/', '_');
 
           std::cout << "World frame: " << world_frame << std::endl;
-          gams::pose::ReferenceFrame frame (world_frame,
-            gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
-          frame.save (kb);
         }
         else
         {

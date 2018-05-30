@@ -282,14 +282,13 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   Build_Files {
     using_gams.mpb
     gams.mpc
+    ros_lib.mpb
   }
 
   Header_Files {
-    src/gams/utility/ros
   }
 
   Source_Files {
     src/gams/programs/ros2gams.cpp
-    src/gams/utility/ros
   }
 }
