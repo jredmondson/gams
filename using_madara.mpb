@@ -1,4 +1,4 @@
-project : debug_build, using_clang, using_android {
+project : debug_build, using_clang, using_android, boost_base {
   includes += $(MADARA_ROOT)/include
   libpaths += $(MADARA_ROOT)/lib
   after += Madara  
