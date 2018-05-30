@@ -369,7 +369,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0]; then
   fi
 
   sudo apt-get update
-  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz
+  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
 
   if [ $JAVA -eq 1 ]; then
     sudo apt-get install -f oracle-java8-set-default
