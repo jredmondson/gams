@@ -460,7 +460,10 @@ inline void Coordinate<CoordType>::normalize()
 
 inline std::ostream &operator<<(std::ostream &o, const Position &loc)
 {
-  o << loc.frame().name() << "Position" << loc.as_vec();
+  if (loc.frame().valid()) {
+    o << loc.frame().name();
+  }
+  o << "Position" << loc.as_vec();
   return o;
 }
 
@@ -491,13 +494,19 @@ inline std::ostream &operator<<(std::ostream &o,
 
 inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
 {
-  o << rot.frame().name() << "Orientation" << rot.as_vec();
+  if (rot.frame().valid()) {
+    o << rot.frame().name();
+  }
+  o << "Orientation" << rot.as_vec();
   return o;
 }
 
 inline std::ostream &operator<<(std::ostream &o, const Pose &pose)
 {
-  o << pose.frame().name() << "Pose" << pose.as_vec();
+  if (pose.frame().valid()) {
+    o << pose.frame().name();
+  }
+  o << "Pose" << pose.as_vec();
   return o;
 }
 
