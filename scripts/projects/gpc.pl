@@ -2222,7 +2222,6 @@ containers::${new_container}::modify (void)
       }
       
       copy "$gamsroot/using_vrep.mpb", "$path/";
-      copy "$gamsroot/using_ace.mpb", "$path/";
       copy "$gamsroot/using_madara.mpb", "$path/";
       copy "$gamsroot/using_gams.mpb", "$path/";
     }
@@ -3848,27 +3847,22 @@ filters::${filter}::filter (
       {
         print ("  Writing updates to $sim_path/run.pl...\n");
       }
-               
+
       # write changes to simulation run script     
       open run_file, ">$sim_path/run.pl" or
         die "ERROR: Couldn't open $sim_path/run.pl\n"; 
         print run_file $run_contents;
       close run_file;   
-      
+
       my $project_contents = "
-project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
+project (custom_controller) : using_gams, using_madara, using_vrep {
   exeout = bin
   exename = custom_controller
-  
+
   macros +=  _USE_MATH_DEFINES
 
   Documentation_Files {
     README.txt
-  }
-  
-  Build_Files {
-    project.mpc
-    workspace.mpc
   }
 
   Header_Files {
@@ -3895,7 +3889,7 @@ project (custom_controller) : using_gams, using_madara, using_ace, using_vrep {
     src/transports
   }
 }
-";
+
    
       my $workspace_contents = "
 workspace {
@@ -3916,25 +3910,25 @@ workspace {
 }
 
 ";
-      
+
       open project_file, ">$path/project.mpc" or 
         die "ERROR: Couldn't open $path/project.mpc for writing\n";
         print project_file $project_contents;
       close project_file;
-          
+
       open workspace_file, ">$path/workspace.mwc" or 
         die "ERROR: Couldn't open $path/workspace.mwc for writing\n";
         print workspace_file $workspace_contents;
       close workspace_file;
     }
-        
+
     if (not $thread_hz)
     {
       $thread_hz = 1.0;
     }
-    
+
     if (not -f "$src_path/controller.cpp")
-    {    
+    {
       my $controller_contents = "
 
 #include \"madara/knowledge/KnowledgeBase.h\"

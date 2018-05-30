@@ -137,7 +137,7 @@ if [ $COMPILE -eq 1 ]; then
   fi
 
   cd $SCRIPTS_DIR
-  $ACE_ROOT/bin/mwc.pl -type gnuace -features vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
+  $MPC_ROOT/mwc.pl -type make -features vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
   
   
   if [ $VERBOSE -eq 1 ]; then
