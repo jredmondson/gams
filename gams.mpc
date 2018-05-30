@@ -285,9 +285,11 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   }
 
   Header_Files {
+    src/gams/utility/ros
   }
 
   Source_Files {
     src/gams/programs/ros2gams.cpp
+    src/gams/utility/ros
   }
 }

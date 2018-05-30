@@ -427,9 +427,11 @@ project (test_ros2gams) : using_madara, using_ace, using_ros, using_gams {
   }
 
   Header_Files {
+    src/gams/ROS/TopicParser.h
   }
 
   Source_Files {
     tests/test_ros2gams.cpp
+    src/gams/ROS/TopicParser.cpp
   }
 }
