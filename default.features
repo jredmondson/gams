@@ -8,6 +8,8 @@
 ///
 ///============================================================================
 
+boost = 1
+
 /// @feature debug
 /// Enable this feature if you want to generate debug build
 debug                   = 0

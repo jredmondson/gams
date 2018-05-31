@@ -371,6 +371,10 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0]; then
   sudo apt-get update
   sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
 
+  if [ $CLANG -eq 1 ]; then
+    sudo apt-get install -f clang-5.0 libc++-dev libc++abi-dev
+  fi
+
   if [ $JAVA -eq 1 ]; then
     sudo apt-get install -f oracle-java8-set-default
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
@@ -517,6 +521,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     MADARA_REPO_RESULT=$?
     echo "CLEANING MADARA OBJECTS"
     make realclean -j $CORES
+    rm GNUmakefile*
 
   fi
   cd $MADARA_ROOT
@@ -616,6 +621,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
     echo "CLEANING GAMS OBJECTS"
     make realclean -j $CORES
+    rm GNUmakefile*
 
   fi
     
