@@ -453,7 +453,9 @@ namespace gams
 
         auto prev = find;
 
-        if (prev != map.begin()) {
+        if (prev == map.begin()) {
+          prev = map.end();;
+        } else {
           --prev;
         }
 
