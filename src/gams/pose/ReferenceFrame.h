@@ -625,6 +625,8 @@ public:
    * @param id the ID of the frame to load
    * @param timestamp of frame to load. -1 is matched exactly; it
    *   will only return a frame if one with that timestamp exists.
+   * @param parent_timsteamp timestamp of parent to load. Parent is
+   *   loaded using load()
    *
    * @return the loaded ReferenceFrame, or an invalid frame if none
    *         exists.
@@ -633,6 +635,7 @@ public:
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
           uint64_t timestamp = -1,
+          uint64_t parent_timestamp = -1,
           std::string prefix = default_prefix());
 
   /**
