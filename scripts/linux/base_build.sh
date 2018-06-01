@@ -432,6 +432,14 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
 fi
+if [ $MAC -eq 1 ]; then
+  # Install boost for mac
+  if [ $PREREQS -eq 1 ]; then
+    brew install boost@1.59
+  fi
+  export BOOST_ROOT=/usr/local/opt/boost@1.59/include
+  export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
+fi
 
 # check if MPC is a prereq for later packages
 
@@ -797,7 +805,11 @@ if [ $ANDROID -eq 1 ]; then
   echo -e "export ANDROID_ARCH=$ANDROID_ARCH"
 fi
 
-echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+if [ $MAC -eq 0 ]; then
+  echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+else
+  echo -e "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+fi
 echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT"
 
 
