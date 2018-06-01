@@ -44,6 +44,8 @@ gams::transports::RosBridge::RosBridge (
 
 gams::transports::RosBridge::~RosBridge ()
 {
+    std::cout << "TERMINATE!!!" << std::endl << std::endl << std::endl << std::endl;
+    read_threads_.terminate();
 }
 
 long
@@ -58,6 +60,14 @@ gams::transports::RosBridge::send_data (
   /**
    * This is where you should do your custom transport sending logic/actions
    **/
-  
+  std::cout << std::endl << "SENDING UPDATE TO ROS!!!" << std::endl;
+  for (
+    madara::knowledge::VariableReferenceMap::const_iterator it = modifieds.begin();
+    it != modifieds.end(); it++)
+  {
+    const char * key = it->first;
+    std::cout << "Got update for " << key << std::endl;
+  }
+  std::cout << std::endl;
   return result;
 }

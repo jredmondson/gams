@@ -4,6 +4,16 @@
 
 namespace knowledge = madara::knowledge;
 
+
+void gams::transports::RosBridgeReadThread::messageCallback (
+  const topic_tools::ShapeShifter::ConstPtr& msg,
+  const std::string &topic_name )
+{
+  std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << ">" << std::endl;
+  std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
+  parser_->parse_message(msg, container);
+}
+
 // constructor
 gams::transports::RosBridgeReadThread::RosBridgeReadThread (
   const std::string & id,
@@ -20,6 +30,8 @@ gams::transports::RosBridgeReadThread::RosBridgeReadThread (
 // destructor
 gams::transports::RosBridgeReadThread::~RosBridgeReadThread ()
 {
+  //sub_.shutdown();
+  delete[] parser_;
 }
 
 /**
@@ -28,12 +40,32 @@ gams::transports::RosBridgeReadThread::~RosBridgeReadThread ()
 void
 gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledge)
 {
+  std::cout << "Initializing RosBridgeReadThread\n" << std::endl;
+
+
   // grab the context so we have access to update_from_external  
   context_ = &(knowledge.get_context ());
   
   // setup the receive buffer
   if (settings_.queue_length > 0)
     buffer_ = new char [settings_.queue_length];
+
+  parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1");
+
+  char **argv;
+  int argc = 0;
+  ros::init(argc, argv, "ros_bridge");
+  ros::NodeHandle node;
+  const char* topic_names[]= { "test_1", "odom", "/tf" };
+  for (const char* topic_name: topic_names )
+  {
+    boost::function<void (const topic_tools::ShapeShifter::ConstPtr&)> callback;
+    callback = boost::bind (
+      &gams::transports::RosBridgeReadThread::messageCallback, this,
+      _1, topic_name );
+    subscribers_.push_back (node.subscribe( topic_name, 10, callback));
+  }
+
 }
 
 /**
@@ -54,6 +86,10 @@ gams::transports::RosBridgeReadThread::run (void)
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
     "%s::run: executing\n", print_prefix);
+
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
 
   /**
    * this should store the number of bytes read into the buffer after your
@@ -87,4 +123,5 @@ gams::transports::RosBridgeReadThread::run (void)
    * The next run of this method will be determined by read_thread_hertz
    * in the QoSTransportSettings class that is passed in.
    **/
+  //context_->print(0);
 }

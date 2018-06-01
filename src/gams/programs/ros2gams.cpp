@@ -101,7 +101,7 @@ bool differential_checkpoints = false;
 int save_checkpoint (knowledge::KnowledgeBase *knowledge,
   knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
 std::string get_agent_var_prefix (std::string ros_topic_name);
-std::string ros_to_gams_name (std::string topic_name);
+std::string gams::utility::ros::ros_to_gams_name (std::string topic_name);
 
 
 // handle command line arguments
@@ -310,7 +310,7 @@ int main (int argc, char ** argv)
     else
     {
       container_name = get_agent_var_prefix (topic) + "." +
-        ros_to_gams_name (topic);
+        gams::utility::ros::ros_to_gams_name (topic);
     }
     parser.parse_message (m, container_name);
 
@@ -438,24 +438,4 @@ std::string get_agent_var_prefix (std::string ros_topic_name)
   }
 }
 
-std::string ros_to_gams_name (std::string ros_topic_name)
-{
-  // Convert ros_topic_name to lower case
-  std::transform (ros_topic_name.begin (),
-    ros_topic_name.end (), ros_topic_name.begin (), ::tolower);
-  std::string name = ros_topic_name.substr (1);
-  std::string rosbag_robot_prefix = "robot_";
-   
-   std::string topic = ros_topic_name;
-  if (name.find (rosbag_robot_prefix) == 0)
-  {
-    //remove the robot prefix
-    int namespace_end = name.find ("/") + 1;
-    //cut the prefix
-    topic = name.substr (namespace_end);
-  }
-  std::replace (topic.begin (), topic.end (), '/', '.');
 
-
-  return topic;
-}

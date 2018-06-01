@@ -6,5 +6,5 @@ feature (ros) {
   includes += $(ROS_ROOT)/../../include
   includes += /usr/include/libcxxabi
   libpaths += $(ROS_ROOT)/../../lib
-  libs += rosconsole actionlib rosbag_storage rosbag rostime roscpp_serialization cpp_common roscpp roslib ros_type_introspection
+  libs += rosconsole actionlib rosbag_storage rosbag rostime roscpp_serialization cpp_common roscpp roslib ros_type_introspection topic_tools tf2_ros
 }

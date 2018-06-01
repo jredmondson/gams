@@ -1,9 +1,53 @@
-
+#include <unistd.h>
 
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/threads/Threader.h"
 #include "gams/controllers/BaseController.h"
 #include "gams/loggers/GlobalLogger.h"
+
+// ROS includes
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wreorder"
+#endif
+
+#include "ros/ros.h"
+#include "nav_msgs/Odometry.h"
+#include "tf2_ros/transform_broadcaster.h"
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+const double TEST_epsilon = 0.0001;
+
+double round_nearest(double in)
+{
+  return floor(in + 0.5);
+}
+
+#define LOG(expr) \
+  std::cout << #expr << " == " << (expr) << std::endl
+
+#define TEST(expr, expect) \
+  do {\
+    double bv = (expr); \
+    double v = round_nearest((bv) * 1024)/1024; \
+    double e = round_nearest((expect) * 1024)/1024; \
+    bool ok = \
+      e >= 0 ? (v >= e * (1 - TEST_epsilon) && v <= e * (1 + TEST_epsilon)) \
+             : (v >= e * (1 + TEST_epsilon) && v <= e * (1 - TEST_epsilon)); \
+    if(ok) \
+    { \
+      std::cout << #expr << " ?= " << e << "  SUCCESS! got " << bv << std::endl; \
+    } \
+    else \
+    { \
+      std::cout << #expr << " ?= " << e << "  FAIL! got " << bv << " instead" << std::endl; \
+    } \
+  } while(0)
 
 // DO NOT DELETE THIS SECTION
 
@@ -511,8 +555,10 @@ int main (int argc, char ** argv)
   
   // begin transport creation 
   // add RosBridge factory
-  knowledge.attach_transport (new gams::transports::RosBridge (
-    knowledge.get_id (), settings, knowledge));
+  settings.read_threads = 1;
+  gams::transports::RosBridge * ros_bridge = new gams::transports::RosBridge (
+    knowledge.get_id (), settings, knowledge);
+  knowledge.attach_transport (ros_bridge);
   // end transport creation
   
   // set this once to allow for debugging controller creation
@@ -598,7 +644,93 @@ int main (int argc, char ** argv)
    **/
   
   // run a mape loop for algorithm and platform control
-  controller.run ();
+  //controller.run ();
+
+  // wait until the bridge is set up correctly
+  usleep(1000);
+
+  // TEST ODOMETRY SUBSCRIPTION
+  ros::NodeHandle node;
+  ros::Publisher test_pub = node.advertise<nav_msgs::Odometry>("odom", 10);
+  nav_msgs::Odometry odom;
+  odom.header.stamp = ros::Time::now();
+  odom.header.frame_id = "odom";
+  odom.child_frame_id = "base_link";
+
+  odom.pose.pose.position.x = 1.0;
+  odom.pose.pose.position.y = 2.0;
+  odom.pose.pose.position.z = 3.0;
+  odom.pose.pose.orientation.x = 0.707;
+  odom.pose.pose.orientation.y = 0.0;
+  odom.pose.pose.orientation.z = 0.0;
+  odom.pose.pose.orientation.w = 0.707;
+
+  odom.twist.twist.linear.x = 0.5;
+  odom.twist.twist.linear.y = 0.6;
+
+  test_pub.publish(odom);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  while(true)
+  {
+    test_pub.publish(odom);
+    ros::spinOnce();
+    ros::Duration(1).sleep();
+
+    containers::NativeDoubleVector cont ("odom.pose", knowledge, 6);
+    gams::pose::Pose p;
+    p.from_container(cont);
+
+    TEST(p.get(0), odom.pose.pose.position.x);
+
+    odom.pose.pose.position.x += 1.0;
+
+    if (odom.pose.pose.position.x > 10)
+      break;
+  }
+
+  // TEST TRANSFORM TREE
+  tf2_ros::TransformBroadcaster tf_brdcaster;
+
+  geometry_msgs::Transform transform;
+  geometry_msgs::Vector3 t;
+  t.x = 1.0;
+  t.y = 2.0;
+  t.z = 3.0;
+  transform.translation = t;
+  geometry_msgs::Quaternion q;
+  q.x = 0.707;
+  q.y = 0.0;
+  q.z = 0.0;
+  q.w = 0.707;
+  transform.rotation = q;
+  geometry_msgs::TransformStamped st;
+  st.transform = transform;
+  st.child_frame_id = "frame1";
+
+  std_msgs::Header h;
+  h.seq = 0;
+  h.stamp = ros::Time(0);
+  h.frame_id = "world";
+  st.header = h;
+
+  tf_brdcaster.sendTransform(st);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  gams::pose::ReferenceFrame ref_frame = gams::pose::ReferenceFrame::load(knowledge, st.child_frame_id);
+  TEST(ref_frame.valid(), true);
+  gams::pose::Pose origin = ref_frame.origin();
+
+  TEST(origin.get(0), t.x);
+  TEST(origin.get(1), t.y);
+  TEST(origin.get(2), t.z);
+
+  TEST(origin.get(3), M_PI/2);
+  TEST(origin.get(4), 0.0);
+  TEST(origin.get(5), 0.0);
+
 
   // terminate all threads after the controller
   threader.terminate ();

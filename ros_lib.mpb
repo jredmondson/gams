@@ -14,6 +14,10 @@ feature (ros) {
     ROS_Utility {
       src/gams/utility/ros
     }
+
+    ROS_Transport {
+      src/gams/transports/ros
+    }
   }
 
   Source_Files {
@@ -23,6 +27,10 @@ feature (ros) {
 
     ROS_Utility {
       src/gams/utility/ros
+    }
+
+    ROS_Transport {
+      src/gams/transports/ros
     }
   }
 }

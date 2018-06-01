@@ -48,6 +48,7 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <tf2_msgs/TFMessage.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Int32.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -68,12 +69,18 @@ namespace gams
         public:
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame);
+          void parse_message (const rosbag::MessageInstance m,
+            std::string container_name);
+          void parse_message (const topic_tools::ShapeShifter::ConstPtr& m,
+            std::string container_name);
+
+          // Parsing for unknown types
           void registerMessageDefinition(std::string topic_name,
             RosIntrospection::ROSType type, std::string definition);
           void parse_unknown (const rosbag::MessageInstance m,
             std::string container_name);
-          void parse_message (const rosbag::MessageInstance m,
-            std::string container_name);
+          
+          //known types
           void parse_odometry (nav_msgs::Odometry * odom,
             std::string container_name);
           void parse_imu (sensor_msgs::Imu * imu,
@@ -131,7 +138,10 @@ namespace gams
 
           // The knowledbase
           knowledge::KnowledgeBase * knowledge_;
+          knowledge::EvalSettings eval_settings_;
+
       };
+      std::string ros_to_gams_name (std::string ros_topic_name);
     }
   }
 }

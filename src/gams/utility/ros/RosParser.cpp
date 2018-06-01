@@ -9,7 +9,8 @@
 namespace global_ros = ros;
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
-  std::string world_frame, std::string base_frame)
+  std::string world_frame, std::string base_frame) : 
+  eval_settings_(true, true, false)
 {
   world_frame_ = world_frame;
   base_frame_ = base_frame;
@@ -83,6 +84,67 @@ void gams::utility::ros::RosParser::parse_message (
   }
 }
 
+
+
+void gams::utility::ros::RosParser::parse_message (
+  const topic_tools::ShapeShifter::ConstPtr& m,
+  std::string container_name)
+{
+  if (m->getDataType () == "std_msgs/Int32")
+  {
+    int value = m->instantiate<std_msgs::Int32>()->data;
+    knowledge_->set (container_name, value, eval_settings_);
+  }
+  else if (m->getDataType () == "nav_msgs/Odometry")
+  {
+    parse_odometry (m->instantiate<nav_msgs::Odometry> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "sensor_msgs/Imu")
+  {
+    parse_imu (m->instantiate<sensor_msgs::Imu> ().get (), container_name);
+  }
+  else if (m->getDataType () == "sensor_msgs/LaserScan")
+  {
+    parse_laserscan (m->instantiate<sensor_msgs::LaserScan> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "geometry_msgs/Pose")
+  {
+    parse_pose (m->instantiate<geometry_msgs::Pose> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "geometry_msgs/PoseStamped")
+  {
+    parse_pose (&m->instantiate<geometry_msgs::PoseStamped> ().get ()->pose,
+        container_name);
+  }
+  else if (m->getDataType () == "sensor_msgs/CompressedImage")
+  {
+    parse_compressed_image (
+        m->instantiate<sensor_msgs::CompressedImage> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "sensor_msgs/PointCloud2")
+  {
+    parse_pointcloud2 (m->instantiate<sensor_msgs::PointCloud2> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "sensor_msgs/Range")
+  {
+    parse_range (m->instantiate<sensor_msgs::Range> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "sensor_msgs/FluidPressure")
+  {
+    parse_fluidpressure (m->instantiate<sensor_msgs::FluidPressure> ().get (),
+        container_name);
+  }
+  else if (m->getDataType () == "tf2_msgs/TFMessage")
+  {
+    parse_tf_message (m->instantiate<tf2_msgs::TFMessage> ().get ());
+  }
+}
 
 /**
 * Parses unknown messages using ros_type_introspection
@@ -392,12 +454,16 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
           *knowledge_, 3);
         containers::NativeDoubleVector orientation ("agents.0.orientation",
           *knowledge_, 3);
-        location.set (0, base_pose.as_location_vec ().get (0));
-        location.set (1, base_pose.as_location_vec ().get (1));
-        location.set (2, base_pose.as_location_vec ().get (2));
-        orientation.set (0, base_pose.as_orientation_vec ().get (0));
-        orientation.set (1, base_pose.as_orientation_vec ().get (1));
-        orientation.set (2, base_pose.as_orientation_vec ().get (2));
+        location.set (0, base_pose.as_location_vec ().get (0), eval_settings_);
+        location.set (1, base_pose.as_location_vec ().get (1), eval_settings_);
+        location.set (2, base_pose.as_location_vec ().get (2), eval_settings_);
+        orientation.set (0, base_pose.as_orientation_vec ().get (0),
+          eval_settings_);
+        orientation.set (1, base_pose.as_orientation_vec ().get (1),
+          eval_settings_);
+        orientation.set (2, base_pose.as_orientation_vec ().get (2),
+          eval_settings_);
+
       }
       catch ( gams::pose::unrelated_frames ex){}
     }
@@ -482,7 +548,8 @@ void gams::utility::ros::RosParser::parse_twist (geometry_msgs::Twist *twist,
 void gams::utility::ros::RosParser::parse_pose (geometry_msgs::Pose *pose,
   std::string container_name)
 {
-  containers::NativeDoubleVector cont (container_name, *knowledge_, 6);
+  containers::NativeDoubleVector cont (container_name, *knowledge_, 6,
+    eval_settings_);
   gams::pose::Quaternion quat (pose->orientation.x,
                 pose->orientation.y,
                 pose->orientation.z,
@@ -583,4 +650,26 @@ void gams::utility::ros::RosParser::parse_int_array (boost::array<int, N> *array
     target->set (i, *iter);
     i++;
   }
+}
+
+std::string gams::utility::ros::ros_to_gams_name (std::string ros_topic_name)
+{
+  // Convert ros_topic_name to lower case
+  std::transform (ros_topic_name.begin (),
+    ros_topic_name.end (), ros_topic_name.begin (), ::tolower);
+  std::string name = ros_topic_name.substr (1);
+  std::string rosbag_robot_prefix = "robot_";
+   
+   std::string topic = ros_topic_name;
+  if (name.find (rosbag_robot_prefix) == 0)
+  {
+    //remove the robot prefix
+    int namespace_end = name.find ("/") + 1;
+    //cut the prefix
+    topic = name.substr (namespace_end);
+  }
+  std::replace (topic.begin (), topic.end (), '/', '.');
+
+
+  return topic;
 }

@@ -482,7 +482,7 @@ if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
   echo "ENTERING $MPC_ROOT"
   # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $MPC_ROOT ] ; then
-    git clone --depth 1 https://github.com/DOCGroup/MPC.git
+    git clone --depth 1 https://github.com/DOCGroup/MPC.git $MPC_ROOT
     MPC_REPO_RESULT=$?
   fi
 
