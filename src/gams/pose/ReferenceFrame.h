@@ -888,7 +888,7 @@ public:
  *
  * This class itself is immutable, and thus trivially thread-safe.
  **/
-GAMSExport class FrameStore {
+class GAMSExport FrameStore {
 private:
   /*
    * KnowledgeBase uses const to indicate not changing the underlying

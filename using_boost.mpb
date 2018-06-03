@@ -1,0 +1,18 @@
+project {
+  includes += $(BOOST_ROOT)
+  lit_libs += $(BOOST_STATIC_LIB_PREFIX)boost_system$(BOOST_CFG)
+
+  expand(BOOST_ROOT_LIB) {
+    $BOOST_ROOT_LIB
+    $(BOOST_ROOT)/stage/lib
+  }
+  
+  specific(prop:windows) {
+    macros += _WINSOCK_DEPRECATED_NO_WARNINGS
+    libpaths += $(BOOST_ROOT_LIB)
+  }
+
+  specific(!prop:windows) {
+    libpaths += $(BOOST_ROOT_LIB)
+  }
+}

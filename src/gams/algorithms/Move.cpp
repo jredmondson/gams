@@ -103,7 +103,7 @@ gams::algorithms::MoveFactory::create (
 
     if (repeat_found != args.end ())
     {
-      repeat_times = repeat_found->second.to_integer ();
+      repeat_times = (int)repeat_found->second.to_integer ();
 
       if (repeat_times < 0)
       {

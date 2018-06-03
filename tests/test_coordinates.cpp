@@ -271,8 +271,8 @@ int main(int, char *[])
     TEST_EQ(frames[0].id(), "Drone");
     TEST_EQ(frames[1].id(), "Drone2");
 
-    TEST(frames[0].timestamp(), 1000);
-    TEST(frames[1].timestamp(), 1000);
+    TEST((double)frames[0].timestamp(), 1000);
+    TEST((double)frames[1].timestamp(), 1000);
 
     TEST_EQ(frames[0].interpolated(), false);
     TEST_EQ(frames[1].interpolated(), false);
@@ -295,8 +295,8 @@ int main(int, char *[])
     TEST_EQ(pframes[0].id(), "Drone");
     TEST_EQ(pframes[1].id(), "Drone2");
 
-    TEST(pframes[0].timestamp(), 1500);
-    TEST(pframes[1].timestamp(), 1500);
+    TEST((double)pframes[0].timestamp(), 1500);
+    TEST((double)pframes[1].timestamp(), 1500);
 
     TEST_EQ(pframes[0].interpolated(), true);
     TEST_EQ(pframes[1].interpolated(), true);
@@ -319,8 +319,8 @@ int main(int, char *[])
     TEST_EQ(frames[0].id(), "Drone");
     TEST_EQ(frames[1].id(), "Drone2");
 
-    TEST(frames[0].timestamp(), 1500);
-    TEST(frames[1].timestamp(), 1500);
+    TEST((double)frames[0].timestamp(), 1500);
+    TEST((double)frames[1].timestamp(), 1500);
 
     TEST_EQ(frames[0].interpolated(), true);
     TEST_EQ(frames[1].interpolated(), true);
@@ -343,8 +343,8 @@ int main(int, char *[])
     TEST_EQ(frames[0].id(), "Drone");
     TEST_EQ(frames[1].id(), "Drone2");
 
-    TEST(frames[0].timestamp(), 2250);
-    TEST(frames[1].timestamp(), 2250);
+    TEST((double)frames[0].timestamp(), 2250);
+    TEST((double)frames[1].timestamp(), 2250);
 
     TEST_EQ(frames[0].interpolated(), false);
     TEST_EQ(frames[1].interpolated(), true);
@@ -431,7 +431,7 @@ int main(int, char *[])
   std::vector<gams::pose::ReferenceFrame> frames =
     gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
 
-  TEST (frames.size(), 4);
+  TEST ((double)frames.size(), 4);
   if (frames.size() == 4)
   {
     gams::pose::ReferenceFrame laser_frame = frames[0];

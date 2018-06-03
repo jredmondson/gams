@@ -415,7 +415,7 @@ gams::pose::Region::from_container_impl (
       " \"%s.type\" does not exist in knowledge base\n", name.c_str ());
     return false;
   }
-  type_ = type.to_integer ();
+  type_ = (unsigned int)type.to_integer ();
 
   // set name if necessary
   if (name_ == "")
