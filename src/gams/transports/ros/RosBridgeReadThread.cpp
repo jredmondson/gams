@@ -106,40 +106,4 @@ gams::transports::RosBridgeReadThread::run (void)
     "%s::run: executing\n", print_prefix);
 
   ros::spinOnce();
-  ros::Duration(1).sleep();
-
-
-  /**
-   * this should store the number of bytes read into the buffer after your
-   * network, socket, serial port or shared memory read
-   **/
-  uint32_t bytes_read = 0;
-
-  // header for buffer
-  madara::transport::MessageHeader * header = 0;
-
-  /**
-   * remote host identifier, often available from socket recvs. This 
-   * information can be used with trusted/banned host lists in the
-   * process_received_update function later. You would have to fill
-   * this in with info from whatever transport you are using for this
-   * to be effective.
-   **/
-  char * remote_host = "";
-  
-  // will be filled with rebroadcast records after applying filters
-  knowledge::KnowledgeMap rebroadcast_records;
-
-  /**
-   * Calls filters on buffered data, updates throughput calculations
-   **/
-  process_received_update (buffer_.get_ptr (), bytes_read, id_, *context_,
-    settings_, send_monitor_, receive_monitor_, rebroadcast_records,
-    on_data_received_, print_prefix, remote_host, header);
-    
-  /**
-   * The next run of this method will be determined by read_thread_hertz
-   * in the QoSTransportSettings class that is passed in.
-   **/
-  //context_->print(0);
 }
