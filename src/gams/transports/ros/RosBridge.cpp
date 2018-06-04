@@ -8,8 +8,11 @@ namespace knowledge = madara::knowledge;
 gams::transports::RosBridge::RosBridge (
   const std::string & id,
   madara::transport::TransportSettings & new_settings,
-  knowledge::KnowledgeBase & knowledge)
-: madara::transport::Base (id, new_settings, knowledge.get_context ())
+  knowledge::KnowledgeBase & knowledge,
+  std::vector<std::string> topics,
+  std::map<std::string,std::string> topic_map)
+: madara::transport::Base (id, new_settings, knowledge.get_context ()),
+  topics_(topics), topic_map_(topic_map)
 {
   // populate variables like buffer_ based on transport settings
   Base::setup ();
@@ -38,7 +41,8 @@ gams::transports::RosBridge::RosBridge (
       thread_name.str (),
       new RosBridgeReadThread (
         id_, new_settings, 
-        send_monitor_, receive_monitor_, packet_scheduler_));
+        send_monitor_, receive_monitor_, packet_scheduler_,
+        topics_, topic_map_));
   }
 }
 

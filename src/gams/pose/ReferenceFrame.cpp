@@ -69,6 +69,10 @@ using madara::knowledge::containers::NativeDoubleVector;
 using kmiter = KnowledgeMap::iterator;
 using kmpair = KnowledgeMap::value_type;
 
+// For simple toggling of debug code
+//#define LOCAL_DEBUG(stmt) stmt
+#define LOCAL_DEBUG(stmt)
+
 namespace gams
 {
   namespace pose
@@ -318,7 +322,7 @@ namespace gams
         if (ident) {
           auto ver = ident->get_version(timestamp);
           if (ver) {
-            //std::cerr << id << " already loaded" << std::endl;
+            LOCAL_DEBUG(std::cerr << id << " already loaded" << std::endl;)
             return std::make_pair(std::move(ver), std::string());
           }
         }
@@ -344,10 +348,10 @@ namespace gams
         const ReferenceFrameType *type = Cartesian;
         key += "type";
         find = map.find(key);
-        //std::cerr << "Looking for single " << key << std::endl;
+        LOCAL_DEBUG(std::cerr << "Looking for single " << key << std::endl;)
         if (find != map.end()) {
           std::string type_name = find->second.to_string();
-          //std::cerr << "loaded " << type_name << " frame: " << id << std::endl;
+          LOCAL_DEBUG(std::cerr << "loaded " << type_name << " frame: " << id << std::endl;)
           if (type_name == "GPS") {
             type = GPS;
           }
@@ -368,7 +372,7 @@ namespace gams
         auto ret = std::make_shared<ReferenceFrameVersion>(
             type, id, std::move(origin), timestamp);
 
-        //std::cerr << "Made new " << id << " at " << (void*)ret.get() << std::endl;
+        LOCAL_DEBUG(std::cerr << "Made new " << id << " at " << (void*)ret.get() << std::endl;)
 
         return std::make_pair(std::move(ret), std::move(parent_name));
       }
@@ -378,6 +382,7 @@ namespace gams
           KnowledgeBase &kb,
           const std::string &id,
           uint64_t timestamp,
+          uint64_t parent_timestamp,
           std::string prefix)
     {
       ContextGuard guard(kb);
@@ -386,17 +391,42 @@ namespace gams
       if (!ret.first) {
         return ReferenceFrame();
       }
-      if (ret.second.size() > 0) {
-        auto parent = load(kb, ret.second, timestamp, std::move(prefix));
-        if (!parent.valid()) {
-          //std::cerr << "Couldn't find " << ret.second << std::endl;
-          return ReferenceFrame();
-        }
-        ret.first->mut_origin().frame(parent);
+
+      ReferenceFrame frame(std::move(ret.first));
+      std::string parent_frame = std::move(ret.second);
+
+      if (frame.origin_frame().valid() &&
+          frame.timestamp() == (uint64_t)-1 &&
+          frame.origin_frame().timestamp() != parent_timestamp &&
+          parent_frame.size() == 0) {
+        parent_frame = frame.origin_frame().id();
       }
 
-      ret.first->ident().register_version(timestamp, ret.first);
-      return ReferenceFrame(ret.first);
+      if (parent_frame.size() > 0) {
+        auto parent = load(kb, parent_frame, parent_timestamp,
+                           std::move(prefix));
+        if (!parent.valid()) {
+          LOCAL_DEBUG(std::cerr << "Couldn't find " << parent_frame << std::endl;)
+          return ReferenceFrame();
+        }
+        frame.impl_->mut_origin().frame(parent);
+      }
+
+      if (frame.origin_frame().valid()) {
+        LOCAL_DEBUG(std::cerr << frame.id() << ": " << frame.timestamp() << " " <<
+          frame.origin_frame().timestamp() << std::endl;)
+      } else {
+        LOCAL_DEBUG(std::cerr << frame.id() << ": " << frame.timestamp() << " has no parent" <<
+          std::endl;)
+      }
+      if (frame.origin_frame().valid() &&
+          frame.timestamp() == (uint64_t)-1 &&
+          frame.origin_frame().timestamp() != (uint64_t)-1) {
+        frame = frame.timestamp(frame.origin_frame().timestamp());
+      }
+
+      frame.impl_->ident().register_version(timestamp, frame.impl_);
+      return frame;
     }
 
     namespace {
@@ -433,10 +463,10 @@ namespace gams
         auto find = map.lower_bound(key);
         auto next = find;
 
-        //std::cerr << "Looking for neighbors " << key << std::endl;
+        LOCAL_DEBUG(std::cerr << "Looking for neighbors " << key << std::endl;)
 
         if (next->first == key) {
-          //std::cerr << "Found it exactly." << std::endl;
+          LOCAL_DEBUG(std::cerr << "Found it exactly." << std::endl;)
           return std::make_pair(timestamp, timestamp);
         }
 
@@ -494,7 +524,7 @@ namespace gams
       ContextGuard guard(kb);
 
       auto ret = find_nearest_neighbors(kb, id, -1, prefix).first;
-      //std::cerr << "Latest for " << id << " is " << ret << std::endl;
+      LOCAL_DEBUG(std::cerr << "Latest for " << id << " is " << ret << std::endl;)
 
       auto key = std::move(prefix);
       impl::make_kb_key(key, id, ret);
@@ -522,22 +552,23 @@ namespace gams
         timestamp = latest_timestamp(kb, id, prefix);
       }
 
-      ReferenceFrame ret = load_exact(kb, id, timestamp, prefix);
+      ReferenceFrame ret = load_exact(kb, id, timestamp, timestamp, prefix);
       if (ret.valid()) {
         return ret;
       }
 
-      ret = load_exact(kb, id, -1, prefix);
+      ret = load_exact(kb, id, -1, timestamp, prefix);
       if (ret.valid()) {
         return ret;
       }
 
       auto pair = find_nearest_neighbors(kb, id, timestamp, prefix);
 
-      //std::cerr << "Nearest " << id << " " << pair.first << " " << timestamp << " " << pair.second << std::endl;
+      LOCAL_DEBUG(std::cerr << "Nearest " << id << " " << pair.first << " " <<
+                  timestamp << " " << pair.second << std::endl;)
 
       if (pair.first == (uint64_t)-1 || pair.second == (uint64_t)-1) {
-        //std::cerr << "No valid timestamp pair for " << id << std::endl;
+        LOCAL_DEBUG(std::cerr << "No valid timestamp pair for " << id << std::endl;)
         return {};
       }
 
@@ -547,27 +578,39 @@ namespace gams
       ReferenceFrame parent;
 
       if (prev.first && next.first) {
-        const std::string &parent_id = prev.second;
-        const std::string &next_parent_id = next.second;
-
-        if (parent_id != next_parent_id) {
-          //std::cerr << "Mismatched frame parents " << parent_id << "  " << next_parent_id << std::endl;
-          return {};
-        }
+        std::string parent_id = std::move(prev.second);
+        std::string next_parent_id = std::move(next.second);
 
         if (parent_id != "") {
-          //std::cerr << "Loading " << id << "'s parent " << parent_id << std::endl;
+          if (next_parent_id.empty() && next.first->origin_frame().valid()) {
+            if (parent_id != next.first->origin_frame().id()) {
+              LOCAL_DEBUG(std::cerr << "Mismatched frame parents " << parent_id <<
+                          "  " << next_parent_id << std::endl;)
+              return {};
+            }
+          } else {
+            if (parent_id != next_parent_id) {
+              LOCAL_DEBUG(std::cerr << "Mismatched frame parents " << parent_id <<
+                          "  " << next_parent_id << std::endl;)
+              return {};
+            }
+          }
+
+          LOCAL_DEBUG(std::cerr << "Loading " << id << "'s parent " << parent_id <<
+                      std::endl;)
           parent = load(kb, parent_id, timestamp, prefix);
 
-          //std::cerr << "Interpolating " << id << " with parent " <<
-            //(parent.valid() ? parent.id() : "INVALID") << std::endl;
+          LOCAL_DEBUG(std::cerr << "Interpolating " << id << " with parent " <<
+            (parent.valid() ? parent.id() : "INVALID") << std::endl;)
+        } else if (prev.first->origin_frame().valid()) {
+          parent = prev.first->origin_frame();
         } else {
-          //std::cerr << "Frame " << id << " has no parent" << std::endl;
+          LOCAL_DEBUG(std::cerr << "Frame " << id << " has no parent" << std::endl;)
         }
         return prev.first->interpolate(next.first, std::move(parent), timestamp);
       }
 
-      //std::cerr << "No interpolation found for " << id << std::endl;
+      LOCAL_DEBUG(std::cerr << "No interpolation found for " << id << std::endl;)
       return {};
     }
 

@@ -10,7 +10,7 @@ namespace global_ros = ros;
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame) : 
-  eval_settings_(true, true, false)
+  eval_settings_(true, true, false, false, false)
 {
   world_frame_ = world_frame;
   base_frame_ = base_frame;
@@ -252,9 +252,9 @@ void gams::utility::ros::RosParser::parse_odometry (nav_msgs::Odometry * odom,
 {
 
   containers::NativeDoubleVector odom_covariance (
-    container_name + ".pose.covariance", *knowledge_, 36);
+    container_name + ".pose.covariance", *knowledge_, 36, eval_settings_);
   containers::NativeDoubleVector twist_covariance (
-    container_name + ".pose.covariance", *knowledge_, 36);
+    container_name + ".pose.covariance", *knowledge_, 36, eval_settings_);
 
   parse_pose (&odom->pose.pose, container_name + ".pose");
   parse_float64_array (&odom->pose.covariance, &odom_covariance);
@@ -531,9 +531,9 @@ void gams::utility::ros::RosParser::parse_twist (geometry_msgs::Twist *twist,
   std::string container_name)
 {
   containers::NativeDoubleVector linear (container_name + ".linear",
-    *knowledge_, 3);
+    *knowledge_, 3, eval_settings_);
   containers::NativeDoubleVector angular (container_name + ".angular",
-    *knowledge_, 3);
+    *knowledge_, 3, eval_settings_);
   parse_vector3 (&twist->linear, &linear);
   parse_vector3 (&twist->angular, &angular);
 }
@@ -564,9 +564,9 @@ void gams::utility::ros::RosParser::parse_pose (geometry_msgs::Pose *pose,
 void gams::utility::ros::RosParser::parse_vector3 (geometry_msgs::Vector3 *vec,
   containers::NativeDoubleVector *target)
 {
-  target->set (0, vec->x);
-  target->set (1, vec->y);
-  target->set (2, vec->z);
+  target->set (0, vec->x, eval_settings_);
+  target->set (1, vec->y, eval_settings_);
+  target->set (2, vec->z, eval_settings_);
 }
 /**
 * Parses a ROS geometry_msgs::Point message
@@ -576,9 +576,9 @@ void gams::utility::ros::RosParser::parse_vector3 (geometry_msgs::Vector3 *vec,
 void gams::utility::ros::RosParser::parse_point (geometry_msgs::Point *point_msg,
   containers::NativeDoubleVector *point)
 {
-  point->set (0, point_msg->x);
-  point->set (1, point_msg->y);
-  point->set (2, point_msg->z);
+  point->set (0, point_msg->x, eval_settings_);
+  point->set (1, point_msg->y, eval_settings_);
+  point->set (2, point_msg->z, eval_settings_);
 }
 
 /**

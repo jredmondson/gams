@@ -24,7 +24,9 @@ namespace gams
        **/
       RosBridge (const std::string & id,
         madara::transport::TransportSettings & new_settings,
-        madara::knowledge::KnowledgeBase & context);
+        madara::knowledge::KnowledgeBase & context,
+        std::vector<std::string> topics,
+        std::map<std::string,std::string> topic_map);
 
       /**
        * Destructor
@@ -43,6 +45,11 @@ namespace gams
     protected:
       /// threads for monitoring knowledge updates
       madara::threads::Threader read_threads_;
+
+      // Enabled topics
+      std::vector<std::string> topics_;
+      // Topic map
+      std::map<std::string,std::string> topic_map_;
     };
   }
 }

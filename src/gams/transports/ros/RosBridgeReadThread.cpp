@@ -9,8 +9,21 @@ void gams::transports::RosBridgeReadThread::messageCallback (
   const topic_tools::ShapeShifter::ConstPtr& msg,
   const std::string &topic_name )
 {
-  std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << ">" << std::endl;
-  std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
+  std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << "> " << msg << std::endl;
+  //std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
+  //Check if topic is in the topic mapping
+  std::map<std::string, std::string>::iterator it = topic_map_.find (topic_name);
+  std::string container;
+
+  if (it != topic_map_.end ())
+  {
+    container = it->second;
+  }
+  else
+  {
+    container = gams::utility::ros::ros_to_gams_name (topic_name);
+  }
+
   parser_->parse_message(msg, container);
 }
 
@@ -20,10 +33,14 @@ gams::transports::RosBridgeReadThread::RosBridgeReadThread (
   const madara::transport::TransportSettings & settings,
   madara::transport::BandwidthMonitor & send_monitor,
   madara::transport::BandwidthMonitor & receive_monitor,
-  madara::transport::PacketScheduler & packet_scheduler)
+  madara::transport::PacketScheduler & packet_scheduler,
+  std::vector<std::string> topics,
+  std::map<std::string,std::string> topic_map)
 : send_monitor_ (send_monitor),
   receive_monitor_ (receive_monitor),
-  packet_scheduler_ (packet_scheduler)
+  packet_scheduler_ (packet_scheduler),
+  topics_(topics),
+  topic_map_(topic_map)
 {
 }
 
@@ -56,14 +73,15 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
   int argc = 0;
   ros::init(argc, argv, "ros_bridge");
   ros::NodeHandle node;
-  const char* topic_names[]= { "test_1", "odom", "/tf" };
-  for (const char* topic_name: topic_names )
+  //const char* topic_names[]= { "test1", "odom", "/tf" };
+  for (const std::string topic_name: topics_ )
   {
     boost::function<void (const topic_tools::ShapeShifter::ConstPtr&)> callback;
     callback = boost::bind (
       &gams::transports::RosBridgeReadThread::messageCallback, this,
       _1, topic_name );
     subscribers_.push_back (node.subscribe( topic_name, 10, callback));
+    std::cout << "subcribed to " << topic_name << std::endl;
   }
 
 }

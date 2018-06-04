@@ -555,9 +555,14 @@ int main (int argc, char ** argv)
   
   // begin transport creation 
   // add RosBridge factory
+
+
+  std::vector<std::string> selected_topics {"test1", "odom", "/tf"};
+  std::map<std::string,std::string> topic_map = {{"odom", "sensors.odom"}};
+
   settings.read_threads = 1;
   gams::transports::RosBridge * ros_bridge = new gams::transports::RosBridge (
-    knowledge.get_id (), settings, knowledge);
+    knowledge.get_id (), settings, knowledge, selected_topics, topic_map);
   knowledge.attach_transport (ros_bridge);
   // end transport creation
   
@@ -678,13 +683,14 @@ int main (int argc, char ** argv)
     ros::spinOnce();
     ros::Duration(1).sleep();
 
-    containers::NativeDoubleVector cont ("odom.pose", knowledge, 6);
+    containers::NativeDoubleVector cont ("sensors.odom.pose", knowledge, 6);
     gams::pose::Pose p;
     p.from_container(cont);
 
     TEST(p.get(0), odom.pose.pose.position.x);
 
     odom.pose.pose.position.x += 1.0;
+    odom.twist.twist.linear.x += 0.1;
 
     if (odom.pose.pose.position.x > 10)
       break;
@@ -730,6 +736,8 @@ int main (int argc, char ** argv)
   TEST(origin.get(3), M_PI/2);
   TEST(origin.get(4), 0.0);
   TEST(origin.get(5), 0.0);
+
+  
 
 
   // terminate all threads after the controller

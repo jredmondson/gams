@@ -40,7 +40,9 @@ namespace gams
         const madara::transport::TransportSettings & settings,
         madara::transport::BandwidthMonitor & send_monitor,
         madara::transport::BandwidthMonitor & receive_monitor,
-        madara::transport::PacketScheduler & packet_scheduler);
+        madara::transport::PacketScheduler & packet_scheduler,
+        std::vector<std::string> topics,
+        std::map<std::string,std::string> topic_map);
       
       /**
        * Destructor
@@ -89,6 +91,11 @@ namespace gams
       std::vector<ros::Subscriber> subscribers_;
 
       gams::utility::ros::RosParser * parser_;
+
+      // Enabled topics
+      std::vector<std::string> topics_;
+      // Topic map
+      std::map<std::string,std::string> topic_map_;
 
     };
   }

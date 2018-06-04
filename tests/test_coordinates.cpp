@@ -18,7 +18,7 @@ double round_nearest(double in)
 }
 
 #define LOG(expr) \
-  std::cout << #expr << " == " << (expr) << std::endl
+  std::cout << __LINE__ << ": " << #expr << " == " << (expr) << std::endl
 
 #define TEST_EQ(expr, expect) \
   do {\
@@ -26,11 +26,11 @@ double round_nearest(double in)
     auto e = (expect); \
     if(v == e) \
     { \
-      std::cout << #expr << " ?= " << e << "  SUCCESS! got " << v << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  SUCCESS! got " << v << std::endl; \
     } \
     else \
     { \
-      std::cout << #expr << " ?= " << e << "  FAIL! got " << v << " instead" << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  FAIL! got " << v << " instead" << std::endl; \
     } \
   } while(0)
 
@@ -44,11 +44,11 @@ double round_nearest(double in)
              : (v >= e * (1 + TEST_epsilon) && v <= e * (1 - TEST_epsilon)); \
     if(ok) \
     { \
-      std::cout << #expr << " ?= " << e << "  SUCCESS! got " << bv << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  SUCCESS! got " << bv << std::endl; \
     } \
     else \
     { \
-      std::cout << #expr << " ?= " << e << "  FAIL! got " << bv << " instead" << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  FAIL! got " << bv << " instead" << std::endl; \
     } \
   } while(0)
 
@@ -278,7 +278,7 @@ int main(int, char *[])
     TEST_EQ(frames[1].interpolated(), false);
 
     TEST(frames[0].origin().x(), 3);
-    TEST(frames[0].origin().y(), 3);
+    TEST(frames[0].origin().y(), 2);
     TEST(frames[1].origin().rz(), 0);
 
     Position d2pos(frames[1], 1, 1);
@@ -399,6 +399,59 @@ int main(int, char *[])
 
   tkb.to_string(dump);
   LOG(dump);
+
+{
+
+  madara::knowledge::KnowledgeBase data_;
+
+  gams::pose::default_frame().save(data_);
+  auto map = gams::pose::ReferenceFrame("map", gams::pose::Pose());
+  map.save(data_);
+
+  auto odom = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map, 0, 0, 1.0));
+  odom.save(data_);
+
+  auto base =
+      gams::pose::ReferenceFrame("base", gams::pose::Pose(odom, 0.0, 0.0, 0.0), 1000);
+  base.save(data_);
+
+  auto laser = gams::pose::ReferenceFrame("laser", gams::pose::Pose(base, 0.0, 0.5, 0.75));
+  laser.save(data_);
+
+  gams::pose::ReferenceFrame frame =
+    base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
+  frame.save(data_);
+
+
+  data_.to_string(dump);
+  LOG(dump);
+
+  std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
+
+  std::vector<gams::pose::ReferenceFrame> frames =
+    gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
+
+  TEST (frames.size(), 4);
+  if (frames.size() == 4)
+  {
+    gams::pose::ReferenceFrame laser_frame = frames[0];
+    auto origin = laser_frame.origin();
+    gams::pose::ReferenceFrame map = frames[1];
+    LOG (laser_frame.timestamp());
+    LOG (map.timestamp());
+    gams::pose::ReferenceFrame base = frames[2];
+    gams::pose::ReferenceFrame odom = frames[3];
+    LOG (base.timestamp());
+    LOG (odom.timestamp());
+    if (map.valid())
+    {
+      gams::pose::Pose transformed = origin.transform_to(map);
+      TEST (transformed.x(), 2);
+      TEST (transformed.y(), 2.5);
+      TEST (transformed.z(), 1.75);
+    }
+  }
+}
 
   return 0;
 }
