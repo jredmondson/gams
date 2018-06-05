@@ -2212,7 +2212,7 @@ containers::${new_container}::modify (void)
       close project_file;
     }
   
-    if (not -f "$path/using_vrep.mpb")
+    if (not -f "$path/using_boost.mpb")
     {
       my $gamsroot = $ENV{GAMS_ROOT};
       
@@ -2224,6 +2224,7 @@ containers::${new_container}::modify (void)
       copy "$gamsroot/using_vrep.mpb", "$path/";
       copy "$gamsroot/using_madara.mpb", "$path/";
       copy "$gamsroot/using_gams.mpb", "$path/";
+      copy "$gamsroot/using_boost.mpb", "$path/";
     }
   
     foreach my $new_alg (@new_algorithm)
