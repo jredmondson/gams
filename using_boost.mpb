@@ -39,7 +39,6 @@ project {
 
   specific(prop:windows) {
     macros += _WINSOCK_DEPRECATED_NO_WARNINGS
-    libpaths += $(BOOST_ROOT_LIB)
 	
     Debug::lit_libs += $(BOOST_SYSTEM_DEBUG)
     Release::lit_libs += $(BOOST_SYSTEM_RELEASE)
