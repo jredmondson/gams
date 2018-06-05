@@ -65,7 +65,7 @@ namespace gams
     /**
     * An algorithm capable of executing other algorithms
     **/
-    class GAMSExport KarlEvaluator : public BaseAlgorithm
+    class GAMS_EXPORT KarlEvaluator : public BaseAlgorithm
     {
     public:
       /**
@@ -147,7 +147,7 @@ namespace gams
     /**
      * A factory class for creating KarlEvaluator algorithms
      **/
-    class GAMSExport KarlEvaluatorFactory : public AlgorithmFactory
+    class GAMS_EXPORT KarlEvaluatorFactory : public AlgorithmFactory
     {
     public:
       /**

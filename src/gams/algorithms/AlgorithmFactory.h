@@ -69,7 +69,7 @@ namespace gams
      * Base class for algorithm factories that classes derived from
      * @see BaseAlgorithm
      **/
-    class GAMSExport AlgorithmFactory
+    class GAMS_EXPORT AlgorithmFactory
     {
     public:
       /**

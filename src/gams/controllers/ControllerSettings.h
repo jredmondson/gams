@@ -56,7 +56,7 @@
 
 #include <string>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 namespace gams
 {
@@ -76,7 +76,7 @@ namespace gams
     /**
      * Settings used for initializing GAMS controllers
      **/
-    class GAMSExport ControllerSettings
+    class GAMS_EXPORT ControllerSettings
     {
     public:
       /**

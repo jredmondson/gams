@@ -54,7 +54,7 @@
 #ifndef _GAMS_POSE_REFERENCE_FRAME_FWD_H_
 #define _GAMS_POSE_REFERENCE_FRAME_FWD_H_
 
-#include <gams/GAMSExport.h>
+#include <gams/GamsExport.h>
 #include <gams/CPP11_compat.h>
 #include <madara/knowledge/KnowledgeBase.h>
 #include <stdexcept>
@@ -108,7 +108,7 @@ namespace gams
      * ReferenceFrame objects are ref-counted proxies for an underlying object.
      * As such, they are cheap and safe to pass and return by value.
      **/
-    class GAMSExport ReferenceFrame
+    class GAMS_EXPORT ReferenceFrame
     {
     private:
       std::shared_ptr<ReferenceFrameVersion> impl_;
@@ -603,7 +603,7 @@ namespace gams
      * Stores information and translation functions for various frame types,
      * such as Cartesian and GPS.
      **/
-    struct GAMSExport ReferenceFrameType {
+    struct GAMS_EXPORT ReferenceFrameType {
       /**
        * The type's ID
        **/
@@ -685,7 +685,7 @@ namespace gams
      * by default, if no other is specified. In general, you should not
      * need to create any other parent-less Cartesian frames.
      **/
-    GAMSExport const ReferenceFrame &default_frame (void);
+    GAMS_EXPORT const ReferenceFrame &default_frame (void);
   }
 }
 

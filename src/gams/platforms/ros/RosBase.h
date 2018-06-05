@@ -83,7 +83,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMSExport RosBase : public BasePlatform
+    class GAMS_EXPORT RosBase : public BasePlatform
     {
     public:
       /**

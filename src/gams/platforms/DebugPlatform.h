@@ -72,7 +72,7 @@ namespace gams
     /**
     * A debug platform that prints detailed status information.
     **/
-    class GAMSExport DebugPlatform : public BasePlatform
+    class GAMS_EXPORT DebugPlatform : public BasePlatform
     {
     public:
       /**
@@ -189,7 +189,7 @@ namespace gams
     /**
      * A factory class for creating debug platforms
      **/
-    class GAMSExport DebugPlatformFactory : public PlatformFactory
+    class GAMS_EXPORT DebugPlatformFactory : public PlatformFactory
     {
     public:
 

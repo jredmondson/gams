@@ -68,7 +68,7 @@ namespace gams
     /**
     * An algorithm that performs no-ops for all methods
     **/
-    class GAMSExport NullAlgorithm : public BaseAlgorithm
+    class GAMS_EXPORT NullAlgorithm : public BaseAlgorithm
     {
     public:
       /**
@@ -117,7 +117,7 @@ namespace gams
     /**
      * A factory class for creating Null algorithms
      **/
-    class GAMSExport NullAlgorithmFactory : public AlgorithmFactory
+    class GAMS_EXPORT NullAlgorithmFactory : public AlgorithmFactory
     {
     public:
 

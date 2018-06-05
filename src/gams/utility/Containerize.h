@@ -54,7 +54,7 @@
 #ifndef  _GAMS_UTILITY_CONTAINERIZE_H_
 #define  _GAMS_UTILITY_CONTAINERIZE_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 #include <string>
 
@@ -68,7 +68,7 @@ namespace gams
     * A class meant to assist with retrieving information
     * into GAMS containers
     **/
-    class GAMSExport Containerize
+    class GAMS_EXPORT Containerize
     {
     public:
       /**

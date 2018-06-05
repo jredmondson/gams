@@ -58,7 +58,7 @@
 
 #include <vector>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/DoubleVector.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 
@@ -74,7 +74,7 @@ namespace gams
     *
     * DEPRECATED: use pose::Position instead. Will be removed in GAMS v2
     **/
-    class GAMSExport Position
+    class GAMS_EXPORT Position
     {
     public:
       /**

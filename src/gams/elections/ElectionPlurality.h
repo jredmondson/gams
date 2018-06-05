@@ -70,7 +70,7 @@ namespace gams
     /**
     * An election that implements plurality voting (NOT IMPLEMENTED)
     **/
-    class GAMSExport ElectionPlurality : public ElectionBase
+    class GAMS_EXPORT ElectionPlurality : public ElectionBase
     {
     public:
       /**
@@ -105,7 +105,7 @@ namespace gams
     /**
     * Factory for creating plurality elections
     **/
-    class GAMSExport ElectionPluralityFactory : public ElectionFactory
+    class GAMS_EXPORT ElectionPluralityFactory : public ElectionFactory
     {
     public:
 

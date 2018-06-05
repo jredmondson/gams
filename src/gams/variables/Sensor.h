@@ -58,7 +58,7 @@
 #include <map>
 #include <string>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/Map.h"
 #include "madara/knowledge/KnowledgeBase.h"
@@ -77,7 +77,7 @@ namespace gams
     /**
     * A container for sensor information
     **/
-    class GAMSExport Sensor
+    class GAMS_EXPORT Sensor
     {
     public:
       /**

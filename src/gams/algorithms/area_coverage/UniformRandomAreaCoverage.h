@@ -72,7 +72,7 @@ namespace gams
       /**
       * Covers area uniformly
       **/
-      class GAMSExport UniformRandomAreaCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT UniformRandomAreaCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -119,7 +119,7 @@ namespace gams
        * A factory class for creating uniform random area
        * coverage algorithms
        **/
-      class GAMSExport UniformRandomAreaCoverageFactory
+      class GAMS_EXPORT UniformRandomAreaCoverageFactory
         : public AlgorithmFactory
       {
       public:

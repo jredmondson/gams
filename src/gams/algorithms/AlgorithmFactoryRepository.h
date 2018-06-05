@@ -55,7 +55,7 @@
 #define   _GAMS_ALGORITHMS_CONTROLLER_ALGORITHM_FACTORY_H_
 
 #include "madara/utility/Refcounter.h"
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/variables/PlatformStatus.h"
 #include "gams/variables/Self.h"
@@ -76,7 +76,7 @@ namespace gams
     /**
      * The controller's algorithm factory
      **/
-    class GAMSExport AlgorithmFactoryRepository
+    class GAMS_EXPORT AlgorithmFactoryRepository
     {
     public:
       /**
@@ -185,7 +185,7 @@ namespace gams
      * have all new algorithms added to it before new threads that might access
      * the factory are started. This is not currently thread safe.
      **/
-    GAMSExport AlgorithmFactoryRepository *global_algorithm_factory();
+    GAMS_EXPORT AlgorithmFactoryRepository *global_algorithm_factory();
   }
 }
 

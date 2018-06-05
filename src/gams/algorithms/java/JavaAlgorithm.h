@@ -74,7 +74,7 @@ namespace gams
     /**
     * A facade for Java algorithms
     **/
-    class GAMSExport JavaAlgorithm : public BaseAlgorithm
+    class GAMS_EXPORT JavaAlgorithm : public BaseAlgorithm
     {
     public:
       /**
@@ -153,7 +153,7 @@ namespace gams
     /**
     * A factory class for creating Java Algorithms
     **/
-    class GAMSExport JavaAlgorithmFactory : public AlgorithmFactory
+    class GAMS_EXPORT JavaAlgorithmFactory : public AlgorithmFactory
     {
     public:
 

@@ -1,8 +1,14 @@
-project (gams) : using_madara, using_utm, using_ros, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
+project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
   libout = lib
   sharedname = GAMS
   includes += src
   dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
+
+  Build_Files {
+    .
+    docs
+	  port/java
+  }
 
   Documentation_Files {
     INSTALL.txt
@@ -67,8 +73,6 @@ project (gams) : using_madara, using_utm, using_ros, vrep_lib, ros_lib, port/jav
     }
 
     src/gams
-
-    src/dmpl
   }
 
   Source_Files {

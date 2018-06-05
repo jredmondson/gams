@@ -59,7 +59,7 @@
 #include <vector>
 #include <string>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/StringVector.h"
 
 #include "gams/pose/Position.h"
@@ -75,7 +75,7 @@ namespace gams
     /**
      * A helper class for region information
      **/
-    class GAMSExport Region : public utility::Containerize
+    class GAMS_EXPORT Region : public utility::Containerize
     {
     public:
       /**

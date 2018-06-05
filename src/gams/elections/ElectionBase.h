@@ -63,7 +63,7 @@
 
 #include "ElectionTypesEnum.h"
 #include "gams/groups/GroupBase.h"
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 namespace gams
 {
@@ -79,7 +79,7 @@ namespace gams
     /**
     * Base class for an election
     **/
-    class GAMSExport ElectionBase
+    class GAMS_EXPORT ElectionBase
     {
     public:
       /**

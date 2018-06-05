@@ -59,7 +59,7 @@
 
 #include "madara/knowledge/KnowledgeRecord.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 namespace gams
 {
@@ -68,7 +68,7 @@ namespace gams
     /**
     * Auction bidding instance
     **/
-    class GAMSExport AuctionBid
+    class GAMS_EXPORT AuctionBid
     {
     public:
 
@@ -97,7 +97,7 @@ namespace gams
     /**
      * Comparator for sorting bids in ascending order (least to greatest)
      **/
-    class GAMSExport AuctionBidAscending
+    class GAMS_EXPORT AuctionBidAscending
     {
     public:
       /**
@@ -111,7 +111,7 @@ namespace gams
     /**
     * Comparator for sorting bids in descending order (greater to least)
     **/
-    class GAMSExport AuctionBidDescending
+    class GAMS_EXPORT AuctionBidDescending
     {
     public:
       /**

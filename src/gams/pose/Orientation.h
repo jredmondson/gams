@@ -61,7 +61,7 @@
 #include <gams/CPP11_compat.h>
 #include <gams/pose/Coordinate.h>
 #include <gams/pose/Angular.h>
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include <cmath>
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
@@ -89,7 +89,7 @@ namespace gams
      * direction of the orientation axis, orientations curve in the direction your
      * fingers are pointing.
      **/
-    class GAMSExport Orientation : public Angular<Orientation>
+    class GAMS_EXPORT Orientation : public Angular<Orientation>
     {
     public:
       using Angular::Angular;

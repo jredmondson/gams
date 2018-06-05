@@ -60,7 +60,7 @@
 
 #include "madara/knowledge/KnowledgeBase.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "GroupTypesEnum.h"
 
 namespace gams
@@ -87,7 +87,7 @@ namespace gams
     /**
     * Base class for a group of agents
     **/
-    class GAMSExport GroupBase
+    class GAMS_EXPORT GroupBase
     {
     public:
       /**

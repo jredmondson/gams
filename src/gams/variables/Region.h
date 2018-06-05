@@ -57,7 +57,7 @@
 #include <string>
 #include <vector>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/KnowledgeBase.h"
@@ -69,7 +69,7 @@ namespace gams
     /**
     * A container for region information
     **/
-    class GAMSExport Region
+    class GAMS_EXPORT Region
     {
     public:
       /**
@@ -120,7 +120,7 @@ namespace gams
       * @param   knowledge    the knowledge base that houses the variables
       * @param   region_name  name of the region
       **/
-    GAMSExport void init_vars (Region & variables,
+    GAMS_EXPORT void init_vars (Region & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & region_name = "0");
   }

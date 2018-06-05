@@ -54,7 +54,7 @@
 #ifndef   _GAMS_CONTROLLERS_MULTICONTROLLER_H_
 #define   _GAMS_CONTROLLERS_MULTICONTROLLER_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "gams/variables/Agent.h"
 #include "gams/variables/Swarm.h"
 #include "gams/variables/Self.h"
@@ -80,7 +80,7 @@ namespace gams
     /**
      * A controller that has the capability of starting many different threads
      **/
-    class GAMSExport Multicontroller
+    class GAMS_EXPORT Multicontroller
     {
     public:
       /**

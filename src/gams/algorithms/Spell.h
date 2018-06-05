@@ -75,7 +75,7 @@ namespace gams
     /**
     *
     **/
-    class GAMSExport Spell : public BaseAlgorithm
+    class GAMS_EXPORT Spell : public BaseAlgorithm
     {
     public:
 
@@ -165,7 +165,7 @@ namespace gams
     /**
      * A factory class for creating Spell algorithms
      **/
-    class GAMSExport SpellFactory : public AlgorithmFactory
+    class GAMS_EXPORT SpellFactory : public AlgorithmFactory
     {
     public:
 

@@ -83,7 +83,7 @@ namespace gams
     /**
     * A VREP platform for the base robotic system.
     **/
-    class GAMSExport VREPBase : public BasePlatform
+    class GAMS_EXPORT VREPBase : public BasePlatform
     {
     public:
       /**

@@ -287,7 +287,7 @@ namespace gams
      * Represents a combination of Linear and Angular within a single
      * reference frame.
      **/
-    class GAMSExport Pose : public PoseVector, public Coordinate<Pose>
+    class GAMS_EXPORT Pose : public PoseVector, public Coordinate<Pose>
     {
     public:
       /**

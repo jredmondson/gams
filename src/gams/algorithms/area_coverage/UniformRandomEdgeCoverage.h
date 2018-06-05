@@ -75,7 +75,7 @@ namespace gams
       * Area coverage that selects region edge locations in
       * a uniform distribution
       **/
-      class GAMSExport UniformRandomEdgeCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT UniformRandomEdgeCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -122,7 +122,7 @@ namespace gams
        * A factory class for creating uniform random edge
        * coverage algorithms
        **/
-      class GAMSExport UniformRandomEdgeCoverageFactory
+      class GAMS_EXPORT UniformRandomEdgeCoverageFactory
         : public AlgorithmFactory
       {
       public:

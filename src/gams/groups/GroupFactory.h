@@ -68,7 +68,7 @@ namespace gams
     /**
     * Base class for a group factory
     **/
-    class GAMSExport GroupFactory
+    class GAMS_EXPORT GroupFactory
     {
     public:
       /**

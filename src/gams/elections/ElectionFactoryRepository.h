@@ -73,7 +73,7 @@ namespace gams
     /**
     * A repository for election factories.
     **/
-    class GAMSExport ElectionFactoryRepository
+    class GAMS_EXPORT ElectionFactoryRepository
     {
     public:
       /**

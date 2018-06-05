@@ -91,7 +91,7 @@ namespace gams
     /**
     * The base class that algorithms in GAMS use
     **/
-    class GAMSExport BaseAlgorithm
+    class GAMS_EXPORT BaseAlgorithm
     {
     public:
       // allow Base controller to initialize our variables

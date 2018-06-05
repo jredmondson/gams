@@ -72,7 +72,7 @@ namespace gams
     /**
     * A fixed list of agent members
     **/
-    class GAMSExport GroupTransient : public GroupBase
+    class GAMS_EXPORT GroupTransient : public GroupBase
     {
     public:
       /**
@@ -166,7 +166,7 @@ namespace gams
     /**
     * Factory for creating GroupTransient groups
     **/
-    class GAMSExport GroupTransientFactory : public GroupFactory
+    class GAMS_EXPORT GroupTransientFactory : public GroupFactory
     {
     public:
 

@@ -71,7 +71,7 @@ namespace gams
     /**
      * A helper class for algorithm information
      **/
-    class GAMSExport AlgorithmMetaData
+    class GAMS_EXPORT AlgorithmMetaData
     {
     public:
       /// a KaRL precondition
@@ -93,7 +93,7 @@ namespace gams
     /**
     * An algorithm capable of executing other algorithms
     **/
-    class GAMSExport Executor : public BaseAlgorithm
+    class GAMS_EXPORT Executor : public BaseAlgorithm
     {
     public:
       /**
@@ -171,7 +171,7 @@ namespace gams
     /**
      * A factory class for creating Executor algorithms
      **/
-    class GAMSExport ExecutorFactory : public AlgorithmFactory
+    class GAMS_EXPORT ExecutorFactory : public AlgorithmFactory
     {
     public:
       /**

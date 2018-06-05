@@ -66,7 +66,7 @@ namespace gams
     /**
     * A container for search area information
     **/
-    class GAMSExport SearchArea
+    class GAMS_EXPORT SearchArea
     {
     public:
       /**
@@ -114,7 +114,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   area_name  name of the area
       **/
-    GAMSExport void init_vars (SearchArea & variables,
+    GAMS_EXPORT void init_vars (SearchArea & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & area_name = "0");
   }

@@ -54,7 +54,7 @@
 #ifndef   _GAMS_VARIABLES_SELF_H_
 #define   _GAMS_VARIABLES_SELF_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "Agent.h"
@@ -66,7 +66,7 @@ namespace gams
     /**
     * A container for self referencing information
     **/
-    class GAMSExport Self
+    class GAMS_EXPORT Self
     {
     public:
       /**
@@ -125,7 +125,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   id         node identifier
       **/
-    GAMSExport void init_vars (Self & container,
+    GAMS_EXPORT void init_vars (Self & container,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer & id);
 
@@ -135,7 +135,7 @@ namespace gams
     * @param   knowledge   the knowledge base that houses the variables
     * @param   self_prefix prefix of variables in the knowledge base
     **/
-    GAMSExport void init_vars (Self & container,
+    GAMS_EXPORT void init_vars (Self & container,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & self_prefix);
   }

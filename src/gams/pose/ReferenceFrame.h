@@ -54,7 +54,7 @@
 #ifndef _GAMS_POSE_REFERENCE_FRAME_H_
 #define _GAMS_POSE_REFERENCE_FRAME_H_
 
-#include <gams/GAMSExport.h>
+#include <gams/GamsExport.h>
 #include <gams/CPP11_compat.h>
 #include <vector>
 #include <string>
@@ -79,7 +79,7 @@ class ReferenceFrameVersion;
  * Represents a frame's identity, persisting across timestamped versions,
  * including id and type.
  **/
-class GAMSExport ReferenceFrameIdentity
+class GAMS_EXPORT ReferenceFrameIdentity
 {
 private:
     std::string id_;
@@ -256,7 +256,7 @@ namespace impl {
  * Represents a specific frame version; internal implementation of
  * ReferenceFrame, behind a shared_ptr.
  **/
-class GAMSExport ReferenceFrameVersion :
+class GAMS_EXPORT ReferenceFrameVersion :
   public std::enable_shared_from_this<ReferenceFrameVersion>
 {
 private:
@@ -888,7 +888,7 @@ public:
  *
  * This class itself is immutable, and thus trivially thread-safe.
  **/
-class GAMSExport FrameStore {
+class GAMS_EXPORT FrameStore {
 private:
   /*
    * KnowledgeBase uses const to indicate not changing the underlying
@@ -1039,7 +1039,7 @@ public:
  * @param to_stack if not nullptr, the frames needed to go from base to
  *  target frame will be pushed to pointed to vector
  **/
-GAMSExport const ReferenceFrame *find_common_frame(
+GAMS_EXPORT const ReferenceFrame *find_common_frame(
     const ReferenceFrame *from,
     const ReferenceFrame *to,
     std::vector<const ReferenceFrame *> *to_stack = nullptr);

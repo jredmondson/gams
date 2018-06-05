@@ -70,7 +70,7 @@
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
-GAMSExport platforms::PlatformFactoryRepository *
+GAMS_EXPORT platforms::PlatformFactoryRepository *
     platforms::global_platform_factory() {
   static platforms::PlatformFactoryRepository *plat_repo =
     new platforms::PlatformFactoryRepository();

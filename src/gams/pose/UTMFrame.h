@@ -87,7 +87,7 @@ namespace gams
      *       transform the entire pose as a single Pose object. Do not transform
      *       Positions and Orientations individually if bearing is important.
      **/
-    class GAMSExport UTMFrame : public ReferenceFrame
+    class GAMS_EXPORT UTMFrame : public ReferenceFrame
     {
     public:
       /**

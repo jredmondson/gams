@@ -84,7 +84,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMSExport RosP3Dx : public RosBase
+    class GAMS_EXPORT RosP3Dx : public RosBase
     {
     public:
       /**
@@ -142,7 +142,7 @@ namespace gams
     /**
      * A factory class for creating RosP3Dx platforms
      **/
-    class GAMSExport RosP3DxFactory : public PlatformFactory
+    class GAMS_EXPORT RosP3DxFactory : public PlatformFactory
     {
     public:
 

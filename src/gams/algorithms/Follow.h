@@ -71,7 +71,7 @@ namespace gams
     /**
     * An algorithm for following a target
     **/
-    class GAMSExport Follow : public BaseAlgorithm
+    class GAMS_EXPORT Follow : public BaseAlgorithm
     {
     public:
       /**
@@ -161,7 +161,7 @@ namespace gams
     /**
      * A factory class for creating Follow Algorithms
      **/
-    class GAMSExport FollowFactory : public AlgorithmFactory
+    class GAMS_EXPORT FollowFactory : public AlgorithmFactory
     {
     public:
 

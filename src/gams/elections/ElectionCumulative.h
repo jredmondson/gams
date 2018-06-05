@@ -71,7 +71,7 @@ namespace gams
     * An election that implements cumulative voting. Allows multiple
     * votes from each voter.
     **/
-    class GAMSExport ElectionCumulative : public ElectionBase
+    class GAMS_EXPORT ElectionCumulative : public ElectionBase
     {
     public:
       /**
@@ -106,7 +106,7 @@ namespace gams
     /**
     * Factory for creating plurality elections
     **/
-    class GAMSExport ElectionCumulativeFactory : public ElectionFactory
+    class GAMS_EXPORT ElectionCumulativeFactory : public ElectionFactory
     {
     public:
 

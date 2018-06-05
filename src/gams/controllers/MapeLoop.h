@@ -55,7 +55,7 @@
 #ifndef   _GAMS_LOOP_H_
 #define   _GAMS_LOOP_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "gams/variables/Agent.h"
 #include "gams/variables/Swarm.h"
 #include "gams/variables/Self.h"
@@ -75,7 +75,7 @@ namespace gams
     /**
     * A highly extensible MAPE loop
     **/
-    class GAMSExport MapeLoop
+    class GAMS_EXPORT MapeLoop
     {
     public:
       /**

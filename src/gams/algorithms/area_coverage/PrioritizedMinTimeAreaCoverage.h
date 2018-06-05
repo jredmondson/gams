@@ -72,7 +72,7 @@ namespace gams
       * Focuses on high priority areas over low priority, and attempts
       * to do minimum time coverage
       **/
-      class GAMSExport PrioritizedMinTimeAreaCoverage : 
+      class GAMS_EXPORT PrioritizedMinTimeAreaCoverage : 
         public MinTimeAreaCoverage
       {
       public:
@@ -113,7 +113,7 @@ namespace gams
        * A factory class for creating prioritized minimum time
        * coverage algorithms
        **/
-      class GAMSExport PrioritizedMinTimeAreaCoverageFactory
+      class GAMS_EXPORT PrioritizedMinTimeAreaCoverageFactory
         : public AlgorithmFactory
       {
       public:

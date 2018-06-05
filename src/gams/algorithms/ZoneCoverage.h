@@ -82,7 +82,7 @@ namespace gams
     *   connecting enemy to asset, and parallel to the ground; supports only
     *   one enemy and one asset (only first in each group will be used)
     **/
-    class GAMSExport ZoneCoverage : public BaseAlgorithm
+    class GAMS_EXPORT ZoneCoverage : public BaseAlgorithm
     {
     public:
 
@@ -191,7 +191,7 @@ namespace gams
     /**
      * A factory class for creating Formation Coverage algorithms
      **/
-    class GAMSExport ZoneCoverageFactory : public AlgorithmFactory
+    class GAMS_EXPORT ZoneCoverageFactory : public AlgorithmFactory
     {
     public:
 

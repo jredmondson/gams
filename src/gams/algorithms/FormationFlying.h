@@ -70,7 +70,7 @@ namespace gams
     /**
     * An algorithm for moving in formation
     **/
-    class GAMSExport FormationFlying : public BaseAlgorithm
+    class GAMS_EXPORT FormationFlying : public BaseAlgorithm
     {
     public:
       /**
@@ -207,7 +207,7 @@ namespace gams
     /**
      * A factory class for creating Formation Flying algorithms
      **/
-    class GAMSExport FormationFlyingFactory : public AlgorithmFactory
+    class GAMS_EXPORT FormationFlyingFactory : public AlgorithmFactory
     {
     public:
 

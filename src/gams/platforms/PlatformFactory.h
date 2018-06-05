@@ -67,7 +67,7 @@ namespace gams
     /**
      * Base class for platform factories to create BasePlatforms
      **/
-    class GAMSExport PlatformFactory
+    class GAMS_EXPORT PlatformFactory
     {
     public:
 

@@ -58,7 +58,7 @@
 #include <map>
 #include <string>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/String.h"
@@ -76,7 +76,7 @@ namespace gams
     /**
     * A container for agent information
     **/
-    class GAMSExport Agent
+    class GAMS_EXPORT Agent
     {
     public:
       /**
@@ -256,7 +256,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   processes  the number of processes in the agent swarm
       **/
-    GAMSExport void init_vars (Agents & variables,
+    GAMS_EXPORT void init_vars (Agents & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer& processes);
 
@@ -266,7 +266,7 @@ namespace gams
     * @param   knowledge  the knowledge base that houses the variables
     * @param   group      a group containing all agents of interest
     **/
-    GAMSExport void init_vars (Agents & variables,
+    GAMS_EXPORT void init_vars (Agents & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const groups::GroupBase & group);
   }

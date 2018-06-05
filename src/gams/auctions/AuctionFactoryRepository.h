@@ -73,7 +73,7 @@ namespace gams
     /**
     * A repository for auction factories.
     **/
-    class GAMSExport AuctionFactoryRepository
+    class GAMS_EXPORT AuctionFactoryRepository
     {
     public:
       /**

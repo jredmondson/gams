@@ -78,7 +78,7 @@ namespace gams
     /**
     * An algorithm for profiling message generation and receipt
     **/
-    class GAMSExport MessageProfiling : public BaseAlgorithm
+    class GAMS_EXPORT MessageProfiling : public BaseAlgorithm
     {
     public:
       /**
@@ -199,7 +199,7 @@ namespace gams
     /**
      * A factory class for creating MessageProfiling Algorithms
      **/
-    class GAMSExport MessageProfilingFactory : public AlgorithmFactory
+    class GAMS_EXPORT MessageProfilingFactory : public AlgorithmFactory
     {
     public:
 

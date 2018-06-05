@@ -69,7 +69,7 @@ namespace gams
       /**
       * Covers an area based on concentrations of virtual pheremones
       **/
-      class GAMSExport LocalPheremoneAreaCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT LocalPheremoneAreaCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -113,7 +113,7 @@ namespace gams
       /**
        * A factory class for creating pheremone area coverage algorithms
        **/
-      class GAMSExport LocalPheremoneAreaCoverageFactory
+      class GAMS_EXPORT LocalPheremoneAreaCoverageFactory
         : public AlgorithmFactory
       {
       public:
