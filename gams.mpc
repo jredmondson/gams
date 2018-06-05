@@ -3,6 +3,7 @@ project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_
   sharedname = GAMS
   includes += src
   dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
+  staticflags += GAMS_BUILD_STATIC _USE_MATH_DEFINES
 
   Build_Files {
     .
