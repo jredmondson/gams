@@ -9,8 +9,8 @@ project {
   // libboost_system-vc141-mt-x64-1_67.lib (Release)
   // we want to allow Windows devs to customize their linked boost libs
 
-  expand(BOOST_COMPILER) {
-    $BOOST_COMPILER
+  expand(BOOST_TOOLSET) {
+    $BOOST_TOOLSET
     vc141
   }
   	
@@ -26,12 +26,12 @@ project {
   	
   expand(BOOST_SYSTEM_DEBUG) {
     $BOOST_SYSTEM_DEBUG
-    $(BOOST_STATIC_LIB_PREFIX)boost_system-$(BOOST_COMPILER)-mt-gd-$(BOOST_ARCH)-$(BOOST_VERSION)
+    $(BOOST_STATIC_LIB_PREFIX)boost_system-$(BOOST_TOOLSET)-mt-gd-$(BOOST_ARCH)-$(BOOST_VERSION)
   }
   	
   expand(BOOST_SYSTEM_RELEASE) {
     $BOOST_SYSTEM_RELEASE
-    $(BOOST_STATIC_LIB_PREFIX)boost_system-$(BOOST_COMPILER)-mt-$(BOOST_ARCH)-$(BOOST_VERSION)
+    $(BOOST_STATIC_LIB_PREFIX)boost_system-$(BOOST_TOOLSET)-mt-$(BOOST_ARCH)-$(BOOST_VERSION)
   }
   	  	  
   specific(prop:windows) {
