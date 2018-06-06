@@ -136,7 +136,7 @@ namespace gams
           std::string world_frame_;
           std::string base_frame_;
 
-          // The knowledbase
+          // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;
           knowledge::EvalSettings eval_settings_;
 

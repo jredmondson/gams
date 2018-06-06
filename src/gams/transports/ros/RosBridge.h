@@ -5,6 +5,7 @@
 #include "madara/transport/Transport.h"
 #include "madara/threads/Threader.h"
 #include "RosBridgeReadThread.h"
+#include "gams/utility/ros/GamsParser.h"
 
 namespace gams
 {
@@ -26,7 +27,8 @@ namespace gams
         madara::transport::TransportSettings & new_settings,
         madara::knowledge::KnowledgeBase & context,
         std::vector<std::string> topics,
-        std::map<std::string,std::string> topic_map);
+        std::map<std::string, std::string> topic_map,
+        std::map<std::string, std::string> pub_topic_types);
 
       /**
        * Destructor
@@ -49,7 +51,13 @@ namespace gams
       // Enabled topics
       std::vector<std::string> topics_;
       // Topic map
-      std::map<std::string,std::string> topic_map_;
+      std::map<std::string, std::string> topic_map_;
+
+      std::map<std::string, std::string> pub_topic_types_;
+      gams::utility::ros::GamsParser * parser_;
+
+      std::pair<std::string, std::string> get_update_container_pair_ (
+        const char * container_name);
     };
   }
 }

@@ -559,10 +559,12 @@ int main (int argc, char ** argv)
 
   std::vector<std::string> selected_topics {"test1", "odom", "/tf"};
   std::map<std::string,std::string> topic_map = {{"odom", "sensors.odom"}};
+  std::map<std::string,std::string> pub_types = {{"odom", "nav_msgs/Odometry"}};
 
   settings.read_threads = 1;
   gams::transports::RosBridge * ros_bridge = new gams::transports::RosBridge (
-    knowledge.get_id (), settings, knowledge, selected_topics, topic_map);
+    knowledge.get_id (), settings, knowledge, selected_topics,
+    topic_map, pub_types);
   knowledge.attach_transport (ros_bridge);
   // end transport creation
   
@@ -681,9 +683,9 @@ int main (int argc, char ** argv)
   {
     test_pub.publish(odom);
     ros::spinOnce();
-    ros::Duration(1).sleep();
+    ros::Duration(0.5).sleep();
 
-    containers::NativeDoubleVector cont ("sensors.odom.pose", knowledge, 6);
+    containers::NativeDoubleVector cont ("sensors.odom.pose", knowledge);
     gams::pose::Pose p;
     p.from_container(cont);
 
@@ -739,6 +741,20 @@ int main (int argc, char ** argv)
 
   
 
+  knowledge::KnowledgeUpdateSettings settings(false);
+  containers::NativeDoubleVector cont ("sensors.odom.pose", knowledge, -1, settings);
+  cont.set (0, 123.0);
+  
+  // trigger update and wait
+  knowledge.set("foo", 1);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  TEST(cont[0], 123.0);
+
+
+  ros::spinOnce();
+  ros::Duration(5).sleep();
 
   // terminate all threads after the controller
   threader.terminate ();

@@ -1,5 +1,5 @@
 /**
- * @file TopicParser.cpp
+ * @file RosParser.cpp
  * @author Jakob Auer <jakob.auer@gmail.com>
  *
  * This file contains parsing functionality for ROS topics

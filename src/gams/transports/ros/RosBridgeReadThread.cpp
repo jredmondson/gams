@@ -47,7 +47,6 @@ gams::transports::RosBridgeReadThread::RosBridgeReadThread (
 // destructor
 gams::transports::RosBridgeReadThread::~RosBridgeReadThread ()
 {
-  //sub_.shutdown();
   delete[] parser_;
 }
 
@@ -67,13 +66,10 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
   if (settings_.queue_length > 0)
     buffer_ = new char [settings_.queue_length];
 
+  ros::NodeHandle node;
+
   parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1");
 
-  char **argv;
-  int argc = 0;
-  ros::init(argc, argv, "ros_bridge");
-  ros::NodeHandle node;
-  //const char* topic_names[]= { "test1", "odom", "/tf" };
   for (const std::string topic_name: topics_ )
   {
     boost::function<void (const topic_tools::ShapeShifter::ConstPtr&)> callback;
@@ -81,7 +77,6 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
       &gams::transports::RosBridgeReadThread::messageCallback, this,
       _1, topic_name );
     subscribers_.push_back (node.subscribe( topic_name, 10, callback));
-    std::cout << "subcribed to " << topic_name << std::endl;
   }
 
 }
@@ -92,18 +87,5 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
 void
 gams::transports::RosBridgeReadThread::run (void)
 {
-  // prefix for logging purposes
-  char * print_prefix = "gams::transports::RosBridgeReadThread";
-
-  /**
-   * the MADARA logger is thread-safe, fast, and allows for specifying
-   * various options like output files and multiple output targets (
-   * e.g., std::cerr, a system log, and a thread_output.txt file). You
-   * can create your own custom log levels or loggers as well.
-   **/
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "%s::run: executing\n", print_prefix);
-
   ros::spinOnce();
 }
