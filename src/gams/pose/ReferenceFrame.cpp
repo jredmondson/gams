@@ -600,6 +600,10 @@ namespace gams
                       std::endl;)
           parent = load(kb, parent_id, timestamp, prefix);
 
+          if (!parent.valid()) {
+            return {};
+          }
+
           LOCAL_DEBUG(std::cerr << "Interpolating " << id << " with parent " <<
             (parent.valid() ? parent.id() : "INVALID") << std::endl;)
         } else if (prev.first->origin_frame().valid()) {
