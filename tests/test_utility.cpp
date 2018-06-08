@@ -66,6 +66,8 @@
 
 #include "gams/loggers/GlobalLogger.h"
 
+#include "gtest/gtest.h"
+
 using gams::utility::GPSPosition;
 using gams::utility::Position;
 using gams::pose::PrioritizedRegion;
@@ -76,148 +78,119 @@ using std::endl;
 using std::string;
 using std::vector;
 
-void
-testing_output (const string& str, const unsigned int& tabs = 0)
-{
-  for (unsigned int i = 0; i < tabs; ++i)
-    cout << "\t";
-  cout << "testing " << str << "..." << endl;
-}
-
 // TODO: fill out remaining Position function tests
-void
-test_Position ()
+TEST(TestUtility, TestPosition)
 {
-  testing_output ("gams::utility::Position");
 
   // test constructor
-  testing_output ("constructor", 1);
   const Position p (1,2,3);
-  assert (p.x == 1);
-  assert (p.y == 2);
-  assert (p.z == 3);
+  EXPECT_EQ(p.x, 1);
+  EXPECT_EQ(p.y, 2);
+  EXPECT_EQ(p.z, 3);
 
   // test assignment operator
-  testing_output ("assignment operator", 1);
   Position p2 = p;
-  assert (p2.x == 1);
-  assert (p2.y == 2);
-  assert (p2.z == 3);
+  EXPECT_EQ(p2.x, 1);
+  EXPECT_EQ(p2.y, 2);
+  EXPECT_EQ(p2.z, 3);
   
   // equality operator
-  testing_output ("equality operator", 1);
-  assert (p == p2);
+  EXPECT_TRUE(p == p2);
 
   // inequality operator
-  testing_output ("inequality operator", 1);
-  assert (!(p != p2));
+  EXPECT_TRUE(!(p != p2));
 
   // approximately equal
-  testing_output ("approximately_equal", 1);
   p2.z = 4;
-  assert (!(p.approximately_equal (p2, 0.9)));
-  assert (p.approximately_equal (p2, 1));
+  EXPECT_TRUE(!(p.approximately_equal (p2, 0.9)));
+  EXPECT_TRUE(p.approximately_equal (p2, 1));
   p2.y = 3;
-  assert (!(p.approximately_equal (p2, 1.4)));
-  assert (p.approximately_equal (p2, 1.5));
+  EXPECT_TRUE(!(p.approximately_equal (p2, 1.4)));
+  EXPECT_TRUE(p.approximately_equal (p2, 1.5));
   p2.x = 2;
-  assert (!(p.approximately_equal (p2, 1.7)));
-  assert (p.approximately_equal (p2, 1.8));
+  EXPECT_TRUE(!(p.approximately_equal (p2, 1.7)));
+  EXPECT_TRUE(p.approximately_equal (p2, 1.8));
 
   // direction to
-  testing_output ("direction_to", 1);
   double phi, theta;
   p2.z = p.z;
   p.direction_to (p2, phi, theta);
-  assert (phi == M_PI / 4);
-  assert (theta == M_PI / 2);
+  EXPECT_FLOAT_EQ(phi, M_PI / 4);
+  EXPECT_FLOAT_EQ(theta, M_PI / 2);
 
   // distance
-  testing_output ("distance", 1);
   p2 = p;
   ++p2.z;
   ++p2.y;
   ++p2.x;
-  assert (p.distance_to (p2) == pow (3.0, 0.5));
+  EXPECT_FLOAT_EQ(p.distance_to (p2), pow (3.0, 0.5));
 
   // distance_2d
-  testing_output ("distance_2d", 1);
-  assert (p.distance_to_2d (p2) == pow (2.0, 0.5));
+  EXPECT_FLOAT_EQ (p.distance_to_2d (p2), pow (2.0, 0.5));
 
   // test to_string
-  testing_output ("to_string", 1);
-  assert (p.to_string () == "1,2,3");
+  EXPECT_EQ(p.to_string (), "1,2,3");
 
   // test from_string
-  testing_output ("from_string", 1);
   Position p3 = Position::from_string (p.to_string ());
-  assert (p == p3);
+  EXPECT_EQ(p, p3);
   p3 = Position::from_string ("2.3,1.2");
-  assert (p3.x == DBL_MAX);
-  assert (p3.y == DBL_MAX);
-  assert (p3.z == DBL_MAX);
+  EXPECT_DOUBLE_EQ(p3.x, DBL_MAX);
+  EXPECT_DOUBLE_EQ(p3.y, DBL_MAX);
+  EXPECT_DOUBLE_EQ(p3.z, DBL_MAX);
 }
 
 // TODO: fill out remaining GPSPosition function tests
-void
-test_GPSPosition ()
+TEST(TestUtility, TestGPSPosition)
 {
-  testing_output ("gams::utility::GPSPosition");
-
   // test constructor
-  testing_output ("constructor", 1);
   GPSPosition p (40.442775, -79.940967);
   GPSPosition p2 (40.443412, -79.93954);
-  assert (p.latitude () == 40.442775
-    && p.longitude () == -79.940967
-    && p.altitude () == 0.0);
-  assert (p2.latitude () == 40.443412
-    && p2.longitude () == -79.93954
-    && p2.altitude () == 0.0);
+  EXPECT_FLOAT_EQ(p.latitude(), 40.442775);
+  EXPECT_FLOAT_EQ(p.longitude(), -79.940967);
+  EXPECT_FLOAT_EQ(p.altitude(), 0.0);
+  EXPECT_FLOAT_EQ(p2.latitude(), 40.443412);
+  EXPECT_FLOAT_EQ(p2.longitude (), -79.93954);
+  EXPECT_FLOAT_EQ(p2.altitude (), 0.0);
 
   // test assignment operator
-  testing_output ("assignment operator", 1);
   GPSPosition p3 = p;
-  assert (p3.latitude () == p.latitude ()
-    && p3.longitude () == p.longitude ()
-    && p3.altitude () == p.altitude ());
+  EXPECT_EQ(p3.latitude(), p.latitude());
+  EXPECT_EQ(p3.longitude(), p.longitude());
+  EXPECT_EQ(p3.altitude(), p.altitude());
 
   // test equality operator
-  testing_output ("equality operator", 1);
-  assert (p3 == p);
-  assert (!(p2 == p));
+  EXPECT_TRUE(p3 == p);
+  EXPECT_TRUE(!(p2 == p));
 
   // test inequality operator
-  testing_output ("inequality operator", 1);
-  assert (!(p3 != p));
-  assert (p2 != p);
+  EXPECT_TRUE(!(p3 != p));
+  EXPECT_TRUE(p2 != p);
 
   // test approximately equal
-  testing_output ("approximately_equal", 1);
-  assert (p3.approximately_equal (p, 0.1));
+  EXPECT_TRUE(p3.approximately_equal (p, 0.1));
   p3.latitude (40.442776);
-  assert (!p3.approximately_equal (p, 0.1));
-  assert (p3.approximately_equal (p, 1.0));
+  EXPECT_TRUE(!p3.approximately_equal (p, 0.1));
+  EXPECT_TRUE(p3.approximately_equal (p, 1.0));
 
   // test direction_to
-  testing_output ("direction_to", 1);
   GPSPosition p4 = p;
   p4.latitude (p4.latitude() + 1);
   double phi;
   p.direction_to (p4, phi);
-  assert (phi == 0);
+  EXPECT_DOUBLE_EQ(phi, 0);
   p4 = p;
   p4.longitude (p4.longitude() + 1);
   p.direction_to (p4, phi);
-  assert (phi == M_PI / 2);
+  EXPECT_DOUBLE_EQ(phi, M_PI / 2);
   p4 = p;
   p4.longitude (p4.longitude() - 1);
   p.direction_to (p4, phi);
-  assert (phi == 3 * M_PI / 2);
+  EXPECT_DOUBLE_EQ(phi, 3 * M_PI / 2);
   p4 = p;
   p4.latitude (p4.latitude() - 1);
   p.direction_to (p4, phi);
-  assert (phi == M_PI);
+  EXPECT_DOUBLE_EQ(phi, M_PI);
 }
 
 // TODO: fill out remaining Region function tests
@@ -347,12 +320,8 @@ test_SearchArea ()
 */
 
 int
-main (int /*argc*/, char ** /*argv*/)
+main (int argc, char** argv)
 {
-  gams::loggers::global_logger->set_level (-1);
-  test_Position ();
-  test_GPSPosition ();
-  //test_Region ();
-  //test_SearchArea ();
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

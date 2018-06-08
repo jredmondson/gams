@@ -8,6 +8,7 @@
 #include "gams/groups/GroupTransient.h"
 #include "gams/groups/GroupFixedList.h"
 #include "gams/groups/GroupFactoryRepository.h"
+#include "gtest/gtest.h"
 
 namespace loggers = gams::loggers;
 namespace knowledge = madara::knowledge;
@@ -15,11 +16,10 @@ namespace transport = madara::transport;
 namespace containers = knowledge::containers;
 namespace groups = gams::groups;
 
-void test_fixed_list (knowledge::KnowledgeBase & knowledge)
-{
-  loggers::global_logger->log (
-    0, "Testing GroupFixedList\n");
+static knowledge::KnowledgeBase knowledge_instance;
 
+TEST (TestGroups, TestFixedList)
+{
   groups::AgentVector new_members, orig_members;
   groups::AgentVector copy_members;
   containers::StringVector member_list;
@@ -32,88 +32,28 @@ void test_fixed_list (knowledge::KnowledgeBase & knowledge)
   group_original.add_members (new_members);
   group_original.get_members (orig_members);
 
-  group_original.write ("group.fixed", &knowledge);
+  group_original.write ("group.fixed", &knowledge_instance);
 
   // check the information in group.fixed
-  member_list.set_name ("group.fixed.members", knowledge);
-  type.set_name ("group.fixed.type", knowledge);
+  member_list.set_name ("group.fixed.members", knowledge_instance);
+  type.set_name ("group.fixed.type", knowledge_instance);
 
-  group_copy.set_prefix ("group.fixed", &knowledge);
+  group_copy.set_prefix ("group.fixed", &knowledge_instance);
   group_copy.sync ();
   group_copy.get_members (copy_members);
 
-  if (type == groups::GROUP_FIXED_LIST)
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: knowledge base holds correct type info\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: knowledge base holds incorrect type info: %d\n",
-      (int)*type);
-  }
+  EXPECT_EQ(type, groups::GROUP_FIXED_LIST) << "Knowledge base doesn't hold correct type info";
 
-  if (member_list.size () == 2 &&
-    member_list[0] == "agent.0" && member_list[1] == "leader.0")
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: knowledge base holds correct member information\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: Member information in GroupFixedList was incorrect\n");
-    loggers::global_logger->log (
-      0, "    member_list.size () was %d (correct is 2)\n");
+  EXPECT_EQ(member_list.size(), 2) << "Knowledge base doesn't hold correct member info.";
+  EXPECT_EQ(member_list[0], "agent.0") << "Knowledge base doesn't hold correct member info.";
+  EXPECT_EQ(member_list[1], "leader.0") << "Knowledge base doesn't hold correct member info.";
 
-    for (size_t i = 0; i < member_list.size (); ++i)
-    {
-      loggers::global_logger->log (
-        0, "    member_list[%d] was %s\n", (int)i, member_list[i].c_str ());
-    }
-  }
-
-  if (new_members == orig_members)
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: get_members function returned correct members\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: get_members function did not return correct members\n");
-
-    for (size_t i = 0; i < orig_members.size (); ++i)
-    {
-      loggers::global_logger->log (
-        0, "    orig_members[%d] was %s\n", (int)i, orig_members[i].c_str ());
-    }
-  }
-
-  if (copy_members == orig_members)
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: copy get_members function returned correct members\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: copy get_members function did not have correct members\n");
-
-    for (size_t i = 0; i < copy_members.size (); ++i)
-    {
-      loggers::global_logger->log (
-        0, "    copy_members[%d] was %s\n", (int)i, copy_members[i].c_str ());
-    }
-  }
+  EXPECT_TRUE(new_members == orig_members) << "get_members didn't return correct members";
+  EXPECT_TRUE(copy_members == orig_members) << "copy get_members didn't return correct members";
 }
 
-void test_transient (knowledge::KnowledgeBase & knowledge)
+TEST(TestGroups, TestTransient)
 {
-  loggers::global_logger->log (
-    0, "Testing GroupTransient\n");
-
   groups::AgentVector new_members, orig_members;
   groups::AgentVector copy_members;
   containers::Map member_list;
@@ -127,131 +67,49 @@ void test_transient (knowledge::KnowledgeBase & knowledge)
   group_original.add_members (new_members);
   group_original.get_members (orig_members);
 
-  group_original.write ("group.transient", &knowledge);
+  group_original.write ("group.transient", &knowledge_instance);
 
   // check the information in group.fixed
-  member_list.set_name ("group.transient.members", knowledge);
-  type.set_name ("group.transient.type", knowledge);
+  member_list.set_name ("group.transient.members", knowledge_instance);
+  type.set_name ("group.transient.type", knowledge_instance);
 
-  group_copy.set_prefix ("group.transient", &knowledge);
+  group_copy.set_prefix ("group.transient", &knowledge_instance);
   group_copy.sync ();
   group_copy.get_members (copy_members);
 
-  if (type == groups::GROUP_TRANSIENT)
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: knowledge base holds correct type info\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: knowledge base holds incorrect type info: %d\n",
-      (int)*type);
-  }
+  EXPECT_EQ(type, groups::GROUP_TRANSIENT) << "Knowledge base doesn't hold correct type info";
 
-  if (member_list.size () == 3 &&
-    member_list.exists ("agent.0") && member_list.exists ("agent.1") &&
-    member_list.exists ("leader.0"))
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: knowledge base holds correct member information\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: Member information in GroupFixedList was incorrect\n");
-    loggers::global_logger->log (
-      0, "    member_list.size () was %d (correct is 3)\n");
+  EXPECT_EQ(member_list.size(), 3) << "Knowledge base doesn't hold correct member info.";
+  EXPECT_TRUE(member_list.exists("agent.0")) << "Knowledge base doesn't hold correct member info.";
+  EXPECT_TRUE(member_list.exists("agent.1")) << "Knowledge base doesn't hold correct member info.";
+  EXPECT_TRUE(member_list.exists("leader.0"))<< "Knowledge base doesn't hold correct member info.";
 
-    for (size_t i = 0; i < orig_members.size (); ++i)
-    {
-      loggers::global_logger->log (
-        0, "    member_list[%d] was %s\n", (int)i, orig_members[i].c_str ());
-    }
-  }
+  EXPECT_TRUE(new_members == orig_members) << "get_members didn't return correct members";
 
-  if (new_members == orig_members)
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: get_members function returned correct members\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: get_members function did not return correct members\n");
-
-    for (size_t i = 0; i < orig_members.size (); ++i)
-    {
-      loggers::global_logger->log (
-        0, "    orig_members[%d] was %s\n", (int)i, orig_members[i].c_str ());
-    }
-  }
-
-  if (copy_members == orig_members)
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: copy get_members function returned correct members\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: copy get_members function did not have correct members\n");
-
-    for (size_t i = 0; i < copy_members.size (); ++i)
-    {
-      loggers::global_logger->log (
-        0, "    copy_members[%d] was %s\n", (int)i, copy_members[i].c_str ());
-    }
-  }
+  // TODO: this one is flaky, probably because of shadowing GroupBase::knowledge_
+  // inside GroupTransient
+  EXPECT_TRUE(copy_members == orig_members) << "copy get_members didn't return correct members";
 }
 
-void test_repository (knowledge::KnowledgeBase & knowledge)
+TEST(TestGroups, TestRepository)
 {
-  loggers::global_logger->log (
-    0, "Testing GroupFactoryRepository\n");
-
   groups::GroupBase * result (0);
-  groups::GroupFactoryRepository repository (&knowledge);
+  groups::GroupFactoryRepository repository (&knowledge_instance);
 
   result = repository.create ("group.transient");
 
-  if (dynamic_cast <groups::GroupTransient *> (result))
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: GroupTransient was successfully created\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: GroupTransient creation was unsuccessful\n");
-  }
+  EXPECT_TRUE(dynamic_cast <groups::GroupTransient *> (result) != nullptr)
+      << "GroupTransient failed to create from repository";
 
   result = repository.create ("group.fixed");
 
-  if (dynamic_cast <groups::GroupFixedList *> (result))
-  {
-    loggers::global_logger->log (
-      0, "  SUCCESS: GroupFixedList was successfully created\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      0, "  ERROR: GroupFixedList creation was unsuccessful\n");
-  }
+  EXPECT_TRUE(dynamic_cast <groups::GroupFixedList *> (result) != nullptr)
+      << "GroupFixedList failed to create from repository";
 }
 
-int main(int , char **)
+int main(int argc, char** argv)
 {
   knowledge::KnowledgeRecord::set_precision (6);
-  loggers::global_logger->set_level (loggers::LOG_DETAILED);
-
-  knowledge::KnowledgeBase knowledge;
-
-  test_fixed_list (knowledge);
-  test_transient (knowledge);
-  test_repository (knowledge);
-
-  knowledge.print ();
-
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
