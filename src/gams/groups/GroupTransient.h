@@ -148,11 +148,6 @@ namespace gams
     protected:
 
       /**
-      * The knowledge base to use as a data plane
-      **/
-      madara::knowledge::KnowledgeBase * knowledge_;
-
-      /**
       * The source member list in the knowledge base
       **/
       madara::knowledge::containers::Map members_;
