@@ -63,6 +63,8 @@ namespace gams
       void messageCallback(const topic_tools::ShapeShifter::ConstPtr& msg,
         const std::string &topic_name );
 
+      unsigned int message_count();
+
     private:
       /// data plane if we want to access the knowledge base
       madara::knowledge::ThreadSafeContext * context_;
@@ -96,6 +98,8 @@ namespace gams
       std::vector<std::string> topics_;
       // Topic map
       std::map<std::string,std::string> topic_map_;
+
+      unsigned int message_count_;
 
     };
   }

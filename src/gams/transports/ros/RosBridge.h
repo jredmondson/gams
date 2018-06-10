@@ -43,10 +43,14 @@ namespace gams
        * @return  result of operation or -1 if we are shutting down
        **/
       long send_data (const madara::knowledge::VariableReferenceMap & modifieds);
+
+      unsigned int in_message_count();
+      unsigned int out_message_count();
       
     protected:
       /// threads for monitoring knowledge updates
       madara::threads::Threader read_threads_;
+      RosBridgeReadThread * read_thread_;
 
       // Enabled topics
       std::vector<std::string> topics_;
@@ -58,6 +62,8 @@ namespace gams
 
       std::pair<std::string, std::string> get_update_container_pair_ (
         const char * container_name);
+      
+      unsigned int message_count_;
     };
   }
 }

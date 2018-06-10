@@ -10,6 +10,7 @@ void gams::transports::RosBridgeReadThread::messageCallback (
   const std::string &topic_name )
 {
   std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << "> " << msg << std::endl;
+  message_count_++;
   //std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
   //Check if topic is in the topic mapping
   std::map<std::string, std::string>::iterator it = topic_map_.find (topic_name);
@@ -39,8 +40,9 @@ gams::transports::RosBridgeReadThread::RosBridgeReadThread (
 : send_monitor_ (send_monitor),
   receive_monitor_ (receive_monitor),
   packet_scheduler_ (packet_scheduler),
-  topics_(topics),
-  topic_map_(topic_map)
+  topics_ (topics),
+  topic_map_ (topic_map),
+  message_count_ (0)
 {
 }
 
@@ -89,3 +91,9 @@ gams::transports::RosBridgeReadThread::run (void)
 {
   ros::spinOnce();
 }
+
+unsigned int gams::transports::RosBridgeReadThread::message_count()
+{
+  return message_count_;
+}
+

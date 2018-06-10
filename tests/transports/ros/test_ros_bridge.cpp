@@ -502,6 +502,81 @@ void handle_arguments (int argc, char ** argv)
   }
 }
 
+
+void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
+  gams::transports::RosBridge * ros_bridge)
+{
+  unsigned int in_msg_count = ros_bridge->in_message_count();
+  unsigned int out_msg_count = ros_bridge->out_message_count();
+
+  // FROM ROS TO MADARA
+  ros::NodeHandle node;
+  ros::Publisher test_pub = node.advertise<nav_msgs::Odometry>("odom", 10);
+  nav_msgs::Odometry odom;
+  odom.header.stamp = ros::Time::now();
+  odom.header.frame_id = "odom";
+  odom.child_frame_id = "base_link";
+
+  odom.pose.pose.position.x = 1.0;
+  odom.pose.pose.position.y = 2.0;
+  odom.pose.pose.position.z = 3.0;
+  odom.pose.pose.orientation.x = 0.707;
+  odom.pose.pose.orientation.y = 0.0;
+  odom.pose.pose.orientation.z = 0.0;
+  odom.pose.pose.orientation.w = 0.707;
+
+  odom.twist.twist.linear.x = 0.5;
+  odom.twist.twist.linear.y = 0.6;
+
+  test_pub.publish(odom);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  while(true)
+  {
+    test_pub.publish(odom);
+    ros::spinOnce();
+    ros::Duration(0.5).sleep();
+
+    containers::NativeDoubleVector cont ("sensors.odom.pose", *knowledge);
+    gams::pose::Pose p;
+    p.from_container(cont);
+
+    TEST(p.get(0), odom.pose.pose.position.x);
+
+    // Check count of sent and received messages
+    in_msg_count++;
+    TEST(ros_bridge->in_message_count(), in_msg_count);
+    TEST(ros_bridge->out_message_count(), out_msg_count);
+
+    odom.pose.pose.position.x += 1.0;
+    odom.twist.twist.linear.x += 0.1;
+
+    if (odom.pose.pose.position.x > 10)
+      break;
+  }
+
+  // FROM MADARA TO ROS
+  knowledge::KnowledgeUpdateSettings settings(false);
+  containers::NativeDoubleVector cont ("sensors.odom.pose", *knowledge, -1,
+    settings);
+  cont.set (0, 123.0);
+  
+  // trigger update and wait
+  knowledge->set("foo", 1);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  TEST(cont[0], 123.0);
+  // Check count of sent and received messages
+  out_msg_count++;
+  in_msg_count++;
+  TEST(ros_bridge->in_message_count(), in_msg_count);
+  TEST(ros_bridge->out_message_count(), out_msg_count);
+}
+
+
+
 // perform main logic of program
 int main (int argc, char ** argv)
 {
@@ -656,48 +731,8 @@ int main (int argc, char ** argv)
   // wait until the bridge is set up correctly
   usleep(1000);
 
-  // TEST ODOMETRY SUBSCRIPTION
-  ros::NodeHandle node;
-  ros::Publisher test_pub = node.advertise<nav_msgs::Odometry>("odom", 10);
-  nav_msgs::Odometry odom;
-  odom.header.stamp = ros::Time::now();
-  odom.header.frame_id = "odom";
-  odom.child_frame_id = "base_link";
 
-  odom.pose.pose.position.x = 1.0;
-  odom.pose.pose.position.y = 2.0;
-  odom.pose.pose.position.z = 3.0;
-  odom.pose.pose.orientation.x = 0.707;
-  odom.pose.pose.orientation.y = 0.0;
-  odom.pose.pose.orientation.z = 0.0;
-  odom.pose.pose.orientation.w = 0.707;
-
-  odom.twist.twist.linear.x = 0.5;
-  odom.twist.twist.linear.y = 0.6;
-
-  test_pub.publish(odom);
-  ros::spinOnce();
-  ros::Duration(1).sleep();
-
-  while(true)
-  {
-    test_pub.publish(odom);
-    ros::spinOnce();
-    ros::Duration(0.5).sleep();
-
-    containers::NativeDoubleVector cont ("sensors.odom.pose", knowledge);
-    gams::pose::Pose p;
-    p.from_container(cont);
-
-    TEST(p.get(0), odom.pose.pose.position.x);
-
-    odom.pose.pose.position.x += 1.0;
-    odom.twist.twist.linear.x += 0.1;
-
-    if (odom.pose.pose.position.x > 10)
-      break;
-  }
-
+  test_odometry(&knowledge, ros_bridge);
   // TEST TRANSFORM TREE
   tf2_ros::TransformBroadcaster tf_brdcaster;
 
@@ -739,19 +774,10 @@ int main (int argc, char ** argv)
   TEST(origin.get(4), 0.0);
   TEST(origin.get(5), 0.0);
 
-  
-
-  knowledge::KnowledgeUpdateSettings settings(false);
-  containers::NativeDoubleVector cont ("sensors.odom.pose", knowledge, -1, settings);
-  cont.set (0, 123.0);
-  
-  // trigger update and wait
-  knowledge.set("foo", 1);
-  ros::spinOnce();
-  ros::Duration(1).sleep();
-
-  TEST(cont[0], 123.0);
-
+  // Check count of sent and received messages
+  //in_msg_count++;
+  //TEST(ros_bridge->in_message_count(), in_msg_count);
+  //TEST(ros_bridge->out_message_count(), out_msg_count);
 
   ros::spinOnce();
   ros::Duration(5).sleep();

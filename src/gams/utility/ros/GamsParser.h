@@ -69,6 +69,10 @@ namespace gams
           void parse_odometry (std::string container_name,
             std::string topic_name);
 
+          template <size_t N>
+          void parse_float64_array (boost::array<double, N> *array,
+            containers::NativeDoubleVector *origin);
+
         protected:
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;

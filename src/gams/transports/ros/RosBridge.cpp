@@ -13,7 +13,8 @@ gams::transports::RosBridge::RosBridge (
   std::map<std::string,std::string> topic_map,
   std::map<std::string, std::string> pub_topic_types)
 : madara::transport::Base (id, new_settings, knowledge.get_context ()),
-  topics_(topics), topic_map_(topic_map), pub_topic_types_(pub_topic_types)
+  topics_(topics), topic_map_(topic_map), pub_topic_types_(pub_topic_types),
+  message_count_(0)
 {
   // populate variables like buffer_ based on transport settings
   Base::setup ();
@@ -35,23 +36,20 @@ gams::transports::RosBridge::RosBridge (
     hertz = 0.0;
   }
 
-  // create the read threads specified in TransportSettings  
-  for (uint32_t i = 0; i < new_settings.read_threads; ++i)
-  {
-    // construct a unique id for a new thread
-    std::stringstream thread_name;
-    thread_name << "read";
-    thread_name << i;
-    
-    // start the thread at the specified hertz
-    read_threads_.run (
-      hertz,
-      thread_name.str (),
-      new RosBridgeReadThread (
-        id_, new_settings, 
-        send_monitor_, receive_monitor_, packet_scheduler_,
-        topics_, topic_map_));
-  }
+
+  // construct a unique id for a new thread
+  std::stringstream thread_name;
+  thread_name << "ros_read";
+  
+  read_thread_ = new RosBridgeReadThread (
+      id_, new_settings, 
+      send_monitor_, receive_monitor_, packet_scheduler_,
+      topics_, topic_map_);
+  // start the thread at the specified hertz
+  read_threads_.run (
+    hertz,
+    thread_name.str (),
+    read_thread_);
 }
 
 gams::transports::RosBridge::~RosBridge ()
@@ -94,6 +92,7 @@ gams::transports::RosBridge::send_data (
       if (type_it != pub_topic_types_.end())
       {
         parser_->parse_message(names.second, names.first, type_it->second);
+        message_count_++;
       }
       else
       {
@@ -132,4 +131,13 @@ gams::transports::RosBridge::get_update_container_pair_ (
     current_key = current_key.substr(0, delim_pos);
   }
   return std::make_pair("", "");
+}
+
+unsigned int gams::transports::RosBridge::in_message_count()
+{
+  return read_thread_->message_count();
+}
+unsigned int gams::transports::RosBridge::out_message_count()
+{
+  return message_count_;
 }

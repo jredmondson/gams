@@ -255,12 +255,19 @@ void gams::utility::ros::RosParser::parse_odometry (nav_msgs::Odometry * odom,
   containers::NativeDoubleVector odom_covariance (
     container_name + ".pose.covariance", *knowledge_, 36, eval_settings_);
   containers::NativeDoubleVector twist_covariance (
-    container_name + ".pose.covariance", *knowledge_, 36, eval_settings_);
+    container_name + ".twist.covariance", *knowledge_, 36, eval_settings_);
 
   parse_pose (&odom->pose.pose, container_name + ".pose");
   parse_float64_array (&odom->pose.covariance, &odom_covariance);
   parse_float64_array (&odom->twist.covariance, &twist_covariance);
   parse_twist (&odom->twist.twist, container_name + ".twist");
+
+  containers::String frame_id (container_name + ".frame_id", *knowledge_,
+    eval_settings_);
+  frame_id = odom->header.frame_id;
+  containers::String child_frame_id (container_name + ".child_frame_id",
+    *knowledge_, eval_settings_);
+  child_frame_id = odom->child_frame_id;
 }
 
 /**
