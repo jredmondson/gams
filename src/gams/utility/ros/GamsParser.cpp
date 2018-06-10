@@ -32,22 +32,31 @@ void gams::utility::ros::GamsParser::parse_odometry(std::string container_name,
     eval_settings_);
   gams::pose::Pose pose;
   pose.from_container(cont);
+  gams::pose::Quaternion quat(pose.as_orientation_vec());
 
   nav_msgs::Odometry odom;
   odom.header.stamp = global_ros::Time::now();
   odom.header.frame_id = "odom";
   odom.child_frame_id = "base_link";
 
-  odom.pose.pose.position.x =177.0;
-  odom.pose.pose.position.y = 2.0;
-  odom.pose.pose.position.z = 3.0;
-  odom.pose.pose.orientation.x = 0.707;
-  odom.pose.pose.orientation.y = 0.0;
-  odom.pose.pose.orientation.z = 0.0;
-  odom.pose.pose.orientation.w = 0.707;
+  odom.pose.pose.position.x = pose.x();
+  odom.pose.pose.position.y = pose.y();
+  odom.pose.pose.position.z = pose.z();
+  odom.pose.pose.orientation.x = quat.x();
+  odom.pose.pose.orientation.y = quat.y();
+  odom.pose.pose.orientation.z = quat.z();
+  odom.pose.pose.orientation.w = quat.w();
 
-  odom.twist.twist.linear.x = 0.5;
-  odom.twist.twist.linear.y = 0.6;
+  containers::NativeDoubleVector ang_twist (container_name + ".twist.angular", *knowledge_, 3,
+    eval_settings_);
+  odom.twist.twist.angular.x = ang_twist[0];
+  odom.twist.twist.angular.y = ang_twist[1];
+  odom.twist.twist.angular.z = ang_twist[2];
 
+  containers::NativeDoubleVector lin_twist (container_name + ".twist.linear", *knowledge_, 3,
+    eval_settings_);
+  odom.twist.twist.linear.x = lin_twist[0];
+  odom.twist.twist.linear.y = lin_twist[1];
+  odom.twist.twist.linear.z = lin_twist[2];
   pub.publish(odom);
 }
