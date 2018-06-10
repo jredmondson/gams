@@ -575,6 +575,59 @@ void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
   TEST(ros_bridge->out_message_count(), out_msg_count);
 }
 
+void test_tf(madara::knowledge::KnowledgeBase * knowledge,
+  gams::transports::RosBridge * ros_bridge)
+{
+  unsigned int in_msg_count = ros_bridge->in_message_count();
+  unsigned int out_msg_count = ros_bridge->out_message_count();
+
+  // FROM ROS TO MADARA
+  tf2_ros::TransformBroadcaster tf_brdcaster;
+
+  geometry_msgs::Transform transform;
+  geometry_msgs::Vector3 t;
+  t.x = 1.0;
+  t.y = 2.0;
+  t.z = 3.0;
+  transform.translation = t;
+  geometry_msgs::Quaternion q;
+  q.x = 0.707;
+  q.y = 0.0;
+  q.z = 0.0;
+  q.w = 0.707;
+  transform.rotation = q;
+  geometry_msgs::TransformStamped st;
+  st.transform = transform;
+  st.child_frame_id = "frame1";
+
+  std_msgs::Header h;
+  h.seq = 0;
+  h.stamp = ros::Time(0);
+  h.frame_id = "world";
+  st.header = h;
+
+  tf_brdcaster.sendTransform(st);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  gams::pose::ReferenceFrame ref_frame =
+    gams::pose::ReferenceFrame::load(*knowledge, st.child_frame_id);
+  TEST(ref_frame.valid(), true);
+  gams::pose::Pose origin = ref_frame.origin();
+
+  TEST(origin.get(0), t.x);
+  TEST(origin.get(1), t.y);
+  TEST(origin.get(2), t.z);
+
+  TEST(origin.get(3), M_PI/2);
+  TEST(origin.get(4), 0.0);
+  TEST(origin.get(5), 0.0);
+
+  // Check count of sent and received messages
+  in_msg_count++;
+  TEST(ros_bridge->in_message_count(), in_msg_count);
+  TEST(ros_bridge->out_message_count(), out_msg_count);
+}
 
 
 // perform main logic of program
@@ -733,51 +786,7 @@ int main (int argc, char ** argv)
 
 
   test_odometry(&knowledge, ros_bridge);
-  // TEST TRANSFORM TREE
-  tf2_ros::TransformBroadcaster tf_brdcaster;
-
-  geometry_msgs::Transform transform;
-  geometry_msgs::Vector3 t;
-  t.x = 1.0;
-  t.y = 2.0;
-  t.z = 3.0;
-  transform.translation = t;
-  geometry_msgs::Quaternion q;
-  q.x = 0.707;
-  q.y = 0.0;
-  q.z = 0.0;
-  q.w = 0.707;
-  transform.rotation = q;
-  geometry_msgs::TransformStamped st;
-  st.transform = transform;
-  st.child_frame_id = "frame1";
-
-  std_msgs::Header h;
-  h.seq = 0;
-  h.stamp = ros::Time(0);
-  h.frame_id = "world";
-  st.header = h;
-
-  tf_brdcaster.sendTransform(st);
-  ros::spinOnce();
-  ros::Duration(1).sleep();
-
-  gams::pose::ReferenceFrame ref_frame = gams::pose::ReferenceFrame::load(knowledge, st.child_frame_id);
-  TEST(ref_frame.valid(), true);
-  gams::pose::Pose origin = ref_frame.origin();
-
-  TEST(origin.get(0), t.x);
-  TEST(origin.get(1), t.y);
-  TEST(origin.get(2), t.z);
-
-  TEST(origin.get(3), M_PI/2);
-  TEST(origin.get(4), 0.0);
-  TEST(origin.get(5), 0.0);
-
-  // Check count of sent and received messages
-  //in_msg_count++;
-  //TEST(ros_bridge->in_message_count(), in_msg_count);
-  //TEST(ros_bridge->out_message_count(), out_msg_count);
+  test_tf(&knowledge, ros_bridge);
 
   ros::spinOnce();
   ros::Duration(5).sleep();
