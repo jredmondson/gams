@@ -81,7 +81,7 @@ namespace gams
     * controller (Keyboard, XBOX360 etc.) and to send actuation
     * commands to individual motors of the underlying VREP model.
     **/
-    class GAMSExport VREPQuadCDRA : public VREPQuad
+    class GAMS_EXPORT VREPQuadCDRA : public VREPQuad
     {
     public:
       const static std::string DEFAULT_MODEL;
@@ -119,7 +119,7 @@ namespace gams
     /**
      * A factory class for creating VREP Quadcopter platforms
      **/
-    class GAMSExport VREPQuadCDRAFactory : public VREPQuadFactory
+    class GAMS_EXPORT VREPQuadCDRAFactory : public VREPQuadFactory
     {
     protected:
       virtual std::string get_default_model();

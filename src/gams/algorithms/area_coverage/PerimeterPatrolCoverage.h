@@ -75,7 +75,7 @@ namespace gams
       /**
       * Moves along a perimeter and keeps track of coverage metrics
       **/
-      class GAMSExport PerimeterPatrolCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT PerimeterPatrolCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -130,7 +130,7 @@ namespace gams
       /**
        * A factory class for creating perimeter patrol algorithms
        **/
-      class GAMSExport PerimeterPatrolCoverageFactory
+      class GAMS_EXPORT PerimeterPatrolCoverageFactory
         : public AlgorithmFactory
       {
       public:

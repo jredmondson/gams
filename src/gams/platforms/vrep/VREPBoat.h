@@ -76,7 +76,7 @@ namespace gams
     /**
     * A VREP platform for an autonomous surface boat robotic system
     **/
-    class GAMSExport VREPBoat : public VREPBase
+    class GAMS_EXPORT VREPBoat : public VREPBase
     {
     public:
       /**
@@ -140,7 +140,7 @@ namespace gams
     /**
      * A factory class for creating VREP Boat platforms
      **/
-    class GAMSExport VREPBoatFactory : public PlatformFactory
+    class GAMS_EXPORT VREPBoatFactory : public PlatformFactory
     {
     public:
 

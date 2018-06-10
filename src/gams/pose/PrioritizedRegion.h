@@ -69,7 +69,7 @@ namespace gams
     /**
     * A helper class for prioritized region information
     **/
-    class GAMSExport PrioritizedRegion : public Region
+    class GAMS_EXPORT PrioritizedRegion : public Region
     {
     public:
       /**

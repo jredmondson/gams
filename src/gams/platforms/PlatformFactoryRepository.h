@@ -54,7 +54,7 @@
 #ifndef   _GAMS_PLATFORMS_PLATFORM_FACTORY_REPOSITORY_H_
 #define   _GAMS_PLATFORMS_PLATFORM_FACTORY_REPOSITORY_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/PlatformStatus.h"
 #include "gams/variables/Self.h"
@@ -72,7 +72,7 @@ namespace gams
     /**
      * The controller's platform factory
      **/
-    class GAMSExport PlatformFactoryRepository
+    class GAMS_EXPORT PlatformFactoryRepository
     {
     public:
       /**
@@ -165,7 +165,7 @@ namespace gams
     * the factory are started. This is not currently thread safe when adding
     * new platforms.
     **/
-    GAMSExport PlatformFactoryRepository *global_platform_factory();
+    GAMS_EXPORT PlatformFactoryRepository *global_platform_factory();
   }
 }
 

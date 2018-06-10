@@ -60,7 +60,7 @@
 
 #include "madara/knowledge/KnowledgeBase.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 namespace gams
 {

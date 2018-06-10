@@ -72,7 +72,7 @@ namespace gams
     /**
     * An algorithm for waiting
     **/
-    class GAMSExport Wait : public BaseAlgorithm
+    class GAMS_EXPORT Wait : public BaseAlgorithm
     {
     public:
       /**
@@ -127,7 +127,7 @@ namespace gams
     /**
      * A factory class for creating Wait algorithms
      **/
-    class GAMSExport WaitFactory : public AlgorithmFactory
+    class GAMS_EXPORT WaitFactory : public AlgorithmFactory
     {
     public:
 

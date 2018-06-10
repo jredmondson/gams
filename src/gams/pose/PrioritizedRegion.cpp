@@ -178,7 +178,8 @@ gams::pose::PrioritizedRegion::from_container_impl (
       if (ret_val)
       {
         operator= (
-          PrioritizedRegion (temp_reg, priority_container.to_integer ()));
+          PrioritizedRegion (temp_reg,
+            (unsigned int)priority_container.to_integer ()));
       }
     }
   }

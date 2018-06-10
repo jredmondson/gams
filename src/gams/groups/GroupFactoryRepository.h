@@ -73,7 +73,7 @@ namespace gams
     /**
     * A repository for group factories.
     **/
-    class GAMSExport GroupFactoryRepository
+    class GAMS_EXPORT GroupFactoryRepository
     {
     public:
       /**

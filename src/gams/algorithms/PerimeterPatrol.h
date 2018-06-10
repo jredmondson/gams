@@ -75,7 +75,7 @@ namespace gams
     /**
     * An algorithm for patrolling a region
     **/
-    class GAMSExport PerimeterPatrol : public BaseAlgorithm
+    class GAMS_EXPORT PerimeterPatrol : public BaseAlgorithm
     {
     public:
       /**
@@ -160,7 +160,7 @@ namespace gams
     /**
      * A factory class for creating PerimeterPatrol algorithms
      **/
-    class GAMSExport PerimeterPatrolFactory : public AlgorithmFactory
+    class GAMS_EXPORT PerimeterPatrolFactory : public AlgorithmFactory
     {
     public:
 

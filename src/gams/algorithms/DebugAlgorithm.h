@@ -59,7 +59,7 @@
 
 #include "madara/knowledge/containers/Integer.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "gams/variables/Sensor.h"
 #include "gams/platforms/BasePlatform.h"
 #include "gams/variables/AlgorithmStatus.h"
@@ -74,7 +74,7 @@ namespace gams
     /**
     * A debug algorithm that prints detailed status information
     **/
-    class GAMSExport DebugAlgorithm : public BaseAlgorithm
+    class GAMS_EXPORT DebugAlgorithm : public BaseAlgorithm
     {
     public:
       /**
@@ -137,7 +137,7 @@ namespace gams
     /**
      * A factory class for creating Debug Algorithms
      **/
-    class GAMSExport DebugAlgorithmFactory : public AlgorithmFactory
+    class GAMS_EXPORT DebugAlgorithmFactory : public AlgorithmFactory
     {
     public:
 

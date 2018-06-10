@@ -70,7 +70,7 @@ namespace gams
     /**
     * An auction where the winner is the lowest bidder
     **/
-    class GAMSExport AuctionMinimumBid : public AuctionBase
+    class GAMS_EXPORT AuctionMinimumBid : public AuctionBase
     {
     public:
       /**
@@ -98,7 +98,7 @@ namespace gams
     /**
     * Factory for creating minimum-bid auctions
     **/
-    class GAMSExport AuctionMinimumBidFactory : public AuctionFactory
+    class GAMS_EXPORT AuctionMinimumBidFactory : public AuctionFactory
     {
     public:
 

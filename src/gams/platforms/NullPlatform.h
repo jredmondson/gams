@@ -70,7 +70,7 @@ namespace gams
     /**
     * A null platform. This platform performs no-ops for all operations.
     **/
-    class GAMSExport NullPlatform : public BasePlatform
+    class GAMS_EXPORT NullPlatform : public BasePlatform
     {
     public:
       /**
@@ -171,7 +171,7 @@ namespace gams
     /**
      * A factory class for creating null (no-op) platforms
      **/
-    class GAMSExport NullPlatformFactory : public PlatformFactory
+    class GAMS_EXPORT NullPlatformFactory : public PlatformFactory
     {
     public:
 

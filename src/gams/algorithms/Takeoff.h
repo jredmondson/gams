@@ -68,7 +68,7 @@ namespace gams
     /**
     * An algorithm for taking off
     **/
-    class GAMSExport Takeoff : public BaseAlgorithm
+    class GAMS_EXPORT Takeoff : public BaseAlgorithm
     {
     public:
       /**
@@ -117,7 +117,7 @@ namespace gams
     /**
      * A factory class for creating Null algorithms
      **/
-    class GAMSExport TakeoffFactory : public AlgorithmFactory
+    class GAMS_EXPORT TakeoffFactory : public AlgorithmFactory
     {
     public:
 

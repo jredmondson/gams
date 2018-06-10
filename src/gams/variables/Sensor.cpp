@@ -104,14 +104,14 @@ gams::variables::Sensor::discretize (
   for (size_t i = 1; i < region.vertices.size (); ++i)
     if (northern.latitude () < region.vertices[i].latitude ())
       northern = region.vertices[i];
-  const int max_x = get_index_from_gps (northern).x();
+  const int max_x = (int)get_index_from_gps (northern).x();
 
   // find southern most point
   pose::Position southern = region.vertices[0];
   for (size_t i = 1; i < region.vertices.size (); ++i)
     if (southern.latitude () > region.vertices[i].latitude ())
       southern = region.vertices[i];
-  const int min_x = get_index_from_gps (southern).x();
+  const int min_x = (int)get_index_from_gps (southern).x();
 
   // find west most point 
   pose::Position start;
@@ -153,7 +153,7 @@ gams::variables::Sensor::discretize (
   for (size_t i = 1; i < region.vertices.size (); ++i)
     if (eastern.longitude () < region.vertices[i].longitude ())
       eastern = region.vertices[i];
-  const int max_y = get_index_from_gps (eastern).y();
+  const int max_y = (int)get_index_from_gps (eastern).y();
 
   // move east each iteration
   while (start_index.y() < max_y)

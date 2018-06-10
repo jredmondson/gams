@@ -66,7 +66,7 @@
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "madara/utility/EpochEnforcer.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 namespace gams
 {
@@ -75,7 +75,7 @@ namespace gams
     /**
     * An algorithm for moving to a location
     **/
-    class GAMSExport Move : public BaseAlgorithm
+    class GAMS_EXPORT Move : public BaseAlgorithm
     {
     public:
       /**
@@ -161,7 +161,7 @@ namespace gams
     /**
      * A factory class for creating Move algorithms
      **/
-    class GAMSExport MoveFactory : public AlgorithmFactory
+    class GAMS_EXPORT MoveFactory : public AlgorithmFactory
     {
     public:
 

@@ -68,7 +68,7 @@ namespace gams
     /**
     * A utility class for search areas
     **/
-    class GAMSExport SearchArea : public utility::Containerize
+    class GAMS_EXPORT SearchArea : public utility::Containerize
     {
     public:
       /**

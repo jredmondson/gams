@@ -70,7 +70,7 @@ namespace gams
     /**
     * An auction where the winner is the highest bidder
     **/
-    class GAMSExport AuctionMaximumBid : public AuctionBase
+    class GAMS_EXPORT AuctionMaximumBid : public AuctionBase
     {
     public:
       /**
@@ -98,7 +98,7 @@ namespace gams
     /**
      * Factory for creating maximum-bid auctions
      **/
-    class GAMSExport AuctionMaximumBidFactory : public AuctionFactory
+    class GAMS_EXPORT AuctionMaximumBidFactory : public AuctionFactory
     {
     public:
 

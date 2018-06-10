@@ -68,7 +68,7 @@ namespace gams
     /**
     * Base class for an auction factory
     **/
-    class GAMSExport AuctionFactory
+    class GAMS_EXPORT AuctionFactory
     {
     public:
       /**

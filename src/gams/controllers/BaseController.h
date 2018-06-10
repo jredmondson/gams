@@ -56,7 +56,7 @@
 
 #include "ControllerSettings.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "gams/variables/Agent.h"
 #include "gams/variables/Swarm.h"
 #include "gams/variables/Self.h"
@@ -84,7 +84,7 @@ namespace gams
      * The basic controller that can be used to perform actions on platforms
      * and algorithms
      **/
-    class GAMSExport BaseController
+    class GAMS_EXPORT BaseController
     {
     public:
       /**

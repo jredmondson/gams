@@ -70,7 +70,7 @@ namespace gams
 #include <array>
 #include <gams/CPP11_compat.h>
 #include <gams/pose/Coordinate.h>
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include <cmath>
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>

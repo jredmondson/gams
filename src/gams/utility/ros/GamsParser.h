@@ -58,7 +58,7 @@ namespace gams
   {
     namespace ros
     {
-      class GAMSExport GamsParser
+      class GamsParser
       {
         public:
           GamsParser (knowledge::KnowledgeBase * kb);

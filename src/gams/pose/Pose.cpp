@@ -71,9 +71,9 @@ void gams::pose::Pose::from_container (
   for (size_t i = 0; i < 6; ++i)
   {
     if (i < container.size ()) {
-      set (i, container[i]);
+      set ((int)i, container[i]);
     } else {
-      set (i, 0);
+      set ((int)i, 0);
     }
   }
 }
@@ -84,9 +84,9 @@ void gams::pose::Pose::from_container (
   for (size_t i = 0; i < 6; ++i)
   {
     if (i < container.size ()) {
-      set (i, container[i]);
+      set ((int)i, container[i]);
     } else {
-      set (i, 0);
+      set ((int)i, 0);
     }
   }
 }

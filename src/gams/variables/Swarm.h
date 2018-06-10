@@ -56,7 +56,7 @@
 
 #include <string>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Double.h"
@@ -72,7 +72,7 @@ namespace gams
     /**
     * A container for swarm information
     **/
-    class GAMSExport Swarm
+    class GAMS_EXPORT Swarm
     {
     public:
       /**
@@ -139,7 +139,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   swarm_size size of the swarm
       **/
-    GAMSExport void init_vars (Swarm & variables,
+    GAMS_EXPORT void init_vars (Swarm & variables,
       madara::knowledge::KnowledgeBase & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
     
@@ -149,7 +149,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   swarm_size size of the swarm
       **/
-    GAMSExport void init_vars (Swarm & variables,
+    GAMS_EXPORT void init_vars (Swarm & variables,
       madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
   }

@@ -55,7 +55,7 @@
 #ifndef   _GAMS_VARIABLES_GRID_H_
 #define   _GAMS_VARIABLES_GRID_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Double.h"
 #include "madara/knowledge/containers/Map.h"
 #include "madara/knowledge/KnowledgeBase.h"
@@ -64,7 +64,7 @@ namespace gams
 {
   namespace variables
   {
-    class GAMSExport Grid
+    class GAMS_EXPORT Grid
     {
     public:
       /**

@@ -70,7 +70,7 @@ namespace gams
       /**
        * Base class for all area coverages
        **/
-      class GAMSExport BaseAreaCoverage : public BaseAlgorithm
+      class GAMS_EXPORT BaseAreaCoverage : public BaseAlgorithm
       {
       public:
         /**

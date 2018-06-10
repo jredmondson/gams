@@ -75,28 +75,28 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMSExport HasRangeSensor
+    class GAMS_EXPORT HasRangeSensor
     {
     public:
       virtual double get_range() const = 0;
       virtual ~HasRangeSensor() = default;
     };
 
-    class GAMSExport HasAltitudeSensor
+    class GAMS_EXPORT HasAltitudeSensor
     {
     public:
       virtual double get_altitude() const = 0;
       virtual ~HasAltitudeSensor() = default;
     };
 
-    class GAMSExport HasColorSensor
+    class GAMS_EXPORT HasColorSensor
     {
     public:
       virtual uint32_t get_color() const = 0;
       virtual ~HasColorSensor() = default;
     };
 
-    class GAMSExport HasColor
+    class GAMS_EXPORT HasColor
     {
     public:
       virtual void set_color(uint32_t color) const = 0;
@@ -106,7 +106,7 @@ namespace gams
     /**
     * A VREP platform for an autonomous aerial quadcopter w/ Laser ranger
     **/
-    class GAMSExport VREPQuadLaser : public VREPQuad, public HasRangeSensor,
+    class GAMS_EXPORT VREPQuadLaser : public VREPQuad, public HasRangeSensor,
       public HasAltitudeSensor, public HasColorSensor, public HasColor
     {
     public:
@@ -163,7 +163,7 @@ namespace gams
     /**
      * A factory class for creating VREP Quadcopter platforms
      **/
-    class GAMSExport VREPQuadLaserFactory : public VREPQuadFactory
+    class GAMS_EXPORT VREPQuadLaserFactory : public VREPQuadFactory
     {
     protected:
       virtual std::string get_default_model();

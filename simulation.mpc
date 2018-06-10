@@ -1,4 +1,4 @@
-project (dynamic_simulation) : using_gams, using_madara, using_ace, using_vrep {
+project (dynamic_simulation) : using_gams, using_madara, using_vrep {
   exeout = $(GAMS_ROOT)/bin
   exename = dynamic_simulation
 
@@ -11,14 +11,6 @@ project (dynamic_simulation) : using_gams, using_madara, using_ace, using_vrep {
     LICENSE.txt
     README.txt
     VERSION.txt
-  }
-  
-  Build_Files {
-    using_ace.mpb
-    using_madara.mpb
-    using_vrep.mpb
-    using_gams.mpb
-    simulation.mpc
   }
 
   Source_Files {

@@ -58,7 +58,7 @@
 #include <vector>
 #include <map>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "Agent.h"
@@ -71,7 +71,7 @@ namespace gams
     /**
     * A container for algorithm status information
     **/
-    class GAMSExport AlgorithmStatus
+    class GAMS_EXPORT AlgorithmStatus
     {
     public:
       /**

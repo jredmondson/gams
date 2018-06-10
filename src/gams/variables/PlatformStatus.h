@@ -58,7 +58,7 @@
 #include <map>
 #include <string>
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "gams/variables/Agent.h"
@@ -70,7 +70,7 @@ namespace gams
     /**
     * A container for platform status information
     **/
-    class GAMSExport PlatformStatus
+    class GAMS_EXPORT PlatformStatus
     {
     public:
       /**

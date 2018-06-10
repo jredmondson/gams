@@ -56,7 +56,7 @@
 #ifndef _GAMS_UTILITY_GPS_POSITION_H_
 #define _GAMS_UTILITY_GPS_POSITION_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/knowledge/containers/DoubleVector.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 
@@ -74,7 +74,7 @@ namespace gams
     *
     * DEPRECATED: use pose::Position instead. Will be removed in GAMS v2
     **/
-    class GAMSExport GPSPosition : public Position
+    class GAMS_EXPORT GPSPosition : public Position
     {
     public:
       /**

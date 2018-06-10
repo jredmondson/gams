@@ -1,11 +1,14 @@
-project (gams) : using_madara, using_ace, using_utm, using_ros, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_nortti {
+project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
   libout = lib
   sharedname = GAMS
   includes += src
   dynamicflags += GAMS_BUILD_DLL _USE_MATH_DEFINES
+  staticflags += GAMS_BUILD_STATIC _USE_MATH_DEFINES
 
-  verbatim (gnuace, local) {
-    CPPFLAGS +=
+  Build_Files {
+    .
+    docs
+	  port/java
   }
 
   Documentation_Files {
@@ -13,21 +16,6 @@ project (gams) : using_madara, using_ace, using_utm, using_ros, vrep_lib, ros_li
     LICENSE.txt
     README.txt
     VERSION.txt
-  }
-
-  Build_Files {
-    default.features
-    gams.mpc
-    gams.mwc
-    using_ace.mpb
-    using_madara.mpb
-    using_gams.mpb
-    using_utm.mpb
-    using_vrep.mpb
-    using_nortti.mpb
-    using_ros.mpb
-    vrep_lib.mpb
-    ros_lib.mpb
   }
 
   Header_Files {
@@ -86,8 +74,6 @@ project (gams) : using_madara, using_ace, using_utm, using_ros, vrep_lib, ros_li
     }
 
     src/gams
-
-    src/dmpl
   }
 
   Source_Files {
@@ -207,7 +193,7 @@ project (gams) : using_madara, using_ace, using_utm, using_ros, vrep_lib, ros_li
   }
 }
 
-project (gams_jar) : using_gams, using_madara, using_ace {
+project (gams_jar) : using_gams, using_madara {
   requires += java
 
   prebuild += "$(JAVA_HOME)/bin/javac" -classpath $(MADARA_ROOT)/lib/madara.jar -sourcepath port/java/src port/java/src/com/gams/tests/*.java port/java/src/com/gams/*.java port/java/src/com/gams/logger/*.java port/java/src/com/gams/variables/*.java port/java/src/com/gams/utility/*.java port/java/src/com/gams/platforms/*.java port/java/src/com/gams/algorithms/*.java port/java/src/com/gams/controllers/*.java
@@ -222,30 +208,30 @@ project (gams_jar) : using_gams, using_madara, using_ace {
     port/java/src/com/gams/variables/*.java
   }
   
-  Build_Files {
-    gams.mpc
-    port/java
-  }
-
   Header_Files {
+    Java {
+      port/java/jni
+      src/gams/platforms/java
+      src/gams/algorithms/java
+    }
   }
 
   Source_Files {
+    Java {
+      port/java/jni
+      src/gams/platforms/java
+      src/gams/algorithms/java
+    }
   }
 }
 
-project (gams_controller) : using_gams, using_madara, using_ace, using_vrep {
+project (gams_controller) : using_gams, using_madara, using_vrep {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
 
   macros +=  _USE_MATH_DEFINES
 
   Documentation_Files {
-  }
-
-  Build_Files {
-    using_gams.mpb
-    gams.mpc
   }
 
   Header_Files {
@@ -256,7 +242,7 @@ project (gams_controller) : using_gams, using_madara, using_ace, using_vrep {
   }
 }
 
-project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
+project (ros2gams) : using_madara, using_ros, using_gams {
   exeout = $(GAMS_ROOT)/bin
   exename = ros2gams
   libpaths += $(ROS_ROOT)/../../lib
@@ -272,17 +258,7 @@ project (ros2gams) : using_madara, using_ace, using_ros, using_gams {
   libs += rosbag
   libs += rosbag_storage
 
-  verbatim (gnuace, local) {
-    CPPFLAGS += -std=c++11
-  }
-
   Documentation_Files {
-  }
-
-  Build_Files {
-    using_gams.mpb
-    gams.mpc
-    ros_lib.mpb
   }
 
   Header_Files {

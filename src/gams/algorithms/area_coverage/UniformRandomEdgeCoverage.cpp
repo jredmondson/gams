@@ -227,7 +227,7 @@ gams::algorithms::area_coverage::UniformRandomEdgeCoverage::generate_new_positio
   {
     // select new edge
     int num_edges = int (region_.vertices.size ());
-    int target_edge = madara::utility::rand_int (0, num_edges - 1);
+    int target_edge = (int)madara::utility::rand_int (0, num_edges - 1);
 
     // get endpoints
     const utility::GPSPosition pos_1 (region_.vertices[target_edge].transform_to(pose::gps_frame()));

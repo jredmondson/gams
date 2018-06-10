@@ -190,7 +190,7 @@ int main (int argc, char ** argv)
   {
     std::vector<std::string> selected_topics;
     std::string line;
-    ifstream myfile (map_file);
+    std::ifstream myfile (map_file);
     if (myfile.is_open ())
     {
       while ( getline (myfile, line) )

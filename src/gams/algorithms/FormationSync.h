@@ -75,7 +75,7 @@ namespace gams
     * An algorithm for covering an area in formation with a synchronous
     * model of computation. Allows specification of arbitrary group or swarm.
     **/
-    class GAMSExport FormationSync : public BaseAlgorithm
+    class GAMS_EXPORT FormationSync : public BaseAlgorithm
     {
     public:
 
@@ -201,7 +201,7 @@ namespace gams
     /**
      * A factory class for creating Formation Coverage algorithms
      **/
-    class GAMSExport FormationSyncFactory : public AlgorithmFactory
+    class GAMS_EXPORT FormationSyncFactory : public AlgorithmFactory
     {
     public:
 

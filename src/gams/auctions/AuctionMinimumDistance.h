@@ -74,7 +74,7 @@ namespace gams
     /**
     * An auction where the winner is the closest agent to a location
     **/
-    class GAMSExport AuctionMinimumDistance : public AuctionBase
+    class GAMS_EXPORT AuctionMinimumDistance : public AuctionBase
     {
     public:
       /**
@@ -139,7 +139,7 @@ namespace gams
     /**
     * Factory for creating minimum-bid auctions
     **/
-    class GAMSExport AuctionMinimumDistanceFactory : public AuctionFactory
+    class GAMS_EXPORT AuctionMinimumDistanceFactory : public AuctionFactory
     {
     public:
 

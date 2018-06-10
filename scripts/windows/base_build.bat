@@ -13,6 +13,7 @@ SET madara=0
 SET tests=0
 SET tutorials=0
 SET docs=0
+SET vs_version="vs2017"
 
 FOR %%x in (%*) do (
    
@@ -46,6 +47,15 @@ FOR %%x in (%*) do (
    ) ELSE IF "%%x" == "vrep-config" (
      echo Build will configure vrep
      SET vrep_config=1
+   ) ELSE IF "%%x" == "vc12" (
+     echo Build will enable vrep
+     SET vs_version="vc12"
+   ) ELSE IF "%%x" == "vc14" (
+     echo Build will enable vrep
+     SET vs_version="vc14"
+   ) ELSE IF "%%x" == "vs2017" (
+     echo Build will enable vrep
+     SET vs_version="vs2017"
    ) ELSE (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of 
@@ -58,6 +68,9 @@ FOR %%x in (%*) do (
      echo     tutorials   Build tutorials
      echo     vrep        Enable VREP support
      echo     vrep-config Configure VREP installation for 20 agents
+     echo     vc12        Generate Visual Studio 2012 solutions
+     echo     vc14        Generate Visual Studio 2014 solutions
+     echo     vs2017      Generate Visual Studio 2017 solutions
 
      GOTO  END_OF_SCRIPT
    )
@@ -77,7 +90,7 @@ IF %ace% EQU 1 (
   echo Generating ACE project
   cd "%ACE_ROOT%\ace"
   echo #include "ace/config-win32.h" > config.h
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 ace.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% ace.mwc
   echo Building ACE library for Debug target
   msbuild "ace.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:ACE
   echo Building ACE for Release target
@@ -87,7 +100,7 @@ IF %madara% EQU 1 (
   echo.
   echo Generating MADARA project with docs=%docs%, java=%java%, tests=%tests% and tutorials=%tutorials%
   cd "%MADARA_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features tests=%tests%,tutorials=%tutorials%,java=%java%,docs=%docs% MADARA.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features tests=%tests%,tutorials=%tutorials%,java=%java%,docs=%docs% MADARA.mwc
   echo Building MADARA library for Debug target with tests=%tests%
   msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:Madara
   echo Building MADARA for Release target with tests=%tests%
@@ -98,7 +111,7 @@ IF %gams% EQU 1 (
   echo.
   echo Generating GAMS project with docs=%docs%, java=%java%, tests=%tests% and vrep=%vrep%
   cd "%GAMS_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features docs=%docs%,vrep=%vrep%,tests=%tests%,java=%java% gams.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features docs=%docs%,vrep=%vrep%,tests=%tests%,java=%java% gams.mwc
   echo Building GAMS library for Debug target with tests=%tests% and vrep=%vrep%
   msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:gams
   echo Building GAMS for Release target with tests=%tests% and vrep=%vrep%

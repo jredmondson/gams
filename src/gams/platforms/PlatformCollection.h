@@ -70,7 +70,7 @@ namespace gams
     /**
      * A collection of platforms
      **/
-    class GAMSExport PlatformCollection : public BasePlatform
+    class GAMS_EXPORT PlatformCollection : public BasePlatform
     {
     public:
       /**
@@ -169,7 +169,7 @@ namespace gams
     /**
      * A factory class for creating null (no-op) platforms
      **/
-    class GAMSExport PlatformCollectionFactory : public PlatformFactory
+    class GAMS_EXPORT PlatformCollectionFactory : public PlatformFactory
     {
     public:
 

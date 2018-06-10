@@ -58,8 +58,6 @@
 #
 # There are several expected environment variables
 #   $CORES        - number of build jobs to launch with make
-#   $ACE_ROOT     - location of local copy of ACE subversion repository from
-#                   svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE
 #   $MADARA_ROOT  - location of local copy of MADARA git repository from
 #                   git://git.code.sf.net/p/madara/code
 #   $GAMS_ROOT    - location of this GAMS git repository
@@ -74,14 +72,16 @@
 # For java
 #   $JAVA_HOME
 
+DEBUG=0
 TESTS=0
 VREP=0
 JAVA=0
 ROS=0
+CLANG=0
 ANDROID=0
 STRIP=0
 ODROID=0
-ACE=0
+MPC=0
 MADARA=0
 GAMS=0
 PREREQS=0
@@ -91,17 +91,16 @@ ZMQ=0
 SIMTIME=0
 SSL=0
 DMPL=0
+MAC=${MAC:-0}
 
-ACE_DEPENDENCY_ENABLED=0
+MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
-ACE_AS_A_PREREQ=0
+MPC_AS_A_PREREQ=0
 MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 
-OLD_ACE_REMOVED=0
-ACE_REPO_RESULT=0
-ACE_BUILD_RESULT=0
+MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
 DART_BUILD_RESULT=0
 GAMS_REPO_RESULT=0
@@ -112,8 +111,6 @@ MPC_REPO_RESULT=0
 VREP_REPO_RESULT=0
 ZMQ_REPO_RESULT=0
 ZMQ_BUILD_RESULT=0
-
-OLD_ACE_REMOVED=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -131,6 +128,8 @@ for var in "$@"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
+  elif [ "$var" = "debug" ]; then
+    DEBUG=1
   elif [ "$var" = "docs" ]; then
     DOCS=1
   elif [ "$var" = "prereqs" ]; then
@@ -141,10 +140,12 @@ do
     VREP_CONFIG=1
   elif [ "$var" = "java" ]; then
     JAVA=1
+  elif [ "$var" = "clang" ]; then
+    CLANG=1
   elif [ "$var" = "ros" ]; then
     ROS=1
-  elif [ "$var" = "ace" ]; then
-    ACE=1
+  elif [ "$var" = "mpc" ]; then
+    MPC=1
   elif [ "$var" = "madara" ]; then
     MADARA=1
   elif [ "$var" = "gams" ]; then
@@ -171,8 +172,10 @@ do
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
-    echo "  ace             build ACE"
+    echo "  debug           create a debug build, with minimal optimizations"
+    echo "  mpc             download MPC if prereqs is enabled"
     echo "  android         build android libs, turns on java"
+    echo "  clang           build using clang++-5.0 and libc++"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
     echo "  gams            build GAMS"
@@ -192,11 +195,9 @@ do
     echo ""
     echo "The following environment variables are used"
     echo "  CORES               - number of build jobs to launch with make, optional"
-    echo "  ACE_ROOT            - location of local copy of ACE subversion repository from"
-    echo "                        svn://svn.dre.vanderbilt.edu/DOC/Middleware/sets-anon/ACE"
+    echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
     echo "                        git://git.code.sf.net/p/madara/code"
-    echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  JAVA_HOME           - location of JDK"
@@ -208,41 +209,10 @@ do
   fi
 done
 
-echo "Checking for old version of ACE that used subversion"
-
-ACE_ENDING=$(basename $ACE_ROOT)
-
-if [[ $ACE_ENDING  == "ACE_wrappers" ]] ; then
-
-  ACE_PARENT=$(dirname $ACE_ROOT)
-
-  if [ -d $ACE_ROOT ] ; then
-    echo "  Removing old ACE at $ACE_PARENT"
-    rm -rf $ACE_PARENT
-    unset ACE_ROOT
-    OLD_ACE_REMOVED=1
-  else
-    echo "  Unsetting $ACE_ROOT, which is old"
-    echo "  You really need to update ACE_ROOT"
-    unset ACE_ROOT
-    OLD_ACE_REMOVED=1
-  fi
-fi
-
-# specify ACE_ROOT if missing. It's needed for most everything else.
-if [ -z $ACE_ROOT ] ; then
-  export ACE_ROOT=$INSTALL_DIR/ACE_TAO/ACE
-fi
-
 if [ -z $MPC_ROOT ] ; then
   export MPC_ROOT=$INSTALL_DIR/MPC
 fi
 
-
-# check if ACE_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
-if [[ ":$LD_LIBRARY_PATH:" == *":$ACE_ROOT/lib:"* ]]; then
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ACE_ROOT/lib
-fi
 
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
@@ -254,12 +224,7 @@ else
   echo "Pre-requisites will be installed"
 fi
 
-echo "ACE_ROOT is set to $ACE_ROOT"
-if [ $ACE -eq 0 ]; then
-  echo "ACE will not be built"
-else
-  echo "ACE will be built"
-fi
+echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
@@ -333,6 +298,10 @@ if [ $ANDROID -eq 1 ]; then
   else
     echo "SYSROOT has been set to $SYSROOT"
   fi
+  if [ -z "$BOOST_ANDROID_ROOT" ]; then
+    echo "BOOST_ANDROID_ROOT is not set. See README-ANDROID.md for instructions"
+    exit 1
+  fi
 
   case $ANDROID_ARCH in
     arm32|arm)
@@ -385,7 +354,7 @@ append_if_needed() (
   fi
 )
 
-if [ $PREREQS -eq 1 ]; then
+if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   if [ $JAVA -eq 1 ]; then
     sudo add-apt-repository -y ppa:webupd8team/java
   fi
@@ -400,7 +369,11 @@ if [ $PREREQS -eq 1 ]; then
   fi
 
   sudo apt-get update
-  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz
+  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
+
+  if [ $CLANG -eq 1 ]; then
+    sudo apt-get install -f clang-5.0 libc++-dev libc++abi-dev
+  fi
 
   if [ $JAVA -eq 1 ]; then
     sudo apt-get install -f oracle-java8-set-default
@@ -459,84 +432,36 @@ if [ $PREREQS -eq 1 ]; then
   fi
 
 fi
+if [ $MAC -eq 1 ]; then
+  # Install boost for mac
+  if [ $PREREQS -eq 1 ]; then
+    brew install boost@1.59
+  fi
+  export BOOST_ROOT=/usr/local/opt/boost@1.59/include
+  export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
+fi
 
-# check if ACE is a prereq for later packages
+# check if MPC is a prereq for later packages
 
 if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] || [ $MADARA -eq 1 ]; then
-  ACE_DEPENDENCY_ENABLED=1
+  MPC_DEPENDENCY_ENABLED=1
 fi
 
-if [ $ACE_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $ACE_ROOT ]; then
-  ACE_AS_A_PREREQ=1
+if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
+  MPC_AS_A_PREREQ=1
 fi
 
-# check if ACE_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
-if [[ ! ":$LD_LIBRARY_PATH:" == *":$ACE_ROOT/lib:"* ]]; then
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ACE_ROOT/lib
-fi
-
-if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
+if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
   echo "ENTERING $MPC_ROOT"
-  # build ACE, all build information (compiler and options) will be set here
   if [ ! -d $MPC_ROOT ] ; then
     git clone --depth 1 https://github.com/DOCGroup/MPC.git $MPC_ROOT
     MPC_REPO_RESULT=$?
   fi
-
-  # build ACE, all build information (compiler and options) will be set here
-  if [ ! -d $ACE_ROOT ] ; then
-    echo "DOWNLOADING ACE AND TAO"
-    ACE_PARENT=$(dirname $ACE_ROOT)
-    git clone --depth 1 https://github.com/jredmondson/ACE_TAO.git $ACE_PARENT
-    ACE_REPO_RESULT=$?
-
-  else
-    echo "UPDATING ACE"
-    cd $ACE_ROOT
-    git pull
-    ACE_REPO_RESULT=$?
-    echo "CLEANING ACE OBJECTS"
-    make realclean -j $CORES
-
-  fi
-
-  echo "CONFIGURING ACE"
-  if [ $ANDROID -eq 1 ]; then
-    echo "  CONFIGURING ANDROID BUILD"
-    # use the android specific files, we use custom config file for android due to build bug in ACE
-    # echo "#include \"$GAMS_ROOT/scripts/linux/config-android.h\"" > $ACE_ROOT/ace/config.h
-    echo "#include \"config-android.h\"" > $ACE_ROOT/ace/config.h
-
-    # Android does not support versioned libraries and requires cross-compiling
-    echo -e "no_hidden_visibility=1\nversioned_so=0\nCROSS_COMPILE=$LOCAL_CROSS_PREFIX\ninclude \$(ACE_ROOT)/include/makeinclude/platform_android.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-  else
-    # use linux defaults
-    echo "  CONFIGURING DEFAULT BUILD"
-    echo "#include \"ace/config-linux.h\"" > $ACE_ROOT/ace/config.h
-    echo -e "no_hidden_visibility=1\ninclude \$(ACE_ROOT)/include/makeinclude/platform_linux.GNU" > $ACE_ROOT/include/makeinclude/platform_macros.GNU
-  fi
-  
-  echo "ENTERING $ACE_ROOT"
-  cd $ACE_ROOT/ace
-  echo "GENERATING ACE PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace ace.mwc
-  echo "CLEANING ACE OBJECTS"
-  make realclean -j $CORES
-  echo "BUILDING ACE"
-  make -j $CORES
-  ACE_BUILD_RESULT=$?
-  if [ ! -f $ACE_ROOT/lib/libACE.so ]; then
-    ACE_BUILD_RESULT=1
-  fi
-  if [ $STRIP -eq 1 ]; then
-    echo "STRIPPING ACE"
-    $STRIP_EXE libACE.so*
-  fi
 else
-  echo "NOT BUILDING ACE"
+  echo "NOT CHECKING MPC"
 fi
 
 if [ $ZMQ -eq 1 ]; then
@@ -595,7 +520,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
-    git clone --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
+    git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
     echo "UPDATING MADARA"
@@ -604,11 +529,12 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     MADARA_REPO_RESULT=$?
     echo "CLEANING MADARA OBJECTS"
     make realclean -j $CORES
+    rm GNUmakefile*
 
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME MADARA.mwc
+  perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -692,7 +618,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
-    git clone --depth 1 -b master --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
+    git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
     GAMS_REPO_RESULT=$?
     
   else
@@ -703,13 +629,14 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
     echo "CLEANING GAMS OBJECTS"
     make realclean -j $CORES
+    rm GNUmakefile*
 
   fi
     
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  perl $ACE_ROOT/bin/mwc.pl -type gnuace -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS gams.mwc
+  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
 
   if [ $JAVA -eq 1 ]; then
     # sometimes the jar'ing will occur before all classes are actually built when performing
@@ -784,17 +711,12 @@ echo ""
 echo "BUILD STATUS"
 
 
-if [ $ACE -eq 1 ] || [ $ACE_AS_A_PREREQ -eq 1 ]; then
-  echo "  ACE"
-  if [ $ACE_REPO_RESULT -eq 0 ]; then
+if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
+  echo "  MPC"
+  if [ $MPC_REPO_RESULT -eq 0 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
-  fi
-  if [ $ACE_BUILD_RESULT -eq 0 ]; then
-    echo -e "    BUILD=\e[92mPASS\e[39m"
-  else
-    echo -e "    BUILD=\e[91mFAIL\e[39m"
   fi
 fi
 
@@ -852,7 +774,7 @@ fi
 echo -e ""
 echo -e "Make sure to update your environment variables to the following"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
-echo -e "export ACE_ROOT=$ACE_ROOT"
+echo -e "export MPC_ROOT=$MPC_ROOT"
 echo -e "export MADARA_ROOT=$MADARA_ROOT"
 echo -e "export GAMS_ROOT=$GAMS_ROOT"
 echo -e "export VREP_ROOT=$VREP_ROOT"
@@ -883,23 +805,21 @@ if [ $ANDROID -eq 1 ]; then
   echo -e "export ANDROID_ARCH=$ANDROID_ARCH"
 fi
 
-echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ACE_ROOT/lib:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
-echo -e "export PATH=\$PATH:\$ACE_ROOT/bin:\$MPC_ROOT:\$VREP_ROOT"
+if [ $MAC -eq 0 ]; then
+  echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+else
+  echo -e "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+fi
+echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT"
 
 
 if [ $DMPL -eq 1 ]; then
   echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
 fi
 
-if [ $OLD_ACE_REMOVED -eq 1 ]; then
-  echo -e "\e[93mOLD ACE was removed. Add MPC_ROOT & ACE_ROOT to .bashrc\e[39m"
-fi
-
 echo -e "\e[39m"
 echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
-echo -e "IN YOUR BASHRC OR TERMINAL. ACE now requires MPC_ROOT to be set. If anything"
-echo -e "appears to suddenly break, try \"rm -rf ACE_TAO\" (the parent dir of \$ACE_ROOT)"
-echo -e "and then make sure that \"ace\" is one of the options you specify on next build."
+echo -e "IN YOUR BASHRC OR TERMINAL."
 echo -e ""
 
 

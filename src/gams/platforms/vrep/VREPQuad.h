@@ -77,7 +77,7 @@ namespace gams
     /**
     * A VREP platform for an autonomous aerial quadcopter
     **/
-    class GAMSExport VREPQuad : public VREPBase
+    class GAMS_EXPORT VREPQuad : public VREPBase
     {
     public:
       const static std::string DEFAULT_MODEL_FILENAME;
@@ -129,7 +129,7 @@ namespace gams
     /**
      * A factory class for creating VREP Quadcopter platforms
      **/
-    class GAMSExport VREPQuadFactory : public PlatformFactory
+    class GAMS_EXPORT VREPQuadFactory : public PlatformFactory
     {
     public:
 

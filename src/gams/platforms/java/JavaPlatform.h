@@ -73,7 +73,7 @@ namespace gams
     /**
     * A facade for Java platforms
     **/
-    class GAMSExport JavaPlatform : public BasePlatform
+    class GAMS_EXPORT JavaPlatform : public BasePlatform
     {
     public:
       /**

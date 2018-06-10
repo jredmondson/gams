@@ -68,7 +68,7 @@ namespace gams
     /**
     * An algorithm for landing
     **/
-    class GAMSExport Land : public BaseAlgorithm
+    class GAMS_EXPORT Land : public BaseAlgorithm
     {
     public:
       /**
@@ -117,7 +117,7 @@ namespace gams
     /**
      * A factory class for creating Landing algorithms
      **/
-    class GAMSExport LandFactory : public AlgorithmFactory
+    class GAMS_EXPORT LandFactory : public AlgorithmFactory
     {
     public:
 

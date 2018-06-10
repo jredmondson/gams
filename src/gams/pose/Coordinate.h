@@ -56,7 +56,7 @@
 #ifndef _GAMS_POSE_COORDINATE_H_
 #define _GAMS_POSE_COORDINATE_H_
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include <string>
 #include <cfloat>
 #include <utility>

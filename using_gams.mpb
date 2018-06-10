@@ -1,10 +1,11 @@
-project {
+project : using_madara {
   includes += $(GAMS_ROOT)/src
   libpaths += $(GAMS_ROOT)/lib
-  after += gams  
+
+  after += gams
   libs += GAMS
 
-  verbatim (gnuace, local) {
-    CPPFLAGS +=
+  verbatim (make, local, true) {
+    LDLIBS := $(LDLIBS) -lGAMS
   }
 }

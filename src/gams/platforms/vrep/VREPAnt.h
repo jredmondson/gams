@@ -75,7 +75,7 @@ namespace gams
     /**
     * A VREP platform for the ant robotic system.
     **/
-    class GAMSExport VREPAnt : public VREPBase
+    class GAMS_EXPORT VREPAnt : public VREPBase
     {
     public:
       /**
@@ -133,7 +133,7 @@ namespace gams
     /**
      * A factory class for creating VREP Ant platforms
      **/
-    class GAMSExport VREPAntFactory : public PlatformFactory
+    class GAMS_EXPORT VREPAntFactory : public PlatformFactory
     {
     public:
 

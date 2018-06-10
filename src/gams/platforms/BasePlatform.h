@@ -106,7 +106,7 @@ namespace gams
     };
 
     /// Interface for defining a bounds checker for Positions
-    class GAMSExport PositionBounds {
+    class GAMS_EXPORT PositionBounds {
     public:
       /// Override to return whether the current position
       /// is within the expected bounds of target
@@ -118,7 +118,7 @@ namespace gams
     };
 
     /// Interface for defining a bounds checker for Orientations
-    class GAMSExport OrientationBounds {
+    class GAMS_EXPORT OrientationBounds {
     public:
       /// Override to return whether the current orientation
       /// is within the expected bounds of target
@@ -131,7 +131,7 @@ namespace gams
 
     /// Interface for defining a bounds checker for Poses,
     /// a combination of position and orientation checking.
-    class GAMSExport PoseBounds :
+    class GAMS_EXPORT PoseBounds :
       public PositionBounds, public OrientationBounds {};
 
     /// A simple bounds checker which tests whether the
@@ -139,7 +139,7 @@ namespace gams
     /// meters of the expected position, and whether the
     /// difference in angles is within the given number
     /// of radians.
-    class GAMSExport Epsilon : public PoseBounds {
+    class GAMS_EXPORT Epsilon : public PoseBounds {
     private:
       double dist_ = 0.1, radians_ = M_PI/16;
     public:
@@ -187,7 +187,7 @@ namespace gams
     /**
     * The base platform for all platforms to use
     **/
-    class GAMSExport BasePlatform
+    class GAMS_EXPORT BasePlatform
     {
     public:
       // allow Base controller to initialize our variables

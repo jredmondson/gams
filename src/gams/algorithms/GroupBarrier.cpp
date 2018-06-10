@@ -279,7 +279,7 @@ gams::algorithms::GroupBarrier::analyze (void)
 
   if (position_ >= 0)
   {
-    int round = barrier_.get_round ();
+    int round = (int)barrier_.get_round ();
 
     barrier_.modify ();
 

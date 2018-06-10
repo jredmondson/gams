@@ -101,7 +101,7 @@ IF %compile% EQU 1 (
   )
 
   cd "%SCRIPTS_DIR%"
-  "%ACE_ROOT%\bin\mwc.pl" -type vc12 -features vrep=%compile_vrep%,tests=0 workspace.mwc
+  "%MPC_ROOT%\mwc.pl" -type vc12 -features vrep=%compile_vrep%,tests=0 workspace.mwc
 
   IF %debug% EQU 1 (
   

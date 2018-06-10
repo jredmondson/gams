@@ -75,7 +75,7 @@ namespace gams
       /**
       * Waypoints algorithm that also tracks coverage metrics
       **/
-      class GAMSExport WaypointsCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT WaypointsCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -128,7 +128,7 @@ namespace gams
       /**
        * A factory class for creating waypoints area coverage algorithms
        **/
-      class GAMSExport WaypointsCoverageFactory : public AlgorithmFactory
+      class GAMS_EXPORT WaypointsCoverageFactory : public AlgorithmFactory
       {
       public:
         /**

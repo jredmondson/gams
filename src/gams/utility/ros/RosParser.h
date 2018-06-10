@@ -64,7 +64,7 @@ namespace gams
   {
     namespace ros
     {
-      class GAMSExport RosParser
+      class RosParser
       {
         public:
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,

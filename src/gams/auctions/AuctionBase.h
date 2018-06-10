@@ -64,7 +64,7 @@
 #include "AuctionTypesEnum.h"
 #include "gams/groups/GroupBase.h"
 #include "gams/groups/GroupFixedList.h"
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 #include "gams/auctions/AuctionBid.h"
 
@@ -75,7 +75,7 @@ namespace gams
     /**
     * Base class for an auction
     **/
-    class GAMSExport AuctionBase
+    class GAMS_EXPORT AuctionBase
     {
     public:
       /**

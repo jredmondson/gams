@@ -81,7 +81,7 @@ namespace gams
       /**
       * Area coverage that minimizes the time taken for covering an area
       **/
-      class GAMSExport MinTimeAreaCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT MinTimeAreaCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -147,7 +147,7 @@ namespace gams
       /**
        * A factory class for creating minimum time area coverage algorithms
        **/
-      class GAMSExport MinTimeAreaCoverageFactory
+      class GAMS_EXPORT MinTimeAreaCoverageFactory
         : public AlgorithmFactory
       {
       public:

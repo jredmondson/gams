@@ -76,7 +76,7 @@ namespace gams
     /**
     * A VREP platform for a summit robotic system
     **/
-    class GAMSExport VREPSummit : public VREPBase
+    class GAMS_EXPORT VREPSummit : public VREPBase
     {
     public:
       /**
@@ -134,7 +134,7 @@ namespace gams
     /**
      * A factory class for creating VREP Summit platforms
      **/
-    class GAMSExport VREPSummitFactory : public PlatformFactory
+    class GAMS_EXPORT VREPSummitFactory : public PlatformFactory
     {
     public:
 

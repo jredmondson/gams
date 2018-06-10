@@ -58,7 +58,7 @@
 #include "gams/algorithms/BaseAlgorithm.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 
 namespace gams
 {
@@ -67,7 +67,7 @@ namespace gams
     /**
     * An algorithm for testing computational speed
     **/
-    class GAMSExport PerformanceProfiling : public BaseAlgorithm
+    class GAMS_EXPORT PerformanceProfiling : public BaseAlgorithm
     {
     public:
       /**
@@ -116,7 +116,7 @@ namespace gams
     /**
      * A factory class for creating PerformanceProfiling Algorithms
      **/
-    class GAMSExport PerformanceProfilingFactory : public AlgorithmFactory
+    class GAMS_EXPORT PerformanceProfilingFactory : public AlgorithmFactory
     {
     public:
 

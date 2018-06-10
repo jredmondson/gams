@@ -3,7 +3,7 @@
 #define _GAMS_LOGGERS_GLOBAL_LOGGER_H_
 
 #include <memory>
-#include "gams/GAMSExport.h"
+#include "gams/GamsExport.h"
 #include "madara/logger/Logger.h"
 #include "madara/utility/Refcounter.h"
 
@@ -27,7 +27,7 @@ namespace gams
       LOG_MAX = 6
     };
 
-    extern GAMSExport madara::utility::Refcounter <madara::logger::Logger>
+    extern GAMS_EXPORT madara::utility::Refcounter <madara::logger::Logger>
       global_logger;
   }
 }

@@ -73,7 +73,7 @@ namespace gams
     /**
     * An algorithm for covering an area in formation
     **/
-    class GAMSExport FormationCoverage : public BaseAlgorithm
+    class GAMS_EXPORT FormationCoverage : public BaseAlgorithm
     {
     public:
       /**
@@ -149,7 +149,7 @@ namespace gams
     /**
      * A factory class for creating Formation Coverage algorithms
      **/
-    class GAMSExport FormationCoverageFactory : public AlgorithmFactory
+    class GAMS_EXPORT FormationCoverageFactory : public AlgorithmFactory
     {
     public:
 

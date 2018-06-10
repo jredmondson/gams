@@ -75,7 +75,7 @@ namespace gams
       * Implements a serpentine pattern-based area coverage that is
       * minimum time but easy to predict (adversarially)
       **/
-      class GAMSExport SnakeAreaCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT SnakeAreaCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -133,7 +133,7 @@ namespace gams
        * A factory class for creating snake/lawnmower area
        * coverage algorithms
        **/
-      class GAMSExport SnakeAreaCoverageFactory
+      class GAMS_EXPORT SnakeAreaCoverageFactory
         : public AlgorithmFactory
       {
       public:

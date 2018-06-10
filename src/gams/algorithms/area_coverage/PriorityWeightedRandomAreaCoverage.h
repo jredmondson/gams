@@ -72,7 +72,7 @@ namespace gams
       * Focuses on high priority areas over low priority, and uses a weighted
       * system for area coverage regionss
       **/
-      class GAMSExport PriorityWeightedRandomAreaCoverage : public BaseAreaCoverage
+      class GAMS_EXPORT PriorityWeightedRandomAreaCoverage : public BaseAreaCoverage
       {
       public:
         /**
@@ -120,7 +120,7 @@ namespace gams
        * A factory class for creating priority-weighted random area
        * coverage algorithms
        **/
-      class GAMSExport PriorityWeightedRandomAreaCoverageFactory
+      class GAMS_EXPORT PriorityWeightedRandomAreaCoverageFactory
         : public AlgorithmFactory
       {
       public:
