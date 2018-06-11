@@ -66,7 +66,7 @@ namespace gams
             std::string topic_name, std::string topic_type);
           
           //known types
-          void parse_odometry (std::string container_name,
+          void publish_odometry (std::string container_name,
             std::string topic_name);
 
           template <size_t N>
@@ -79,9 +79,26 @@ namespace gams
             containers::NativeDoubleVector *origin);
           void parse_quaternion (geometry_msgs::Quaternion *quat,
             containers::NativeDoubleVector *origin);
-          void parse_imu(std::string container_name, std::string topic_name);
-          void parse_laserscan (std::string container_name,
+          void publish_imu(std::string container_name, std::string topic_name);
+          void publish_laserscan (std::string container_name,
             std::string topic_name);
+          void publish_pointcloud2 (std::string container_name,
+            std::string topic_name);
+          void parse_pose (geometry_msgs::Pose *pose,
+            containers::NativeDoubleVector *origin);
+          void publish_compressed_image (std::string container_name,
+            std::string topic_name);
+          void publish_range ( std::string container_name,
+            std::string topic_name);
+          void publish_fluidpressure (std::string container_name,
+            std::string topic_name);
+
+          template <class T>
+          void parse_int_array (std::vector<T> *array,
+            containers::NativeIntegerVector *origin);
+          template <size_t N>
+          void parse_int_array (boost::array<int, N> *array,
+            containers::NativeIntegerVector *origin);
         protected:
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;

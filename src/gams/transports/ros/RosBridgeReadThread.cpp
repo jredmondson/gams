@@ -9,7 +9,7 @@ void gams::transports::RosBridgeReadThread::messageCallback (
   const topic_tools::ShapeShifter::ConstPtr& msg,
   const std::string &topic_name )
 {
-  std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << "> " << msg << std::endl;
+  // std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << "> " << msg << std::endl;
   message_count_++;
   //std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
   //Check if topic is in the topic mapping

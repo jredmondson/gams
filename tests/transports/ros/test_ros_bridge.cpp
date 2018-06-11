@@ -898,8 +898,8 @@ int main (int argc, char ** argv)
   usleep(1000);
 
   test_imu(&knowledge, ros_bridge);
-  //test_odometry(&knowledge, ros_bridge);
-  //test_tf(&knowledge, ros_bridge);
+  test_odometry(&knowledge, ros_bridge);
+  test_tf(&knowledge, ros_bridge);
 
   ros::spinOnce();
   ros::Duration(5).sleep();

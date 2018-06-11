@@ -71,7 +71,6 @@ gams::transports::RosBridge::send_data (
   /**
    * This is where you should do your custom transport sending logic/actions
    **/
-  std::cout << std::endl << "SENDING UPDATE TO ROS!!!" << std::endl;
 
 
   for (
@@ -79,14 +78,14 @@ gams::transports::RosBridge::send_data (
     it != modifieds.end(); it++)
   {
     const char * key = it->first;
-    std::cout << "Got update for " << key;
+    // std::cout << "Got update for " << key;
     std::pair<std::string, std::string> names = get_update_container_pair_ (key);
 
     if (names.first != "")
     {
-      std::cout << " - bingo" << std::endl;
+      /*std::cout << " - bingo" << std::endl;
       std::cout << " will publish " << names.second << 
-        " to " << names.first << std::endl;
+        " to " << names.first << std::endl;*/
       std::map<std::string, std::string>::iterator type_it =
         pub_topic_types_.find (names.first);
       if (type_it != pub_topic_types_.end())
@@ -94,17 +93,17 @@ gams::transports::RosBridge::send_data (
         parser_->parse_message(names.second, names.first, type_it->second);
         message_count_++;
       }
-      else
+      /*else
       {
         std::cout << " - no topic type defined!" << std::endl;
-      }
+      }*/
     }
-    else
+    /*else
     {
       std::cout << " - ignored" << std::endl;
-    }
+    }*/
   }
-  std::cout << std::endl;
+  //std::cout << std::endl;
   return result;
 }
 

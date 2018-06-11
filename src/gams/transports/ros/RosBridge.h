@@ -22,6 +22,9 @@ namespace gams
        * @param   id                unique identifier (generally host:port)
        * @param   new_settings      settings to apply to the transport
        * @param   context           the knowledge record context
+       * @param   topics            vector of topics to subscribe
+       * @param   topic_map         map from ros topic name to madara var name
+       * @param   pub_topic_types   map from ros topic name to ros topic type
        **/
       RosBridge (const std::string & id,
         madara::transport::TransportSettings & new_settings,

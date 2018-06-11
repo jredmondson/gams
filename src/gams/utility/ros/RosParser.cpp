@@ -406,6 +406,7 @@ void gams::utility::ros::RosParser::parse_compressed_image (
 {
   containers::String format (container_name + ".format", *knowledge_,
     eval_settings_);
+  format = img->format;
   int len = img->data.size ();
   //TODO: data is a vector of int8 which is parsed into an
   // NativeIntegerVector -> change to NativeCharVector etc???
