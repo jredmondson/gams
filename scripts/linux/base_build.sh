@@ -304,7 +304,7 @@ if [ $ANDROID -eq 1 ]; then
   fi
 
   case $ANDROID_ARCH in
-    arm32|arm)
+    arm32|arm|armeabi-v7a)
       export ANDROID_ARCH=arm;
       export ANDROID_TOOLCHAIN=arm-linux-androidabi-$ANDROID_ABI;;
 
