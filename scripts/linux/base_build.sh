@@ -304,7 +304,7 @@ if [ $ANDROID -eq 1 ]; then
   fi
 
   case $ANDROID_ARCH in
-    arm32|arm)
+    arm32|arm|armeabi-v7a)
       export ANDROID_ARCH=arm;
       export ANDROID_TOOLCHAIN=arm-linux-androidabi-$ANDROID_ABI;;
 
@@ -655,6 +655,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   if [ $STRIP -eq 1 ]; then
     echo "STRIPPING GAMS"
     $STRIP_EXE libGAMS.so*
+  fi
+ if [ $ANDROID -eq 1 ]; then
+    echo "Building Demo Android app"
+    cd $GAMS_ROOT/port/android
+    chmod a+x build.sh
+    ./build.sh
+   cd $GAMS_ROOT
   fi
 else
   echo "NOT BUILDING GAMS"
