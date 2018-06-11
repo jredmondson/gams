@@ -14,6 +14,7 @@
 
 #include "ros/ros.h"
 #include "nav_msgs/Odometry.h"
+#include "sensor_msgs/Imu.h"
 #include "tf2_ros/transform_broadcaster.h"
 
 
@@ -506,6 +507,7 @@ void handle_arguments (int argc, char ** argv)
 void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
   gams::transports::RosBridge * ros_bridge)
 {
+  std::cout << std::endl << std::endl << "##### TEST ODOMETRY #####" << std::endl;
   unsigned int in_msg_count = ros_bridge->in_message_count();
   unsigned int out_msg_count = ros_bridge->out_message_count();
 
@@ -528,7 +530,7 @@ void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
   odom.twist.twist.linear.x = 0.5;
   odom.twist.twist.linear.y = 0.6;
 
-  test_pub.publish(odom);
+  //test_pub.publish(odom);
   ros::spinOnce();
   ros::Duration(1).sleep();
 
@@ -578,6 +580,8 @@ void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
 void test_tf(madara::knowledge::KnowledgeBase * knowledge,
   gams::transports::RosBridge * ros_bridge)
 {
+  std::cout << std::endl << std::endl << "##### TEST TF #####" << std::endl;
+
   unsigned int in_msg_count = ros_bridge->in_message_count();
   unsigned int out_msg_count = ros_bridge->out_message_count();
 
@@ -608,7 +612,7 @@ void test_tf(madara::knowledge::KnowledgeBase * knowledge,
 
   tf_brdcaster.sendTransform(st);
   ros::spinOnce();
-  ros::Duration(1).sleep();
+  ros::Duration(0.5).sleep();
 
   gams::pose::ReferenceFrame ref_frame =
     gams::pose::ReferenceFrame::load(*knowledge, st.child_frame_id);
@@ -627,6 +631,113 @@ void test_tf(madara::knowledge::KnowledgeBase * knowledge,
   in_msg_count++;
   TEST(ros_bridge->in_message_count(), in_msg_count);
   TEST(ros_bridge->out_message_count(), out_msg_count);
+
+  // FROM MADARA TO ROS
+  origin.set(0, t.x+1);
+  origin.set(1, t.y+1);
+  origin.set(2, t.z+1);
+  gams::pose::ReferenceFrame new_ref_frame = ref_frame.pose(origin);
+  new_ref_frame.save(*knowledge);
+
+  // trigger update and wait
+  knowledge->set("foo", 2);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  // Check count of sent and received messages
+  out_msg_count++;
+  TEST(ros_bridge->in_message_count(), in_msg_count);
+  TEST(ros_bridge->out_message_count(), out_msg_count);
+
+  TEST(origin.get(0), t.x+1);
+  TEST(origin.get(1), t.y+1);
+  TEST(origin.get(2), t.z+1);
+
+  TEST(origin.get(3), M_PI/2);
+  TEST(origin.get(4), 0.0);
+  TEST(origin.get(5), 0.0);
+}
+
+
+void test_imu(madara::knowledge::KnowledgeBase * knowledge,
+  gams::transports::RosBridge * ros_bridge)
+{
+  std::cout << std::endl << std::endl << "##### TEST IMU #####" << std::endl;
+
+  unsigned int in_msg_count = ros_bridge->in_message_count();
+  unsigned int out_msg_count = ros_bridge->out_message_count();
+
+  // ROS TO MADARA
+  ros::NodeHandle node;
+  ros::Publisher test_pub = node.advertise<sensor_msgs::Imu>("imu", 10);
+  sensor_msgs::Imu imu;
+
+
+  imu.header.stamp = ros::Time::now();
+  imu.header.frame_id = "imu";
+  imu.orientation.x = 0.707;
+  imu.orientation.y = 0.0;
+  imu.orientation.z = 0.0;
+  imu.orientation.w = 0.707;
+
+  imu.angular_velocity.x = 0.1;
+  imu.angular_velocity.y = 0.2;
+  imu.angular_velocity.z = 0.3;
+
+  imu.linear_acceleration.x = 0.4;
+  imu.linear_acceleration.y = 0.5;
+  imu.linear_acceleration.z = 0.6;
+
+
+  test_pub.publish(imu);
+  ros::spinOnce();
+  ros::Duration(0.5).sleep();
+  while(true)
+  {
+    test_pub.publish(imu);
+    ros::spinOnce();
+    ros::Duration(0.5).sleep();
+
+    containers::NativeDoubleVector ang_vel ("sensors.imu.angular_velocity",
+      *knowledge, -1);
+    TEST(ang_vel[0], imu.angular_velocity.x);
+    TEST(ang_vel[1], imu.angular_velocity.y);
+    TEST(ang_vel[2], imu.angular_velocity.z);
+    containers::NativeDoubleVector lin_acc ("sensors.imu.linear_acceleration",
+      *knowledge, -1);
+    TEST(lin_acc[0], imu.linear_acceleration.x);
+    TEST(lin_acc[1], imu.linear_acceleration.y);
+    TEST(lin_acc[2], imu.linear_acceleration.z);
+
+    in_msg_count++;
+    TEST(ros_bridge->in_message_count(), in_msg_count);
+    TEST(ros_bridge->out_message_count(), out_msg_count);
+
+    imu.linear_acceleration.x += 0.1;
+
+    if (imu.linear_acceleration.x >= 1.0)
+    {
+      break;
+    }
+  }
+
+  // MADARA TO ROS
+  containers::NativeDoubleVector ang_vel ("sensors.imu.angular_velocity",
+    *knowledge, -1);
+  ang_vel.set(0, 17.0);
+
+
+  // trigger update and wait
+  knowledge->set("foo", 3);
+  ros::spinOnce();
+  ros::Duration(1).sleep();
+
+  // Check count of sent and received messages
+  out_msg_count++;
+  in_msg_count++;
+  TEST(ros_bridge->in_message_count(), in_msg_count);
+  TEST(ros_bridge->out_message_count(), out_msg_count);
+  TEST(ang_vel[0], 17.0);
 }
 
 
@@ -685,9 +796,11 @@ int main (int argc, char ** argv)
   // add RosBridge factory
 
 
-  std::vector<std::string> selected_topics {"test1", "odom", "/tf"};
-  std::map<std::string,std::string> topic_map = {{"odom", "sensors.odom"}};
-  std::map<std::string,std::string> pub_types = {{"odom", "nav_msgs/Odometry"}};
+  std::vector<std::string> selected_topics {"test1", "odom", "/tf", "imu"};
+  std::map<std::string,std::string> topic_map = {{"odom", "sensors.odom"},
+                                                 {"imu", "sensors.imu"}};
+  std::map<std::string,std::string> pub_types = {{"odom", "nav_msgs/Odometry"},
+                                                 {"imu", "sensor_msgs/Imu"}};
 
   settings.read_threads = 1;
   gams::transports::RosBridge * ros_bridge = new gams::transports::RosBridge (
@@ -784,9 +897,9 @@ int main (int argc, char ** argv)
   // wait until the bridge is set up correctly
   usleep(1000);
 
-
-  test_odometry(&knowledge, ros_bridge);
-  test_tf(&knowledge, ros_bridge);
+  test_imu(&knowledge, ros_bridge);
+  //test_odometry(&knowledge, ros_bridge);
+  //test_tf(&knowledge, ros_bridge);
 
   ros::spinOnce();
   ros::Duration(5).sleep();

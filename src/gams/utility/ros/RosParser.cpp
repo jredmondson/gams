@@ -291,6 +291,10 @@ void gams::utility::ros::RosParser::parse_imu (sensor_msgs::Imu *imu,
   containers::NativeDoubleVector linear_acceleration_covariance (
     container_name + ".linear_acceleration_covariance", *knowledge_, 9,
     eval_settings_);
+  containers::String frame_id(container_name + ".frame_id", *knowledge_,
+    eval_settings_);
+
+  frame_id = imu->header.frame_id;
 
 
   parse_quaternion (&imu->orientation, &orientation);
@@ -617,9 +621,9 @@ void gams::utility::ros::RosParser::parse_quaternion (geometry_msgs::Quaternion 
   containers::NativeDoubleVector *orientation)
 {
   tf::Quaternion tfquat (quat->x, quat->y, quat->z, quat->w);
-    tf::Matrix3x3 m (tfquat);
-    double roll, pitch, yaw;
-    m.getRPY (roll, pitch, yaw);
+  tf::Matrix3x3 m (tfquat);
+  double roll, pitch, yaw;
+  m.getRPY (roll, pitch, yaw);
 
   orientation->set (0, roll, eval_settings_);
   orientation->set (1, pitch, eval_settings_);

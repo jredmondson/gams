@@ -72,7 +72,16 @@ namespace gams
           template <size_t N>
           void parse_float64_array (boost::array<double, N> *array,
             containers::NativeDoubleVector *origin);
-
+          void parse_float64_array (std::vector<float> *array,
+            containers::NativeDoubleVector *origin);
+          void parse_vector3 (
+            geometry_msgs::Vector3 *vec,
+            containers::NativeDoubleVector *origin);
+          void parse_quaternion (geometry_msgs::Quaternion *quat,
+            containers::NativeDoubleVector *origin);
+          void parse_imu(std::string container_name, std::string topic_name);
+          void parse_laserscan (std::string container_name,
+            std::string topic_name);
         protected:
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;
