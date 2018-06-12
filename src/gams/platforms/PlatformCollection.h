@@ -144,6 +144,8 @@ namespace gams
        **/
       virtual int move (const pose::Position & target,
         const PositionBounds &bounds);
+
+      using BasePlatform::move;
       
       /**
        * Polls the sensor environment for useful information

@@ -146,6 +146,8 @@ namespace gams
        **/
       int move (const pose::Position & position,
         const PositionBounds &bounds) override;
+
+      using BasePlatform::move;
       
       /**
        * Polls the sensor environment for useful information
