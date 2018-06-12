@@ -615,7 +615,7 @@ void test_tf(madara::knowledge::KnowledgeBase * knowledge,
   ros::Duration(0.5).sleep();
 
   gams::pose::ReferenceFrame ref_frame =
-    gams::pose::ReferenceFrame::load(*knowledge, st.child_frame_id);
+    gams::pose::ReferenceFrame::load(*knowledge, st.child_frame_id, -1, "frames");
   TEST(ref_frame.valid(), true);
   gams::pose::Pose origin = ref_frame.origin();
 
@@ -637,7 +637,7 @@ void test_tf(madara::knowledge::KnowledgeBase * knowledge,
   origin.set(1, t.y+1);
   origin.set(2, t.z+1);
   gams::pose::ReferenceFrame new_ref_frame = ref_frame.pose(origin);
-  new_ref_frame.save(*knowledge);
+  new_ref_frame.save(*knowledge, "frames");
 
   // trigger update and wait
   knowledge->set("foo", 2);
@@ -645,9 +645,14 @@ void test_tf(madara::knowledge::KnowledgeBase * knowledge,
   ros::Duration(1).sleep();
 
   // Check count of sent and received messages
-  out_msg_count++;
+  out_msg_count += 2;
+  in_msg_count += 2;
   TEST(ros_bridge->in_message_count(), in_msg_count);
   TEST(ros_bridge->out_message_count(), out_msg_count);
+  ref_frame = gams::pose::ReferenceFrame::load(*knowledge, st.child_frame_id,
+    -1, "frames");
+  TEST(ref_frame.valid(), true);
+  origin = ref_frame.origin();
 
   TEST(origin.get(0), t.x+1);
   TEST(origin.get(1), t.y+1);
@@ -798,7 +803,8 @@ int main (int argc, char ** argv)
 
   std::vector<std::string> selected_topics {"test1", "odom", "/tf", "imu"};
   std::map<std::string,std::string> topic_map = {{"odom", "sensors.odom"},
-                                                 {"imu", "sensors.imu"}};
+                                                 {"imu", "sensors.imu"},
+                                                 {"/tf", "frames"}};
   std::map<std::string,std::string> pub_types = {{"odom", "nav_msgs/Odometry"},
                                                  {"imu", "sensor_msgs/Imu"}};
 

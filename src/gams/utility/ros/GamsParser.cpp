@@ -71,7 +71,8 @@ void gams::utility::ros::GamsParser::parse_message (std::string container_name,
 void gams::utility::ros::GamsParser::publish_odometry(std::string container_name,
   std::string topic_name)
 {
-  global_ros::Publisher pub = node_.advertise<nav_msgs::Odometry> (topic_name, 100);
+  global_ros::Publisher pub =
+    node_.advertise<nav_msgs::Odometry> (topic_name, 100);
 
   containers::NativeDoubleVector cont (container_name + ".pose", *knowledge_, 6,
     eval_settings_);
@@ -129,11 +130,13 @@ void gams::utility::ros::GamsParser::publish_imu(std::string container_name,
   containers::NativeDoubleVector ang_vel (
     container_name + ".angular_velocity", *knowledge_, -1, eval_settings_); 
   containers::NativeDoubleVector ang_vel_covar (
-    container_name + ".angular_velocity_covariance", *knowledge_, -1, eval_settings_);
+    container_name + ".angular_velocity_covariance", *knowledge_, -1,
+    eval_settings_);
   containers::NativeDoubleVector lin_acc (
     container_name + ".linear_acceleration", *knowledge_, -1, eval_settings_); 
   containers::NativeDoubleVector lin_acc_covar (
-    container_name + ".linear_acceleration_covariance", *knowledge_, -1, eval_settings_);
+    container_name + ".linear_acceleration_covariance", *knowledge_, -1,
+    eval_settings_);
   parse_quaternion(&imu.orientation, &orientation);
   parse_float64_array(&imu.orientation_covariance, &orientation_covar);
   parse_vector3(&imu.angular_velocity, &ang_vel);
@@ -144,10 +147,11 @@ void gams::utility::ros::GamsParser::publish_imu(std::string container_name,
   pub.publish(imu);
 }
 
-void gams::utility::ros::GamsParser::publish_laserscan (std::string container_name,
-  std::string topic_name)
+void gams::utility::ros::GamsParser::publish_laserscan (
+  std::string container_name, std::string topic_name)
 {
-  global_ros::Publisher pub = node_.advertise<sensor_msgs::LaserScan> (topic_name, 100);
+  global_ros::Publisher pub =
+    node_.advertise<sensor_msgs::LaserScan> (topic_name, 100);
   sensor_msgs::LaserScan scan;
   scan.header.stamp = global_ros::Time::now ();
   //Ranges
@@ -187,7 +191,8 @@ void gams::utility::ros::GamsParser::publish_laserscan (std::string container_na
 void gams::utility::ros::GamsParser::publish_pointcloud2 (
   std::string container_name, std::string topic_name)
 {
-  global_ros::Publisher pub = node_.advertise<sensor_msgs::PointCloud2> (topic_name, 100);
+  global_ros::Publisher pub =
+    node_.advertise<sensor_msgs::PointCloud2> (topic_name, 100);
   sensor_msgs::PointCloud2 cloud;
   cloud.header.stamp = global_ros::Time::now ();
   containers::Integer height (container_name + ".height", *knowledge_,
@@ -218,7 +223,8 @@ void gams::utility::ros::GamsParser::publish_pointcloud2 (
 void gams::utility::ros::GamsParser::publish_compressed_image (
   std::string container_name, std::string topic_name)
 {
-  global_ros::Publisher pub = node_.advertise<sensor_msgs::CompressedImage> (topic_name, 100);
+  global_ros::Publisher pub =
+    node_.advertise<sensor_msgs::CompressedImage> (topic_name, 100);
 
   sensor_msgs::CompressedImage img;
   img.header.stamp = global_ros::Time::now ();
@@ -236,7 +242,8 @@ void gams::utility::ros::GamsParser::publish_compressed_image (
 void gams::utility::ros::GamsParser::publish_range ( std::string container_name,
   std::string topic_name)
 {
-  global_ros::Publisher pub = node_.advertise<sensor_msgs::CompressedImage> (topic_name, 100);
+  global_ros::Publisher pub =
+    node_.advertise<sensor_msgs::CompressedImage> (topic_name, 100);
   sensor_msgs::Range range;
   range.header.stamp = global_ros::Time::now ();
 
@@ -351,4 +358,51 @@ void gams::utility::ros::GamsParser::parse_pose (geometry_msgs::Pose *pose,
   pose->orientation.y = q.y ();
   pose->orientation.z = q.z ();
   pose->orientation.w = q.w ();
+}
+ 
+int gams::utility::ros::GamsParser::publish_transform (std::string frame_id,
+  std::string frame_prefix)
+{
+  gams::pose::ReferenceFrame ref_frame =
+    gams::pose::ReferenceFrame::load (*knowledge_, frame_id, -1, frame_prefix);
+  if (ref_frame.valid ())
+  {
+    if (ref_frame.origin_frame ().valid ())
+    {
+      /*std::cout << "Publishing transform " << frame_id << std::endl;
+      std::cout << "Origin: " << ref_frame.origin_frame ().id () << std::endl;
+      std::cout << "Transform: " << ref_frame.origin () << std::endl;*/
+
+      gams::pose::Pose origin = ref_frame.origin ();
+      gams::pose::Orientation orientation (origin);
+      gams::pose::Quaternion quat (orientation);
+      tf2_ros::TransformBroadcaster tf_brdcaster;
+
+      geometry_msgs::Transform transform;
+      geometry_msgs::Vector3 t;
+      t.x = origin.x ();
+      t.y = origin.y ();
+      t.z = origin.z ();
+      transform.translation = t;
+      geometry_msgs::Quaternion q;
+      q.x = quat.x ();
+      q.y = quat.y ();
+      q.z = quat.z ();
+      q.w = quat.w ();
+      transform.rotation = q;
+      geometry_msgs::TransformStamped st;
+      st.transform = transform;
+      st.child_frame_id = ref_frame.id ();
+
+      std_msgs::Header h;
+      h.seq = 0;
+      h.stamp = global_ros::Time::now ();
+      h.frame_id = ref_frame.origin_frame ().id ();
+      st.header = h;
+
+      tf_brdcaster.sendTransform (st);
+      return 1;
+    }
+  }
+  return 0;
 }

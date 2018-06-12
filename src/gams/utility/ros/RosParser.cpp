@@ -9,8 +9,8 @@
 namespace global_ros = ros;
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
-  std::string world_frame, std::string base_frame) : 
-  eval_settings_(true, true, false, false, false)
+  std::string world_frame, std::string base_frame, std::string frame_prefix) : 
+  eval_settings_(true, true, false, false, false), frame_prefix_(frame_prefix)
 {
   world_frame_ = world_frame;
   base_frame_ = base_frame;
@@ -20,7 +20,8 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   {
     gams::pose::ReferenceFrame frame (world_frame,
       gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
-    frame.save (*knowledge_);
+    frame.save (*knowledge_,
+      gams::pose::FrameEvalSettings(frame_prefix_, eval_settings_));
   }
 }
 
@@ -456,7 +457,9 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     uint64_t timestamp = iter->header.stamp.sec;
     timestamp = timestamp*1000000000 + iter->header.stamp.nsec;
     gams::pose::ReferenceFrame child_frame (child_frame_id, pose, timestamp);
-    child_frame.save (*knowledge_);
+
+    child_frame.save (*knowledge_,
+      gams::pose::FrameEvalSettings(frame_prefix_, eval_settings_));
     if (timestamp > max_timestamp)
       max_timestamp = timestamp;
   }

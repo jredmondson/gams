@@ -55,37 +55,23 @@ gams::transports::RosBridge::RosBridge (
 gams::transports::RosBridge::~RosBridge ()
 {
   delete[] parser_;
-  //std::cout << "TERMINATE!!!" << std::endl << std::endl << std::endl << std::endl;
-  //read_threads_.terminate();
 }
 
 long
 gams::transports::RosBridge::send_data (
   const madara::knowledge::VariableReferenceMap & modifieds)
 {
-  /**
-   * Return number of bytes sent or negative for error
-   **/
   long result (0);
-  
-  /**
-   * This is where you should do your custom transport sending logic/actions
-   **/
-
 
   for (
     madara::knowledge::VariableReferenceMap::const_iterator it = modifieds.begin();
     it != modifieds.end(); it++)
   {
     const char * key = it->first;
-    // std::cout << "Got update for " << key;
     std::pair<std::string, std::string> names = get_update_container_pair_ (key);
 
     if (names.first != "")
     {
-      /*std::cout << " - bingo" << std::endl;
-      std::cout << " will publish " << names.second << 
-        " to " << names.first << std::endl;*/
       std::map<std::string, std::string>::iterator type_it =
         pub_topic_types_.find (names.first);
       if (type_it != pub_topic_types_.end())
@@ -93,17 +79,15 @@ gams::transports::RosBridge::send_data (
         parser_->parse_message(names.second, names.first, type_it->second);
         message_count_++;
       }
-      /*else
+      else if (names.first == "/tf")
       {
-        std::cout << " - no topic type defined!" << std::endl;
-      }*/
+        std::string frame_name = std::string (key).substr (
+          names.second.length ()+1);
+        frame_name = frame_name.substr (0, frame_name.find ("."));
+        message_count_ += parser_->publish_transform(frame_name, names.second);
+      }
     }
-    /*else
-    {
-      std::cout << " - ignored" << std::endl;
-    }*/
   }
-  //std::cout << std::endl;
   return result;
 }
 

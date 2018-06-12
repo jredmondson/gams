@@ -9,7 +9,7 @@ void gams::transports::RosBridgeReadThread::messageCallback (
   const topic_tools::ShapeShifter::ConstPtr& msg,
   const std::string &topic_name )
 {
-  // std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << "> " << msg << std::endl;
+  std::cout << "CALLBACK FROM "  << topic_name << " <" << msg->getDataType() << "> " << msg << std::endl;
   message_count_++;
   //std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
   //Check if topic is in the topic mapping
@@ -70,7 +70,17 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
 
   ros::NodeHandle node;
 
-  parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1");
+  std::map<std::string, std::string>::iterator frame_prefix =
+    topic_map_.find ("/tf");
+  if (frame_prefix != topic_map_.end ())
+  {
+    parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1",
+      frame_prefix->second);
+  }
+  else
+  {
+    parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1");
+  }
 
   for (const std::string topic_name: topics_ )
   {

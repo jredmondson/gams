@@ -42,6 +42,7 @@
 #include <tf2_msgs/TFMessage.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
+#include "tf2_ros/transform_broadcaster.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -99,6 +100,9 @@ namespace gams
           template <size_t N>
           void parse_int_array (boost::array<int, N> *array,
             containers::NativeIntegerVector *origin);
+          
+          int publish_transform (std::string frame_id,
+            std::string frame_prefix);
         protected:
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;

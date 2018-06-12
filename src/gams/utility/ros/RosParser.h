@@ -68,7 +68,8 @@ namespace gams
       {
         public:
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
-            std::string base_frame);
+            std::string base_frame,
+            std::string frame_prefix=gams::pose::ReferenceFrame::default_prefix());
           void parse_message (const rosbag::MessageInstance m,
             std::string container_name);
           void parse_message (const topic_tools::ShapeShifter::ConstPtr& m,
@@ -139,6 +140,7 @@ namespace gams
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;
           knowledge::EvalSettings eval_settings_;
+          std::string frame_prefix_;
 
       };
       std::string ros_to_gams_name (std::string ros_topic_name);
