@@ -18,15 +18,49 @@ env:
 
 matrix:
   include:
+      # clang, osx, no ssl
     - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - libssl-dev
+            - clang-5.0
       env: CLANG="clang"
       os: osx
+
+      # g++, linux, no ssl
     - compiler: gcc
       os: linux
       env: CLANG=""
+
+      # g++, linux, ssl
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libssl-dev
+      env: CLANG="" SSL="ssl"
+
+      # clang, linux, no ssl
     - compiler: clang
       env: CLANG="clang"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - libssl-dev
+            - clang-5.0
       os: linux
+
+      # clang, linux, no ssl
     - compiler: gcc
       os: linux
       env: CLANG="" SSL="ssl"
