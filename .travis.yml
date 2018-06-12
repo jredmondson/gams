@@ -9,8 +9,6 @@ compiler:
 
 env:
   matrix:
-    - CLANG="clang"
-    - 
   global:
     - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
     - GAMS_ROOT=$TRAVIS_BUILD_DIR/gams
@@ -21,23 +19,17 @@ env:
 matrix:
   include:
     - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
-          packages:
-            - clang-5.0
-
-      env: COMPILER='clang++-5.0'
+      env: CLANG="clang"
+      os: osx
     - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-      env: COMPILER='g++-7'
+      os: linux
+      env: CLANG=""
+    - compiler: clang
+      env: CLANG="clang"
+      os: linux
+    - compiler: gcc
+      os: linux
+      env: CLANG="" SSL="ssl"
 
 addons:
   apt:
@@ -59,6 +51,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; fi
 
 script:
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL
 
 
