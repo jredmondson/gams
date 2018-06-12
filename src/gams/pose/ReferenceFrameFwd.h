@@ -92,7 +92,7 @@ namespace gams
         : Base(std::move(base)),
           prefix_(std::make_shared<std::string>(std::move(prefix))) {}
 
-      FrameEvalSettings(nullptr_t, Base base = Base::DELAY)
+      FrameEvalSettings(std::nullptr_t, Base base = Base::DELAY)
         : FrameEvalSettings(std::move(base)) {}
 
       FrameEvalSettings(const char *prefix, Base base = Base::DELAY)
