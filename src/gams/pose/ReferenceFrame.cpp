@@ -77,6 +77,10 @@ namespace gams
 {
   namespace pose
   {
+    const FrameEvalSettings FrameEvalSettings::DEFAULT;
+
+    const std::string FrameEvalSettings::default_prefix_(".gams.frames");
+
     std::map<std::string, std::weak_ptr<ReferenceFrameIdentity>>
       ReferenceFrameIdentity::idents_;
 
@@ -237,10 +241,10 @@ namespace gams
     void ReferenceFrameIdentity::expire_older_than(
         KnowledgeBase &kb,
         uint64_t time,
-        std::string prefix) const
+        const FrameEvalSettings &settings) const
     {
-      impl::make_kb_key(prefix, id_);
-      std::string key_low = std::move(prefix);
+      std::string key_low = settings.prefix();
+      impl::make_kb_key(key_low, id_);
       std::string key_high = key_low;
       impl::make_kb_key(key_low, 0UL);
       impl::make_kb_key(key_high, time);
@@ -272,7 +276,7 @@ namespace gams
             KnowledgeBase &kb,
             std::string key,
             uint64_t expiry,
-            const std::string &prefix) const
+            const FrameEvalSettings &settings) const
     {
       key += ".";
       size_t pos = key.size();
@@ -282,19 +286,19 @@ namespace gams
 
         if (type() != Cartesian) {
           key += "type";
-          kb.set(key, name());
+          kb.set(key, name(), settings);
           key.resize(pos);
         }
 
         const ReferenceFrame &parent = origin_frame();
         if (parent.valid()) {
           key += "parent";
-          kb.set(key, parent.id());
+          kb.set(key, parent.id(), settings);
           key.resize(pos);
         }
 
         key += "origin";
-        NativeDoubleVector vec(key, kb, 6);
+        NativeDoubleVector vec(key, kb, 6, settings);
         origin().to_container(vec);
 
         interpolated_ = false;
@@ -309,14 +313,14 @@ namespace gams
         } else {
           cap = timestamp() - expiry;
         }
-        ident().expire_older_than(kb, cap, prefix);
+        ident().expire_older_than(kb, cap, settings);
       }
     }
 
     namespace {
       std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
         load_single( KnowledgeBase &kb, const std::string &id,
-            uint64_t timestamp, std::string prefix)
+            uint64_t timestamp, const FrameEvalSettings &settings)
       {
         auto ident = ReferenceFrameIdentity::find(id);
         if (ident) {
@@ -327,7 +331,7 @@ namespace gams
           }
         }
 
-        auto key = std::move(prefix);
+        auto key = settings.prefix();
         impl::make_kb_key(key, id, timestamp);
 
         key += ".";
@@ -362,7 +366,7 @@ namespace gams
         key += "origin";
         find = map.find(key);
         if (find != map.end()) {
-          NativeDoubleVector vec(key, kb, 6);
+          NativeDoubleVector vec(key, kb, 6, settings);
           origin.from_container(vec);
         } else {
           return std::make_pair(std::shared_ptr<ReferenceFrameVersion>(),
@@ -383,11 +387,11 @@ namespace gams
           const std::string &id,
           uint64_t timestamp,
           uint64_t parent_timestamp,
-          std::string prefix)
+          const FrameEvalSettings &settings)
     {
       ContextGuard guard(kb);
 
-      auto ret = load_single(kb, id, timestamp, prefix);
+      auto ret = load_single(kb, id, timestamp, settings);
       if (!ret.first) {
         return ReferenceFrame();
       }
@@ -403,8 +407,7 @@ namespace gams
       }
 
       if (parent_frame.size() > 0) {
-        auto parent = load(kb, parent_frame, parent_timestamp,
-                           std::move(prefix));
+        auto parent = load(kb, parent_frame, parent_timestamp, settings);
         if (!parent.valid()) {
           LOCAL_DEBUG(std::cerr << "Couldn't find " << parent_frame << std::endl;)
           return ReferenceFrame();
@@ -442,12 +445,12 @@ namespace gams
 
       std::pair<uint64_t, uint64_t> find_nearest_neighbors(
           KnowledgeBase &kb, const std::string &id,
-          uint64_t timestamp, std::string prefix)
+          uint64_t timestamp, const FrameEvalSettings &settings)
       {
         static const char suffix[] = ".origin";
         static const size_t suffix_len = sizeof(suffix) - 1;
 
-        auto key = std::move(prefix);
+        auto key = settings.prefix();
 
         impl::make_kb_key(key, id);
 
@@ -519,14 +522,14 @@ namespace gams
     uint64_t ReferenceFrameVersion::latest_timestamp(
             madara::knowledge::KnowledgeBase &kb,
             const std::string &id,
-            std::string prefix)
+            const FrameEvalSettings &settings)
     {
       ContextGuard guard(kb);
 
-      auto ret = find_nearest_neighbors(kb, id, -1, prefix).first;
+      auto ret = find_nearest_neighbors(kb, id, -1, settings).first;
       LOCAL_DEBUG(std::cerr << "Latest for " << id << " is " << ret << std::endl;)
 
-      auto key = std::move(prefix);
+      auto key = settings.prefix();
       impl::make_kb_key(key, id, ret);
       key += ".parent";
       KnowledgeMap &map = kb.get_context().get_map_unsafe();
@@ -544,25 +547,25 @@ namespace gams
             KnowledgeBase &kb,
             const std::string &id,
             uint64_t timestamp,
-            std::string prefix)
+            const FrameEvalSettings &settings)
     {
       ContextGuard guard(kb);
 
       if (timestamp == (uint64_t)-1) {
-        timestamp = latest_timestamp(kb, id, prefix);
+        timestamp = latest_timestamp(kb, id, settings);
       }
 
-      ReferenceFrame ret = load_exact(kb, id, timestamp, timestamp, prefix);
+      ReferenceFrame ret = load_exact(kb, id, timestamp, timestamp, settings);
       if (ret.valid()) {
         return ret;
       }
 
-      ret = load_exact(kb, id, -1, timestamp, prefix);
+      ret = load_exact(kb, id, -1, timestamp, settings);
       if (ret.valid()) {
         return ret;
       }
 
-      auto pair = find_nearest_neighbors(kb, id, timestamp, prefix);
+      auto pair = find_nearest_neighbors(kb, id, timestamp, settings);
 
       LOCAL_DEBUG(std::cerr << "Nearest " << id << " " << pair.first << " " <<
                   timestamp << " " << pair.second << std::endl;)
@@ -572,8 +575,8 @@ namespace gams
         return {};
       }
 
-      auto prev = load_single(kb, id, pair.first, prefix);
-      auto next = load_single(kb, id, pair.second, prefix);
+      auto prev = load_single(kb, id, pair.first, settings);
+      auto next = load_single(kb, id, pair.second, settings);
 
       ReferenceFrame parent;
 
@@ -598,7 +601,7 @@ namespace gams
 
           LOCAL_DEBUG(std::cerr << "Loading " << id << "'s parent " << parent_id <<
                       std::endl;)
-          parent = load(kb, parent_id, timestamp, prefix);
+          parent = load(kb, parent_id, timestamp, settings);
 
           if (!parent.valid()) {
             return {};

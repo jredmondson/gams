@@ -72,6 +72,55 @@ namespace gams
     class Orientation;
 
     /**
+     * Settings class for saving/loading reference frames.
+     * Inherits from madara::knowledge::EvalSettings, adding a prefix option
+     * for frame storage.
+     *
+     * The EvalSettings portion defaults to EvalSettings::DELAY, equivalent to
+     * Madara containers, and the most common settings used in GAMS.
+     **/
+    class GAMS_EXPORT FrameEvalSettings : public madara::knowledge::EvalSettings
+    {
+    public:
+      using Base = madara::knowledge::EvalSettings;
+
+      static const FrameEvalSettings DEFAULT;
+
+      FrameEvalSettings(Base base = Base::DELAY) : Base(std::move(base)) {}
+
+      FrameEvalSettings(std::string prefix, Base base = Base::DELAY)
+        : Base(std::move(base)),
+          prefix_(std::make_shared<std::string>(std::move(prefix))) {}
+
+      FrameEvalSettings(nullptr_t, Base base = Base::DELAY)
+        : FrameEvalSettings(std::move(base)) {}
+
+      FrameEvalSettings(const char *prefix, Base base = Base::DELAY)
+        : FrameEvalSettings(std::string(prefix), std::move(base)) {}
+
+      static const std::string &default_prefix() {
+        return default_prefix_;
+      }
+
+      const std::string &prefix() const {
+        if (prefix_) {
+          return *prefix_;
+        } else {
+          return default_prefix();
+        }
+      }
+
+      void prefix(std::string prefix) {
+        prefix_ = std::make_shared<std::string>(std::move(prefix));
+      }
+
+    private:
+      static const std::string default_prefix_;
+
+      std::shared_ptr<std::string> prefix_;
+    };
+
+    /**
      * Provides Reference Frame (i.e., coordinate systemm) transforms.
      *
      * A ReferenceFrame has:
@@ -385,10 +434,6 @@ namespace gams
        **/
       const std::string &id() const;
 
-      std::ostringstream key_stream() const;
-
-      std::string key() const;
-
       /**
        * Retrieve the frame type object for this frame. Mostly useful for
        * comparing to the pose::Cartesian or pose::GPS instances to test
@@ -476,7 +521,7 @@ namespace gams
        * @param kb the KnowledgeBase to store into
        **/
       void save(madara::knowledge::KnowledgeBase &kb,
-                std::string prefix = default_prefix()) const;
+                const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
       /**
        * Save this ReferenceFrame to the knowledge base,
@@ -489,7 +534,7 @@ namespace gams
        **/
       void save(madara::knowledge::KnowledgeBase &kb,
                 uint64_t expiry,
-                std::string prefix = default_prefix()) const;
+                const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
       /**
        * Load a single ReferenceFrame, by ID.
@@ -506,7 +551,7 @@ namespace gams
               madara::knowledge::KnowledgeBase &kb,
               const std::string &id,
               uint64_t timestamp = -1,
-              std::string prefix = default_prefix());
+              const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
       /**
        * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -530,7 +575,7 @@ namespace gams
             InputIterator begin,
             InputIterator end,
             uint64_t timestamp = -1,
-            std::string prefix = default_prefix());
+            const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
       /**
        * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -553,7 +598,7 @@ namespace gams
             madara::knowledge::KnowledgeBase &kb,
             const Container &ids,
             uint64_t timestamp = -1,
-            std::string prefix = default_prefix());
+            const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
       /**
        * Save this ReferenceFrame to the knowledge base, with a specific key
@@ -565,7 +610,7 @@ namespace gams
       void save_as(
             madara::knowledge::KnowledgeBase &kb,
             const std::string &key,
-            const std::string &prefix) const;
+            const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
       /**
        * Save this ReferenceFrame to the knowledge base,
@@ -577,7 +622,7 @@ namespace gams
        **/
       void save_as(madara::knowledge::KnowledgeBase &kb,
                    const std::string &key, uint64_t expiry,
-                   const std::string &prefix) const;
+                   const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
       /**
        * Interpolate a frame between the given frame; use the given parent.

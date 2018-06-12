@@ -68,6 +68,7 @@
 #include "CartesianFrame.h"
 #include "Pose.h"
 #include "Quaternion.h"
+#include "madara/knowledge/EvalSettings.h"
 
 namespace gams { namespace pose {
 
@@ -193,11 +194,10 @@ public:
     }
 
     void expire_older_than(madara::knowledge::KnowledgeBase &kb,
-        uint64_t time, std::string prefix) const;
+        uint64_t time, const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
     static const std::string &default_prefix() {
-      static const std::string prefix(".gams.frames");
-      return prefix;
+      return FrameEvalSettings::default_prefix();
     }
 
     /**
@@ -582,7 +582,8 @@ public:
   /**
    * Returns the key that save() will use to store this frame.
    **/
-  std::string key(std::string prefix = default_prefix()) const {
+  std::string key(const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const {
+    std::string prefix = settings.prefix();
     impl::make_kb_key(prefix, id(), timestamp());
     return prefix;
   }
@@ -598,9 +599,9 @@ public:
    **/
   void save(madara::knowledge::KnowledgeBase &kb,
             uint64_t expiry,
-            std::string prefix = default_prefix()) const {
-    std::string key = this->key(prefix);
-    save_as(kb, std::move(key), expiry, prefix);
+            const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const {
+    std::string key = this->key(settings);
+    save_as(kb, std::move(key), expiry, settings);
   }
 
   /**
@@ -612,9 +613,9 @@ public:
    * @param kb the KnowledgeBase to store into
    **/
   void save(madara::knowledge::KnowledgeBase &kb,
-      std::string prefix = default_prefix()) const {
-    std::string key = this->key(prefix);
-    save_as(kb, std::move(key), prefix);
+      const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const {
+    std::string key = this->key(settings);
+    save_as(kb, std::move(key), settings);
   }
 
   /**
@@ -636,7 +637,7 @@ public:
           const std::string &id,
           uint64_t timestamp = -1,
           uint64_t parent_timestamp = -1,
-          std::string prefix = default_prefix());
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
   /**
    * Load a single ReferenceFrame, by ID and timestamp, interpolated
@@ -654,7 +655,7 @@ public:
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
           uint64_t timestamp = -1,
-          std::string prefix = default_prefix());
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
   /**
    * Get the latest available timestamp in the knowledge base
@@ -669,7 +670,7 @@ public:
   static uint64_t latest_timestamp(
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
-          std::string prefix = default_prefix());
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
   /**
    * Get the latest available timestamp in the knowledge base
@@ -690,14 +691,14 @@ public:
           madara::knowledge::KnowledgeBase &kb,
           ForwardIterator begin,
           ForwardIterator end,
-          const std::string &prefix = default_prefix())
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
     madara::knowledge::ContextGuard guard(kb);
 
     uint64_t timestamp = -1;
     ForwardIterator cur = begin;
     while (cur != end) {
-      uint64_t time = latest_timestamp(kb, *cur, prefix);
+      uint64_t time = latest_timestamp(kb, *cur, settings);
       if (time < timestamp) {
         timestamp = time;
       }
@@ -722,11 +723,11 @@ public:
   static uint64_t latest_common_timestamp(
           madara::knowledge::KnowledgeBase &kb,
           const Container &ids,
-          const std::string &prefix = default_prefix())
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
     madara::knowledge::ContextGuard guard(kb);
 
-    return latest_common_timestamp(kb, ids.cbegin(), ids.cend(), prefix);
+    return latest_common_timestamp(kb, ids.cbegin(), ids.cend(), settings);
   }
 
   /**
@@ -751,7 +752,7 @@ public:
           ForwardIterator begin,
           ForwardIterator end,
           uint64_t timestamp = -1,
-          std::string prefix = default_prefix())
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
     std::vector<ReferenceFrame> ret;
     if (std::is_same<typename ForwardIterator::iterator_category,
@@ -763,10 +764,10 @@ public:
     madara::knowledge::ContextGuard guard(kb);
 
     if (timestamp == (uint64_t)-1) {
-      timestamp = latest_common_timestamp(kb, begin, end, prefix);
+      timestamp = latest_common_timestamp(kb, begin, end, settings);
     }
     while (begin != end) {
-      ReferenceFrame frame = load(kb, *begin, timestamp, prefix);
+      ReferenceFrame frame = load(kb, *begin, timestamp, settings);
       if (!frame.valid()) {
         return {};
       }
@@ -797,10 +798,10 @@ public:
           madara::knowledge::KnowledgeBase &kb,
           const Container &ids,
           uint64_t timestamp = -1,
-          std::string prefix = default_prefix())
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
     return load_tree(kb, ids.cbegin(), ids.cend(),
-                     timestamp, std::move(prefix));
+                     timestamp, std::move(settings));
   }
 
   /**
@@ -813,7 +814,7 @@ public:
    **/
   void save_as(madara::knowledge::KnowledgeBase &kb,
                std::string key, uint64_t expiry,
-               const std::string &prefix = default_prefix()) const;
+               const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
   /**
    * Save this ReferenceFrame to the knowledge base,
    * with a specific key value.
@@ -823,9 +824,9 @@ public:
    **/
   void save_as(madara::knowledge::KnowledgeBase &kb,
                std::string key,
-               const std::string &prefix = default_prefix()) const
+               const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const
   {
-    save_as(kb, key, ident().expiry(), prefix);
+    save_as(kb, key, ident().expiry(), settings);
   }
 
   /**
@@ -883,8 +884,8 @@ public:
 };
 
 /**
- * Class for storing and loading frames in a given KnowledgeBase, at a
- * given prefix, with a set expiry.
+ * Class for storing and loading frames in a given KnowledgeBase, using
+ * given settings, with a set expiry.
  *
  * This class itself is immutable, and thus trivially thread-safe.
  **/
@@ -897,7 +898,7 @@ private:
    */
   mutable madara::knowledge::KnowledgeBase kb_;
 
-  std::string prefix_;
+  FrameEvalSettings settings_ = FrameEvalSettings::DEFAULT;
   uint64_t expiry_;
 
 public:
@@ -909,49 +910,48 @@ public:
    * @param expiry expiration to use for all saves
    **/
   FrameStore(madara::knowledge::KnowledgeBase kb,
-             std::string prefix, uint64_t expiry)
-    : kb_(std::move(kb)), prefix_(std::move(prefix)), expiry_(expiry) {}
+             FrameEvalSettings settings, uint64_t expiry)
+    : kb_(std::move(kb)), settings_(std::move(settings)), expiry_(expiry) {}
 
   /**
    * Constructor for FrameStore
    * Uses ReferenceFrame::default_expiry() for expiration
    *
    * @param kb the KnowledgeBase to use
-   * @param prefix within the KnowledgeBase to use
+   * @param settings to use
    **/
-  FrameStore(madara::knowledge::KnowledgeBase kb, std::string prefix)
-    : FrameStore(std::move(kb), std::move(prefix),
+  FrameStore(madara::knowledge::KnowledgeBase kb, FrameEvalSettings settings)
+    : FrameStore(std::move(kb), std::move(settings),
         ReferenceFrame::default_expiry()) {}
 
   /**
    * Constructor for FrameStore
-   * Uses ReferenceFrame::default_prefix() for prefix
+   * Uses default FrameEvalSettings
    *
    * @param kb the KnowledgeBase to use
    * @param expiry expiration to use for all saves
    **/
   FrameStore(madara::knowledge::KnowledgeBase kb, uint64_t expiry)
-    : FrameStore(std::move(kb), ReferenceFrame::default_prefix(),
-        expiry) {}
+    : FrameStore(std::move(kb), FrameEvalSettings::DEFAULT, expiry) {}
 
 
   /**
    * Constructor for FrameStore
-   * Uses ReferenceFrame::default_prefix() for prefix
+   * Uses default FrameEvalSettings
    * Uses ReferenceFrame::default_expiry() for expiration
    *
    * @param kb the KnowledgeBase to use
    **/
   FrameStore(madara::knowledge::KnowledgeBase kb)
-    : FrameStore(std::move(kb), ReferenceFrame::default_prefix(),
+    : FrameStore(std::move(kb), FrameEvalSettings::DEFAULT,
         ReferenceFrame::default_expiry()) {}
 
   /// Return the current expiry for all frames saved with this FrameStore
   /// See ReferenceFrame::expiry(uint64_t) for details of expiration.
   uint64_t expiry() const { return expiry_; }
 
-  /// Return the current prefix for frames saved/loaded with this FrameStore
-  const std::string &prefix() const { return prefix_; }
+  /// Return the current settings for frames saved/loaded with this FrameStore
+  const FrameEvalSettings &settings() const { return settings_; }
 
   /// Return the KnowledgeBase to load/save with this FrameStore
   const madara::knowledge::KnowledgeBase &kb() const { return kb_; }
@@ -965,7 +965,7 @@ public:
    * @param frame the ReferenceFrame to store
    **/
   void save(const ReferenceFrame &frame) const {
-    return frame.save(kb_, expiry_, prefix_);
+    return frame.save(kb_, expiry_, settings_);
   }
 
   /**
@@ -980,7 +980,7 @@ public:
    *         exists.
    **/
    ReferenceFrame load(const std::string &id, uint64_t timestamp = -1) {
-     return ReferenceFrame::load(kb_, id, timestamp, prefix_);
+     return ReferenceFrame::load(kb_, id, timestamp, settings_);
    }
 
   /**
@@ -1004,7 +1004,7 @@ public:
         InputIterator begin,
         InputIterator end,
         uint64_t timestamp = -1) const {
-   return ReferenceFrame::load_tree(kb_, begin, end, timestamp, prefix_);
+   return ReferenceFrame::load_tree(kb_, begin, end, timestamp, settings_);
   }
 
   /**
@@ -1027,7 +1027,7 @@ public:
   std::vector<ReferenceFrame> load_tree(
         const Container &ids,
         uint64_t timestamp = -1) const {
-   return ReferenceFrame::load_tree(kb_, ids, timestamp, prefix_);
+   return ReferenceFrame::load_tree(kb_, ids, timestamp, settings_);
   }
 };
 
