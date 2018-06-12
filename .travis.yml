@@ -1,0 +1,64 @@
+sudo: required
+group: travis_latest
+language: cpp
+os:
+  - linux
+
+compiler:
+  - gcc
+
+env:
+  matrix:
+    - CLANG="clang"
+    - 
+  global:
+    - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
+    - GAMS_ROOT=$TRAVIS_BUILD_DIR/gams
+    - MPC_ROOT=$TRAVIS_BUILD_DIR/MPC
+    - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH
+    - CORES=6
+
+matrix:
+  include:
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - clang-5.0
+
+      env: COMPILER='clang++-5.0'
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env: COMPILER='g++-7'
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - git-core
+
+before_install:
+  - git clone -b aceless --single-branch https://github.com/jredmondson/gams $GAMS_ROOT
+
+branches:
+  only:
+    - master
+
+before_script:
+  - export
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export OS=linux; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; fi
+
+script:
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests
+
+
