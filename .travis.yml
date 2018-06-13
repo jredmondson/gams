@@ -4,6 +4,13 @@ language: cpp
 os:
   - linux
 
+branches:
+  excludes:
+    - gh-pages
+    - tutorials
+    - installers
+    - dart-0.4.0
+
 compiler:
   - gcc
 
@@ -110,10 +117,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install zeromq; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link openssl --force; fi
-
-branches:
-  only:
-    - master
 
 before_script:
   - export
