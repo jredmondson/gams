@@ -1,4 +1,6 @@
-0. ABOUT GAMS
+[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams)
+
+0. ABOUT GAMS 
 
 The Group Autonomy for Mobile Systems (GAMS) project at Carnegie Mellon University
 is intended to provide a distributed operating environment for control of one or
