@@ -489,7 +489,11 @@ fi
 
 if [ $SSL -eq 1 ]; then
   if [ -z $SSL_ROOT ]; then
-    export SSL_ROOT=/usr
+    if [ MAC -eq 0 ]; then
+      export SSL_ROOT=/usr
+    else
+      export SSL_ROOT=/usr/local/opt/openssl
+    fi
   fi
 fi
 

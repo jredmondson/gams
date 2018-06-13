@@ -28,13 +28,19 @@ matrix:
 
       # clang, osx, ssl
     - compiler: clang
-      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl"
+      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl" SSL_ROOT=/usr/local/opt/openssl
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, java
     - compiler: clang
       env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java"
+      os: osx
+      osx_image: xcode9.3
+
+      # clang, osx, zeromq
+    - compiler: clang
+      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
       os: osx
       osx_image: xcode9.3
 
@@ -91,7 +97,6 @@ matrix:
             - libssl-dev
       env: NAME="Ubuntu 14.04 g++ zmq" ZMQ="zmq"
 
-
 addons:
   apt:
     sources:
@@ -101,6 +106,10 @@ addons:
 
 before_install:
   - git clone -b master --single-branch https://github.com/jredmondson/gams $GAMS_ROOT
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install zeromq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link openssl --force; fi
 
 branches:
   only:
@@ -109,10 +118,10 @@ branches:
 before_script:
   - export
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export OS=linux; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; export CLANG_SUFFIX=; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; export CLANG_SUFFIX=; export JAVA_HOME=$(/usr/libexec/java_home) ; fi
 
 script:
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS
 
 
