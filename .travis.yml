@@ -28,13 +28,13 @@ matrix:
           packages:
             - libssl-dev
             - clang-5.0
-      env: CLANG="clang"
+      env: TESTNAME="OSX Clang" CLANG="clang"
       os: osx
 
       # g++, linux, no ssl
     - compiler: gcc
       os: linux
-      env: CLANG=""
+      env: TESTNAME="Ubuntu 14.04 g++" CLANG=""
 
       # g++, linux, ssl
     - compiler: gcc
@@ -45,11 +45,11 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - libssl-dev
-      env: CLANG="" SSL="ssl"
+      env: TESTNAME="Ubuntu 14.04 g++ ssl" CLANG="" SSL="ssl"
 
       # clang, linux, no ssl
     - compiler: clang
-      env: CLANG="clang"
+      env: TESTNAME="Ubuntu 14.04 clang" CLANG="clang"
       addons:
         apt:
           sources:
@@ -59,11 +59,6 @@ matrix:
             - libssl-dev
             - clang-5.0
       os: linux
-
-      # clang, linux, no ssl
-    - compiler: gcc
-      os: linux
-      env: CLANG="" SSL="ssl"
 
 addons:
   apt:
