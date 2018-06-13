@@ -1,5 +1,5 @@
 #define TEST_ROS2GAMS
-#include <gams/programs/ros2gams.cpp>
+#include <gams/utility/ros/RosParser.cpp>
 #include <std_msgs/Header.h>
 
 
@@ -37,7 +37,7 @@ void test_pose()
 	std::cout << std::endl << "test geometry_msgs::Pose" << std::endl;
 
 	knowledge::KnowledgeBase knowledge;
-
+	gams::utility::ros::RosParser parser(&knowledge, "", "");
 
 	geometry_msgs::Pose p;
 	p.position.x = 1.0;
@@ -50,7 +50,7 @@ void test_pose()
 	p.orientation.w = 0.707;
 
 	std::string container_name = "pose_test";
-	parse_pose(&p, &knowledge, container_name);
+	parser.parse_pose(&p, container_name);
 
 	containers::NativeDoubleVector cont(container_name, knowledge, 6);
 	gams::pose::Pose pose;
@@ -70,6 +70,7 @@ void test_tf_tree()
 	std::cout << std::endl << "test tf2_msgs::TFMessage" << std::endl;
 
 	knowledge::KnowledgeBase knowledge;
+	gams::utility::ros::RosParser parser(&knowledge, "world", "frame1");
 
 	geometry_msgs::Transform transform;
 	geometry_msgs::Vector3 t;
@@ -96,7 +97,7 @@ void test_tf_tree()
 	tf2_msgs::TFMessage m;
 	m.transforms.push_back(st);
 
-	parse_tf_message(&m, &knowledge);
+	parser.parse_tf_message(&m);
 
 	gams::pose::ReferenceFrame ref_frame = gams::pose::ReferenceFrame::load(knowledge, st.child_frame_id);
 	TEST(ref_frame.valid(), true);
