@@ -79,7 +79,7 @@ addons:
       - git-core
 
 before_install:
-  - git clone -b aceless --single-branch https://github.com/jredmondson/gams $GAMS_ROOT
+  - git clone -b master --single-branch https://github.com/jredmondson/gams $GAMS_ROOT
 
 branches:
   only:
