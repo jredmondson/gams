@@ -60,6 +60,8 @@
 #   $CORES        - number of build jobs to launch with make
 #   $MADARA_ROOT  - location of local copy of MADARA git repository from
 #                   git://git.code.sf.net/p/madara/code
+#   $GTEST_ROOT   - location of local copy of gtest repository from
+#                   https://github.com/google/googletest/
 #   $GAMS_ROOT    - location of this GAMS git repository
 #   $VREP_ROOT    - location of VREP installation, if applicable
 #   $SSL_ROOT     - location of OpenSSL (usually /usr)
@@ -199,6 +201,8 @@ do
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
     echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  GTEST_ROOT            location of local copy of GTEST git repository from"
+    echo "                        https://github.com/google/googletest/"
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  JAVA_HOME           - location of JDK"
@@ -517,6 +521,33 @@ if [ $MADARA_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MADARA_ROOT ]; then
   MADARA_AS_A_PREREQ=1
 fi
 
+if [ $TESTS -eq 1 ] && [ -z $GTEST_ROOT ] ; then
+  export GTEST_ROOT=$INSTALL_DIR/gtest
+fi
+
+if [ $TESTS -eq 1 ] ; then
+    if [ ! -d $GTEST_ROOT ] ; then
+        echo "DOWNLOADING GTEST"
+        git clone --depth 1 https://github.com/google/googletest.git $GTEST_ROOT
+        GTEST_REPO_RESULT=$?
+    else
+        echo "UPDATING GTEST"
+        cd $GTEST_ROOT
+        git pull
+        GTEST_REPO_RESULT=$?
+        echo "CLEARING GTEST OBJECTS"
+        rm -rf $GTEST_ROOT/build
+    fi
+
+    echo "BUILDING GTEST"
+    mkdir $GTEST_ROOT/build
+    cd $GTEST_ROOT/build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make -j $CORES
+    cd ../..
+fi
+
+
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
@@ -801,6 +832,7 @@ echo -e "Make sure to update your environment variables to the following"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
 echo -e "export MPC_ROOT=$MPC_ROOT"
 echo -e "export MADARA_ROOT=$MADARA_ROOT"
+echo -e "export GTEST_ROOT=$GTEST_ROOT"
 echo -e "export GAMS_ROOT=$GAMS_ROOT"
 echo -e "export VREP_ROOT=$VREP_ROOT"
 

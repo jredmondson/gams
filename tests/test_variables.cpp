@@ -63,22 +63,20 @@
 
 #include "gams/variables/AccentStatus.h"
 
+#include "gtest/gtest.h"
+
 namespace transport = madara::transport;
 namespace pose = gams::pose;
 namespace knowledge = madara::knowledge;
 namespace variables = gams::variables;
 
-void
-test_accent (void)
+TEST(TestVariables, TestAccent)
 {
 
 }
 
-void
-test_agent (void)
+TEST(TestVariables, TestAgent)
 {
-  std::cout << "Testing Agent...\n";
-
   knowledge::KnowledgeBase context;
 
   variables::Agent agent;
@@ -125,106 +123,53 @@ test_agent (void)
 
   // test the double vectors
 
-  std::cout << "  Testing Agent.dest: ";
-  if (agent.dest.to_record ().to_doubles () == position_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
+  EXPECT_EQ(agent.dest.to_record ().to_doubles (), position_vector)
+      << "Testing Agent.dest failed.";
+  EXPECT_EQ(agent.home.to_record ().to_doubles (), position_vector)
+      << "Testing Agent.home failed.";
+  EXPECT_EQ(agent.location.to_record ().to_doubles (), position_vector)
+      << "Testing Agent.location failed.";
+  EXPECT_EQ(agent.source.to_record ().to_doubles (), position_vector)
+      << "Testing Agent.source failed.";
   
-  std::cout << "  Testing Agent.home: ";
-  if (agent.home.to_record ().to_doubles () == position_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
+  EXPECT_EQ(agent.dest_orientation.to_record ().to_doubles (), angle_vector)
+      << "Testing Agent.dest_orientation failed.";
   
-  std::cout << "  Testing Agent.location: ";
-  if (agent.location.to_record ().to_doubles () == position_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
+  EXPECT_EQ(agent.orientation.to_record ().to_doubles (), angle_vector)
+      << "Testing Agent.orientation failed.";
   
-  std::cout << "  Testing Agent.source: ";
-  if (agent.source.to_record ().to_doubles () == position_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
-  
-  std::cout << "  Testing Agent.dest_orientation: ";
-  if (agent.dest_orientation.to_record ().to_doubles () == angle_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
-  
-  std::cout << "  Testing Agent.orientation: ";
-  if (agent.orientation.to_record ().to_doubles () == angle_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
-  
-  std::cout << "  Testing Agent.source_orientation: ";
-  if (agent.source_orientation.to_record ().to_doubles () == angle_vector)
-  {
-    std::cout << "SUCCESS\n";
-  }
-  else
-  {
-    std::cout << "FAIL\n";
-  }
+  EXPECT_EQ(agent.source_orientation.to_record ().to_doubles (), angle_vector)
+      << "Testing Agent.source_orientation failed.";
 
   // test string containers
-
-  std::cout << "  Testing Agent.algorithm: " <<
-    (agent.algorithm == "search" ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.algorithm, "search")
+      << "Testing Agent.algorithm failed.";
   
-  std::cout << "  Testing Agent.coverage_type: " <<
-    (agent.coverage_type == "pac" ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.coverage_type, "pac")
+      << "Testing Agent.coverage_type failed.";
+ 
+  EXPECT_EQ(agent.last_algorithm, "search")
+      << "Testing Agent.last_algorithm failed.";
   
-  std::cout << "  Testing Agent.last_algorithm: " <<
-    (agent.last_algorithm == "search" ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.next_coverage_type, "rec")
+      << "Testing Agent.next_coverage_type failed.";
   
-  std::cout << "  Testing Agent.next_coverage_type: " <<
-    (agent.next_coverage_type == "rec" ? "SUCCESS\n" : "FAIL\n");
-  
-  std::cout << "  Testing Agent.prefix: " <<
-    (agent.prefix == "agent.tester" ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.prefix, "agent.tester")
+      << "Testing Agent.prefix failed.";
 
   // test double containers
 
-  std::cout << "  Testing Agent.desired_altitude: " <<
-    (agent.desired_altitude == 800.24 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.desired_altitude, 800.24)
+      << "Testing Agent.desired_altitude failed.";
   
-  std::cout << "  Testing Agent.loop_hz: " <<
-    (agent.loop_hz == 30.0 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.loop_hz, 30.0)
+      << "Testing Agent.loop_hz failed.";
   
-  std::cout << "  Testing Agent.send_hz: " <<
-    (agent.send_hz == 5.0 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.send_hz, 5.0)
+      << "Testing Agent.send_hz failed.";
   
-  std::cout << "  Testing Agent.temperature: " <<
-    (agent.temperature == 56.5 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.temperature, 56.5)
+      << "Testing Agent.temperature failed.";
   
   // test double containers
 
@@ -239,49 +184,45 @@ test_agent (void)
   agent.madara_debug_level = 3;
   agent.search_area_id = 2;
   
-  std::cout << "  Testing Agent.algorithm_accepts: " <<
-    (agent.algorithm_accepts == 5 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.algorithm_accepts, 5)
+    << "Testing Agent.algorithm_accepts failed.";
   
-  std::cout << "  Testing Agent.algorithm_id: " <<
-    (agent.algorithm_id == 3 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.algorithm_id, 3)
+    << "Testing Agent.algorithm_id failed.";
+
+  EXPECT_EQ(agent.algorithm_rejects, 12)
+    << "Testing Agent.algorithm_rejects failed.";
+
+  EXPECT_EQ(agent.battery_remaining, 82)
+    << "Testing Agent.battery_remaining failed.";
+
+  EXPECT_EQ(agent.bridge_id, 7)
+    << "Testing Agent.bridge_id failed.";
   
-  std::cout << "  Testing Agent.algorithm_rejects: " <<
-    (agent.algorithm_rejects == 12 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.gams_debug_level, 4)
+    << "Testing Agent.gams_debug_level failed.";
   
-  std::cout << "  Testing Agent.battery_remaining: " <<
-    (agent.battery_remaining == 82 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.is_mobile, 1)
+    << "Testing Agent.is_mobile failed.";
   
-  std::cout << "  Testing Agent.bridge_id: " <<
-    (agent.bridge_id == 7 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.last_algorithm_id, 3)
+    << "Testing Agent.last_algorithm_id failed.";
   
-  std::cout << "  Testing Agent.gams_debug_level: " <<
-    (agent.gams_debug_level == 4 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.madara_debug_level, 3)
+    << "Testing Agent.madara_debug_level failed.";
   
-  std::cout << "  Testing Agent.is_mobile: " <<
-    (agent.is_mobile == 1 ? "SUCCESS\n" : "FAIL\n");
-  
-  std::cout << "  Testing Agent.last_algorithm_id: " <<
-    (agent.last_algorithm_id == 3 ? "SUCCESS\n" : "FAIL\n");
-  
-  std::cout << "  Testing Agent.madara_debug_level: " <<
-    (agent.madara_debug_level == 3 ? "SUCCESS\n" : "FAIL\n");
-  
-  std::cout << "  Testing Agent.search_area_id: " <<
-    (agent.search_area_id == 2 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(agent.search_area_id, 2)
+    << "Testing Agent.search_area_id failed.";
   
 }
 
-void
-test_sensor (void)
+TEST(TestVariables, TestSensor)
 {
 
 }
 
-void
-test_swarm (void)
+TEST(TestVariables, TestSwarm)
 {
-  std::cout << "Testing Swarm...\n";
-
   knowledge::KnowledgeBase context;
 
   variables::Swarm swarm;
@@ -292,27 +233,22 @@ test_swarm (void)
   swarm.min_alt = 15.0;
   swarm.size = 5;
 
-  std::cout << "  Testing Swarm.algorithm: " <<
-    (swarm.algorithm == "null" ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(swarm.algorithm, "null")
+    << "Testing Swarm.algorithm failed.";
 
-  std::cout << "  Testing Swarm.algorithm_id: " <<
-    (swarm.algorithm_id == 6 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(swarm.algorithm_id, 6)
+    << "Testing Swarm.algorithm_id failed.";
 
-  std::cout << "  Testing Swarm.min_alt: " <<
-    (swarm.min_alt == 15.0 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(swarm.min_alt, 15.0)
+    << "Testing Swarm.min_alt failed.";
 
-  std::cout << "  Testing Swarm.size: " <<
-    (swarm.size == 5 ? "SUCCESS\n" : "FAIL\n");
+  EXPECT_EQ(swarm.size, 5)
+    << "Testing Swarm.size failed.";
 }
 
 int
-main (int /*argc*/, char ** /*argv*/)
+main (int argc, char **argv)
 {
-  test_accent ();
-  test_agent ();
-  test_sensor ();
-  test_swarm ();
-
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
-

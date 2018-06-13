@@ -2,11 +2,14 @@
 #include <math.h>
 #include <gams/CPP11_compat.h>
 #include <gams/utility/ArgumentParser.h>
+#include <map>
+#include <string>
+#include "gtest/gtest.h"
 
 namespace knowledge = madara::knowledge;
 using namespace gams::utility;
 
-int main(int, char *[])
+TEST(TestArgumentParser, TestParsing)
 {
   knowledge::KnowledgeBase kbase;
   kbase.set("not_args.asdf", "shouldn't appear");
@@ -18,6 +21,14 @@ int main(int, char *[])
   kbase.set("args.cname", "c val");
   kbase.set("args.dname", "d val");
 
+  std::map<std::string, std::string> expected = {
+      {"aname", "a val"},
+      {"bname", "b val"},
+      {"cname", "c val"},
+      {"dname", "d val"},
+      {"size", "2"}
+  };
+
   knowledge::KnowledgeMap kmap(kbase.to_map_stripped("args."));
 
   ArgumentParser args(kmap);
@@ -25,24 +36,27 @@ int main(int, char *[])
   for(ArgumentParser::const_iterator i = args.begin();
       i != args.end(); i.next())
   {
-    std::cout << i.name() << " -> " << i.value() << std::endl;
+    auto val = expected[i.name()];
+    EXPECT_EQ(val, i.value());
   }
-
-  std::cout << "With dereference:" << std::endl;
 
   for(ArgumentParser::const_iterator i = args.begin(); i != args.end(); ++i)
   {
-    std::cout << i->first << " -> " << i->second << std::endl;
+    auto val = expected[i->first];
+    EXPECT_EQ(val, i->second);
   }
 
 #ifdef CPP11
-  std::cout << "With C++11 foreach:" << std::endl;
-
   for(const auto &i : args)
   {
-    std::cout << i.first << " -> " << i.second << std::endl;
+    auto val = expected[i.first];
+    EXPECT_EQ(val, i.second);
   }
 #endif
+}
 
-  return 0;
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

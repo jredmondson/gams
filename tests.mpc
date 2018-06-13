@@ -97,7 +97,11 @@ project (test_utility) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_utility.cpp
@@ -116,11 +120,15 @@ project (test_auctions) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
 
   Source_Files {
     tests/test_auctions.cpp
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 }
 
 project (test_elections) : using_gams, using_madara {
@@ -135,7 +143,11 @@ project (test_elections) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_elections.cpp
@@ -154,7 +166,11 @@ project (test_variables) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_variables.cpp
@@ -214,7 +230,11 @@ project (test_location) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_location.cpp
@@ -233,7 +253,11 @@ project (test_euler) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_euler.cpp
@@ -271,7 +295,11 @@ project (test_arguments_parser) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_arguments_parser.cpp
@@ -309,7 +337,11 @@ project (test_groups) : using_gams, using_madara {
   }
 
   Header_Files {
+    $(GTEST_ROOT)/googletest/include
   }
+
+  libpaths += $(GTEST_ROOT)/build/googlemock/gtest/
+  libs += gtest
 
   Source_Files {
     tests/test_groups.cpp

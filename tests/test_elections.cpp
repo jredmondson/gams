@@ -56,17 +56,15 @@
 #include "gams/elections/ElectionPlurality.h"
 #include "gams/elections/ElectionCumulative.h"
 
+#include "gtest/gtest.h"
+
 namespace loggers = gams::loggers;
 namespace elections = gams::elections;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
-void test_cumulative (void)
+TEST(TestElections, TestCumulative)
 {
-
-  loggers::global_logger->log (
-    loggers::LOG_ALWAYS, "Testing ElectionCumulative\n");
-
   knowledge::KnowledgeBase knowledge;
 
   containers::Integer agent0vote ("election.president.0.agent.0->Hillary", knowledge);
@@ -83,27 +81,8 @@ void test_cumulative (void)
   // do a self vote for agent.0
   election.vote ("Hillary", 1);
 
-  if (*agent0vote == 1)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self vote: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self vote: FAIL\n");
-  }
-
-  if (election.has_voted ("agent.0"))
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing has_voted: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing has_voted: FAIL\n");
-  }
+  EXPECT_EQ(*agent0vote, 1) << "Test self vote failed";
+  EXPECT_TRUE(election.has_voted("agent.0")) << "Test has_voted failed";
 
   // do votes for other agents
   election.vote ("agent.1", "Donald", 1);
@@ -113,86 +92,30 @@ void test_cumulative (void)
   election.vote ("agent.5", "Hillary", 1);
   election.vote ("agent.6", "Cthulhu", 1);
 
-  if (*agent1vote == 1 && *agent2vote == 1.0 && *agent3vote == 1.0 &&
-    *agent4vote == 1 && *agent5vote == 1.0 && *agent6vote == 1.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing all agent votes: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, " Testing all agent votes: FAIL\n");
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.0: %d\n", (int)*agent0vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.1: %d\n", (int)*agent1vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.2: %d\n", (int)*agent2vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.3: %d\n", (int)*agent3vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.4: %d\n", (int)*agent4vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.5: %d\n", (int)*agent5vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.6: %d\n", (int)*agent6vote);
-  }
+  EXPECT_EQ(*agent1vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent2vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent3vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent4vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent5vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent6vote, 1) << "Testing individual agent votes failed";
 
   elections::CandidateList leaders = election.get_leaders (2);
 
-  if (leaders.size () == 2 && leaders[0] == "Hillary" && leaders[1] == "Cthulhu")
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leaders == Hillary, Cthulhu: SUCCESS\n");
-  }
-  else if (leaders.size () == 2)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == %s, %s: FAIL\n",
-      leaders[0].c_str (), leaders[1].c_str ());
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  %d leaders instead of 2: FAIL\n",
-      leaders.size ());
-  }
-
-  loggers::global_logger->log (
-    loggers::LOG_ALWAYS, "  Adding second vote for agent.2...\n");
-
+  EXPECT_EQ(leaders.size(), 2) << "Testing leaders size";
+  EXPECT_EQ(leaders[0], "Hillary") << "Testing the first leader";
+  EXPECT_EQ(leaders[1], "Cthulhu") << "Testing the second leader";
+  //
   // vote twice for agent.2
   election.vote ("agent.2", "Cthulhu", 1);
   
   leaders = election.get_leaders (2);
-
-  if (leaders.size () == 2 &&
-    leaders[0] == "Cthulhu" && leaders[1] == "Hillary")
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leaders == Cthulhu, Hillary: SUCCESS\n");
-  }
-  else if (leaders.size () == 2)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == %s, %s: FAIL\n",
-      leaders[0].c_str (), leaders[1].c_str ());
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  %d leaders instead of 2: FAIL\n",
-      leaders.size ());
-  }
+  EXPECT_EQ(leaders.size(), 2) << "Testing leaders size";
+  EXPECT_EQ(leaders[0], "Cthulhu") << "Testing the first leader";
+  EXPECT_EQ(leaders[1], "Hillary") << "Testing the second leader";
 }
 
-void test_plurality (void)
+TEST(TestElections, TestPlurality)
 {
-
-  loggers::global_logger->log (
-    loggers::LOG_ALWAYS, "Testing ElectionPlurality\n");
-
   knowledge::KnowledgeBase knowledge;
 
   containers::Integer agent0vote ("election.president.0.agent.0->Hillary", knowledge);
@@ -209,27 +132,8 @@ void test_plurality (void)
   // do a self vote for agent.0 and try to cheat on the plurality vote
   election.vote ("Hillary", 7);
 
-  if (*agent0vote == 7)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self vote: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self vote: FAIL\n");
-  }
-
-  if (election.has_voted ("agent.0"))
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing has_voted: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing has_voted: FAIL\n");
-  }
+  EXPECT_EQ(*agent0vote, 7) << "Testing self vote failed";
+  EXPECT_TRUE(election.has_voted("agent.0")) << "Testing has_voted";
 
   // do votes for other agents
   election.vote ("agent.1", "Donald", 1);
@@ -239,51 +143,20 @@ void test_plurality (void)
   election.vote ("agent.5", "Hillary", 1);
   election.vote ("agent.6", "Cthulhu", 1);
 
-  if (*agent1vote == 1 && *agent2vote == 1.0 && *agent3vote == 1.0 &&
-    *agent4vote == 1 && *agent5vote == 1.0 && *agent6vote == 1.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing all agent votes: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, " Testing all agent votes: FAIL\n");
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.0: %d\n", (int)*agent0vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.1: %d\n", (int)*agent1vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.2: %d\n", (int)*agent2vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.3: %d\n", (int)*agent3vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.4: %d\n", (int)*agent4vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.5: %d\n", (int)*agent5vote);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.6: %d\n", (int)*agent6vote);
-  }
+  EXPECT_EQ(*agent1vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent2vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent3vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent4vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent5vote, 1) << "Testing individual agent votes failed";
+  EXPECT_EQ(*agent6vote, 1) << "Testing individual agent votes failed";
 
   std::string leader = election.get_leader ();
-
-  if (leader == "Hillary")
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == Hillary: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
-      leader.c_str ());
-  }
+  EXPECT_EQ(leader, "Hillary") << "Leader == Hillary Failed";
 }
 
 int
-main (int, char **)
+main (int argc, char **argv)
 {
-  test_cumulative ();
-  test_plurality ();
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

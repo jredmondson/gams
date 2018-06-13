@@ -51,6 +51,7 @@
  * Tests the functionality of gams::auctions classes
  **/
 
+#include "gtest/gtest.h"
 #include "madara/knowledge/containers/Double.h"
 
 #include "gams/auctions/AuctionMaximumBid.h"
@@ -65,15 +66,10 @@ namespace auctions = gams::auctions;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
-void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
+TEST(TestAuctions, TestMinimumAuctionBid)
 {
   using madara::knowledge::KnowledgeRecord;
-
-  loggers::global_logger->log (
-    loggers::LOG_ALWAYS, "Testing AuctionMinimumBid\n");
-
-//  knowledge::KnowledgeBase knowledge;
-  knowledge.clear (true);
+  knowledge::KnowledgeBase knowledge;
 
   containers::Double agent0bid ("auction.distances.0.agent.0", knowledge);
   containers::Double agent1bid ("auction.distances.0.agent.1", knowledge);
@@ -86,76 +82,28 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
   // do a self bid for agent.0
   auction.bid (KnowledgeRecord(2.0));
 
-  if (*agent0bid == 2.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self bid: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self bid: FAIL\n");
-  }
+  EXPECT_FLOAT_EQ(*agent0bid, 2.0) << "Testing self bid: FAIL";
 
-  if (auction.get_bid ("agent.0") == 2.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing get_bid: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing get_bid: FAIL\n");
-  }
+  EXPECT_TRUE(auction.get_bid("agent.0") == 2.0) << "Testing get_bid: FAIL";
 
   // do bids for other agents
   auction.bid ("agent.1", KnowledgeRecord(7.0));
   auction.bid ("agent.2", KnowledgeRecord(1.0));
   auction.bid ("agent.3", KnowledgeRecord(10.0));
 
-  if (*agent1bid == 7.0 && *agent2bid == 1.0 && *agent3bid == 10.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing all agent bids: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, " Testing all agent bids: FAIL\n");
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.0: %f\n", *agent0bid);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.1: %f\n", *agent1bid);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.2: %f\n", *agent2bid);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
-  }
+  EXPECT_FLOAT_EQ(*agent1bid, 7.0) << "Testing agent.1: FAIL";
+  EXPECT_FLOAT_EQ(*agent2bid, 1.0) << "Testing agent.2: FAIL";
+  EXPECT_FLOAT_EQ(*agent3bid, 10.0) << "Testing agent.3: FAIL";
 
   std::string leader = auction.get_leader ();
 
-  if (leader == "agent.2")
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == agent.2: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
-      leader.c_str ());
-  }
+  EXPECT_EQ(leader, "agent.2") << "Leader is not the right agent.";
 }
 
-void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
+TEST(TestAuctions, TestMaximumAuctionBid)
 {
   using madara::knowledge::KnowledgeRecord;
-
-  loggers::global_logger->log (
-    loggers::LOG_ALWAYS, "Testing AuctionMaximumBid\n");
-
-  //knowledge::KnowledgeBase knowledge;
-  knowledge.clear (true);
+  knowledge::KnowledgeBase knowledge;
 
   containers::Double agent0bid ("auction.distances.0.agent.0", knowledge);
   containers::Double agent1bid ("auction.distances.0.agent.1", knowledge);
@@ -168,74 +116,26 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
   // do a self bid for agent.0
   auction.bid (KnowledgeRecord(2.0));
 
-  if (*agent0bid == 2.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self bid: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing self bid: FAIL\n");
-  }
-
-  if (auction.get_bid ("agent.0") == 2.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing get_bid: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing get_bid: FAIL\n");
-  }
-
+  EXPECT_FLOAT_EQ(*agent0bid, 2.0) << "Testing self bid failed.";
+  EXPECT_TRUE(auction.get_bid ("agent.0") == 2.0) << "Testing get_bid failed.";
+ 
   // do bids for other agents
   auction.bid ("agent.1", KnowledgeRecord(7.0));
   auction.bid ("agent.2", KnowledgeRecord(1.0));
   auction.bid ("agent.3", KnowledgeRecord(10.0));
 
-  if (*agent1bid == 7.0 && *agent2bid == 1.0 && *agent3bid == 10.0)
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Testing all agent bids: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, " Testing all agent bids: FAIL\n");
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.0: %f\n", *agent0bid);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.1: %f\n", *agent1bid);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.2: %f\n", *agent2bid);
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
-  }
+  EXPECT_FLOAT_EQ(*agent1bid, 7.0) << "Testing agent.1: FAIL";
+  EXPECT_FLOAT_EQ(*agent2bid, 1.0) << "Testing agent.2: FAIL";
+  EXPECT_FLOAT_EQ(*agent3bid, 10.0) << "Testing agent.3: FAIL";
 
   std::string leader = auction.get_leader ();
 
-  if (leader == "agent.3")
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == agent.3: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
-      leader.c_str ());
-  }
+  EXPECT_EQ(leader, "agent.3") << "Leader is not the right agent.";
 }
 
-void test_minimum_distance_auction (knowledge::KnowledgeBase & knowledge)
+TEST(TestAuctions, DISABLED_AuctionMinimumDistance)
 {
-  loggers::global_logger->log (
-    loggers::LOG_ALWAYS, "Testing AuctionMinimumDistance\n");
-
-//  knowledge::KnowledgeBase knowledge;
-  knowledge.clear (true);
+  knowledge::KnowledgeBase knowledge;
 
   gams::groups::GroupFixedList group;
   gams::groups::AgentVector members;
@@ -296,29 +196,12 @@ void test_minimum_distance_auction (knowledge::KnowledgeBase & knowledge)
 
   std::string closest = auction.get_leader ();
 
-  if (closest == "agent.4")
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == agent.3: SUCCESS\n");
-  }
-  else
-  {
-    loggers::global_logger->log (
-      loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
-      closest.c_str ());
-  }
-
-  knowledge.print ();
+  EXPECT_EQ(closest, "agent.4") << "Wrong leader selected.";
 }
 
 int
-main (int, char **)
+main (int argc, char** argv)
 {
-  knowledge::KnowledgeBase knowledge;
-
-  test_minimum_auction (knowledge);
-  test_maximum_auction (knowledge);
-  test_minimum_distance_auction (knowledge);
-
-  return 0;
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
