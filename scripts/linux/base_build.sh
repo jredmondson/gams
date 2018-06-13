@@ -92,6 +92,7 @@ SIMTIME=0
 SSL=0
 DMPL=0
 MAC=${MAC:-0}
+BUILD_ERRORS=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -472,7 +473,7 @@ if [ $ZMQ -eq 1 ]; then
     git clone --depth 1 https://github.com/zeromq/libzmq
     ZMQ_REPO_RESULT=$?
     cd libzmq
-    ./autogen.sh && ./configure && make -j 4
+    ./autogen.sh && ./configure && make -j $CORES
     make check
     sudo make install && sudo ldconfig
     ZMQ_BUILD_RESULT=$?
@@ -724,6 +725,7 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -733,11 +735,13 @@ if [ $ZMQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
   if [ $ZMQ_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -747,6 +751,7 @@ if [ $VREP -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -756,11 +761,13 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
   if [ $MADARA_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -770,11 +777,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
   if [ $GAMS_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -830,3 +839,4 @@ echo -e "IN YOUR BASHRC OR TERMINAL."
 echo -e ""
 
 
+exit $BUILD_ERRORS
