@@ -31,6 +31,19 @@ matrix:
       env: TESTNAME="OSX Clang" CLANG="clang"
       os: osx
 
+      # clang, linux, no ssl
+    - compiler: clang
+      env: TESTNAME="Ubuntu 14.04 clang" CLANG="clang"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - libssl-dev
+            - clang-5.0
+      os: linux
+
       # g++, linux, no ssl
     - compiler: gcc
       os: linux
@@ -47,18 +60,16 @@ matrix:
             - libssl-dev
       env: TESTNAME="Ubuntu 14.04 g++ ssl" CLANG="" SSL="ssl"
 
-      # clang, linux, no ssl
-    - compiler: clang
-      env: TESTNAME="Ubuntu 14.04 clang" CLANG="clang"
+      # g++, linux, java
+    - compiler: gcc
+      os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
           packages:
             - libssl-dev
-            - clang-5.0
-      os: linux
+      env: TESTNAME="Ubuntu 14.04 g++ java" JAVA="java"
 
 addons:
   apt:
@@ -80,7 +91,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; fi
 
 script:
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA
 
 
