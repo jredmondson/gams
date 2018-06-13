@@ -142,7 +142,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT ; fi
 
 script:
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
 
 
