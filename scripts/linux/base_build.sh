@@ -521,6 +521,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
+    echo "git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT"
     git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
@@ -619,6 +620,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
+    echo "git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT"
     git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
     GAMS_REPO_RESULT=$?
     
