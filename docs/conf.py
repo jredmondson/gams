@@ -43,14 +43,8 @@ subprocess.call('perl get_version.pl; doxygen Doxyfile_GAMS_NoGraphviz.dxy', she
 extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
-    'sphinx.ext.imgmath'#,
-    #'javasphinx'
+    'sphinx.ext.imgmath'
 ]
-
-# apparently, readthedocs.io doesn't actually support the javasphinx module
-#javadoc_url_map = {
-#    'com.GAMS' : ('../port/java/src', 'javadoc8')
-#}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
