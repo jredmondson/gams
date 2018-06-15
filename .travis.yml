@@ -18,7 +18,7 @@ env:
   matrix:
   global:
     - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
-    - GAMS_ROOT=$TRAVIS_BUILD_DIR/jredmondson/gams
+    - GAMS_ROOT=$TRAVIS_BUILD_DIR
     - MPC_ROOT=$TRAVIS_BUILD_DIR/MPC
     - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH
     - CORES=6
@@ -139,8 +139,13 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export OS=linux; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; export CLANG_SUFFIX=; export JAVA_HOME=$(/usr/libexec/java_home) ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT ; fi
-
+  - if [[ "$JAVA" == "java" ]]; then echo "TRAVIS_JDK_VERSION=TRAVIS_JDK_VERSION" ; fi
 script:
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
+  - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
+  - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
+  - echo ls $TRAVIS_BUILD_DIR
+  - ls $TRAVIS_BUILD_DIR
   - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
   - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
 
