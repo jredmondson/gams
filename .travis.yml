@@ -18,7 +18,7 @@ env:
   matrix:
   global:
     - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
-    - GAMS_ROOT=$TRAVIS_BUILD_DIR/gams
+    - GAMS_ROOT=$TRAVIS_BUILD_DIR
     - MPC_ROOT=$TRAVIS_BUILD_DIR/MPC
     - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH
     - CORES=6
@@ -144,14 +144,8 @@ script:
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
   - echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST"
   - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
-  - echo pwd
-  - pwd
-  - echo ls .
-  - ls .
-  - echo $TRAVIS_BUILD_DIR
+  - echo ls $TRAVIS_BUILD_DIR
   - ls $TRAVIS_BUILD_DIR
-  - echo ls jredmondson/gams
-  - ls jredmondson/gams
   - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
   - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
 
