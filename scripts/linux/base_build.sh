@@ -214,6 +214,10 @@ if [ -z $MPC_ROOT ] ; then
   export MPC_ROOT=$INSTALL_DIR/MPC
 fi
 
+if [ -z $EIGEN_ROOT ] ; then
+  export EIGEN_ROOT=$INSTALL_DIR/eigen
+fi
+
 
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
@@ -460,6 +464,23 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
   if [ ! -d $MPC_ROOT ] ; then
     git clone --depth 1 https://github.com/DOCGroup/MPC.git $MPC_ROOT
     MPC_REPO_RESULT=$?
+  fi
+else
+  echo "NOT CHECKING MPC"
+fi
+
+if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
+
+  cd $INSTALL_DIR
+
+  echo "ENTERING $EIGEN_ROOT"
+  if [ ! -d $EIGEN_ROOT ] ; then
+    git clone --depth 1 https://bitbucket.org/eigen/eigen.git $EIGEN_ROOT
+    EIGEN_REPO_RESULT=$?
+  else
+    cd $EIGEN_ROOT
+    git pull
+    EIGEN_REPO_RESULT=$?
   fi
 else
   echo "NOT CHECKING MPC"
@@ -781,6 +802,13 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 fi
 
 if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
+  echo "  EIGEN"
+  if [ $EIGEN_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
   echo "  GAMS"
   if [ $GAMS_REPO_RESULT -eq 0 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
