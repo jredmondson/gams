@@ -18,7 +18,7 @@ env:
   matrix:
   global:
     - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
-    - GAMS_ROOT=$TRAVIS_BUILD_DIR/gams
+    - GAMS_ROOT=$TRAVIS_BUILD_DIR/jredmondson/gams
     - MPC_ROOT=$TRAVIS_BUILD_DIR/MPC
     - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH
     - CORES=6
