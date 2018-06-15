@@ -475,7 +475,7 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
 
   echo "ENTERING $EIGEN_ROOT"
   if [ ! -d $EIGEN_ROOT ] ; then
-    git clone --depth 1 https://bitbucket.org/eigen/eigen.git $EIGEN_ROOT
+    git clone --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
   else
     cd $EIGEN_ROOT
@@ -827,7 +827,7 @@ fi
 echo -e ""
 echo -e "Make sure to update your environment variables to the following"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
-echo -e "export MPC_ROOT=$MPC_ROOT"
+echo -e "export EIGEN_ROOT=$EIGEN_ROOT"
 echo -e "export MADARA_ROOT=$MADARA_ROOT"
 echo -e "export GAMS_ROOT=$GAMS_ROOT"
 echo -e "export VREP_ROOT=$VREP_ROOT"
