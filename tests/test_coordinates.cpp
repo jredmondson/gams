@@ -236,12 +236,18 @@ int main(int, char *[])
   madara::knowledge::KnowledgeBase kb;
 
   {
-    ReferenceFrame building_frame("Building", {gps_frame(), 70, -40}, -1);
-    ReferenceFrame room_frame("LivingRoom", {building_frame, 10, 20}, -1);
-    ReferenceFrame kitchen_frame("Kitchen", {building_frame, 30, 50}, -1);
-    ReferenceFrame drone_frame("Drone", {kitchen_frame, 3, 2, -2}, 1000);
-    ReferenceFrame camera_frame("Camera", {drone_frame, 0, 0, 0.5}, 1000);
-    ReferenceFrame drone2_frame("Drone2", {room_frame, 3, 2, -2}, 1000);
+    ReferenceFrame building_frame("Building", Pose{gps_frame(), 70, -40}, -1);
+    ReferenceFrame room_frame("LivingRoom", Pose{building_frame, 10, 20}, -1);
+    ReferenceFrame kitchen_frame("Kitchen", Pose{building_frame, 30, 50}, -1);
+
+    TEST_EQ(building_frame.timestamp(), -1UL);
+
+    ReferenceFrame drone_frame("Drone", Pose{kitchen_frame, 3, 2, -2}, 1000);
+    ReferenceFrame camera_frame("Camera", Pose{drone_frame, 0, 0, 0.5}, 1000);
+    ReferenceFrame drone2_frame("Drone2", Pose{room_frame, 3, 2, -2}, 1000);
+
+    TEST_EQ(drone_frame.timestamp(), 1000UL);
+    TEST_EQ(camera_frame.timestamp(), 1000UL);
 
     gps_frame().save(kb);
     building_frame.save(kb);
@@ -254,6 +260,10 @@ int main(int, char *[])
     ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
     ReferenceFrame camera_frame1 = camera_frame.orient({drone_frame1, 0, 0, M_PI/4}, 2000);
     ReferenceFrame drone2_frame1 = drone2_frame.move({room_frame, 3, 6, -2}, 2000);
+
+    TEST_EQ(drone_frame1.timestamp(), 2000UL);
+    TEST_EQ(camera_frame1.timestamp(), 2000UL);
+    TEST_EQ(camera_frame1.origin().rz(), M_PI/4);
 
     drone_frame1.save(kb);
     camera_frame1.save(kb);
