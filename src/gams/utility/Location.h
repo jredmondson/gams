@@ -76,7 +76,7 @@ namespace gams
      *
      * Deprecated backwards compatibility aliases. Will be removed in v2
      **/
-    typedef gams::pose::LinearVector LocationVector;
+    using LocationVector = gams::pose::LinearVector<gams::pose::Position>;
 
     /**
      * Represents a Location within a reference frame.

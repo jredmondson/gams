@@ -421,6 +421,26 @@ namespace gams
        **/
       bool operator!=(const ReferenceFrame &other) const;
 
+      bool operator<(const ReferenceFrame &other) const
+      {
+        return impl_ < other.impl_;
+      }
+
+      bool operator<=(const ReferenceFrame &other) const
+      {
+        return impl_ <= other.impl_;
+      }
+
+      bool operator>(const ReferenceFrame &other) const
+      {
+        return impl_ > other.impl_;
+      }
+
+      bool operator>=(const ReferenceFrame &other) const
+      {
+        return impl_ >= other.impl_;
+      }
+
       /**
        * Returns a human-readable name for the reference frame type
        *

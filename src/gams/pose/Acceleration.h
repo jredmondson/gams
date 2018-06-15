@@ -48,7 +48,7 @@
  * @file Acceleration.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the Acceleration and AccelerationVector classes
+ * This file is no longer needed, and is deprecated.
  **/
 
 #include "ReferenceFrame.h"
@@ -57,36 +57,5 @@
 #define _GAMS_POSE_ACCELERATION_H_
 
 #include "Linear.h"
-
-namespace gams
-{
-  namespace pose
-  {
-    class ReferenceFrame;
-
-    /**
-     * Container for Acceleration information, not bound to a frame.
-     * Stores a 3-tuple, for x, y, and z.
-     *
-     * Provides accessor methods to support non-cartesian coordinate systems:
-     *
-     * lng/lat/alt for GPS-style systems
-     * rho/phi/r for Cylindrical systems
-     * theta/phi/r for Spherical systems
-     * northing/easting/zone/hemi/alt for UTM/USP systems
-     *
-     * Each of the above are bound to x/y/z respectively
-     **/
-    class Acceleration : public Linear<Acceleration>
-    {
-    public:public:
-      /// Inherit Linear's constructors
-      using Linear::Linear;
-    };
-
-    // helpful typedef for vector of positions
-    typedef std::vector <Acceleration>    Accelerations;
-  }
-}
 
 #endif

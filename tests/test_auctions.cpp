@@ -242,7 +242,7 @@ void test_minimum_distance_auction (knowledge::KnowledgeBase & knowledge)
   gams::variables::Platforms platforms;
   gams::variables::Agents agents;
   gams::utility::GPSPosition position;
-  gams::utility::Location target;
+  gams::pose::Position target;
   gams::platforms::NullPlatform platform (&knowledge, 0, &platforms, 0);
 
   // add some members to the group
