@@ -129,7 +129,6 @@ addons:
       - git-core
 
 before_install:
-  - git clone -b master --single-branch https://github.com/jredmondson/gams $GAMS_ROOT
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install zeromq; fi
