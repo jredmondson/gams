@@ -58,305 +58,290 @@
 
 #include <sstream>
 
-namespace gams
+namespace gams { namespace pose {
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(double x, double y, double z,
+                              double rx, double ry, double rz)
+  : PositionVector(x, y, z), OrientationVector(rx, ry, rz) {}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(const PositionVector &loc)
+  : PositionVector (loc), OrientationVector (0, 0, 0)
 {
-  namespace pose
+}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(const OrientationVector &rot)
+  : PositionVector (0, 0, 0), OrientationVector (rot)
+{
+}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(const PositionVector &loc,
+                              const OrientationVector &rot)
+  : PositionVector(loc), OrientationVector(rot) {}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose()
+  : PositionVector(), OrientationVector() {}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(
+    const madara::knowledge::containers::DoubleVector &vec)
+  : PositionVector(vec[0], vec[1], vec[2]),
+    OrientationVector(vec[3], vec[4], vec[5]) {}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(
+    const madara::knowledge::containers::DoubleVector &vec_loc,
+    const madara::knowledge::containers::DoubleVector &vec_rot)
+  : PositionVector(vec_loc),
+    OrientationVector(vec_rot) {}
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(
+    const madara::knowledge::containers::NativeDoubleVector &vec)
+    : PositionVector (vec[0], vec[1], vec[2]),
+    OrientationVector (vec[3], vec[4], vec[5])
+{
+}
+
+
+template<typename Derived>
+inline BasicPose<Derived>::BasicPose(
+    const madara::knowledge::containers::NativeDoubleVector &vec_loc,
+    const madara::knowledge::containers::NativeDoubleVector &vec_rot)
+  : PositionVector(vec_loc),
+    OrientationVector(vec_rot) {}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_set() const
+{
+  return PositionVector::is_set() || OrientationVector::is_set();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_position_set () const
+{
+  return PositionVector::is_set ();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_location_set () const
+{
+  return is_position_set ();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_orientation_set () const
+{
+  return OrientationVector::is_set ();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_position_zero() const
+{
+  return as_position_vec().is_zero();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_location_zero() const
+{
+  return is_position_zero ();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_orientation_zero() const
+{
+  return as_orientation_vec().is_zero();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::is_zero() const
+{
+  return is_position_zero() && is_orientation_zero();
+}
+
+template<typename Derived>
+inline bool BasicPose<Derived>::operator==(
+                            const BasicPose &other) const
+{
+  return as_position_vec() == other.as_position_vec() &&
+         as_orientation_vec() == other.as_orientation_vec();
+}
+
+template<typename Derived>
+inline std::string BasicPose<Derived>::name()
+{
+  return "Pose";
+}
+
+template<typename Derived>
+inline int BasicPose<Derived>::size() const
+{
+  return as_position_vec().size() + as_orientation_vec().size();
+}
+
+template<typename Derived>
+inline double BasicPose<Derived>::get(int i) const
+{
+  return i <= 2 ? as_position_vec().get(i) :
+                  as_orientation_vec().get(i - 3);
+}
+
+template<typename Derived>
+inline double BasicPose<Derived>::set(int i, double val)
+{
+  if(i <= 2)
+    return as_position_vec().set(i, val);
+  else
+    return as_orientation_vec().set(i - 3, val);
+}
+
+template<typename Derived>
+inline BasicPose<Derived> &BasicPose<Derived>::as_vec()
+{
+  return static_cast<BasicPose &>(*this);
+}
+
+template<typename Derived>
+inline const BasicPose<Derived> &BasicPose<Derived>::as_vec() const
+{
+  return static_cast<const BasicPose &>(*this);
+}
+
+template<typename Derived>
+inline PositionVector &BasicPose<Derived>::as_position_vec()
+{
+  return static_cast<PositionVector &>(*this);
+}
+
+template<typename Derived>
+inline const PositionVector &BasicPose<Derived>::as_position_vec() const
+{
+  return static_cast<const PositionVector &>(*this);
+}
+
+template<typename Derived>
+inline PositionVector &BasicPose<Derived>::as_location_vec()
+{
+  return as_position_vec ();
+}
+
+template<typename Derived>
+inline const PositionVector &BasicPose<Derived>::as_location_vec() const
+{
+  return as_position_vec ();
+}
+
+template<typename Derived>
+inline OrientationVector &BasicPose<Derived>::as_orientation_vec()
+{
+  return static_cast<OrientationVector &>(*this);
+}
+
+template<typename Derived>
+inline const OrientationVector &BasicPose<Derived>::as_orientation_vec() const
+{
+  return static_cast<const OrientationVector &>(*this);
+}
+
+inline double Pose::angle_to(const Pose &target) const
+{
+  Orientation me(*this);
+  Orientation other(target);
+  return me.distance_to(other);
+}
+
+inline double Pose::angle_to(const Orientation &target) const
+{
+  Orientation me(*this);
+  return me.distance_to(target);
+}
+
+template<typename U>
+inline double Pose::angle_to (const Pose &target, U u) const
+{
+  Orientation me(*this);
+  Orientation other(target);
+  return me.angle_to(other, u);
+}
+
+template<typename U>
+inline double Pose::angle_to (const Orientation &target, U u) const
+{
+  Orientation me(*this);
+  return me.angle_to(target, u);
+}
+
+inline Pose::operator Position() const
+{
+  return Position(frame(), x(), y(), z());
+}
+
+inline Pose::operator Orientation() const
+{
+  return Orientation(frame(), rx(), ry(), rz());
+}
+
+template<typename Derived>
+inline std::string BasicPose<Derived>::to_string (
+    const std::string & delimiter,
+    const std::string & unset_identifier) const
+{
+  std::stringstream buffer;
+
+  buffer << Position (*this).to_string (delimiter, unset_identifier);
+
+  buffer << delimiter;
+
+  buffer << Orientation
+  (*this).to_string (delimiter, unset_identifier);
+
+  return buffer.str ();
+}
+
+template<typename Derived>
+inline void BasicPose<Derived>::to_container (
+  madara::knowledge::containers::NativeDoubleVector &container) const
+{
+  container.resize (6);
+  for (int i = 0; i < 6; ++i)
   {
-    inline PoseVector::PoseVector(double x, double y, double z,
-                                              double rx, double ry, double rz)
-      : LinearVector(x, y, z), AngularVector(rx, ry, rz) {}
-
-    inline PoseVector::PoseVector(const LinearVector &loc)
-      : LinearVector (loc), AngularVector (0, 0, 0)
-    {
-    }
-
-    inline PoseVector::PoseVector(const AngularVector &rot)
-      : LinearVector (0, 0, 0), AngularVector (rot)
-    {
-    }
-
-    inline PoseVector::PoseVector(const LinearVector &loc,
-                                            const AngularVector &rot)
-      : LinearVector(loc), AngularVector(rot) {}
-
-    inline PoseVector::PoseVector()
-      : LinearVector(), AngularVector() {}
-
-    inline PoseVector::PoseVector(
-        const madara::knowledge::containers::DoubleVector &vec)
-      : LinearVector(vec[0], vec[1], vec[2]),
-        AngularVector(vec[3], vec[4], vec[5]) {}
-
-    inline PoseVector::PoseVector(
-        const madara::knowledge::containers::DoubleVector &vec_loc,
-        const madara::knowledge::containers::DoubleVector &vec_rot)
-      : LinearVector(vec_loc),
-        AngularVector(vec_rot) {}
-
-    inline PoseVector::PoseVector(
-        const madara::knowledge::containers::NativeDoubleVector &vec)
-        : LinearVector (vec[0], vec[1], vec[2]),
-        AngularVector (vec[3], vec[4], vec[5])
-    {
-    }
+    container.set (i, get (i));
+  }
+}
 
 
-    inline PoseVector::PoseVector(
-        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
-        const madara::knowledge::containers::NativeDoubleVector &vec_rot)
-      : LinearVector(vec_loc),
-        AngularVector(vec_rot) {}
-
-    inline bool PoseVector::is_set() const
-    {
-      return LinearVector::is_set() || AngularVector::is_set();
-    }
-
-    inline bool PoseVector::is_position_set () const
-    {
-      return LinearVector::is_set ();
-    }
-
-    inline bool PoseVector::is_location_set () const
-    {
-      return is_position_set ();
-    }
-
-    inline bool PoseVector::is_orientation_set () const
-    {
-      return AngularVector::is_set ();
-    }
-
-    inline bool PoseVector::is_position_zero() const
-    {
-      return as_position_vec().is_zero();
-    }
-
-    inline bool PoseVector::is_location_zero() const
-    {
-      return is_position_zero ();
-    }
-
-    inline bool PoseVector::is_orientation_zero() const
-    {
-      return as_orientation_vec().is_zero();
-    }
-
-    inline bool PoseVector::is_zero() const
-    {
-      return is_position_zero() && is_orientation_zero();
-    }
-
-    inline bool PoseVector::operator==(
-                                const PoseVector &other) const
-    {
-      return as_position_vec() == other.as_position_vec() &&
-             as_orientation_vec() == other.as_orientation_vec();
-    }
-
-    inline std::string PoseVector::name()
-    {
-      return "Pose";
-    }
-
-    inline int PoseVector::size() const
-    {
-      return as_position_vec().size() + as_orientation_vec().size();
-    }
-
-    inline double PoseVector::get(int i) const
-    {
-      return i <= 2 ? as_position_vec().get(i) :
-                      as_orientation_vec().get(i - 3);
-    }
-
-    inline double PoseVector::set(int i, double val)
-    {
-      if(i <= 2)
-        return as_position_vec().set(i, val);
-      else
-        return as_orientation_vec().set(i - 3, val);
-    }
-
-    inline PoseVector &PoseVector::as_vec()
-    {
-      return static_cast<BaseType &>(*this);
-    }
-
-    inline const PoseVector &PoseVector::as_vec() const
-    {
-      return static_cast<const BaseType &>(*this);
-    }
-
-    inline LinearVector &PoseVector::as_position_vec()
-    {
-      return static_cast<LinearVector &>(*this);
-    }
-
-    inline const LinearVector &PoseVector::as_position_vec() const
-    {
-      return static_cast<const LinearVector &>(*this);
-    }
-
-    inline LinearVector &PoseVector::as_location_vec()
-    {
-      return as_position_vec ();
-    }
-
-    inline const LinearVector &PoseVector::as_location_vec() const
-    {
-      return as_position_vec ();
-    }
-
-    inline AngularVector &PoseVector::as_orientation_vec()
-    {
-      return static_cast<AngularVector &>(*this);
-    }
-
-    inline const AngularVector &PoseVector::as_orientation_vec() const
-    {
-      return static_cast<const AngularVector &>(*this);
-    }
-
-    inline std::ostream &operator<<(std::ostream &o, const PoseVector &pose)
-    {
-      o << "(" << pose.as_position_vec() << ","
-               << pose.as_orientation_vec() << ")";
-      return o;
-    }
-
-    inline Pose::Pose(double x, double y, double z,
-                      double rx, double ry, double rz)
-      : PoseVector(x, y, z, rx, ry, rz), Coordinate() {}
-
-    inline Pose::Pose(double x, double y, double z)
-      : PoseVector(x, y, z, 0, 0, 0), Coordinate() {}
-
-    inline Pose::Pose(const ReferenceFrame &frame,
-                                double x, double y, double z,
-                                double rx, double ry, double rz)
-      : PoseVector(x, y, z, rx, ry, rz), Coordinate(frame) {}
-
-    inline Pose::Pose(const ReferenceFrame &frame,
-                                double x, double y, double z)
-      : PoseVector(x, y, z, 0, 0, 0), Coordinate(frame) {}
-
-    inline Pose::Pose() : PoseVector(), Coordinate() {}
-
-    inline Pose::Pose(const Position &loc)
-      : PoseVector(loc), Coordinate(loc.frame()) {}
-
-    inline Pose::Pose(const Orientation &rot)
-      : PoseVector(rot), Coordinate(rot.frame()) {}
-
-    inline Pose::Pose(const LinearVector &loc, const AngularVector &rot)
-      : PoseVector(loc, rot), Coordinate() {}
-
-    inline Pose::Pose(const ReferenceFrame &frame,
-                      const LinearVector &loc, const AngularVector &rot)
-      : PoseVector(loc, rot), Coordinate(frame) {}
-
-    inline Pose::Pose(const Position &loc, const Orientation &rot)
-      : PoseVector(loc, rot), Coordinate(loc.frame()) {}
-
-    inline Pose::Pose(const ReferenceFrame &new_frame, const Pose &orig)
-      : PoseVector(orig), Coordinate(orig.frame())
-    {
-      transform_this_to(new_frame);
-    }
-
-    inline Pose::Pose(
-        const madara::knowledge::containers::DoubleVector &vec)
-      : PoseVector(vec), Coordinate() {}
-
-    inline Pose::Pose(const ReferenceFrame &frame,
-        const madara::knowledge::containers::DoubleVector &vec)
-      : PoseVector(vec), Coordinate(frame) {}
-
-    inline Pose::Pose(
-        const madara::knowledge::containers::NativeDoubleVector &vec)
-      : PoseVector(vec), Coordinate() {}
-
-    inline Pose::Pose(
-        const ReferenceFrame &frame,
-        const madara::knowledge::containers::NativeDoubleVector &vec)
-      : PoseVector(vec), Coordinate(frame) {}
-
-    inline Pose::Pose(
-        const madara::knowledge::containers::DoubleVector &vec_loc,
-        const madara::knowledge::containers::DoubleVector &vec_rot)
-      : PoseVector(vec_loc, vec_rot), Coordinate() {}
-
-    inline Pose::Pose(const ReferenceFrame &frame,
-        const madara::knowledge::containers::DoubleVector &vec_loc,
-        const madara::knowledge::containers::DoubleVector &vec_rot)
-      : PoseVector(vec_loc, vec_rot), Coordinate(frame) {}
-
-    inline Pose::Pose(
-        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
-        const madara::knowledge::containers::NativeDoubleVector &vec_rot)
-      : PoseVector(vec_loc, vec_rot), Coordinate() {}
-
-    inline Pose::Pose(
-        const ReferenceFrame &frame,
-        const madara::knowledge::containers::NativeDoubleVector &vec_loc,
-        const madara::knowledge::containers::NativeDoubleVector &vec_rot)
-      : PoseVector(vec_loc, vec_rot), Coordinate(frame) {}
-
-    inline double Pose::angle_to(const Pose &target) const
-    {
-      Orientation me(*this);
-      Orientation other(target);
-      return me.distance_to(other);
-    }
-
-    inline double Pose::angle_to(const Orientation &target) const
-    {
-      Orientation me(*this);
-      return me.distance_to(target);
-    }
-
-    template<typename U>
-    inline double Pose::angle_to (const Pose &target, U u) const
-    {
-      Orientation me(*this);
-      Orientation other(target);
-      return me.angle_to(other, u);
-    }
-
-    template<typename U>
-    inline double Pose::angle_to (const Orientation &target, U u) const
-    {
-      Orientation me(*this);
-      return me.angle_to(target, u);
-    }
-
-    inline Pose::operator Position() const
-    {
-      return Position(frame(), x(), y(), z());
-    }
-
-    inline Pose::operator Orientation() const
-    {
-      return Orientation(frame(), rx(), ry(), rz());
-    }
-
-    inline std::string Pose::to_string (const std::string & delimiter,
-      const std::string & unset_identifier) const
-    {
-      std::stringstream buffer;
-
-      buffer << Position (*this).to_string (delimiter, unset_identifier);
-
-      buffer << delimiter;
-
-      buffer << Orientation
-      (*this).to_string (delimiter, unset_identifier);
-
-      return buffer.str ();
+template<typename Derived>
+inline void BasicPose<Derived>::from_container (
+  const madara::knowledge::containers::NativeDoubleVector &container)
+{
+  for (size_t i = 0; i < 6; ++i)
+  {
+    if (i < container.size ()) {
+      set ((int)i, container[i]);
+    } else {
+      set ((int)i, 0);
     }
   }
 }
+
+template<typename Derived>
+inline void BasicPose<Derived>::from_container (
+  const std::vector <double> &container)
+{
+  for (size_t i = 0; i < 6; ++i)
+  {
+    if (i < container.size ()) {
+      set ((int)i, container[i]);
+    } else {
+      set ((int)i, 0);
+    }
+  }
+}
+
+} }
 
 #endif

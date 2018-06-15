@@ -72,12 +72,12 @@ namespace gams
       from_angular_vector(rx, ry, rz);
     }
 
-    inline Quaternion::Quaternion(const AngularVector &rot)
+    inline Quaternion::Quaternion(const OrientationVector &rot)
     {
       from_angular_vector(rot);
     }
 
-    inline Quaternion::Quaternion(const LinearVector &loc)
+    inline Quaternion::Quaternion(const PositionVector &loc)
     {
       from_linear_vector(loc);
     }
@@ -90,7 +90,7 @@ namespace gams
       w_ = 0;
     }
 
-    inline void Quaternion::from_linear_vector(const LinearVector &loc)
+    inline void Quaternion::from_linear_vector(const PositionVector &loc)
     {
       from_linear_vector(loc.x(), loc.y(), loc.z());
     }
@@ -103,9 +103,9 @@ namespace gams
       z = z_;
     }
 
-    inline void Quaternion::to_linear_vector(LinearVector &loc) const
+    inline void Quaternion::to_linear_vector(PositionVector &loc) const
     {
-      to_linear_vector(loc.v_[0], loc.v_[1], loc.v_[2]);
+      to_linear_vector(loc.vec()[0], loc.vec()[1], loc.vec()[2]);
     }
 
     inline void Quaternion::from_angular_vector(
@@ -129,9 +129,9 @@ namespace gams
       }
     }
 
-    inline void Quaternion::from_angular_vector(const AngularVector &rot)
+    inline void Quaternion::from_angular_vector(const OrientationVector &rot)
     {
-      from_angular_vector(rot.rv_[0], rot.rv_[1], rot.rv_[2]);
+      from_angular_vector(rot.vec()[0], rot.vec()[1], rot.vec()[2]);
     }
 
     inline void Quaternion::to_angular_vector(
@@ -152,9 +152,9 @@ namespace gams
       }
     }
 
-    inline void Quaternion::to_angular_vector(AngularVector &rot) const
+    inline void Quaternion::to_angular_vector(OrientationVector &rot) const
     {
-      to_angular_vector(rot.rv_[0], rot.rv_[1], rot.rv_[2]);
+      to_angular_vector(rot.vec()[0], rot.vec()[1], rot.vec()[2]);
     }
 
     inline void Quaternion::hamilton_product(
@@ -406,11 +406,6 @@ namespace gams
       return w_ * w_ - x_* x_ - y_ * y_ + z_ * z_;
     }
 
-    inline AngularVector::AngularVector(const Quaternion &quat)
-    {
-      quat.to_angular_vector(rv_[0], rv_[1], rv_[2]);
-    }
-
     inline std::ostream &operator<<(std::ostream &o, const Quaternion &quat)
     {
       o << quat.w()
@@ -418,6 +413,12 @@ namespace gams
         << (quat.y() < 0 ? "" : "+") << quat.y() << "j"
         << (quat.z() < 0 ? "" : "+") << quat.z() << "k";
       return o;
+    }
+
+    /*
+    inline OrientationVector::OrientationVector(const Quaternion &quat)
+    {
+      quat.to_angular_vector(vec()[0], vec()[1], vec()[2]);
     }
 
     template<class C>
@@ -436,7 +437,7 @@ namespace gams
         qo(&this->frame() == &o.frame() ? o : o.transform_to(this->frame()));
       q.slerp_this(qo, t);
       q.to_angular_vector(*this);
-    }
+    }*/
   }
 }
 

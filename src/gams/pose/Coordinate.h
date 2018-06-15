@@ -61,331 +61,900 @@
 #include <cfloat>
 #include <utility>
 #include <gams/CPP11_compat.h>
+#include <madara/knowledge/containers/DoubleVector.h>
+#include <madara/knowledge/containers/NativeDoubleVector.h>
 #include "ReferenceFrameFwd.h"
 
 #define INVAL_COORD DBL_MAX
 
-namespace gams
-{
-  namespace pose
+namespace gams { namespace pose {
+
+/// Type tags to indicate the dimension a coordinate lies within
+namespace units {
+  /// Tag that coordinate is a fixed vector, not free
+  template<typename T>
+  struct absolute {};
+
+  struct length {};
+  struct velocity {};
+  struct acceleration {};
+  struct plane_angle {};
+  struct angular_velocity {};
+  struct angular_acceleration {};
+
+  /// Trait to strip absolute off a unit tag
+  template<typename T>
+  struct base_of
   {
-    /**
-     * Contains ordering configurations for to_container and from_container
-     **/
-    namespace order
-    {
-      /**
-       * Used to specify ordering for reading from a container, e.g.,
-       * as template argument to to_container and from_container.
-       *
-       * Use the typedefs below; they cover all possible instantiations
-       * with readable names.
-       **/
-      template<int i0_, int i1_, int i2_>
-      class Order
-      {
-      public:
-        static const int i0 = i0_;
-        static const int i1 = i1_;
-        static const int i2 = i2_;
+    using type = T;
+  };
 
-        constexpr static int get(int i)
-        {
-          return (i == 0 ? i0_:
-                 (i == 1 ? i1_:
-                 (i == 2 ? i2_: -1 )));
-        }
+  template<typename T>
+  struct base_of<absolute<T>>
+  {
+    using type = T;
+  };
 
-        constexpr static int find(int i)
-        {
-          return (i == i0_ ? 0:
-                 (i == i1_ ? 1:
-                 (i == i2_ ? 2: -1 )));
-        }
-
-      };
-
-      static const int X = 0;
-      static const int Lng = X;
-
-      static const int Y = 1;
-      static const int Lat = Y;
-
-      static const int Z = 2;
-      static const int Alt = Z;
-
-      /** Use to read/write in X/Y/Z order */
-      typedef Order<X, Y, Z> XYZ;
-
-      /** Use to read/write in X/Z/Y order */
-      typedef Order<X, Z, Y> XZY;
-
-      /** Use to read/write in Y/X/Z order */
-      typedef Order<Y, X, Z> YXZ;
-
-      /** Use to read/write in Y/Z/X order */
-      typedef Order<Y, Z, X> YZX;
-
-      /** Use to read/write in Z/X/Y order */
-      typedef Order<Z, X, Y> ZXY;
-
-      /** Use to read/write in Z/Y/X order */
-      typedef Order<Z, Y, X> ZYX;
-
-      /** Use to read/write in Lat/Lng/Alt order */
-      typedef Order<Lat, Lng, Alt> LatLng;
-
-      /** Use to read/write in Lng/Lat/Alt order */
-      typedef Order<Lng, Lat, Alt> LngLat;
-
-      /** Use to read in conventional GPS Lat/Lng/Alt order */
-      typedef LatLng GPS;
-    }
-
-    /**
-     * New coordinate types which are frame-dependant can inherit from this
-     * class. Pass the type of the child class as CoordType
-     *
-     * New coordinate types must:
-     *   -- Inherit from Coordinate, and pass itself as template parameter
-     *   -- Inherit from a base class which does not inherit from Coordinate
-     *   -- That base class must:
-     *      -- Have a typedef BaseType which refers to itself
-     *      -- Implement operator==
-     *      -- Implement the following methods:
-     *   static std::string name() // return the type's name
-     *   static int size() // return # of values in representation
-     *   double get(int i) const // return ith value of representation
-     *   bool operator==(const BaseType &rhs) const
-     *   BaseType &as_vec() // return *this
-     *   const BaseType &as_vec() const // return *this
-     *
-     * Additionally, new coordinate types should either:
-     *   -- Specialize the ReferenceFrame::*_within_frame templates; OR
-     *   -- Add new overloads for transform_to_origin, transform_from_origin,
-     *      do_normalize, and calc_distance virtual methods in ReferenceFrame,
-     *      and add transformation logic for those methods in the various frames
-     **/
-    template<typename CoordType>
-    class Coordinate
-    {
-    protected:
-      /**
-       * Default Constructor. Initializes frame as default_frame()
-       **/
-      Coordinate();
-
-      /**
-       * Construct using a ReferenceFrame object.
-       *
-       * @param frame the ReferenceFrame this Coordinate will belong to
-       **/
-      explicit Coordinate(ReferenceFrame frame);
-
-      Coordinate(const Coordinate&) = default;
-      Coordinate& operator=(const Coordinate&) = default;
-
-      Coordinate(Coordinate&&) = default;
-      Coordinate& operator=(Coordinate&&) = default;
-
-    public:
-      /**
-       * Getter for the ReferenceFrame this Coordinate belongs to.
-       *
-       * @return the frame
-       **/
-      const ReferenceFrame &frame() const;
-
-      /**
-       * Setter for the ReferenceFrame this Coordinate belongs to. Any further
-       * calculations using this Coordinate will use this frame.
-       *
-       * Not thread-safe.
-       *
-       * @param new_frame the frame the Coordinate will now belong to
-       * @return the old frame
-       **/
-      ReferenceFrame frame(ReferenceFrame new_frame);
-
-      /**
-       * Evaluate equality with the other Coordinate
-       *
-       * Note: in practice, the approximately_equal method may be more useful
-       *
-       * @param rhs the other Coordinate
-       * @return true if the two coordinates are in the same reference frame,
-       *  and they have the same values
-       **/
-      bool operator==(const CoordType &rhs) const;
-
-      /**
-       * Evaluate inequality with the other Coordinate.
-       *
-       * Note: in practice, a negated call to the approximately_equal method
-       * may be more useful
-       *
-       * @param rhs the other Coordinate
-       * @return false if the two coordinates are in the same reference frame,
-       *  and they have the same values
-       **/
-      bool operator!=(const CoordType &rhs) const;
-
-      /**
-       * Tests if this Coordinate is within epsilon in distance (as defined by
-       * this Coordinate's reference frame's distance metric). If the other
-       * Coordinate is in a different reference frame, it is first copied, and
-       * converted to this Coordinate's reference frame.
-       *
-       * @param other the other Coordinate to test against
-       * @param epsilon the maximum distance permitted to return true
-       * @return true if the distance is less than or equal to  epsilon
-       **/
-      bool approximately_equal(const CoordType &other, double epsilon) const;
-
-      /**
-       * Less than used for ordering in stl containers
-       * @param rhs   comparing position
-       * @return true if *this is less than rhs
-       **/
-      bool operator<(const Coordinate<CoordType> &rhs) const;
-
-      /**
-       * Outputs this Coordinates values to the referenced container. This
-       * container type must support operator[] for setting by index.
-       *
-       * If the array's size is smaller than the cardinality of this
-       * coordinate type, the behavior is undefined. If it is larger, the
-       * extra elements are not changed.
-       *
-       * The MADARA DoubleVector and NativeDoubleVector types are supported.
-       *
-       * @tparam ContainType the type of the container; must support "set"
-       * @param out the container to put this Coordinate's values into.
-       **/
-      template<typename ContainType>
-      void to_array(ContainType &out) const;
-
-      /**
-       * Overwrites this Coordinate's values with those pulled from the
-       * referenced array. These values will be within this object's
-       * current reference frame. The container must support operator[],
-       *
-       * If the array's size is smaller than the cardinality of this
-       * coordinate type, the behavior is undefined. If it is larger, the
-       * extra elements are ignored.
-       *
-       * @tparam ContainType the type of the container; must support operator[]
-       * @param in the container to pull new values from.
-       **/
-      template<typename ContainType>
-      void from_array(const ContainType &in);
-
-      /**
-       * Compares coordinates values to those in the container. The container
-       * must support operator[], returning a numerical type. The values in
-       * the container are assumed to lie in the same reference frame as those
-       * of this coordinate
-       *
-       * @tparam ContainType the type of the container; must support operator[]
-       * @return returns true if this coordinates values match those in the
-       *         container, respectively. If this container is smaller than the
-       *         cardinality of this coordinate type, behavior is undefined.
-       *         If it is greater, the extra values are ignored.
-       **/
-      template<typename ContainType>
-      bool operator==(const ContainType &container) const;
-
-      /**
-       * Compares coordinates values to those in the container. The container
-       * must support operator[], returning a numerical type. The values in
-       * the container are assumed to lie in the same reference frame as those
-       * of this coordinate
-       *
-       * @tparam ContainType the type of the container; must support operator[]
-       * @return returns false if this coordinates values match those in the
-       *         container, respectively. If this container is smaller than the
-       *         cardinality of this coordinate type, behavior is undefined.
-       *         If it is greater, the extra values are ignored.
-       **/
-      template<typename ContainType>
-      bool operator!=(const ContainType &container) const;
-
-      /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-       * The four methods below are defined in ReferenceFrame.inl,
-       * due to circular dependencies
-       * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-      /**
-       * Copy and transform this coordinate to a new reference frame
-       *
-       * Requres "ReferenceFrame.h"
-       *
-       * @param new_frame the frame to transform to
-       * @return the new coordinate in the new frame
-       *
-       * @throws unrelated_frames thrown if the new reference frame is not
-       *      part of the same tree as the current one.
-       * @throws undefined_transform thrown if no conversion between two frames
-       *      along the conversion path has been defined.
-       **/
-      CoordType WARN_UNUSED transform_to(const ReferenceFrame &new_frame)const;
-
-      /**
-       * Transform this coordinate, in place, to a new reference frame
-       *
-       * Requres "ReferenceFrame.h"
-       *
-       * @param new_frame the frame to transform to
-       *
-       * @throws unrelated_frames thrown if the new reference frame is not
-       *      part of the same tree as the current one.
-       * @throws undefined_transform thrown if no conversion between two frames
-       *      along the conversion path has been defined.
-       **/
-      void transform_this_to(const ReferenceFrame &new_frame);
-
-      /**
-       * Calculate distance from this Coordinate to a target. If the target
-       * is in another reference frame, this and the target will be copied, and
-       * converted to their closest common frame.
-       *
-       * Requres "ReferenceFrame.h"
-       *
-       * @param target the target Coordinate to calculate distance to
-       * @return the distance according to the distance metric in the common
-       *   frame, for CoordType. Typically, return will be meters or degrees.
-       *
-       * @throws unrelated_frames thrown if the target's reference frame is not
-       *      part of the same tree as the current one.
-       * @throws undefined_transform thrown if no conversion between two frames
-       *      along the conversion path has been defined.
-       **/
-      double distance_to(const CoordType &target) const;
-
-      /**
-       * Reduces this Coordinate to it's normalized form, should one exist.
-       * Typically useful for Coordinate types which incorporate angles.
-       *
-       * Requres "ReferenceFrame.h"
-       **/
-      void normalize();
-
-    private:
-      ReferenceFrame frame_;
-
-      CoordType &as_coord_type();
-
-      const CoordType &as_coord_type() const;
-
-      template<typename Type>
-      Type &as_type();
-
-      template<typename Type>
-      const Type &as_type() const;
-    };
-  }
+  /// Trait to compare types, ignoring absolute
+  template<typename L, typename R>
+  struct same_base :
+    std::is_same<typename base_of<L>::type,
+                 typename base_of<R>::type> {};
 }
 
+/// Helper trait to customize BasicVector based on unit
+template<typename Units>
+struct unit_traits
+{
+  static_assert(sizeof(Units) < 0, "Unit type not supported by BasicVector");
+};
+
+/// Internal use
+struct default_unit_traits
+{
+  class storage_mixin
+  {
+  private:
+    Eigen::Vector3d vec_;
+
+  public:
+    storage_mixin() = default;
+
+    storage_mixin(double x, double y)
+      : vec_(x, y, 0) {}
+
+    storage_mixin(double x, double y, double z)
+      : vec_(x, y, z) {}
+
+    explicit storage_mixin(const Eigen::Vector3d &vec) : vec_(vec) {}
+
+    explicit storage_mixin(const madara::knowledge::containers::DoubleVector &v)
+      : vec_(v.size() > 0 ? v[0] : 0,
+             v.size() > 1 ? v[1] : 0,
+             v.size() > 2 ? v[2] : 0) {}
+
+    explicit storage_mixin(const madara::knowledge::containers::NativeDoubleVector &v)
+      : vec_(v.size() > 0 ? v[0] : 0,
+             v.size() > 1 ? v[1] : 0,
+             v.size() > 2 ? v[2] : 0) {}
+
+    Eigen::Vector3d &vec() { return vec_; }
+    const Eigen::Vector3d &vec() const { return vec_; }
+  };
+};
+
+/// Internal use
+struct default_positional_unit_traits : default_unit_traits
+{
+  static const bool positional = true;
+};
+
+class Quaternion;
+
+/// Internal use
+struct default_rotational_unit_traits : default_unit_traits
+{
+  static const bool positional = false;
+
+  class storage_mixin : public default_unit_traits::storage_mixin
+  {
+  public:
+    using Base = default_unit_traits::storage_mixin;
+    using Base::Base;
+
+    storage_mixin() = default;
+
+    storage_mixin(const Quaternion &quat);
+
+    template<typename Units>
+    storage_mixin(double rx, double ry, double rz, Units units)
+      : Base(units.to_radians(rx),
+             units.to_radians(ry),
+             units.to_radians(rz)) {}
+  };
+};
+
+/// Internal use
+template<typename Derived>
+struct basic_positional_mixin
+{
+  Derived &self() { return static_cast<Derived&>(*this); }
+  const Derived &self() const { return static_cast<const Derived&>(*this); }
+
+  double x() const { return self().vec()[0]; }
+  double y() const { return self().vec()[1]; }
+  double z() const { return self().vec()[2]; }
+
+  double x(double v) { return (self().vec()[0] = v); }
+  double y(double v) { return (self().vec()[1] = v); }
+  double z(double v) { return (self().vec()[2] = v); }
+};
+
+template<>
+struct unit_traits<units::absolute<units::length>>
+  : default_positional_unit_traits
+{
+  static const bool free = false;
+
+  template<typename Derived>
+  struct mixin : basic_positional_mixin<Derived> {
+    using Base = basic_positional_mixin<Derived>;
+    using Base::x;
+    using Base::y;
+    using Base::z;
+    using Base::self;
+
+    double lng () const { return x(); }
+    double lon () const { return x(); }
+    double longitude () const { return x(); }
+
+    double lat () const { return y(); }
+    double latitude () const { return y(); }
+
+    double alt () const { return -z(); }
+    double altitude () const { return -z(); }
+
+    double lng (double v) { return x(v); }
+    double lon (double v) { return x(v); }
+    double longitude (double v) { return x(v); }
+
+    double lat (double v) { return y(v); }
+    double latitude (double v) { return y(v); }
+
+    double alt (double v) { return z(-v); }
+    double altitude (double v) { return z(-v); }
+
+    Eigen::Vector3d &pos_vec() { return self().vec(); }
+    const Eigen::Vector3d &pos_vec() const { return self().vec(); }
+  };
+};
+
+template<>
+struct unit_traits<units::length>
+  : default_positional_unit_traits
+{
+  static const bool free = true;
+
+  template<typename Derived>
+  struct mixin : basic_positional_mixin<Derived> {
+    using Base = basic_positional_mixin<Derived>;
+    using Base::self;
+
+    Eigen::Vector3d &dis_vec() { return self().vec(); }
+    const Eigen::Vector3d &dis_vec() const { return self().vec(); }
+  };
+};
+
+template<>
+struct unit_traits<units::velocity>
+  : default_positional_unit_traits
+{
+  static const bool free = true;
+
+  template<typename Derived>
+  struct mixin {
+    Derived &self() { return static_cast<Derived&>(*this); }
+    const Derived &self() const { return static_cast<const Derived&>(*this); }
+
+    double dx() const { return self().vec()[0]; }
+    double dy() const { return self().vec()[1]; }
+    double dz() const { return self().vec()[2]; }
+
+    double dx(double v) { return (self().vec()[0] = v); }
+    double dy(double v) { return (self().vec()[1] = v); }
+    double dz(double v) { return (self().vec()[2] = v); }
+
+    Eigen::Vector3d &vel_vec() { return self().vec(); }
+    const Eigen::Vector3d &vel_vec() const { return self().vec(); }
+  };
+};
+
+template<>
+struct unit_traits<units::acceleration>
+  : default_positional_unit_traits
+{
+  static const bool positional = true;
+  static const bool free = true;
+
+  template<typename Derived>
+  struct mixin {
+    Derived &self() { return static_cast<Derived&>(*this); }
+    const Derived &self() const { return static_cast<const Derived&>(*this); }
+
+    double ddx() const { return self().vec()[0]; }
+    double ddy() const { return self().vec()[1]; }
+    double ddz() const { return self().vec()[2]; }
+
+    double ddx(double v) { return (self().vec()[0] = v); }
+    double ddy(double v) { return (self().vec()[1] = v); }
+    double ddz(double v) { return (self().vec()[2] = v); }
+
+    Eigen::Vector3d &acc_vec() { return self().vec(); }
+    const Eigen::Vector3d &acc_vec() const { return self().vec(); }
+  };
+};
+
+/// Internal use
+template<typename Derived>
+struct common_rotational_mixin
+{
+  Derived &self() { return static_cast<Derived&>(*this); }
+  const Derived &self() const { return static_cast<const Derived&>(*this); }
+
+  double angle_to(const Derived &target) const
+  {
+    return self().distance_to(target);
+  }
+
+  template<typename U>
+  double angle_to (const Derived &target, U u) const
+  {
+    return u.from_radians (self().angle_to (target));
+  }
+};
+
+/// Internal use
+template<typename Derived>
+struct basic_rotational_mixin : common_rotational_mixin<Derived>
+{
+  using Base = common_rotational_mixin<Derived>;
+  using Base::self;
+
+  double rx() const { return self().vec()[0]; }
+  double ry() const { return self().vec()[1]; }
+  double rz() const { return self().vec()[2]; }
+
+  double rx(double v) { return (self().vec()[0] = v); }
+  double ry(double v) { return (self().vec()[1] = v); }
+  double rz(double v) { return (self().vec()[2] = v); }
+};
+
+template<>
+struct unit_traits<units::absolute<units::plane_angle>>
+  : default_rotational_unit_traits
+{
+  static const bool free = false;
+
+  template<typename Derived>
+  struct mixin : basic_rotational_mixin<Derived> {
+    using Base = basic_rotational_mixin<Derived>;
+    using Base::self;
+
+    Eigen::Vector3d &ori_vec() { return self().vec(); }
+    const Eigen::Vector3d &ori_vec() const { return self().vec(); }
+  };
+};
+
+template<>
+struct unit_traits<units::plane_angle>
+  : default_rotational_unit_traits
+{
+  static const bool free = true;
+
+  template<typename Derived>
+  struct mixin : basic_rotational_mixin<Derived> {
+    using Base = basic_rotational_mixin<Derived>;
+    using Base::self;
+
+    Eigen::Vector3d &rot_vec() { return self().vec(); }
+    const Eigen::Vector3d &rot_vec() const { return self().vec(); }
+  };
+};
+
+template<>
+struct unit_traits<units::angular_velocity>
+  : default_rotational_unit_traits
+{
+  static const bool free = true;
+
+  template<typename Derived>
+  struct mixin {
+    Derived &self() { return static_cast<Derived&>(*this); }
+    const Derived &self() const { return static_cast<const Derived&>(*this); }
+
+    double drx() const { return self().vec()[0]; }
+    double dry() const { return self().vec()[1]; }
+    double drz() const { return self().vec()[2]; }
+
+    double drx(double v) { return (self().vec()[0] = v); }
+    double dry(double v) { return (self().vec()[1] = v); }
+    double drz(double v) { return (self().vec()[2] = v); }
+
+    Eigen::Vector3d &ang_vel_vec() { return self().vec(); }
+    const Eigen::Vector3d &ang_vel_vec() const { return self().vec(); }
+  };
+};
+
+template<>
+struct unit_traits<units::angular_acceleration>
+  : default_rotational_unit_traits
+{
+  static const bool positional = true;
+  static const bool free = true;
+
+  template<typename Derived>
+  struct mixin {
+    Derived &self() { return static_cast<Derived&>(*this); }
+    const Derived &self() const { return static_cast<const Derived&>(*this); }
+
+    double ddrx() const { return self().vec()[0]; }
+    double ddry() const { return self().vec()[1]; }
+    double ddrz() const { return self().vec()[2]; }
+
+    double ddrx(double v) { return (self().vec()[0] = v); }
+    double ddry(double v) { return (self().vec()[1] = v); }
+    double ddrz(double v) { return (self().vec()[2] = v); }
+
+    Eigen::Vector3d &ang_acc_vec() { return self().vec(); }
+    const Eigen::Vector3d &ang_acc_vec() const { return self().vec(); }
+  };
+};
+
+/// For internal use. The underlying template for all coordinate types.
+template<typename Derived, typename Units>
+class BasicVector
+  : public unit_traits<Units>::storage_mixin,
+    public unit_traits<Units>::template mixin<Derived>
+{
+private:
+  Eigen::Vector3d vec_;
+
+  using traits = unit_traits<Units>;
+  using storage_mixin = typename unit_traits<Units>::storage_mixin;
+  using mixin = typename unit_traits<Units>::template mixin<Derived>;
+
+public:
+  using storage_mixin::storage_mixin;
+  using storage_mixin::vec;
+
+  using mixin::self;
+
+  using derived_type = Derived;
+  using units_type = Units;
+
+  BasicVector() = default;
+
+  template<typename Derived2>
+  BasicVector(const BasicVector<Derived2, Units> &v) : storage_mixin(v.vec()) {}
+
+  /// Is this coordinate a positional one?
+  static constexpr bool positional() { return traits::positional; }
+
+  /// Is this coordinate a rotational one?
+  static constexpr bool rotational() { return !positional(); }
+
+  /// Is this coordinate a free vector?
+  static constexpr bool free() { return traits::free; }
+
+  /// Is this coordinate a fixed vector?
+  static constexpr bool fixed() { return !free(); }
+
+  /// Get number of values in this coordinate
+  size_t size() const { return (size_t)vec().size(); }
+
+  /**
+   * Get i'th value in this Coordinate. No range checking!
+   **/
+  double get(size_t i) const { return vec()[i]; }
+
+  /**
+   * Set i'th value in this Coordinate. No range checking!
+   *
+   * @param v the value to set to
+   * @return the new value
+   **/
+  double set(size_t i, double v) { return (vec()[i] = v); }
+
+  /// Does this coordinate have any values not INVAL_COORD?
+  bool is_set() const
+  {
+    for (int i = 0; i < vec().size(); ++i) {
+      if (vec()[i] != INVAL_COORD) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Does this coordinate have values all zeroes?
+  bool is_zero() const
+  {
+    for (int i = 0; i < vec().size(); ++i) {
+      if (vec()[i] != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Outputs this Coordinates values to the referenced container. This
+   * container type must support operator[] for setting by index.
+   *
+   * If the array's size is smaller than the cardinality of this
+   * coordinate type, the behavior is undefined. If it is larger, the
+   * extra elements are not changed.
+   *
+   * The MADARA DoubleVector and NativeDoubleVector types are supported.
+   *
+   * @tparam ContainType the type of the container; must support "set"
+   * @param out the container to put this Coordinate's values into.
+   **/
+  template<typename ContainType>
+  void to_array(ContainType &out) const
+  {
+    for(int i = 0; i < size(); i++)
+    {
+      out[i] = get(i);
+    }
+  }
+
+  /**
+   * Overwrites this Coordinate's values with those pulled from the
+   * referenced array. These values will be within this object's
+   * current reference frame. The container must support operator[],
+   *
+   * If the array's size is smaller than the cardinality of this
+   * coordinate type, the behavior is undefined. If it is larger, the
+   * extra elements are ignored.
+   *
+   * @tparam ContainType the type of the container; must support operator[]
+   * @param in the container to pull new values from.
+   **/
+  template<typename ContainType>
+  void from_array(const ContainType &in)
+  {
+    for(int i = 0; i < size(); i++)
+    {
+      set(i, in[i]);
+    }
+  }
+
+  /**
+  * Returns a string of the values x, y, z
+  * @param delimiter      delimiter between values
+  * @param unset_identifier  value to print if unset
+  * @return  stringified version of the Linear
+  **/
+  std::string to_string (
+      const std::string & delimiter = ",",
+      const std::string & unset_identifier = "<unset>") const
+  {
+    std::stringstream buffer;
+    bool first = true;
+
+    for (int i = 0; i < vec().size(); ++i)
+    {
+      auto x = vec()[i];
+
+      if (!first) {
+        buffer << delimiter;
+      } else {
+        first = false;
+      }
+
+      if (x != INVAL_COORD)
+        buffer << x;
+      else
+        buffer << unset_identifier;
+    }
+
+    return buffer.str ();
+  }
+
+  void to_container (
+    madara::knowledge::containers::NativeDoubleVector &container) const
+  {
+    container.set (0, this->get (0));
+    container.set (1, this->get (1));
+    container.set (2, this->get (2));
+  }
+
+  void from_container (
+    const madara::knowledge::containers::NativeDoubleVector &container)
+  {
+    this->set (0, container[0]);
+    this->set (1, container[1]);
+    this->set (2, container[2]);
+  }
+
+  /**
+   * Tests if this Coordinate is within epsilon in distance (as defined by
+   * this Coordinate's reference frame's distance metric). If the other
+   * Coordinate is in a different reference frame, it is first copied, and
+   * converted to this Coordinate's reference frame.
+   *
+   * @param other the other Coordinate to test against
+   * @param epsilon the maximum distance permitted to return true
+   * @return true if the distance is less than or equal to  epsilon
+   **/
+  /*template<typename Derived2>
+  bool approximately_equal(const BasicVector<Derived2, Units> &other,
+      double epsilon) const
+  {
+    return std::fabs(self().distance_to(other.self())) < epsilon;
+  }*/
+
+  /**
+   * Calculate distance from this Coordinate to a target. If the target
+   * is in another reference frame, this and the target will be copied, and
+   * converted to their closest common frame.
+   *
+   * Requres "ReferenceFrame.h"
+   *
+   * @param target the target Coordinate to calculate distance to
+   * @return the distance according to the distance metric in the common
+   *   frame, for CoordType. Typically, return will be meters or degrees.
+   *
+   * @throws unrelated_frames thrown if the target's reference frame is not
+   *      part of the same tree as the current one.
+   * @throws undefined_transform thrown if no conversion between two frames
+   *      along the conversion path has been defined.
+   **/
+  /*template<typename Derived2>
+  double distance_to(const BasicVector<Derived2, Units> &target) const {
+    return (target.vec() - vec()).norm();
+  }*/
+};
+
+} }
+
 #include "Coordinate.inl"
+
+#include "Framed.h"
+#include "Stamped.h"
+
+namespace gams { namespace pose {
+
+#define GAMS_POSE_MAKE_COMPOSITE_VEC_SCALAR_OP(op) \
+template<typename Derived, typename Units, typename Scalar> \
+inline auto operator op##=(BasicVector<Derived, Units> &vec, Scalar scalar) -> \
+  typename std::enable_if<std::is_arithmetic<Scalar>::value && \
+                          BasicVector<Derived, Units>::free(), \
+                          typename BasicVector<Derived, Units>::derived_type&>::type \
+{ \
+  vec.vec() op##= scalar; \
+  return vec.self(); \
+}
+
+#define GAMS_POSE_MAKE_BINARY_VEC_SCALAR_OP(op) \
+template<typename Derived, typename Units, typename Scalar> \
+inline auto operator op(const BasicVector<Derived, Units> &vec, Scalar scalar) -> \
+  typename std::enable_if<std::is_arithmetic<Scalar>::value && \
+                          BasicVector<Derived, Units>::free(), \
+                          typename BasicVector<Derived, Units>::derived_type>::type \
+{ \
+  typename BasicVector<Derived, Units>::derived_type ret = vec.self(); \
+  ret op##= scalar; \
+  return ret; \
+} \
+\
+template<typename Derived, typename Units, typename Scalar> \
+inline auto operator op(Scalar scalar, const BasicVector<Derived, Units> &vec) -> \
+  decltype(vec op scalar) \
+{ \
+  return vec op scalar; \
+}
+
+#define GAMS_POSE_MAKE_VEC_SCALAR_OPS(op) \
+GAMS_POSE_MAKE_COMPOSITE_VEC_SCALAR_OP(op) \
+GAMS_POSE_MAKE_BINARY_VEC_SCALAR_OP(op)
+
+GAMS_POSE_MAKE_VEC_SCALAR_OPS(*)
+GAMS_POSE_MAKE_VEC_SCALAR_OPS(/)
+
+#define GAMS_POSE_MAKE_COMPOSITE_VECS_OP(op) \
+template<typename LDerived, \
+         typename RDerived, typename Units> \
+inline auto operator op##=(BasicVector<LDerived, Units> &lhs, \
+              const Eigen::MatrixBase<RDerived> &rhs) -> \
+  typename std::enable_if<unit_traits<Units>::positional, \
+                          LDerived &>::type \
+{ \
+  lhs.vec() op##= rhs; \
+  return lhs.self(); \
+} \
+\
+template<typename LDerived, \
+         typename RDerived, typename Units> \
+inline auto operator op##=(BasicVector<LDerived, Units> &lhs, \
+                 const BasicVector<RDerived, Units> &rhs) -> \
+  typename std::enable_if<unit_traits<Units>::positional && \
+                          unit_traits<Units>::free, LDerived &>::type \
+{ \
+  lhs.vec() op##= rhs.vec(); \
+  return lhs.self(); \
+} \
+\
+template<typename LDerived, \
+         typename RDerived, typename Units> \
+inline auto operator op##=(BasicVector<LDerived, units::absolute<Units>> &lhs, \
+                 const BasicVector<RDerived, Units> &rhs) -> \
+  typename std::enable_if<unit_traits<Units>::positional && \
+                          unit_traits<Units>::free, LDerived &>::type \
+{ \
+  lhs.vec() op##= rhs.vec(); \
+  return lhs.self(); \
+} \
+
+GAMS_POSE_MAKE_COMPOSITE_VECS_OP(+)
+GAMS_POSE_MAKE_COMPOSITE_VECS_OP(-)
+
+template<typename LDerived, typename LUnits,
+         typename RDerived, typename RUnits>
+inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
+               const BasicVector<RDerived, RUnits> &rhs) ->
+  typename std::enable_if<RDerived::free(), LDerived>::type
+{
+  LDerived ret = lhs;
+  ret += rhs;
+  return ret;
+}
+
+template<typename LDerived, typename LUnits,
+         typename RDerived, typename RUnits>
+inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
+               const BasicVector<RDerived, RUnits> &rhs) ->
+  typename std::enable_if<LDerived::free() && RDerived::fixed(), RDerived>::type
+{
+  RDerived ret = rhs;
+  ret += lhs;
+  return ret;
+}
+
+template<typename LDerived, typename LUnits,
+         typename RDerived, typename RUnits>
+inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
+               const BasicVector<RDerived, RUnits> &rhs) ->
+  typename std::enable_if<LDerived::free() && RDerived::free(), LDerived>::type
+{
+  LDerived ret = lhs;
+  ret -= rhs;
+  return ret;
+}
+
+/// Helper struct for defining which fixed coordinate types map to
+/// which free vector coordinate types. Add specializations as needed.
+template<typename T>
+struct fixed_into_free {};
+
+template<typename LDerived, typename LUnits,
+         typename RDerived, typename RUnits>
+inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
+               const BasicVector<RDerived, RUnits> &rhs) ->
+  typename std::enable_if<LDerived::fixed() && RDerived::fixed(),
+    typename fixed_into_free<LDerived>::type>::type
+{
+  typename fixed_into_free<LDerived>::type ret(lhs);
+  ret.vec() -= rhs.vec();
+  return ret;
+}
+
+#define GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(op) \
+  template<typename LDerived, typename RDerived, typename Units> \
+  inline bool operator op ( \
+      const BasicVector<LDerived, Units> &lhs, \
+      const BasicVector<RDerived, Units> &rhs) \
+  { \
+    for (int i = 0; i < lhs.vec().size(); ++i) { \
+      if (!(lhs.vec()[i] op rhs.vec()[i])) { \
+        return false; \
+      } \
+    } \
+    return true; \
+  } \
+ \
+  template<typename LDerived, typename RDerived, typename Units> \
+  inline bool operator op ( \
+      const Framed<BasicVector<LDerived, Units>> &lhs, \
+      const Framed<BasicVector<RDerived, Units>> &rhs) \
+  { \
+    return lhs.frame() op rhs.frame() && \
+      static_cast<const BasicVector<LDerived, Units> &>(lhs) op \
+      static_cast<const BasicVector<RDerived, Units> &>(rhs); \
+  } \
+ \
+  template<typename LDerived, typename RDerived, typename Units> \
+  inline bool operator op ( \
+      const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs, \
+      const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs) \
+  { \
+    return lhs.time() op rhs.time() && \
+      static_cast<const Framed<BasicVector<LDerived, Units> &>>(lhs) op \
+      static_cast<const Framed<BasicVector<RDerived, Units> &>>(rhs); \
+  }
+
+GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(==)
+GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(!=)
+GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(<)
+GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(<=)
+GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(>)
+GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(>=)
+
+#define GAMS_POSE_MAKE_COORDINATE_TYPE(name, units) \
+class name##Vector : \
+  public BasicVector<name##Vector, units> \
+{ \
+public: \
+  using Base = BasicVector<name##Vector, units>; \
+  using Base::Base; \
+  static constexpr const char * type_name = #name "Vector"; \
+}; \
+\
+class name : \
+  public Framed<BasicVector<name, units>> \
+{ \
+public: \
+  using Base = Framed<BasicVector<name, units>>; \
+  using Base::Base; \
+  static constexpr const char * type_name = #name; \
+  operator name##Vector () const { return name##Vector(this->vec()); } \
+  name(name##Vector o) : Base(o.vec()) {} \
+  name() = default; \
+}; \
+\
+class Stamped##name : \
+  public Stamped<Framed<BasicVector<Stamped##name, units>>> \
+{ \
+public: \
+  using Base = Stamped<Framed<BasicVector<Stamped##name, units>>>; \
+  using Base::Base; \
+  static constexpr const char * type_name = "Stamped" #name; \
+  operator name##Vector () const { return name##Vector(this->vec()); } \
+  operator name () const { return name(this->frame(), this->vec()); } \
+  Stamped##name(name##Vector o) : Base(o.vec()) {} \
+  Stamped##name(name o) : Base(o.frame(), o.vec()) {} \
+  Stamped##name() = default; \
+}
+
+/**
+ * Class for fixed-vector positions in a reference frame
+ **/
+class Position;
+
+/**
+ * Class for free-vector displacements (i.e., differences between Positions)
+ * in a reference frame
+ **/
+class Position;
+
+/**
+ * Class for velocities (free-vector) in a reference frame
+ **/
+class Velocity;
+
+/**
+ * Class for accelerations (free-vector) in a reference frame
+ **/
+class Accelerations;
+
+/**
+ * Class for fixed-vector orientations relative to frame basis
+ * in a given ReferenceFrame
+ *
+ * Represents orientation in axis-angle form
+ **/
+class Orientation;
+
+/**
+ * Class for free-vector rotations (i.e., differences between Orientations)
+ * in a given ReferenceFrame
+ *
+ * Represents orientation in axis-angle form
+ **/
+class Rotation;
+
+/**
+ * Class for angular velocities (free-vector) in a given ReferenceFrame
+ *
+ * Represents orientation in axis-angle form
+ **/
+class AngularVelocity;
+
+/**
+ * Class for angular accelerations (free-vector) in a given ReferenceFrame
+ *
+ * Represents orientation in axis-angle form
+ **/
+class AngularAccelerations;
+
+GAMS_POSE_MAKE_COORDINATE_TYPE(Position, units::absolute<units::length>);
+GAMS_POSE_MAKE_COORDINATE_TYPE(Displacement, units::length);
+GAMS_POSE_MAKE_COORDINATE_TYPE(Velocity, units::velocity);
+GAMS_POSE_MAKE_COORDINATE_TYPE(Accleration, units::acceleration);
+
+GAMS_POSE_MAKE_COORDINATE_TYPE(Orientation, units::absolute<units::plane_angle>);
+GAMS_POSE_MAKE_COORDINATE_TYPE(Rotation, units::plane_angle);
+GAMS_POSE_MAKE_COORDINATE_TYPE(AngularVelocity, units::angular_velocity);
+GAMS_POSE_MAKE_COORDINATE_TYPE(AngularAccleration, units::angular_acceleration);
+
+template<>
+struct fixed_into_free<PositionVector>
+{
+  using type = DisplacementVector;
+};
+
+template<>
+struct fixed_into_free<Position>
+{
+  using type = Displacement;
+};
+
+template<>
+struct fixed_into_free<StampedPosition>
+{
+  using type = StampedDisplacement;
+};
+
+template<>
+struct fixed_into_free<OrientationVector>
+{
+  using type = RotationVector;
+};
+
+template<>
+struct fixed_into_free<Orientation>
+{
+  using type = Rotation;
+};
+
+template<>
+struct fixed_into_free<StampedOrientation>
+{
+  using type = StampedRotation;
+};
+
+inline std::ostream &operator<<(std::ostream &o, const Eigen::Vector3d &v)
+{
+  bool first = true;
+  for (int i = 0; i < v.size(); ++i)
+  {
+    auto x = v[i];
+
+    if (!first) {
+      o << ",";
+    } else {
+      first = false;
+    }
+
+    if (x != INVAL_COORD) {
+      o << x;
+    } else {
+      o << "<unset>";
+    }
+  }
+  return o;
+}
+
+template<typename Derived, typename Units>
+inline std::ostream &operator<<(std::ostream &o, const BasicVector<Derived, Units> &v)
+{
+  o << Derived::type_name << "(";
+  o << v.vec();
+  o << ")";
+  return o;
+}
+
+} }
 
 #endif

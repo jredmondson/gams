@@ -250,6 +250,32 @@ namespace impl {
   }
 }
 
+/// Type trait to detect stamped types
+MADARA_MAKE_VAL_SUPPORT_TEST(nano_timestamp, x,
+    (x.nanos(), x.nanos(0UL)));
+
+/// Base case: return default
+inline uint64_t try_get_nano_time(uint64_t def)
+{
+  return def;
+}
+
+/// If T supports nanos(), call it and return value
+template<typename T, typename... Args>
+inline auto try_get_nano_time(uint64_t, const T& v, Args&&...) ->
+  typename std::enable_if<supports_nano_timestamp<T>::value, uint64_t>::type
+{
+  return v.nanos();
+}
+
+/// If T doesn't support nanos(), recurse to remaining args
+template<typename T, typename... Args>
+inline auto try_get_nano_time(uint64_t def, const T&, Args&&... args) ->
+  typename std::enable_if<!supports_nano_timestamp<T>::value, uint64_t>::type
+{
+  return try_get_nano_time(def, std::forward<Args>(args)...);
+}
+
 /**
  * For internal use. Use ReferenceFrame or FrameStore instead.
  *
@@ -262,9 +288,20 @@ class GAMS_EXPORT ReferenceFrameVersion :
 private:
   mutable std::shared_ptr<ReferenceFrameIdentity> ident_;
   const ReferenceFrameType *type_;
-  Pose origin_;
   uint64_t timestamp_ = -1;
+  Pose origin_;
   mutable bool interpolated_ = false;
+
+private:
+  template<typename T>
+  static uint64_t init_timestamp(uint64_t given, const T &p)
+  {
+    if (given == (uint64_t)-1) {
+      return try_get_nano_time(-1, p);
+    } else {
+      return given;
+    }
+  }
 
 public:
   /**
@@ -276,10 +313,15 @@ public:
    * @param timestamp the timestamp of this frame. By default, will be
    *        treated as "always most current".
    **/
+  template<typename P,
+    typename std::enable_if<
+      supports_transform_to<P>::value, void*>::type = nullptr>
   explicit ReferenceFrameVersion(
-      Pose origin,
+      P &&origin,
       uint64_t timestamp = -1)
-    : ReferenceFrameVersion({}, Cartesian, std::move(origin), timestamp) {}
+    : ReferenceFrameVersion({}, Cartesian,
+        std::forward<P>(origin),
+        timestamp) {}
 
   /**
    * Constructor from a type, an origin, and optional timestamp. Will be
@@ -292,11 +334,15 @@ public:
    * @param timestamp the timestamp of this frame. By default, will be
    *        treated as "always most current".
    **/
+  template<typename P,
+    typename std::enable_if<
+      supports_transform_to<P>::value, void*>::type = nullptr>
   ReferenceFrameVersion(
       const ReferenceFrameType *type,
-      Pose origin,
+      P &&origin,
       uint64_t timestamp = -1)
-    : ReferenceFrameVersion({}, type, std::move(origin), timestamp) {}
+    : ReferenceFrameVersion({}, type,
+        std::forward<P>(origin), timestamp) {}
 
   /**
    * Constructor from a id, an origin, and optional timestamp. Will be
@@ -308,13 +354,16 @@ public:
    * @param timestamp the timestamp of this frame. By default, will be
    *        treated as "always most current".
    **/
+  template<typename P,
+    typename std::enable_if<
+      supports_transform_to<P>::value, void*>::type = nullptr>
   ReferenceFrameVersion(
       std::string name,
-      Pose origin,
+      P &&origin,
       uint64_t timestamp = -1)
     : ReferenceFrameVersion(
         ReferenceFrameIdentity::lookup(std::move(name)), Cartesian,
-        std::move(origin), timestamp) {}
+        std::forward<P>(origin), timestamp) {}
 
   /**
    * Constructor from a type, id, an origin, and optional timestamp.
@@ -327,14 +376,17 @@ public:
    * @param timestamp the timestamp of this frame. By default, will be
    *        treated as "always most current".
    **/
+  template<typename P,
+    typename std::enable_if<
+      supports_transform_to<P>::value, void*>::type = nullptr>
   ReferenceFrameVersion(
       const ReferenceFrameType *type,
       std::string name,
-      Pose origin,
+      P &&origin,
       uint64_t timestamp = -1)
     : ReferenceFrameVersion(
         ReferenceFrameIdentity::lookup(std::move(name)), type,
-        std::move(origin), timestamp) {}
+        std::forward<P>(origin), timestamp) {}
 
   /**
    * Constructor from an existing ReferenceFrameIdentity, an origin,
@@ -348,13 +400,18 @@ public:
    * @param timestamp the timestamp of this frame. By default, will be
    *        treated as "always most current".
    **/
+  template<typename P,
+    typename std::enable_if<
+      supports_transform_to<P>::value, void*>::type = nullptr>
   ReferenceFrameVersion(
       std::shared_ptr<ReferenceFrameIdentity> ident,
       const ReferenceFrameType *type,
-      Pose origin,
+      P &&origin,
       uint64_t timestamp = -1)
-    : ident_(std::move(ident)), type_(type), origin_(std::move(origin)),
-      timestamp_(timestamp) {}
+    : ident_(std::move(ident)),
+      type_(type),
+      timestamp_(init_timestamp(timestamp, origin)),
+      origin_(std::forward<P>(origin)) {}
 
   /**
    * Get the ReferenceFrameIdentity object associated with this frame,

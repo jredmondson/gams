@@ -64,8 +64,8 @@ namespace gams
 {
   namespace pose
   {
-    class AngularVector;
-    class LinearVector;
+    class OrientationVector;
+    class PositionVector;
 
     /**
      * Used internally to implement angle operations.
@@ -87,38 +87,38 @@ namespace gams
       /**
        * Constructor which converts a orientation vector, specified in individual
        * terms, into the corresponding quaternion representation. See
-       * AngularVector for details of the orientation vector representation.
+       * OrientationVector for details of the orientation vector representation.
        **/
       Quaternion(double rx, double ry, double rz);
 
       /**
        * Constructor which converts a orientation vector into the corresponding
-       * quaternion representation. See AngularVector for details of the
+       * quaternion representation. See OrientationVector for details of the
        * orientation vector representation.
        **/
-      explicit Quaternion(const AngularVector &rot);
+      explicit Quaternion(const OrientationVector &rot);
 
       /**
        * Constructor which converts a position vector into the corresponding
        * quaternion representation; x, y, and z are copied over. The w term is 0
        **/
-      explicit Quaternion(const LinearVector &loc);
+      explicit Quaternion(const PositionVector &loc);
 
       void from_linear_vector(double x, double y, double z);
 
-      void from_linear_vector(const LinearVector &loc);
+      void from_linear_vector(const PositionVector &loc);
 
       void to_linear_vector(double &x, double &y, double &z) const;
 
-      void to_linear_vector(LinearVector &loc) const;
+      void to_linear_vector(PositionVector &loc) const;
 
       void from_angular_vector(double rx, double ry, double rz);
 
-      void from_angular_vector(const AngularVector &rot);
+      void from_angular_vector(const OrientationVector &rot);
 
       void to_angular_vector(double &rx, double &ry, double &rz) const;
 
-      void to_angular_vector(AngularVector &rot) const;
+      void to_angular_vector(OrientationVector &rot) const;
 
       /**
        * Calculates the hamilton product of two quaternions, into a third.
@@ -393,6 +393,13 @@ namespace gams
     private:
       double x_, y_, z_, w_;
     };
+
+
+    inline default_rotational_unit_traits::storage_mixin::storage_mixin(
+        const Quaternion &quat)
+    {
+      quat.to_angular_vector(vec()[0], vec()[1], vec()[2]);
+    }
   }
 }
 

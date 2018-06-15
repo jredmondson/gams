@@ -54,8 +54,21 @@ double round_nearest(double in)
 
 int main(int, char *[])
 {
+  static_assert(!supports_transform_to<PositionVector>::value, "");
+  static_assert(supports_transform_to<Position>::value, "");
+  static_assert(supports_transform_to<StampedPosition>::value, "");
+
+  static_assert(!supports_timestamp<PositionVector>::value, "");
+  static_assert(!supports_timestamp<Position>::value, "");
+  static_assert(supports_timestamp<StampedPosition>::value, "");
+
+  static_assert(!supports_timestamp<OrientationVector>::value, "");
+  static_assert(!supports_timestamp<Orientation>::value, "");
+  static_assert(supports_timestamp<StampedOrientation>::value, "");
+
   std::cout.precision(4);
   std::cout << std::fixed;
+
   std::cout << "Testing default frame support:" << std::endl;
   Position dloc0(0,0);
   Position dloc1(3,4);
@@ -137,7 +150,9 @@ int main(int, char *[])
 
   std::cout << std::endl << "Testing orientations between Cartesian frames:" << std::endl;
   ReferenceFrame rot_frame0(gloc0);
-  ReferenceFrame rot_frame1(Pose(rot_frame0, Position(50, 100), Orientation(0, 0, 90, degrees)));
+  ReferenceFrame rot_frame1(Pose(rot_frame0,
+        PositionVector(50, 100),
+        OrientationVector(0, 0, 90, degrees)));
 
   Orientation rot0(rot_frame0, 0, 0, 0);
   Orientation rot1(rot_frame1, 0, 0, 0);
@@ -163,7 +178,7 @@ int main(int, char *[])
   Orientation grot0(gpsframe, 0, 0, 0);
   TEST(rot1.transform_to(gpsframe).rz(), M_PI / 2);
   TEST(grot0.transform_to(rot_frame1).rz(), - (M_PI / 2));
-  
+
   std::cout << std::endl << "Testing Poses, with orientations between Cartesian frames:" << std::endl;
   Pose pose0(rot_frame0, 0, 0);
   Pose pose1(rot_frame1, 0, 0);
@@ -174,20 +189,20 @@ int main(int, char *[])
   TEST(pose1.transform_to(gpsframe).rz(), M_PI / 2);
 
   std::cout << std::endl << "Forming a hexagon with a chain of Cartesian frames:" << std::endl;
-  Orientation sixty_degrees(0, 0, 60, degrees);
-  ReferenceFrame hex_frame0({gps_frame(), gloc0, sixty_degrees});
+  OrientationVector sixty_degrees(0, 0, 60, degrees);
+  ReferenceFrame hex_frame0(Pose{gps_frame(), gloc0, sixty_degrees});
   Pose hex0(hex_frame0, 0, 0);
-  ReferenceFrame hex_frame1({hex_frame0, {10, 0}, sixty_degrees});
+  ReferenceFrame hex_frame1(Pose{hex_frame0, PositionVector{10, 0}, sixty_degrees});
   Pose hex1(hex_frame1, 0, 0);
-  ReferenceFrame hex_frame2({hex_frame1, {10, 0}, sixty_degrees});
+  ReferenceFrame hex_frame2(Pose{hex_frame1, PositionVector{10, 0}, sixty_degrees});
   Pose hex2(hex_frame2, 0, 0);
-  ReferenceFrame hex_frame3({hex_frame2, {10, 0}, sixty_degrees});
+  ReferenceFrame hex_frame3(Pose{hex_frame2, PositionVector{10, 0}, sixty_degrees});
   Pose hex3(hex_frame3, 0, 0);
-  ReferenceFrame hex_frame4({hex_frame3, {10, 0}, sixty_degrees});
+  ReferenceFrame hex_frame4(Pose{hex_frame3, PositionVector{10, 0}, sixty_degrees});
   Pose hex4(hex_frame4, 0, 0);
-  ReferenceFrame hex_frame5({hex_frame4, {10, 0}, sixty_degrees});
+  ReferenceFrame hex_frame5(Pose{hex_frame4, PositionVector{10, 0}, sixty_degrees});
   Pose hex5(hex_frame5, 0, 0);
-  ReferenceFrame hex_frame6({hex_frame5, {10, 0}, sixty_degrees});
+  ReferenceFrame hex_frame6(Pose{hex_frame5, PositionVector{10, 0}, sixty_degrees});
   Pose hex6(hex_frame6, 0, 0);
   TEST(hex6.distance_to(hex0), 0);
   TEST(hex0.distance_to(hex6), 0);
@@ -195,6 +210,11 @@ int main(int, char *[])
   TEST(hex0.distance_to(hex2), 17.32);
   TEST(hex0.distance_to(hex3), 20);
   TEST(hex6.distance_to(gloc0), 0);
+  LOG(hex1);
+  LOG(hex1.transform_to(gps_frame()));
+  LOG(gloc0.transform_to(hex_frame0));
+  LOG(gloc0.transform_to(hex_frame1));
+  LOG(gloc0.transform_to(hex_frame2));
   TEST(gloc0.distance_to(hex6), 0);
   TEST(gloc0.distance_to(hex1), 10);
   TEST(gloc0.distance_to(hex2), 17.32);
@@ -216,12 +236,18 @@ int main(int, char *[])
   madara::knowledge::KnowledgeBase kb;
 
   {
-    ReferenceFrame building_frame("Building", {gps_frame(), 70, -40}, -1);
-    ReferenceFrame room_frame("LivingRoom", {building_frame, 10, 20}, -1);
-    ReferenceFrame kitchen_frame("Kitchen", {building_frame, 30, 50}, -1);
-    ReferenceFrame drone_frame("Drone", {kitchen_frame, 3, 2, -2}, 1000);
-    ReferenceFrame camera_frame("Camera", {drone_frame, 0, 0, 0.5}, 1000);
-    ReferenceFrame drone2_frame("Drone2", {room_frame, 3, 2, -2}, 1000);
+    ReferenceFrame building_frame("Building", Pose{gps_frame(), 70, -40}, -1);
+    ReferenceFrame room_frame("LivingRoom", Pose{building_frame, 10, 20}, -1);
+    ReferenceFrame kitchen_frame("Kitchen", Pose{building_frame, 30, 50}, -1);
+
+    TEST_EQ(building_frame.timestamp(), -1UL);
+
+    ReferenceFrame drone_frame("Drone", Pose{kitchen_frame, 3, 2, -2}, 1000);
+    ReferenceFrame camera_frame("Camera", Pose{drone_frame, 0, 0, 0.5}, 1000);
+    ReferenceFrame drone2_frame("Drone2", Pose{room_frame, 3, 2, -2}, 1000);
+
+    TEST_EQ(drone_frame.timestamp(), 1000UL);
+    TEST_EQ(camera_frame.timestamp(), 1000UL);
 
     gps_frame().save(kb);
     building_frame.save(kb);
@@ -234,6 +260,10 @@ int main(int, char *[])
     ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
     ReferenceFrame camera_frame1 = camera_frame.orient({drone_frame1, 0, 0, M_PI/4}, 2000);
     ReferenceFrame drone2_frame1 = drone2_frame.move({room_frame, 3, 6, -2}, 2000);
+
+    TEST_EQ(drone_frame1.timestamp(), 2000UL);
+    TEST_EQ(camera_frame1.timestamp(), 2000UL);
+    TEST_EQ(camera_frame1.origin().rz(), M_PI/4);
 
     drone_frame1.save(kb);
     camera_frame1.save(kb);
@@ -353,7 +383,7 @@ int main(int, char *[])
     TEST(frames[0].origin().y(), 6);
     TEST(frames[2].origin().rz(), M_PI/2);
 
-    Linear<Position> cpose = frames[0].origin();
+    Position cpos = frames[0].origin();
   }
 
   FrameStore frame_store(kb, 4000);
@@ -400,58 +430,126 @@ int main(int, char *[])
   tkb.to_string(dump);
   LOG(dump);
 
-{
-
-  madara::knowledge::KnowledgeBase data_;
-
-  gams::pose::default_frame().save(data_);
-  auto map = gams::pose::ReferenceFrame("map", gams::pose::Pose());
-  map.save(data_);
-
-  auto odom = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map, 0, 0, 1.0));
-  odom.save(data_);
-
-  auto base =
-      gams::pose::ReferenceFrame("base", gams::pose::Pose(odom, 0.0, 0.0, 0.0), 1000);
-  base.save(data_);
-
-  auto laser = gams::pose::ReferenceFrame("laser", gams::pose::Pose(base, 0.0, 0.5, 0.75));
-  laser.save(data_);
-
-  gams::pose::ReferenceFrame frame =
-    base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
-  frame.save(data_);
-
-
-  data_.to_string(dump);
-  LOG(dump);
-
-  std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
-
-  std::vector<gams::pose::ReferenceFrame> frames =
-    gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
-
-  TEST ((double)frames.size(), 4);
-  if (frames.size() == 4)
   {
-    gams::pose::ReferenceFrame laser_frame = frames[0];
-    auto origin = laser_frame.origin();
-    gams::pose::ReferenceFrame map = frames[1];
-    LOG (laser_frame.timestamp());
-    LOG (map.timestamp());
-    gams::pose::ReferenceFrame base = frames[2];
-    gams::pose::ReferenceFrame odom = frames[3];
-    LOG (base.timestamp());
-    LOG (odom.timestamp());
-    if (map.valid())
+    madara::knowledge::KnowledgeBase data_;
+
+    gams::pose::default_frame().save(data_);
+    auto map = gams::pose::ReferenceFrame("map", gams::pose::Pose());
+    map.save(data_);
+
+    auto odom = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map, 0, 0, 1.0));
+    odom.save(data_);
+
+    auto base =
+        gams::pose::ReferenceFrame("base", gams::pose::Pose(odom, 0.0, 0.0, 0.0), 1000);
+    base.save(data_);
+
+    auto laser = gams::pose::ReferenceFrame("laser", gams::pose::Pose(base, 0.0, 0.5, 0.75));
+    laser.save(data_);
+
+    gams::pose::ReferenceFrame frame =
+      base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
+    frame.save(data_);
+
+
+    data_.to_string(dump);
+    LOG(dump);
+
+    std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
+
+    std::vector<gams::pose::ReferenceFrame> frames =
+      gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
+
+    TEST ((double)frames.size(), 4);
+    if (frames.size() == 4)
     {
-      gams::pose::Pose transformed = origin.transform_to(map);
-      TEST (transformed.x(), 2);
-      TEST (transformed.y(), 2.5);
-      TEST (transformed.z(), 1.75);
+      gams::pose::ReferenceFrame laser_frame = frames[0];
+      auto origin = laser_frame.origin();
+      gams::pose::ReferenceFrame map = frames[1];
+      LOG (laser_frame.timestamp());
+      LOG (map.timestamp());
+      gams::pose::ReferenceFrame base = frames[2];
+      gams::pose::ReferenceFrame odom = frames[3];
+      LOG (base.timestamp());
+      LOG (odom.timestamp());
+      if (map.valid())
+      {
+        gams::pose::Pose transformed = origin.transform_to(map);
+        TEST (transformed.x(), 2);
+        TEST (transformed.y(), 2.5);
+        TEST (transformed.z(), 1.75);
+      }
     }
   }
-}
+
+  {
+    PositionVector pv{1, 2, 3};
+    Position p{default_frame(), 4, 5, 6};
+    Position p1{4, 5, 6};
+    StampedPosition sp{TimeValue{Duration{100}}, default_frame(), 4, 5, 6};
+    sp.nanos(1234567);
+    TEST_EQ(sp.nanos(), 1234567UL);
+    LOG(sp.secs());
+    sp.secs(123.456);
+    TEST(sp.secs(), 123.456);
+    LOG(sp.nanos());
+    StampedPosition sp1{default_frame(), 4, 5, 6};
+    StampedPosition sp2{TimeValue{Duration{100}}, 4, 5, 6};
+
+    DisplacementVector dvec{1, 2, 3};
+    dvec *= 12;
+    TEST_EQ(dvec.x(), 12);
+    TEST_EQ(dvec.y(), 24);
+
+    auto dvec2 = dvec * 2;
+    TEST_EQ(dvec2.x(), 24);
+    TEST_EQ(dvec2.y(), 48);
+
+    auto dvec3 = 3 * dvec;
+    TEST_EQ(dvec3.x(), 36);
+    TEST_EQ(dvec3.y(), 72);
+
+    auto dvec4 = dvec3 / 6;
+    TEST_EQ(dvec4.x(), 6);
+    TEST_EQ(dvec4.y(), 12);
+
+    Displacement dis{default_frame(), 3, 4, 5};
+    dis *= 10;
+    TEST_EQ(dis.x(), 30);
+    TEST_EQ(dis.y(), 40);
+    TEST_EQ(dis.frame().id(), default_frame().id());
+
+    auto dis2 = dis * 2;
+    TEST_EQ(dis2.x(), 60);
+    TEST_EQ(dis2.y(), 80);
+    TEST_EQ(dis2.frame().id(), default_frame().id());
+
+    dvec += dis;
+    TEST_EQ(dvec.x(), 42);
+    TEST_EQ(dvec.y(), 64);
+
+    pv += dis;
+    TEST_EQ(pv.x(), 31);
+    TEST_EQ(pv.y(), 42);
+
+    auto pv2 = pv + dis;
+    TEST_EQ(pv2.x(), 61);
+    TEST_EQ(pv2.y(), 82);
+
+    Rotation rote{default_frame(), M_PI/2, 0, 0};
+    rote *= 2;
+    TEST_EQ(rote.rx(), M_PI);
+
+    StampedPosition stamped_position(TimeValue{Duration{1234}}, default_frame(), 2.0, 3.0);
+    StampedOrientation ori(TimeValue{Duration{4321}}, gps_frame(), 0, 0, 0);
+    StampedPose stamped_pose(stamped_position, ori);
+
+    TEST_EQ(stamped_position.time().time_since_epoch().count(), 1234);
+    TEST_EQ(stamped_position.frame() == default_frame(), 1);
+    TEST_EQ(stamped_pose.time().time_since_epoch().count(), 1234);
+    TEST_EQ(stamped_pose.frame() == default_frame(), 1);
+    TEST_EQ(stamped_pose.frame() == gps_frame(), 0);
+  }
 
   return 0;
 }

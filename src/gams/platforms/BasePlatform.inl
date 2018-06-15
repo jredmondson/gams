@@ -91,8 +91,8 @@ gams::platforms::BasePlatform::get_pose () const
   euler.b (self_->agent.orientation[1]);
   euler.c (self_->agent.orientation[2]);
 
-  return pose::Pose (get_frame (), pose::LinearVector (self_->agent.location),
-    pose::AngularVector (euler.to_quat ()));
+  return pose::Pose (get_frame (), pose::Position (self_->agent.location),
+    pose::OrientationVector (euler.to_quat ()));
 }
 
 inline madara::knowledge::KnowledgeBase *

@@ -63,6 +63,7 @@
 #include <gams/pose/AngularAcceleration.h>
 
 namespace gams { namespace pose {
+
 /// Implementation details
 namespace impl
 {
@@ -83,32 +84,30 @@ namespace impl
   }
 }
 
-template<typename C>
-inline void transform_to_origin(Linear<C> &in)
+inline void transform_to_origin(Position &in)
 {
   impl::to_origin(in, [](
           const ReferenceFrameType *s,
           const ReferenceFrameType *o,
           const Pose &origin,
-          Linear<C> &in) {
+          Position &in) {
       s->transform_linear_to_origin(o, s,
           origin.x(), origin.y(), origin.z(),
           origin.rx(), origin.ry(), origin.rz(),
-          in.v_[0], in.v_[1], in.v_[2]);
+          in.vec()[0], in.vec()[1], in.vec()[2]);
     });
 }
 
-template<typename C>
-inline void transform_to_origin(Angular<C> &in)
+inline void transform_to_origin(Orientation &in)
 {
   impl::to_origin(in, [](
           const ReferenceFrameType *s,
           const ReferenceFrameType *o,
           const Pose &origin,
-          Angular<C> &in) {
+          Orientation &in) {
       s->transform_angular_to_origin(o, s,
           origin.rx(), origin.ry(), origin.rz(),
-          in.rv_[0], in.rv_[1], in.rv_[2]);
+          in.vec()[0], in.vec()[1], in.vec()[2]);
     });
 }
 
@@ -122,8 +121,50 @@ inline void transform_to_origin(Pose &in)
       s->transform_pose_to_origin(o, s,
           origin.x(), origin.y(), origin.z(),
           origin.rx(), origin.ry(), origin.rz(),
-          in.v_[0], in.v_[1], in.v_[2],
-          in.rv_[0], in.rv_[1], in.rv_[2]);
+          in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
+    });
+}
+
+inline void transform_to_origin(StampedPosition &in)
+{
+  impl::to_origin(in, [](
+          const ReferenceFrameType *s,
+          const ReferenceFrameType *o,
+          const Pose &origin,
+          StampedPosition &in) {
+      s->transform_linear_to_origin(o, s,
+          origin.x(), origin.y(), origin.z(),
+          origin.rx(), origin.ry(), origin.rz(),
+          in.vec()[0], in.vec()[1], in.vec()[2]);
+    });
+}
+
+inline void transform_to_origin(StampedOrientation &in)
+{
+  impl::to_origin(in, [](
+          const ReferenceFrameType *s,
+          const ReferenceFrameType *o,
+          const Pose &origin,
+          StampedOrientation &in) {
+      s->transform_angular_to_origin(o, s,
+          origin.rx(), origin.ry(), origin.rz(),
+          in.vec()[0], in.vec()[1], in.vec()[2]);
+    });
+}
+
+inline void transform_to_origin(StampedPose &in)
+{
+  impl::to_origin(in, [](
+          const ReferenceFrameType *s,
+          const ReferenceFrameType *o,
+          const Pose &origin,
+          StampedPose &in) {
+      s->transform_pose_to_origin(o, s,
+          origin.x(), origin.y(), origin.z(),
+          origin.rx(), origin.ry(), origin.rz(),
+          in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
     });
 }
 
@@ -145,35 +186,33 @@ namespace impl
   }
 }
 
-template<typename C>
 inline void transform_from_origin(
-    Linear<C> &in, const ReferenceFrame &to_frame)
+    Position &in, const ReferenceFrame &to_frame)
 {
   impl::from_origin(in, to_frame, [](
           const ReferenceFrameType *t,
           const ReferenceFrameType *f,
           const Pose &to,
-          Linear<C> &in) {
+          Position &in) {
       f->transform_linear_from_origin(t, f,
           to.x(), to.y(), to.z(),
           to.rx(), to.ry(), to.rz(),
-          in.v_[0], in.v_[1], in.v_[2]);
+          in.vec()[0], in.vec()[1], in.vec()[2]);
     });
 }
 
 
-template<typename C>
 inline void transform_from_origin(
-    Angular<C> &in, const ReferenceFrame &to_frame)
+    Orientation &in, const ReferenceFrame &to_frame)
 {
   impl::from_origin(in, to_frame, [](
           const ReferenceFrameType *t,
           const ReferenceFrameType *f,
           const Pose &to,
-          Angular<C> &in) {
+          Orientation &in) {
       f->transform_angular_from_origin(t, f,
           to.rx(), to.ry(), to.rz(),
-          in.rv_[0], in.rv_[1], in.rv_[2]);
+          in.vec()[0], in.vec()[1], in.vec()[2]);
     });
 }
 
@@ -188,23 +227,67 @@ inline void transform_from_origin(
       f->transform_pose_from_origin(t, f,
           to.x(), to.y(), to.z(),
           to.rx(), to.ry(), to.rz(),
-          in.v_[0], in.v_[1], in.v_[2],
-          in.rv_[0], in.rv_[1], in.rv_[2]);
+          in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
     });
 }
 
-template<typename C>
+inline void transform_from_origin(
+    StampedPosition &in, const ReferenceFrame &to_frame)
+{
+  impl::from_origin(in, to_frame, [](
+          const ReferenceFrameType *t,
+          const ReferenceFrameType *f,
+          const Pose &to,
+          StampedPosition &in) {
+      f->transform_linear_from_origin(t, f,
+          to.x(), to.y(), to.z(),
+          to.rx(), to.ry(), to.rz(),
+          in.vec()[0], in.vec()[1], in.vec()[2]);
+    });
+}
+
+
+inline void transform_from_origin(
+    StampedOrientation &in, const ReferenceFrame &to_frame)
+{
+  impl::from_origin(in, to_frame, [](
+          const ReferenceFrameType *t,
+          const ReferenceFrameType *f,
+          const Pose &to,
+          StampedOrientation &in) {
+      f->transform_angular_from_origin(t, f,
+          to.rx(), to.ry(), to.rz(),
+          in.vec()[0], in.vec()[1], in.vec()[2]);
+    });
+}
+
+inline void transform_from_origin(
+  StampedPose &in, const ReferenceFrame &to_frame)
+{
+  impl::from_origin(in, to_frame, [](
+          const ReferenceFrameType *t,
+          const ReferenceFrameType *f,
+          const Pose &to,
+          StampedPose &in) {
+      f->transform_pose_from_origin(t, f,
+          to.x(), to.y(), to.z(),
+          to.rx(), to.ry(), to.rz(),
+          in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
+    });
+}
+
 inline double difference(
-    const Linear<C> &loc1, const Linear<C> &loc2)
+    const Position &loc1, const Position &loc2)
 {
   const ReferenceFrameType *ft = loc1.frame().type();
   return ft->calc_distance(ft, loc1.x(), loc1.y(), loc1.z(),
                                loc2.x(), loc2.y(), loc2.z());
 }
 
-template<typename C>
 inline double difference(
-    const Angular<C> &rot1, const Angular<C> &rot2)
+    const Orientation &rot1, const Orientation &rot2)
 {
   const ReferenceFrameType *ft = rot1.frame().type();
   return ft->calc_angle(ft, rot1.rx(), rot1.ry(), rot1.rz(),
@@ -219,25 +302,66 @@ inline double difference(
                                pose2.x(), pose2.y(), pose2.z());
 }
 
-template<typename C>
-inline void normalize(Linear<C> &loc)
+inline double difference(
+    const StampedPosition &loc1, const StampedPosition &loc2)
 {
-  const ReferenceFrameType *ft = loc.frame().type();
-  ft->normalize_linear(ft, loc.v_[0], loc.v_[1], loc.v_[2]);
+  const ReferenceFrameType *ft = loc1.frame().type();
+  return ft->calc_distance(ft, loc1.x(), loc1.y(), loc1.z(),
+                               loc2.x(), loc2.y(), loc2.z());
 }
 
-template<typename C>
-inline void normalize(Angular<C> &rot)
+inline double difference(
+    const StampedOrientation &rot1, const StampedOrientation &rot2)
+{
+  const ReferenceFrameType *ft = rot1.frame().type();
+  return ft->calc_angle(ft, rot1.rx(), rot1.ry(), rot1.rz(),
+                            rot2.rx(), rot2.ry(), rot2.rz());
+}
+
+inline double difference(
+      const StampedPose &pose1, const StampedPose &pose2)
+{
+  const ReferenceFrameType *ft = pose1.frame().type();
+  return ft->calc_distance(ft, pose1.x(), pose1.y(), pose1.z(),
+                               pose2.x(), pose2.y(), pose2.z());
+}
+
+inline void normalize(Position &loc)
+{
+  const ReferenceFrameType *ft = loc.frame().type();
+  ft->normalize_linear(ft, loc.vec()[0], loc.vec()[1], loc.vec()[2]);
+}
+
+inline void normalize(Orientation &rot)
 {
   const ReferenceFrameType *ft = rot.frame().type();
-  ft->normalize_angular(ft, rot.rv_[0], rot.rv_[1], rot.rv_[2]);
+  ft->normalize_angular(ft, rot.vec()[0], rot.vec()[1], rot.vec()[2]);
 }
 
 inline void normalize(Pose &pose)
 {
   const ReferenceFrameType *ft = pose.frame().type();
-  ft->normalize_pose(ft, pose.v_[0], pose.v_[1], pose.v_[2],
-                         pose.rv_[0], pose.rv_[1], pose.rv_[2]);
+  ft->normalize_pose(ft, pose.pos_vec()[0], pose.pos_vec()[1], pose.pos_vec()[2],
+                         pose.ori_vec()[0], pose.ori_vec()[1], pose.ori_vec()[2]);
+}
+
+inline void normalize(StampedPosition &loc)
+{
+  const ReferenceFrameType *ft = loc.frame().type();
+  ft->normalize_linear(ft, loc.vec()[0], loc.vec()[1], loc.vec()[2]);
+}
+
+inline void normalize(StampedOrientation &rot)
+{
+  const ReferenceFrameType *ft = rot.frame().type();
+  ft->normalize_angular(ft, rot.vec()[0], rot.vec()[1], rot.vec()[2]);
+}
+
+inline void normalize(StampedPose &pose)
+{
+  const ReferenceFrameType *ft = pose.frame().type();
+  ft->normalize_pose(ft, pose.pos_vec()[0], pose.pos_vec()[1], pose.pos_vec()[2],
+                         pose.ori_vec()[0], pose.ori_vec()[1], pose.ori_vec()[2]);
 }
 
 inline bool ReferenceFrameVersion::operator==(const ReferenceFrame &other) const
@@ -265,7 +389,7 @@ inline bool ReferenceFrameVersion::operator!=(const ReferenceFrameVersion &other
  * This transformation is in-place (modifies the in parameters.
  * Called by the transform_to member function of Coordinates
  *
- * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+ * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
  * @param in the Coordinate to transform. This object may be modified.
  * @param to_frame the frame to transform into
  *
@@ -295,7 +419,7 @@ inline void transform(
 /**
  * Transform into another frame, if coordinates are not directly related.
  *
- * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+ * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
  * @param in the coordinate to transform (in-place)
  * @param to_frame the frame to transform into
  *
@@ -332,7 +456,7 @@ inline void transform_other(
  * Transform input coordinates into their common parent. If no common
  * parent exists, throws, unrelated_frames exception
  *
- * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+ * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
  * @param in1 the frame to transform from
  * @param in2 the frame to transform into
  * @return the common frame the coordinates were transformed to.
@@ -362,7 +486,7 @@ inline ReferenceFrame common_parent_transform(
 /**
  * Transform into common parent, if coordinates are not directly related.
  *
- * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+ * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
  * @param in1 the coordinate to transform (in place)
  * @param in2 the other coordinate to transform (in place)
  * @return the common frame the coordinates were transformed to.
@@ -399,7 +523,7 @@ inline ReferenceFrame common_parent_transform_other(
  * frames, first transform to their lowest common parent
  * Called by the distance_to member function of Coordinates
  *
- * @tparam CoordType the type of Coordinate (e.g., Pose, Linear)
+ * @tparam CoordType the type of Coordinate (e.g., Pose, Position)
  * @param coord1 The coordinate to measure from
  * @param coord2 The coordinate to measure to
  * @return the distance, in meters, between the coordinates
@@ -427,6 +551,7 @@ inline double distance(
 // and thinks they're declarations for some reason.
 #ifndef __INTELLISENSE__
 
+/*
 template<typename CoordType>
 inline CoordType Coordinate<CoordType>::transform_to(
                         const ReferenceFrame &new_frame) const
@@ -455,58 +580,47 @@ inline void Coordinate<CoordType>::normalize()
 {
   pose::normalize(as_coord_type());
 }
+*/
+
+template<typename CoordType>
+inline auto Framed<CoordType>::transform_to(
+                  const ReferenceFrame &new_frame) const ->
+  typename Framed::derived_type
+{
+  auto ret = self();
+  transform(ret, new_frame);
+  return ret;
+}
+
+template<typename CoordType>
+inline void Framed<CoordType>::transform_this_to(
+                        const ReferenceFrame &new_frame)
+{
+  transform(self(), new_frame);
+}
+
+template<typename CoordType>
+inline double Framed<CoordType>::distance_to(
+                const typename Framed::derived_type &target) const
+{
+  return distance(self(), target.self());
+}
+
+template<typename CoordType>
+inline void Framed<CoordType>::normalize()
+{
+  pose::normalize(self());
+}
 
 #endif // ifndef __INTELLISENSE__
 
-inline std::ostream &operator<<(std::ostream &o, const Position &loc)
+template<typename Base>
+inline std::ostream &operator<<(std::ostream &o, const Framed<Base> &v)
 {
-  if (loc.frame().valid()) {
-    o << loc.frame().name();
+  if (v.frame().valid()) {
+    o << v.frame().name();
   }
-  o << "Position" << loc.as_vec();
-  return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o, const Velocity &loc)
-{
-  o << loc.frame().name() << "Velocity" << loc.as_vec();
-  return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o, const Acceleration &loc)
-{
-  o << loc.frame().name() << "Acceleration" << loc.as_vec();
-  return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o, const AngularVelocity &loc)
-{
-  o << loc.frame().name() << "AngularVelocity" << loc.as_vec();
-  return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o,
-                                const AngularAcceleration &loc)
-{
-  o << loc.frame().name() << "AngularAcceleration" << loc.as_vec();
-  return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o, const Orientation &rot)
-{
-  if (rot.frame().valid()) {
-    o << rot.frame().name();
-  }
-  o << "Orientation" << rot.as_vec();
-  return o;
-}
-
-inline std::ostream &operator<<(std::ostream &o, const Pose &pose)
-{
-  if (pose.frame().valid()) {
-    o << pose.frame().name();
-  }
-  o << "Pose" << pose.as_vec();
+  o << static_cast<const Base &>(v);
   return o;
 }
 

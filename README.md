@@ -26,7 +26,7 @@ the helpful base_build.bat script in %GAMS_ROOT%\scripts\windows to build GAMS
 and prerequisites. Pass help from command line to see options.
 
 For the base_build scripts on Linux or Windows, you will need to at LEAST pass
-in "ace madara gams" in on a first build, at the least. After that, you can pick
+in "madara gams" in on a first build. After that, you can pick
 and choose what you want to update. Tests, vrep, and other options will need
 to be added by most users. There is a build_c++ script that wraps common options
 for most users.
