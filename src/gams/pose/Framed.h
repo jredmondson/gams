@@ -68,9 +68,6 @@
 
 namespace gams { namespace pose {
 
-MADARA_MAKE_VAL_SUPPORT_TEST(transform_to, x,
-    (x.transform_to(ReferenceFrame{})));
-
 template<typename T>
 inline auto try_transform_to(const T& v, const ReferenceFrame &frame) ->
   typename std::enable_if<supports_transform_to<T>::value, T>::type
