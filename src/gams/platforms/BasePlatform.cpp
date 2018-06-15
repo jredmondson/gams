@@ -196,7 +196,9 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
    * moving and return 1 (moving to the new location)
    **/
   if (!*status_.paused_rotating && target != current &&
-     (!*status_.rotating || target != self_->agent.dest_orientation))
+     (!*status_.rotating ||
+      target != pose::Orientation(current.frame(),
+        self_->agent.dest_orientation)))
   {
     self_->agent.source_orientation = self_->agent.orientation;
     target.to_container (self_->agent.dest_orientation);

@@ -50,7 +50,7 @@
  *
  * This file contains the Euler class, useful for specifying angles as euler
  * angles (a sequence of angulars about specified axes). To manipulate
- * these angles, convert them to the Quaternion or Angular classes.
+ * these angles, convert them to the Quaternion or Orientation classes.
  **/
 
 #include "ReferenceFrame.h"
@@ -60,7 +60,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "Angular.h"
+#include "Orientation.h"
 #include "AngleUnits.h"
 #include "Quaternion.h"
 
@@ -144,7 +144,7 @@ namespace gams
        * convention, you will get a compile time error.
        *
        * Avoid manipulating angles in this notation. It is better to convert to
-       * a Quaternion (or Angular) and back, than to try to directly manipulate
+       * a Quaternion (or Orientation) and back, than to try to directly manipulate
        * a Euler angle.
        *
        * @tparam A the first axis of angular
@@ -206,11 +206,11 @@ namespace gams
         explicit Euler(const Euler<A2, B2, C2, Conv2> &o);
 
         /**
-         * Constructor to convert from a Angular (or AngularVector)
+         * Constructor to convert from a Orientation (or OrientationVector)
          *
          * @param r the angular
          **/
-        explicit Euler(const AngularVector &r);
+        explicit Euler(const OrientationVector &r);
 
         /// Getter for the first angular angle, around axis A
         double a() const { return a_; }

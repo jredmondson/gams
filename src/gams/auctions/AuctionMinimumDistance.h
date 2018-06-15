@@ -65,7 +65,7 @@
 
 #include "gams/platforms/BasePlatform.h"
 #include "gams/groups/GroupFixedList.h"
-#include "gams/utility/Location.h"
+#include "gams/pose/Position.h"
 
 namespace gams
 {
@@ -104,7 +104,7 @@ namespace gams
        * Sets the target of the distance calculations
        * @param target  the location that distance references are made to
        **/
-      void set_target (utility::Location target);
+      void set_target (pose::Position target);
 
       /**
       * Sets the target of the distance calculations
@@ -128,7 +128,7 @@ namespace gams
       /**
        * The location that distance will be calculated to
        **/
-      utility::Location target_;
+      pose::Position target_;
 
       /**
        * The platform is necessary to construct poses (we need frame)

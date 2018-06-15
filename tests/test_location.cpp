@@ -1,8 +1,8 @@
 #include <iostream>
 #include <math.h>
-#include <gams/utility/Location.h>
+#include <gams/pose/Position.h>
 
-using namespace gams::utility;
+using namespace gams::pose;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.0001;
@@ -37,9 +37,9 @@ int main(int , char **)
 {
   std::cout.precision(4);
   std::cout << std::fixed;
-  std::cout << "Testing Location:" << std::endl;
-  Location dloc0(0,0,0);
-  Location dloc1(3,4,0);
+  std::cout << "Testing Position:" << std::endl;
+  Position dloc0(0,0,0);
+  Position dloc1(3,4,0);
 
   LOG(dloc0);
   LOG(dloc1);

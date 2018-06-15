@@ -48,7 +48,7 @@
  * @file AngularVelocity.h
  * @author James Edmondson <jedmondson@gmail.com>
  *
- * This file contains the AngularVelocity class
+ * This file is no longer needed, and is deprecated.
  **/
 
 #include "ReferenceFrame.h"
@@ -67,33 +67,5 @@
 #include <madara/knowledge/containers/NativeDoubleVector.h>
 
 #include "AngleUnits.h"
-
-namespace gams
-{
-  namespace pose
-  {
-    class ReferenceFrame;
-
-    class Quaternion;
-    /**
-     * Represents a orientation or orientation within a reference frame.
-     * Uses axis-angle notation: a orientation is represented by a vector whose
-     * direction forms the axis of orientation, with angle of orientation equal to
-     * length of the vector.
-     *
-     * All orientations about an axis follow the right hand role; if the origin is
-     * the center of your right hand, and your thumb is pointing in the positive
-     * direction of the orientation axis, orientations curve in the direction your
-     * fingers are pointing.
-     **/
-    class GAMS_EXPORT AngularVelocity : public Angular<AngularVelocity>
-    {
-    public:
-      using Angular::Angular;
-    };
-
-    inline void normalize(AngularVelocity &/*rot*/) {}
-  }
-}
 
 #endif

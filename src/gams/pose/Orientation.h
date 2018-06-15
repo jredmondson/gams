@@ -66,37 +66,6 @@
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
 
-#define DEG_TO_RAD(x) ( ( (x) * M_PI) / 180.0)
-#define RAD_TO_DEG(x) ( ( (x) * 180) / M_PI)
-
-#include "AngleUnits.h"
-
-namespace gams
-{
-  namespace pose
-  {
-    class ReferenceFrame;
-
-    class Quaternion;
-    /**
-     * Represents a orientation or orientation within a reference frame.
-     * Uses axis-angle notation: a orientation is represented by a vector whose
-     * direction forms the axis of orientation, with angle of orientation equal to
-     * length of the vector.
-     *
-     * All orientations about an axis follow the right hand role; if the origin is
-     * the center of your right hand, and your thumb is pointing in the positive
-     * direction of the orientation axis, orientations curve in the direction your
-     * fingers are pointing.
-     **/
-    class GAMS_EXPORT Orientation : public Angular<Orientation>
-    {
-    public:
-      using Angular::Angular;
-    };
-  }
-}
-
-#include "Orientation.inl"
+//! This file is no longer needed, and is deprecated.
 
 #endif // _GAMS_UTILITY_ORIENTATION_H_
