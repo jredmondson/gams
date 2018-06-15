@@ -10,11 +10,27 @@ feature (ros) {
     ROS_Platforms {
       src/gams/platforms/ros
     }
+
+    ROS_Utility {
+      src/gams/utility/ros
+    }
+
+    ROS_Transport {
+      src/gams/transports/ros
+    }
   }
 
   Source_Files {
     ROS_Platforms {
       src/gams/platforms/ros
+    }
+
+    ROS_Utility {
+      src/gams/utility/ros
+    }
+
+    ROS_Transport {
+      src/gams/transports/ros
     }
   }
 }

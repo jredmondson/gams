@@ -10,12 +10,12 @@ eval '(exit $?0)' && eval 'exec perl -w -S $0 ${1+"$@"}'
 # generation process.
 ###################################################
     
-open VERSION_FILE, "<",  $ENV{'GAMS_ROOT'} . "/VERSION.txt" or
+open VERSION_FILE, "<",  "../VERSION.txt" or
     die "Unable to open ../VERSION.txt for reading.";
   $version = <VERSION_FILE>;
 close VERSION_FILE;
 
-open OUTPUT_FILE, ">",  $ENV{'GAMS_ROOT'} . "/docs/VERSION.txt" or
+open OUTPUT_FILE, ">",  "VERSION.txt" or
     die "Unable to open VERSION.txt for writing.";
   print OUTPUT_FILE  "PROJECT_NUMBER = " . $version . "\n";
 close OUTPUT_FILE;

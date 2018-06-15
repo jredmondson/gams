@@ -92,6 +92,7 @@ SIMTIME=0
 SSL=0
 DMPL=0
 MAC=${MAC:-0}
+BUILD_ERRORS=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -472,7 +473,7 @@ if [ $ZMQ -eq 1 ]; then
     git clone --depth 1 https://github.com/zeromq/libzmq
     ZMQ_REPO_RESULT=$?
     cd libzmq
-    ./autogen.sh && ./configure && make -j 4
+    ./autogen.sh && ./configure && make -j $CORES
     make check
     sudo make install && sudo ldconfig
     ZMQ_BUILD_RESULT=$?
@@ -488,7 +489,11 @@ fi
 
 if [ $SSL -eq 1 ]; then
   if [ -z $SSL_ROOT ]; then
-    export SSL_ROOT=/usr
+    if [ MAC -eq 0 ]; then
+      export SSL_ROOT=/usr
+    else
+      export SSL_ROOT=/usr/local/opt/openssl
+    fi
   fi
 fi
 
@@ -520,6 +525,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   if [ ! -d $MADARA_ROOT ] ; then
     echo "DOWNLOADING MADARA"
+    echo "git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT"
     git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
@@ -618,6 +624,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
+    echo "git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT"
     git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT
     GAMS_REPO_RESULT=$?
     
@@ -724,6 +731,7 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -733,11 +741,16 @@ if [ $ZMQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
   if [ $ZMQ_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
+    # MAC has multiple failed tests for ZeroMQ
+    if [ $MAC -eq 0 ]; then
+      (( BUILD_ERRORS++ ))
+    fi
   fi
 fi
 
@@ -747,6 +760,7 @@ if [ $VREP -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -756,11 +770,13 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
   if [ $MADARA_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -770,11 +786,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
   if [ $GAMS_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
   fi
 fi
 
@@ -829,4 +847,5 @@ echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
 echo -e "IN YOUR BASHRC OR TERMINAL."
 echo -e ""
 
-
+echo "BUILD_ERRORS=$BUILD_ERRORS"
+exit $BUILD_ERRORS

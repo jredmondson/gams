@@ -5,7 +5,22 @@
 #include <string>
 
 #include "madara/threads/BaseThread.h"
+#include "gams/utility/ros/RosParser.h"
 
+// ROS includes
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wreorder"
+#endif
+
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+#include "topic_tools/shape_shifter.h"
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 namespace gams
 {
@@ -25,7 +40,9 @@ namespace gams
         const madara::transport::TransportSettings & settings,
         madara::transport::BandwidthMonitor & send_monitor,
         madara::transport::BandwidthMonitor & receive_monitor,
-        madara::transport::PacketScheduler & packet_scheduler);
+        madara::transport::PacketScheduler & packet_scheduler,
+        std::vector<std::string> topics,
+        std::map<std::string,std::string> topic_map);
       
       /**
        * Destructor
@@ -43,6 +60,11 @@ namespace gams
         **/
       virtual void run (void);
 
+      void messageCallback(const topic_tools::ShapeShifter::ConstPtr& msg,
+        const std::string &topic_name );
+
+      unsigned int message_count();
+
     private:
       /// data plane if we want to access the knowledge base
       madara::knowledge::ThreadSafeContext * context_;
@@ -54,7 +76,7 @@ namespace gams
       madara::transport::QoSTransportSettings settings_;
       
       /// buffer for sending
-      madara::utility::ScopedArray <char>      buffer_;
+      madara::utility::ScopedArray <char> buffer_;
 
       /// data received rules, defined in Transport settings
       madara::knowledge::CompiledExpression  on_data_received_;
@@ -67,6 +89,18 @@ namespace gams
       
       /// a specialty packet scheduler for experimental drop policies
       madara::transport::PacketScheduler & packet_scheduler_;
+
+      std::vector<ros::Subscriber> subscribers_;
+
+      gams::utility::ros::RosParser * parser_;
+
+      // Enabled topics
+      std::vector<std::string> topics_;
+      // Topic map
+      std::map<std::string,std::string> topic_map_;
+
+      unsigned int message_count_;
+
     };
   }
 } // end namespace threads

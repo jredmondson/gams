@@ -33,10 +33,10 @@ GAMS HELP DOCUMENTATION INFORMATION
        
 2. GENERATING DEVELOPER DOCUMENTATION
 
-  When generating GAMS project files, provide docs=1 to generate documentation.
+  When generating GAMS project files, you can do the following by hand.
   
-  cd $GAMS_ROOT
-  mwc.pl -type gnuace -features docs=1 gams.mwc
+  perl get_version.pl 
+  doxygen Doxyfile_GAMS
 
   Can also use the base_build.bat|sh system with gams and docs options enabled
 

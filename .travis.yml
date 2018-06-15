@@ -1,0 +1,148 @@
+sudo: required
+group: travis_latest
+language: cpp
+os:
+  - linux
+
+branches:
+  excludes:
+    - gh-pages
+    - tutorials
+    - installers
+    - dart-0.4.0
+
+compiler:
+  - gcc
+
+env:
+  matrix:
+  global:
+    - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
+    - GAMS_ROOT=$TRAVIS_BUILD_DIR/gams
+    - MPC_ROOT=$TRAVIS_BUILD_DIR/MPC
+    - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH
+    - CORES=6
+
+matrix:
+  include:
+      ################MAC#####################
+
+      # clang, osx, no ssl
+    - compiler: clang
+      env: NAME="OSX 10.13 clang" CLANG="clang"
+      os: osx
+      osx_image: xcode9.3
+
+      # clang, osx, ssl
+    - compiler: clang
+      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl" SSL_ROOT=/usr/local/opt/openssl
+      os: osx
+      osx_image: xcode9.3
+
+      # clang, osx, java
+    - compiler: clang
+      env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java"
+      os: osx
+      osx_image: xcode9.3
+
+      # clang, osx, zeromq
+    - compiler: clang
+      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
+      os: osx
+      osx_image: xcode9.3
+
+      # clang, osx, simtime
+    - compiler: clang
+      env: NAME="OSX 10.13 clang simtime" CLANG="clang" SIMTIME="simtime"
+      os: osx
+      osx_image: xcode9.3
+
+      ################LINUX#####################
+
+      # clang, linux, no ssl
+    - compiler: clang
+      env: NAME="Ubuntu 14.04 clang" CLANG="clang"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - libssl-dev
+            - clang-5.0
+      os: linux
+
+      # g++, linux, no ssl
+    - compiler: gcc
+      os: linux
+      env: NAME="Ubuntu 14.04 g++" CLANG=""
+
+      # g++, linux, ssl
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libssl-dev
+      env: NAME="Ubuntu 14.04 g++ ssl" CLANG="" SSL="ssl"
+
+      # g++, linux, java
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libssl-dev
+      env: NAME="Ubuntu 14.04 g++ java" JAVA="java"
+
+      # g++, linux, zmq
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libssl-dev
+      env: NAME="Ubuntu 14.04 g++ zmq" ZMQ="zmq"
+
+      # g++, linux, simtime
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libssl-dev
+      env: NAME="Ubuntu 14.04 g++ simtime" SIMTIME="simtime"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - git-core
+
+before_install:
+  - git clone -b master --single-branch https://github.com/jredmondson/gams $GAMS_ROOT
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install zeromq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link openssl --force; fi
+
+before_script:
+  - export
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export OS=linux; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; export CLANG_SUFFIX=; export JAVA_HOME=$(/usr/libexec/java_home) ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT ; fi
+
+script:
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
+
+

@@ -1,4 +1,6 @@
-0. ABOUT GAMS
+[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest)
+
+# About GAMS
 
 The Group Autonomy for Mobile Systems (GAMS) project at Carnegie Mellon University
 is intended to provide a distributed operating environment for control of one or
@@ -8,8 +10,9 @@ information from a swarm of agents, robots, or UAS.
 
 GAMS is an extension of an earlier project called SMASH.
 
-**************************************
-1. HOW TO INSTALL
+***
+
+# Installation
 
 See the instructions at https://github.com/jredmondson/gams/wiki/GAMS-Installation
 for a list of methods for installing GAMS and its prerequisites. For Linux users,
@@ -28,8 +31,9 @@ and choose what you want to update. Tests, vrep, and other options will need
 to be added by most users. There is a build_c++ script that wraps common options
 for most users.
 
-***************************************
-2. GENERATING GAMS PROJECTS
+***
+
+# Generating GAMS projects
 
 We have a script called gpc.pl in $GAMS_ROOT/scripts/projects that is very useful
 for generating almost any kind of GAMS or MADARA project. See -h for usage
@@ -37,23 +41,24 @@ information. The most common GAMS Project Configurator (GPC) usage is the
 --new-algorithm option and the many options for configuring a VREP simulation.
 Again, see the help information for specifics.
 
-***************************************
-3. COMPILING GAMS PROJECTS
+***
+
+# Compiling GAMS projects
 
 After you've generated a project with the GPC, you should see two scripts in
 your project directory (action.bat|sh). The .bat file is used by Visual Studio
 users to compile GAMS projects. The .sh file is used by Linux g++ users to
 compile GAMS projects. Pass "help" to the script for usage information.
 
-***************************************
+***
 
-4. GETTING HELP
+# Help
 
   1. Please see our helpful Wiki which include guides at:
      https://github.com/jredmondson/gams/wiki
 
   2. Please see our full c++ doxygen documentation at:
-     http://jredmondson.github.io/gams/docs/cpp/
+     http://gams.readthedocs.io
 
      Java docs are available here:
      http://jredmondson.github.io/gams/docs/java/
