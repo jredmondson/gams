@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams)
+[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest)
 
 # About GAMS
 
@@ -58,7 +58,7 @@ compile GAMS projects. Pass "help" to the script for usage information.
      https://github.com/jredmondson/gams/wiki
 
   2. Please see our full c++ doxygen documentation at:
-     http://jredmondson.github.io/gams/docs/cpp/
+     http://gams.readthedocs.io
 
      Java docs are available here:
      http://jredmondson.github.io/gams/docs/java/
