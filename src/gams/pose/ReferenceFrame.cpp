@@ -272,6 +272,23 @@ namespace gams
       }
     }
 
+    bool ReferenceFrameVersion::check_consistent() const
+    {
+      uint64_t time = -1;
+      const ReferenceFrameVersion *cur = this;
+      while (cur) {
+        if (cur->timestamp() == -1UL) {
+          // Keep checking
+        } else if (time == -1UL) {
+          time = cur->timestamp();
+        } else if (time != cur->timestamp()) {
+          return false;
+        }
+        cur = cur->origin_frame().impl_.get();
+      }
+      return true;
+    }
+
     void ReferenceFrameVersion::save_as(
             KnowledgeBase &kb,
             std::string key,
@@ -305,9 +322,11 @@ namespace gams
         key += "toi";
         kb.set(key, madara::utility::get_time(), settings);
 
-        interpolated_ = false;
-        ident().register_version(timestamp(),
-            const_cast<ReferenceFrameVersion*>(this)->shared_from_this());
+        if (check_consistent()) {
+          interpolated_ = false;
+          ident().register_version(timestamp(),
+              const_cast<ReferenceFrameVersion*>(this)->shared_from_this());
+        }
       }
 
       if (timestamp() > expiry) {

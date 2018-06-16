@@ -551,5 +551,40 @@ int main(int, char *[])
     TEST_EQ(stamped_pose.frame() == gps_frame(), 0);
   }
 
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    auto root = ReferenceFrame("root", Pose(0, 0, 0), 10);
+    auto child_5 = ReferenceFrame("child", Pose(root, 1, 0, 0), 5);
+    // auto child_10 = ReferenceFrame("child", Pose(root, 1, 0, 5), 10);
+    auto child_15 = ReferenceFrame("child", Pose(root, 1, 0, 10), 15);
+    auto gchild = ReferenceFrame("gchild", Pose(child_5, 0, 1, 0), 10);
+
+    root.save(kb);
+    child_5.save(kb);
+    // child_10.save(kb);
+    child_15.save(kb);
+    gchild.save(kb);
+
+    std::vector<std::string> frame_ids = {"root", "child", "gchild"};
+    auto frames = ReferenceFrame::load_tree(kb, frame_ids);
+    TEST_EQ(frames.empty(), 0);
+
+    frames = ReferenceFrame::load_tree(kb, frame_ids, 15);
+    TEST_EQ(frames.empty(), 1);
+
+    frames = ReferenceFrame::load_tree(kb, frame_ids, 10);
+    TEST_EQ(frames.empty(), 0);
+
+    TEST_EQ(frames[2].origin().transform_to(frames[0]).z(), 5);
+
+    std::cout << frames[0].origin() << std::endl;
+    std::cout << frames[1].origin().transform_to(frames[0]) << std::endl;
+    std::cout << frames[2].origin().transform_to(frames[1]) << std::endl;
+    std::cout << frames[2].origin().transform_to(frames[0]) << std::endl;
+
+    kb.print();
+  }
+
   return 0;
 }

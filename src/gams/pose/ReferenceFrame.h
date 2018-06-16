@@ -938,6 +938,9 @@ public:
 
   template<typename CoordType>
   friend class Coordinate;
+
+private:
+  bool check_consistent() const;
 };
 
 /**
