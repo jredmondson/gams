@@ -300,6 +300,10 @@ namespace gams
         key += "origin";
         NativeDoubleVector vec(key, kb, 6, settings);
         origin().to_container(vec);
+        key.resize(pos);
+
+        key += "toi";
+        kb.set(key, madara::utility::get_time(), settings);
 
         interpolated_ = false;
         ident().register_version(timestamp(),
