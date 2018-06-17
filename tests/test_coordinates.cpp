@@ -589,15 +589,31 @@ int main(int, char *[])
     Orientation o0(0, 0, 0);
     Orientation o1(0, 0, M_PI/2);
 
-    auto q0 = o0.quat();
-    auto q1 = o1.quat();
+    auto q0 = o0.into_quat();
+    auto q1 = o1.into_quat();
 
     auto q = q0.slerp(0.5, q1);
 
     Orientation o(q);
 
-    TEST_EQ(o.rz(), M_PI/4);
+    TEST(o.rz(), M_PI/4);
+
+    auto o2 = o.slerp(0.5, o0);
+
+    TEST(o2.rz(), M_PI/8);
+
+    auto o3 = o0.cross(o1);
+    double d = o0.dot(o1);
   }
+  {
+    Position p(3, 4, 0);
+    TEST(p.norm(), 5);
+    TEST(p.squaredNorm(), 25);
+
+    Position p1(0, 4, 0);
+    TEST(p1.normalized().y(), 1);
+  }
+
 
   return 0;
 }

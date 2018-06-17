@@ -152,6 +152,22 @@ struct default_positional_unit_traits : default_unit_traits
 
 class Quaternion;
 
+inline Eigen::Vector3d quat_to_axis_angle(const Eigen::Quaterniond &quat)
+{
+  double norm = sqrt(quat.x() * quat.x() +
+                     quat.y() * quat.y() +
+                     quat.z() * quat.z());
+  double angle = 2 * atan2(norm, quat.w());
+  double sin_half_angle = sin(angle / 2);
+  if(sin_half_angle < 1e-10)
+  {
+    return {0, 0, 0};
+  }
+  return {(quat.x() / sin_half_angle) * angle,
+          (quat.y() / sin_half_angle) * angle,
+          (quat.z() / sin_half_angle) * angle};
+}
+
 /// Internal use
 struct default_rotational_unit_traits : default_unit_traits
 {
@@ -173,24 +189,11 @@ struct default_rotational_unit_traits : default_unit_traits
              units.to_radians(ry),
              units.to_radians(rz)) {}
 
-  private:
-    static Eigen::Vector3d quat_to_axis_angle(const Eigen::Quaterniond &quat)
-    {
-      double norm = sqrt(quat.x() * quat.x() +
-                         quat.y() * quat.y() +
-                         quat.z() * quat.z());
-      double angle = 2 * atan2(norm, quat.w());
-      double sin_half_angle = sin(angle / 2);
-      if(sin_half_angle < 1e-10)
-      {
-        return {0, 0, 0};
-      }
-      return {(quat.x() / sin_half_angle) * angle,
-              (quat.y() / sin_half_angle) * angle,
-              (quat.z() / sin_half_angle) * angle};
-    }
-
   public:
+    /**
+     * Construct from a Quaternion
+     * @param quat the Quaternion to build from
+     **/
     storage_mixin(const Eigen::Quaterniond &quat)
       : Base(quat_to_axis_angle(quat)) {}
   };
@@ -350,7 +353,11 @@ struct basic_rotational_mixin : common_rotational_mixin<Derived>
   double ry(double v) { return (self().vec()[1] = v); }
   double rz(double v) { return (self().vec()[2] = v); }
 
-  Eigen::Quaterniond quat() const
+  /**
+   * Represent this rotation as a quaternion.
+   * @return Quaternion representation.
+   **/
+  Eigen::Quaterniond into_quat() const
   {
     double magnitude = sqrt(rx() * rx() + ry() * ry() + rz() * rz());
     if(magnitude == 0)
@@ -364,6 +371,18 @@ struct basic_rotational_mixin : common_rotational_mixin<Derived>
             (rx() / magnitude) * sin_half_mag,
             (ry() / magnitude) * sin_half_mag,
             (rz() / magnitude) * sin_half_mag};
+  }
+
+  void from_quat(const Eigen::Quaterniond &quat)
+  {
+    this->vec() = quat_to_axis_angle(quat);
+  }
+
+  template<typename Other>
+  auto slerp(double scale, const Other &other) ->
+    decltype(other.into_quat(), Derived{})
+  {
+    return Derived(into_quat().slerp(scale, other.into_quat()));
   }
 };
 
@@ -614,6 +633,52 @@ public:
     this->set (0, container[0]);
     this->set (1, container[1]);
     this->set (2, container[2]);
+  }
+
+  /**
+   * Passthrough to Eigen vector dot method
+   **/
+  template<typename Other>
+  double dot(const BasicVector<Other, Units> &other) const
+  {
+    return this->vec().dot(other.vec());
+  }
+
+  /**
+   * Passthrough to Eigen vector cross method
+   **/
+  template<typename Other>
+  Derived cross(const BasicVector<Other, Units> &other) const
+  {
+    Derived ret = this->self();
+    ret.vec() = this->vec().cross(other.vec());
+    return ret;
+  }
+
+  /**
+   * Passthrough to Eigen vector norm method
+   **/
+  double norm() const
+  {
+    return this->vec().norm();
+  }
+
+  /**
+   * Passthrough to Eigen vector squaredNorm method
+   **/
+  double squaredNorm() const
+  {
+    return this->vec().squaredNorm();
+  }
+
+  /**
+   * Passthrough to Eigen vector normalized method
+   **/
+  Derived normalized() const
+  {
+    Derived ret = this->self();
+    ret.vec().normalize();
+    return ret;
   }
 
   /**
