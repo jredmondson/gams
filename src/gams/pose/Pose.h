@@ -333,6 +333,7 @@ public:
   bool approximately_equal(const BasicPose<Derived2> &other,
       double epsilon) const
   {
+    (void)other;(void)epsilon;
     throw "unimplemented";
     //return std::fabs(self().distance_to(other.self())) < epsilon;
     return false;
@@ -340,6 +341,7 @@ public:
 
   template<typename Derived2>
   double distance_to(const BasicPose<Derived2> &target) const {
+    (void)target;
     throw "unimplemented";
     //return (target.vec() - vec()).norm();
     return 0;

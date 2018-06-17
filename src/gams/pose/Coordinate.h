@@ -380,7 +380,7 @@ struct basic_rotational_mixin : common_rotational_mixin<Derived>
 
   template<typename Other>
   auto slerp(double scale, const Other &other) ->
-    decltype(other.into_quat(), Derived{})
+    decltype(other.into_quat(), std::declval<Derived>())
   {
     return Derived(into_quat().slerp(scale, other.into_quat()));
   }
