@@ -64,6 +64,7 @@
 #include <madara/knowledge/containers/DoubleVector.h>
 #include <madara/knowledge/containers/NativeDoubleVector.h>
 #include "ReferenceFrameFwd.h"
+#include <Eigen/Geometry>
 
 #define INVAL_COORD DBL_MAX
 
@@ -171,6 +172,27 @@ struct default_rotational_unit_traits : default_unit_traits
       : Base(units.to_radians(rx),
              units.to_radians(ry),
              units.to_radians(rz)) {}
+
+  private:
+    static Eigen::Vector3d quat_to_axis_angle(const Eigen::Quaterniond &quat)
+    {
+      double norm = sqrt(quat.x() * quat.x() +
+                         quat.y() * quat.y() +
+                         quat.z() * quat.z());
+      double angle = 2 * atan2(norm, quat.w());
+      double sin_half_angle = sin(angle / 2);
+      if(sin_half_angle < 1e-10)
+      {
+        return {0, 0, 0};
+      }
+      return {(quat.x() / sin_half_angle) * angle,
+              (quat.y() / sin_half_angle) * angle,
+              (quat.z() / sin_half_angle) * angle};
+    }
+
+  public:
+    storage_mixin(const Eigen::Quaterniond &quat)
+      : Base(quat_to_axis_angle(quat)) {}
   };
 };
 
@@ -327,6 +349,22 @@ struct basic_rotational_mixin : common_rotational_mixin<Derived>
   double rx(double v) { return (self().vec()[0] = v); }
   double ry(double v) { return (self().vec()[1] = v); }
   double rz(double v) { return (self().vec()[2] = v); }
+
+  Eigen::Quaterniond quat() const
+  {
+    double magnitude = sqrt(rx() * rx() + ry() * ry() + rz() * rz());
+    if(magnitude == 0)
+    {
+      return {1, 0, 0, 0};
+    }
+    double half_mag = magnitude / 2;
+    double cos_half_mag = cos(half_mag);
+    double sin_half_mag = sin(half_mag);
+    return {cos_half_mag,
+            (rx() / magnitude) * sin_half_mag,
+            (ry() / magnitude) * sin_half_mag,
+            (rz() / magnitude) * sin_half_mag};
+  }
 };
 
 template<>

@@ -585,6 +585,19 @@ int main(int, char *[])
 
     kb.print();
   }
+  {
+    Orientation o0(0, 0, 0);
+    Orientation o1(0, 0, M_PI/2);
+
+    auto q0 = o0.quat();
+    auto q1 = o1.quat();
+
+    auto q = q0.slerp(0.5, q1);
+
+    Orientation o(q);
+
+    TEST_EQ(o.rz(), M_PI/4);
+  }
 
   return 0;
 }
