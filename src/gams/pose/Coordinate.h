@@ -380,7 +380,8 @@ struct basic_rotational_mixin : common_rotational_mixin<Derived>
 
   template<typename Other>
   auto slerp(double scale, const Other &other) ->
-    decltype(other.into_quat(), std::declval<Derived>())
+    typename std::decay<decltype(other.into_quat(),
+        std::declval<Derived>())>::type
   {
     return Derived(into_quat().slerp(scale, other.into_quat()));
   }
@@ -809,7 +810,7 @@ inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
                const BasicVector<RDerived, RUnits> &rhs) ->
   typename std::enable_if<RDerived::free(), LDerived>::type
 {
-  LDerived ret = lhs;
+  LDerived ret = lhs.self();
   ret += rhs;
   return ret;
 }
@@ -820,7 +821,7 @@ inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
                const BasicVector<RDerived, RUnits> &rhs) ->
   typename std::enable_if<LDerived::free() && RDerived::fixed(), RDerived>::type
 {
-  RDerived ret = rhs;
+  RDerived ret = rhs.self();
   ret += lhs;
   return ret;
 }
@@ -831,7 +832,7 @@ inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
                const BasicVector<RDerived, RUnits> &rhs) ->
   typename std::enable_if<LDerived::free() && RDerived::free(), LDerived>::type
 {
-  LDerived ret = lhs;
+  LDerived ret = lhs.self();
   ret -= rhs;
   return ret;
 }
