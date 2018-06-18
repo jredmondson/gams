@@ -584,15 +584,15 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
         gams::utility::java::Acquire_VM jvm;
 
         jclass controller_class = gams::utility::java::find_class (
-          jvm.env, "com/gams/controllers/Multicontroller");
+          jvm.env, "ai/gams/controllers/Multicontroller");
         jobject alg = jalg->get_java_instance ();
         jclass alg_class = jvm.env->GetObjectClass (alg);
         
         jmethodID init_call = jvm.env->GetMethodID (alg_class,
-          "init", "(Lcom/gams/controllers/Multicontroller;)V");
+          "init", "(Lai/gams/controllers/Multicontroller;)V");
         jmethodID controllerFromPointerCall = jvm.env->GetStaticMethodID (
           controller_class,
-          "fromPointer", "(JZ)Lcom/gams/controllers/Multicontroller;");
+          "fromPointer", "(JZ)Lai/gams/controllers/Multicontroller;");
 
         if (init_call && controllerFromPointerCall)
         {

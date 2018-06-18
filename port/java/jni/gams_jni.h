@@ -1,6 +1,6 @@
 
-#ifndef _Included_com_gams_JNI
-#define _Included_com_gams_JNI
+#ifndef _Included_ai_gams_JNI
+#define _Included_ai_gams_JNI
 
 #include <jni.h>
 #include "gams/GamsExport.h"

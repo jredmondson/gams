@@ -99,7 +99,7 @@ jint JNICALL JNI_OnLoad (JavaVM* vm, void* /*reserved*/)
   jclass kr_class = (jclass)env->CallObjectMethod (
     gams_class_loader,
     find_class,
-    env->NewStringUTF ("com.madara.KnowledgeRecord"));
+    env->NewStringUTF ("ai.madara.knowledge.KnowledgeRecord"));
 
   if (!kr_class || env->ExceptionCheck ())
   {
@@ -107,7 +107,7 @@ jint JNICALL JNI_OnLoad (JavaVM* vm, void* /*reserved*/)
     madara_logger_ptr_log (loggers::global_logger.get (),
       loggers::LOG_ERROR,
       "Gams:JNI_OnLoad: "
-      "Class loader call failed for com.madara.KnowledgeRecord\n");
+      "Class loader call failed for ai.madara.knowledge.KnowledgeRecord\n");
   }
   else
   {

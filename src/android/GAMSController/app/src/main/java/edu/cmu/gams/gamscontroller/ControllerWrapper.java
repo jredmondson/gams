@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.gams.controllers.BaseController;
-import com.madara.KnowledgeBase;
-import com.madara.KnowledgeList;
-import com.madara.KnowledgeRecord;
-import com.madara.transport.QoSTransportSettings;
-import com.madara.transport.TransportSettings;
-import com.madara.transport.TransportType;
+import ai.gams.controllers.BaseController;
+import ai.madara.knowledge.KnowledgeBase;
+import ai.madara.knowledge.KnowledgeList;
+import ai.madara.knowledge.KnowledgeRecord;
+import ai.madara.transport.QoSTransportSettings;
+import ai.madara.transport.TransportSettings;
+import ai.madara.transport.TransportType;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -969,15 +969,15 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
         gams::utility::java::Acquire_VM jvm;
 
         jclass controller_class = gams::utility::java::find_class (
-          jvm.env, "com/gams/controllers/BaseController");
+          jvm.env, "ai/gams/controllers/BaseController");
         jobject alg = jalg->get_java_instance ();
         jclass alg_class = jvm.env->GetObjectClass (alg);
         
         jmethodID init_call = jvm.env->GetMethodID (alg_class,
-          "init", "(Lcom/gams/controllers/BaseController;)V");
+          "init", "(Lai/gams/controllers/BaseController;)V");
         jmethodID controllerFromPointerCall = jvm.env->GetStaticMethodID (
           controller_class,
-          "fromPointer", "(JZ)Lcom/gams/controllers/BaseController;");
+          "fromPointer", "(JZ)Lai/gams/controllers/BaseController;");
 
         if (init_call && controllerFromPointerCall)
         {

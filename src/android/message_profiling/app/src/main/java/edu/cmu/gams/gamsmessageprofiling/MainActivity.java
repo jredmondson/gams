@@ -28,7 +28,7 @@ public class MainActivity extends ActionBarActivity
         Runtime rt = Runtime.getRuntime();
         long maxMemory = rt.maxMemory();
         Log.d(LOCAL_TAG, "Max Memory Available: " + Long.toString(maxMemory));
-        Log.d(LOCAL_TAG, "MADARA_VERSION: " + com.madara.util.Utility.getVersion());
+        Log.d(LOCAL_TAG, "MADARA_VERSION: " + ai.madara.util.Utility.getVersion());
 
         Spinner type_spinner = (Spinner) findViewById (R.id.type_spinner);
         String type = type_spinner.getSelectedItem().toString();
@@ -56,7 +56,7 @@ public class MainActivity extends ActionBarActivity
         }
         Log.d(LOCAL_TAG, "ADDRESS: " + address_text);
 
-        com.madara.logger.GlobalLogger.setLevel(0);
+        ai.madara.logger.GlobalLogger.setLevel(0);
         Message_Profiler profiler = new Message_Profiler(type, address_text, size, rate, dur, id, swarmSize);
         profiler.start();
         try
@@ -69,14 +69,14 @@ public class MainActivity extends ActionBarActivity
         finally
         {
         }
-        com.madara.logger.GlobalLogger.setLevel(0);
+        ai.madara.logger.GlobalLogger.setLevel(0);
 
         run.setClickable(true);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        com.madara.logger.GlobalLogger.addTerm();
+        ai.madara.logger.GlobalLogger.addTerm();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

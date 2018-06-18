@@ -5,15 +5,15 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.os.Bundle;
 
-import com.gams.algorithms.MessageProfiling;
-import com.gams.controllers.BaseController;
-import com.madara.KnowledgeBase;
-import com.madara.KnowledgeList;
-import com.madara.KnowledgeRecord;
-import com.madara.MadaraLog;
-import com.madara.transport.QoSTransportSettings;
-import com.madara.transport.TransportSettings;
-import com.madara.transport.TransportType;
+import ai.gams.algorithms.MessageProfiling;
+import ai.gams.controllers.BaseController;
+import ai.madara.knowledge.KnowledgeBase;
+import ai.madara.knowledge.KnowledgeList;
+import ai.madara.knowledge.KnowledgeRecord;
+import ai.madara.MadaraLog;
+import ai.madara.transport.QoSTransportSettings;
+import ai.madara.transport.TransportSettings;
+import ai.madara.transport.TransportType;
 
 /**
  * Created by aldukeman on 6/16/15.
@@ -88,7 +88,7 @@ class Message_Profiler extends Thread
         controller.initAlgorithm(algo);
         algo.initVars(settings);
         controller.run(1.0 / rate, duration);
-        com.madara.logger.GlobalLogger.log (6, knowledge.toString ());
+        ai.madara.logger.GlobalLogger.log (6, knowledge.toString ());
         */
 
 
@@ -98,7 +98,7 @@ class Message_Profiler extends Thread
             String[] args = new String[2];
             args[0] = "--id";
             args[1] = Integer.toString(id);
-            com.gams.tests.TestMessageProfilingAlgorithm.main (args);
+            ai.gams.tests.TestMessageProfilingAlgorithm.main (args);
         } catch (Exception e) {
             e.printStackTrace();
         }

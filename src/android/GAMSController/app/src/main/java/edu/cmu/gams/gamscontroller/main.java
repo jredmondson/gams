@@ -15,8 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.madara.logger.GlobalLogger;
-import com.madara.transport.TransportType;
+import ai.madara.logger.GlobalLogger;
+import ai.madara.transport.TransportType;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,7 +34,7 @@ public class main extends ActionBarActivity {
         Runtime rt = Runtime.getRuntime();
         long maxMemory = rt.maxMemory();
         Log.d(LOCAL_TAG, "Max Memory Available: " + Long.toString(maxMemory));
-        Log.d(LOCAL_TAG, "MADARA_VERSION: " + com.madara.util.Utility.getVersion());
+        Log.d(LOCAL_TAG, "MADARA_VERSION: " + ai.madara.util.Utility.getVersion());
 
         Spinner type_spinner = (Spinner) findViewById (R.id.transport_spinner);
         String type = type_spinner.getSelectedItem().toString();
@@ -65,7 +65,7 @@ public class main extends ActionBarActivity {
         }
         Log.d(LOCAL_TAG, "ADDRESS: " + address_text);
 
-        com.madara.logger.GlobalLogger.setLevel(0);
+        ai.madara.logger.GlobalLogger.setLevel(0);
         TransportType transportType = TransportType.MULTICAST_TRANSPORT;
         switch(type)
         {
@@ -86,9 +86,9 @@ public class main extends ActionBarActivity {
                 getCacheDir());
 
         Log.d (LOCAL_TAG, "starting wrapper thread");
-        com.gams.utility.Logging.setLevel(6);
-        com.madara.logger.GlobalLogger.addTerm();
-        com.madara.logger.GlobalLogger.setLevel(6);
+        ai.gams.utility.Logging.setLevel(6);
+        ai.madara.logger.GlobalLogger.addTerm();
+        ai.madara.logger.GlobalLogger.setLevel(6);
         wrapper.start();
         try
         {
@@ -101,8 +101,8 @@ public class main extends ActionBarActivity {
         finally
         {
         }
-        com.madara.logger.GlobalLogger.setLevel(0);
-        com.gams.utility.Logging.setLevel(0);
+        ai.madara.logger.GlobalLogger.setLevel(0);
+        ai.gams.utility.Logging.setLevel(0);
 
         run.setClickable(true);
     }

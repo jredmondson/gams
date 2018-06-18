@@ -122,7 +122,7 @@ gams::algorithms::JavaAlgorithmFactory::create (
     jmethodID kbFromPointerCall = jvm.env->GetStaticMethodID (kb_class,
       "fromPointer", "(J)Lcom/madara/KnowledgeBase;");
     jmethodID factoryCreateCall = jvm.env->GetMethodID (kb_class,
-      "create", "(J)Lcom/gams/algorithms/BaseAlgorithm;");
+      "create", "(J)Lai/gams/algorithms/BaseAlgorithm;");
 
     if (factoryCreateCall)
     {

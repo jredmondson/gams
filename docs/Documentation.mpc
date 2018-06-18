@@ -2,7 +2,7 @@ project (documentation_gams_java) : build_files {
 
   requires += docs java
 
-  prebuild = "$(JAVA_HOME)\bin\javadoc" -version -d java -sourcepath $(GAMS_ROOT)/port/java/src -classpath $(MADARA_ROOT)/port/java/src -subpackages com.gams
+  prebuild = "$(JAVA_HOME)\bin\javadoc" -version -d java -sourcepath $(GAMS_ROOT)/port/java/src -classpath $(MADARA_ROOT)/port/java/src -subpackages ai.gams
   
   custom_only = 1
   
