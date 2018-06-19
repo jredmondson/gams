@@ -621,14 +621,16 @@ struct GAMS_EXPORT ReferenceFrameType {
                   const ReferenceFrameType *self,
                   double ox, double oy, double oz,
                   double orx, double ory, double orz,
-                  double &x, double &y, double &z);
+                  double &x, double &y, double &z,
+                  bool fixed);
 
   void (*transform_linear_from_origin)(
                   const ReferenceFrameType *origin,
                   const ReferenceFrameType *self,
                   double ox, double oy, double oz,
                   double orx, double ory, double orz,
-                  double &x, double &y, double &z);
+                  double &x, double &y, double &z,
+                  bool fixed);
 
   void (*normalize_linear)(
                   const ReferenceFrameType *self,
@@ -666,7 +668,8 @@ struct GAMS_EXPORT ReferenceFrameType {
                   double ox, double oy, double oz,
                   double orx, double ory, double orz,
                   double &x, double &y, double &z,
-                  double &rx, double &ry, double &rz);
+                  double &rx, double &ry, double &rz,
+                  bool fixed);
 
   void (*transform_pose_from_origin)(
                   const ReferenceFrameType *origin,
@@ -674,7 +677,8 @@ struct GAMS_EXPORT ReferenceFrameType {
                   double ox, double oy, double oz,
                   double orx, double ory, double orz,
                   double &x, double &y, double &z,
-                  double &rx, double &ry, double &rz);
+                  double &rx, double &ry, double &rz,
+                  bool fixed);
 
   void (*normalize_pose)(
                   const ReferenceFrameType *self,

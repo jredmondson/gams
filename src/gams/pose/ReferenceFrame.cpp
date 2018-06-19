@@ -722,12 +722,14 @@ namespace gams
                       double ox, double oy, double oz,
                       double orx, double ory, double orz,
                       double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz)
+                      double &rx, double &ry, double &rz,
+                      bool fixed)
       {
         self->transform_linear_to_origin(other, self,
                           ox, oy, oz,
                           orx, ory,
-                          orz, x, y, z);
+                          orz, x, y, z,
+                          fixed);
         self->transform_angular_to_origin(other, self,
                           orx, ory, orz,
                           rx, ry, rz);
@@ -739,12 +741,14 @@ namespace gams
                       double ox, double oy, double oz,
                       double orx, double ory, double orz,
                       double &x, double &y, double &z,
-                      double &rx, double &ry, double &rz)
+                      double &rx, double &ry, double &rz,
+                      bool fixed)
       {
         self->transform_linear_from_origin(other, self,
                           ox, oy, oz,
                           orx, ory,
-                          orz, x, y, z);
+                          orz, x, y, z,
+                          fixed);
         self->transform_angular_from_origin(other, self,
                           orx, ory, orz,
                           rx, ry, rz);
