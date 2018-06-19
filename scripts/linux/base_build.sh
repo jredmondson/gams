@@ -231,6 +231,7 @@ fi
 
 echo "MPC_ROOT is set to $MPC_ROOT"
 
+echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
   echo "MADARA will not be built"
@@ -382,6 +383,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
   if [ $JAVA -eq 1 ]; then
     sudo apt-get install -f oracle-java8-set-default
+    sudo apt-get install maven
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
     rc_str="export JAVA_HOME=$JAVA_HOME"
     append_if_needed "$rc_str" "$HOME/.bashrc"
@@ -441,6 +443,9 @@ if [ $MAC -eq 1 ]; then
   # Install boost for mac
   if [ $PREREQS -eq 1 ]; then
     brew install boost@1.59
+    if [ $JAVA -eq 1 ]; then
+      brew install maven
+    fi
   fi
   export BOOST_ROOT=/usr/local/opt/boost@1.59/include
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib

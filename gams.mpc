@@ -197,16 +197,16 @@ project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_
 project (gams_jar) : using_gams, using_madara {
   requires += java
 
-  prebuild += "$(JAVA_HOME)/bin/javac" -classpath $(MADARA_ROOT)/lib/madara.jar -sourcepath port/java/src port/java/src/ai/gams/tests/*.java port/java/src/ai/gams/*.java port/java/src/ai/gams/logger/*.java port/java/src/ai/gams/variables/*.java port/java/src/ai/gams/utility/*.java port/java/src/ai/gams/platforms/*.java port/java/src/ai/gams/algorithms/*.java port/java/src/ai/gams/controllers/*.java
-  postbuild += "$(JAVA_HOME)/bin/jar" cf lib/gams.jar -C port/java/src .
+  prebuild += "$(JAVA_HOME)/bin/javac" -classpath $(MADARA_ROOT)/lib/madara.jar -sourcepath port/java/src/main/java port/java/src/main/java/ai/gams/tests/*.java port/java/src/main/java/ai/gams/*.java port/java/src/main/java/ai/gams/logger/*.java port/java/src/main/java/ai/gams/variables/*.java port/java/src/main/java/ai/gams/utility/*.java port/java/src/main/java/ai/gams/platforms/*.java port/java/src/main/java/ai/gams/algorithms/*.java port/java/src/main/java/ai/gams/controllers/*.java
+  postbuild += "$(JAVA_HOME)/bin/jar" cf lib/gams.jar -C port/java/src/main/java .
 
   Documentation_Files {
-    port/java/src/*.java
-    port/java/src/ai/gams/*.java
-    port/java/src/ai/gams/algorithms/*.java
-    port/java/src/ai/gams/controllers/*.java
-    port/java/src/ai/gams/platforms/*.java
-    port/java/src/ai/gams/variables/*.java
+    port/java/src/main/java/*.java
+    port/java/src/main/java/ai/gams/*.java
+    port/java/src/main/java/ai/gams/algorithms/*.java
+    port/java/src/main/java/ai/gams/controllers/*.java
+    port/java/src/main/java/ai/gams/platforms/*.java
+    port/java/src/main/java/ai/gams/variables/*.java
   }
   
   Header_Files {
