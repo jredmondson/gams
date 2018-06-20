@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_ANGLE_UNITS_H_
 #define _GAMS_UTILITY_ANGLE_UNITS_H_
 
-#include <gams/pose/AngleUnits.h>
+#include "gams/pose/AngleUnits.h"
 
 namespace gams
 {

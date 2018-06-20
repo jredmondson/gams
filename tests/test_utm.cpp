@@ -5,9 +5,9 @@
 
 #ifdef GAMS_UTM
 
-#include <gams/utility/GPSFrame.h>
-#include <gams/utility/UTMFrame.h>
-#include <gams/utility/CartesianFrame.h>
+#include "gams/utility/GPSFrame.h"
+#include "gams/utility/UTMFrame.h"
+#include "gams/utility/CartesianFrame.h"
 
 using namespace gams::utility;
 

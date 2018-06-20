@@ -56,11 +56,11 @@
 
 #include "ReferenceFrame.h"
 
-#include <gams/pose/Pose.h>
-#include <gams/pose/Velocity.h>
-#include <gams/pose/Acceleration.h>
-#include <gams/pose/AngularVelocity.h>
-#include <gams/pose/AngularAcceleration.h>
+#include "gams/pose/Pose.h"
+#include "gams/pose/Velocity.h"
+#include "gams/pose/Acceleration.h"
+#include "gams/pose/AngularVelocity.h"
+#include "gams/pose/AngularAcceleration.h"
 
 namespace gams { namespace pose {
 

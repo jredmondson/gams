@@ -54,8 +54,8 @@
 #ifndef _GAMS_POSE_REFERENCE_FRAME_H_
 #define _GAMS_POSE_REFERENCE_FRAME_H_
 
-#include <gams/GamsExport.h>
-#include <gams/CPP11_compat.h>
+#include "gams/GamsExport.h"
+#include "gams/CPP11_compat.h"
 #include <vector>
 #include <string>
 #include <cstring>

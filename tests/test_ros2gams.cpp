@@ -1,6 +1,6 @@
 #define TEST_ROS2GAMS
-#include <gams/utility/ros/RosParser.cpp>
-#include <std_msgs/Header.h>
+#include "gams/utility/ros/RosParser.cpp"
+#include "std_msgs/Header.h"
 
 
 const double TEST_epsilon = 0.0001;

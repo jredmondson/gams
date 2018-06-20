@@ -54,10 +54,10 @@
 #ifndef _GAMS_UTILITY_QUATERNION_H_
 #define _GAMS_UTILITY_QUATERNION_H_
 
-#include <gams/pose/Quaternion.h>
-#include <gams/utility/AngleUnits.h>
-#include <gams/utility/Orientation.h>
-#include <gams/utility/Euler.h>
+#include "gams/pose/Quaternion.h"
+#include "gams/utility/AngleUnits.h"
+#include "gams/utility/Orientation.h"
+#include "gams/utility/Euler.h"
 
 namespace gams
 {

@@ -59,8 +59,8 @@
 #include <iostream>
 #include <string>
 
-#include <gams/pose/Position.h>
-#include <gams/pose/Orientation.h>
+#include "gams/pose/Position.h"
+#include "gams/pose/Orientation.h"
 
 namespace gams { namespace pose {
 

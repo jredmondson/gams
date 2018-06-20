@@ -58,13 +58,13 @@
 
 #include <iostream>
 #include <string>
-#include <gams/CPP11_compat.h>
-#include <gams/pose/Coordinate.h>
-#include <gams/pose/Angular.h>
+#include "gams/CPP11_compat.h"
+#include "gams/pose/Coordinate.h"
+#include "gams/pose/Angular.h"
 #include "gams/GamsExport.h"
 #include <cmath>
-#include <madara/knowledge/containers/DoubleVector.h>
-#include <madara/knowledge/containers/NativeDoubleVector.h>
+#include "madara/knowledge/containers/DoubleVector.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 //! This file is no longer needed, and is deprecated.
 

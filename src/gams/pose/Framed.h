@@ -60,9 +60,9 @@
 #include <string>
 #include <cfloat>
 #include <utility>
-#include <gams/CPP11_compat.h>
-#include <madara/knowledge/containers/DoubleVector.h>
-#include <madara/knowledge/containers/NativeDoubleVector.h>
+#include "gams/CPP11_compat.h"
+#include "madara/knowledge/containers/DoubleVector.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "ReferenceFrameFwd.h"
 #include "Coordinate.h"
 

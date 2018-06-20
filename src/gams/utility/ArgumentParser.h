@@ -56,9 +56,9 @@
 
 #include <iostream>
 #include <string>
-#include <gams/CPP11_compat.h>
-#include <madara/utility/Utility.h>
-#include <madara/knowledge/KnowledgeBase.h>
+#include "gams/CPP11_compat.h"
+#include "madara/utility/Utility.h"
+#include "madara/knowledge/KnowledgeBase.h"
 #include <iterator>
 
 namespace gams

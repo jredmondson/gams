@@ -54,9 +54,9 @@
 #ifndef _GAMS_POSE_REFERENCE_FRAME_FWD_H_
 #define _GAMS_POSE_REFERENCE_FRAME_FWD_H_
 
-#include <gams/GamsExport.h>
-#include <gams/CPP11_compat.h>
-#include <madara/knowledge/KnowledgeBase.h>
+#include "gams/GamsExport.h"
+#include "gams/CPP11_compat.h"
+#include "madara/knowledge/KnowledgeBase.h"
 #include <stdexcept>
 #include <sstream>
 

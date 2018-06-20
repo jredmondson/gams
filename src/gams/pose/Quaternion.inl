@@ -54,8 +54,8 @@
 #ifndef _GAMS_POSE_QUATERNION_INL_
 #define _GAMS_POSE_QUATERNION_INL_
 
-#include <gams/pose/Angular.h>
-#include <gams/pose/Linear.h>
+#include "gams/pose/Angular.h"
+#include "gams/pose/Linear.h"
 
 #include "Quaternion.h"
 
