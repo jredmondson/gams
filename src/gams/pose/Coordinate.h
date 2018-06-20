@@ -492,6 +492,7 @@ public:
 
   BasicVector() = default;
 
+  /// Construct from a vector of same units, but different derived type
   template<typename Derived2>
   BasicVector(const BasicVector<Derived2, Units> &v) : storage_mixin(v.vec()) {}
 
@@ -620,6 +621,10 @@ public:
     return buffer.str ();
   }
 
+  /**
+   * Assign values into a NativeDoubleVector container
+   * @param container the container
+   **/
   void to_container (
     madara::knowledge::containers::NativeDoubleVector &container) const
   {
@@ -628,6 +633,10 @@ public:
     container.set (2, this->get (2));
   }
 
+  /**
+   * Assign values from a NativeDoubleVector container
+   * @param container the container
+   **/
   void from_container (
     const madara::knowledge::containers::NativeDoubleVector &container)
   {
@@ -730,6 +739,7 @@ public:
 
 namespace gams { namespace pose {
 
+/// Generates composite assignment operators for Coordinates, using Eigen
 #define GAMS_POSE_MAKE_COMPOSITE_VEC_SCALAR_OP(op) \
 template<typename Derived, typename Units, typename Scalar> \
 inline auto operator op##=(BasicVector<Derived, Units> &vec, Scalar scalar) -> \
@@ -741,6 +751,7 @@ inline auto operator op##=(BasicVector<Derived, Units> &vec, Scalar scalar) -> \
   return vec.self(); \
 }
 
+/// Generates Eigen passthroughs for binary ops betwen vector and scalar
 #define GAMS_POSE_MAKE_BINARY_VEC_SCALAR_OP(op) \
 template<typename Derived, typename Units, typename Scalar> \
 inline auto operator op(const BasicVector<Derived, Units> &vec, Scalar scalar) -> \
@@ -767,6 +778,7 @@ GAMS_POSE_MAKE_BINARY_VEC_SCALAR_OP(op)
 GAMS_POSE_MAKE_VEC_SCALAR_OPS(*)
 GAMS_POSE_MAKE_VEC_SCALAR_OPS(/)
 
+/// Generates Eigen passthroughs on vectors
 #define GAMS_POSE_MAKE_COMPOSITE_VECS_OP(op) \
 template<typename LDerived, \
          typename RDerived, typename Units> \
@@ -804,6 +816,8 @@ inline auto operator op##=(BasicVector<LDerived, units::absolute<Units>> &lhs, \
 GAMS_POSE_MAKE_COMPOSITE_VECS_OP(+)
 GAMS_POSE_MAKE_COMPOSITE_VECS_OP(-)
 
+/// Pass through to Eigen operator- on vectors, if RHS is free
+/// @return vector of same type as LHS
 template<typename LDerived, typename LUnits,
          typename RDerived, typename RUnits>
 inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
@@ -815,6 +829,8 @@ inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
   return ret;
 }
 
+/// Pass through to Eigen operator- on vectors, if RHS is fixed and lHS is free
+/// @return vector of same type as RHS
 template<typename LDerived, typename LUnits,
          typename RDerived, typename RUnits>
 inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
@@ -826,6 +842,8 @@ inline auto operator+(const BasicVector<LDerived, LUnits> &lhs,
   return ret;
 }
 
+/// Pass through to Eigen operator- on vectors, for free types
+/// @return a free type vector
 template<typename LDerived, typename LUnits,
          typename RDerived, typename RUnits>
 inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
@@ -842,6 +860,8 @@ inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
 template<typename T>
 struct fixed_into_free {};
 
+/// Pass through to Eigen operator- on vectors, for fixed types
+/// @return a free type vector
 template<typename LDerived, typename LUnits,
          typename RDerived, typename RUnits>
 inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
@@ -854,6 +874,7 @@ inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
   return ret;
 }
 
+/// Generates comparison operators for coordinate types
 #define GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(op) \
   template<typename LDerived, typename RDerived, typename Units> \
   inline bool operator op ( \
@@ -895,6 +916,10 @@ GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(<=)
 GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(>)
 GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(>=)
 
+/// Creates the three variants for each coordinate type:
+/// {Coordinate}Vector: just the coordinate values alone
+/// {Coordinate}: values plus a bound frame
+/// Stamped{Coordinate}: values, frame, and timestamp
 #define GAMS_POSE_MAKE_COORDINATE_TYPE(name, units) \
 class name##Vector : \
   public BasicVector<name##Vector, units> \

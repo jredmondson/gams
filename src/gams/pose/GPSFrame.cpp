@@ -63,7 +63,8 @@ namespace gams
                       const ReferenceFrameType *self,
                       double /*ox*/, double /*oy*/, double /*oz*/,
                       double /*orx*/, double /*ory*/, double /*orz*/,
-                      double &/*x*/, double &/*y*/, double &/*z*/)
+                      double &/*x*/, double &/*y*/, double &/*z*/,
+                      bool /*fixed*/)
       {
         throw undefined_transform(self, origin, true);
       }
@@ -73,7 +74,8 @@ namespace gams
                       const ReferenceFrameType *self,
                       double /*ox*/, double /*oy*/, double /*oz*/,
                       double /*orx*/, double /*ory*/, double /*orz*/,
-                      double &/*x*/, double &/*y*/, double &/*z*/)
+                      double &/*x*/, double &/*y*/, double &/*z*/,
+                      bool /*fixed*/)
       {
         throw undefined_transform(self, origin, false);
       }

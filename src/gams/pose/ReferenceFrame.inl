@@ -84,27 +84,32 @@ namespace impl
   }
 }
 
-inline void transform_to_origin(Position &in)
+template<typename T>
+inline auto transform_to_origin(T &in) ->
+  typename std::enable_if<T::positional()>::type
 {
   impl::to_origin(in, [](
           const ReferenceFrameType *s,
           const ReferenceFrameType *o,
           const Pose &origin,
-          Position &in) {
+          T &in) {
       s->transform_linear_to_origin(o, s,
           origin.x(), origin.y(), origin.z(),
           origin.rx(), origin.ry(), origin.rz(),
-          in.vec()[0], in.vec()[1], in.vec()[2]);
+          in.vec()[0], in.vec()[1], in.vec()[2],
+          T::fixed());
     });
 }
 
-inline void transform_to_origin(Orientation &in)
+template<typename T>
+inline auto transform_to_origin(T &in) ->
+  typename std::enable_if<T::rotational()>::type
 {
   impl::to_origin(in, [](
           const ReferenceFrameType *s,
           const ReferenceFrameType *o,
           const Pose &origin,
-          Orientation &in) {
+          T &in) {
       s->transform_angular_to_origin(o, s,
           origin.rx(), origin.ry(), origin.rz(),
           in.vec()[0], in.vec()[1], in.vec()[2]);
@@ -122,10 +127,12 @@ inline void transform_to_origin(Pose &in)
           origin.x(), origin.y(), origin.z(),
           origin.rx(), origin.ry(), origin.rz(),
           in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
-          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2],
+          true);
     });
 }
 
+/*
 inline void transform_to_origin(StampedPosition &in)
 {
   impl::to_origin(in, [](
@@ -151,7 +158,7 @@ inline void transform_to_origin(StampedOrientation &in)
           origin.rx(), origin.ry(), origin.rz(),
           in.vec()[0], in.vec()[1], in.vec()[2]);
     });
-}
+}*/
 
 inline void transform_to_origin(StampedPose &in)
 {
@@ -164,7 +171,8 @@ inline void transform_to_origin(StampedPose &in)
           origin.x(), origin.y(), origin.z(),
           origin.rx(), origin.ry(), origin.rz(),
           in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
-          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2],
+          true);
     });
 }
 
@@ -186,30 +194,33 @@ namespace impl
   }
 }
 
-inline void transform_from_origin(
-    Position &in, const ReferenceFrame &to_frame)
+template<typename T>
+inline auto transform_from_origin(T &in, const ReferenceFrame &to_frame) ->
+  typename std::enable_if<T::positional()>::type
 {
   impl::from_origin(in, to_frame, [](
           const ReferenceFrameType *t,
           const ReferenceFrameType *f,
           const Pose &to,
-          Position &in) {
+          T &in) {
       f->transform_linear_from_origin(t, f,
           to.x(), to.y(), to.z(),
           to.rx(), to.ry(), to.rz(),
-          in.vec()[0], in.vec()[1], in.vec()[2]);
+          in.vec()[0], in.vec()[1], in.vec()[2],
+          T::fixed());
     });
 }
 
 
-inline void transform_from_origin(
-    Orientation &in, const ReferenceFrame &to_frame)
+template<typename T>
+inline auto transform_from_origin(T &in, const ReferenceFrame &to_frame) ->
+  typename std::enable_if<T::rotational()>::type
 {
   impl::from_origin(in, to_frame, [](
           const ReferenceFrameType *t,
           const ReferenceFrameType *f,
           const Pose &to,
-          Orientation &in) {
+          T &in) {
       f->transform_angular_from_origin(t, f,
           to.rx(), to.ry(), to.rz(),
           in.vec()[0], in.vec()[1], in.vec()[2]);
@@ -228,10 +239,12 @@ inline void transform_from_origin(
           to.x(), to.y(), to.z(),
           to.rx(), to.ry(), to.rz(),
           in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
-          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2],
+          true);
     });
 }
 
+/*
 inline void transform_from_origin(
     StampedPosition &in, const ReferenceFrame &to_frame)
 {
@@ -261,6 +274,7 @@ inline void transform_from_origin(
           in.vec()[0], in.vec()[1], in.vec()[2]);
     });
 }
+*/
 
 inline void transform_from_origin(
   StampedPose &in, const ReferenceFrame &to_frame)
@@ -274,7 +288,8 @@ inline void transform_from_origin(
           to.x(), to.y(), to.z(),
           to.rx(), to.ry(), to.rz(),
           in.pos_vec()[0], in.pos_vec()[1], in.pos_vec()[2],
-          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2]);
+          in.ori_vec()[0], in.ori_vec()[1], in.ori_vec()[2],
+          true);
     });
 }
 

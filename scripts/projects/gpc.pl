@@ -3890,6 +3890,7 @@ project (custom_controller) : using_gams, using_madara, using_vrep {
     src/transports
   }
 }
+";
 
    
       my $workspace_contents = "

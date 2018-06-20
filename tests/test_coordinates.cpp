@@ -602,8 +602,10 @@ int main(int, char *[])
 
     TEST(o2.rz(), M_PI/8);
 
-    auto o3 = o0.cross(o1);
-    double d = o0.dot(o1);
+    volatile auto o3 = o0.cross(o1);
+    (void)o3;
+    volatile double d = o0.dot(o1);
+    (void)d;
   }
   {
     Position p(3, 4, 0);
@@ -613,7 +615,14 @@ int main(int, char *[])
     Position p1(0, 4, 0);
     TEST(p1.normalized().y(), 1);
   }
-
+  {
+    Velocity v0(default_frame(), 3, 4, 0);
+    ReferenceFrame frame90(Pose(default_frame(), 3, 4, 0, 0, 0, M_PI/2));
+    Velocity v1 = v0.transform_to(frame90);
+    TEST(v1.dx(), 4);
+    TEST(v1.dy(), -3);
+    TEST(v1.dz(), 0);
+  }
 
   return 0;
 }

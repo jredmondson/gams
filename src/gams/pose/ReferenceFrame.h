@@ -1227,7 +1227,8 @@ namespace simple_rotate {
                   double ox, double oy, double oz,
                   double orx, double ory, double orz,
                   double &x, double &y, double &z,
-                  double &rx, double &ry, double &rz);
+                  double &rx, double &ry, double &rz,
+                  bool fixed);
 
   /**
    * Transform pose in-place from its origin frame
@@ -1246,7 +1247,8 @@ namespace simple_rotate {
                   double ox, double oy, double oz,
                   double orx, double ory, double orz,
                   double &x, double &y, double &z,
-                  double &rx, double &ry, double &rz);
+                  double &rx, double &ry, double &rz,
+                  bool fixed);
 
   /**
    * Calculates smallest angle between two AngularVectors

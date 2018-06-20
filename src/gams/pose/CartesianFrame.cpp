@@ -69,28 +69,33 @@ namespace gams { namespace pose {
                       const ReferenceFrameType *self,
                       double ox, double oy, double oz,
                       double orx, double ory, double orz,
-                      double &x, double &y, double &z)
+                      double &x, double &y, double &z,
+                      bool fixed)
     {
       if (origin->type_id == self->type_id) {
         simple_rotate::orient_linear_vec(x, y, z, orx, ory, orz);
 
-        x += ox;
-        y += oy;
-        z += oz;
+        if (fixed) {
+          x += ox;
+          y += oy;
+          z += oz;
+        }
       } else if (origin->type_id == GPS->type_id) {
         simple_rotate::orient_linear_vec(x, y, z, orx, ory, orz);
 
-        geodetic_util::GeodeticConverter conv(ox, oy, oz);
+        if (fixed) {
+          geodetic_util::GeodeticConverter conv(ox, oy, oz);
 
-        double lat, lon, alt;
-        conv.ned2Geodetic(x, y, z, &lat, &lon, &alt);
+          double lat, lon, alt;
+          conv.ned2Geodetic(x, y, z, &lat, &lon, &alt);
 
-        //std::cerr << x << " " << y << " " << z << " -> " <<
-        //             lat << " " << lon << " " << alt << std::endl;
+          //std::cerr << x << " " << y << " " << z << " -> " <<
+          //             lat << " " << lon << " " << alt << std::endl;
 
-        x = lat;
-        y = lon;
-        z = alt;
+          x = lat;
+          y = lon;
+          z = alt;
+        }
 
         self->normalize_linear(self, x, y, z);
       }
@@ -117,29 +122,34 @@ namespace gams { namespace pose {
                       const ReferenceFrameType *self,
                       double ox, double oy, double oz,
                       double orx, double ory, double orz,
-                      double &x, double &y, double &z)
+                      double &x, double &y, double &z,
+                      bool fixed)
     {
       if (origin->type_id == self->type_id)
       {
         simple_rotate::orient_linear_vec(x, y, z, orx, ory, orz, true);
 
-        x -= ox;
-        y -= oy;
-        z -= oz;
+        if (fixed) {
+          x -= ox;
+          y -= oy;
+          z -= oz;
+        }
       } else if (origin->type_id == GPS->type_id) {
         self->normalize_linear(self, x, y, z);
 
-        geodetic_util::GeodeticConverter conv(ox, oy, oz);
+        if (fixed) {
+          geodetic_util::GeodeticConverter conv(ox, oy, oz);
 
-        double north, east, down;
-        conv.geodetic2Ned(x, y, z, &north, &east, &down);
+          double north, east, down;
+          conv.geodetic2Ned(x, y, z, &north, &east, &down);
 
-        //std::cerr << x << " " << y << " " << z << " -> " <<
-        //             north << " " << east << " " << down << std::endl;
+          //std::cerr << x << " " << y << " " << z << " -> " <<
+          //             north << " " << east << " " << down << std::endl;
 
-        x = north;
-        y = east;
-        z = down;
+          x = north;
+          y = east;
+          z = down;
+        }
 
         simple_rotate::orient_linear_vec(x, y, z, orx, ory, orz, true);
       }
