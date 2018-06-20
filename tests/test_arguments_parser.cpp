@@ -1,7 +1,7 @@
 #include <iostream>
 #include <math.h>
-#include <gams/CPP11_compat.h>
-#include <gams/utility/ArgumentParser.h>
+#include "gams/CPP11_compat.h"
+#include "gams/utility/ArgumentParser.h"
 
 namespace knowledge = madara::knowledge;
 using namespace gams::utility;

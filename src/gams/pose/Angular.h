@@ -59,12 +59,12 @@
 #include <iostream>
 #include <string>
 #include <array>
-#include <gams/CPP11_compat.h>
-#include <gams/pose/Coordinate.h>
+#include "gams/CPP11_compat.h"
+#include "gams/pose/Coordinate.h"
 #include "gams/GamsExport.h"
 #include <cmath>
-#include <madara/knowledge/containers/DoubleVector.h>
-#include <madara/knowledge/containers/NativeDoubleVector.h>
+#include "madara/knowledge/containers/DoubleVector.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 #define DEG_TO_RAD(x) ( ( (x) * M_PI) / 180.0)
 #define RAD_TO_DEG(x) ( ( (x) * 180) / M_PI)

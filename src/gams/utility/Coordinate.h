@@ -54,7 +54,7 @@
 #ifndef _GAMS_UTILITY_COORDINATE_H_
 #define _GAMS_UTILITY_COORDINATE_H_
 
-#include <gams/pose/Coordinate.h>
+#include "gams/pose/Coordinate.h"
 
 namespace gams
 {

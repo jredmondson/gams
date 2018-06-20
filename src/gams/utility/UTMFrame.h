@@ -56,8 +56,8 @@
 
 #ifdef GAMS_UTM
 
-#include <gams/pose/UTMFrame.h>
-#include <gams/utility/ReferenceFrame.h>
+#include "gams/pose/UTMFrame.h"
+#include "gams/utility/ReferenceFrame.h"
 
 namespace gams
 {

@@ -2,10 +2,10 @@
 #include <fstream>
 #include <streambuf>
 #include <math.h>
-#include <gams/pose/Position.h>
-#include <gams/pose/CartesianFrame.h>
-#include <gams/pose/GPSFrame.h>
-#include <madara/knowledge/KnowledgeBase.h>
+#include "gams/pose/Position.h"
+#include "gams/pose/CartesianFrame.h"
+#include "gams/pose/GPSFrame.h"
+#include "madara/knowledge/KnowledgeBase.h"
 
 using namespace gams::pose;
 

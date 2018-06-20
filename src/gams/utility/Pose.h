@@ -54,9 +54,9 @@
 #ifndef _GAMS_UTILITY_POSE_H_
 #define _GAMS_UTILITY_POSE_H_
 
-#include <gams/pose/Pose.h>
-#include <gams/utility/Location.h>
-#include <gams/utility/Orientation.h>
+#include "gams/pose/Pose.h"
+#include "gams/utility/Location.h"
+#include "gams/utility/Orientation.h"
 
 namespace gams
 {

@@ -58,7 +58,7 @@
 
 #include <iostream>
 #include <cmath>
-#include <gams/CPP11_compat.h>
+#include "gams/CPP11_compat.h"
 
 namespace gams
 {

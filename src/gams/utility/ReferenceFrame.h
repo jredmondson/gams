@@ -54,8 +54,8 @@
 #ifndef _GAMS_UTILITY_REFERENCE_FRAME_H_
 #define _GAMS_UTILITY_REFERENCE_FRAME_H_
 
-#include <gams/pose/ReferenceFrame.h>
-#include <gams/utility/Pose.h>
+#include "gams/pose/ReferenceFrame.h"
+#include "gams/utility/Pose.h"
 
 namespace gams
 {
