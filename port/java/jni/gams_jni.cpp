@@ -276,3 +276,11 @@ jclass gams::utility::java::find_class (JNIEnv * env, const char * name)
 
   return result;
 }
+
+void gams::utility::java::throw_dead_obj_exception (
+  JNIEnv * env, const char * message)
+{
+  jclass excp_cls = gams::utility::java::find_class (env,
+    "ai/gams/exceptions/MadaraDeadObjectException");
+  	env->ThrowNew(excp_cls, message);
+}

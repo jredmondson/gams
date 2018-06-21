@@ -2,6 +2,7 @@
 #include "ai_gams_variables_Agent.h"
 
 #include "gams/variables/Agent.h"
+#include "gams_jni.h"
 
 void JNICALL Java_ai_gams_variables_Agents_jni_1freeAgents
   (JNIEnv * env, jobject , jlongArray agents, jint length)

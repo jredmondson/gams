@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_Region.h"
 #include "gams/variables/Region.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_Region_jni_1Region__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::Region ();
 }
@@ -23,9 +24,25 @@ jlong JNICALL Java_ai_gams_variables_Region_jni_1Region__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Region_jni_1Region__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::Region (*(variables::Region *)cptr);
+  jlong result = 0;
+
+  variables::Region * current = (variables::Region *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::Region (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::copyConstructor: "
+      "Region object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -34,7 +51,7 @@ jlong JNICALL Java_ai_gams_variables_Region_jni_1Region__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_Region_jni_1freeRegion
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::Region *) cptr;
 }
@@ -47,7 +64,7 @@ void JNICALL Java_ai_gams_variables_Region_jni_1freeRegion
 jstring JNICALL Java_ai_gams_variables_Region_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Region * current = (variables::Region *) cptr;
   if (current)
@@ -56,7 +73,11 @@ jstring JNICALL Java_ai_gams_variables_Region_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getName: "
+      "Region object is released already");
   }
 
   return result;
@@ -89,6 +110,14 @@ void JNICALL Java_ai_gams_variables_Region_jni_1init
 
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::init: "
+      "Region object is released already");
+  }
 }
 
 /*
@@ -99,7 +128,7 @@ void JNICALL Java_ai_gams_variables_Region_jni_1init
 jstring JNICALL Java_ai_gams_variables_Region_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Region * current = (variables::Region *) cptr;
   if (current)
@@ -108,7 +137,11 @@ jstring JNICALL Java_ai_gams_variables_Region_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::toString: "
+      "Region object is released already");
   }
 
   return result;
@@ -120,9 +153,24 @@ jstring JNICALL Java_ai_gams_variables_Region_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Region_jni_1getVertices
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Region * current = (variables::Region *) cptr;
 
-  return (jlong) &current->vertices;
+  if (current)
+  {
+    result = (jlong) &current->vertices;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getVertices: "
+      "Region object is released already");
+  }
+
+  return result;
 }

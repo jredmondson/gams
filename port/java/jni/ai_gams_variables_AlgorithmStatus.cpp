@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_AlgorithmStatus.h"
 #include "gams/variables/AlgorithmStatus.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::AlgorithmStatus ();
 }
@@ -23,10 +24,25 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::AlgorithmStatus (
-    *(variables::AlgorithmStatus *)cptr);
+  jlong result = 0;
+
+  variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::AlgorithmStatus (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::copyConstructor: "
+      "AlgorithmStatus object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -35,7 +51,7 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1AlgorithmStatus__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1freeAlgorithmStatus
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::AlgorithmStatus *) cptr;
 }
@@ -48,7 +64,7 @@ void JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1freeAlgorithmStatus
 jstring JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
   if (current)
@@ -57,7 +73,11 @@ jstring JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getName: "
+      "AlgorithmStatus object is released already");
   }
 
   return result;
@@ -90,6 +110,14 @@ void JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1init
 
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::init: "
+      "AlgorithmStatus object is released already");
+  }
 }
 
 /*
@@ -100,7 +128,7 @@ void JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1init
 jstring JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
   if (current)
@@ -109,7 +137,11 @@ jstring JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::toString: "
+      "AlgorithmStatus object is released already");
   }
 
   return result;
@@ -121,11 +153,26 @@ jstring JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getDeadlocked
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->deadlocked;
+  if (current)
+  {
+    result = (jlong) &current->deadlocked;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getAlgorithm: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -134,11 +181,26 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getDeadlocked
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getFailed
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->failed;
+  if (current)
+  {
+    result = (jlong) &current->failed;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getFailed: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -147,11 +209,26 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getFailed
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getOk
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->ok;
+  if (current)
+  {
+    result = (jlong) &current->ok;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getOk: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -160,11 +237,26 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getOk
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getPaused
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->paused;
+  if (current)
+  {
+    result = (jlong) &current->paused;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getPaused: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -173,11 +265,26 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getPaused
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getUnknown
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->unknown;
+  if (current)
+  {
+    result = (jlong) &current->unknown;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getUnknown: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -186,11 +293,26 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getUnknown
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getWaiting
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->waiting;
+  if (current)
+  {
+    result = (jlong) &current->waiting;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getWaiting: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -199,9 +321,24 @@ jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getWaiting
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AlgorithmStatus_jni_1getFinished
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::AlgorithmStatus * current = (variables::AlgorithmStatus *) cptr;
 
-  return (jlong) &current->finished;
+  if (current)
+  {
+    result = (jlong) &current->finished;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AlgorithmStatus::getFinished: "
+      "AlgorithmStatus object is released already");
+  }
+
+  return result;
 }

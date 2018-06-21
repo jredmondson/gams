@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_Swarm.h"
 #include "gams/variables/Swarm.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_Swarm_jni_1Swarm__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::Swarm ();
 }
@@ -23,9 +24,25 @@ jlong JNICALL Java_ai_gams_variables_Swarm_jni_1Swarm__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Swarm_jni_1Swarm__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::Swarm (*(variables::Swarm *)cptr);
+  jlong result = 0;
+
+  variables::Swarm * current = (variables::Swarm *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::Swarm (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::copyConstructor: "
+      "Swarm object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -34,7 +51,7 @@ jlong JNICALL Java_ai_gams_variables_Swarm_jni_1Swarm__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_Swarm_jni_1freeSwarm
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::Swarm *) cptr;
 }
@@ -61,6 +78,14 @@ void JNICALL Java_ai_gams_variables_Swarm_jni_1init
 
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::init: "
+      "Swarm object is released already");
+  }
 }
 
 /*
@@ -71,7 +96,7 @@ void JNICALL Java_ai_gams_variables_Swarm_jni_1init
 jstring JNICALL Java_ai_gams_variables_Swarm_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Swarm * current = (variables::Swarm *) cptr;
   if (current)
@@ -80,7 +105,11 @@ jstring JNICALL Java_ai_gams_variables_Swarm_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::toString: "
+      "Swarm object is released already");
   }
 
   return result;
@@ -92,11 +121,26 @@ jstring JNICALL Java_ai_gams_variables_Swarm_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getCommand
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Swarm * current = (variables::Swarm *) cptr;
 
-  return (jlong) &current->algorithm;
+  if (current)
+  {
+    result = (jlong) &current->algorithm;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::getCommand: "
+      "Swarm object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -105,11 +149,26 @@ jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getCommand
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getArgs
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Swarm * current = (variables::Swarm *) cptr;
 
-  return (jlong) &current->algorithm_args;
+  if (current)
+  {
+    result = (jlong) &current->algorithm_args;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::getArgs: "
+      "Swarm object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -118,11 +177,26 @@ jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getArgs
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getMinAlt
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Swarm * current = (variables::Swarm *) cptr;
 
-  return (jlong) &current->min_alt;
+  if (current)
+  {
+    result = (jlong) &current->min_alt;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::getMinAlt: "
+      "Swarm object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -131,9 +205,24 @@ jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getMinAlt
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Swarm_jni_1getSize
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Swarm * current = (variables::Swarm *) cptr;
 
-  return (jlong) &current->size;
+  if (current)
+  {
+    result = (jlong) &current->size;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Swarm::getSize: "
+      "Swarm object is released already");
+  }
+
+  return result;
 }

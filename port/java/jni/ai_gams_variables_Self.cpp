@@ -2,6 +2,7 @@
 #include <sstream>
 #include "ai_gams_variables_Self.h"
 #include "gams/variables/Self.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -13,7 +14,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_Self_jni_1Self__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::Self ();
 }
@@ -24,9 +25,25 @@ jlong JNICALL Java_ai_gams_variables_Self_jni_1Self__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Self_jni_1Self__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::Self (*(variables::Self *)cptr);
+  jlong result = 0;
+
+  variables::Self * current = (variables::Self *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::Self (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Self::copyConstructor: "
+      "Self object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -35,7 +52,7 @@ jlong JNICALL Java_ai_gams_variables_Self_jni_1Self__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_Self_jni_1freeSelf
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::Self *) cptr;
 }
@@ -46,7 +63,7 @@ void JNICALL Java_ai_gams_variables_Self_jni_1freeSelf
  * Signature: (JJJLjava/lang/String;)V
  */
 void JNICALL Java_ai_gams_variables_Self_jni_1init
-  (JNIEnv * , jobject, jlong cptr, jlong type, jlong context, jlong id)
+  (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jlong id)
 {
   variables::Self * current = (variables::Self *) cptr;
 
@@ -63,6 +80,14 @@ void JNICALL Java_ai_gams_variables_Self_jni_1init
       current->init_vars (*vars, id);
     }
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Self::init: "
+      "Self object is released already");
+  }
 }
 
 /*
@@ -73,7 +98,7 @@ void JNICALL Java_ai_gams_variables_Self_jni_1init
 jstring JNICALL Java_ai_gams_variables_Self_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Self * current = (variables::Self *) cptr;
   if (current)
@@ -85,7 +110,11 @@ jstring JNICALL Java_ai_gams_variables_Self_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Self::toString: "
+      "Self object is released already");
   }
 
   return result;
@@ -97,11 +126,26 @@ jstring JNICALL Java_ai_gams_variables_Self_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Self_jni_1getId
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Self * current = (variables::Self *) cptr;
 
-  return (jlong) &current->id;
+  if (current)
+  {
+    result = (jlong) &current->id;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Self::getId: "
+      "Self object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -110,9 +154,24 @@ jlong JNICALL Java_ai_gams_variables_Self_jni_1getId
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Self_jni_1getAgent
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Self * current = (variables::Self *) cptr;
 
-  return (jlong) &current->agent;
+  if (current)
+  {
+    result = (jlong) &current->agent;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Self::getAgent: "
+      "Self object is released already");
+  }
+
+  return result;
 }

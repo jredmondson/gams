@@ -1,6 +1,7 @@
 
 #include "ai_gams_utility_GpsPosition.h"
 #include "gams/utility/GPSPosition.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace utility = gams::utility;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_utility_GpsPosition_jni_1GpsPosition__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new utility::GPSPosition ();
 }
@@ -23,7 +24,7 @@ jlong JNICALL Java_ai_gams_utility_GpsPosition_jni_1GpsPosition__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_utility_GpsPosition_jni_1GpsPosition__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv *, jobject, jlong cptr)
 {
   return (jlong) new utility::GPSPosition (*(utility::GPSPosition *)cptr);
 }
@@ -34,7 +35,7 @@ jlong JNICALL Java_ai_gams_utility_GpsPosition_jni_1GpsPosition__J
  * Signature: (DDD)J
  */
 jlong JNICALL Java_ai_gams_utility_GpsPosition_jni_1GpsPosition__DDD
-  (JNIEnv * , jobject, jdouble lat, jdouble lon, jdouble alt)
+  (JNIEnv *, jobject, jdouble lat, jdouble lon, jdouble alt)
 {
   return (jlong) new utility::GPSPosition (lat, lon, alt);
 }
@@ -45,7 +46,7 @@ jlong JNICALL Java_ai_gams_utility_GpsPosition_jni_1GpsPosition__DDD
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_utility_GpsPosition_jni_1freeGpsPosition
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (utility::Position *) cptr;
 }
@@ -58,7 +59,7 @@ void JNICALL Java_ai_gams_utility_GpsPosition_jni_1freeGpsPosition
 jstring JNICALL Java_ai_gams_utility_GpsPosition_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   utility::GPSPosition * current = (utility::GPSPosition *) cptr;
   if (current)
@@ -67,7 +68,11 @@ jstring JNICALL Java_ai_gams_utility_GpsPosition_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::toString: "
+      "GpsPosition object is released already");
   }
 
   return result;
@@ -79,11 +84,26 @@ jstring JNICALL Java_ai_gams_utility_GpsPosition_jni_1toString
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_GpsPosition_jni_1getLatitude
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jdouble result = 0.0;
+
   utility::Position * current = (utility::Position *) cptr;
 
-  return (jdouble) current->x;
+  if (current)
+  {
+    result = current->x;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::getLatitude: "
+      "GpsPosition object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -92,11 +112,26 @@ jdouble JNICALL Java_ai_gams_utility_GpsPosition_jni_1getLatitude
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_GpsPosition_jni_1getLongitude
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jdouble result = 0.0;
+
   utility::Position * current = (utility::Position *) cptr;
 
-  return (jdouble) current->y;
+  if (current)
+  {
+    result = current->y;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::getLongitude: "
+      "GpsPosition object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -105,11 +140,26 @@ jdouble JNICALL Java_ai_gams_utility_GpsPosition_jni_1getLongitude
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_GpsPosition_jni_1getAltitude
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jdouble result = 0.0;
+
   utility::Position * current = (utility::Position *) cptr;
 
-  return (jdouble) current->z;
+  if (current)
+  {
+    result = current->z;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::getAltitude: "
+      "GpsPosition object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -118,11 +168,22 @@ jdouble JNICALL Java_ai_gams_utility_GpsPosition_jni_1getAltitude
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_utility_GpsPosition_jni_1setLatitude
-  (JNIEnv * , jobject, jlong cptr, jdouble input)
+  (JNIEnv * env, jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
-  current->x = input;
+  if (current)
+  {
+    current->x = input;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::setLatitude: "
+      "GpsPosition object is released already");
+  }
 }
 
 /*
@@ -131,11 +192,22 @@ void JNICALL Java_ai_gams_utility_GpsPosition_jni_1setLatitude
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_utility_GpsPosition_jni_1setLongitude
-  (JNIEnv * , jobject, jlong cptr, jdouble input)
+  (JNIEnv * env, jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
-  current->y = input;
+  if (current)
+  {
+    current->y = input;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::setLongitude: "
+      "GpsPosition object is released already");
+  }
 }
 
 /*
@@ -144,9 +216,20 @@ void JNICALL Java_ai_gams_utility_GpsPosition_jni_1setLongitude
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_utility_GpsPosition_jni_1setAltitude
-  (JNIEnv * , jobject, jlong cptr, jdouble input)
+  (JNIEnv * env, jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
-  current->z = input;
+  if (current)
+  {
+    current->z = input;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "GpsPosition::setAltitude: "
+      "GpsPosition object is released already");
+  }
 }

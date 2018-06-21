@@ -1,6 +1,7 @@
 #include "ai_gams_algorithms_BaseAlgorithm.h"
 #include "gams/algorithms/java/JavaAlgorithm.h"
 #include "gams/platforms/java/JavaPlatform.h"
+#include "gams_jni.h"
 
 namespace algorithms = gams::algorithms;
 
@@ -10,7 +11,7 @@ namespace algorithms = gams::algorithms;
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getKnowledgeBase
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -18,6 +19,14 @@ jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getKnowledgeBase
   if (current)
   {
     result = (jlong) current->get_knowledge_base ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseAlgorithm::getKnowledgeBase: "
+      "BaseAlgorithm object is released already");
   }
 
   return result;
@@ -29,7 +38,7 @@ jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getKnowledgeBase
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getSelf
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -37,6 +46,14 @@ jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getSelf
   if (current)
   {
     result = (jlong) current->get_self ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseAlgorithm::getSelf: "
+      "BaseAlgorithm object is released already");
   }
 
   return result;
@@ -48,7 +65,7 @@ jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getSelf
  * Signature: (J)Ljava/lang/Object;
  */
 jobject JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getPlatformObject
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jobject result (0);
 
@@ -64,6 +81,14 @@ jobject JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getPlatformObject
       result = platform->get_java_instance ();
     }
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseAlgorithm::getPlatformObject: "
+      "BaseAlgorithm object is released already");
+  }
 
   return result;
 }
@@ -74,7 +99,7 @@ jobject JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getPlatformObject
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getAlgorithmStatus
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -82,6 +107,14 @@ jlong JNICALL Java_ai_gams_algorithms_BaseAlgorithm_jni_1getAlgorithmStatus
   if (current)
   {
     result = (jlong) current->get_algorithm_status ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseAlgorithm::getAlgorithmStatus: "
+      "BaseAlgorithm object is released already");
   }
 
   return result;

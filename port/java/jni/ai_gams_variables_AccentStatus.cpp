@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_AccentStatus.h"
 #include "gams/variables/AccentStatus.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1AccentStatus__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::AccentStatus ();
 }
@@ -23,10 +24,25 @@ jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1AccentStatus__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1AccentStatus__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::AccentStatus (
-    *(variables::AccentStatus *)cptr);
+  jlong result = 0;
+
+  variables::AccentStatus * current = (variables::AccentStatus *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::AccentStatus (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AccentStatus::copyConstructor: "
+      "AccentStatus object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -35,7 +51,7 @@ jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1AccentStatus__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_AccentStatus_jni_1freeAccentStatus
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::AccentStatus *) cptr;
 }
@@ -48,7 +64,7 @@ void JNICALL Java_ai_gams_variables_AccentStatus_jni_1freeAccentStatus
 jstring JNICALL Java_ai_gams_variables_AccentStatus_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::AccentStatus * current = (variables::AccentStatus *) cptr;
   if (current)
@@ -57,7 +73,11 @@ jstring JNICALL Java_ai_gams_variables_AccentStatus_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AccentStatus::getName: "
+      "AccentStatus object is released already");
   }
 
   return result;
@@ -90,6 +110,14 @@ void JNICALL Java_ai_gams_variables_AccentStatus_jni_1init
 
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AccentStatus::init: "
+      "AccentStatus object is released already");
+  }
 }
 
 /*
@@ -100,7 +128,7 @@ void JNICALL Java_ai_gams_variables_AccentStatus_jni_1init
 jstring JNICALL Java_ai_gams_variables_AccentStatus_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::AccentStatus * current = (variables::AccentStatus *) cptr;
   if (current)
@@ -109,7 +137,11 @@ jstring JNICALL Java_ai_gams_variables_AccentStatus_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AccentStatus::toString: "
+      "AccentStatus object is released already");
   }
 
   return result;
@@ -121,11 +153,25 @@ jstring JNICALL Java_ai_gams_variables_AccentStatus_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1getArgs
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
   variables::AccentStatus * current = (variables::AccentStatus *) cptr;
 
-  return (jlong) &current->command_args;
+  if (current)
+  {
+    result = (jlong) &current->command_args;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AccentStatus::getArgs: "
+      "AccentStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -134,9 +180,23 @@ jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1getArgs
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_AccentStatus_jni_1getCommand
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
   variables::AccentStatus * current = (variables::AccentStatus *) cptr;
 
-  return (jlong) &current->command;
+  if (current)
+  {
+    result = (jlong) &current->command;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "AccentStatus::getCommand: "
+      "AccentStatus object is released already");
+  }
+
+  return result;
 }

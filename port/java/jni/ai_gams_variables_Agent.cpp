@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_Agent.h"
 #include "gams/variables/Agent.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1Agent__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::Agent ();
 }
@@ -23,9 +24,25 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1Agent__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1Agent__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::Agent (*(variables::Agent *)cptr);
+  jlong result = 0;
+
+  variables::Agent * current = (variables::Agent *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::Agent (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::copyConstructor: "
+      "Agent object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -34,7 +51,7 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1Agent__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_Agent_jni_1freeAgent
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::Agent *) cptr;
 }
@@ -45,7 +62,7 @@ void JNICALL Java_ai_gams_variables_Agent_jni_1freeAgent
  * Signature: (JJJLjava/lang/String;)V
  */
 void JNICALL Java_ai_gams_variables_Agent_jni_1init
-  (JNIEnv * , jobject, jlong cptr, jlong type, jlong context, jlong id)
+  (JNIEnv * env, jobject, jlong cptr, jlong type, jlong context, jlong id)
 {
   variables::Agent * current = (variables::Agent *) cptr;
 
@@ -62,6 +79,14 @@ void JNICALL Java_ai_gams_variables_Agent_jni_1init
       current->init_vars (*vars, id);
     }
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::init: "
+      "Agent object is released already");
+  }
 }
 
 /*
@@ -72,7 +97,7 @@ void JNICALL Java_ai_gams_variables_Agent_jni_1init
 jstring JNICALL Java_ai_gams_variables_Agent_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Agent * current = (variables::Agent *) cptr;
   if (current)
@@ -81,7 +106,11 @@ jstring JNICALL Java_ai_gams_variables_Agent_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::toString: "
+      "Agent object is released already");
   }
 
   return result;
@@ -93,11 +122,26 @@ jstring JNICALL Java_ai_gams_variables_Agent_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getBatteryRemaining
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->battery_remaining;
+  if (current)
+  {
+    result = (jlong) &current->battery_remaining;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getBatteryRemaining: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -106,11 +150,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getBatteryRemaining
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getBridgeId
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->bridge_id;
+  if (current)
+  {
+    result = (jlong) &current->bridge_id;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getBridgeId: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -119,11 +178,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getBridgeId
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getAlgorithm
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->algorithm;
+  if (current)
+  {
+    result = (jlong) &current->algorithm;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getAlgorithm: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -132,11 +206,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getAlgorithm
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getAlgorithmArgs
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->algorithm_args;
+  if (current)
+  {
+    result = (jlong) &current->algorithm_args;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getArgs: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -145,11 +234,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getAlgorithmArgs
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getCoverageType
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->coverage_type;
+  if (current)
+  {
+    result = (jlong) &current->coverage_type;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getCoverageType: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -158,11 +262,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getCoverageType
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getDest
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->dest;
+  if (current)
+  {
+    result = (jlong) &current->dest;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getDest: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -171,11 +290,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getDest
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getHome
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->home;
+  if (current)
+  {
+    result = (jlong) &current->home;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getHome: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -184,11 +318,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getHome
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getIsMobile
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->is_mobile;
+  if (current)
+  {
+    result = (jlong) &current->is_mobile;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getIsMobile: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -197,11 +346,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getIsMobile
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getLocation
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->location;
+  if (current)
+  {
+    result = (jlong) &current->location;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getLocation: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -210,11 +374,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getLocation
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getMinAlt
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->min_alt;
+  if (current)
+  {
+    result = (jlong) &current->min_alt;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getMinAlt: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -223,11 +402,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getMinAlt
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getNextCoverageType
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->next_coverage_type;
+  if (current)
+  {
+    result = (jlong) &current->next_coverage_type;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getNextCoverageType: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -236,11 +430,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getNextCoverageType
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getSearchAreaId
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->search_area_id;
+  if (current)
+  {
+    result = (jlong) &current->search_area_id;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getSearchAreaId: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -249,11 +458,26 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getSearchAreaId
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getSource
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->source;
+  if (current)
+  {
+    result = (jlong) &current->source;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getSource: "
+      "Agent object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -262,9 +486,24 @@ jlong JNICALL Java_ai_gams_variables_Agent_jni_1getSource
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Agent_jni_1getTemperature
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::Agent * current = (variables::Agent *) cptr;
 
-  return (jlong) &current->temperature;
+  if (current)
+  {
+    result = (jlong) &current->temperature;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Agent::getTemperature: "
+      "Agent object is released already");
+  }
+
+  return result;
 }

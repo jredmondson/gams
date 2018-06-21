@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_SensorMap.h"
 #include "ai_gams_variables_Sensor.h"
+#include "gams_jni.h"
 
 
 /*

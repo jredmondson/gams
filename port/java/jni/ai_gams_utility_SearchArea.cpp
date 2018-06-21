@@ -1,5 +1,6 @@
 #include "ai_gams_utility_SearchArea.h"
 #include "gams/pose/SearchArea.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -25,7 +26,7 @@ jstring JNICALL Java_ai_gams_utility_SearchArea_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
   pose::SearchArea* current = (pose::SearchArea*) cptr;
-  jstring result;
+  jstring result = 0;
 
   if (current)
   {
@@ -33,7 +34,11 @@ jstring JNICALL Java_ai_gams_utility_SearchArea_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getName: "
+      "SearchArea object is released already");
   }
 
   return result;
@@ -52,6 +57,14 @@ void JNICALL Java_ai_gams_utility_SearchArea_jni_1setName
 
   if (current && str_name)
     current->set_name (str_name);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::setName: "
+      "SearchArea object is released already or name is null");
+  }
 
   env->ReleaseStringUTFChars (new_name, str_name);
 }
@@ -70,6 +83,15 @@ void JNICALL Java_ai_gams_utility_SearchArea_jni_1fromContainer
 
   if (current && kb && str_name)
     current->from_container (*kb, str_name);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::fromContainer: "
+      "SearchArea, KB, or name objects are released already");
+  }
 
   env->ReleaseStringUTFChars (name, str_name);
 }
@@ -88,6 +110,15 @@ void JNICALL Java_ai_gams_utility_SearchArea_jni_1toContainer
 
   if (current && kb && str_name)
     current->to_container (*kb, str_name);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::toContainer: "
+      "SearchArea, KB, or name objects are released already");
+  }
 
   env->ReleaseStringUTFChars (name, str_name);
 }
@@ -98,13 +129,21 @@ void JNICALL Java_ai_gams_utility_SearchArea_jni_1toContainer
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_utility_SearchArea_jni_1modify
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   pose::SearchArea* current = (pose::SearchArea*) cptr;
 
   if (current)
   {
     current->modify();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::modify: "
+      "SearchArea object is released already");
   }
 }
 
@@ -127,7 +166,7 @@ void JNICALL Java_ai_gams_utility_SearchArea_jni_1freeSearchArea
 jstring JNICALL Java_ai_gams_utility_SearchArea_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   pose::Position * current = (pose::Position *) cptr;
   if (current)
@@ -136,7 +175,11 @@ jstring JNICALL Java_ai_gams_utility_SearchArea_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::toString: "
+      "SearchArea object is released already");
   }
 
   return result;
@@ -148,13 +191,21 @@ jstring JNICALL Java_ai_gams_utility_SearchArea_jni_1toString
  * Signature: (JJ)V
  */
 void JNICALL Java_ai_gams_utility_SearchArea_jni_1addPrioritizedRegion
-  (JNIEnv *, jobject, jlong cptr, jlong region_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong region_ptr)
 {
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   pose::PrioritizedRegion * region = (pose::PrioritizedRegion *) region_ptr;
 
   if (current && region)
     current->add_prioritized_region (*region);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::addPrioritizedRegion: "
+      "SearchArea or region objects are released already");
+  }
 }
 
 /*
@@ -163,13 +214,21 @@ void JNICALL Java_ai_gams_utility_SearchArea_jni_1addPrioritizedRegion
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_utility_SearchArea_jni_1getConvexHull
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = (jlong) new pose::Region (current->get_convex_hull ());
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getConvexHull: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -180,7 +239,7 @@ jlong JNICALL Java_ai_gams_utility_SearchArea_jni_1getConvexHull
  * Signature: (JJ)Z
  */
 jboolean JNICALL Java_ai_gams_utility_SearchArea_jni_1containsGps
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jboolean result (false);
 
@@ -188,6 +247,14 @@ jboolean JNICALL Java_ai_gams_utility_SearchArea_jni_1containsGps
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
     result = current->contains (*coord);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::containsGps: "
+      "SearchArea or coord objects are released already");
+  }
 
   return result;
 }
@@ -198,13 +265,21 @@ jboolean JNICALL Java_ai_gams_utility_SearchArea_jni_1containsGps
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMaxAlt
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = current->max_alt_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getMaxAlt: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -215,13 +290,21 @@ jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMaxAlt
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMinAlt
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = current->min_alt_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getMinAlt: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -232,13 +315,21 @@ jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMinAlt
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMaxLat
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = current->max_lat_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getMaxLat: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -249,13 +340,21 @@ jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMaxLat
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMinLat
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = current->min_lat_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getMinLat: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -266,13 +365,21 @@ jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMinLat
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMaxLong
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = current->max_lon_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getMaxLong: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -283,13 +390,21 @@ jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMaxLong
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMinLong
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::SearchArea * current = (pose::SearchArea *) cptr;
   if (current)
     result = current->min_lon_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getMinLong: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -300,7 +415,7 @@ jdouble JNICALL Java_ai_gams_utility_SearchArea_jni_1getMinLong
  * Signature: (JJ)I
  */
 jlong JNICALL Java_ai_gams_utility_SearchArea_jni_1getGpsPriority
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jlong result (0);
 
@@ -308,6 +423,14 @@ jlong JNICALL Java_ai_gams_utility_SearchArea_jni_1getGpsPriority
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current)
     result = current->get_priority (*coord);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getGpsPriority: "
+      "SearchArea object is released already");
+  }
 
   return result;
 }
@@ -337,6 +460,14 @@ jlongArray JNICALL Java_ai_gams_utility_SearchArea_jni_1getRegions
       }
       env->ReleaseLongArrayElements(result, elements, 0);
     }
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "SearchArea::getRegions: "
+      "SearchArea object is released already");
   }
 
   return result;

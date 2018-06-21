@@ -3,6 +3,7 @@
 #include <string>
 
 #include "gams/pose/Region.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -39,7 +40,7 @@ jstring JNICALL Java_ai_gams_utility_Region_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
   const pose::Region * current = (const pose::Region *) cptr;
-  jstring result;
+  jstring result = 0;
 
   if (current)
   {
@@ -47,7 +48,11 @@ jstring JNICALL Java_ai_gams_utility_Region_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getName: "
+      "Region object is released already");
   }
 
   return result;
@@ -67,6 +72,15 @@ void JNICALL Java_ai_gams_utility_Region_jni_1setName
   if (current && str_name)
   {
     current->set_name (str_name);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (new_name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::setName: "
+      "Region or name objects are released already");
   }
 
   env->ReleaseStringUTFChars (new_name, str_name);
@@ -88,11 +102,20 @@ void JNICALL Java_ai_gams_utility_Region_jni_1fromContainer
   {
     current->from_container (*kb, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::fromContainer: "
+      "Region, name, or KB objects are released already");
+  }
 
   env->ReleaseStringUTFChars (name, str_name);
 }
 
-/*
+/**
  * Class:     ai_gams_utility_Region
  * Method:    jni_toContainer
  * Signature: (JJLjava/lang/String;)V
@@ -108,6 +131,15 @@ void JNICALL Java_ai_gams_utility_Region_jni_1toContainer
   {
     current->to_container (*kb, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::toContainer: "
+      "Region, name, or KB objects are released already");
+  }
 
   env->ReleaseStringUTFChars (name, str_name);
 }
@@ -118,12 +150,20 @@ void JNICALL Java_ai_gams_utility_Region_jni_1toContainer
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_utility_Region_jni_1modify
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   pose::Region * current = (pose::Region *) cptr;
   if (current)
   {
     current->modify();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::modify: "
+      "Region object is released already");
   }
 }
 
@@ -135,7 +175,7 @@ void JNICALL Java_ai_gams_utility_Region_jni_1modify
 jstring JNICALL Java_ai_gams_utility_Region_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring ret_val;
+  jstring ret_val = 0;
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
@@ -145,7 +185,11 @@ jstring JNICALL Java_ai_gams_utility_Region_jni_1toString
   }
   else
   {
-    ret_val = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::toString: "
+      "Region object is released already");
   }
 
   return ret_val;
@@ -157,11 +201,19 @@ jstring JNICALL Java_ai_gams_utility_Region_jni_1toString
  * Signature: (JJ)V
  */
 void JNICALL Java_ai_gams_utility_Region_jni_1addGpsVertex
-  (JNIEnv *, jobject, jlong cptr, jlong vertex)
+  (JNIEnv * env, jobject, jlong cptr, jlong vertex)
 {
   pose::Region * current = (pose::Region *) cptr;
   if (current && vertex != 0)
     current->vertices.push_back (*(pose::Position *)vertex);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::addGpsVertex: "
+      "Region object is released already or vertex is 0");
+  }
 }
 
 /*
@@ -188,6 +240,14 @@ jlongArray JNICALL Java_ai_gams_utility_Region_jni_1getVertices
       env->ReleaseLongArrayElements(result, elements, 0);
     }
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getVertices: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -198,13 +258,21 @@ jlongArray JNICALL Java_ai_gams_utility_Region_jni_1getVertices
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getArea
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->get_area ();
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getArea: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -215,13 +283,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getArea
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_utility_Region_jni_1getBoundingBox
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = (jlong) new pose::Region (current->get_bounding_box ());
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getBoundingBox: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -232,7 +308,7 @@ jlong JNICALL Java_ai_gams_utility_Region_jni_1getBoundingBox
  * Signature: (JJ)Z
  */
 jboolean JNICALL Java_ai_gams_utility_Region_jni_1containsGps
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jboolean result (0.0);
 
@@ -240,6 +316,14 @@ jboolean JNICALL Java_ai_gams_utility_Region_jni_1containsGps
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current)
     result = current->contains (*coord);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::containsGps: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -250,7 +334,7 @@ jboolean JNICALL Java_ai_gams_utility_Region_jni_1containsGps
  * Signature: (JJ)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getGpsDistance
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jboolean result (0.0);
 
@@ -258,6 +342,14 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getGpsDistance
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
     result = current->distance (*coord);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getGpsDistance: "
+      "Region or coord objects are released already");
+  }
 
   return result;
 }
@@ -268,13 +360,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getGpsDistance
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMaxAlt
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->max_alt_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getMaxAlt: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -284,13 +384,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMaxAlt
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMinAlt
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->min_alt_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getMinAlt: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -301,13 +409,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMinAlt
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMaxLat
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->max_lat_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getMaxLat: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -318,13 +434,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMaxLat
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMinLat
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->min_lat_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getMinLat: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -335,13 +459,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMinLat
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMaxLong
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->max_lon_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getMaxLong: "
+      "Region object is released already");
+  }
 
   return result;
 }
@@ -352,13 +484,21 @@ jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMaxLong
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Region_jni_1getMinLong
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
   pose::Region * current = (pose::Region *) cptr;
   if (current)
     result = current->min_lon_;
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Region::getMinLong: "
+      "Region object is released already");
+  }
 
   return result;
 }

@@ -1,5 +1,6 @@
 #include "ai_gams_utility_PrioritizedRegion.h"
 #include "gams/pose/PrioritizedRegion.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -34,7 +35,11 @@ jstring JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1toString
   }
   else
   {
-    ret_val = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PrioritizedRegion::toString: "
+      "PrioritizedRegion object is released already");
   }
 
   return ret_val;
@@ -56,6 +61,15 @@ void JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1fromContainer
   {
     current->from_container (*kb, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PrioritizedRegion::fromContainer: "
+      "PrioritizedRegion, name, or KB objects are released already");
+  }
 
   env->ReleaseStringUTFChars (name, str_name);
 }
@@ -76,6 +90,15 @@ void JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1toContainer
   {
     current->to_container (*kb, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    env->ReleaseStringUTFChars (name, str_name);
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PrioritizedRegion::toContainer: "
+      "PrioritizedRegion, name, or KB objects are released already");
+  }
 
   env->ReleaseStringUTFChars (name, str_name);
 }
@@ -86,13 +109,21 @@ void JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1toContainer
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1modify
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   pose::PrioritizedRegion * current = (pose::PrioritizedRegion *) cptr;
 
   if (current)
   {
     current->modify();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PrioritizedRegion::modify: "
+      "PrioritizedRegion object is released already");
   }
 }
 
@@ -113,11 +144,26 @@ void JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1freePrioritizedRegion
  * Signature: (J)I
  */
 jlong JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1getPriority
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   pose::PrioritizedRegion * current = (pose::PrioritizedRegion *) cptr;
 
-  return (jlong) current;
+  if (current)
+  {
+    result = (jlong) current->priority;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PrioritizedRegion::getPriority: "
+      "PrioritizedRegion object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -126,8 +172,20 @@ jlong JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1getPriority
  * Signature: (JI)V
  */
 void JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1setPriority
-  (JNIEnv *, jobject, jlong cptr, jlong value)
+  (JNIEnv * env, jobject, jlong cptr, jlong value)
 {
   pose::PrioritizedRegion * current = (pose::PrioritizedRegion *) cptr;
-  current->priority = value;
+
+  if (current)
+  {
+    current->priority = value;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PrioritizedRegion::setPriority: "
+      "PrioritizedRegion object is released already");
+  }
 }

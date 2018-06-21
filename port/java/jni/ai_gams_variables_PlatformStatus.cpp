@@ -1,6 +1,7 @@
 
 #include "ai_gams_variables_PlatformStatus.h"
 #include "gams/variables/PlatformStatus.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace variables = gams::variables;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1PlatformStatus__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::PlatformStatus ();
 }
@@ -23,10 +24,25 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1PlatformStatus__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1PlatformStatus__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::PlatformStatus (
-    *(variables::PlatformStatus *)cptr);
+  jlong result = 0;
+
+  variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::PlatformStatus (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::copyConstructor: "
+      "PlatformStatus object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -35,7 +51,7 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1PlatformStatus__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_PlatformStatus_jni_1freePlatformStatus
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::PlatformStatus *) cptr;
 }
@@ -48,7 +64,7 @@ void JNICALL Java_ai_gams_variables_PlatformStatus_jni_1freePlatformStatus
 jstring JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
   if (current)
@@ -57,7 +73,11 @@ jstring JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getName: "
+      "PlatformStatus object is released already");
   }
 
   return result;
@@ -90,6 +110,14 @@ void JNICALL Java_ai_gams_variables_PlatformStatus_jni_1init
 
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::init: "
+      "PlatformStatus object is released already");
+  }
 }
 
 /*
@@ -100,7 +128,7 @@ void JNICALL Java_ai_gams_variables_PlatformStatus_jni_1init
 jstring JNICALL Java_ai_gams_variables_PlatformStatus_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
   if (current)
@@ -109,7 +137,11 @@ jstring JNICALL Java_ai_gams_variables_PlatformStatus_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::toString: "
+      "PlatformStatus object is released already");
   }
 
   return result;
@@ -121,11 +153,26 @@ jstring JNICALL Java_ai_gams_variables_PlatformStatus_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getCommunicationAvailable
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->communication_available;
+  if (current)
+  {
+    result = (jlong) &current->communication_available;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getCommunicationAvailable: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -134,11 +181,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getCommunicationAvailab
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getDeadlocked
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->deadlocked;
+  if (current)
+  {
+    result = (jlong) &current->deadlocked;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getDeadlocked: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -147,11 +209,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getDeadlocked
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getFailed
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->failed;
+  if (current)
+  {
+    result = (jlong) &current->failed;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getFailed: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -160,11 +237,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getFailed
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getGpsSpoofed
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->gps_spoofed;
+  if (current)
+  {
+    result = (jlong) &current->gps_spoofed;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getGpsSpoofed: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -173,11 +265,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getGpsSpoofed
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getMovementAvailable
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->movement_available;
+  if (current)
+  {
+    result = (jlong) &current->movement_available;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getMovementAvailable: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -186,11 +293,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getMovementAvailable
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getMoving
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->moving;
+  if (current)
+  {
+    result = (jlong) &current->moving;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getMoving: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -199,11 +321,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getMoving
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getOk
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->ok;
+  if (current)
+  {
+    result = (jlong) &current->ok;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getOk: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -212,11 +349,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getOk
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getPausedMoving
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->paused_moving;
+  if (current)
+  {
+    result = (jlong) &current->paused_moving;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getPausedMoving: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -225,11 +377,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getPausedMoving
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getReducedSensing
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->reduced_sensing;
+  if (current)
+  {
+    result = (jlong) &current->reduced_sensing;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getReducedSensing: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -238,11 +405,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getReducedSensing
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getReducedMovement
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->reduced_movement;
+  if (current)
+  {
+    result = (jlong) &current->reduced_movement;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getReducedMovement: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -251,11 +433,26 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getReducedMovement
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getSensorsAvailable
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->sensors_available;
+  if (current)
+  {
+    result = (jlong) &current->sensors_available;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getSensorsAvailable: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -264,9 +461,24 @@ jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getSensorsAvailable
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_PlatformStatus_jni_1getWaiting
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jlong result = 0;
+
   variables::PlatformStatus * current = (variables::PlatformStatus *) cptr;
 
-  return (jlong) &current->waiting;
+  if (current)
+  {
+    result = (jlong) &current->waiting;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "PlatformStatus::getWaiting: "
+      "PlatformStatus object is released already");
+  }
+
+  return result;
 }

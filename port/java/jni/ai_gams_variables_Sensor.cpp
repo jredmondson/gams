@@ -4,6 +4,7 @@
 #include "gams/utility/GPSPosition.h"
 #include "gams/pose/Region.h"
 #include "gams/pose/SearchArea.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -17,7 +18,7 @@ namespace utility = gams::utility;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_variables_Sensor_jni_1Sensor__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new variables::Sensor ();
 }
@@ -28,9 +29,25 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1Sensor__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Sensor_jni_1Sensor__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
-  return (jlong) new variables::Sensor (*(variables::Sensor *)cptr);
+  jlong result = 0;
+
+  variables::Sensor * current = (variables::Sensor *) cptr;
+  if (current)
+  {
+    result = (jlong) new variables::Sensor (*current);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::copyConstructor: "
+      "Sensor object is released already");
+  }
+  
+  return result;
 }
 
 /*
@@ -39,7 +56,7 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1Sensor__J
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_variables_Sensor_jni_1freeSensor
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (variables::Sensor *) cptr;
 }
@@ -52,7 +69,7 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1freeSensor
 jstring JNICALL Java_ai_gams_variables_Sensor_jni_1getName
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Sensor * current = (variables::Sensor *) cptr;
   if (current)
@@ -61,7 +78,11 @@ jstring JNICALL Java_ai_gams_variables_Sensor_jni_1getName
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getName: "
+      "Sensor object is released already");
   }
 
   return result;
@@ -90,6 +111,14 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1init
 
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::init: "
+      "Sensor object is released already");
+  }
 }
 
 /*
@@ -100,7 +129,7 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1init
 jstring JNICALL Java_ai_gams_variables_Sensor_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   variables::Sensor * current = (variables::Sensor *) cptr;
   if (current)
@@ -109,7 +138,11 @@ jstring JNICALL Java_ai_gams_variables_Sensor_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::toString: "
+      "Sensor object is released already");
   }
 
   return result;
@@ -121,7 +154,7 @@ jstring JNICALL Java_ai_gams_variables_Sensor_jni_1toString
  * Signature: (JJ)D
  */
 jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getPositionValue
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jdouble result (0.0);
 
@@ -130,6 +163,14 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getPositionValue
   if (current && coord)
   {
     result = current->get_value (*coord);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getPositionValue: "
+      "Sensor or coord objects are released already");
   }
 
   return result;
@@ -141,7 +182,7 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getPositionValue
  * Signature: (JJ)D
  */
 jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getGpsValue
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jdouble result (0.0);
 
@@ -150,6 +191,14 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getGpsValue
   if (current && coord)
   {
     result = current->get_value (*coord);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getGpsValue: "
+      "Sensor or coord objects are released already");
   }
 
   return result;
@@ -161,7 +210,7 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getGpsValue
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getOrigin
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
@@ -169,6 +218,14 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getOrigin
   if (current)
   {
     result = (jlong) new utility::GPSPosition (current->get_origin ());
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getOrigin: "
+      "Sensor object is released already");
   }
 
   return result;
@@ -180,7 +237,7 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getOrigin
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getRange
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
@@ -188,6 +245,14 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getRange
   if (current)
   {
     result = current->get_range ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getRange: "
+      "Sensor object is released already");
   }
 
   return result;
@@ -199,13 +264,21 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getRange
  * Signature: (JJ)V
  */
 void JNICALL Java_ai_gams_variables_Sensor_jni_1setOrigin
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     current->set_origin (*coord);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::setOrigin: "
+      "Sensor or coord objects are released already");
   }
 }
 
@@ -215,12 +288,20 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1setOrigin
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_variables_Sensor_jni_1setRange
-  (JNIEnv *, jobject, jlong cptr, jdouble range)
+  (JNIEnv * env, jobject, jlong cptr, jdouble range)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
   if (current)
   {
     current->set_range (range);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::setRange: "
+      "Sensor object is released already");
   }
 }
 
@@ -230,13 +311,21 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1setRange
  * Signature: (JJD)V
  */
 void JNICALL Java_ai_gams_variables_Sensor_jni_1setPositionValue
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr, jdouble value)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr, jdouble value)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     current->set_value (*coord, value);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::setPositionValue: "
+      "Sensor or coord objects are released already");
   }
 }
 
@@ -246,13 +335,21 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1setPositionValue
  * Signature: (JJD)V
  */
 void JNICALL Java_ai_gams_variables_Sensor_jni_1setGpsValue
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr, jdouble value)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr, jdouble value)
 {
   variables::Sensor * current = (variables::Sensor *) cptr;
   pose::Position * coord = (pose::Position *) coord_ptr;
   if (current && coord)
   {
     current->set_value (*coord, value);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::setGpsValue: "
+      "Sensor or coord objects are released already");
   }
 }
 
@@ -262,7 +359,7 @@ void JNICALL Java_ai_gams_variables_Sensor_jni_1setGpsValue
  * Signature: (JJ)J
  */
 jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getGpsFromIndex
-  (JNIEnv *, jobject, jlong cptr, jlong index_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong index_ptr)
 {
   jlong result (0);
 
@@ -272,6 +369,14 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getGpsFromIndex
   {
     result = (jlong) new pose::Position (
       current->get_gps_from_index (*index));
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::copyConstructor: "
+      "Sensor or index objects are released already");
   }
 
   return result;
@@ -283,7 +388,7 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getGpsFromIndex
  * Signature: (JJ)J
  */
 jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getIndexFromGps
-  (JNIEnv *, jobject, jlong cptr, jlong coord_ptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong coord_ptr)
 {
   jlong result (0);
 
@@ -293,6 +398,14 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getIndexFromGps
   {
     result = (jlong) new pose::Position (
       current->get_index_from_gps (*coord));
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getIndexFromGps: "
+      "Sensor or index objects are released already");
   }
 
   return result;
@@ -304,7 +417,7 @@ jlong JNICALL Java_ai_gams_variables_Sensor_jni_1getIndexFromGps
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getDiscretization
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jdouble result (0.0);
 
@@ -312,6 +425,14 @@ jdouble JNICALL Java_ai_gams_variables_Sensor_jni_1getDiscretization
   if (current)
   {
     result = current->get_discretization ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::getDiscretization: "
+      "Sensor object is released already");
   }
 
   return result;
@@ -346,6 +467,14 @@ jlongArray JNICALL Java_ai_gams_variables_Sensor_jni_1discretizeRegion
       env->ReleaseLongArrayElements(result, elements, 0);
     }
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::discretizeRegion: "
+      "Sensor or region objects are released already");
+  }
 
   return result;
 }
@@ -378,6 +507,14 @@ jlongArray JNICALL Java_ai_gams_variables_Sensor_jni_1discretizeSearchArea
       }
       env->ReleaseLongArrayElements(result, elements, 0);
     }
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Sensor::discretizeSearchArea: "
+      "Sensor or area objects are released already");
   }
 
   return result;

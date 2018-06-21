@@ -28,6 +28,13 @@ namespace gams
       * @param  name  name of the class to find
       **/
       jclass GAMS_EXPORT find_class (JNIEnv * env, const char * name);
+
+      /**
+       * Throws an exception when developers use JNI objects after being deleted
+       * @param  env   Java environment
+       * @param  name  Message to embed in exception
+       **/
+      void GAMS_EXPORT throw_dead_obj_exception (JNIEnv * env, const char * message);
     }
   }
 }

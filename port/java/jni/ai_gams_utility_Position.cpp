@@ -1,6 +1,7 @@
 
 #include "ai_gams_utility_Position.h"
 #include "gams/utility/Position.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -12,7 +13,7 @@ namespace utility = gams::utility;
  * Signature: ()J
  */
 jlong JNICALL Java_ai_gams_utility_Position_jni_1Position__
-  (JNIEnv * , jobject)
+  (JNIEnv *, jobject)
 {
   return (jlong) new utility::Position ();
 }
@@ -23,7 +24,7 @@ jlong JNICALL Java_ai_gams_utility_Position_jni_1Position__
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_utility_Position_jni_1Position__J
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv *, jobject, jlong cptr)
 {
   return (jlong) new utility::Position (*(utility::Position *)cptr);
 }
@@ -34,7 +35,7 @@ jlong JNICALL Java_ai_gams_utility_Position_jni_1Position__J
  * Signature: (DDD)J
  */
 jlong JNICALL Java_ai_gams_utility_Position_jni_1Position__DDD
-  (JNIEnv * , jobject, jdouble x, jdouble y, jdouble z)
+  (JNIEnv *, jobject, jdouble x, jdouble y, jdouble z)
 {
   return (jlong) new utility::Position (x, y, z);
 }
@@ -45,7 +46,7 @@ jlong JNICALL Java_ai_gams_utility_Position_jni_1Position__DDD
  * Signature: (J)V
  */
 void JNICALL Java_ai_gams_utility_Position_jni_1freePosition
-  (JNIEnv * , jclass, jlong cptr)
+  (JNIEnv *, jclass, jlong cptr)
 {
   delete (utility::Position *) cptr;
 }
@@ -58,7 +59,7 @@ void JNICALL Java_ai_gams_utility_Position_jni_1freePosition
 jstring JNICALL Java_ai_gams_utility_Position_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring result;
+  jstring result = 0;
 
   utility::Position * current = (utility::Position *) cptr;
   if (current)
@@ -67,7 +68,11 @@ jstring JNICALL Java_ai_gams_utility_Position_jni_1toString
   }
   else
   {
-    result = env->NewStringUTF ("");
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::toString: "
+      "Position object is released already");
   }
 
   return result;
@@ -79,11 +84,26 @@ jstring JNICALL Java_ai_gams_utility_Position_jni_1toString
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Position_jni_1getX
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jdouble result = 0.0;
+
   utility::Position * current = (utility::Position *) cptr;
 
-  return (jdouble) current->x;
+  if (current)
+  {
+    result = current->x;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::getX: "
+      "Position object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -92,11 +112,26 @@ jdouble JNICALL Java_ai_gams_utility_Position_jni_1getX
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Position_jni_1getY
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jdouble result = 0.0;
+
   utility::Position * current = (utility::Position *) cptr;
 
-  return (jdouble) current->y;
+  if (current)
+  {
+    result = current->y;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::getY: "
+      "Position object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -105,11 +140,26 @@ jdouble JNICALL Java_ai_gams_utility_Position_jni_1getY
  * Signature: (J)D
  */
 jdouble JNICALL Java_ai_gams_utility_Position_jni_1getZ
-  (JNIEnv * , jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
+  jdouble result = 0.0;
+
   utility::Position * current = (utility::Position *) cptr;
 
-  return (jdouble) current->z;
+  if (current)
+  {
+    result = current->z;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::getZ: "
+      "Position object is released already");
+  }
+
+  return result;
 }
 
 /*
@@ -118,11 +168,22 @@ jdouble JNICALL Java_ai_gams_utility_Position_jni_1getZ
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_utility_Position_jni_1setX
-  (JNIEnv * , jobject, jlong cptr, jdouble input)
+  (JNIEnv * env, jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
-  current->x = input;
+  if (current)
+  {
+    current->x = input;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::setX: "
+      "Position object is released already");
+  }
 }
 
 /*
@@ -131,11 +192,22 @@ void JNICALL Java_ai_gams_utility_Position_jni_1setX
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_utility_Position_jni_1setY
-  (JNIEnv * , jobject, jlong cptr, jdouble input)
+  (JNIEnv * env, jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
-  current->y = input;
+  if (current)
+  {
+    current->x = input;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::setY: "
+      "Position object is released already");
+  }
 }
 
 /*
@@ -144,10 +216,21 @@ void JNICALL Java_ai_gams_utility_Position_jni_1setY
  * Signature: (JD)V
  */
 void JNICALL Java_ai_gams_utility_Position_jni_1setZ
-  (JNIEnv * , jobject, jlong cptr, jdouble input)
+  (JNIEnv * env, jobject, jlong cptr, jdouble input)
 {
   utility::Position * current = (utility::Position *) cptr;
 
-  current->z = input;
+  if (current)
+  {
+    current->z = input;
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "Position::setZ: "
+      "Position object is released already");
+  }
 }
 

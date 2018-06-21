@@ -4,6 +4,7 @@
 #include "gams/platforms/java/JavaPlatform.h"
 #include "gams/algorithms/java/JavaAlgorithm.h"
 #include "gams/loggers/GlobalLogger.h"
+#include "gams_jni.h"
 
 namespace containers = madara::knowledge::containers;
 namespace engine = madara::knowledge;
@@ -19,7 +20,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1BaseControllerFromKb
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result = 0;
 
@@ -27,6 +28,14 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1BaseControllerFromKb
   if (kb)
   {
     result = (jlong) new gams::controllers::BaseController (*kb);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::BaseControllerFromKb: "
+      "KB object is released already");
   }
 
   return result;
@@ -38,7 +47,7 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1BaseControllerFromKb
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1BaseController
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result = 0;
 
@@ -46,6 +55,14 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1BaseController
   if (input)
   {
     result = (jlong) new controllers::BaseController (*input);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::BaseControllerFromKb: "
+      "BaseController object is released already");
   }
 
   return result;
@@ -75,6 +92,14 @@ jstring JNICALL Java_ai_gams_controllers_BaseController_jni_1toString
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = env->NewStringUTF("BaseController");
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::toString: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -85,13 +110,21 @@ jstring JNICALL Java_ai_gams_controllers_BaseController_jni_1toString
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1analyze
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->analyze ();
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::analyze: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -102,13 +135,21 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1analyze
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1execute
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->execute ();
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::execute: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -134,6 +175,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1addAlgorithmFactory
 
     // clean up the allocated elements
     env->ReleaseStringUTFChars (name, str_name);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::addAlgorithmFactory: "
+      "BaseController object is released already");
   }
 }
 
@@ -177,6 +226,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initAccent
     // clean up the allocated elements
     env->ReleaseLongArrayElements(argslist, elements, 0);
     env->ReleaseStringUTFChars(name, str_name);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initAccent: "
+      "BaseController object is released already");
   }
 }
 
@@ -256,6 +313,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_
     // clean up the allocated elements
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initAlgorithm: "
+      "BaseController object is released already");
+  }
 }
 
 /*
@@ -278,6 +343,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_l
     
     // release the string
     env->ReleaseStringUTFChars(plat, str_name);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initPlatform: "
+      "BaseController object is released already");
   }
 }
 
@@ -323,6 +396,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_l
     env->ReleaseLongArrayElements(argslist, elements, 0);
     env->ReleaseStringUTFChars(name, str_name);
   }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initPlatform: "
+      "BaseController object is released already");
+  }
 }
 
 /*
@@ -331,13 +412,21 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_l
  * Signature: (JLjava/lang/Object;)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_lang_Object_2
-  (JNIEnv *, jobject, jlong cptr, jobject algorithm)
+  (JNIEnv * env, jobject, jlong cptr, jobject algorithm)
 {
   controllers::BaseController * current = (controllers::BaseController *) cptr;
 
   if (current)
   {
     current->init_algorithm (algorithm);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initAlgorithm: "
+      "BaseController object is released already");
   }
 }
 
@@ -347,13 +436,21 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initAlgorithm__JLjava_
  * Signature: (JLjava/lang/Object;)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_Object_2
-  (JNIEnv *, jobject, jlong cptr, jobject platform)
+  (JNIEnv * env, jobject, jlong cptr, jobject platform)
 {
   controllers::BaseController * current = (controllers::BaseController *) cptr;
 
   if (current)
   {
     current->init_platform (platform);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initPlatform: "
+      "BaseController object is released already");
   }
 }
 
@@ -363,7 +460,7 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_l
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1getPlatform
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -371,6 +468,14 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1getPlatform
   if (current)
   {
     result = (jlong) current->get_platform ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::getPlatform: "
+      "BaseController object is released already");
   }
 
   return result;
@@ -382,7 +487,7 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1getPlatform
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1getAlgorithm
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
@@ -390,6 +495,14 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1getAlgorithm
   if (current)
   {
     result = (jlong) current->get_algorithm ();
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::getAlgorithm: "
+      "BaseController object is released already");
   }
 
   return result;
@@ -401,12 +514,20 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1getAlgorithm
  * Signature: (JJJ)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVars
-  (JNIEnv *, jobject, jlong cptr, jlong id, jlong processes)
+  (JNIEnv * env, jobject, jlong cptr, jlong id, jlong processes)
 {
   Integer tempId (id), tempProcesses (processes);
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     current->init_vars (tempId, tempProcesses);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initVars: "
+      "BaseController object is released already");
+  }
 }
 
 /*
@@ -415,7 +536,7 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVars
  * Signature: (JJ)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVarsAlgorithm
-  (JNIEnv *, jobject, jlong cptr, jlong aptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong aptr)
 {
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   algorithms::BaseAlgorithm * algorithm = (algorithms::BaseAlgorithm *) aptr;
@@ -423,6 +544,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVarsAlgorithm
   if (current && algorithm)
   {
     current->init_vars (*algorithm);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initVarsAlgorithm: "
+      "BaseController or algorithm object are released already");
   }
 }
 
@@ -432,7 +561,7 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVarsAlgorithm
  * Signature: (JJ)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVarsPlatform
-  (JNIEnv *, jobject, jlong cptr, jlong pptr)
+  (JNIEnv * env, jobject, jlong cptr, jlong pptr)
 {
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   platforms::BasePlatform * platform = (platforms::BasePlatform *) pptr;
@@ -440,6 +569,14 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVarsPlatform
   if (current && platform)
   {
     current->init_vars (*platform);
+  }
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::initVarsPlatform: "
+      "BaseController or platform object are released already");
   }
 }
 
@@ -449,13 +586,21 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initVarsPlatform
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1monitor
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->monitor ();
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::monitor: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -466,13 +611,21 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1monitor
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1plan
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->plan ();
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::plan: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -483,13 +636,21 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1plan
  * Signature: (JDD)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1run__JDD
-  (JNIEnv *, jobject, jlong cptr, jdouble loop_period, jdouble duration)
+  (JNIEnv * env, jobject, jlong cptr, jdouble loop_period, jdouble duration)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->run (loop_period, duration);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::run: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -500,13 +661,21 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1run__JDD
  * Signature: (JDDD)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1run__JDDD
-  (JNIEnv *, jobject, jlong cptr, jdouble loop_period, jdouble duration, jdouble send_period)
+  (JNIEnv * env, jobject, jlong cptr, jdouble loop_period, jdouble duration, jdouble send_period)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->run (loop_period, duration, send_period);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::run: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -517,13 +686,21 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1run__JDDD
  * Signature: (JDDD)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1runHz
-  (JNIEnv *, jobject, jlong cptr, jdouble loop_hz, jdouble duration, jdouble send_hz)
+  (JNIEnv * env, jobject, jlong cptr, jdouble loop_hz, jdouble duration, jdouble send_hz)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->run_hz (loop_hz, duration, send_hz);
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::runHz: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
@@ -534,13 +711,21 @@ jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1runHz
  * Signature: (J)J
  */
 jlong JNICALL Java_ai_gams_controllers_BaseController_jni_1systemAnalyze
-  (JNIEnv *, jobject, jlong cptr)
+  (JNIEnv * env, jobject, jlong cptr)
 {
   jlong result (0);
 
   controllers::BaseController * current = (controllers::BaseController *) cptr;
   if (current)
     result = current->system_analyze ();
+  else
+  {
+    // user has tried to use a deleted object. Clean up and throw
+    
+    gams::utility::java::throw_dead_obj_exception(env,
+      "BaseController::systemAnalyze: "
+      "BaseController object is released already");
+  }
 
   return result;
 }
