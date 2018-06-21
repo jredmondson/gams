@@ -48,3 +48,11 @@ test_utm
 bin/*
 ACE_TAO/*
 MPC/*
+madara/
+eigen/
+
+#Ignore maven project files
+target/
+.project
+.settings
+
