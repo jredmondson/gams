@@ -88,16 +88,16 @@ public:
 
   static const FrameEvalSettings DEFAULT;
 
-  FrameEvalSettings(Base base = Base::DELAY) : Base(std::move(base)) {}
+  FrameEvalSettings(Base base = Base{true}) : Base(std::move(base)) {}
 
-  FrameEvalSettings(std::string prefix, Base base = Base::DELAY)
+  FrameEvalSettings(std::string prefix, Base base = Base{true})
     : Base(std::move(base)),
       prefix_(std::make_shared<std::string>(std::move(prefix))) {}
 
-  FrameEvalSettings(std::nullptr_t, Base base = Base::DELAY)
+  FrameEvalSettings(std::nullptr_t, Base base = Base{true})
     : FrameEvalSettings(std::move(base)) {}
 
-  FrameEvalSettings(const char *prefix, Base base = Base::DELAY)
+  FrameEvalSettings(const char *prefix, Base base = Base{true})
     : FrameEvalSettings(std::string(prefix), std::move(base)) {}
 
   static const std::string &default_prefix() {

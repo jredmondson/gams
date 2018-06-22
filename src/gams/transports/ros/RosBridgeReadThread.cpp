@@ -30,8 +30,8 @@ void gams::transports::RosBridgeReadThread::messageCallback (
 
 // constructor
 gams::transports::RosBridgeReadThread::RosBridgeReadThread (
-  const std::string & id,
-  const madara::transport::TransportSettings & settings,
+  const std::string &,
+  const madara::transport::TransportSettings &,
   madara::transport::BandwidthMonitor & send_monitor,
   madara::transport::BandwidthMonitor & receive_monitor,
   madara::transport::PacketScheduler & packet_scheduler,
