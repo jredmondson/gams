@@ -64,7 +64,14 @@
 #include "madara/knowledge/containers/DoubleVector.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "ReferenceFrameFwd.h"
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include "Eigen/Geometry"
+#pragma GCC diagnostic pop
+#endif
 
 #define INVAL_COORD DBL_MAX
 

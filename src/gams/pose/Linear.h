@@ -61,7 +61,7 @@
 #include <array>
 
 #include <stdexcept>
-#include "Eigen/Core"
+//#include "Eigen/Core"
 #include "gams/pose/Coordinate.h"
 #include "madara/knowledge/containers/DoubleVector.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"

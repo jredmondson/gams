@@ -19,7 +19,7 @@ gams::transports::RosBridge::RosBridge (
   // populate variables like buffer_ based on transport settings
   Base::setup ();
 
-  char **argv;
+  char **argv = 0;
   int argc = 0;
   ros::init(argc, argv, "ros_bridge");
   ros::NodeHandle node;
@@ -108,7 +108,7 @@ gams::transports::RosBridge::get_update_container_pair_ (
         return std::make_pair(top_it->first, top_it->second);
       }
     }
-    int delim_pos = current_key.find_last_of('.');
+    size_t delim_pos = current_key.find_last_of('.');
     if (delim_pos == std::string::npos)
       break;
     current_key = current_key.substr(0, delim_pos);

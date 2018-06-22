@@ -130,6 +130,9 @@ namespace gams
        **/
       int move (const pose::Position & position,
         const PositionBounds &bounds) override;
+
+      // inherit BasePlatform's move overloads
+      using BasePlatform::move;
       
       /**
        * Set move speed

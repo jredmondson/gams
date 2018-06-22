@@ -126,6 +126,9 @@ namespace gams
       int move (const pose::Position & position,
         const PositionBounds &bounds) override;
 
+      // inherit BasePlatform's move overloads
+      using BasePlatform::move;
+      
     protected:
       const std::string ros_namespace_;
       ros::NodeHandle node_handle_;
