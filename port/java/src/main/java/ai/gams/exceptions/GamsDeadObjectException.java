@@ -43,6 +43,7 @@ public class GamsDeadObjectException extends Exception {
      * @param  message information to embed in the exception
      * @param  cause  source of the exception
      * @param  enableSuppression  if true, suppress the throw
+     * @param  writableStackTrace  if true, write stack trace
      */
 	public GamsDeadObjectException(String message, Throwable cause, boolean enableSuppression,
 			boolean writableStackTrace) {

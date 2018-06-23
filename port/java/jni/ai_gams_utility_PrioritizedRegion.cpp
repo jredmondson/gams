@@ -25,7 +25,7 @@ jlong JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1PrioritizedRegion
 jstring JNICALL Java_ai_gams_utility_PrioritizedRegion_jni_1toString
   (JNIEnv * env, jobject, jlong cptr)
 {
-  jstring ret_val;
+  jstring ret_val = 0;
 
   pose::PrioritizedRegion * current = (pose::PrioritizedRegion *) cptr;
   if (current)

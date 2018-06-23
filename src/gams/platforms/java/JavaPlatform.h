@@ -164,6 +164,9 @@ namespace gams
       virtual int orient (const pose::Orientation & axes,
         const OrientationBounds &bounds) override;
 
+      // inherit BasePlatform orient overloads
+      using BasePlatform::orient;
+      
       /**
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
