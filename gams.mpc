@@ -197,9 +197,8 @@ project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_
 project (gams_jar) : using_gams, using_madara {
   requires += java
 
-  prebuild += mvn -f port/java versions:set -DnewVersion=`cat VERSION.txt`
-  prebuild += mvn -f port/java versions:commit
-  prebuild += mvn -f port/java -Dmadara.version="`cat $MADARA_ROOT/VERSION.txt`" clean package install
+  prebuild += mvn -f port/java -Dgams.version=`cat VERSION.txt` -Dmadara.version=`cat $MADARA_ROOT/VERSION.txt` -P development clean package install
+
 }
 
 project (gams_controller) : using_gams, using_madara, using_vrep {

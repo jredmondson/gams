@@ -1,80 +1,164 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>ai.gams</groupId>
-  <artifactId>gams</artifactId>
-  <version>1.2.0</version>
-  <description>Provides standardized algorithm and platform interfaces for multi-agent robotic systems.</description>
-
-  <properties>
-    <madara.version>3.2.0</madara.version>
-    <java.version>1.7</java.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>ai.madara</groupId>
-      <artifactId>madara</artifactId>
-      <version>${madara.version}</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-          <compilerVersion>${java.version}</compilerVersion>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-  </build>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ai.gams</groupId>
+	<artifactId>gams</artifactId>
+	<version>${gams.version}</version>
+	<description>Provides standardized algorithm and platform interfaces for multi-agent robotic systems.</description>
+	<developers>
+		<developer>
+			<name>James Edmondson</name>
+			<email></email>
+			<organization>GAMS</organization>
+			<organizationUrl>http://gams.ai</organizationUrl>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>GAMS License</name>
+			<url>https://github.com/jredmondson/gams/blob/master/LICENSE.txt</url>
+		</license>
+	</licenses>
 
 
-  <!-- Location for storing token & password - https://maven.apache.org/settings.html#Servers -->
-  <distributionManagement>
-    <snapshotRepository>
-      <id>gams.snapshot</id>
-      <name>Snapshot repository</name>
-      <url>file:///${user.home}/.m2/repository</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-    <repository>
-      <id>gams.release</id>
-      <name>Release repository for GAMS</name>
-      <url>file:///${user.home}/.m2/repository</url>
-      <layout>default</layout>
-      <uniqueVersion>false</uniqueVersion>
-    </repository>
-  </distributionManagement>
+	<properties>
+		<java.version>1.7</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>ai.madara</groupId>
+			<artifactId>madara</artifactId>
+			<version>${madara.version}</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<configuration>
+							<target>
+								<copy file="target/${project.artifactId}-${project.version}.jar"
+									tofile="${env.GAMS_ROOT}/lib/${project.artifactId}.jar" />
+								<copy file="target/${project.artifactId}-${project.version}.jar"
+									tofile="${env.GAMS_ROOT}/lib/${project.artifactId}-${project.version}.jar" />
+
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<compilerVersion>${java.version}</compilerVersion>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<properties>
+				<gams.version>1.2.0</gams.version>
+				<madara.version>3.2.0</madara.version>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			</properties>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<!-- Location for storing token & password - https://maven.apache.org/settings.html#Servers -->
+			<distributionManagement>
+				<snapshotRepository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+
+
+		<profile>
+			<id>development</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<gams.version>1.2.0-DEV</gams.version>
+				<madara.version>3.2.0</madara.version>
+				<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+			</properties>
+		</profile>
+	</profiles>
+
+
+
+	<scm>
+		<connection>scm:git:git://github.com:jredmondson/gams.git</connection>
+		<developerConnection>scm:git:ssh://github.com:jredmondson/gams.git</developerConnection>
+		<url>http://github.com:jredmondson/gams/tree/master</url>
+	</scm>
 </project>
