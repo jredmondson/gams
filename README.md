@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest) | [![Javadocs](https://www.javadoc.io/badge/ai.gams/gams.svg)](https://www.javadoc.io/doc/ai.gams/gams)
+[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest) [![Javadocs](https://www.javadoc.io/badge/ai.gams/gams.svg)](https://www.javadoc.io/doc/ai.gams/gams)
 
 # About GAMS
 
