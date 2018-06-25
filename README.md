@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/jredmondson/gams.svg?branch=master)](https://travis-ci.org/jredmondson/gams) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest) | [![Javadocs](https://www.javadoc.io/badge/ai.gams/gams.svg)](https://www.javadoc.io/doc/ai.gams/gams)
 
 # About GAMS
 
@@ -61,7 +61,7 @@ compile GAMS projects. Pass "help" to the script for usage information.
      http://gams.readthedocs.io
 
      Java docs are available here:
-     http://jredmondson.github.io/gams/docs/java/
+     https://www.javadoc.io/doc/ai.gams/gams
 
   3. Issues can be posted to our Issue system (which hasn't gotten any usage):
      https://github.com/jredmondson/gams/issues
