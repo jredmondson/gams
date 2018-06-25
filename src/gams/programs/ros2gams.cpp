@@ -84,6 +84,7 @@ std::string map_file = "";
 
 // save as a karl or binary file
 bool save_as_karl = true;
+bool save_as_json = false;
 
 // the world and the base frame of the robot
 std::string base_frame = "";
@@ -134,6 +135,17 @@ void handle_arguments (int argc, char ** argv)
     else if (arg1 == "-sb" || arg1 == "--save-binary")
     {
       save_as_karl = false;
+      save_as_json = false;
+    }
+    else if (arg1 == "-sj" || arg1 == "--save-json")
+    {
+      save_as_karl = false;
+      save_as_json = true;
+    }
+    else if (arg1 == "-sk" || arg1 == "--save-karl")
+    {
+      save_as_karl = true;
+      save_as_json = false;
     }
     else if (arg1 == "-d" || arg1 == "--differential")
     {
@@ -155,6 +167,11 @@ void handle_arguments (int argc, char ** argv)
       "                                       for checkpoint\n" \
       "  [-sb|--save-binary]                  save the resulting knowledge \n"\
       "                                       base as a binary checkpoint\n" \
+      "  [-sj|--save-json]                    save the resulting knowledge \n"\
+      "                                       base as a json checkpoint\n" \
+      "  [-sk|--save-karl]                    save the resulting knowledge \n"\
+      "                                       base as a karl checkpoint"\
+                                              "(default)\n" \
       "  [-m|--map-file file]                 File with filter information\n" \
       "  [-y|--frequency hz]                  Checkpoint frequency\n" \
       "                                       (default:checkpoint with each\n" \
@@ -397,6 +414,10 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
   if ( save_as_karl )
   {
     ret = knowledge->save_as_karl (*settings);
+  }
+  else if ( save_as_json )
+  {
+    ret = knowledge->save_as_json (*settings);
   }
   else
   {
