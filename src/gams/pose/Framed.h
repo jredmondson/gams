@@ -157,7 +157,9 @@ public:
    * Construct using a ReferenceFrame object.
    *
    * @param frame the ReferenceFrame this Coordinate will belong to
-   * @param args arguments to pass through to base type
+   * @param args arguments to pass through to base type. Any types that
+   *   have a reference frame associated will be transformed into @a frame
+   *   first. To avoid this, use the non-framed *Vector types.
    **/
   template<typename... Args>
   Framed(ReferenceFrame frame, Args&&... args);
