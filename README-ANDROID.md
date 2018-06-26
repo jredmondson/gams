@@ -23,4 +23,4 @@ the directory `build/out/$ARCH_DIR/`, where `ARCH_DIR` varies based on
 Once this is setup, you should be able to install and compile Madara and GAMS
 for android by running:
 
-`$GAMS_ROOT/scripts/linux/base_build.sh prereqs mpc madara gams android`
+`$GAMS_ROOT/scripts/linux/base_build.sh prereqs madara gams android`
