@@ -623,6 +623,13 @@ int main(int, char *[])
     TEST(v1.dy(), -3);
     TEST(v1.dz(), 0);
   }
+  {
+    ReferenceFrame base{Pose{ReferenceFrame{}, 0, 0}};
+    Quaternion quat(0, 0, 0, 1);
+    PositionVector pos(0, 0);
+    Pose pose(base, pos, quat);
+    TEST(pose.frame() == base, 1);
+  }
 
   return 0;
 }

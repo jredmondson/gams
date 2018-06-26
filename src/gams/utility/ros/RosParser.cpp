@@ -449,11 +449,13 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
                   iter->transform.rotation.y,
                   iter->transform.rotation.z,
                   iter->transform.rotation.w);
-    gams::pose::Position position (iter->transform.translation.x,
+    gams::pose::PositionVector position (
+                    iter->transform.translation.x,
                     iter->transform.translation.y,
                     iter->transform.translation.z);
 
-    gams::pose::Pose pose (parent, position, gams::pose::Orientation (quat));
+    gams::pose::Pose pose (parent, position,
+        gams::pose::OrientationVector (quat));
     uint64_t timestamp = iter->header.stamp.sec;
     timestamp = timestamp*1000000000 + iter->header.stamp.nsec;
     gams::pose::ReferenceFrame child_frame (child_frame_id, pose, timestamp);
