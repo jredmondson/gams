@@ -75,9 +75,9 @@ fi
 
 #Copy all required JNI files into respective project directory.
 
-MADARA_LIB=$GAMS_ROOT/madara/lib/libMADARA.so
-MADARA_JAR_LIB=$GAMS_ROOT/madara/libMadara_Jar.so
-MADARA_JAR=$GAMS_ROOT/madara/lib/madara.jar
+MADARA_LIB=$MADARA_ROOT/lib/libMADARA.so
+MADARA_JAR_LIB=$MADARA_ROOT/libMadara_Jar.so
+MADARA_JAR=$MADARA_ROOT/lib/madara.jar
 GAMS_LIB=$GAMS_ROOT/lib/libGAMS.so
 GAMS_JAR_LIB=$GAMS_ROOT/libgams_jar.so
 GAMS_JAR=$GAMS_ROOT/lib/gams.jar

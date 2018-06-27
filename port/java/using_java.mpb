@@ -7,6 +7,9 @@ feature (java) {
   
   macros += _GAMS_JAVA_
 
+  postbuild += mvn -f port/java versions:set -DnewVersion=`<%cat%> $(GAMS_ROOT)/VERSION.txt`
+  postbuild += mvn -f port/java -Dmadara.version=`<%cat%> $(MADARA_ROOT)/VERSION.txt` -P development clean package install
+
   specific (prop:windows) {
     includes += $(JAVA_HOME)/include/win32
   } else {
