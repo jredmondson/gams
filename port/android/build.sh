@@ -87,10 +87,15 @@ if [ ! -f $MADARA_LIB ]  || [ ! -f $MADARA_JAR_LIB ] || [ ! -f $GAMS_LIB ]  || [
    exit;
 fi
 
+
+rm -r $JNI_LIBS_DIR_ARCH
+mkdir -p $JNI_LIBS_DIR_ARCH
+
 cp $MADARA_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_LIB $JNI_LIBS_DIR_ARCH
 cp $MADARA_JAR_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_JAR_LIB $JNI_LIBS_DIR_ARCH
+cp -r $GAMS_ROOT/port/android/prebuilts/$ANDROID_ARCH/*.so $JNI_LIBS_DIR_ARCH
 
 
 #Copy Java files
