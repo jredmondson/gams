@@ -76,10 +76,10 @@ fi
 #Copy all required JNI files into respective project directory.
 
 MADARA_LIB=$MADARA_ROOT/lib/libMADARA.so
-MADARA_JAR_LIB=$MADARA_ROOT/libMadara_Jar.so
+MADARA_JAR_LIB=$MADARA_ROOT/lib/libMADARA_JNI.so
 MADARA_JAR=$MADARA_ROOT/lib/madara.jar
 GAMS_LIB=$GAMS_ROOT/lib/libGAMS.so
-GAMS_JAR_LIB=$GAMS_ROOT/libgams_jar.so
+GAMS_JAR_LIB=$GAMS_ROOT/lib/libGAMS_JNI.so
 GAMS_JAR=$GAMS_ROOT/lib/gams.jar
 
 if [ ! -f $MADARA_LIB ]  || [ ! -f $MADARA_JAR_LIB ] || [ ! -f $GAMS_LIB ]  || [ ! -f $GAMS_JAR_LIB ] || [ ! -f $MADARA_JAR ] || [ ! -f $GAMS_JAR ]; then 
@@ -87,17 +87,11 @@ if [ ! -f $MADARA_LIB ]  || [ ! -f $MADARA_JAR_LIB ] || [ ! -f $GAMS_LIB ]  || [
    exit;
 fi
 
-#Remove old ones
-rm -r $JNI_LIBS_DIR_ARCH
-
-#Copy JNI files
-mkdir -p $JNI_LIBS_DIR_ARCH
-
 cp $MADARA_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_LIB $JNI_LIBS_DIR_ARCH
 cp $MADARA_JAR_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_JAR_LIB $JNI_LIBS_DIR_ARCH
-cp $BOOST_ANDROID_ROOT/lib/*.so $JNI_LIBS_DIR_ARCH
+
 
 #Copy Java files
 mkdir -p $JAR_LIBS_DIR

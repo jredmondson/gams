@@ -1,5 +1,5 @@
 project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
-  libout = lib
+  libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
   includes += src
   includes += $(EIGEN_ROOT)
@@ -196,6 +196,8 @@ project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_
 
 project (gams_jar) : using_gams, using_madara,port/java/using_java {
   requires += java
+  libout = $(GAMS_ROOT)/lib
+  sharedname= GAMS_JNI
 
 }
 
