@@ -1,5 +1,5 @@
 feature (android) {
-   includes += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/include/boost-1_65_1
+   includes += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/include
    libpaths += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/lib
 
 
