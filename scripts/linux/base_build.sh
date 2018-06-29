@@ -328,14 +328,13 @@ if [ $ANDROID -eq 1 ]; then
   export ANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN:-${ANDROID_TOOLCHAIN_ARCH}-$ANDROID_ABI}
   export ANDROID_TOOLCHAIN_ARCH=${ANDROID_TOOLCHAIN_ARCH:-$ANDROID_ARCH}
 
-  echo "Amit: $ANDROID_TOOLCHAIN .... $ANDROID_TOOLCHAIN_ARCH"
   export PATH="$NDK_TOOLS/bin:$PATH"
 
 
   if [ -z "$BOOST_ANDROID_ROOT" ]; then
     echo "BOOST_ANDROID_ROOT is not set. See README-ANDROID.md for instructions"
     exit 1
-  elif [ ! -d "$BOOST_ANDROID_ROOT/libs/llvm/$ANDROID_ARCH" ]; then
+  elif [ ! -d "$BOOST_ANDROID_ROOT/build/out/$ANDROID_ARCH" ]; then
     echo -e "\e[91m $BOOST_ANDROID_ROOT/libs/llvm/$ANDROID_ARCH path seems invalid. Please check README-ANDROID.md \e[39m"	  
     exit 1;
   fi
