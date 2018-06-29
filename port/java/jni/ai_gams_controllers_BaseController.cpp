@@ -189,7 +189,7 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1addAlgorithmFactory
 /*
  * Class:     ai_gams_controllers_BaseController
  * Method:    jni_initAccent
- * Signature: (JLjava/lang/String;Lcom/madara/KnowledgeList;)V
+ * Signature: (JLjava/lang/String;Lai/madara/knowledge/KnowledgeList;)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initAccent
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
@@ -357,7 +357,7 @@ void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_l
 /*
  * Class:     ai_gams_controllers_BaseController
  * Method:    jni_initPlatform
- * Signature: (JLjava/lang/String;Lcom/madara/KnowledgeList;)V
+ * Signature: (JLjava/lang/String;Lai/madara/knowledge/KnowledgeList;)V
  */
 void JNICALL Java_ai_gams_controllers_BaseController_jni_1initPlatform__JLjava_lang_String_2_3J
   (JNIEnv * env, jobject, jlong cptr, jstring name, jlongArray argslist)
