@@ -12,9 +12,9 @@ public class GamsNativeLibrary {
     static {
        
         System.loadLibrary("MADARA_JNI");
-        //System.loadLibrary("MADARA");
+        System.loadLibrary("MADARA");
         System.loadLibrary("GAMS_JNI");
-        //System.loadLibrary("GAMS");
+        System.loadLibrary("GAMS");
 
     }
 
