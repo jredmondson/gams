@@ -1,19 +1,19 @@
 feature (android) {
-  includes += $(BOOST_ANDROID_ROOT)/include/boost-1_65_1
-  libpaths += $(BOOST_ANDROID_ROOT)/lib
+   includes += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/include/boost-1_65_1
+   libpaths += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/lib
 
 
   verbatim (make, local, true) {
     SYSROOT = $(NDK_TOOLS)/sysroot
-    LDLIBS = -l:libboost_system-clang-mt-1_65_1.a -llog
-    ifeq ($(ANDROID_ARCH),arm)
+    LDLIBS = -l:libboost_system.a -llog
+   ifeq ($(ANDROID_ARCH),arm)
       CROSS_COMPILE=arm-linux-androideabi-
-    else
-      ifeq ($(ANDROID_ARCH),x86)
-        CROSS_COMPILE=i686-linux-android-
-      else
-        CROSS_COMPILE=$(ANDROID_ARCH)-linux-android-
-      endif
+   else ($(ANDROID_ARCH),armeabi-v7a)
+      CROSS_COMPILE=arm-linux-androideabi-
+   else ($(ANDROID_ARCH),x86)
+      CROSS_COMPILE=i686-linux-android-
+   else
+      CROSS_COMPILE=$(ANDROID_ARCH)-linux-android-
     endif
 
     CXX = $(NDK_TOOLS)/bin/$(CROSS_COMPILE)clang++
