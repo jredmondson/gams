@@ -1,6 +1,6 @@
 feature (android) {
-   includes += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/include
-   libpaths += $(BOOST_ANDROID_ROOT)/build/out/$(ANDROID_ARCH)/lib
+   includes += $(BOOST_ANDROID_ROOT)/build/$(ANDROID_ARCH)/include
+   libpaths += $(BOOST_ANDROID_ROOT)/build/$(ANDROID_ARCH)/lib
 
 
   verbatim (make, local, true) {
