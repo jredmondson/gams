@@ -9,13 +9,10 @@ import ai.madara.knowledge.KnowledgeBase;
 public class GamsNativeLibrary {
     private KnowledgeBase knowledge = new KnowledgeBase();
 
-    static {
-       
-        System.loadLibrary("MADARA_JNI");
+    static {   
+        System.loadLibrary("c++_shared"); 
         System.loadLibrary("MADARA");
-        System.loadLibrary("GAMS_JNI");
         System.loadLibrary("GAMS");
-
     }
 
     private static GamsNativeLibrary instance;

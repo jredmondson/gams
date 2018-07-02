@@ -5,7 +5,7 @@ feature (android) {
 
   verbatim (make, local, true) {
     SYSROOT = $(NDK_TOOLS)/sysroot
-    LDLIBS = -l:libboost_system.a -llog
+    LDLIBS = -l:libboost_system.a -llog -lc++_shared
    ifeq ($(ANDROID_ARCH),arm)
       CROSS_COMPILE=arm-linux-androideabi-
    else ($(ANDROID_ARCH),armeabi-v7a)

@@ -332,13 +332,9 @@ if [ $ANDROID -eq 1 ]; then
 
 
   if [ -z "$BOOST_ANDROID_ROOT" ]; then
-    echo "BOOST_ANDROID_ROOT is not set. See README-ANDROID.md for instructions"
-    exit 1
-  elif [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
-    echo -e "\e[91m $BOOST_ANDROID_ROOT/build/$ANDROID_ARCH path seems invalid. Please check README-ANDROID.md \e[39m"	  
-    exit 1;
+    export BOOST_ANDROID_ROOT=$INSTALL_DIR/BoostAndroid
+    echo "Boost root is set to $BOOST_ANDROID_ROOT is not set."
   fi
-
 
 fi
 
@@ -417,11 +413,25 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     fi
     (
       cd $NDK_ROOT;
-      ./build/tools/make-standalone-toolchain.sh --force \
-            --toolchain=$ANDROID_TOOLCHAIN --platform=android-$ANDROID_API \
-            --install-dir=$NDK_TOOLS --arch=$ANDROID_TOOLCHAIN_ARCH || exit $?
+      ./build/tools/make_standalone_toolchain.py --force \
+            --api=$ANDROID_API \
+            --install-dir=$NDK_TOOLS --stl=libc++ --arch=$ANDROID_TOOLCHAIN_ARCH || exit $?
     ) || exit $?
+
+     if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
+       git clone "git@github.com:amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
+       cd $BOOST_ANDROID_ROOT;
+       echo "Boost is cloned in $BOOST_ANDROID_ROOT"
+       ./build-android.sh --boost=1.65.1 --arch=$ANDROID_ARCH $NDK_ROOT
+     fi
+     
+     if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
+       echo "Unable to download or setup boos. Refer README-ANDROID.md for manual setup"
+       exit 1;
+     fi 
   fi
+
+    
   
   if [ $ROS -eq 1 ]; then
     sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
@@ -873,6 +883,7 @@ if [ $ANDROID -eq 1 ]; then
   echo -e "export NDK_TOOLS=$NDK_TOOLS"
   echo -e "export SYSROOT=$SYSROOT"
   echo -e "export ANDROID_ARCH=$ANDROID_ARCH"
+  echo -e "export BOOST_ANDROID_ROOT=$BOOST_ANDROID_ROOT"
 fi
 
 if [ $MAC -eq 0 ]; then
@@ -894,3 +905,7 @@ echo -e ""
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
 exit $BUILD_ERRORS
+
+
+
+

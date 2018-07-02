@@ -2,7 +2,7 @@ While `base_build.sh` will handle most of the build process for android,
 if given the `android` build flag, it does not install boost for Android
 as required.
 
-To install boost for android, checkout the Boost-for-Android repo:
+Follow the steps to download and install Boost
 
 * export ANDROID_ARCH environment variable to armeabi-v7a, x86, arm64, x86_64
 * export `NDK_ROOT` pointing to your android-ndk root folder  (should be version r16b)
