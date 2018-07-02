@@ -83,8 +83,9 @@ std::string checkpoint_prefix = "checkpoint_";
 std::string map_file = "";
 
 // save as a karl or binary file
-bool save_as_karl = true;
+bool save_as_karl = false;
 bool save_as_json = false;
+bool save_as_binary = false;
 
 // the world and the base frame of the robot
 std::string base_frame = "";
@@ -134,18 +135,15 @@ void handle_arguments (int argc, char ** argv)
     }
     else if (arg1 == "-sb" || arg1 == "--save-binary")
     {
-      save_as_karl = false;
-      save_as_json = false;
+      save_as_binary = true;
     }
     else if (arg1 == "-sj" || arg1 == "--save-json")
     {
-      save_as_karl = false;
       save_as_json = true;
     }
     else if (arg1 == "-sk" || arg1 == "--save-karl")
     {
       save_as_karl = true;
-      save_as_json = false;
     }
     else if (arg1 == "-d" || arg1 == "--differential")
     {
@@ -180,6 +178,11 @@ void handle_arguments (int argc, char ** argv)
       "                                       only for binary checkpoints\n";
       exit (0);
     }
+  }
+  if ( !save_as_binary && !save_as_json && !save_as_karl)
+  {
+    // if no output format is selected -> save in karl format
+    save_as_karl = true;
   }
 }
 
@@ -336,7 +339,7 @@ int main (int argc, char ** argv)
     id_ss << std::setw (id_digit_count) << std::setfill ('0') <<
       checkpoint_id;
     std::string id_str = id_ss.str ();
-    settings.filename = checkpoint_prefix + "_" + id_str + ".kb";
+    settings.filename = checkpoint_prefix + "_" + id_str;
 
     uint64_t stamp = time.sec;
     stamp = stamp * 1000000000 + time.nsec;
@@ -411,16 +414,22 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
     (Integer) settings->initial_lamport_clock);
 
   int ret = 0;
+  std::string filename = settings->filename;
   if ( save_as_karl )
   {
+    settings->filename = filename + ".mf";
     ret = knowledge->save_as_karl (*settings);
   }
-  else if ( save_as_json )
+  
+  if ( save_as_json )
   {
+    settings->filename = filename + ".json";
     ret = knowledge->save_as_json (*settings);
   }
-  else
+  
+  if ( save_as_binary )
   {
+    settings->filename = filename + ".kb";
     if ( differential_checkpoints == true )
     {
       ret = knowledge->save_checkpoint (*settings);
