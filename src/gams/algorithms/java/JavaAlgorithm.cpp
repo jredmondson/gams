@@ -112,15 +112,15 @@ gams::algorithms::JavaAlgorithmFactory::create (
   {
     // obtain class handles
     jclass kb_class = gams::utility::java::find_class (
-      jvm.env, "com/madara/KnowledgeBase");
+      jvm.env, "ai/madara/knowledge/KnowledgeBase");
     jclass list_class = gams::utility::java::find_class (
-      jvm.env, "com/madara/KnowledgeList");
+      jvm.env, "ai/madara/knowledge/KnowledgeList");
 
     // get method call ids that we will need
     jmethodID listConstructor = jvm.env->GetMethodID (list_class,
       "<init>", "([J)V");
     jmethodID kbFromPointerCall = jvm.env->GetStaticMethodID (kb_class,
-      "fromPointer", "(J)Lcom/madara/KnowledgeBase;");
+      "fromPointer", "(J)Lai/madara/knowledge/KnowledgeBase;");
     jmethodID factoryCreateCall = jvm.env->GetMethodID (kb_class,
       "create", "(J)Lai/gams/algorithms/BaseAlgorithm;");
 
