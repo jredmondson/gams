@@ -91,6 +91,7 @@ ZMQ=0
 SIMTIME=0
 SSL=0
 DMPL=0
+CLEAN=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
 
@@ -149,6 +150,8 @@ do
     MPC=1
   elif [ "$var" = "madara" ]; then
     MADARA=1
+  elif [ "$var" = "noclean" ]; then
+    CLEAN=0
   elif [ "$var" = "gams" ]; then
     GAMS=1
   elif [ "$var" = "dart" ]; then
@@ -182,6 +185,7 @@ do
     echo "  gams            build GAMS"
     echo "  java            build java jar"
     echo "  madara          build MADARA"
+    echo "  noclean         do not run 'make clean' before build"
     echo "  odroid          target ODROID computing platform"
     echo "  prereqs         use apt-get to install prereqs"
     echo "  ros             build ROS platform classes"
@@ -560,7 +564,9 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     git pull
     MADARA_REPO_RESULT=$?
     echo "CLEANING MADARA OBJECTS"
-    make realclean -j $CORES
+    if [ $CLEAN -eq 1 ] ; then
+      make realclean -j $CORES
+    fi
     rm GNUmakefile*
 
   fi
@@ -661,7 +667,9 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     GAMS_REPO_RESULT=$?
 
     echo "CLEANING GAMS OBJECTS"
-    make realclean -j $CORES
+    if [ $CLEAN -eq 1 ] ; then
+      make realclean -j $CORES
+    fi
     rm GNUmakefile*
 
   fi
@@ -733,7 +741,9 @@ if [ $DMPL -eq 1 ]; then
     git pull
 
     echo "CLEANING GAMS OBJECTS"
-    make clean -j $CORES
+    if [ $CLEAN -eq 1]; then
+      make clean -j $CORES
+    fi
 
   fi
 
