@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 
 PRINT_USAGE=0
+EXIT_CODE=0
 
 if [ -z $1 ] ; then
   PRINT_USAGE=1
   echo "No arguments provided. Printing usage."
+  EXIT_CODE=1
 elif [ $1 = '-h' ] || [ $1 = '--help' ]; then
   PRINT_USAGE=1
-elif [ ! -e $1 ] ; then
+elif [ ! -x $1 ] ; then
   PRINT_USAGE=1
+  EXIT_CODE=2
   echo "Binary provided was not executable. Printing usage."
 fi
 
@@ -53,3 +56,5 @@ else
   echo "    <binary>.sh (shell script to execute on other hosts - NEEDED)"
   echo "    <binary>.zip (zip of all dependencies - NEEDED)"
 fi
+
+exit $EXIT_CODE
