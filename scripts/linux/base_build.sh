@@ -279,7 +279,7 @@ if [ $ANDROID -eq 1 ]; then
     echo "ANDROID_ABI has been set to $ANDROID_ABI"
   fi
   if [ -z "$ANDROID_ARCH" ]; then
-    export ANDROID_ARCH=arm
+    export ANDROID_ARCH=armeabi-v7a
     echo "ANDROID_ARCH is unset; defaulting to $ANDROID_ARCH"
   else
     echo "ANDROID_ARCH has been set to $ANDROID_ARCH"
@@ -308,14 +308,11 @@ if [ $ANDROID -eq 1 ]; then
   else
     echo "SYSROOT has been set to $SYSROOT"
   fi
-  if [ -z "$BOOST_ANDROID_ROOT" ]; then
-    echo "BOOST_ANDROID_ROOT is not set. See README-ANDROID.md for instructions"
-    exit 1
-  fi
-
+  
   case $ANDROID_ARCH in
-    arm32|arm|armeabi-v7a)
-      export ANDROID_ARCH=arm;
+    arm32|arm|armeabi|armeabi-v7a)
+      export ANDROID_ARCH=armeabi-v7a;
+      export ANDROID_TOOLCHAIN_ARCH=arm;
       export ANDROID_TOOLCHAIN=arm-linux-androidabi-$ANDROID_ABI;;
 
     arm64|aarch64)
@@ -332,10 +329,17 @@ if [ $ANDROID -eq 1 ]; then
     *)
       echo "Unknown ANDROID_ABI: $ANDROID_ABI"; exit 1 ;;
   esac
-  export ANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN:-${ANDROID_ARCH}-$ANDROID_ABI}
+  export ANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN:-${ANDROID_TOOLCHAIN_ARCH}-$ANDROID_ABI}
   export ANDROID_TOOLCHAIN_ARCH=${ANDROID_TOOLCHAIN_ARCH:-$ANDROID_ARCH}
 
   export PATH="$NDK_TOOLS/bin:$PATH"
+
+
+  if [ -z "$BOOST_ANDROID_ROOT" ]; then
+    export BOOST_ANDROID_ROOT=$INSTALL_DIR/BoostAndroid
+    echo "Boost root is set to $BOOST_ANDROID_ROOT is not set."
+  fi
+
 fi
 
 if [ $DOCS -eq 1 ]; then
@@ -379,22 +383,22 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   sudo apt-get update
-  sudo apt-get install -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
+  sudo apt-get install -y -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
 
   if [ $CLANG -eq 1 ]; then
-    sudo apt-get install -f clang-5.0 libc++-dev libc++abi-dev
+    sudo apt-get install -y -f clang-5.0 libc++-dev libc++abi-dev
   fi
 
   if [ $JAVA -eq 1 ]; then
-    sudo apt-get install -f oracle-java8-set-default
-    sudo apt-get install maven
+    sudo apt-get install -y -f oracle-java8-set-default
+    sudo apt-get install -y maven
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
     rc_str="export JAVA_HOME=$JAVA_HOME"
     append_if_needed "$rc_str" "$HOME/.bashrc"
   fi
   
   if [ $ANDROID -eq 1 ]; then
-    sudo apt-get install -f gcc-arm-linux-androideabi
+    sudo apt-get install -y -f gcc-arm-linux-androideabi
 
     if [ ! -f $NDK_ROOT/README.md ]; then
       mkdir -p $NDK_ROOT;
@@ -413,14 +417,28 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     fi
     (
       cd $NDK_ROOT;
-      ./build/tools/make-standalone-toolchain.sh --force \
-            --toolchain=$ANDROID_TOOLCHAIN --platform=android-$ANDROID_API \
-            --install-dir=$NDK_TOOLS --arch=$ANDROID_TOOLCHAIN_ARCH || exit $?
+      ./build/tools/make_standalone_toolchain.py --force \
+            --api=$ANDROID_API \
+            --install-dir=$NDK_TOOLS --stl=libc++ --arch=$ANDROID_TOOLCHAIN_ARCH || exit $?
     ) || exit $?
+
+     if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
+       git clone "git@github.com:amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
+       cd $BOOST_ANDROID_ROOT;
+       echo "Boost is cloned in $BOOST_ANDROID_ROOT"
+       ./build-android.sh --boost=1.65.1 --arch=$ANDROID_ARCH $NDK_ROOT
+     fi
+     
+     if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
+       echo "Unable to download or setup boos. Refer README-ANDROID.md for manual setup"
+       exit 1;
+     fi 
   fi
+
+    
   
   if [ $ROS -eq 1 ]; then
-    sudo apt-get install ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
+    sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
 
     if [ $ROS_FIRST_SETUP -eq 1 ]; then
       sudo rosdep init
@@ -431,15 +449,15 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   if [ $SSL -eq 1 ]; then
-    sudo apt-get install libssl-dev
+    sudo apt-get install -y libssl-dev
   fi
   
   if [ $ZMQ -eq 1 ]; then 
-    sudo apt-get install libtool pkg-config autoconf automake
+    sudo apt-get install -y libtool pkg-config autoconf automake
   fi
 
   if [ $DMPL -eq 1 ]; then 
-    sudo apt-get install perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
+    sudo apt-get install -y perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
   fi
 
 fi
@@ -586,6 +604,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
+    echo -e "\e[91m MADARA library did not build properly \e[39m"
+    exit 1;
   fi
 
   if [ $STRIP -eq 1 ]; then
@@ -691,6 +711,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   GAMS_BUILD_RESULT=$?
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
     GAMS_BUILD_RESULT=1
+    echo -e "\e[91mGAMS library did not build properly\e[39m";
+    exit 1;
   fi
 
   if [ $STRIP -eq 1 ]; then
@@ -871,6 +893,7 @@ if [ $ANDROID -eq 1 ]; then
   echo -e "export NDK_TOOLS=$NDK_TOOLS"
   echo -e "export SYSROOT=$SYSROOT"
   echo -e "export ANDROID_ARCH=$ANDROID_ARCH"
+  echo -e "export BOOST_ANDROID_ROOT=$BOOST_ANDROID_ROOT"
 fi
 
 if [ $MAC -eq 0 ]; then
@@ -892,3 +915,7 @@ echo -e ""
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
 exit $BUILD_ERRORS
+
+
+
+

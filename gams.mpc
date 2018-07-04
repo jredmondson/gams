@@ -1,5 +1,5 @@
 project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
-  libout = lib
+  libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
   includes += src
   includes += $(EIGEN_ROOT)
@@ -194,13 +194,6 @@ project (gams) : build_files, using_madara, using_utm, using_ros, vrep_lib, ros_
   }
 }
 
-project (gams_jar) : using_gams, using_madara {
-  requires += java
-
-  prebuild += mvn -f port/java versions:set -DnewVersion=`cat VERSION.txt`
-  prebuild += mvn -f port/java -Dmadara.version=`cat $MADARA_ROOT/VERSION.txt` -P development clean package install
-
-}
 
 project (gams_controller) : using_gams, using_madara, using_vrep {
   exeout = $(GAMS_ROOT)/bin

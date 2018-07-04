@@ -75,29 +75,42 @@ fi
 
 #Copy all required JNI files into respective project directory.
 
-MADARA_LIB=$GAMS_ROOT/madara/lib/libMADARA.so
-MADARA_JAR_LIB=$GAMS_ROOT/madara/libMadara_Jar.so
-MADARA_JAR=$GAMS_ROOT/madara/lib/madara.jar
+MADARA_LIB=$MADARA_ROOT/lib/libMADARA.so
+MADARA_JAR=$MADARA_ROOT/lib/madara.jar
 GAMS_LIB=$GAMS_ROOT/lib/libGAMS.so
-GAMS_JAR_LIB=$GAMS_ROOT/libgams_jar.so
 GAMS_JAR=$GAMS_ROOT/lib/gams.jar
 
-if [ ! -f $MADARA_LIB ]  || [ ! -f $MADARA_JAR_LIB ] || [ ! -f $GAMS_LIB ]  || [ ! -f $GAMS_JAR_LIB ] || [ ! -f $MADARA_JAR ] || [ ! -f $GAMS_JAR ]; then 
+if [ ! -f $MADARA_LIB ]  || [ ! -f $GAMS_LIB ] || [ ! -f $MADARA_JAR ] || [ ! -f $GAMS_JAR ]; then 
    echo "Looks like not all required libraries are available. Please ensure BOOST, MADARA, GAMS libraries are available";
-   exit;
+   exit 1;
 fi
 
-#Remove old ones
-rm -r $JNI_LIBS_DIR_ARCH
 
-#Copy JNI files
+rm -r $JNI_LIBS_DIR_ARCH
 mkdir -p $JNI_LIBS_DIR_ARCH
 
 cp $MADARA_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_LIB $JNI_LIBS_DIR_ARCH
-cp $MADARA_JAR_LIB $JNI_LIBS_DIR_ARCH
-cp $GAMS_JAR_LIB $JNI_LIBS_DIR_ARCH
-cp $BOOST_ANDROID_ROOT/lib/*.so $JNI_LIBS_DIR_ARCH
+
+
+case $ANDROID_ARCH in
+    arm32|arm|armeabi|armeabi-v7a)
+      cp $NDK_TOOLS/arm-linux-androideabi/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      ;;
+    arm64|aarch64)
+      cp $NDK_TOOLS/aarch64-linux-androidabi/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      ;;
+    x86)
+      cp $NDK_TOOLS/i686-linux-android/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      ;;
+    x64|x86_64)
+      cp $NDK_TOOLS/x86_64-linux-android/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      ;;
+    *)
+      echo "Unknown arch. Copy libc++_shared.so manually to $JNI_LIBS_DIR_ARCH"
+      exit 1
+      ;;
+esac
 
 #Copy Java files
 mkdir -p $JAR_LIBS_DIR
