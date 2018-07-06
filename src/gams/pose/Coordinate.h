@@ -126,13 +126,19 @@ struct default_unit_traits
     Eigen::Vector3d vec_;
 
   public:
-    storage_mixin() = default;
+    storage_mixin()
+      : vec_(0, 0, 0) {}
 
     storage_mixin(double x, double y)
       : vec_(x, y, 0) {}
 
     storage_mixin(double x, double y, double z)
       : vec_(x, y, z) {}
+
+    template<typename T, size_t N,
+      typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
+    storage_mixin(T (&a)[N])
+      : vec_(N>0 ? a[0] : 0, N>1 ? a[1] : 0, N>2 ? a[2] : 0) {}
 
     explicit storage_mixin(const Eigen::Vector3d &vec) : vec_(vec) {}
 
@@ -195,6 +201,14 @@ struct default_rotational_unit_traits : default_unit_traits
       : Base(units.to_radians(rx),
              units.to_radians(ry),
              units.to_radians(rz)) {}
+
+    template<typename T, typename Units, size_t N,
+      typename std::enable_if<std::is_floating_point<T>::value, int>::type = 0>
+    storage_mixin(T (&a)[N], Units units)
+      : Base(
+          N>0 ? units.to_radians(a[0]) : 0,
+          N>1 ? units.to_radians(a[1]) : 0,
+          N>2 ? units.to_radians(a[2]) : 0) {}
 
   public:
     /**
@@ -392,6 +406,28 @@ struct basic_rotational_mixin : common_rotational_mixin<Derived>
   {
     return Derived(into_quat().slerp(scale, other.into_quat()));
   }
+
+  template<typename Other>
+  auto slerp(const Other &other, double scale) ->
+    typename std::decay<decltype(other.into_quat(),
+        std::declval<Derived>())>::type
+  {
+    return slerp(scale, other);
+  }
+
+  template<typename Other>
+  auto slerp_this(double scale, const Other &other) ->
+    decltype(other.into_quat(), void())
+  {
+    self() = Derived(into_quat().slerp(scale, other.into_quat()));
+  }
+
+  template<typename Other>
+  auto slerp_this(const Other &other, double scale) ->
+    decltype(other.into_quat(), void())
+  {
+    return slerp_this(scale, other);
+  }
 };
 
 template<>
@@ -569,7 +605,7 @@ public:
   template<typename ContainType>
   void to_array(ContainType &out) const
   {
-    for(int i = 0; i < size(); i++)
+    for(size_t i = 0; i < size(); i++)
     {
       out[i] = get(i);
     }
@@ -590,7 +626,7 @@ public:
   template<typename ContainType>
   void from_array(const ContainType &in)
   {
-    for(int i = 0; i < size(); i++)
+    for(size_t i = 0; i < size(); i++)
     {
       set(i, in[i]);
     }

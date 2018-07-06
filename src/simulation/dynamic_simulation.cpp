@@ -443,6 +443,10 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
     const double delta_x = pos_2.x() - pos_1.x();
 
     const unsigned int NUM_PLANTS_PER_SIDE = 5;
+
+    cerr << "placing border plants between " << gps_pos_1 << " and " <<
+      gps_pos_2 << " [" << pos_1 << " and " << pos_2 << "]" << endl;
+
     for (unsigned int k = 0; k < NUM_PLANTS_PER_SIDE; ++k)
     {
       double plant_x, plant_y;
@@ -464,7 +468,9 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
       pos[0] = plant_y;
       pos[1] = plant_x;
       pos[2] = 0.0;
-  
+
+      cerr << "placing plant at " << plant_x << ", " << plant_y << endl;
+
       // load object
       int node_id;
       if (simxLoadModel (client_id, model_file.c_str (), 0, &node_id,
@@ -473,7 +479,7 @@ void put_border (madara::knowledge::KnowledgeBase& knowledge,
         cerr << "failure loading border model:" << model_file << endl;
         exit (-1);
       }
-  
+
       // move object
       simxSetObjectPosition (client_id, node_id, sim_handle_parent, pos,
         simx_opmode_oneshot_wait);

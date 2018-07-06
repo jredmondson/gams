@@ -58,8 +58,6 @@
 
 #include "gams/pose/Euler.h"
 
-#include <ace/Guard_T.h>
-
 typedef MADARA_GUARD_TYPE Guard;
 
 #define VREP_LOCK_MUTEX(mutex) \

@@ -570,7 +570,6 @@ int main(int, char *[])
 
     kb.print();
   }
-#endif
   {
     Orientation o0(0, 0, 0);
     Orientation o1(0, 0, M_PI/2);
@@ -638,6 +637,7 @@ int main(int, char *[])
     TEST(frames.size(), 1);
     TEST(frames[0].origin().x(), 0);
   }
+#endif
 
   if (gams_fails > 0)
   {

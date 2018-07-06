@@ -70,9 +70,20 @@
 
 #include "gams/loggers/GlobalLogger.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 extern "C" {
 #include "extApi.h"
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef _GAMS_VREP_
 
@@ -143,15 +154,6 @@ namespace gams
       virtual int land (void);
 
       /**
-       * Moves the platform to a position
-       * @param   position  the coordinate to move to
-       * @param   epsilon   approximation value
-       * @return 1 if moving, 2 if arrived, 0 if error
-       **/
-      //virtual int move (const utility::Position & position,
-        //const double & epsilon = 0.1);
-
-      /**
        * Moves the platform to a location
        * @param   target    the coordinates to move to
        * @param   epsilon   approximation value
@@ -159,6 +161,8 @@ namespace gams
        **/
       int move (const pose::Position & location,
         const PositionBounds &bounds) override;
+
+      using BasePlatform::move;
 
       /**
        * Rotates the platform to a specified Orientation
@@ -168,6 +172,8 @@ namespace gams
        **/
       int orient (const pose::Orientation & location,
         const OrientationBounds &bounds) override;
+
+      using BasePlatform::orient;
 
       /**
        * Set move speed

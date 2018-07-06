@@ -123,6 +123,7 @@ namespace gams
     {
     protected:
       virtual std::string get_default_model();
+      using VREPQuadFactory::get_default_model;
 
       /**
        * Call through to VREPQuadCDRA Constructor

@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <array>
+#include "Eigen/Core"
 
 namespace gams { namespace pose { namespace geodetic_util {
 
@@ -17,6 +18,7 @@ static constexpr double kSecondEccentricitySquared = 6.73949674228 * 0.001;
 static constexpr double kFlattening = 1 / 298.257223563;
 
 /// Minimal implementation of a Matrix for internal use
+/*
 template<size_t Rows, size_t Cols>
 class Matrix
 {
@@ -78,10 +80,10 @@ public:
     }
     return ret;
   }
-};
+};*/
 
-using Matrix3 = Matrix<3, 3>;
-using Vector3 = Matrix<3, 1>;
+using Matrix3 = Eigen::Matrix<double, 3, 3>;
+using Vector3 = Eigen::Vector3d;
 
 /// Helper class for translating between LLA, ECEF, and NED coordinates
 class GeodeticConverter

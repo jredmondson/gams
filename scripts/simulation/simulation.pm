@@ -26,6 +26,9 @@ sub run {
       #$cmd = "$cmd -ex \\\"set breakpoint pending on\\\" ";
       #$cmd = "$cmd -ex run --args ";
 	  
+
+      $ENV{"VREP_ROOT"}="C:\\Program Files\\V-REP3\\V-REP_PRO_EDU";
+      $ENV{"GAMS_ROOT"}="C:\\Users\\dskyle\\project\\gams";
       $cmd = "$cmd $gams_root/bin/gams_controller -i $i -n $num --loop-time $time --period $period --queue-length 2000000";
       $cmd = "$cmd --madara-file $gams_root/scripts/simulation/madara_init_common.mf";
       $cmd = "$cmd $gams_root/scripts/simulation/areas/$area.mf";
@@ -68,6 +71,8 @@ sub run {
   }
  
   # launch simulation controller
+  $ENV{"VREP_ROOT"}="C:\\Program Files\\V-REP3\\V-REP_PRO_EDU";
+  $ENV{"GAMS_ROOT"}="C:\\Users\\dskyle\\project\\gams";
   my $cmd = "$gams_root/bin/dynamic_simulation -t -1 --sim-time-poll-rate 2 -n $num --madara-file $gams_root/scripts/simulation/areas/$area.mf";
   if ($border)
   {
