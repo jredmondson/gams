@@ -290,7 +290,7 @@ int main (int argc, char ** argv)
   // print all knowledge values
   knowledge.print ();
 
-  if (knowledge.get (".execution").to_double () >= (1/period) * max_wait * 0.5)
+  if (knowledge.get (".executions").to_double () >= (1/period) * max_wait * 0.5)
   {
     knowledge.print ("SUCCESS: {.executions} is enough to pass\n");
   }
