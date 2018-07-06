@@ -61,6 +61,8 @@ namespace elections = gams::elections;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
+int gams_fails = 0;
+
 void test_cumulative (void)
 {
 
@@ -92,6 +94,7 @@ void test_cumulative (void)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing self vote: FAIL\n");
+    ++gams_fails;
   }
 
   if (election.has_voted ("agent.0"))
@@ -103,6 +106,7 @@ void test_cumulative (void)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing has_voted: FAIL\n");
+    ++gams_fails;
   }
 
   // do votes for other agents
@@ -137,6 +141,7 @@ void test_cumulative (void)
       loggers::LOG_ALWAYS, "  agent.5: %d\n", (int)*agent5vote);
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  agent.6: %d\n", (int)*agent6vote);
+    ++gams_fails;
   }
 
   elections::CandidateList leaders = election.get_leaders (2);
@@ -151,12 +156,14 @@ void test_cumulative (void)
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == %s, %s: FAIL\n",
       leaders[0].c_str (), leaders[1].c_str ());
+    ++gams_fails;
   }
   else
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  %d leaders instead of 2: FAIL\n",
       leaders.size ());
+    ++gams_fails;
   }
 
   loggers::global_logger->log (
@@ -178,12 +185,14 @@ void test_cumulative (void)
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == %s, %s: FAIL\n",
       leaders[0].c_str (), leaders[1].c_str ());
+    ++gams_fails;
   }
   else
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  %d leaders instead of 2: FAIL\n",
       leaders.size ());
+    ++gams_fails;
   }
 }
 
@@ -218,6 +227,7 @@ void test_plurality (void)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing self vote: FAIL\n");
+    ++gams_fails;
   }
 
   if (election.has_voted ("agent.0"))
@@ -229,6 +239,7 @@ void test_plurality (void)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing has_voted: FAIL\n");
+    ++gams_fails;
   }
 
   // do votes for other agents
@@ -263,6 +274,7 @@ void test_plurality (void)
       loggers::LOG_ALWAYS, "  agent.5: %d\n", (int)*agent5vote);
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  agent.6: %d\n", (int)*agent6vote);
+    ++gams_fails;
   }
 
   std::string leader = election.get_leader ();
@@ -277,6 +289,7 @@ void test_plurality (void)
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
       leader.c_str ());
+    ++gams_fails;
   }
 }
 
@@ -285,5 +298,15 @@ main (int, char **)
 {
   test_cumulative ();
   test_plurality ();
-  return 0;
+  
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

@@ -149,5 +149,16 @@ script:
   - ls $TRAVIS_BUILD_DIR
   - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
   - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
-
+  - $GAMS_ROOT/bin/test_arguments_parser
+  - $GAMS_ROOT/bin/test_auctions
+  - $GAMS_ROOT/bin/test_controller_run
+  - $GAMS_ROOT/bin/test_controller
+  - $GAMS_ROOT/bin/test_coordinates
+  - $GAMS_ROOT/bin/test_elections
+  - $GAMS_ROOT/bin/test_groups
+  - $GAMS_ROOT/bin/test_location
+  - $GAMS_ROOT/bin/test_mape_loop
+  - if [ "$ROS" == "ros" ]; then $GAMS_ROOT/bin/test_ros2gams; fi
+  - $GAMS_ROOT/bin/test_utility
+  - $GAMS_ROOT/bin/test_variables
 

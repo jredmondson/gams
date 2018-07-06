@@ -15,6 +15,8 @@ namespace transport = madara::transport;
 namespace containers = knowledge::containers;
 namespace groups = gams::groups;
 
+int gams_fails = 0;
+
 void test_fixed_list (knowledge::KnowledgeBase & knowledge)
 {
   loggers::global_logger->log (
@@ -50,8 +52,9 @@ void test_fixed_list (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: knowledge base holds incorrect type info: %d\n",
+      0, "  FAIL: knowledge base holds incorrect type info: %d\n",
       (int)*type);
+    ++gams_fails;
   }
 
   if (member_list.size () == 2 &&
@@ -63,7 +66,7 @@ void test_fixed_list (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: Member information in GroupFixedList was incorrect\n");
+      0, "  FAIL: Member information in GroupFixedList was incorrect\n");
     loggers::global_logger->log (
       0, "    member_list.size () was %d (correct is 2)\n");
 
@@ -72,6 +75,7 @@ void test_fixed_list (knowledge::KnowledgeBase & knowledge)
       loggers::global_logger->log (
         0, "    member_list[%d] was %s\n", (int)i, member_list[i].c_str ());
     }
+    ++gams_fails;
   }
 
   if (new_members == orig_members)
@@ -82,13 +86,14 @@ void test_fixed_list (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: get_members function did not return correct members\n");
+      0, "  FAIL: get_members function did not return correct members\n");
 
     for (size_t i = 0; i < orig_members.size (); ++i)
     {
       loggers::global_logger->log (
         0, "    orig_members[%d] was %s\n", (int)i, orig_members[i].c_str ());
     }
+    ++gams_fails;
   }
 
   if (copy_members == orig_members)
@@ -99,13 +104,14 @@ void test_fixed_list (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: copy get_members function did not have correct members\n");
+      0, "  FAIL: copy get_members function did not have correct members\n");
 
     for (size_t i = 0; i < copy_members.size (); ++i)
     {
       loggers::global_logger->log (
         0, "    copy_members[%d] was %s\n", (int)i, copy_members[i].c_str ());
     }
+    ++gams_fails;
   }
 }
 
@@ -145,8 +151,9 @@ void test_transient (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: knowledge base holds incorrect type info: %d\n",
+      0, "  FAIL: knowledge base holds incorrect type info: %d\n",
       (int)*type);
+    ++gams_fails;
   }
 
   if (member_list.size () == 3 &&
@@ -159,7 +166,7 @@ void test_transient (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: Member information in GroupFixedList was incorrect\n");
+      0, "  FAIL: Member information in GroupFixedList was incorrect\n");
     loggers::global_logger->log (
       0, "    member_list.size () was %d (correct is 3)\n");
 
@@ -168,6 +175,7 @@ void test_transient (knowledge::KnowledgeBase & knowledge)
       loggers::global_logger->log (
         0, "    member_list[%d] was %s\n", (int)i, orig_members[i].c_str ());
     }
+    ++gams_fails;
   }
 
   if (new_members == orig_members)
@@ -178,13 +186,14 @@ void test_transient (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: get_members function did not return correct members\n");
+      0, "  FAIL: get_members function did not return correct members\n");
 
     for (size_t i = 0; i < orig_members.size (); ++i)
     {
       loggers::global_logger->log (
         0, "    orig_members[%d] was %s\n", (int)i, orig_members[i].c_str ());
     }
+    ++gams_fails;
   }
 
   if (copy_members == orig_members)
@@ -195,13 +204,14 @@ void test_transient (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: copy get_members function did not have correct members\n");
+      0, "  FAIL: copy get_members function did not have correct members\n");
 
     for (size_t i = 0; i < copy_members.size (); ++i)
     {
       loggers::global_logger->log (
         0, "    copy_members[%d] was %s\n", (int)i, copy_members[i].c_str ());
     }
+    ++gams_fails;
   }
 }
 
@@ -223,7 +233,8 @@ void test_repository (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: GroupTransient creation was unsuccessful\n");
+      0, "  FAIL: GroupTransient creation was unsuccessful\n");
+    ++gams_fails;
   }
 
   result = repository.create ("group.fixed");
@@ -236,7 +247,8 @@ void test_repository (knowledge::KnowledgeBase & knowledge)
   else
   {
     loggers::global_logger->log (
-      0, "  ERROR: GroupFixedList creation was unsuccessful\n");
+      0, "  FAIL: GroupFixedList creation was unsuccessful\n");
+    ++gams_fails;
   }
 }
 
@@ -253,5 +265,14 @@ int main(int , char **)
 
   knowledge.print ();
 
-  return 0;
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

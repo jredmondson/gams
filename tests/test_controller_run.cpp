@@ -84,6 +84,8 @@ std::vector <double> normal_blasting;
 std::map <double, Integer> normal_loops;
 std::map <double, std::string> normal_status;
 
+int gams_fails = 0;
+
 Record
 to_legible_hertz (engine::FunctionArguments & args, engine::Variables & /*vars*/)
 {
@@ -162,6 +164,19 @@ test_period (engine::KnowledgeBase & knowledge,
   knowledge.evaluate (".legible_speed = to_legible_hertz (.loop_speed)");
   knowledge.print (
     "  Results: {.loops} loop executions @ {.legible_speed}\n");
+
+  if (period == 0.0 || ((double)algorithm->loops > (1/period) * .1 * duration)
+      || algorithm->loops > 100)
+  {
+    knowledge.print (
+      "  SUCCESS: {.loops} > hz * .1 * duration\n");
+  }
+  else
+  {
+    knowledge.print (
+      "  FAIL: {.loops} < hz * .1 * duration\n");
+    ++gams_fails;
+  }
 }
 
 void
@@ -177,6 +192,19 @@ test_hz (engine::KnowledgeBase & knowledge,
   knowledge.evaluate (".legible_speed = to_legible_hertz (.loop_speed)");
   knowledge.print (
     "  Results: {.loops} loop executions @ {.legible_speed}\n");
+
+  if (hz == 0.0 || ((double)algorithm->loops > hz * .1 * duration) || 
+      algorithm->loops > 100)
+  {
+    knowledge.print (
+      "  SUCCESS: {.loops} > hz * .1 * duration\n");
+  }
+  else
+  {
+    knowledge.print (
+      "  FAIL: {.loops} < hz * .1 * duration\n");
+    ++gams_fails;
+  }
 }
 
 // perform main logic of program
@@ -243,5 +271,14 @@ int main (int /*argc*/, char ** /*argv*/)
     test_period (knowledge, loop, period, duration);
   }
 
-  return 0;
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

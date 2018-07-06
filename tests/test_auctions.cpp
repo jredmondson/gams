@@ -65,6 +65,8 @@ namespace auctions = gams::auctions;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
+int gams_fails = 0;
+
 void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
 {
   using madara::knowledge::KnowledgeRecord;
@@ -95,6 +97,7 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing self bid: FAIL\n");
+    ++gams_fails;
   }
 
   if (auction.get_bid ("agent.0") == 2.0)
@@ -106,6 +109,7 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing get_bid: FAIL\n");
+    ++gams_fails;
   }
 
   // do bids for other agents
@@ -130,6 +134,7 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
       loggers::LOG_ALWAYS, "  agent.2: %f\n", *agent2bid);
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
+    ++gams_fails;
   }
 
   std::string leader = auction.get_leader ();
@@ -144,6 +149,7 @@ void test_minimum_auction (knowledge::KnowledgeBase & knowledge)
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
       leader.c_str ());
+    ++gams_fails;
   }
 }
 
@@ -177,6 +183,7 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing self bid: FAIL\n");
+    ++gams_fails;
   }
 
   if (auction.get_bid ("agent.0") == 2.0)
@@ -188,6 +195,7 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Testing get_bid: FAIL\n");
+    ++gams_fails;
   }
 
   // do bids for other agents
@@ -212,6 +220,7 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
       loggers::LOG_ALWAYS, "  agent.2: %f\n", *agent2bid);
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
+    ++gams_fails;
   }
 
   std::string leader = auction.get_leader ();
@@ -226,6 +235,7 @@ void test_maximum_auction (knowledge::KnowledgeBase & knowledge)
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
       leader.c_str ());
+    ++gams_fails;
   }
 }
 
@@ -296,7 +306,7 @@ void test_minimum_distance_auction (knowledge::KnowledgeBase & knowledge)
 
   std::string closest = auction.get_leader ();
 
-  if (closest == "agent.4")
+  if (closest == "agent.0")
   {
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == agent.3: SUCCESS\n");
@@ -306,6 +316,17 @@ void test_minimum_distance_auction (knowledge::KnowledgeBase & knowledge)
     loggers::global_logger->log (
       loggers::LOG_ALWAYS, "  Leader == %s: FAIL\n",
       closest.c_str ());
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  agent.0: %f\n", *agent0bid);
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  agent.1: %f\n", *agent1bid);
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  agent.2: %f\n", *agent2bid);
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  agent.3: %f\n", *agent3bid);
+    loggers::global_logger->log (
+      loggers::LOG_ALWAYS, "  agent.4: %f\n", *agent4bid);
+    ++gams_fails;
   }
 
   knowledge.print ();
@@ -320,5 +341,14 @@ main (int, char **)
   test_maximum_auction (knowledge);
   test_minimum_distance_auction (knowledge);
 
-  return 0;
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

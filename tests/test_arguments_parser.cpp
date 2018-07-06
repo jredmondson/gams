@@ -6,6 +6,56 @@
 namespace knowledge = madara::knowledge;
 using namespace gams::utility;
 
+int gams_fails = 0;
+
+void test_name_value (ArgumentParser::const_iterator & iter, 
+const ArgumentParser::const_iterator & end, const std::string & var, 
+const std::string & value)
+{
+  if (iter != end)
+  {
+    if (iter.name () == var && iter.value () == value)
+    {
+      std::cerr << "SUCCESS: " << var << " = " << value << "\n";
+    }
+    else
+    {
+      std::cerr << "FAIL: " << iter.name () << " = " << iter.value () << " instead of"
+        << var << " = " << value << "\n";
+    }
+    ++iter;
+  }
+  else
+  {
+    ++gams_fails;
+    std::cerr << "FAIL: unexpected end of argument iteration\n";
+  }
+}
+
+void test_deref_iteration (ArgumentParser::const_iterator & iter, 
+const ArgumentParser::const_iterator & end, const std::string & var, 
+const std::string & value)
+{
+  if (iter != end)
+  {
+    if (iter->first == var && iter->second == value)
+    {
+      std::cerr << "SUCCESS: " << var << " = " << value << "\n";
+    }
+    else
+    {
+      std::cerr << "FAIL: " << iter->first << " = " << iter->second << " instead of"
+        << var << " = " << value << "\n";
+    }
+    ++iter;
+  }
+  else
+  {
+    ++gams_fails;
+    std::cerr << "FAIL: unexpected end of argument iteration\n";
+  }
+}
+
 int main(int, char *[])
 {
   knowledge::KnowledgeBase kbase;
@@ -22,18 +72,22 @@ int main(int, char *[])
 
   ArgumentParser args(kmap);
 
-  for(ArgumentParser::const_iterator i = args.begin();
-      i != args.end(); i.next())
-  {
-    std::cout << i.name() << " -> " << i.value() << std::endl;
-  }
+  ArgumentParser::const_iterator ci = args.begin ();
 
-  std::cout << "With dereference:" << std::endl;
+  test_name_value (ci, args.end (), "aname", "a val");
+  test_name_value (ci, args.end (), "bname", "b val");
+  test_name_value (ci, args.end (), "cname", "c val");
+  test_name_value (ci, args.end (), "dname", "d val");
+  test_name_value (ci, args.end (), "size", "2");
 
-  for(ArgumentParser::const_iterator i = args.begin(); i != args.end(); ++i)
-  {
-    std::cout << i->first << " -> " << i->second << std::endl;
-  }
+  ci = args.begin ();
+
+  test_deref_iteration (ci, args.end (), "aname", "a val");
+  test_deref_iteration (ci, args.end (), "bname", "b val");
+  test_deref_iteration (ci, args.end (), "cname", "c val");
+  test_deref_iteration (ci, args.end (), "dname", "d val");
+  test_deref_iteration (ci, args.end (), "size", "2");
+
 
 #ifdef CPP11
   std::cout << "With C++11 foreach:" << std::endl;
@@ -44,5 +98,14 @@ int main(int, char *[])
   }
 #endif
 
-  return 0;
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

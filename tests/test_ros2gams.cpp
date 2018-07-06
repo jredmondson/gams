@@ -4,6 +4,7 @@
 
 
 const double TEST_epsilon = 0.0001;
+int gams_fails = 0;
 
 double round_nearest(double in)
 {
@@ -28,6 +29,7 @@ double round_nearest(double in)
     else \
     { \
       std::cout << #expr << " ?= " << e << "  FAIL! got " << bv << " instead" << std::endl; \
+			++gams_fails; \
     } \
   } while(0)
 
@@ -117,5 +119,15 @@ int main (int, char **)
 	std::cout << "Testing ros2gams" << std::endl;
 	test_pose();
 	test_tf_tree();
-	return 0;
+
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

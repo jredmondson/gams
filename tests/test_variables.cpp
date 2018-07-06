@@ -68,6 +68,8 @@ namespace pose = gams::pose;
 namespace knowledge = madara::knowledge;
 namespace variables = gams::variables;
 
+int gams_fails = 0;
+
 void
 test_accent (void)
 {
@@ -133,6 +135,7 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
   
   std::cout << "  Testing Agent.home: ";
@@ -143,6 +146,7 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
   
   std::cout << "  Testing Agent.location: ";
@@ -153,6 +157,7 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
   
   std::cout << "  Testing Agent.source: ";
@@ -163,6 +168,7 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
   
   std::cout << "  Testing Agent.dest_orientation: ";
@@ -173,6 +179,7 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
   
   std::cout << "  Testing Agent.orientation: ";
@@ -183,6 +190,7 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
   
   std::cout << "  Testing Agent.source_orientation: ";
@@ -193,38 +201,111 @@ test_agent (void)
   else
   {
     std::cout << "FAIL\n";
+    ++gams_fails;
   }
 
   // test string containers
 
-  std::cout << "  Testing Agent.algorithm: " <<
-    (agent.algorithm == "search" ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.algorithm: ";
+  if (agent.algorithm == "search")
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.coverage_type: " <<
-    (agent.coverage_type == "pac" ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.coverage_type: ";
+  if (agent.coverage_type == "pac")
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.last_algorithm: " <<
-    (agent.last_algorithm == "search" ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.last_algorithm: ";
+  if (agent.last_algorithm == "search")
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.next_coverage_type: " <<
-    (agent.next_coverage_type == "rec" ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.next_coverage_type: ";
+  if (agent.next_coverage_type == "rec")
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.prefix: " <<
-    (agent.prefix == "agent.tester" ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.prefix: ";
+  if (agent.prefix == "agent.tester")
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
 
   // test double containers
 
-  std::cout << "  Testing Agent.desired_altitude: " <<
-    (agent.desired_altitude == 800.24 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.desired_altitude: ";
+  if (agent.desired_altitude == 800.24)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.loop_hz: " <<
-    (agent.loop_hz == 30.0 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.loop_hz: ";
+  if (agent.loop_hz == 30.0)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.send_hz: " <<
-    (agent.send_hz == 5.0 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.send_hz: ";
+  if (agent.send_hz == 5.0)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.temperature: " <<
-    (agent.temperature == 56.5 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.temperature: ";
+  if (agent.temperature == 56.5)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
   // test double containers
 
@@ -239,36 +320,115 @@ test_agent (void)
   agent.madara_debug_level = 3;
   agent.search_area_id = 2;
   
-  std::cout << "  Testing Agent.algorithm_accepts: " <<
-    (agent.algorithm_accepts == 5 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.algorithm_accepts: ";
+  if (agent.algorithm_accepts == 5)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.algorithm_id: " <<
-    (agent.algorithm_id == 3 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.algorithm_id: ";
+  if (agent.algorithm_id == 3)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.algorithm_rejects: " <<
-    (agent.algorithm_rejects == 12 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.algorithm_rejects: ";
+  if (agent.algorithm_rejects == 12)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.battery_remaining: " <<
-    (agent.battery_remaining == 82 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.battery_remaining: ";
+  if (agent.battery_remaining == 82)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.bridge_id: " <<
-    (agent.bridge_id == 7 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.bridge_id: ";
+  if (agent.bridge_id == 7)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.gams_debug_level: " <<
-    (agent.gams_debug_level == 4 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.gams_debug_level: ";
+  if (agent.gams_debug_level == 4)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.is_mobile: " <<
-    (agent.is_mobile == 1 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.is_mobile: ";
+  if (agent.is_mobile == 1)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.last_algorithm_id: " <<
-    (agent.last_algorithm_id == 3 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.last_algorithm_id: ";
+  if (agent.last_algorithm_id == 3)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.madara_debug_level: " <<
-    (agent.madara_debug_level == 3 ? "SUCCESS\n" : "FAIL\n");
+  std::cout << "  Testing Agent.madara_debug_level: ";
+  if (agent.madara_debug_level == 3)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
   
-  std::cout << "  Testing Agent.search_area_id: " <<
-    (agent.search_area_id == 2 ? "SUCCESS\n" : "FAIL\n");
-  
+  std::cout << "  Testing Agent.search_area_id: ";
+  if (agent.search_area_id == 2)
+  {
+    std::cout << "SUCCESS\n";
+  }
+  else
+  {
+    std::cout << "FAIL\n";
+    ++gams_fails;
+  }
 }
 
 void
@@ -313,6 +473,15 @@ main (int /*argc*/, char ** /*argv*/)
   test_sensor ();
   test_swarm ();
 
-  return 0;
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }
 

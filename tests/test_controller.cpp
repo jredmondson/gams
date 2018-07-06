@@ -74,6 +74,8 @@ std::vector <std::string> accents;
 double period = 1.0;
 double max_wait = 50.0;
 
+int gams_fails = 0;
+
 // handle command line arguments
 void handle_arguments (int argc, char ** argv)
 {
@@ -288,5 +290,24 @@ int main (int argc, char ** argv)
   // print all knowledge values
   knowledge.print ();
 
-  return 0;
+  if (knowledge.get (".execution").to_double () >= (1/period) * max_wait * 0.5)
+  {
+    knowledge.print ("SUCCESS: {.executions} is enough to pass\n");
+  }
+  else
+  {
+    knowledge.print ("SUCCESS: {.executions} is not enough to pass\n");
+    ++gams_fails;
+  }
+  
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

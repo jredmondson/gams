@@ -11,6 +11,7 @@ using namespace gams::pose;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.01;
+int gams_fails = 0;
 
 double round_nearest(double in)
 {
@@ -31,6 +32,7 @@ double round_nearest(double in)
     else \
     { \
       std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  FAIL! got " << v << " instead" << std::endl; \
+      gams_fails++; \
     } \
   } while(0)
 
@@ -49,6 +51,7 @@ double round_nearest(double in)
     else \
     { \
       std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  FAIL! got " << bv << " instead" << std::endl; \
+      gams_fails++; \
     } \
   } while(0)
 
@@ -631,5 +634,14 @@ int main(int, char *[])
     TEST(pose.frame() == base, 1);
   }
 
-  return 0;
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

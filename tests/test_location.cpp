@@ -6,6 +6,7 @@ using namespace gams::pose;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.0001;
+int gams_fails = 0;
 
 double round_nearest(double in)
 {
@@ -30,6 +31,7 @@ double round_nearest(double in)
     else \
     { \
       std::cout << #expr << " ?= " << e << "  FAIL! got " << bv << " instead" << std::endl; \
+      gams_fails++; \
     } \
   } while(0)
 
@@ -46,5 +48,15 @@ int main(int , char **)
 
   TEST(dloc0.distance_to(dloc1), 5);
   TEST(dloc1.distance_to(dloc0), 5);
-  return 0;
+
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }

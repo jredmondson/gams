@@ -60,6 +60,8 @@ namespace controllers = gams::controllers;
 typedef madara::knowledge::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
+int gams_fails = 0;
+
 /**
  * Monitor function
  * @param  args   arguments to the function
@@ -115,6 +117,8 @@ int main (int /*argc*/, char ** /*argv*/)
   engine::KnowledgeBase knowledge;
   controllers::MapeLoop loop (knowledge);
 
+  knowledge.print ("Defining MAPE functions\n");
+
   // initialize variables and function stubs
   loop.init_vars (knowledge, 0, 4);
   loop.define_monitor (monitor);
@@ -122,11 +126,62 @@ int main (int /*argc*/, char ** /*argv*/)
   loop.define_plan (plan);
   loop.define_execute (execute);
 
+  knowledge.print ("Looping at 1hz for 50s\n");
+
   // run a mape loop every 1s for 50s
   loop.run (1.0, 50.0);
 
   // print all knowledge values
   knowledge.print ();
 
-  return 0;
+  if (knowledge.get (".monitor").to_double () >= 10)
+  {
+    knowledge.print ("SUCCESS: {.monitor} monitor() is enough to pass\n");
+  }
+  else
+  {
+    knowledge.print ("FAIL: {.monitor} monitor() is not enough to pass\n");
+    ++gams_fails;
+  }
+  
+  if (knowledge.get (".analyze").to_double () >= 10)
+  {
+    knowledge.print ("SUCCESS: {.analyze} analyze() is enough to pass\n");
+  }
+  else
+  {
+    knowledge.print ("FAIL: {.analyze} analyze() is not enough to pass\n");
+    ++gams_fails;
+  }
+  
+  if (knowledge.get (".plan").to_double () >= 10)
+  {
+    knowledge.print ("SUCCESS: {.plan} plan() is enough to pass\n");
+  }
+  else
+  {
+    knowledge.print ("FAIL: {.plan} plan() is not enough to pass\n");
+    ++gams_fails;
+  }
+  
+  if (knowledge.get (".execute").to_double () >= 10)
+  {
+    knowledge.print ("SUCCESS: {.execute} execute() is enough to pass\n");
+  }
+  else
+  {
+    knowledge.print ("FAIL: {.execute} execute() is not enough to pass\n");
+    ++gams_fails;
+  }
+  
+  if (gams_fails > 0)
+  {
+    std::cerr << "OVERALL: FAIL. " << gams_fails << " tests failed.\n";
+  }
+  else
+  {
+    std::cerr << "OVERALL: SUCCESS.\n";
+  }
+
+  return gams_fails;
 }
