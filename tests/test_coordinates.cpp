@@ -414,25 +414,6 @@ int main(int, char *[])
   kb.to_string(dump);
   LOG(dump);
 
-  madara::knowledge::KnowledgeBase tkb;
-  std::ifstream t("frames.kb");
-  std::string karl((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-  tkb.evaluate (karl);
-
-  tkb.to_string(dump);
-  LOG(dump);
-
-  auto f = ReferenceFrame::load(tkb, "p1base_link");
-  LOG (f.valid());
-
-  Pose pf(f, 1, 2, 3);
-  Position loc(pf);
-  madara::knowledge::containers::NativeDoubleArray nda(".foo", tkb);
-  loc.to_container(nda);
-
-  tkb.to_string(dump);
-  LOG(dump);
-
   {
     madara::knowledge::KnowledgeBase data_;
 
@@ -632,6 +613,28 @@ int main(int, char *[])
     PositionVector pos(0, 0);
     Pose pose(base, pos, quat);
     TEST(pose.frame() == base, 1);
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    ReferenceFrame("f", Pose(0, 0, 0)).save(kb);
+
+    auto frames = ReferenceFrame::load_tree(kb, std::vector<std::string>{"f"});
+    TEST(frames.size(), 1);
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    ReferenceFrame("f1", Pose(0, 0, 0), 10).save(kb);
+    ReferenceFrame("f1", Pose(0, 0, 0), 20).save(kb);
+
+    auto frames = ReferenceFrame::load_tree(kb, std::vector<std::string>{"f1"});
+    TEST(frames.size(), 1);
+    TEST(frames[0].origin().x(), 0);
   }
 
   if (gams_fails > 0)

@@ -4,6 +4,7 @@ feature (vrep) {
   macros += _GAMS_VREP_
   macros += MAX_EXT_API_CONNECTIONS=255
   macros += NON_MATLAB_PARSING
+  macros += DO_NOT_USE_SHARED_MEMORY
 
   includes += $(VREP_ROOT)/programming/remoteApi
   includes += $(VREP_ROOT)/programming/include
