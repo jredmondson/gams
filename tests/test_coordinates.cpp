@@ -535,6 +535,7 @@ int main(int, char *[])
     TEST_EQ(stamped_pose.frame() == gps_frame(), 0);
   }
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   {
     madara::knowledge::KnowledgeBase kb;
 
@@ -569,6 +570,7 @@ int main(int, char *[])
 
     kb.print();
   }
+#endif
   {
     Orientation o0(0, 0, 0);
     Orientation o1(0, 0, M_PI/2);
