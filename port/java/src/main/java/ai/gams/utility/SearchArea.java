@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,15 +38,16 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.utility;
 
 import ai.gams.GamsJNI;
+import ai.gams.exceptions.GamsDeadObjectException;
 
 /**
  * A utility class that acts as a facade for a SearchArea
@@ -61,18 +62,18 @@ public class SearchArea extends GamsJNI
   private native void jni_modify(long cptr);
   private static native void jni_freeSearchArea(long cptr);
   private native java.lang.String jni_toString(long cptr);
-  private native void jni_addPrioritizedRegion(long cptr, long region); 
+  private native void jni_addPrioritizedRegion(long cptr, long region);
   private native long jni_getConvexHull(long cptr);
-  private native boolean jni_containsGps(long cptr, long coord);  
-  private native double jni_getMaxAlt(long cptr); 
-  private native double jni_getMinAlt(long cptr); 
-  private native double jni_getMaxLat(long cptr); 
-  private native double jni_getMinLat(long cptr); 
-  private native double jni_getMaxLong(long cptr); 
-  private native double jni_getMinLong(long cptr); 
-  private native long jni_getGpsPriority(long cptr, long coord); 
-  private native long[] jni_getRegions(long cptr); 
-  
+  private native boolean jni_containsGps(long cptr, long coord);
+  private native double jni_getMaxAlt(long cptr);
+  private native double jni_getMinAlt(long cptr);
+  private native double jni_getMaxLat(long cptr);
+  private native double jni_getMinLat(long cptr);
+  private native double jni_getMaxLong(long cptr);
+  private native double jni_getMinLong(long cptr);
+  private native long jni_getGpsPriority(long cptr, long coord);
+  private native long[] jni_getRegions(long cptr);
+
   private boolean manageMemory = true;
 
   public SearchArea()
@@ -84,7 +85,7 @@ public class SearchArea extends GamsJNI
    * Get name of the SearchArea
    * @return name of the SearchArea
    **/
-  public String getName()
+  public String getName() throws GamsDeadObjectException
   {
     return jni_getName(getCPtr());
   }
@@ -93,7 +94,7 @@ public class SearchArea extends GamsJNI
    * Set name of the SearchArea
    * @param n   new name for SearchArea
    **/
-  public void setName(String n)
+  public void setName(String n) throws GamsDeadObjectException
   {
     jni_setName(getCPtr(), n);
   }
@@ -109,105 +110,105 @@ public class SearchArea extends GamsJNI
 
   /**
    * Adds a region to the search area
-   * @param  region  the region to add to the search area 
+   * @param  region  the region to add to the search area
    **/
-  public void add(PrioritizedRegion region)
+  public void add(PrioritizedRegion region) throws GamsDeadObjectException
   {
-    jni_addPrioritizedRegion(getCPtr(),region.getCPtr()); 
+    jni_addPrioritizedRegion(getCPtr(),region.getCPtr());
   }
-  
+
   /**
    * Gets bounding box
    * @return Region object corresponding to bounding box
    **/
-  public Region getConvexHull()
+  public Region getConvexHull() throws GamsDeadObjectException
   {
     return Region.fromPointer(jni_getConvexHull(getCPtr()));
   }
-  
+
   /**
    * Checks to see if the point is contained in this region
    * @param   point     point to check
    * @return 0 if in region, otherwise distance from region
    **/
-  public boolean contains(GpsPosition point)
+  public boolean contains(GpsPosition point) throws GamsDeadObjectException
   {
     return jni_containsGps(getCPtr(),point.getCPtr());
-  } 
-   
+  }
+
   /**
    * Gets priority of a gps position
    * @param   point     point to check
    * @return  the priority at the point
    **/
-  public long getPriority(GpsPosition point)
+  public long getPriority(GpsPosition point) throws GamsDeadObjectException
   {
     return jni_getGpsPriority(getCPtr(),point.getCPtr());
   }
-  
+
   /**
    * Gets the maximum altitude
    * @return maximum altitude in the region
    **/
-  public double getMaxAlt()
+  public double getMaxAlt() throws GamsDeadObjectException
   {
     return jni_getMaxAlt(getCPtr());
   }
-  
+
   /**
    * Gets the minimum altitude
    * @return minimum altitude in the region
    **/
-  public double getMinAlt()
+  public double getMinAlt() throws GamsDeadObjectException
   {
     return jni_getMinAlt(getCPtr());
   }
-    
+
   /**
    * Gets the maximum latitude
    * @return maximum latitude in the region
    **/
-  public double getMaxLat()
+  public double getMaxLat() throws GamsDeadObjectException
   {
     return jni_getMaxLat(getCPtr());
   }
-      
+
   /**
    * Gets the minimum latitude
    * @return minimum latitude in the region
    **/
-  public double getMinLat()
+  public double getMinLat() throws GamsDeadObjectException
   {
     return jni_getMinLat(getCPtr());
   }
-      
+
   /**
    * Gets the maximum longitude
    * @return maximum longitude in the region
    **/
-  public double jni_getMaxLong()
+  public double jni_getMaxLong() throws GamsDeadObjectException
   {
     return jni_getMaxLong(getCPtr());
   }
-      
+
   /**
    * Gets the minimum longitude
    * @return minimum longitude in the region
    **/
-  public double getMinLong()
+  public double getMinLong() throws GamsDeadObjectException
   {
     return jni_getMinLong(getCPtr());
   }
-  
+
   /**
    * Gets the regions within the search area
    * @return vertices that form the region boundary
    **/
-  public PrioritizedRegion[] getRegions()
+  public PrioritizedRegion[] getRegions() throws GamsDeadObjectException
   {
     long[] vertices = jni_getRegions(getCPtr());
     PrioritizedRegion[] result = new PrioritizedRegion[vertices.length];
-    
+
     if(vertices.length > 0)
     {
       result = new PrioritizedRegion[vertices.length];
@@ -216,21 +217,21 @@ public class SearchArea extends GamsJNI
     }
     return result;
   }
-    
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static SearchArea fromPointer(long cptr)
+  public static SearchArea fromPointer(long cptr) throws GamsDeadObjectException
   {
     SearchArea ret = new SearchArea();
     ret.manageMemory = true;
     ret.setCPtr(cptr);
     return ret;
   }
-  
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
@@ -238,7 +239,7 @@ public class SearchArea extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static SearchArea fromPointer(long cptr, boolean shouldManage)
+  public static SearchArea fromPointer(long cptr, boolean shouldManage) throws GamsDeadObjectException
   {
     SearchArea ret = new SearchArea();
     ret.manageMemory=shouldManage;
@@ -250,7 +251,7 @@ public class SearchArea extends GamsJNI
    * Helper function for copying values from a MADARA knowledge base
    * @param kb      KnowledgeBase to copy SearchArea information to
    **/
-  public void fromContainer(ai.madara.knowledge.KnowledgeBase kb)
+  public void fromContainer(ai.madara.knowledge.KnowledgeBase kb) throws GamsDeadObjectException
   {
     fromContainer (kb, getName());
   }
@@ -260,7 +261,7 @@ public class SearchArea extends GamsJNI
    * @param kb      KnowledgeBase to copy SearchArea information to
    * @param name    name of the SearchArea
    **/
-  public void fromContainer(ai.madara.knowledge.KnowledgeBase kb, String name)
+  public void fromContainer(ai.madara.knowledge.KnowledgeBase kb, String name) throws GamsDeadObjectException
   {
     jni_fromContainer(getCPtr(), kb.getCPtr(), name);
   }
@@ -269,7 +270,7 @@ public class SearchArea extends GamsJNI
    * Helper function for copying values to a MADARA knowledge base
    * @param kb      KnowledgeBase with SearchArea information
    **/
-  public void toContainer(ai.madara.knowledge.KnowledgeBase kb)
+  public void toContainer(ai.madara.knowledge.KnowledgeBase kb) throws GamsDeadObjectException
   {
     toContainer(kb, getName());
   }
@@ -279,7 +280,7 @@ public class SearchArea extends GamsJNI
    * @param kb      KnowledgeBase with SearchArea information
    * @param name    name of the SearchArea
    **/
-  public void toContainer(ai.madara.knowledge.KnowledgeBase kb, String name)
+  public void toContainer(ai.madara.knowledge.KnowledgeBase kb, String name) throws GamsDeadObjectException
   {
     jni_toContainer(getCPtr(), kb.getCPtr(), name);
   }
@@ -303,8 +304,8 @@ public class SearchArea extends GamsJNI
       jni_freeSearchArea(getCPtr());
       setCPtr(0);
     }
-  }           
-  
+  }
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

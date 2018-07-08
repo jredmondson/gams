@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,22 +38,21 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.variables;
 
 import ai.gams.GamsJNI;
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.Variables;
-import ai.madara.knowledge.containers.String;
-import ai.madara.knowledge.containers.Vector;
 
 public class AccentStatus extends GamsJNI
-{	
+{
   private native long jni_AccentStatus();
   private native long jni_AccentStatus(long cptr);
   private static native void jni_freeAccentStatus(long cptr);
@@ -66,7 +65,7 @@ public class AccentStatus extends GamsJNI
   /**
    * Default constructor
    **/
-  public AccentStatus()
+  public AccentStatus() throws GamsDeadObjectException
   {
     setCPtr(jni_AccentStatus());
     init();
@@ -76,7 +75,7 @@ public class AccentStatus extends GamsJNI
    * Copy constructor
    * @param input  the accent to copy
    **/
-  public AccentStatus(AccentStatus input)
+  public AccentStatus(AccentStatus input) throws GamsDeadObjectException
   {
     setCPtr(jni_AccentStatus(input.getCPtr()));
     init();
@@ -87,7 +86,7 @@ public class AccentStatus extends GamsJNI
    *
    * @return  name of the variable within the context
    */
-  public java.lang.String getName()
+  public java.lang.String getName() throws GamsDeadObjectException
   {
     return jni_getName(getCPtr());
   }
@@ -95,21 +94,21 @@ public class AccentStatus extends GamsJNI
   /**
    * Initializes the member variables
    **/
-  public void init()
+  public void init() throws GamsDeadObjectException
   {
     command = ai.madara.knowledge.containers.String.fromPointer (
       jni_getCommand (getCPtr ()),false);
     args = ai.madara.knowledge.containers.Vector.fromPointer (
       jni_getArgs (getCPtr ()),false);
   }
-  
+
   /**
    * Sets the name and knowledge base being referred to
    *
    * @param  kb      the knowledge base that contains the name
    * @param  name    the variable name
    */
-  public void init(KnowledgeBase kb, java.lang.String name)
+  public void init(KnowledgeBase kb, java.lang.String name) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 0, kb.getCPtr (), name);
     init();
@@ -121,7 +120,7 @@ public class AccentStatus extends GamsJNI
    * @param  vars    the variables facade that contains the name
    * @param  name    the variable name
    */
-  public void init(Variables vars, java.lang.String name)
+  public void init(Variables vars, java.lang.String name) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 1, vars.getCPtr (), name);
     init();
@@ -156,7 +155,7 @@ public class AccentStatus extends GamsJNI
     jni_AccentStatus(getCPtr());
       setCPtr(0);
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

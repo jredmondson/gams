@@ -46,22 +46,6 @@
  *********************************************************************/
 
 package ai.gams.tests;
- 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import ai.gams.controllers.BaseController;
-import ai.gams.algorithms.MessageProfiling;
-
-import ai.madara.knowledge.KnowledgeBase;
-import ai.madara.knowledge.KnowledgeList;
-import ai.madara.transport.QoSTransportSettings;
-import ai.madara.transport.filters.Packet;
-import ai.madara.transport.TransportContext;
-import ai.madara.logger.GlobalLogger;
-import ai.madara.knowledge.Variables;
 
 public class TestMessageProfilingAlgorithm
 {

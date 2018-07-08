@@ -46,17 +46,12 @@
  *********************************************************************/
 package ai.gams.algorithms;
 
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 
-import ai.gams.controllers.BaseController;
-import ai.gams.algorithms.AlgorithmStatusEnum;
-
-import ai.madara.knowledge.KnowledgeBase;
-import ai.madara.transport.filters.Packet;
-import ai.madara.transport.TransportContext;
 import ai.madara.knowledge.Variables;
-import ai.madara.logger.GlobalLogger;
+import ai.madara.transport.TransportContext;
+import ai.madara.transport.filters.Packet;
 
 /**
  * Base class that should be extended when creating a Java algorithm for

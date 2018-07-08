@@ -47,16 +47,11 @@
 
 package ai.gams.tests;
  
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-
 import ai.madara.knowledge.KnowledgeBase;
-import ai.madara.transport.QoSTransportSettings;
-import ai.madara.transport.filters.Packet;
-import ai.madara.transport.TransportContext;
 import ai.madara.knowledge.Variables;
+import ai.madara.transport.QoSTransportSettings;
+import ai.madara.transport.TransportContext;
+import ai.madara.transport.filters.Packet;
 
 public class TestMessagingThroughput
 {
