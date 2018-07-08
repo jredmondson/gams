@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,21 +38,22 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.variables;
 
 import ai.gams.GamsJNI;
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.Variables;
 import ai.madara.knowledge.containers.Integer;
 
 public class AlgorithmStatus extends GamsJNI
-{	
+{
   private native long jni_AlgorithmStatus();
   private native long jni_AlgorithmStatus(long cptr);
   private static native void jni_freeAlgorithmStatus(long cptr);
@@ -72,7 +73,7 @@ public class AlgorithmStatus extends GamsJNI
   /**
    * Default constructor
    **/
-  public AlgorithmStatus()
+  public AlgorithmStatus() throws GamsDeadObjectException
   {
     setCPtr(jni_AlgorithmStatus());
     init();
@@ -82,7 +83,7 @@ public class AlgorithmStatus extends GamsJNI
    * Copy constructor
    * @param input the algorithm to copy
    **/
-  public AlgorithmStatus(AlgorithmStatus input)
+  public AlgorithmStatus(AlgorithmStatus input) throws GamsDeadObjectException
   {
     setCPtr(jni_AlgorithmStatus(input.getCPtr()));
     init();
@@ -94,7 +95,7 @@ public class AlgorithmStatus extends GamsJNI
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static AlgorithmStatus fromPointer(long cptr)
+  public static AlgorithmStatus fromPointer(long cptr) throws GamsDeadObjectException
   {
     AlgorithmStatus ret = new AlgorithmStatus();
     ret.manageMemory = true;
@@ -110,7 +111,7 @@ public class AlgorithmStatus extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static AlgorithmStatus fromPointer(long cptr, boolean shouldManage)
+  public static AlgorithmStatus fromPointer(long cptr, boolean shouldManage) throws GamsDeadObjectException
   {
     AlgorithmStatus ret = new AlgorithmStatus();
     ret.manageMemory=shouldManage;
@@ -124,7 +125,7 @@ public class AlgorithmStatus extends GamsJNI
    *
    * @return  name of the variable within the context
    */
-  public java.lang.String getName()
+  public java.lang.String getName() throws GamsDeadObjectException
   {
     return jni_getName(getCPtr());
   }
@@ -132,7 +133,7 @@ public class AlgorithmStatus extends GamsJNI
   /**
    * Initializes the member variables
    **/
-  public void init()
+  public void init() throws GamsDeadObjectException
   {
     deadlocked = Integer.fromPointer (jni_getDeadlocked (getCPtr ()), false);
     failed = Integer.fromPointer (jni_getFailed (getCPtr ()), false);
@@ -142,7 +143,7 @@ public class AlgorithmStatus extends GamsJNI
     waiting = Integer.fromPointer (jni_getWaiting (getCPtr ()), false);
     finished = Integer.fromPointer (jni_getFinished (getCPtr ()), false);
   }
-  
+
   /**
    * Sets the name and knowledge base being referred to
    *
@@ -150,7 +151,7 @@ public class AlgorithmStatus extends GamsJNI
    * @param  name    the variable name
    * @param  id      id of the agent to get status for
    */
-  public void init(KnowledgeBase kb, java.lang.String name, int id)
+  public void init(KnowledgeBase kb, java.lang.String name, int id) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 0, kb.getCPtr (), name, id);
     init();
@@ -163,7 +164,7 @@ public class AlgorithmStatus extends GamsJNI
    * @param  name    the variable name
    * @param  id      id of the agent to get status for
    */
-  public void init(Variables vars, java.lang.String name, int id)
+  public void init(Variables vars, java.lang.String name, int id) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 1, vars.getCPtr (), name, id);
     init();
@@ -226,7 +227,7 @@ public class AlgorithmStatus extends GamsJNI
       setCPtr(0);
     }
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

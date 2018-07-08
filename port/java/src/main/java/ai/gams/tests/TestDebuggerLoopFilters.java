@@ -47,18 +47,11 @@
 
 package ai.gams.tests;
  
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-
+import ai.gams.controllers.BaseController;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.transport.QoSTransportSettings;
 import ai.madara.transport.TransportType;
 import ai.madara.transport.filters.LogAggregate;
-
-import ai.gams.controllers.BaseController;
-import ai.gams.utility.Logging;
 
 public class TestDebuggerLoopFilters
 { 

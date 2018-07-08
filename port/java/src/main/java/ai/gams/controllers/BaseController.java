@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,55 +38,56 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.controllers;
 
 import ai.gams.GamsJNI;
-import ai.madara.knowledge.KnowledgeBase;
-import ai.madara.knowledge.KnowledgeList;
+import ai.gams.algorithms.AlgorithmFactory;
 import ai.gams.algorithms.BaseAlgorithm;
+import ai.gams.algorithms.DebuggerAlgorithm;
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.platforms.BasePlatform;
 import ai.gams.platforms.DebuggerPlatform;
-import ai.gams.algorithms.DebuggerAlgorithm;
-import ai.gams.algorithms.AlgorithmFactory;
+import ai.madara.knowledge.KnowledgeBase;
+import ai.madara.knowledge.KnowledgeList;
 
 public class BaseController extends GamsJNI
-{	
-  private native long jni_BaseControllerFromKb(long cptr);
-  private native long jni_BaseController(long cptr);
-  private static native void jni_freeBaseController(long cptr);
-  private native java.lang.String jni_toString(long cptr);
-  private native long jni_analyze(long cptr);
-  private native long jni_execute(long cptr);
-  private native long jni_getPlatform(long cptr);
-  private native long jni_getAlgorithm(long cptr);
-  private native void jni_addAlgorithmFactory(long cptr, java.lang.String name, Object factory);
-  private native void jni_initAccent(long cptr, java.lang.String name, long[] args);
-  private native void jni_initAlgorithm(long cptr, java.lang.String name, long[] args);
-  private native void jni_initPlatform(long cptr, java.lang.String name);
-  private native void jni_initPlatform(long cptr, java.lang.String name, long[] args);
-  private native void jni_initAlgorithm(long cptr, Object algorithm);
-  private native void jni_initPlatform(long cptr, Object platform);
-  private native void jni_initVars(long cptr, long id, long processes);
-  private native void jni_initVarsAlgorithm(long cptr, long algorithm);
-  private native void jni_initVarsPlatform(long cptr, long platform);
-  private native long jni_monitor(long cptr);
-  private native long jni_plan(long cptr);
-  private native long jni_run(long cptr, double period, double max);
-  private native long jni_run(long cptr, double loopPeriod, double max, double sendPeriod);
-  private native long jni_runHz(long cptr, double loopHz, double max, double sendHz);
-  private native long jni_systemAnalyze(long cptr);
+{
+  private native long jni_BaseControllerFromKb(long cptr) throws GamsDeadObjectException;
+  private native long jni_BaseController(long cptr) throws GamsDeadObjectException;
+  private static native void jni_freeBaseController(long cptr) throws GamsDeadObjectException;
+  private native java.lang.String jni_toString(long cptr) throws GamsDeadObjectException;
+  private native long jni_analyze(long cptr) throws GamsDeadObjectException;
+  private native long jni_execute(long cptr) throws GamsDeadObjectException;
+  private native long jni_getPlatform(long cptr) throws GamsDeadObjectException;
+  private native long jni_getAlgorithm(long cptr) throws GamsDeadObjectException;
+  private native void jni_addAlgorithmFactory(long cptr, java.lang.String name, Object factory) throws GamsDeadObjectException;
+  private native void jni_initAccent(long cptr, java.lang.String name, long[] args) throws GamsDeadObjectException;
+  private native void jni_initAlgorithm(long cptr, java.lang.String name, long[] args) throws GamsDeadObjectException;
+  private native void jni_initPlatform(long cptr, java.lang.String name) throws GamsDeadObjectException;
+  private native void jni_initPlatform(long cptr, java.lang.String name, long[] args) throws GamsDeadObjectException;
+  private native void jni_initAlgorithm(long cptr, Object algorithm) throws GamsDeadObjectException;
+  private native void jni_initPlatform(long cptr, Object platform) throws GamsDeadObjectException;
+  private native void jni_initVars(long cptr, long id, long processes) throws GamsDeadObjectException;
+  private native void jni_initVarsAlgorithm(long cptr, long algorithm) throws GamsDeadObjectException;
+  private native void jni_initVarsPlatform(long cptr, long platform) throws GamsDeadObjectException;
+  private native long jni_monitor(long cptr) throws GamsDeadObjectException;
+  private native long jni_plan(long cptr) throws GamsDeadObjectException;
+  private native long jni_run(long cptr, double period, double max) throws GamsDeadObjectException;
+  private native long jni_run(long cptr, double loopPeriod, double max, double sendPeriod) throws GamsDeadObjectException;
+  private native long jni_runHz(long cptr, double loopHz, double max, double sendHz) throws GamsDeadObjectException;
+  private native long jni_systemAnalyze(long cptr) throws GamsDeadObjectException;
 
   private BaseAlgorithm  algorithm = null;
   private BasePlatform   platform = null;
   private long id = 0;
   private long processes = 1;
-  
+
   private boolean manageMemory = true;
 
   /**
@@ -97,15 +98,15 @@ public class BaseController extends GamsJNI
   {
     setCPtr(cptr);
   }
-  
+
   /**
    * Constructor
    * @param knowledge knowledge base to use
    */
-  public BaseController(KnowledgeBase knowledge)
+  public BaseController(KnowledgeBase knowledge) throws GamsDeadObjectException
   {
     setCPtr(jni_BaseControllerFromKb(knowledge.getCPtr ()));
-    
+
     initVars(0, 1);
     initPlatform(new DebuggerPlatform ());
     initAlgorithm(new DebuggerAlgorithm ());
@@ -113,9 +114,9 @@ public class BaseController extends GamsJNI
 
   /**
    * Copy constructor
-   * @param input the instance to copy 
+   * @param input the instance to copy
    */
-  public BaseController(BaseController input)
+  public BaseController(BaseController input) throws GamsDeadObjectException
   {
     setCPtr(jni_BaseController(input.getCPtr()));
   }
@@ -139,29 +140,26 @@ public class BaseController extends GamsJNI
    * @return status of analyze. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long analyze ()
-  {
+  public long analyze () throws GamsDeadObjectException  {
     return jni_analyze(getCPtr());
   }
-  
+
   /**
    * Executes the algorithm and accents
    * @return status of execute. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long execute ()
-  {
+  public long execute () throws GamsDeadObjectException  {
     return jni_execute(getCPtr());
   }
-  
+
   /**
    * Initialize an accent within the controller
    *
    * @param  name       name of the accent
    * @param  args       arguments to the accent initialization
    */
-  public void initAccent(java.lang.String name, KnowledgeList args)
-  {
+  public void initAccent(java.lang.String name, KnowledgeList args) throws GamsDeadObjectException  {
     jni_initAccent(getCPtr(), name, args.toPointerArray());
   }
 
@@ -171,8 +169,7 @@ public class BaseController extends GamsJNI
    * @param  name       name of the algorithm
    * @param  args       arguments to the algorithm initialization
    */
-  public void initAlgorithm(java.lang.String name, KnowledgeList args)
-  {
+  public void initAlgorithm(java.lang.String name, KnowledgeList args) throws GamsDeadObjectException  {
     jni_initAlgorithm(getCPtr(), name, args.toPointerArray());
   }
 
@@ -183,18 +180,16 @@ public class BaseController extends GamsJNI
    * @param factory the factory that creates the algorithm
    */
   public void addAlgorithmFactory(
-    java.lang.String name, AlgorithmFactory factory)
-  {
+    java.lang.String name, AlgorithmFactory factory) throws GamsDeadObjectException  {
     jni_addAlgorithmFactory(getCPtr(), name, factory);
   }
-  
+
   /**
    * Initialize a platform within the controller
    *
    * @param  name       name of the platform
    */
-  public void initPlatform(java.lang.String name)
-  {
+  public void initPlatform(java.lang.String name) throws GamsDeadObjectException  {
     jni_initPlatform(getCPtr(), name);
   }
 
@@ -204,8 +199,7 @@ public class BaseController extends GamsJNI
    * @param  name       name of the platform
    * @param  args       arguments to the platform initialization
    */
-  public void initPlatform(java.lang.String name, KnowledgeList args)
-  {
+  public void initPlatform(java.lang.String name, KnowledgeList args) throws GamsDeadObjectException  {
     jni_initPlatform(getCPtr(), name, args.toPointerArray());
   }
 
@@ -214,8 +208,7 @@ public class BaseController extends GamsJNI
    *
    * @param  algorithm  the algorithm to add to the controller
    */
-  public void initAlgorithm(BaseAlgorithm algorithm)
-  {
+  public void initAlgorithm(BaseAlgorithm algorithm) throws GamsDeadObjectException  {
     this.algorithm = algorithm;
     jni_initAlgorithm(getCPtr(), algorithm);
     algorithm.assume(jni_getAlgorithm(getCPtr()));
@@ -227,8 +220,7 @@ public class BaseController extends GamsJNI
    *
    * @param  platform  platform to add to the controller
    */
-  public void initPlatform(BasePlatform platform)
-  {
+  public void initPlatform(BasePlatform platform) throws GamsDeadObjectException  {
     this.platform = platform;
     jni_initPlatform(getCPtr(), platform);
     platform.assume(jni_getPlatform(getCPtr()));
@@ -241,22 +233,21 @@ public class BaseController extends GamsJNI
    * @param  id         the id of this process within the swarm
    * @param  processes  the number of processes participating in the swarm
    */
-  public void initVars(long id, long processes)
-  {
+  public void initVars(long id, long processes) throws GamsDeadObjectException  {
     this.id = id;
     this.processes = processes;
     jni_initVars(getCPtr(), id, processes);
-    
+
     // if the user setup the platform, initialize with the new id
     if(platform != null)
     {
-      platform.init(this); 
+      platform.init(this);
     }
-    
+
     // if the user setup the platform, initialize with the new id
     if(algorithm != null)
     {
-      algorithm.init(this); 
+      algorithm.init(this);
     }
   }
 
@@ -267,8 +258,7 @@ public class BaseController extends GamsJNI
    *
    * @param  platform   the user-defined platform
    */
-  public void initVars(BasePlatform platform)
-  {
+  public void initVars(BasePlatform platform) throws GamsDeadObjectException  {
     jni_initVarsPlatform(getCPtr(), platform.getCPtr ());
   }
 
@@ -279,8 +269,7 @@ public class BaseController extends GamsJNI
    *
    * @param  algorithm   the user-defined algorithm
    */
-  public void initVars(BaseAlgorithm algorithm)
-  {
+  public void initVars(BaseAlgorithm algorithm) throws GamsDeadObjectException  {
     jni_initVarsAlgorithm(getCPtr(), algorithm.getCPtr ());
   }
 
@@ -289,21 +278,19 @@ public class BaseController extends GamsJNI
    * @return status of monitor. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long monitor ()
-  {
+  public long monitor () throws GamsDeadObjectException  {
     return jni_monitor(getCPtr());
   }
-  
+
   /**
    * Plans the algorithm and accents
    * @return status of plan. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long plan ()
-  {
+  public long plan () throws GamsDeadObjectException  {
     return jni_plan(getCPtr());
   }
- 
+
   /**
    * Runs the monitor, analyze, plan and execute loop with a
    * specific period and duration
@@ -312,11 +299,10 @@ public class BaseController extends GamsJNI
    * @return status of run. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long run (double period, double duration)
-  {
+  public long run (double period, double duration) throws GamsDeadObjectException  {
     return jni_run(getCPtr(), period, duration);
   }
-   
+
   /**
    * Runs iterations of the MAPE loop with specified periods between loops
    * @param  loopPeriod time in seconds between executions of the loop. 0
@@ -329,11 +315,10 @@ public class BaseController extends GamsJNI
    * @return status of run. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long run (double loopPeriod, double duration, double sendPeriod)
-  {
+  public long run (double loopPeriod, double duration, double sendPeriod) throws GamsDeadObjectException  {
     return jni_run(getCPtr(), loopPeriod, duration, sendPeriod);
   }
-   
+
   /**
    * Runs iterations of the MAPE loop with specified hertz
    * @param  loopHz   the intended hz at which the loop should execute.
@@ -348,28 +333,25 @@ public class BaseController extends GamsJNI
    * @return status of run. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long runHz (double loopHz, double duration, double sendHz)
-  {
+  public long runHz (double loopHz, double duration, double sendHz) throws GamsDeadObjectException  {
     return jni_runHz(getCPtr(), loopHz, duration, sendHz);
   }
-   
+
   /**
    * Analyzes the controller and system
    * @return status of analyze. 0 is full success, though this is not
    *         currently checked.
    **/
-  public long systemAnalyze ()
-  {
+  public long systemAnalyze () throws GamsDeadObjectException  {
     return jni_systemAnalyze(getCPtr());
   }
-  
+
   /**
    * Converts the value to a string
    *
    * @return current string value
    */
-  public java.lang.String toString()
-  {
+  public java.lang.String toString() {
     return "BaseController";
   }
 
@@ -377,7 +359,7 @@ public class BaseController extends GamsJNI
    * Deletes the C instantiation. To prevent memory leaks, this <b>must</b> be
    * called before an instance of WaitSettings gets garbage collected
    */
-  public void free()
+  public void free() throws GamsDeadObjectException
   {
     if (manageMemory)
     {
@@ -385,7 +367,7 @@ public class BaseController extends GamsJNI
     }
     setCPtr(0);
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

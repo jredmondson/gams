@@ -47,17 +47,11 @@
 
 package ai.gams.tests;
  
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import ai.madara.knowledge.KnowledgeBase;
+import ai.gams.algorithms.DebugAlgorithmFactory;
 import ai.gams.controllers.BaseController;
 import ai.gams.utility.Logging;
+import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.KnowledgeList;
-
-import ai.gams.algorithms.DebugAlgorithmFactory;
 
 public class TestDebuggerLoop
 { 

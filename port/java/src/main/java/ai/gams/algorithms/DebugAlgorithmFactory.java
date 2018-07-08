@@ -46,9 +46,9 @@
  *********************************************************************/
 package ai.gams.algorithms;
 
+import ai.gams.GamsJNI;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.KnowledgeList;
-import ai.gams.GamsJNI;
 
 /**
  * A factory for creating debug algorithms

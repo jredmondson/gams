@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,25 +38,21 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.variables;
 
 import ai.gams.GamsJNI;
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.Variables;
-import ai.madara.knowledge.containers.Double;
-import ai.madara.knowledge.containers.Integer;
-import ai.madara.knowledge.containers.String;
-import ai.madara.knowledge.containers.Vector;
-import ai.madara.knowledge.containers.NativeDoubleVector;
 
 public class Swarm extends GamsJNI
-{	
+{
   private native long jni_Swarm();
   private native long jni_Swarm(long cptr);
   private static native void jni_freeSwarm(long cptr);
@@ -72,7 +68,7 @@ public class Swarm extends GamsJNI
   /**
    * Default constructor
    **/
-  public Swarm()
+  public Swarm() throws GamsDeadObjectException
   {
     setCPtr(jni_Swarm());
     init();
@@ -82,7 +78,7 @@ public class Swarm extends GamsJNI
    * Copy constructor
    * @param input the swarm object to copy
    **/
-  public Swarm(Swarm input)
+  public Swarm(Swarm input) throws GamsDeadObjectException
   {
     setCPtr(jni_Swarm(input.getCPtr()));
     init();
@@ -94,7 +90,7 @@ public class Swarm extends GamsJNI
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static Swarm fromPointer(long cptr)
+  public static Swarm fromPointer(long cptr) throws GamsDeadObjectException
   {
     Swarm ret = new Swarm();
     ret.manageMemory = true;
@@ -110,7 +106,7 @@ public class Swarm extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static Swarm fromPointer(long cptr, boolean shouldManage)
+  public static Swarm fromPointer(long cptr, boolean shouldManage) throws GamsDeadObjectException
   {
     Swarm ret = new Swarm();
     ret.manageMemory=shouldManage;
@@ -122,7 +118,7 @@ public class Swarm extends GamsJNI
   /**
    * Initializes the member variables
    **/
-  public void init()
+  public void init() throws GamsDeadObjectException
   {
     command = ai.madara.knowledge.containers.String.fromPointer (
       jni_getCommand (getCPtr ()),false);
@@ -133,14 +129,14 @@ public class Swarm extends GamsJNI
     size = ai.madara.knowledge.containers.Integer.fromPointer (
       jni_getSize (getCPtr ()),false);
   }
-  
+
   /**
    * Sets the name and knowledge base being referred to
    *
    * @param  kb      the knowledge base that contains the name
    * @param  name    the variable name
    */
-  public void init(KnowledgeBase kb, java.lang.String name)
+  public void init(KnowledgeBase kb, java.lang.String name) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 0, kb.getCPtr (), name);
     init();
@@ -152,7 +148,7 @@ public class Swarm extends GamsJNI
    * @param  vars    the variables facade that contains the name
    * @param  name    the variable name
    */
-  public void init(Variables vars, java.lang.String name)
+  public void init(Variables vars, java.lang.String name) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 1, vars.getCPtr (), name);
     init();
@@ -200,7 +196,7 @@ public class Swarm extends GamsJNI
       setCPtr(0);
     }
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

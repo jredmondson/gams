@@ -49,8 +49,6 @@ package ai.gams.variables;
 import ai.gams.GamsJNI;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.Variables;
-import ai.madara.knowledge.containers.String;
-import ai.madara.knowledge.containers.Vector;
 
 public class Region extends GamsJNI
 {	

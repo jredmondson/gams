@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,41 +38,43 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.utility;
 
+import ai.gams.exceptions.GamsDeadObjectException;
+
 public class GpsPosition extends Position
-{	
-  private native long jni_GpsPosition();
-  private native long jni_GpsPosition(long cptr);
-  private native long jni_GpsPosition(double lat, double lon, double alt);
-  private static native void jni_freeGpsPosition(long cptr);
-  private native java.lang.String jni_toString(long cptr);
-  private native double jni_getLatitude(long cptr);
-  private native double jni_getLongitude(long cptr);
-  private native double jni_getAltitude(long cptr);
-  private native void jni_setLatitude(long cptr, double input);
-  private native void jni_setLongitude(long cptr, double input);
-  private native void jni_setAltitude(long cptr, double input);
+{
+  private native long jni_GpsPosition() throws GamsDeadObjectException;
+  private native long jni_GpsPosition(long cptr) throws GamsDeadObjectException;
+  private native long jni_GpsPosition(double lat, double lon, double alt) throws GamsDeadObjectException;
+  private static native void jni_freeGpsPosition(long cptr) throws GamsDeadObjectException;
+  private native java.lang.String jni_toString(long cptr) throws GamsDeadObjectException;
+  private native double jni_getLatitude(long cptr) throws GamsDeadObjectException;
+  private native double jni_getLongitude(long cptr) throws GamsDeadObjectException;
+  private native double jni_getAltitude(long cptr) throws GamsDeadObjectException;
+  private native void jni_setLatitude(long cptr, double input) throws GamsDeadObjectException;
+  private native void jni_setLongitude(long cptr, double input) throws GamsDeadObjectException;
+  private native void jni_setAltitude(long cptr, double input) throws GamsDeadObjectException;
 
   private boolean manageMemory = true;
 
-  public GpsPosition()
+  public GpsPosition() throws GamsDeadObjectException
   {
     setCPtr(jni_GpsPosition());
   }
 
-  public GpsPosition(double lat, double lon, double alt)
+  public GpsPosition(double lat, double lon, double alt) throws GamsDeadObjectException
   {
     setCPtr(jni_GpsPosition(lat,lon,alt));
   }
 
-  public GpsPosition(Position input)
+  public GpsPosition(Position input) throws GamsDeadObjectException
   {
     setCPtr(jni_GpsPosition(input.getCPtr()));
   }
@@ -84,29 +86,33 @@ public class GpsPosition extends Position
   public java.lang.String toString()
   {
     String result = "";
+    try{
     result += getLatitude();
     result += ",";
     result += getLongitude();
     result += ",";
     result += getAltitude();
-    
+    }catch(Exception e){
+    	e.printStackTrace();
+    }
     return result;
   }
-  
+
   /**
    * Returns the latitude
    * @return latitude
+   * @throws GamsDeadObjectException
    **/
-  public double getLatitude()
+  public double getLatitude() throws GamsDeadObjectException
   {
     return jni_getLatitude(getCPtr());
   }
-  
+
   /**
    * Returns the longitude
    * @return longitude
    **/
-  public double getLongitude()
+  public double getLongitude() throws GamsDeadObjectException
   {
     return jni_getLongitude(getCPtr());
   }
@@ -115,25 +121,25 @@ public class GpsPosition extends Position
    * Returns the altitude
    * @return altitude
    **/
-  public double getAltitude()
+  public double getAltitude() throws GamsDeadObjectException
   {
     return jni_getAltitude(getCPtr());
   }
-  
+
   /**
    * Sets the latitude
    * @param input  the new latitude
    **/
-  public void setLatitude(double input)
+  public void setLatitude(double input) throws GamsDeadObjectException
   {
     jni_setLatitude(getCPtr(),input);
   }
-  
+
   /**
    * Sets the longitude
    * @param input  the new longitude
    **/
-  public void setLongitude(double input)
+  public void setLongitude(double input) throws GamsDeadObjectException
   {
     jni_setLongitude(getCPtr(),input);
   }
@@ -142,25 +148,25 @@ public class GpsPosition extends Position
    * Sets the altitude
    * @param input  the new altitude
    **/
-  public void setAltitude(double input)
+  public void setAltitude(double input) throws GamsDeadObjectException
   {
     jni_setAltitude(getCPtr(),input);
   }
-    
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static GpsPosition fromPointer(long cptr)
+  public static GpsPosition fromPointer(long cptr) throws GamsDeadObjectException
   {
     GpsPosition ret = new GpsPosition();
     ret.manageMemory = true;
     ret.setCPtr(cptr);
     return ret;
   }
-  
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
@@ -168,7 +174,7 @@ public class GpsPosition extends Position
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static GpsPosition fromPointer(long cptr, boolean shouldManage)
+  public static GpsPosition fromPointer(long cptr, boolean shouldManage) throws GamsDeadObjectException
   {
     GpsPosition ret = new GpsPosition();
     ret.manageMemory=shouldManage;
@@ -180,7 +186,7 @@ public class GpsPosition extends Position
    * Deletes the C instantiation. To prevent memory leaks, this <b>must</b> be
    * called before an instance of WaitSettings gets garbage collected
    */
-  public void free()
+  public void free() throws GamsDeadObjectException
   {
     if(manageMemory)
     {
@@ -188,7 +194,7 @@ public class GpsPosition extends Position
       setCPtr(0);
     }
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

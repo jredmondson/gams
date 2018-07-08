@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,10 +38,10 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.variables;
@@ -49,14 +49,13 @@ package ai.gams.variables;
 import java.util.HashSet;
 
 import ai.gams.GamsJNI;
-import ai.madara.knowledge.KnowledgeBase;
-import ai.madara.knowledge.containers.String;
-import ai.madara.knowledge.containers.Vector;
-import ai.gams.utility.Position;
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.utility.GpsPosition;
+import ai.gams.utility.Position;
+import ai.madara.knowledge.KnowledgeBase;
 
 public class Sensor extends GamsJNI
-{	
+{
   private native long jni_Sensor();
   private native long jni_Sensor(long cptr);
   private static native void jni_freeSensor(long cptr);
@@ -100,115 +99,115 @@ public class Sensor extends GamsJNI
    * Gets the sensor range in meters.
    * @return range in meters
    **/
-  public GpsPosition getOrigin()
+  public GpsPosition getOrigin() throws GamsDeadObjectException
   {
     return GpsPosition.fromPointer (jni_getOrigin(getCPtr()));
   }
-  
+
   /**
    * Gets the sensor range in meters.
    * @return range in meters
    **/
-  public double getRange()
+  public double getRange() throws GamsDeadObjectException
   {
     return jni_getRange(getCPtr());
   }
-  
+
   /**
    * Gets a GPS coordinate from an index
    * @param index the cartesian position
    * @return the position at the specified index
    **/
-  public GpsPosition getGpsFromIndex(Position index)
+  public GpsPosition getGpsFromIndex(Position index) throws GamsDeadObjectException
   {
     return GpsPosition.fromPointer(
       jni_getGpsFromIndex(getCPtr(),index.getCPtr()));
   }
-    
+
   /**
    * Gets a GPS coordinate from an index
-   * @param coord coordinate to convert to an index 
+   * @param coord coordinate to convert to an index
    * @return the position at the specified index
    **/
-  public Position getIndexFromGps(GpsPosition coord)
+  public Position getIndexFromGps(GpsPosition coord) throws GamsDeadObjectException
   {
     return Position.fromPointer(
       jni_getIndexFromGps(getCPtr(),coord.getCPtr()));
   }
-  
+
   /**
    * Gets the value stored at a particular location
    * @param  position  the location to check
    * @return value at the location
    **/
-  public double getValue(GpsPosition position)
+  public double getValue(GpsPosition position) throws GamsDeadObjectException
   {
     return jni_getGpsValue(getCPtr(), position.getCPtr());
   }
-    
+
   /**
    * Gets the value stored at a particular location
    * @param  position  the location to check
    * @return value at the location
    **/
-  public double getValue(Position position)
+  public double getValue(Position position) throws GamsDeadObjectException
   {
     return jni_getPositionValue(getCPtr(), position.getCPtr());
   }
-       
+
   /**
    * Gets the discretization value for the sensor
    * @return the discretization value for the sensor
    **/
-  public double getDiscretization()
+  public double getDiscretization() throws GamsDeadObjectException
   {
     return jni_getDiscretization(getCPtr());
   }
-        
+
   /**
    * Sets the range of the sensor
    * @param  range  the range of the sensor in meters
    **/
-  public void setRange(double range)
+  public void setRange(double range) throws GamsDeadObjectException
   {
     jni_setRange(getCPtr(), range);
   }
-          
+
   /**
    * Sets the origin for coverage information and discretization
    * @param  origin  the origin for coverage information
    **/
-  public void setOrigin(GpsPosition origin)
+  public void setOrigin(GpsPosition origin) throws GamsDeadObjectException
   {
     jni_setOrigin(getCPtr(), origin.getCPtr());
   }
-         
+
   /**
    * Sets a value at a location
    * @param  location  the position the value will be at
    * @param  value     the value to set
    **/
-  public void setValue(Position location, double value)
+  public void setValue(Position location, double value) throws GamsDeadObjectException
   {
     jni_setPositionValue(getCPtr(), location.getCPtr(), value);
   }
-          
+
   /**
    * Sets a value at a location
    * @param  location  the position the value will be at
    * @param  value     the value to set
    **/
-  public void setValue(GpsPosition location, double value)
+  public void setValue(GpsPosition location, double value) throws GamsDeadObjectException
   {
     jni_setPositionValue(getCPtr(), location.getCPtr(), value);
   }
-            
+
   /**
    * Discretizes the region into individual positions
    * @param  region  the region to discretize
    * @return individual positions within the region
    **/
-  public HashSet<Position> discretize(ai.gams.utility.Region region)
+  public HashSet<Position> discretize(ai.gams.utility.Region region) throws GamsDeadObjectException
   {
     long[] indices = jni_discretizeRegion(getCPtr(), region.getCPtr());
 
@@ -218,13 +217,13 @@ public class Sensor extends GamsJNI
 
     return hash;
   }
-              
+
   /**
    * Discretizes the area into individual positions
    * @param  area  the area to discretize
    * @return individual positions within the area
    **/
-  public HashSet<Position> discretize(ai.gams.utility.SearchArea area)
+  public HashSet<Position> discretize(ai.gams.utility.SearchArea area) throws GamsDeadObjectException
   {
     long[] indices = jni_discretizeSearchArea(getCPtr(), area.getCPtr());
 
@@ -234,14 +233,14 @@ public class Sensor extends GamsJNI
 
     return hash;
   }
-  
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static Sensor fromPointer(long cptr)
+  public static Sensor fromPointer(long cptr) throws GamsDeadObjectException
   {
     Sensor ret = new Sensor();
     ret.manageMemory = true;
@@ -256,7 +255,7 @@ public class Sensor extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static Sensor fromPointer(long cptr, boolean shouldManage)
+  public static Sensor fromPointer(long cptr, boolean shouldManage) throws GamsDeadObjectException
   {
     Sensor ret = new Sensor();
     ret.manageMemory=shouldManage;
@@ -269,7 +268,7 @@ public class Sensor extends GamsJNI
    *
    * @return  name of the variable within the context
    */
-  public java.lang.String getName()
+  public java.lang.String getName() throws GamsDeadObjectException
   {
     return jni_getName(getCPtr());
   }
@@ -281,7 +280,7 @@ public class Sensor extends GamsJNI
    * @param  name    the variable name
    * @param  range   the range of the sensor in meters or appropriate unit
    */
-  public void init(KnowledgeBase kb, java.lang.String name, double range)
+  public void init(KnowledgeBase kb, java.lang.String name, double range) throws GamsDeadObjectException
   {
     jni_init(getCPtr(), 0, kb.getCPtr (), name, range);
   }
@@ -308,7 +307,7 @@ public class Sensor extends GamsJNI
       setCPtr(0);
     }
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused

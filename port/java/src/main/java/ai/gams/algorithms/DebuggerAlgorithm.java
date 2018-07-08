@@ -46,8 +46,6 @@
  *********************************************************************/
 package ai.gams.algorithms;
 
-import ai.madara.knowledge.containers.Integer;
-
 /**
  * Algorithm settings debugger class
  */
