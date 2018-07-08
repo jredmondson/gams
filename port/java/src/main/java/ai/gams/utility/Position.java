@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,16 +38,16 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.utility;
 
 import ai.gams.GamsJNI;
-
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.madara.knowledge.containers.NativeDoubleVector;
 
 /**
@@ -83,7 +83,7 @@ public class Position extends GamsJNI
    * @param iny the y coordinate
    * @param inz the z coordinate
    **/
-  public Position(double inx, double iny, double inz)                                   
+  public Position(double inx, double iny, double inz)
   {
     setCPtr(jni_Position(inx,iny,inz));
   }
@@ -92,7 +92,7 @@ public class Position extends GamsJNI
    * Constructor from container
    * @param cont  Container to copy from
    **/
-  public Position(NativeDoubleVector cont)
+  public Position(NativeDoubleVector cont) throws GamsDeadObjectException
   {
     fromContainer(cont);
   }
@@ -110,14 +110,15 @@ public class Position extends GamsJNI
    * Checks two instances for equality
    * @param other  other position to check against
    * @return true if equal, false otherwise
+ * @throws GamsDeadObjectException
    **/
-  public boolean equals (Position other)
+  public boolean equals (Position other) throws GamsDeadObjectException
   {
     return getX() == other.getX() &&
            getY() == other.getY() &&
            getZ() == other.getZ();
   }
-  
+
   /**
    * Gets a unique hashcode for this instance
    * @return hashcode for this object instance
@@ -127,7 +128,7 @@ public class Position extends GamsJNI
   {
     return (int)getCPtr();
   }
-  
+
   /**
    * Converts the position into a string
    * @return position as a string
@@ -135,29 +136,32 @@ public class Position extends GamsJNI
   public java.lang.String toString()
   {
     String result = "";
+    try{
     result += getX();
     result += ",";
     result += getY();
     result += ",";
     result += getZ();
-    
+    }catch(GamsDeadObjectException e){
+    	e.printStackTrace();
+    }
     return result;
   }
-  
+
   /**
    * Returns the latitude
    * @return latitude
    **/
-  public double getX()
+  public double getX() throws GamsDeadObjectException
   {
     return jni_getX(getCPtr());
   }
-  
+
   /**
    * Returns the longitude
    * @return longitude
    **/
-  public double getY()
+  public double getY() throws GamsDeadObjectException
   {
     return jni_getY(getCPtr());
   }
@@ -166,25 +170,25 @@ public class Position extends GamsJNI
    * Returns the altitude
    * @return altitude
    **/
-  public double getZ()
+  public double getZ() throws GamsDeadObjectException
   {
     return jni_getZ(getCPtr());
   }
-  
+
   /**
    * Sets the latitude/x coord
    * @param  input  the new coord
    **/
-  public void setX(double input)
+  public void setX(double input) throws GamsDeadObjectException
   {
     jni_setX(getCPtr(),input);
   }
-  
+
   /**
    * Sets the longitude/y coord
    * @param  input  the new coord
    **/
-  public void setY(double input)
+  public void setY(double input) throws GamsDeadObjectException
   {
     jni_setY(getCPtr(),input);
   }
@@ -193,7 +197,7 @@ public class Position extends GamsJNI
    * Sets the altitude/z coord
    * @param  input  the new coord
    **/
-  public void setZ(double input)
+  public void setZ(double input) throws GamsDeadObjectException
   {
     jni_setZ(getCPtr(),input);
   }
@@ -202,7 +206,7 @@ public class Position extends GamsJNI
    * Get double array representation of Position
    * @return double array representing this
    **/
-  public double[] toArray()
+  public double[] toArray() throws GamsDeadObjectException
   {
     double[] retVal = new double[3];
     retVal[0] = getX();
@@ -215,7 +219,7 @@ public class Position extends GamsJNI
    * Copy values from Array. Does nothing if arr has fewer than 2 elements
    * @param arr   Array to copy
    **/
-  public void fromArray(double[] arr)
+  public void fromArray(double[] arr) throws GamsDeadObjectException
   {
     if(arr.length >= 2)
     {
@@ -233,7 +237,7 @@ public class Position extends GamsJNI
    * Copy values to a container
    * @param cont    Container to copy values to
    **/
-  public void toContainer(NativeDoubleVector cont)
+  public void toContainer(NativeDoubleVector cont) throws GamsDeadObjectException
   {
     cont.set(0, getX());
     cont.set(1, getY());
@@ -245,7 +249,7 @@ public class Position extends GamsJNI
    *
    * @param cont    Container to copy values from
    */
-  public void fromContainer(NativeDoubleVector cont)
+  public void fromContainer(NativeDoubleVector cont) throws GamsDeadObjectException
   {
     if(cont.size() >= 2)
     {
@@ -265,14 +269,14 @@ public class Position extends GamsJNI
    * @param cptr C pointer to the object
    * @return a new java instance of the underlying pointer
    */
-  public static Position fromPointer(long cptr)
+  public static Position fromPointer(long cptr) throws GamsDeadObjectException
   {
     Position ret = new Position();
     ret.manageMemory = true;
     ret.setCPtr(cptr);
     return ret;
   }
-  
+
   /**
    * Creates a java object instance from a C/C++ pointer
    *
@@ -280,7 +284,7 @@ public class Position extends GamsJNI
    * @param shouldManage  if true, manage the pointer
    * @return a new java instance of the underlying pointer
    */
-  public static Position fromPointer(long cptr, boolean shouldManage)
+  public static Position fromPointer(long cptr, boolean shouldManage) throws GamsDeadObjectException
   {
     Position ret = new Position();
     ret.manageMemory=shouldManage;
@@ -291,8 +295,9 @@ public class Position extends GamsJNI
   /**
    * Deletes the C instantiation. To prevent memory leaks, this <b>must</b> be
    * called before an instance of WaitSettings gets garbage collected
+ * @throws GamsDeadObjectException
    */
-  public void free()
+  public void free() throws GamsDeadObjectException
   {
     if(manageMemory)
     {
@@ -300,7 +305,7 @@ public class Position extends GamsJNI
       setCPtr(0);
     }
   }
-  
+
   /**
    * Cleans up underlying C resources
    * @throws Throwable necessary for override but unused
@@ -314,6 +319,6 @@ public class Position extends GamsJNI
       throw t;
     } finally {
       super.finalize();
-    }
-  }
+		}
+	}
 }
