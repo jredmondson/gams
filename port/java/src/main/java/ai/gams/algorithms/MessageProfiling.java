@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,10 +38,10 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *********************************************************************/
 package ai.gams.algorithms;
@@ -49,6 +49,8 @@ package ai.gams.algorithms;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import ai.gams.exceptions.GamsDeadObjectException;
+import ai.madara.exceptions.MadaraDeadObjectException;
 import ai.madara.knowledge.Variables;
 import ai.madara.transport.TransportContext;
 import ai.madara.transport.filters.Packet;
@@ -63,7 +65,7 @@ public class MessageProfiling extends BaseAlgorithm
 
   /**
    * @class MessageProfilingFilter
-   * @brief The MessageProfilingFilter counts the expected messages received to 
+   * @brief The MessageProfilingFilter counts the expected messages received to
    *        the KnowledgeBase
    **/
   private class MessageProfilingFilter implements ai.madara.transport.filters.AggregateFilter
@@ -78,7 +80,7 @@ public class MessageProfiling extends BaseAlgorithm
       public ai.madara.knowledge.containers.Double percentMissing;
       public HashSet<Long> missing;
 
-      MessageData (String id, ai.madara.knowledge.Variables var)
+      MessageData (String id, ai.madara.knowledge.Variables var) throws MadaraDeadObjectException
       {
         String prefix = new String ("." + keyPrefix + "." + id + ".");
 
@@ -86,7 +88,7 @@ public class MessageProfiling extends BaseAlgorithm
         ai.madara.logger.GlobalLogger.log (6, "first.set_name");
         first.setName (var, prefix + "first");
         first.set (-1);
-        
+
         last = new ai.madara.knowledge.containers.Integer ();
         ai.madara.logger.GlobalLogger.log (6, "last.set_name");
         last.setName (var, prefix + "last");
@@ -107,7 +109,7 @@ public class MessageProfiling extends BaseAlgorithm
     /**
      * Filter the incoming packets
      */
-    public void filter (Packet packet, TransportContext context, Variables variables)
+    public void filter (Packet packet, TransportContext context, Variables variables) throws MadaraDeadObjectException
     {
       // get/construct data struct
       String origin = context.getOriginator ();
@@ -116,19 +118,19 @@ public class MessageProfiling extends BaseAlgorithm
         msgMap.put (origin, new MessageData(origin, variables));
       }
       MessageData data = msgMap.get (origin);
-    
+
       // loop through each update
       for (String key : packet.getKeys ())
       {
         // we only care about specific messages
         ai.madara.knowledge.KnowledgeRecord record = packet.get (key);
-        if (record.getType () == ai.madara.knowledge.KnowledgeType.STRING && 
+        if (record.getType () == ai.madara.knowledge.KnowledgeType.STRING &&
           record.toString ().indexOf (keyPrefix) == 0)
         {
           // get msg number
           String[] split = record.toString ().split (",");
           long msgNum = Long.parseLong (split[0]);
-    
+
           // is this the first?
           if (data.first.toLong () == -1)
           {
@@ -157,7 +159,7 @@ public class MessageProfiling extends BaseAlgorithm
               data.missing.add (i);
             data.last.set (msgNum);
           }
-    
+
           long expected = data.first.toLong () - data.last.toLong () + 1;
           data.percentMissing.set ((double)data.missing.size () / (double) expected);
         }
@@ -211,7 +213,7 @@ public class MessageProfiling extends BaseAlgorithm
   {
     return ai.gams.algorithms.AlgorithmStatusEnum.OK.value();
   }
-  
+
   /**
    * Plans next steps in the algorithm. This should be
    * a non-blocking call.
@@ -221,23 +223,23 @@ public class MessageProfiling extends BaseAlgorithm
   {
     return ai.gams.algorithms.AlgorithmStatusEnum.OK.value();
   }
-  
+
   /**
    * Executes next step in the algorithm. This should be
    * a non-blocking call.
    * @return  status information (@see Status)
    **/
-  public int execute ()
+  public int execute () throws MadaraDeadObjectException, GamsDeadObjectException
   {
     ++executions;
 
     // construct value
     String value = Long.toString (executions);
     value += ",aaaaaaaaaaaaaaaaaa";
-    
+
     // actually set knowledge
     message.set (value);
-  
+
     return ai.gams.algorithms.AlgorithmStatusEnum.OK.value();
   }
 }

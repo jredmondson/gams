@@ -49,6 +49,7 @@ package ai.gams.platforms;
 import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.utility.Axes;
 import ai.gams.utility.Position;
+import ai.madara.exceptions.MadaraDeadObjectException;
 
 /**
  * Interface for defining a platform to be used by GAMS. Care must be taken
@@ -62,39 +63,39 @@ public interface PlatformInterface
    * a non-blocking call.
    * @return   status information (@see PlatformStatusEnum)
    **/
-  public int analyze ();
+  public int analyze () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Returns the accuracy in meters
    * @return the accuracy of the platform
    **/
-  public double getAccuracy ();
+  public double getAccuracy () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Returns the position accuracy in meters
    * @return position accuracy
    **/
-  public double getPositionAccuracy ();
+  public double getPositionAccuracy () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Returns the current position
    * @return the current position of the device/agent
    **/
-  public Position getPosition ();
+  public Position getPosition () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Returns to the home location. This should be
    * a non-blocking call.
    * @return   status information (@see PlatformReturnStatusEnum)
    **/
-  public int home ();
+  public int home () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Requests the platform to land. This should be
    * a non-blocking call.
    * @return   status information (@see PlatformReturnStatusEnum)
    **/
-  public int land ();
+  public int land () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Initializes a move to the target position. This should be
@@ -104,7 +105,7 @@ public interface PlatformInterface
    *                   and target position that terminates the move.
    * @return  status information (@see PlatformReturnStatusEnum)
    **/
-  public int move (Position target, double proximity);
+  public int move (Position target, double proximity) throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Initializes a rotate along x, y, z axes. This should be
@@ -112,19 +113,21 @@ public interface PlatformInterface
    * @param   axes       parameters for rotation along x, y, z axes
    * @return  status information (@see PlatformReturnStatusEnum)
    **/
-  public int rotate (Axes axes);
+  public int rotate (Axes axes) throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Get sensor radius
    * @return minimum radius of all available sensors for this platform
+ * @throws MadaraDeadObjectException
    */
-  public double getMinSensorRange ();
+  public double getMinSensorRange () throws GamsDeadObjectException, MadaraDeadObjectException;
 
   /**
    * Gets the movement speed
    * @return movement speed
+ * @throws MadaraDeadObjectException
    **/
-  public double getMoveSpeed ();
+  public double getMoveSpeed () throws GamsDeadObjectException, MadaraDeadObjectException;
 
   /**
    * Gets the unique id of the platform. This should be an alphanumeric
@@ -145,25 +148,31 @@ public interface PlatformInterface
    * a non-blocking call.
    * @return  the status of the platform, @see PlatformStatusEnum
  * @throws GamsDeadObjectException
+ * @throws MadaraDeadObjectException
    **/
-  public int sense () throws GamsDeadObjectException;
+  public int sense () throws GamsDeadObjectException, MadaraDeadObjectException;
 
   /**
    * Sets move speed
    * @param speed new speed in meters/second
+ * @throws MadaraDeadObjectException
    **/
-  public void setMoveSpeed (double speed);
+  public void setMoveSpeed (double speed) throws MadaraDeadObjectException;
 
   /**
    * Takes off. This should be
    * a non-blocking call.
    * @return   status information (@see PlatformReturnStatusEnum)
+ * @throws GamsDeadObjectException
+ * @throws MadaraDeadObjectException
    **/
-  public int takeoff ();
+  public int takeoff () throws MadaraDeadObjectException, GamsDeadObjectException;
 
   /**
    * Stops moving
+ * @throws GamsDeadObjectException
+ * @throws MadaraDeadObjectException
    **/
-  public void stopMove ();
+  public void stopMove () throws MadaraDeadObjectException, GamsDeadObjectException;
 }
 
