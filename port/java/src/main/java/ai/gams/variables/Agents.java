@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,67 +38,80 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.variables;
 
 import java.util.AbstractList;
 
+import ai.gams.exceptions.GamsDeadObjectException;
+
 /**
  * Agents provides a read-only interface for agents
  */
 public class Agents extends AbstractList<Agent>
 {
-  private native void jni_freeAgents(long[] records, int length);
+	private native void jni_freeAgents(long[] records, int length);
 
-  private long[] agents;
+	private long[] agents;
 
-  /**
-   * Constructor
-   * @param input list of C pointers to the underlying agents
-   **/
-  public Agents(long[] input)
-  {
-    agents = input;
-  }
+	/**
+	 * Constructor
+	 *
+	 * @param input
+	 *            list of C pointers to the underlying agents
+	 **/
+	public Agents(long[] input)
+	{
+		agents = input;
+	}
 
-  /**
-   * Gets the agent at the specified index
-   * @see java.util.AbstractList#get (int)
-   * @param index the element of the agent list to retrieve
-   */
-  @Override
-  public Agent get(int index)
-  {
-    return Agent.fromPointer(agents[index]);
-  }
+	/**
+	 * Gets the agent at the specified index
+	 *
+	 * @see java.util.AbstractList#get (int)
+	 * @param index
+	 *            the element of the agent list to retrieve
+	 */
+	@Override
+	public Agent get(int index)
+	{
+		try
+		{
+			return Agent.fromPointer(agents[index]);
+		} catch (GamsDeadObjectException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 
-  /**
-   * Returns the size of the agent list
-   * @see java.util.AbstractCollection#size ()
-   * @return the size of the agent list
-   */
-  @Override
-  public int size()
-  {
-    return agents == null ? 0 : agents.length;
-  }
+	/**
+	 * Returns the size of the agent list
+	 *
+	 * @see java.util.AbstractCollection#size ()
+	 * @return the size of the agent list
+	 */
+	@Override
+	public int size()
+	{
+		return agents == null ? 0 : agents.length;
+	}
 
-
-  /**
-   * Deletes the C instantiation. To prevent memory leaks, this <b>must</b> be called
-   * before an instance gets garbage collected
-   */
-  public void free()
-  {
-    if (agents == null)
-      return;
-    jni_freeAgents(agents, agents.length);
-    agents = null;
-  }
+	/**
+	 * Deletes the C instantiation. To prevent memory leaks, this <b>must</b> be
+	 * called before an instance gets garbage collected
+	 */
+	public void free()
+	{
+		if (agents == null)
+			return;
+		jni_freeAgents(agents, agents.length);
+		agents = null;
+	}
 }
-

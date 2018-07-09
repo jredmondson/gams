@@ -46,11 +46,6 @@
  *********************************************************************/
 package ai.gams.algorithms;
 
-import ai.madara.knowledge.KnowledgeBase;
-import ai.gams.platforms.PlatformInterface;
-import ai.gams.variables.Self;
-import ai.gams.variables.AlgorithmStatus;
-
 /**
  * Interface for defining an algorithm to be used by GAMS. Care must be taken
  * to make all methods non-blocking, to prevent locking up the underlying

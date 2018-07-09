@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,14 +38,15 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.platforms;
 
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.utility.Axes;
 import ai.gams.utility.Position;
 
@@ -62,13 +63,13 @@ public interface PlatformInterface
    * @return   status information (@see PlatformStatusEnum)
    **/
   public int analyze ();
-  
+
   /**
    * Returns the accuracy in meters
    * @return the accuracy of the platform
    **/
   public double getAccuracy ();
-    
+
   /**
    * Returns the position accuracy in meters
    * @return position accuracy
@@ -76,25 +77,25 @@ public interface PlatformInterface
   public double getPositionAccuracy ();
 
   /**
-   * Returns the current position 
+   * Returns the current position
    * @return the current position of the device/agent
    **/
   public Position getPosition ();
-  
+
   /**
    * Returns to the home location. This should be
    * a non-blocking call.
    * @return   status information (@see PlatformReturnStatusEnum)
    **/
   public int home ();
-  
+
   /**
    * Requests the platform to land. This should be
    * a non-blocking call.
    * @return   status information (@see PlatformReturnStatusEnum)
    **/
   public int land ();
-  
+
   /**
    * Initializes a move to the target position. This should be
    * a non-blocking call.
@@ -104,7 +105,7 @@ public interface PlatformInterface
    * @return  status information (@see PlatformReturnStatusEnum)
    **/
   public int move (Position target, double proximity);
-   
+
   /**
    * Initializes a rotate along x, y, z axes. This should be
    * a non-blocking call and implements an extrinsic rotation.
@@ -112,7 +113,7 @@ public interface PlatformInterface
    * @return  status information (@see PlatformReturnStatusEnum)
    **/
   public int rotate (Axes axes);
-   
+
   /**
    * Get sensor radius
    * @return minimum radius of all available sensors for this platform
@@ -143,22 +144,23 @@ public interface PlatformInterface
    * Gets results from the platform's sensors. This should be
    * a non-blocking call.
    * @return  the status of the platform, @see PlatformStatusEnum
+ * @throws GamsDeadObjectException
    **/
-  public int sense ();
-  
+  public int sense () throws GamsDeadObjectException;
+
   /**
    * Sets move speed
    * @param speed new speed in meters/second
    **/
   public void setMoveSpeed (double speed);
-      
+
   /**
    * Takes off. This should be
    * a non-blocking call.
    * @return   status information (@see PlatformReturnStatusEnum)
    **/
   public int takeoff ();
-  
+
   /**
    * Stops moving
    **/

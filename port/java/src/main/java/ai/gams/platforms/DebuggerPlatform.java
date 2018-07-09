@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,17 +38,17 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.platforms;
 
+import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.utility.Axes;
 import ai.gams.utility.Position;
-import ai.madara.knowledge.EvalSettings;
 
 /**
  * Interface for defining a platform to be used by GAMS. Care must be taken
@@ -64,7 +64,7 @@ public class DebuggerPlatform extends BasePlatform
   {
     executions = new ai.madara.knowledge.containers.Integer();
   }
-   
+
   /**
    * Analyzes the platform.
    * @return   status information(@see PlatformStatusEnum)
@@ -75,7 +75,7 @@ public class DebuggerPlatform extends BasePlatform
       ":Platform.analyze called");
     return PlatformStatusEnum.OK.value();
   }
-  
+
   /**
    * Returns the accuracy in meters
    * @return accuracy
@@ -99,7 +99,7 @@ public class DebuggerPlatform extends BasePlatform
   }
 
   /**
-   * Returns the current GPS position 
+   * Returns the current GPS position
    **/
   public Position getPosition()
   {
@@ -108,7 +108,7 @@ public class DebuggerPlatform extends BasePlatform
       ":  Platform.getPosition called");
     return position;
   }
-  
+
   /**
    * Returns to the home location. This should be
    * a non-blocking call.
@@ -120,7 +120,7 @@ public class DebuggerPlatform extends BasePlatform
       ":  Platform.home called");
     return PlatformStatusEnum.OK.value();
   }
-  
+
   /**
    * Requests the platform to land. This should be
    * a non-blocking call.
@@ -132,7 +132,7 @@ public class DebuggerPlatform extends BasePlatform
       ":  Platform.land called");
     return PlatformStatusEnum.OK.value();
   }
-  
+
   /**
    * Initializes a move to the target position. This should be
    * a non-blocking call.
@@ -147,7 +147,7 @@ public class DebuggerPlatform extends BasePlatform
       ":  Platform.move called");
     return PlatformStatusEnum.OK.value();
   }
-   
+
   /**
    * Initializes a rotate along x, y, z axes. This should be
    * a non-blocking call and implements an extrinsic rotation.
@@ -160,7 +160,7 @@ public class DebuggerPlatform extends BasePlatform
       ":  Platform.rotate called");
     return PlatformStatusEnum.OK.value();
   }
-   
+
   /**
    * Get sensor radius
    * @return minimum radius of all available sensors for this platform
@@ -207,21 +207,21 @@ public class DebuggerPlatform extends BasePlatform
    * a non-blocking call.
    * @return   1 if moving, 2 if arrived, 0 if an error occurred
    **/
-  public int sense()
+  public int sense() throws GamsDeadObjectException
   {
     executions.setName(knowledge, ".executions");
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Platform.sense called");
-    
+
     Position position = getPosition();
-    
+
     self.agent.location.set(0,position.getX());
     self.agent.location.set(1,position.getY());
     self.agent.location.set(2,position.getZ());
-    
+
     return PlatformStatusEnum.OK.value();
   }
-  
+
   /**
    * Sets move speed
    * @param speed new speed in meters/second
@@ -231,7 +231,7 @@ public class DebuggerPlatform extends BasePlatform
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.setMoveSpeed called with " + speed);
   }
-      
+
   /**
    * Takes off. This should be
    * a non-blocking call.
@@ -243,7 +243,7 @@ public class DebuggerPlatform extends BasePlatform
       ":  Platform.takeoff called");
     return PlatformStatusEnum.OK.value();
   }
-  
+
   /**
    * Stops moving
    **/
@@ -252,7 +252,7 @@ public class DebuggerPlatform extends BasePlatform
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.stopMove called");
   }
-  
+
   private ai.madara.knowledge.containers.Integer executions;
 }
 
