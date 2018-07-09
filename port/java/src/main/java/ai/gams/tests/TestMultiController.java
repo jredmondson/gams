@@ -51,6 +51,7 @@ import ai.gams.algorithms.DebuggerAlgorithm;
 import ai.gams.controllers.BaseController;
 import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.platforms.DebuggerPlatform;
+import ai.madara.exceptions.MadaraDeadObjectException;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.transport.QoSTransportSettings;
 import ai.madara.transport.TransportType;
@@ -67,7 +68,7 @@ public class TestMultiController
 		double length;
 
 		public ControllerThread(int tid, int tprocesses, double thertz, double tlength, boolean networked)
-				throws GamsDeadObjectException
+				 throws MadaraDeadObjectException, GamsDeadObjectException
 		{
 			if (networked)
 			{

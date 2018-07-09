@@ -49,6 +49,7 @@ package ai.gams.platforms;
 import ai.gams.exceptions.GamsDeadObjectException;
 import ai.gams.utility.Axes;
 import ai.gams.utility.Position;
+import ai.madara.exceptions.MadaraDeadObjectException;
 
 /**
  * Interface for defining a platform to be used by GAMS. Care must be taken
@@ -69,7 +70,7 @@ public class DebuggerPlatform extends BasePlatform
    * Analyzes the platform.
    * @return   status information(@see PlatformStatusEnum)
    **/
-  public int analyze()
+  public int analyze() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Platform.analyze called");
@@ -80,7 +81,7 @@ public class DebuggerPlatform extends BasePlatform
    * Returns the accuracy in meters
    * @return accuracy
    **/
-  public double getAccuracy()
+  public double getAccuracy() throws MadaraDeadObjectException, GamsDeadObjectException
   {
       System.out.println(self.id.get() + ":" + executions.get () +
         ":  Platform.getAccuracy called");
@@ -91,7 +92,7 @@ public class DebuggerPlatform extends BasePlatform
    * Returns the position accuracy in meters
    * @return position accuracy
    **/
-  public double getPositionAccuracy()
+  public double getPositionAccuracy() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.getPositionAccuracy called");
@@ -101,7 +102,7 @@ public class DebuggerPlatform extends BasePlatform
   /**
    * Returns the current GPS position
    **/
-  public Position getPosition()
+  public Position getPosition() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     Position position = new Position(0.0, 0.0, 0.0);
     System.out.println(self.id.get() + ":" + executions.get () +
@@ -114,7 +115,7 @@ public class DebuggerPlatform extends BasePlatform
    * a non-blocking call.
    * @return   status information(@see PlatformStatusEnum)
    **/
-  public int home()
+  public int home() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.home called");
@@ -126,7 +127,7 @@ public class DebuggerPlatform extends BasePlatform
    * a non-blocking call.
    * @return   status information(@see PlatformStatusEnum)
    **/
-  public int land()
+  public int land() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.land called");
@@ -141,7 +142,7 @@ public class DebuggerPlatform extends BasePlatform
    *                   and target position that terminates the move.
    * @return  status information(@see PlatformStatusEnum)
    **/
-  public int move(Position target, double proximity)
+  public int move(Position target, double proximity) throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.move called");
@@ -154,7 +155,7 @@ public class DebuggerPlatform extends BasePlatform
    * @param   target     the new extrinsic rotation angles
    * @return  status information(@see PlatformStatusEnum)
    **/
-  public int rotate(Axes target)
+  public int rotate(Axes target) throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.rotate called");
@@ -165,7 +166,7 @@ public class DebuggerPlatform extends BasePlatform
    * Get sensor radius
    * @return minimum radius of all available sensors for this platform
    */
-  public double getMinSensorRange()
+  public double getMinSensorRange() throws MadaraDeadObjectException
   {
     System.out.println(self.id.get() + ":  Platform.getMinSensorRange called");
     return 0.0;
@@ -175,7 +176,7 @@ public class DebuggerPlatform extends BasePlatform
    * Gets the movement speed
    * @return movement speed
    **/
-  public double getMoveSpeed()
+  public double getMoveSpeed() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.getMoveSpeed called");
@@ -207,7 +208,7 @@ public class DebuggerPlatform extends BasePlatform
    * a non-blocking call.
    * @return   1 if moving, 2 if arrived, 0 if an error occurred
    **/
-  public int sense() throws GamsDeadObjectException
+  public int sense() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     executions.setName(knowledge, ".executions");
     System.out.println(self.id.get() + ":" + executions.get () +
@@ -225,8 +226,9 @@ public class DebuggerPlatform extends BasePlatform
   /**
    * Sets move speed
    * @param speed new speed in meters/second
+ * @throws MadaraDeadObjectException
    **/
-  public void setMoveSpeed(double speed)
+  public void setMoveSpeed(double speed) throws MadaraDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.setMoveSpeed called with " + speed);
@@ -237,7 +239,7 @@ public class DebuggerPlatform extends BasePlatform
    * a non-blocking call.
    * @return   status information(@see PlatformStatusEnum)
    **/
-  public int takeoff()
+  public int takeoff() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.takeoff called");
@@ -247,7 +249,7 @@ public class DebuggerPlatform extends BasePlatform
   /**
    * Stops moving
    **/
-  public void stopMove()
+  public void stopMove() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":  Platform.stopMove called");

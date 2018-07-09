@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,13 +38,16 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author James Edmondson <jedmondson@gmail.com>
  *********************************************************************/
 package ai.gams.algorithms;
+
+import ai.gams.exceptions.GamsDeadObjectException;
+import ai.madara.exceptions.MadaraDeadObjectException;
 
 /**
  * Algorithm settings debugger class
@@ -63,12 +66,12 @@ public class DebuggerAlgorithm extends BaseAlgorithm
    * Analyzes the state of the algorithm
    **/
   @Override
-  public int analyze()
+  public int analyze() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     executions.setName(knowledge, ".executions");
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Algorithm.analyze called");
-    
+
     if(platform.getCPtr() != 0)
     {
       System.out.println(self.id.get() + ":" + executions.get () +
@@ -84,31 +87,31 @@ public class DebuggerAlgorithm extends BaseAlgorithm
       System.out.println(self.id.get() + ":" + executions.get () +
         ":  platform is null, so no operations called");
     }
-    
+
     return AlgorithmStatusEnum.OK.value();
   }
-  
+
   /**
    * Plans the next stage of the algorithm
    **/
   @Override
-  public int plan()
+  public int plan() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Algorithm.plan called");
-    
+
     return AlgorithmStatusEnum.OK.value();
   }
-  
+
   /**
    * Executes the next stage of the algorithm
    **/
   @Override
-  public int execute()
+  public int execute() throws MadaraDeadObjectException, GamsDeadObjectException
   {
     System.out.println(self.id.get() + ":" + executions.get () +
       ":Algorithm.execute called");
-    
+
     if(platform.getCPtr() != 0)
     {
       platform.takeoff();
@@ -124,10 +127,10 @@ public class DebuggerAlgorithm extends BaseAlgorithm
         ":  platform is null, so no operations called");
     }
     executions.inc();
-    
+
     return AlgorithmStatusEnum.OK.value();
   }
-  
+
   private ai.madara.knowledge.containers.Integer executions;
 }
 

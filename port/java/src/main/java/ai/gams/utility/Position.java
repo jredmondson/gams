@@ -48,6 +48,7 @@ package ai.gams.utility;
 
 import ai.gams.GamsJNI;
 import ai.gams.exceptions.GamsDeadObjectException;
+import ai.madara.exceptions.MadaraDeadObjectException;
 import ai.madara.knowledge.containers.NativeDoubleVector;
 
 /**
@@ -91,8 +92,9 @@ public class Position extends GamsJNI
   /**
    * Constructor from container
    * @param cont  Container to copy from
+ * @throws MadaraDeadObjectException
    **/
-  public Position(NativeDoubleVector cont) throws GamsDeadObjectException
+  public Position(NativeDoubleVector cont) throws GamsDeadObjectException, MadaraDeadObjectException
   {
     fromContainer(cont);
   }
@@ -236,8 +238,9 @@ public class Position extends GamsJNI
   /**
    * Copy values to a container
    * @param cont    Container to copy values to
+ * @throws GamsDeadObjectException
    **/
-  public void toContainer(NativeDoubleVector cont) throws GamsDeadObjectException
+  public void toContainer(NativeDoubleVector cont) throws MadaraDeadObjectException, GamsDeadObjectException
   {
     cont.set(0, getX());
     cont.set(1, getY());
@@ -248,8 +251,9 @@ public class Position extends GamsJNI
    * Copy values from a container
    *
    * @param cont    Container to copy values from
+ * @throws GamsDeadObjectException
    */
-  public void fromContainer(NativeDoubleVector cont) throws GamsDeadObjectException
+  public void fromContainer(NativeDoubleVector cont) throws MadaraDeadObjectException, GamsDeadObjectException
   {
     if(cont.size() >= 2)
     {

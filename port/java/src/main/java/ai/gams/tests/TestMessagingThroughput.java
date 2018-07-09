@@ -10,12 +10,12 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * 3. The names "Carnegie Mellon University," "SEI" and/or
  * "Software Engineering Institute" shall not be used to endorse or promote
  * products derived from this software without prior written permission. For
  * written permission, please contact permission@sei.cmu.edu.
- * 
+ *
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  * appear in their names without prior written permission of
  * permission@sei.cmu.edu.
@@ -30,7 +30,7 @@
  * recommendations expressed in this material are those of the author(s) and
  * do not necessarily reflect the views of the United States Department of
  * Defense.
- * 
+ *
  * NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  * INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  * UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
@@ -38,15 +38,17 @@
  * PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS OBTAINED FROM USE OF THE
  * MATERIAL. CARNEGIE MELLON UNIVERSITY DOES NOT MAKE ANY WARRANTY OF ANY KIND
  * WITH RESPECT TO FREEDOM FROM PATENT, TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- * 
+ *
  * This material has been approved for public release and unlimited
  * distribution.
- * 
+ *
  * @author Anton Dukeman <anton.dukeman@gmail.com>
  *********************************************************************/
 
 package ai.gams.tests;
- 
+
+import ai.gams.exceptions.GamsDeadObjectException;
+import ai.madara.exceptions.MadaraDeadObjectException;
 import ai.madara.knowledge.KnowledgeBase;
 import ai.madara.knowledge.Variables;
 import ai.madara.transport.QoSTransportSettings;
@@ -82,7 +84,7 @@ public class TestMessagingThroughput
     }
   }
 
-  public void testReader ()
+  public void testReader () throws MadaraDeadObjectException, GamsDeadObjectException
   {
     QoSTransportSettings settings = new QoSTransportSettings ();
     CounterFilter filter = new CounterFilter ();
@@ -101,7 +103,7 @@ public class TestMessagingThroughput
     ai.madara.logger.GlobalLogger.log (6, "Counter: " + filter.counter);
   }
 
-  public void testWriter ()
+  public void testWriter () throws MadaraDeadObjectException, GamsDeadObjectException
   {
     QoSTransportSettings settings = new QoSTransportSettings ();
 
@@ -121,7 +123,7 @@ public class TestMessagingThroughput
     }
   }
 
-  public void testBoth ()
+  public void testBoth () throws MadaraDeadObjectException, GamsDeadObjectException
   {
     QoSTransportSettings settings = new QoSTransportSettings ();
     CounterFilter filter = new CounterFilter ();
@@ -174,7 +176,7 @@ public class TestMessagingThroughput
     }
   }
 
-  public static void main (String[] args)
+  public static void main (String[] args) throws MadaraDeadObjectException, GamsDeadObjectException
   {
     TestMessagingThroughput obj = new TestMessagingThroughput ();
     parseArgs (args, obj);
