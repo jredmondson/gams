@@ -1,6 +1,8 @@
 package ai.gams.exceptions;
 
-public class GamsDeadObjectException extends Exception {
+import ai.madara.exceptions.MadaraDeadObjectException;
+
+public class GamsDeadObjectException extends MadaraDeadObjectException {
 
 	/**
 	 * version
