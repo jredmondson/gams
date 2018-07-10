@@ -7,8 +7,8 @@ else
   export SCRIPTS_DIR=$GAMS_ROOT/scripts/linux
 fi
 
-echo "Building ace madara gams java $@"
+echo "Building madara gams java $@"
 echo "using GAMS_ROOT=$GAMS_ROOT"
 echo "Using SCRIPTS_DIR=$SCRIPTS_DIR"
 
-$SCRIPTS_DIR/base_build.sh java ace madara gams $@
+$SCRIPTS_DIR/base_build.sh java madara gams $@

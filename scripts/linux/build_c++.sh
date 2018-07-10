@@ -7,7 +7,7 @@ else
   export SCRIPTS_DIR=$GAMS_ROOT/scripts/linux 
 fi
 
-echo "Building ace madara gams vrep $@"
+echo "Building madara gams vrep $@"
 echo "using GAMS_ROOT=$GAMS_ROOT"
 echo "Using SCRIPTS_DIR=$SCRIPTS_DIR"
-$SCRIPTS_DIR/base_build.sh vrep vrep-config ace madara gams $@
+$SCRIPTS_DIR/base_build.sh vrep vrep-config madara gams $@
