@@ -130,6 +130,8 @@ for var in "$@"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
+  elif [ "$var" = "clean" ]; then
+    CLEAN=1
   elif [ "$var" = "debug" ]; then
     DEBUG=1
   elif [ "$var" = "docs" ]; then
@@ -180,12 +182,13 @@ do
     echo "  mpc             download MPC if prereqs is enabled"
     echo "  android         build android libs, turns on java"
     echo "  clang           build using clang++-5.0 and libc++"
+    echo "  clean           run 'make clean' before builds (default)"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
     echo "  gams            build GAMS"
     echo "  java            build java jar"
     echo "  madara          build MADARA"
-    echo "  noclean         do not run 'make clean' before build"
+    echo "  noclean         do not run 'make clean' before builds"
     echo "  odroid          target ODROID computing platform"
     echo "  prereqs         use apt-get to install prereqs"
     echo "  ros             build ROS platform classes"
@@ -584,8 +587,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     echo "CLEANING MADARA OBJECTS"
     if [ $CLEAN -eq 1 ] ; then
       make realclean -j $CORES
+      rm GNUmakefile*
     fi
-    rm GNUmakefile*
 
   fi
   cd $MADARA_ROOT
@@ -600,6 +603,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
+  make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME -j $CORES
   make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
@@ -689,8 +693,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo "CLEANING GAMS OBJECTS"
     if [ $CLEAN -eq 1 ] ; then
       make realclean -j $CORES
+      rm GNUmakefile*
     fi
-    rm GNUmakefile*
 
   fi
     
@@ -706,6 +710,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
+  make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   GAMS_BUILD_RESULT=$?
@@ -770,6 +775,7 @@ if [ $DMPL -eq 1 ]; then
   fi
 
   cd $DMPL_ROOT
+  make depend MZSRM=0 -j $CORES
   make MZSRM=0 -j $CORES
   DART_BUILD_RESULT=$?
 fi
