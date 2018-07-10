@@ -53,7 +53,6 @@ public abstract class GamsJNI
 {
   static
   {
-    System.loadLibrary("ACE");
     System.loadLibrary("MADARA");
     System.loadLibrary("GAMS");
   }
