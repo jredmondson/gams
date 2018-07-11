@@ -91,6 +91,7 @@ ZMQ=0
 SIMTIME=0
 SSL=0
 DMPL=0
+PYTHON=0
 CLEAN=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
@@ -154,6 +155,8 @@ do
     MADARA=1
   elif [ "$var" = "noclean" ]; then
     CLEAN=0
+  elif [ "$var" = "python" ]; then
+    CLEAN=0
   elif [ "$var" = "gams" ]; then
     GAMS=1
   elif [ "$var" = "dart" ]; then
@@ -190,6 +193,7 @@ do
     echo "  madara          build MADARA"
     echo "  noclean         do not run 'make clean' before builds"
     echo "  odroid          target ODROID computing platform"
+    echo "  python          build with Python 2.7 support"
     echo "  prereqs         use apt-get to install prereqs"
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
@@ -399,7 +403,11 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     rc_str="export JAVA_HOME=$JAVA_HOME"
     append_if_needed "$rc_str" "$HOME/.bashrc"
   fi
-  
+
+  if [ $PYTHON -eq 1 ]; then
+    sudo apt-get install -y -f python2.7 python-pip
+  fi
+
   if [ $ANDROID -eq 1 ]; then
     sudo apt-get install -y -f gcc-arm-linux-androideabi
 
@@ -603,8 +611,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME -j $CORES
-  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME -j $CORES
+  make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
