@@ -92,34 +92,21 @@ matrix:
       # g++, linux, java
     - compiler: gcc
       os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libssl-dev
       env: NAME="Ubuntu 14.04 g++ java" JAVA="java"
+
+      # g++, linux, python
+    - compiler: gcc
+      os: linux
+      env: NAME="Ubuntu 14.04 g++ python" PYTHON="python"
 
       # g++, linux, zmq
     - compiler: gcc
       os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libssl-dev
       env: NAME="Ubuntu 14.04 g++ zmq" ZMQ="zmq"
 
       # g++, linux, simtime
     - compiler: gcc
       os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libssl-dev
       env: NAME="Ubuntu 14.04 g++ simtime" SIMTIME="simtime"
 
 addons:
@@ -147,8 +134,8 @@ script:
   - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
   - echo ls $TRAVIS_BUILD_DIR
   - ls $TRAVIS_BUILD_DIR
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $ROS $SIMTIME
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
   - $GAMS_ROOT/bin/test_arguments_parser
   - $GAMS_ROOT/bin/test_auctions
   - $GAMS_ROOT/bin/test_controller_run
