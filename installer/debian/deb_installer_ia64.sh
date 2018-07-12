@@ -144,7 +144,7 @@ mkdir -p $ROOT_DIR/doc/gams
 # we want to add the new LD_LIBRARY_PATH
 echo "Updating ld.so.conf.d"
 mkdir -p etc/ld.so.conf.d
-echo $ROOT_DIR/lib >> etc/ld.so.conf.d/gams.conf
+echo /$ROOT_DIR/lib >> etc/ld.so.conf.d/gams.conf
 
 # copy the GAMS source includes into the appropriate directory
 echo "Copying GAMS and EIGEN source trees for developers"
