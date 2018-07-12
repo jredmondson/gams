@@ -156,7 +156,7 @@ do
   elif [ "$var" = "noclean" ]; then
     CLEAN=0
   elif [ "$var" = "python" ]; then
-    CLEAN=0
+    PYTHON=1
   elif [ "$var" = "gams" ]; then
     GAMS=1
   elif [ "$var" = "dart" ]; then
@@ -601,7 +601,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -611,7 +612,9 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
+  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
   make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  echo "make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
   make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
@@ -709,6 +712,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
+  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc"
   perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
 
   if [ $JAVA -eq 1 ]; then
@@ -718,7 +722,9 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
+  echo "make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
   make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  echo "make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
   make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   GAMS_BUILD_RESULT=$?
