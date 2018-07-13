@@ -513,7 +513,7 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
 
   echo "ENTERING $EIGEN_ROOT"
   if [ ! -d $EIGEN_ROOT ] ; then
-    git clone --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
+    git clone --single-branch --branch 3.3.4 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
   else
     cd $EIGEN_ROOT
