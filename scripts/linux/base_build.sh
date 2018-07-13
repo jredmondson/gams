@@ -512,6 +512,17 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
   cd $INSTALL_DIR
 
   echo "ENTERING $EIGEN_ROOT"
+  if [ -d $EIGEN_ROOT ]; then
+    (
+      cd $EIGEN_ROOT
+      if git branch | grep master; then
+        echo "EIGEN IN $EIGEN_ROOT IS MASTER BRANCH"
+        echo "Deleting and redownloading stable release..."
+        cd $HOME
+        rm -rf $EIGEN_ROOT
+      fi
+    )
+  fi
   if [ ! -d $EIGEN_ROOT ] ; then
     git clone --single-branch --branch 3.3.4 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
