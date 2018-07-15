@@ -1,3 +1,33 @@
 <resources>
-    <string name="app_name">ShieldAI Demo</string>
+    <string name="app_name">GAMS/MADARA Demo</string>
+
+    <string-array name="madara_test_classes">
+
+        <item>AesBufferFilterTest</item>
+        <item>ContainerTest</item>
+        <!--<item>CounterFilterTest</item>-->
+        <!--<item>JavaLockPerformance</item>-->
+        <!--<item>LogFilterTest</item>-->
+        <item>LoggerTest</item>
+        <item>ProducerConsumerQueueTest</item>
+        <!--<item>ProfileArchitecture</item>-->
+        <item>TestKnowledgeBase</item>
+        <item>TestReasoningThroughput</item>
+        <!--<item>TestRegistry</item>-->
+        <item>TestUtility</item>
+        <item>NetworkTest</item>
+        <!--<item>ThreadedCounter</item>-->
+        <!--<item>ThreadedCounterBlaster</item>-->
+    </string-array>
+
+
+    <string-array name="gams_test_classes">
+
+        <item>TestDebuggerLoop</item>
+        <item>TestDebuggerLoopFilters</item>
+        <item>TestMessageProfilingAlgorithm</item>
+        <item>TestMessagingThroughput</item>
+        <item>TestMultiController</item>
+        <item>TestUtility</item>
+    </string-array>
 </resources>

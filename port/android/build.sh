@@ -31,7 +31,6 @@ ANDROID_TOOLS_ZIP="sdk-tools-linux-3859397.zip"
 ANDROID_TOOLS_DIR="$ANDROID_SDK_DIR/tools"
 DEMO_PRJ_DIR=`pwd`"/demo-prj"
 
-JAR_LIBS_DIR="$DEMO_PRJ_DIR/app/libs"
 JNI_LIBS_DIR_ARCH="$DEMO_PRJ_DIR/app/src/main/jniLibs/$ANDROID_ARCH"
 
 
@@ -76,11 +75,9 @@ fi
 #Copy all required JNI files into respective project directory.
 
 MADARA_LIB=$MADARA_ROOT/lib/libMADARA.so
-MADARA_JAR=$MADARA_ROOT/lib/madara.jar
 GAMS_LIB=$GAMS_ROOT/lib/libGAMS.so
-GAMS_JAR=$GAMS_ROOT/lib/gams.jar
 
-if [ ! -f $MADARA_LIB ]  || [ ! -f $GAMS_LIB ] || [ ! -f $MADARA_JAR ] || [ ! -f $GAMS_JAR ]; then 
+if [ ! -f $MADARA_LIB ]  || [ ! -f $GAMS_LIB ]; then 
    echo "Looks like not all required libraries are available. Please ensure BOOST, MADARA, GAMS libraries are available";
    exit 1;
 fi
@@ -111,12 +108,6 @@ case $ANDROID_ARCH in
       exit 1
       ;;
 esac
-
-#Copy Java files
-mkdir -p $JAR_LIBS_DIR
-cp $MADARA_JAR $JAR_LIBS_DIR
-cp $GAMS_JAR $JAR_LIBS_DIR
-
 
 #Build and compile the APK
 cd $DEMO_PRJ_DIR

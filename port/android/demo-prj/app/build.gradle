@@ -19,17 +19,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-//    sourceSets.main {
-//        jni.srcDirs = []
-//        jniLibs.srcDir 'src/main/libs'
-//    }
-//
-//    externalNativeBuild {
-//        ndkBuild {
-//            path 'jni/Android.mk'
-//        }
-//    }
+    lintOptions {
+          abortOnError false
+      }
 
 }
 
@@ -40,6 +32,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation files('libs/gams.jar')
-    implementation files('libs/madara.jar')
+    //from mavenCentral()
+    implementation 'ai.madara:madara:3.2.3'
+    implementation 'ai.gams:gams:1.2.2'
 }
