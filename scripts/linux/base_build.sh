@@ -64,6 +64,7 @@
 #   $VREP_ROOT    - location of VREP installation, if applicable
 #   $SSL_ROOT     - location of OpenSSL (usually /usr)
 #   $ZMQ_ROOT     - location of ZeroMQ (usually /usr/local)
+#   $LZ4_ROOT     - location of LZ4
 #
 # For android
 #   $LOCAL_CROSS_PREFIX
@@ -91,6 +92,7 @@ ZMQ=0
 SIMTIME=0
 SSL=0
 DMPL=0
+LZ4=0
 PYTHON=0
 CLEAN=1
 MAC=${MAC:-0}
@@ -115,6 +117,7 @@ MPC_REPO_RESULT=0
 VREP_REPO_RESULT=0
 ZMQ_REPO_RESULT=0
 ZMQ_BUILD_RESULT=0
+LZ4_REPO_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -164,6 +167,8 @@ do
     DMPL=1
   elif [ "$var" = "dmpl" ]; then
     DMPL=1
+  elif [ "$var" = "lz4" ]; then
+    LZ4=1
   elif [ "$var" = "zmq" ]; then
     ZMQ=1
   elif [ "$var" = "simtime" ]; then
@@ -191,6 +196,7 @@ do
     echo "  docs            generate API documentation"
     echo "  gams            build GAMS"
     echo "  java            build java jar"
+    echo "  lz4             build with LZ4 compression"
     echo "  madara          build MADARA"
     echo "  noclean         do not run 'make clean' before builds"
     echo "  odroid          target ODROID computing platform"
@@ -214,6 +220,7 @@ do
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  JAVA_HOME           - location of JDK"
+    echo "  LZ4_ROOT            - location of LZ4"
     echo "  ZMQ_ROOT            - location of ZeroMQ"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
@@ -230,6 +237,10 @@ if [ -z $EIGEN_ROOT ] ; then
   export EIGEN_ROOT=$INSTALL_DIR/eigen
 fi
 
+if [ -z $LZ4_ROOT ] ; then
+  export LZ4_ROOT=$INSTALL_DIR/lz4
+fi
+
 
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
@@ -244,6 +255,7 @@ fi
 echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
+echo "LZ4_ROOT is set to $LZ4_ROOT"
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
   echo "MADARA will not be built"
@@ -380,6 +392,11 @@ append_if_needed() (
 if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   if [ $JAVA -eq 1 ]; then
     sudo add-apt-repository -y ppa:webupd8team/java
+  fi
+
+  if [ $LZ4 -eq 1 ] && [ ! -d $LZ4_ROOT  ]; then
+    git clone https://github.com/lz4/lz4.git $LZ4_ROOT
+    LZ4_REPO_RESULT=$?
   fi
 
   if [ $ROS -eq 1 ]; then
@@ -652,7 +669,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
   echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
+  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -663,9 +680,9 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "BUILDING MADARA"
   echo "make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
-  make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
   echo "make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
-  make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
@@ -863,6 +880,16 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
   fi
 fi
 
+if [ $LZ4 -eq 1 ]; then
+  echo "  LZ4"
+  if [ $LZ4_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+fi
+
 if [ $ZMQ -eq 1 ]; then
   echo "  ZMQ"
   if [ $ZMQ_REPO_RESULT -eq 0 ]; then
@@ -944,6 +971,10 @@ if [ $SSL -eq 1 ]; then
     export SSL_ROOT=/usr
   fi
   echo -e "export SSL_ROOT=$SSL_ROOT"
+fi
+
+if [ $LZ4 -eq 1 ]; then
+  echo -e "export LZ4_ROOT=$LZ4_ROOT"
 fi
 
 if [ $ZMQ -eq 1 ]; then
