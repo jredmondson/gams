@@ -89,6 +89,9 @@ mkdir -p $JNI_LIBS_DIR_ARCH
 cp $MADARA_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_LIB $JNI_LIBS_DIR_ARCH
 
+if [ $ZMQ -eq 1 ]; then
+cp $ZMQ_ROOT/lib/libzmq.so $JNI_LIBS_DIR_ARCH
+fi
 
 case $ANDROID_ARCH in
     arm32|arm|armeabi|armeabi-v7a)
