@@ -321,12 +321,12 @@ if [ $ANDROID -eq 1 ]; then
     arm32|arm|armeabi|armeabi-v7a)
       export ANDROID_ARCH=armeabi-v7a;
       export ANDROID_TOOLCHAIN_ARCH=arm;
-      export ANDROID_TOOLCHAIN=arm-linux-androidabi-$ANDROID_ABI;;
+      export ANDROID_TOOLCHAIN=arm-linux-androideabi;;
 
     arm64|aarch64)
       export ANDROID_ARCH=aarch64;
       export ANDROID_TOOLCHAIN_ARCH=arm64;
-      export ANDROID_TOOLCHAIN=aarch64-linux-android-$ANDROID_ABI;;
+      export ANDROID_TOOLCHAIN=aarch64-linux-android;;
 
     x86)
       true;;
@@ -339,6 +339,7 @@ if [ $ANDROID -eq 1 ]; then
   esac
   export ANDROID_TOOLCHAIN=${ANDROID_TOOLCHAIN:-${ANDROID_TOOLCHAIN_ARCH}-$ANDROID_ABI}
   export ANDROID_TOOLCHAIN_ARCH=${ANDROID_TOOLCHAIN_ARCH:-$ANDROID_ARCH}
+  echo "ANDROID_TOOLCHAIN is set to $ANDROID_TOOLCHAIN"
 
   export PATH="$NDK_TOOLS/bin:$PATH"
 
@@ -537,23 +538,60 @@ else
 fi
 
 if [ $ZMQ -eq 1 ]; then
-
+  export ZMQ=1
   cd $INSTALL_DIR
 
-  if [ ! -d libzmq ] ; then
-    git clone --depth 1 https://github.com/zeromq/libzmq
-    ZMQ_REPO_RESULT=$?
-    cd libzmq
-    ./autogen.sh && ./configure && make -j $CORES
-    make check
-    sudo make install && sudo ldconfig
-    ZMQ_BUILD_RESULT=$?
-    export ZMQ_ROOT=/usr/local
-  else
-    if [ -z $ZMQ_ROOT ]; then
-      export ZMQ_ROOT=/usr/local
-    fi
+  if [ -z $ZMQ_ROOT ]; then
+      if [ $ANDROID -eq 1 ]; then
+         export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
+      else 
+          export ZMQ_ROOT=/usr/local
+      fi
   fi
+
+  echo "ZMQ_ROOT has been set to $ZMQ_ROOT"
+
+  if [ ! -f $ZMQ_ROOT/lib/libzmq.so ]; then
+    
+     if [ ! -d libzmq ] ; then
+       git clone --depth 1 https://github.com/zeromq/libzmq
+       ZMQ_REPO_RESULT=$?
+     fi
+    
+     #Go to zmq directory
+     cd libzmq
+    
+     # For Android
+     if [ $ANDROID -eq 1 ]; then 
+        export ZMQ_OUTPUT_DIR=`pwd`/output
+        ./autogen.sh && ./configure --enable-shared --disable-static --host=$ANDROID_TOOLCHAIN --prefix=$ZMQ_OUTPUT_DIR LDFLAGS="-L$ZMQ_OUTPUT_DIR/lib" CPPFLAGS="-fPIC -I$ZMQ_OUTPUT_DIR/include" LIBS="-lgcc"  CXX=$NDK_TOOLS/bin/$ANDROID_TOOLCHAIN-clang++ CC=$NDK_TOOLS/bin/$ANDROID_TOOLCHAIN-clang
+        make clean install -j $CORES
+        export ZMQ_ROOT=$ZMQ_OUTPUT_DIR
+   
+    #For regular builds.
+     else 
+       ./autogen.sh && ./configure && make clean -j $CORES
+       make check
+       sudo make install && sudo ldconfig
+       ZMQ_BUILD_RESULT=$? 
+       export ZMQ_ROOT=/usr/local
+     fi
+    
+  fi
+    
+    #check again after installation
+    if [ ! -f $ZMQ_ROOT/lib/libzmq.so ]; then
+     echo "No libzmq found at $ZMQ_ROOT"
+     exit 1;
+    fi
+
+#fi  #libzmq.so condition check ends.
+   
+
+  
+
+
+ 
 else
   echo "NOT BUILDING ZEROMQ. If this is an error, delete the libzmq directory"
 fi
