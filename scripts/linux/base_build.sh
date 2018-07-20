@@ -394,11 +394,6 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     sudo add-apt-repository -y ppa:webupd8team/java
   fi
 
-  if [ $LZ4 -eq 1 ] && [ ! -d $LZ4_ROOT  ]; then
-    git clone https://github.com/lz4/lz4.git $LZ4_ROOT
-    LZ4_REPO_RESULT=$?
-  fi
-
   if [ $ROS -eq 1 ]; then
     ROS_FIRST_SETUP=0
     if [ ! -d "/opt/ros/kinetic" ] ; then
@@ -463,6 +458,17 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
        echo "Unable to download or setup boos. Refer README-ANDROID.md for manual setup"
        exit 1;
      fi 
+  fi
+
+  if [ $LZ4 -eq 1 ] && [ ! -d $LZ4_ROOT  ]; then
+    git clone https://github.com/lz4/lz4.git $LZ4_ROOT
+    LZ4_REPO_RESULT=$?
+    mv lib/lz.c lib/lz.cpp
+  else
+    cd $LZ4_ROOT
+    git pull
+    LZ4_REPO_RESULT=$?
+    mv lib/lz.c lib/lz.cpp
   fi
 
     
