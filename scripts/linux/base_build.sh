@@ -460,19 +460,6 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
      fi 
   fi
 
-  if [ $LZ4 -eq 1 ] && [ ! -d $LZ4_ROOT  ]; then
-    git clone https://github.com/lz4/lz4.git $LZ4_ROOT
-    LZ4_REPO_RESULT=$?
-    mv lib/lz.c lib/lz.cpp
-  else
-    cd $LZ4_ROOT
-    git pull
-    LZ4_REPO_RESULT=$?
-    mv lib/lz.c lib/lz.cpp
-  fi
-
-    
-  
   if [ $ROS -eq 1 ]; then
     sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
 
@@ -509,6 +496,25 @@ if [ $MAC -eq 1 ]; then
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
 fi
 
+
+if [ $LZ4 -eq 1 ] ; then
+  if [ ! -d $LZ4_ROOT  ]; then
+    echo "git clone https://github.com/lz4/lz4.git $LZ4_ROOT"
+    git clone https://github.com/lz4/lz4.git $LZ4_ROOT
+  else
+    echo "UPDATING LZ4"
+    cd $LZ4_ROOT
+    git pull
+  fi
+  LZ4_REPO_RESULT=$?
+
+  if [ -f $LZ4_ROOT/lib/lz4.c ] ; then
+    echo "mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
+    mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+  fi
+fi
+
+
 # check if MPC is a prereq for later packages
 
 if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] || [ $MADARA -eq 1 ]; then
@@ -525,6 +531,7 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
 
   echo "ENTERING $MPC_ROOT"
   if [ ! -d $MPC_ROOT ] ; then
+    echo "git clone --depth 1 https://github.com/DOCGroup/MPC.git $MPC_ROOT"
     git clone --depth 1 https://github.com/DOCGroup/MPC.git $MPC_ROOT
     MPC_REPO_RESULT=$?
   fi
@@ -549,9 +556,11 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
     )
   fi
   if [ ! -d $EIGEN_ROOT ] ; then
+    echo "git clone --single-branch --branch 3.3.4 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT"
     git clone --single-branch --branch 3.3.4 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
   else
+    echo "UPDATING Eigen"
     cd $EIGEN_ROOT
     git pull
     EIGEN_REPO_RESULT=$?
@@ -577,6 +586,7 @@ if [ $ZMQ -eq 1 ]; then
   if [ ! -f $ZMQ_ROOT/lib/libzmq.so ]; then
     
      if [ ! -d libzmq ] ; then
+       echo "git clone --depth 1 https://github.com/zeromq/libzmq"
        git clone --depth 1 https://github.com/zeromq/libzmq
        ZMQ_REPO_RESULT=$?
      fi
@@ -586,6 +596,7 @@ if [ $ZMQ -eq 1 ]; then
     
      # For Android
      if [ $ANDROID -eq 1 ]; then 
+        echo "UPDATING ZMQ FOR ANDROID"
         export ZMQ_OUTPUT_DIR=`pwd`/output
         ./autogen.sh && ./configure --enable-shared --disable-static --host=$ANDROID_TOOLCHAIN --prefix=$ZMQ_OUTPUT_DIR LDFLAGS="-L$ZMQ_OUTPUT_DIR/lib" CPPFLAGS="-fPIC -I$ZMQ_OUTPUT_DIR/include" LIBS="-lgcc"  CXX=$NDK_TOOLS/bin/$ANDROID_TOOLCHAIN-clang++ CC=$NDK_TOOLS/bin/$ANDROID_TOOLCHAIN-clang
         make clean install -j $CORES
@@ -593,6 +604,7 @@ if [ $ZMQ -eq 1 ]; then
    
     #For regular builds.
      else 
+       echo "UPDATING ZMQ"
        ./autogen.sh && ./configure && make clean -j $CORES
        make check
        sudo make install && sudo ldconfig
@@ -609,19 +621,13 @@ if [ $ZMQ -eq 1 ]; then
     fi
 
 #fi  #libzmq.so condition check ends.
-   
-
-  
-
-
- 
 else
   echo "NOT BUILDING ZEROMQ. If this is an error, delete the libzmq directory"
 fi
 
 if [ $SSL -eq 1 ]; then
   if [ -z $SSL_ROOT ]; then
-    if [ MAC -eq 0 ]; then
+    if [ $MAC -eq 0 ]; then
       export SSL_ROOT=/usr
     else
       export SSL_ROOT=/usr/local/opt/openssl
