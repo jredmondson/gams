@@ -281,6 +281,6 @@ void gams::utility::java::throw_dead_obj_exception (
   JNIEnv * env, const char * message)
 {
   jclass excp_cls = gams::utility::java::find_class (env,
-    "ai/gams/exceptions/MadaraDeadObjectException");
+    "ai/gams/exceptions/GamsDeadObjectException");
   	env->ThrowNew(excp_cls, message);
 }
