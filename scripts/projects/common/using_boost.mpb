@@ -1,0 +1,49 @@
+project {
+  expand(BOOST_ROOT_LIB) {
+    $BOOST_ROOT_LIB
+    $(BOOST_ROOT)/stage/lib
+  }
+
+  // b2 builds libboost_system with the following example formats:
+  // libboost_system-vc141-mt-gd-x64-1_67.lib (Debug) 
+  // libboost_system-vc141-mt-x64-1_67.lib (Release)
+  // we want to allow Windows devs to customize their linked boost libs
+
+  expand(BOOST_TOOLSET) {
+    $BOOST_TOOLSET
+    vc141
+  }
+  	
+  expand(BOOST_ARCH) {
+    $BOOST_ARCH
+    x64
+  }
+  	
+  expand(BOOST_VERSION) {
+    $BOOST_VERSION
+    1_67
+  }
+  	
+  expand(BOOST_SYSTEM_DEBUG) {
+    $BOOST_SYSTEM_DEBUG
+    $(BOOST_STATIC_LIB_PREFIX)boost_system-$(BOOST_TOOLSET)-mt-gd-$(BOOST_ARCH)-$(BOOST_VERSION)
+  }
+  	
+  expand(BOOST_SYSTEM_RELEASE) {
+    $BOOST_SYSTEM_RELEASE
+    $(BOOST_STATIC_LIB_PREFIX)boost_system-$(BOOST_TOOLSET)-mt-$(BOOST_ARCH)-$(BOOST_VERSION)
+  }
+  	  	  
+  specific(prop:windows) {
+    libpaths += $(BOOST_ROOT_LIB)
+    includes += $(BOOST_ROOT)
+  
+    macros += _WINSOCK_DEPRECATED_NO_WARNINGS BOOST_ALL_NO_LIB
+	
+    Debug::lit_libs += $(BOOST_SYSTEM_DEBUG)
+    Release::lit_libs += $(BOOST_SYSTEM_RELEASE)
+    // end if windows build
+  } else {
+    lit_libs += $(BOOST_STATIC_LIB_PREFIX)boost_system$(BOOST_CFG)
+  }
+}

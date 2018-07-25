@@ -2222,9 +2222,9 @@ containers::${new_container}::modify (void)
       }
       
       copy "$gamsroot/using_vrep.mpb", "$path/";
-      copy "$gamsroot/using_madara.mpb", "$path/";
-      copy "$gamsroot/using_gams.mpb", "$path/";
-      copy "$gamsroot/using_boost.mpb", "$path/";
+      #copy "$gamsroot/using_madara.mpb", "$path/";
+      #copy "$gamsroot/using_gams.mpb", "$path/";
+      #copy "$gamsroot/using_boost.mpb", "$path/";
     }
   
     foreach my $new_alg (@new_algorithm)
@@ -4925,6 +4925,21 @@ int main (int argc, char ** argv)
   if (not -f "$path/doxygen_help_gen.mpb")
   {
     copy "$script_dir/common/doxygen_help_gen.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_boost.mpb")
+  {
+    copy "$script_dir/common/using_boost.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_gams.mpb")
+  {
+    copy "$script_dir/common/using_gams.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_madara.mpb")
+  {
+    copy "$script_dir/common/using_madara.mpb", "$path/";
   }
 
   if (not -f "$path/VERSION.txt")
