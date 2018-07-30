@@ -105,6 +105,7 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
+CAPNPROTO_AS_A_PREREQ=0
 
 MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
@@ -237,6 +238,10 @@ if [ -z $EIGEN_ROOT ] ; then
   export EIGEN_ROOT=$INSTALL_DIR/eigen
 fi
 
+if [ -z $CAPNP_ROOT ] ; then
+  export CAPNP_ROOT=$INSTALL_DIR/capnproto
+fi
+
 if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
 fi
@@ -255,6 +260,7 @@ fi
 echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
+echo "CAPNP_ROOT is set to $CAPNP_ROOT"
 echo "LZ4_ROOT is set to $LZ4_ROOT"
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
@@ -405,6 +411,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
   sudo apt-get update
   sudo apt-get install -y -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
+  sudo apt-get install -y -f autoconf automake libtool
 
   if [ $CLANG -eq 1 ]; then
     sudo apt-get install -y -f clang-5.0 libc++-dev libc++abi-dev
@@ -525,6 +532,10 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
   MPC_AS_A_PREREQ=1
 fi
 
+if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
+  CAPNP_AS_A_PREREQ=1
+fi
+
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
@@ -547,7 +558,7 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
   if [ -d $EIGEN_ROOT ]; then
     (
       cd $EIGEN_ROOT
-      if git branch | grep master; then
+      if git branch | grep "* master"; then
         echo "EIGEN IN $EIGEN_ROOT IS MASTER BRANCH"
         echo "Deleting and redownloading stable release..."
         cd $HOME
@@ -566,7 +577,50 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
     EIGEN_REPO_RESULT=$?
   fi
 else
-  echo "NOT CHECKING MPC"
+  echo "NOT CHECKING EIGEN"
+fi
+
+if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
+
+  cd $INSTALL_DIR
+
+  echo "ENTERING $CAPNP_ROOT"
+  if [ -d $CAPNP_ROOT ]; then
+    (
+      cd $CAPNP_ROOT
+      if git branch | grep "* master"; then
+        echo "CAPNPROTO IN $CAPNP_ROOT IS MASTER BRANCH"
+        echo "Deleting and redownloading stable release..."
+        cd $HOME
+        rm -rf $CAPNP_ROOT
+      fi
+    )
+  fi
+  if [ ! -d $CAPNP_ROOT ] ; then
+    git clone --single-branch --branch release-0.6.1 --depth 1 https://github.com/capnproto/capnproto.git $CAPNP_ROOT
+    CAPNP_REPO_RESULT=$?
+  else
+    cd $CAPNP_ROOT
+    git pull
+    CAPNP_REPO_RESULT=$?
+  fi
+
+  export PATH="$CAPNP_ROOT/c++:$PATH"
+  export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
+  if [ $CLANG -ne 0 ]; then
+    export CC=clang-5.0
+    export CXX=clang++-5.0
+    export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
+  fi
+
+  cd $CAPNP_ROOT/c++
+  make clean
+  autoreconf -i &&
+    ./configure &&
+    make -j$CORES
+  CAPNP_BUILD_RESULT=$?
+else
+  echo "NOT CHECKING CAPNPROTO"
 fi
 
 if [ $ZMQ -eq 1 ]; then
@@ -932,6 +986,21 @@ if [ $VREP -eq 1 ]; then
 fi
 
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
+  if [ $CAPNP_AS_A_PREREQ ]; then
+    echo "  CAPNPROTO"
+    if [ $CAPNP_REPO_RESULT -eq 0 ]; then
+      echo -e "    REPO=\e[92mPASS\e[39m"
+    else
+      echo -e "    REPO=\e[91mFAIL\e[39m"
+      (( BUILD_ERRORS++ ))
+    fi
+    if [ $CAPNP_BUILD_RESULT -eq 0 ]; then
+      echo -e "    BUILD=\e[92mPASS\e[39m"
+    else
+      echo -e "    BUILD=\e[91mFAIL\e[39m"
+      (( BUILD_ERRORS++ ))
+    fi
+  fi
   echo "  MADARA"
   if [ $MADARA_REPO_RESULT -eq 0 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
@@ -974,6 +1043,7 @@ echo -e ""
 echo -e "Make sure to update your environment variables to the following"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
 echo -e "export EIGEN_ROOT=$EIGEN_ROOT"
+echo -e "export CAPNP_ROOT=$CAPNP_ROOT"
 echo -e "export MADARA_ROOT=$MADARA_ROOT"
 echo -e "export GAMS_ROOT=$GAMS_ROOT"
 echo -e "export VREP_ROOT=$VREP_ROOT"
