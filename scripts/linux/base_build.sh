@@ -607,7 +607,7 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
 
   export PATH="$CAPNP_ROOT/c++:$PATH"
   export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
-  if [ $CLANG -ne 0 ]; then
+  if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
     export CC=clang-5.0
     export CXX=clang++-5.0
     export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
