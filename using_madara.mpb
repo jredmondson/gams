@@ -1,5 +1,6 @@
 project : debug_build, using_clang, using_android, using_boost {
   includes += $(MADARA_ROOT)/include
+  includes += $(CAPNP_ROOT)/c++/src
   libpaths += $(MADARA_ROOT)/lib
 
   libs += MADARA
