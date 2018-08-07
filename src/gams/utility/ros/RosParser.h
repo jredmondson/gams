@@ -54,6 +54,15 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <string>
+#include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "capnp/serialize.h"
+#include "capnp/schema-loader.h"
+#include "kj/io.h"
+
 namespace logger = madara::logger;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
@@ -69,6 +78,7 @@ namespace gams
         public:
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
+            std::map<std::string, std::string> capnp_types,
             std::string frame_prefix=gams::pose::ReferenceFrame::default_prefix());
           void parse_message (const rosbag::MessageInstance m,
             std::string container_name);
@@ -80,6 +90,14 @@ namespace gams
             RosIntrospection::ROSType type, std::string definition);
           void parse_unknown (const rosbag::MessageInstance m,
             std::string container_name);
+          
+          // Parse defined Any types
+          void parse_any (const rosbag::MessageInstance & m,
+            std::string container_name);
+          void parse_any (const topic_tools::ShapeShifter & m,
+            std::string container_name);
+
+          capnp::DynamicStruct::Builder get_builder (std::string path);
           
           //known types
           void parse_odometry (nav_msgs::Odometry * odom,
@@ -136,6 +154,7 @@ namespace gams
           // Transform tree frame names
           std::string world_frame_;
           std::string base_frame_;
+          std::map<std::string, std::string> capnp_types_;
 
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;

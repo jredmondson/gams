@@ -1,0 +1,11 @@
+@0xbebf4ee71f581bf1;
+using Header = import "Header.capn";
+using PoseWithCovariance = import "PoseWithCovariance.capn";
+using TwistWithCovariance = import "TwistWithCovariance.capn";
+
+struct Odometry {
+  header @0 :Header.Header;
+  childframeid @1: Text;
+  pose @2 : PoseWithCovariance.PoseWithCovariance;
+  twist @3 : TwistWithCovariance.TwistWithCovariance;
+}

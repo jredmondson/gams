@@ -91,6 +91,9 @@ bool save_as_binary = false;
 std::string base_frame = "";
 std::string world_frame = "";
 
+// cpnproto any type mapping
+std::map<std::string, std::string> capnp_types;
+
 //checkpoint frequency
 int checkpoint_frequency = 0;
 
@@ -281,7 +284,7 @@ int main (int argc, char ** argv)
 
   //Prepare the parser to be able to introspect unknown types
 
-  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame);
+  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame, capnp_types);
   for (const rosbag::ConnectionInfo* connection: view.getConnections () )
   {
     const std::string  topic_name =  connection->topic;

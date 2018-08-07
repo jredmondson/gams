@@ -1,0 +1,11 @@
+@0xc0b2c1572d185015;
+
+using Point = import "Point.capn";
+using Quaternion = import "Quaternion.capn";
+
+
+struct Pose
+{
+  position @0: Point.Point;
+  quaternion @1: Quaternion.Quaternion;
+}

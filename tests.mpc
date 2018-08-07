@@ -316,7 +316,7 @@ project (test_groups) : using_gams, using_madara {
   }
 }
 
-project (test_ros2gams) : using_madara, using_ros, using_gams {
+project (test_ros2gams) : using_madara, using_ros, using_gams, using_capnp {
   exeout = $(GAMS_ROOT)/bin
   exename = test_ros2gams
   libpaths += $(ROS_ROOT)/../../lib
@@ -324,6 +324,7 @@ project (test_ros2gams) : using_madara, using_ros, using_gams {
   requires += ros
 
   macros +=  _USE_MATH_DEFINES
+
 
   libs += roscpp
   libs += cpp_common
@@ -336,10 +337,12 @@ project (test_ros2gams) : using_madara, using_ros, using_gams {
   }
 
   Header_Files {
+    tests/capnfiles
   }
 
   Source_Files {
     tests/test_ros2gams.cpp
+    tests/capnfiles
   }
 }
 

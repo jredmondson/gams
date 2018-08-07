@@ -1,6 +1,26 @@
 #define TEST_ROS2GAMS
+
+#include <string>
+#include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "madara/knowledge/Any.h"
+#include "madara/knowledge/KnowledgeRecord.h"
+#include "madara/knowledge/KnowledgeBase.h"
+#include "madara/utility/SupportTest.h"
+#include "madara/utility/Utility.h"
+
+#include "kj/io.h"
+#include "capnp/serialize.h"
+#include "capnp/schema-loader.h"
+#include "capnfiles/Odometry.capn.h"
+
+
 #include "gams/utility/ros/RosParser.cpp"
 #include "std_msgs/Header.h"
+#include "nav_msgs/Odometry.h"
 
 
 const double TEST_epsilon = 0.0001;
@@ -34,12 +54,15 @@ double round_nearest(double in)
   } while(0)
 
 
+std::map<std::string, std::string> capnp_types;
+
+
 void test_pose()
 {
 	std::cout << std::endl << "test geometry_msgs::Pose" << std::endl;
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser(&knowledge, "", "");
+	gams::utility::ros::RosParser parser (&knowledge, "", "", capnp_types);
 
 	geometry_msgs::Pose p;
 	p.position.x = 1.0;
@@ -72,7 +95,8 @@ void test_tf_tree()
 	std::cout << std::endl << "test tf2_msgs::TFMessage" << std::endl;
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser(&knowledge, "world", "frame1");
+	gams::utility::ros::RosParser parser (&knowledge, "world", "frame1",
+		capnp_types);
 
 	geometry_msgs::Transform transform;
 	geometry_msgs::Vector3 t;
@@ -114,11 +138,97 @@ void test_tf_tree()
 	TEST(origin.get(5), 0.0);
 }
 
+template <typename T>
+void serialize_message_to_array (
+	const T& msg, std::vector<uint8_t>& destination_buffer)
+{
+  const uint32_t length = ros::serialization::serializationLength(msg);
+  destination_buffer.resize( length );
+  //copy into your own buffer
+  ros::serialization::OStream stream(destination_buffer.data(), length);
+  ros::serialization::serialize(stream, msg);
+}
+
+void test_any()
+{
+	// This tests configures the parser so that Odometry messages are stored
+	// into capnproto any types.
+
+	std::string container_name = "thisisatest";
+
+	nav_msgs::Odometry odom;
+	//odom.header.stamp = ros::Time::now();
+	odom.header.frame_id = "odom";
+
+	double x = 1.0;
+	double y = 2.0;
+	double z = 3.0;
+	double vx = 0.1;
+	double vy = 0.2;
+	double vz = 0.3;
+	geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(0.0);
+
+
+	//set the position
+  odom.pose.pose.position.x = x;
+  odom.pose.pose.position.y = y;
+  odom.pose.pose.position.z = z;
+  odom.pose.pose.orientation = odom_quat;
+
+  //set the velocity
+  odom.child_frame_id = "base_link";
+  odom.twist.twist.linear.x = vx;
+  odom.twist.twist.linear.y = vy;
+  odom.twist.twist.angular.z = vz;
+
+	// transform to shapeshifter object
+	topic_tools::ShapeShifter shape_shifter;
+  shape_shifter.morph(
+      ros::message_traits::MD5Sum<nav_msgs::Odometry>::value(),
+      ros::message_traits::DataType<nav_msgs::Odometry>::value(),
+      ros::message_traits::Definition<nav_msgs::Odometry>::value(),
+      "" );
+
+  std::vector<uint8_t> buffer;
+	serialize_message_to_array(odom, buffer);
+  ros::serialization::OStream stream( buffer.data(), buffer.size() );
+  shape_shifter.read( stream );
+
+
+	// The parser
+	std::map<std::string, std::string> typemap;
+	typemap["nav_msgs/Odometry"] = madara::utility::expand_envs(
+		"$(GAMS_ROOT)/tests/capnfiles/Odometry.capn.bin");
+
+	knowledge::KnowledgeBase knowledge;
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+
+  // register the type using the topic_name as identifier. This allows us to
+	// use RosIntrospection
+
+  const std::string  topic_name =  "odom";
+  const std::string  datatype   =  shape_shifter.getDataType();
+  const std::string  definition =  shape_shifter.getMessageDefinition();
+  parser.registerMessageDefinition (topic_name,
+      RosIntrospection::ROSType (datatype), definition);
+
+	// parse to capnp format
+	parser.parse_any(shape_shifter, container_name);
+
+	madara::knowledge::Any any = knowledge.get(container_name).to_any();
+	Odometry::Reader capn_odom = any.reader<Odometry>();
+	auto position = capn_odom.getPose().getPose().getPosition();
+	TEST(position.getX(), x);
+
+
+}
+
 int main (int, char **)
 {
 	std::cout << "Testing ros2gams" << std::endl;
-	test_pose();
-	test_tf_tree();
+	//test_pose();
+	//test_tf_tree();
+	test_any();
 
   if (gams_fails > 0)
   {
@@ -131,3 +241,5 @@ int main (int, char **)
 
   return gams_fails;
 }
+
+

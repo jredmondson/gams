@@ -72,14 +72,16 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
 
   std::map<std::string, std::string>::iterator frame_prefix =
     topic_map_.find ("/tf");
+  std::map<std::string, std::string> capnp_types;
   if (frame_prefix != topic_map_.end ())
   {
     parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1",
-      frame_prefix->second);
+      capnp_types, frame_prefix->second);
   }
   else
   {
-    parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1");
+    parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1",
+      capnp_types);
   }
 
   for (const std::string topic_name: topics_ )
