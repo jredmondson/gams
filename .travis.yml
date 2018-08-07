@@ -22,7 +22,7 @@ env:
     - MPC_ROOT=$TRAVIS_BUILD_DIR/MPC
     - EIGEN_ROOT=$TRAVIS_BUILD_DIR/eigen
     - CAPNP_ROOT=$TRAVIS_BUILD_DIR/capnproto
-    - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH
+    - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH:$CAPNP_ROOT/c++/.libs
     - CORES=6
 
 matrix:
@@ -134,7 +134,7 @@ before_script:
   - export
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export OS=linux; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export OS=mac; export CLANG_SUFFIX=; export JAVA_HOME=$(/usr/libexec/java_home) ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs ; fi
   - if [[ "$JAVA" == "java" ]]; then echo "TRAVIS_JDK_VERSION=TRAVIS_JDK_VERSION" ; fi
 script:
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
