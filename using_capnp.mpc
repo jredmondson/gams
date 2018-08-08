@@ -21,4 +21,9 @@ capnp compile -I \$$CAPNP_ROOT/c++/src -o/bin/cat \$$0 > \$$0.bin"
     DisableSpecificWarnings += 4005 4251 4275 4244
     macros += _CRT_SECURE_NO_WARNINGS
   }
+
+  verbatim(make, top) {
+    # Suppress implicit make rules
+    .SUFFIXES:
+  }
 }
