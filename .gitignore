@@ -16,6 +16,8 @@ lib*
 *.bag
 *.vcxproj
 *.vcxproj.filters
+.vscode
+capnproto/
 
 gams.VC.db
 gams.sdf
@@ -55,4 +57,9 @@ eigen/
 target/
 .project
 .settings
+
+#Capnproto files
+*.capn.bin
+*.capn.c++
+*.capn.h
 
