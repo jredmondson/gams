@@ -580,7 +580,7 @@ else
   echo "NOT CHECKING EIGEN"
 fi
 
-if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
+if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
