@@ -605,20 +605,45 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     CAPNP_REPO_RESULT=$?
   fi
 
-  export PATH="$CAPNP_ROOT/c++:$PATH"
-  export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
-  if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
-    export CC=clang-5.0
-    export CXX=clang++-5.0
-    export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
-  fi
-
+  
   cd $CAPNP_ROOT/c++
   make clean
-  autoreconf -i &&
-    ./configure &&
-    make -j$CORES
-  CAPNP_BUILD_RESULT=$?
+  autoreconf -i
+
+  if [ $ANDROID -eq 1 ]; then
+    export CROSS_PATH=${NDK_TOOLS}/bin/${ANDROID_TOOLCHAIN}
+    export AR=${CROSS_PATH}-ar
+    export AS=${CROSS_PATH}-as
+    export NM=${CROSS_PATH}-nm
+    export CC=${CROSS_PATH}-gcc
+    export CXX=${CROSS_PATH}-clang++
+    export LD=${CROSS_PATH}-ld
+    export RANLIB=${CROSS_PATH}-ranlib
+    export STRIP=${CROSS_PATH}-strip
+
+    ./configure --host=${ANDROID_TOOLCHAIN} --with-sysroot=${SYSROOT} CPPFLAGS="${CPPLAGS} --sysroot=${SYSROOT} -I${SYSROOT}/usr/include -I${NDK_TOOLS}/include -std=c++11" LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${NDK_TOOLS}/lib -L${NDK_TOOLS}/${ANDROID_TOOLCHAIN}/lib" LIBS='-lc++_shared'
+
+  else 
+    export PATH="$CAPNP_ROOT/c++:$PATH"
+    export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
+    if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
+      export CC=clang-5.0
+      export CXX=clang++-5.0
+      export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
+    fi
+
+   ./configure
+
+  fi
+
+   make -j$CORES
+   CAPNP_BUILD_RESULT=$?
+
+   if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
+       echo "CapNProto is not build properly"
+       exit 1;
+   fi
+ #Prereq if ends
 else
   echo "NOT CHECKING CAPNPROTO"
 fi
