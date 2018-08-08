@@ -16,6 +16,7 @@
 #include "capnp/serialize.h"
 #include "capnp/schema-loader.h"
 #include "capnfiles/Odometry.capn.h"
+#include "capnfiles/Point.capn.h"
 
 
 #include "gams/utility/ros/RosParser.cpp"
@@ -184,13 +185,13 @@ void test_any()
 	// transform to shapeshifter object
 	topic_tools::ShapeShifter shape_shifter;
   shape_shifter.morph(
-      ros::message_traits::MD5Sum<nav_msgs::Odometry>::value(),
-      ros::message_traits::DataType<nav_msgs::Odometry>::value(),
-      ros::message_traits::Definition<nav_msgs::Odometry>::value(),
+      ros::message_traits::MD5Sum<geometry_msgs::Point>::value(),
+      ros::message_traits::DataType<geometry_msgs::Point>::value(),
+      ros::message_traits::Definition<geometry_msgs::Point>::value(),
       "" );
 
   std::vector<uint8_t> buffer;
-	serialize_message_to_array(odom, buffer);
+	serialize_message_to_array(odom.pose.pose.position, buffer);
   ros::serialization::OStream stream( buffer.data(), buffer.size() );
   shape_shifter.read( stream );
 
@@ -199,6 +200,8 @@ void test_any()
 	std::map<std::string, std::string> typemap;
 	typemap["nav_msgs/Odometry"] = madara::utility::expand_envs(
 		"$(GAMS_ROOT)/tests/capnfiles/Odometry.capn.bin");
+	typemap["geometry_msgs/Point"] = madara::utility::expand_envs(
+		"$(GAMS_ROOT)/tests/capnfiles/Point.capn.bin");
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
@@ -215,12 +218,15 @@ void test_any()
 	// parse to capnp format
 	parser.parse_any(shape_shifter, container_name);
 
+	knowledge.print();
+
 	madara::knowledge::Any any = knowledge.get(container_name).to_any();
-	Odometry::Reader capn_odom = any.reader<Odometry>();
-	auto position = capn_odom.getPose().getPose().getPosition();
-	TEST(position.getX(), x);
-
-
+	//Point::Reader capn_point = any.reader<Point>();
+	auto capn_point = any.reader();
+	//auto position = capn_odom.getPose().getPose().getPosition();
+	TEST(capn_point.get('x'), x);
+	TEST(capn_point.get('y'), y);
+	TEST(capn_point.get('z'), z);
 }
 
 int main (int, char **)

@@ -321,6 +321,7 @@ project (test_ros2gams) : using_madara, using_ros, using_gams, using_capnp {
   exename = test_ros2gams
   libpaths += $(ROS_ROOT)/../../lib
 
+
   requires += ros
 
   macros +=  _USE_MATH_DEFINES
@@ -341,11 +342,6 @@ project (test_ros2gams) : using_madara, using_ros, using_gams, using_capnp {
 
   Source_Files {
     tests/test_ros2gams.cpp
-  }
-
-  CAPN_Files {
     tests/capnfiles
   }
-  after += Test_CapnFiles
-
 }

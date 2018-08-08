@@ -729,19 +729,25 @@ capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_builder (
   return dynbuilder;
 }
 
-capnp::DynamicValue::Builder get_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
+capnp::DynamicStruct::Builder get_dyn_capnp_struct(capnp::DynamicStruct::Builder builder,
   std::string name)
 {
-  std::istringstream f(name.substr(1));
+  if (name == "")
+  {
+    return builder;
+  }
+  std::string n = name.substr(1);
+  std::istringstream f(n);
   std::string s;
-  std::vector<std::string> elems;
+  capnp::DynamicStruct::Builder dyn;
+  getline(f, s, '/');
+
   while (getline(f, s, '/')) {
     std::cout << "     " << s << std::endl;
-    elems.push_back(s);
+    dyn = builder.get(s).as<capnp::DynamicStruct>();
   }
-  builder.init(elems[0]);
   //auto dyn = builder.get(elems[0]).as<capnp::DynamicStruct>();
-  return builder;
+  return dyn;
 }
 
 void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter & m,
@@ -755,9 +761,14 @@ void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter &
   capnp::StreamFdMessageReader schema_message_reader(fd);
   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
   capnp::SchemaLoader loader;
-  auto schema = loader.load(schema_reader.getNodes()[1]).asStruct();
-  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
+  auto schema = loader.load(schema_reader.getNodes()[0]);
+ 
+  /*capnp::SchemaParser parser;
+  auto schema = parser.parseDiskFile("Point",
+          schema_path, nullptr);*/
+  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema.asStruct());
 
+  
   //fix that!!!
   const std::string& topic_name  = "odom";
 
@@ -794,37 +805,21 @@ void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter &
   {
     const std::string& key = it.first;
     const RosIntrospection::Variant& value   = it.second;
+    std::string name = key.substr (topic_len);
 
-    std::string var_name = key.substr (topic_len);
-    /*std::replace ( var_name.begin (), var_name.end (), '/', '.');
-    if (value.getTypeID () == RosIntrospection::BuiltinType::BOOL ||
-      value.getTypeID () == RosIntrospection::BuiltinType::BYTE ||
-      value.getTypeID () == RosIntrospection::BuiltinType::CHAR ||
-      value.getTypeID () == RosIntrospection::BuiltinType::UINT8 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::UINT16 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::UINT32 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::UINT64 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::INT8 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::INT16 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::INT32 ||
-      value.getTypeID () == RosIntrospection::BuiltinType::INT64)
-    {
-      // Use Integer container for these types
-      containers::Integer value_container (container_name + var_name,
-        *knowledge_, eval_settings_);
-      value_container = value.convert<double> ();
-    }
-    else
-    {
-      // otherwise convert to double
-      containers::Double value_container (container_name + var_name,
-        *knowledge_, eval_settings_);
-      value_container = value.convert<double> ();
-    }*/
-    std::cout << var_name << std::endl;
-    auto dynvalue = get_dyn_capnp_value(capnp_builder, var_name);
-    std::cout << "got dynvalue" << std::endl << std::flush;
-    //std::cout << "Type: " << dynvalue.getType() << std::endl;
+    double val = value.convert<double> ();
+    
+    std::cout << name << std::endl;
+    int struct_end = name.find_last_of("/");
+    std::string struct_name = name.substr(0,struct_end);
+    std::string var_name = name.substr(struct_end+1);
+    std::cout << "Trying to set var '" << var_name << "' in struct '" << struct_name << "' to value " << val << std::endl;
+
+    auto dynvalue = get_dyn_capnp_struct(capnp_builder, struct_name);
+    
+    dynvalue.set(var_name, val);
+
+    std::cout << "done" << std::endl << std::flush;
   }
   for (auto it: flat_container.name)
   {
@@ -832,14 +827,11 @@ void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter &
     const std::string& value  = it.second;
 
     std::string var_name = key.substr (topic_len);
-    /*std::replace ( var_name.begin (), var_name.end (), '/', '.');
-    containers::String value_container (container_name + var_name, *knowledge_,
-      eval_settings_);
-    value_container = value;*/
     std::cout << var_name << std::endl;
 
   }
-
+  madara::knowledge::GenericCapnObject any(topic_name.c_str(), buffer);
+  knowledge_->set_any(container_name, any);
 }
 
 void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m,

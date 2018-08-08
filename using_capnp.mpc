@@ -3,6 +3,7 @@ project {
   libpaths += $(CAPNP_ROOT)/c++/.libs
 
   libs += capnp
+  libs += capnpc
   libs += capnp-json
   libs += kj
 

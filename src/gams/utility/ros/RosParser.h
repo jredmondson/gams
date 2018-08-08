@@ -12,6 +12,8 @@
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/containers/NativeIntegerVector.h"
 #include "madara/knowledge/containers/Double.h"
+#include "madara/knowledge/Any.h"
+#include "madara/knowledge/CapnObject.h"
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/StringVector.h"
@@ -61,7 +63,9 @@
 #include <fcntl.h>
 #include "capnp/serialize.h"
 #include "capnp/schema-loader.h"
+#include "capnp/schema-parser.h"
 #include "kj/io.h"
+
 
 namespace logger = madara::logger;
 namespace knowledge = madara::knowledge;
