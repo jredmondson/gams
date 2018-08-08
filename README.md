@@ -66,5 +66,7 @@ compile GAMS projects. Pass "help" to the script for usage information.
   3. Issues can be posted to our Issue system (which hasn't gotten any usage):
      https://github.com/jredmondson/gams/issues
 
-  4. If you are still having trouble, feel free to contact me directly at:
+  4. The SEI at CMU created an [Autonomy Tutorial Series](https://www.youtube.com/watch?v=Cuaxt0Ow7DI&list=PL2htjCHh_RcyqGXpHY6fSt3skqxJRiBH3) that covers usage of GAMS to create multi-agent autonomy.
+
+  5. If you are still having trouble, feel free to contact me directly at:
      jedmondson@gmail.com
