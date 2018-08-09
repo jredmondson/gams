@@ -34,6 +34,8 @@ GetMapAction
 GetMapActionResult
 GetMapFeedback
 tf2_msgs
-std_msgs
-
-
+quadrotor_msgs
+control_arch
+posyaw_ukf
+multirotor_control
+tf
