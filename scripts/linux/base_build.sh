@@ -608,7 +608,9 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
 
   
   cd $CAPNP_ROOT/c++
-  make clean
+  if [ $CLEAN -eq 1 ] ; then
+    make clean -j $CORES
+  fi
   autoreconf -i
 
   if [ $ANDROID -eq 1 ]; then
@@ -641,7 +643,7 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
    CAPNP_BUILD_RESULT=$?
 
    if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not build properly"
+       echo "CapNProto is not built properly"
        exit 1;
    fi
  #Prereq if ends
