@@ -12,7 +12,7 @@ project : debug_build, using_clang, using_android, using_boost {
 
   verbatim (make, local, true) {
     CPPFLAGS := -std=c++11 -Wall -Wextra -Wnon-virtual-dtor \
-      -Woverloaded-virtual -g -O3 $(CPPFLAGS)
+      -Woverloaded-virtual -O3 $(CPPFLAGS)
     LDLIBS := $(LDLIBS) -lMADARA
   }
 }

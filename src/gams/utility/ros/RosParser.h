@@ -66,7 +66,7 @@
 #include "capnp/schema-parser.h"
 #include "kj/io.h"
 
-
+namespace global_ros = ros;
 namespace logger = madara::logger;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
@@ -98,10 +98,12 @@ namespace gams
           // Parse defined Any types
           void parse_any (const rosbag::MessageInstance & m,
             std::string container_name);
-          void parse_any (const topic_tools::ShapeShifter & m,
+          void parse_any (std::string topic, const topic_tools::ShapeShifter & m,
+            std::string container_name);
+          void parse_any ( std::string datatype, std::string topic_name, global_ros::serialization::OStream &stream,
             std::string container_name);
 
-          capnp::DynamicStruct::Builder get_builder (std::string path);
+          void load_capn_schema(std::string path);
           
           //known types
           void parse_odometry (nav_msgs::Odometry * odom,
@@ -158,12 +160,26 @@ namespace gams
           // Transform tree frame names
           std::string world_frame_;
           std::string base_frame_;
+
+          // Capnproto
           std::map<std::string, std::string> capnp_types_;
+          std::map<std::string, capnp::Schema> schemas_;
+          capnp::SchemaLoader capnp_loader_;
+
+
 
           // The knowledgebase
           knowledge::KnowledgeBase * knowledge_;
           knowledge::EvalSettings eval_settings_;
           std::string frame_prefix_;
+
+
+          capnp::DynamicStruct::Builder get_dyn_capnp_struct(
+            capnp::DynamicStruct::Builder builder, std::string name);
+
+          template <class T>
+          void set_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
+            std::string name, T val);
 
       };
       std::string ros_to_gams_name (std::string ros_topic_name);

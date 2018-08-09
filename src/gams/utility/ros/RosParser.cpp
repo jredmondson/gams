@@ -6,7 +6,6 @@
  **/
 #include "RosParser.h"
 
-namespace global_ros = ros;
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
@@ -714,22 +713,19 @@ std::string gams::utility::ros::ros_to_gams_name (std::string ros_topic_name)
   return topic;
 }
 
-
-capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_builder (
-  std::string path)
+void gams::utility::ros::RosParser::load_capn_schema(std::string path)
 {
-  capnp::MallocMessageBuilder buffer;
-
   int fd = open(path.c_str(), 0, O_RDONLY);
   capnp::StreamFdMessageReader schema_message_reader(fd);
   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
-  capnp::SchemaLoader loader;
-  auto schema = loader.load(schema_reader.getNodes()[1]).asStruct();
-  auto dynbuilder = buffer.initRoot<capnp::DynamicStruct>(schema);
-  return dynbuilder;
+  for (auto schema : schema_reader.getNodes()) {
+    schemas_[schema.getDisplayName()] = capnp_loader_.load(schema);
+  }
 }
 
-capnp::DynamicStruct::Builder get_dyn_capnp_struct(capnp::DynamicStruct::Builder builder,
+
+capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struct(
+  capnp::DynamicStruct::Builder builder,
   std::string name)
 {
   if (name == "")
@@ -739,52 +735,65 @@ capnp::DynamicStruct::Builder get_dyn_capnp_struct(capnp::DynamicStruct::Builder
   std::string n = name.substr(1);
   std::istringstream f(n);
   std::string s;
-  capnp::DynamicStruct::Builder dyn;
-  getline(f, s, '/');
+  capnp::DynamicStruct::Builder dyn = builder;
 
   while (getline(f, s, '/')) {
     std::cout << "     " << s << std::endl;
-    dyn = builder.get(s).as<capnp::DynamicStruct>();
+    dyn = dyn.get(s).as<capnp::DynamicStruct>();
   }
-  //auto dyn = builder.get(elems[0]).as<capnp::DynamicStruct>();
   return dyn;
 }
 
-void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter & m,
+template <class T>
+void gams::utility::ros::RosParser::set_dyn_capnp_value(
+  capnp::DynamicStruct::Builder builder,
+  std::string name,
+  T val)
+{
+    std::cout << name << std::endl;
+    name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
+
+    int struct_end = name.find_last_of("/");
+    std::string struct_name = name.substr(0,struct_end);
+    std::string var_name = name.substr(struct_end+1);
+    std::cout << "Trying to set var '" << var_name << "' in struct '" << struct_name << "' to value " << val << std::endl;
+
+    auto dynvalue = get_dyn_capnp_struct(builder, struct_name);
+
+    if (var_name.find(".") != std::string::npos)
+    {
+      std::cout << "--- skipped ---" << std::endl << std::flush;
+      return;
+    }
+    dynvalue.set(var_name, val);
+    std::cout << "done" << std::endl << std::flush;
+}
+
+void gams::utility::ros::RosParser::parse_any (std::string topic,
+  const topic_tools::ShapeShifter & m,
   std::string container_name)
 {
-  std::string schema_path = capnp_types_[m.getDataType()];
-  
-  capnp::MallocMessageBuilder buffer;
-
-  int fd = open(schema_path.c_str(), 0, O_RDONLY);
-  capnp::StreamFdMessageReader schema_message_reader(fd);
-  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
-  capnp::SchemaLoader loader;
-  std::map<std::string, capnp::Schema> schemas;
-
-  for (auto schema : schema_reader.getNodes()) {
-    std::string dispname = schema.getDisplayName();
-    std::cout << "INFO  Loading schema " << dispname << std::endl;
-    schemas[schema.getDisplayName()] = loader.load(schema);
-  }
-  std::cout << "INFO  Schema count: " << schemas.size() << std::endl;
-
-  auto schema = loader.load(schema_reader.getNodes()[0]).asStruct();
- 
-  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
-  madara::knowledge::Any::register_schema("Point", schema);
-
-  
-  //fix that!!!
-  const std::string& topic_name  = "point";
-
   // write the message into the buffer
   const size_t msg_size  = m.size ();
   parser_buffer_.resize (msg_size);
   global_ros::serialization::OStream stream (parser_buffer_.data (),
     parser_buffer_.size ());
   m.write (stream);
+
+  parse_any(m.getDataType(), topic, stream, container_name);
+}
+
+
+void gams::utility::ros::RosParser::parse_any ( std::string datatype, std::string topic_name, global_ros::serialization::OStream &stream,
+  std::string container_name)
+{
+  std::string schema_name = capnp_types_[datatype];
+  capnp::MallocMessageBuilder buffer;
+  auto dummy = schemas_.at(schema_name);
+  auto schema = dummy.asStruct();
+  //auto schema = schemas_.at(schema_name).asStruct();
+  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
+  madara::knowledge::Any::register_schema(schema_name.c_str(), schema);
 
   RosIntrospection::FlatMessage& flat_container =
     flat_containers_[topic_name];
@@ -815,33 +824,21 @@ void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter &
     std::string name = key.substr (topic_len);
 
     double val = value.convert<double> ();
+    set_dyn_capnp_value<double>(capnp_builder, name, val);
     
-    std::cout << name << std::endl;
-    int struct_end = name.find_last_of("/");
-    std::string struct_name = name.substr(0,struct_end);
-    std::string var_name = name.substr(struct_end+1);
-    std::cout << "Trying to set var '" << var_name << "' in struct '" << struct_name << "' to value " << val << std::endl;
-
-    auto dynvalue = get_dyn_capnp_struct(capnp_builder, struct_name);
-    
-    dynvalue.set(var_name, val);
-
-    std::cout << "done" << std::endl << std::flush;
   }
   for (auto it: flat_container.name)
   {
     const std::string& key    = it.first.toStdString ();
     const std::string& value  = it.second;
 
-    std::string var_name = key.substr (topic_len);
-    std::cout << var_name << std::endl;
+    auto val = strdup(value.c_str());
 
+    std::string name = key.substr (topic_len);
+
+    set_dyn_capnp_value<char*>(capnp_builder, name, val);
   }
   madara::knowledge::GenericCapnObject any(topic_name.c_str(), buffer);
-  //madara::knowledge::RegCapnObject any("Point", buffer);
-  auto rdr = any.reader(schema);
-  double x = rdr.get("y").as<double>();
-  std::cout << "Test: " << x << std::endl;
 
   knowledge_->set_any(container_name, any);
 }

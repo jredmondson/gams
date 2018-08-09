@@ -3,8 +3,5 @@
 struct Header{
   seq @0 :UInt32;
   frameid @1: Text;
-  stamp :group   {
-    sec @2: UInt32;
-    nsec @3: UInt32;
-  }
+  stamp @2: UInt32;
 }

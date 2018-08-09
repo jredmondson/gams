@@ -150,10 +150,87 @@ void serialize_message_to_array (
   ros::serialization::serialize(stream, msg);
 }
 
-void test_any()
+void test_any_point()
 {
 	// This tests configures the parser so that Odometry messages are stored
 	// into capnproto any types.
+
+	std::cout << std::endl << std::endl << "test_any_point" << std::endl << std::endl;
+
+	std::string container_name = "thisisatest";
+
+	geometry_msgs::Point point;
+
+	double x = 1.0;
+	double y = 2.0;
+	double z = 3.0;
+	
+
+	//set the position
+  point.x = x;
+  point.y = y;
+  point.z = z;
+
+	// transform to shapeshifter object
+	topic_tools::ShapeShifter shape_shifter;
+  shape_shifter.morph(
+      ros::message_traits::MD5Sum<geometry_msgs::Point>::value(),
+      ros::message_traits::DataType<geometry_msgs::Point>::value(),
+      ros::message_traits::Definition<geometry_msgs::Point>::value(),
+      "" );
+
+  std::vector<uint8_t> buffer;
+	serialize_message_to_array(point, buffer);
+  ros::serialization::OStream stream( buffer.data(), buffer.size() );
+  shape_shifter.read( stream );
+
+
+	// The parser
+	std::map<std::string, std::string> typemap;
+	typemap["geometry_msgs/Point"] = madara::utility::expand_envs(
+		"tests/capnfiles/Point.capn:Point");
+
+	knowledge::KnowledgeBase knowledge;
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+
+  // register the type using the topic_name as identifier. This allows us to
+	// use RosIntrospection
+  const std::string  topic_name =  "point";
+  const std::string  datatype   =  shape_shifter.getDataType();
+  const std::string  definition =  shape_shifter.getMessageDefinition();
+  parser.registerMessageDefinition (topic_name,
+      RosIntrospection::ROSType (datatype), definition);
+
+	// Load the schemas from disk
+	auto point_schema_path = madara::utility::expand_envs(
+		"$(GAMS_ROOT)/tests/capnfiles/Point.capn.bin");
+	parser.load_capn_schema(point_schema_path);
+
+	// parse to capnp format
+	parser.parse_any(topic_name, shape_shifter, container_name);
+
+	knowledge.print();
+
+	madara::knowledge::GenericCapnObject any = knowledge.get(container_name).to_any<madara::knowledge::GenericCapnObject>();
+
+	int fd = open(point_schema_path.c_str(), 0, O_RDONLY);
+  capnp::StreamFdMessageReader schema_message_reader(fd);
+  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+  capnp::SchemaLoader loader;
+  auto schema = loader.load(schema_reader.getNodes()[0]);
+	auto capn_point = any.reader(schema.asStruct());
+
+	TEST(capn_point.get("x").as<float>(), x);
+	TEST(capn_point.get("y").as<float>(), y);
+	TEST(capn_point.get("z").as<float>(), z);
+}
+
+void test_any_odom()
+{
+	// This tests configures the parser so that Odometry messages are stored
+	// into capnproto any types.
+
+	std::cout << std::endl << std::endl << "test_any_odom" << std::endl << std::endl;
 
 	std::string container_name = "thisisatest";
 
@@ -167,7 +244,7 @@ void test_any()
 	double vx = 0.1;
 	double vy = 0.2;
 	double vz = 0.3;
-	geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(0.0);
+	geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(10.0);
 
 
 	//set the position
@@ -185,58 +262,77 @@ void test_any()
 	// transform to shapeshifter object
 	topic_tools::ShapeShifter shape_shifter;
   shape_shifter.morph(
-      ros::message_traits::MD5Sum<geometry_msgs::Point>::value(),
-      ros::message_traits::DataType<geometry_msgs::Point>::value(),
-      ros::message_traits::Definition<geometry_msgs::Point>::value(),
+      ros::message_traits::MD5Sum<nav_msgs::Odometry>::value(),
+      ros::message_traits::DataType<nav_msgs::Odometry>::value(),
+      ros::message_traits::Definition<nav_msgs::Odometry>::value(),
       "" );
 
   std::vector<uint8_t> buffer;
-	serialize_message_to_array(odom.pose.pose.position, buffer);
+	serialize_message_to_array(odom, buffer);
   ros::serialization::OStream stream( buffer.data(), buffer.size() );
   shape_shifter.read( stream );
 
 
 	// The parser
 	std::map<std::string, std::string> typemap;
-	typemap["nav_msgs/Odometry"] = madara::utility::expand_envs(
-		"$(GAMS_ROOT)/tests/capnfiles/Odometry.capn.bin");
-	typemap["geometry_msgs/Point"] = madara::utility::expand_envs(
-		"$(GAMS_ROOT)/tests/capnfiles/Point.capn.bin");
+	typemap["nav_msgs/Odometry"] = "tests/capnfiles/Odometry.capn:Odometry";
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
 
   // register the type using the topic_name as identifier. This allows us to
 	// use RosIntrospection
-
-  const std::string  topic_name =  "point";
+  const std::string  topic_name =  "odom";
   const std::string  datatype   =  shape_shifter.getDataType();
   const std::string  definition =  shape_shifter.getMessageDefinition();
   parser.registerMessageDefinition (topic_name,
       RosIntrospection::ROSType (datatype), definition);
 
+	// Load the schemas from disk
+	auto path = madara::utility::expand_envs(
+		"$(GAMS_ROOT)/tests/capnfiles/Odometry.capn.bin");
+	parser.load_capn_schema(path);
+
 	// parse to capnp format
-	parser.parse_any(shape_shifter, container_name);
+	parser.parse_any(topic_name, shape_shifter, container_name);
 
 	knowledge.print();
 
 	madara::knowledge::GenericCapnObject any = knowledge.get(container_name).to_any<madara::knowledge::GenericCapnObject>();
-	//Point::Reader capn_point = any.reader<Point>();
-	//auto capn_point = any.reader();
-	//auto position = capn_odom.getPose().getPose().getPosition();
-	//TEST(capn_point.getX(), x);
-	/*TEST(capn_point.get("y").as<float>(), y);
-	TEST(capn_point.get("z").as<float>(), z);*/
-	int fd = open(typemap["geometry_msgs/Point"].c_str(), 0, O_RDONLY);
+
+	int fd = open(path.c_str(), 0, O_RDONLY);
   capnp::StreamFdMessageReader schema_message_reader(fd);
   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
   capnp::SchemaLoader loader;
-  auto schema = loader.load(schema_reader.getNodes()[0]);
-	auto capn_point = any.reader(schema.asStruct());
+	
+	std::map<std::string, capnp::Schema> schemas;
 
-	TEST(capn_point.get("x").as<float>(), x);
-	TEST(capn_point.get("y").as<float>(), y);
-	TEST(capn_point.get("z").as<float>(), z);
+  for (auto schema : schema_reader.getNodes()) {
+    schemas[schema.getDisplayName()] = loader.load(schema);
+  }
+	auto capn_odom = any.reader(schemas[typemap["nav_msgs/Odometry"]].asStruct());
+
+	std::string cfd = capn_odom.get("childframeid").as<capnp::Text>().cStr();
+	if (cfd != odom.child_frame_id)
+	{
+		std::cout <<  "childframeid ?= " << odom.child_frame_id << "  FAIL! got " << cfd << " instead" << std::endl;
+			++gams_fails;
+	}
+
+
+	auto pose_with_cov = capn_odom.get("pose").as<capnp::DynamicStruct>();
+	auto pose = pose_with_cov.get("pose").as<capnp::DynamicStruct>();
+	auto position =pose.get("position").as<capnp::DynamicStruct>();	
+	auto orientation =pose.get("orientation").as<capnp::DynamicStruct>();	
+
+	TEST(position.get("x").as<float>(), x);
+	TEST(position.get("y").as<float>(), y);
+	TEST(position.get("z").as<float>(), z);
+
+	TEST(orientation.get("x").as<float>(), odom_quat.x);
+	TEST(orientation.get("y").as<float>(), odom_quat.y);
+	TEST(orientation.get("z").as<float>(), odom_quat.z);
+	TEST(orientation.get("w").as<float>(), odom_quat.w);
 }
 
 int main (int, char **)
@@ -244,7 +340,8 @@ int main (int, char **)
 	std::cout << "Testing ros2gams" << std::endl;
 	//test_pose();
 	//test_tf_tree();		
-	test_any();
+	test_any_point();
+	test_any_odom();
 
   if (gams_fails > 0)
   {
