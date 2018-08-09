@@ -761,16 +761,23 @@ void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter &
   capnp::StreamFdMessageReader schema_message_reader(fd);
   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
   capnp::SchemaLoader loader;
-  auto schema = loader.load(schema_reader.getNodes()[0]);
+  std::map<std::string, capnp::Schema> schemas;
+
+  for (auto schema : schema_reader.getNodes()) {
+    std::string dispname = schema.getDisplayName();
+    std::cout << "INFO  Loading schema " << dispname << std::endl;
+    schemas[schema.getDisplayName()] = loader.load(schema);
+  }
+  std::cout << "INFO  Schema count: " << schemas.size() << std::endl;
+
+  auto schema = loader.load(schema_reader.getNodes()[0]).asStruct();
  
-  /*capnp::SchemaParser parser;
-  auto schema = parser.parseDiskFile("Point",
-          schema_path, nullptr);*/
-  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema.asStruct());
+  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
+  madara::knowledge::Any::register_schema("Point", schema);
 
   
   //fix that!!!
-  const std::string& topic_name  = "odom";
+  const std::string& topic_name  = "point";
 
   // write the message into the buffer
   const size_t msg_size  = m.size ();
@@ -831,6 +838,11 @@ void gams::utility::ros::RosParser::parse_any (const topic_tools::ShapeShifter &
 
   }
   madara::knowledge::GenericCapnObject any(topic_name.c_str(), buffer);
+  //madara::knowledge::RegCapnObject any("Point", buffer);
+  auto rdr = any.reader(schema);
+  double x = rdr.get("y").as<double>();
+  std::cout << "Test: " << x << std::endl;
+
   knowledge_->set_any(container_name, any);
 }
 

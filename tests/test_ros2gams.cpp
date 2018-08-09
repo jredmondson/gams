@@ -209,7 +209,7 @@ void test_any()
   // register the type using the topic_name as identifier. This allows us to
 	// use RosIntrospection
 
-  const std::string  topic_name =  "odom";
+  const std::string  topic_name =  "point";
   const std::string  datatype   =  shape_shifter.getDataType();
   const std::string  definition =  shape_shifter.getMessageDefinition();
   parser.registerMessageDefinition (topic_name,
@@ -220,20 +220,30 @@ void test_any()
 
 	knowledge.print();
 
-	madara::knowledge::Any any = knowledge.get(container_name).to_any();
+	madara::knowledge::GenericCapnObject any = knowledge.get(container_name).to_any<madara::knowledge::GenericCapnObject>();
 	//Point::Reader capn_point = any.reader<Point>();
-	auto capn_point = any.reader();
+	//auto capn_point = any.reader();
 	//auto position = capn_odom.getPose().getPose().getPosition();
-	TEST(capn_point.get('x'), x);
-	TEST(capn_point.get('y'), y);
-	TEST(capn_point.get('z'), z);
+	//TEST(capn_point.getX(), x);
+	/*TEST(capn_point.get("y").as<float>(), y);
+	TEST(capn_point.get("z").as<float>(), z);*/
+	int fd = open(typemap["geometry_msgs/Point"].c_str(), 0, O_RDONLY);
+  capnp::StreamFdMessageReader schema_message_reader(fd);
+  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+  capnp::SchemaLoader loader;
+  auto schema = loader.load(schema_reader.getNodes()[0]);
+	auto capn_point = any.reader(schema.asStruct());
+
+	TEST(capn_point.get("x").as<float>(), x);
+	TEST(capn_point.get("y").as<float>(), y);
+	TEST(capn_point.get("z").as<float>(), z);
 }
 
 int main (int, char **)
 {
 	std::cout << "Testing ros2gams" << std::endl;
 	//test_pose();
-	//test_tf_tree();
+	//test_tf_tree();		
 	test_any();
 
   if (gams_fails > 0)
