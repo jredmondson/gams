@@ -34,4 +34,6 @@ GetMapAction
 GetMapActionResult
 GetMapFeedback
 tf2_msgs
+std_msgs
+
 
