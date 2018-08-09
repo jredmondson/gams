@@ -214,6 +214,7 @@ do
     echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
+    echo "  CAPNP_ROOT          - location of Cap'n Proto"
     echo "  CORES               - number of build jobs to launch with make, optional"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
@@ -533,7 +534,7 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
 fi
 
 if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
-  CAPNP_AS_A_PREREQ=1
+  CAPNPROTO_AS_A_PREREQ=1
 fi
 
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
