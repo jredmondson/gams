@@ -177,7 +177,7 @@ def get_schema_imports_from_msgspec(msgspec):
         t = get_base_type(t)
 
         if t not in msgs.BUILTIN_TYPES:
-            output_string = output_string + "using import \"" + t + ".capn\"." + t + ";\n"
+            output_string = output_string + "using import \"" + t + ".capnp\"." + t + ";\n"
         elif ("string" in t) and (t in msgs.BUILTIN_TYPES):
             #Handle the "String.h" case since we are imitating the ROS API for now, can be changed later to be the madara String type
             output_string = output_string + ""
