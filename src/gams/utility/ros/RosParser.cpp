@@ -10,6 +10,7 @@
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
   std::map<std::string, std::string> capnp_types,
+  std::map<std::string, int> circular_containers,
   std::string frame_prefix) : 
   eval_settings_(true, true, false, false, false), frame_prefix_(frame_prefix)
 {
@@ -17,6 +18,7 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   base_frame_ = base_frame;
   knowledge_ = kb;
   capnp_types_ = capnp_types;
+  circular_container_stats_ = circular_containers;
 
   if ( world_frame != "" )
   {
@@ -845,7 +847,31 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   }
   madara::knowledge::GenericCapnObject any(topic_name.c_str(), buffer);
 
-  knowledge_->set_any(container_name, any);
+  auto search = circular_container_stats_.find(container_name);
+  if (search != circular_container_stats_.end())
+  {
+    //This is var has to be a circular buffer
+    auto prod_search = circular_producers_.find(container_name);
+    madara::knowledge::containers::CircularBuffer c_buffer;
+    if (prod_search != circular_producers_.end())
+    {
+      // we already have a circular buffer producer
+      c_buffer = prod_search->second;
+    }
+    else
+    {
+      // we have to create a new producer
+      int buffer_size = search->second;
+      c_buffer = madara::knowledge::containers::CircularBuffer(container_name,
+        *knowledge_, buffer_size);
+    }
+    // add the value to the buffer
+    c_buffer.add(any);
+  }
+  else
+  {
+    knowledge_->set_any(container_name, any);
+  }
 }
 
 

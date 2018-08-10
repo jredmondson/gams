@@ -208,6 +208,7 @@ int main (int argc, char ** argv)
   std::map<std::string,std::string> topic_map;
   std::vector<std::string> schema_files;
   std::map<std::string, std::string> schema_map;
+  std::map<std::string, int> circular_variables;
 
 
   // Use mapfile to filter topics
@@ -233,6 +234,12 @@ int main (int argc, char ** argv)
         
         std::string topic_name = it->first.as<std::string>();
         std::string var_name = it->second["name"].as<std::string>();
+        if (it->second["circular_buffer_size"])
+        {
+          // This variable will be a circular buffer
+          circular_variables[var_name] =
+            it->second["circular_buffer_size"].as<int>();
+        }
 
         selected_topics.push_back (topic_name);
         topic_map[topic_name] = var_name;
@@ -293,7 +300,8 @@ int main (int argc, char ** argv)
     ++i;
   }
 
-  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame, schema_map);
+  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame,
+    schema_map, circular_variables);
 
   // Register ros message types to prepare the parser's introspection features
   for (const rosbag::ConnectionInfo* connection: view.getConnections () )

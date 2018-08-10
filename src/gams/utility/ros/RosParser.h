@@ -17,6 +17,7 @@
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/StringVector.h"
+#include "madara/knowledge/containers/CircularBuffer.h"
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
@@ -83,6 +84,7 @@ namespace gams
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
             std::map<std::string, std::string> capnp_types,
+            std::map<std::string, int> circular_containers=std::map<std::string, int>(),
             std::string frame_prefix=gams::pose::ReferenceFrame::default_prefix());
           void parse_message (const rosbag::MessageInstance m,
             std::string container_name);
@@ -95,15 +97,40 @@ namespace gams
           void parse_unknown (const rosbag::MessageInstance m,
             std::string container_name);
           
-          // Parse defined Any types
+          /**
+           * Parse defined Any types
+           * @param  m               rosbag::MessageInstance to parse
+           * @param  container_name  name of the madara variable
+           **/
           void parse_any (const rosbag::MessageInstance & m,
             std::string container_name);
+
+
+          /**
+           * Parse defined Any types
+           * @param  topic           string with the topic name
+           * @param  m               topic_tools::ShapeShifter to parse
+           * @param  container_name  name of the madara variable
+           **/
           void parse_any (std::string topic, const topic_tools::ShapeShifter & m,
             std::string container_name);
+          
+          /**
+           * Parse defined Any types
+           * @param  datatype        string with the ros datatype name
+           * @param  topic_name      string with the topic name
+           * @param  parse_buffer    byte vector with the message
+           * @param  container_name  name of the madara variable
+           **/
           void parse_any ( std::string datatype, std::string topic_name,
             std::vector<uint8_t> & parser_buffer,
             std::string container_name);
 
+          /**
+           * Loads a Capnproto schema from disk for later usage
+           * Only Capnproto binary schemas are supported
+           * @param  path        string with the path to the schema file
+           **/
           void load_capn_schema(std::string path);
           
           //known types
@@ -173,6 +200,12 @@ namespace gams
           knowledge::KnowledgeBase * knowledge_;
           knowledge::EvalSettings eval_settings_;
           std::string frame_prefix_;
+
+          // Map for circular buffer producers (maps from var name to the producer)
+          std::map<std::string, madara::knowledge::containers::CircularBuffer>
+            circular_producers_;
+          std::map<std::string, int> circular_container_stats_;
+
 
 
           capnp::DynamicStruct::Builder get_dyn_capnp_struct(
