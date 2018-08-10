@@ -110,7 +110,7 @@ def generate_schema(message_type, pkg_paths, directory_path=""):
     # What do we need from a message_type? We need its MsgSpec/MsgContext.
     msg_context = msg_loader.MsgContext()
     msgspec = msg_loader.load_msg_by_type(msg_context, message_type, pkg_paths)
-    print "Generating schema (.capn) file for  %s " % message_type
+    print "Generating schema (.capnp) file for  %s " % message_type
     variables = get_schema_variables_from_msgspec(msgspec) # DONE
     imports = get_schema_imports_from_msgspec(msgspec) # DONE
     hex_id = get_random_hex_id(); # Done
@@ -121,7 +121,7 @@ def generate_schema(message_type, pkg_paths, directory_path=""):
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
-    filename = msgspec.short_name + ".capn"
+    filename = msgspec.short_name + ".capnp"
     filepath = outdir + "/" + filename
 
     with open(filepath, 'w') as ostream:
