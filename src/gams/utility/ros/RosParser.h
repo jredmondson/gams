@@ -100,7 +100,8 @@ namespace gams
             std::string container_name);
           void parse_any (std::string topic, const topic_tools::ShapeShifter & m,
             std::string container_name);
-          void parse_any ( std::string datatype, std::string topic_name, global_ros::serialization::OStream &stream,
+          void parse_any ( std::string datatype, std::string topic_name,
+            std::vector<uint8_t> & parser_buffer,
             std::string container_name);
 
           void load_capn_schema(std::string path);

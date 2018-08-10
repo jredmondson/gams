@@ -244,6 +244,7 @@ void test_any_odom()
 	double vx = 0.1;
 	double vy = 0.2;
 	double vz = 0.3;
+	double cov = 0.123;
 	geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(10.0);
 
 
@@ -252,6 +253,7 @@ void test_any_odom()
   odom.pose.pose.position.y = y;
   odom.pose.pose.position.z = z;
   odom.pose.pose.orientation = odom_quat;
+	odom.pose.covariance[17] = cov;
 
   //set the velocity
   odom.child_frame_id = "base_link";
@@ -322,17 +324,21 @@ void test_any_odom()
 
 	auto pose_with_cov = capn_odom.get("pose").as<capnp::DynamicStruct>();
 	auto pose = pose_with_cov.get("pose").as<capnp::DynamicStruct>();
-	auto position =pose.get("position").as<capnp::DynamicStruct>();	
-	auto orientation =pose.get("orientation").as<capnp::DynamicStruct>();	
+	auto position = pose.get("position").as<capnp::DynamicStruct>();	
+	auto orientation = pose.get("orientation").as<capnp::DynamicStruct>();	
 
-	TEST(position.get("x").as<float>(), x);
-	TEST(position.get("y").as<float>(), y);
-	TEST(position.get("z").as<float>(), z);
+	TEST(position.get("x").as<double>(), x);
+	TEST(position.get("y").as<double>(), y);
+	TEST(position.get("z").as<double>(), z);
 
-	TEST(orientation.get("x").as<float>(), odom_quat.x);
-	TEST(orientation.get("y").as<float>(), odom_quat.y);
-	TEST(orientation.get("z").as<float>(), odom_quat.z);
-	TEST(orientation.get("w").as<float>(), odom_quat.w);
+	TEST(orientation.get("x").as<double>(), odom_quat.x);
+	TEST(orientation.get("y").as<double>(), odom_quat.y);
+	TEST(orientation.get("z").as<double>(), odom_quat.z);
+	TEST(orientation.get("w").as<double>(), odom_quat.w);
+
+	auto pose_covariance = pose_with_cov.get("covariance").as<capnp::DynamicList>();
+	TEST(pose_covariance[0].as<double>(), 0);
+	TEST(pose_covariance[17].as<double>(), cov);
 }
 
 int main (int, char **)

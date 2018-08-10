@@ -723,7 +723,9 @@ void gams::utility::ros::RosParser::load_capn_schema(std::string path)
   }
 }
 
-
+/*
+Searches for a given name in the schema builder and returns the new builder
+*/
 capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struct(
   capnp::DynamicStruct::Builder builder,
   std::string name)
@@ -738,53 +740,52 @@ capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struc
   capnp::DynamicStruct::Builder dyn = builder;
 
   while (getline(f, s, '/')) {
-    std::cout << "     " << s << std::endl;
     dyn = dyn.get(s).as<capnp::DynamicStruct>();
   }
   return dyn;
 }
 
+/*
+Sets the value of a specifiec schema member
+*/
 template <class T>
 void gams::utility::ros::RosParser::set_dyn_capnp_value(
   capnp::DynamicStruct::Builder builder,
   std::string name,
   T val)
 {
-    std::cout << name << std::endl;
     name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
 
     int struct_end = name.find_last_of("/");
     std::string struct_name = name.substr(0,struct_end);
     std::string var_name = name.substr(struct_end+1);
-    std::cout << "Trying to set var '" << var_name << "' in struct '" << struct_name << "' to value " << val << std::endl;
 
     auto dynvalue = get_dyn_capnp_struct(builder, struct_name);
 
-    if (var_name.find(".") != std::string::npos)
+    std::size_t dot_pos = var_name.find(".");
+    if (dot_pos != std::string::npos)
     {
-      std::cout << "--- skipped ---" << std::endl << std::flush;
-      return;
+      //This is a list
+      std::string var = var_name.substr(0, dot_pos);
+      int index = std::stoi(var_name.substr(dot_pos+1));
+      if (index == 0)
+      {
+        // First element so init
+        dynvalue.init(var, 36);
+      }
+      auto lst = dynvalue.get(var).as<capnp::DynamicList>();
+      lst.set(index, val);
     }
-    dynvalue.set(var_name, val);
-    std::cout << "done" << std::endl << std::flush;
-}
-
-void gams::utility::ros::RosParser::parse_any (std::string topic,
-  const topic_tools::ShapeShifter & m,
-  std::string container_name)
-{
-  // write the message into the buffer
-  const size_t msg_size  = m.size ();
-  parser_buffer_.resize (msg_size);
-  global_ros::serialization::OStream stream (parser_buffer_.data (),
-    parser_buffer_.size ());
-  m.write (stream);
-
-  parse_any(m.getDataType(), topic, stream, container_name);
+    else
+    {
+      dynvalue.set(var_name, val);
+    }
 }
 
 
-void gams::utility::ros::RosParser::parse_any ( std::string datatype, std::string topic_name, global_ros::serialization::OStream &stream,
+void gams::utility::ros::RosParser::parse_any ( std::string datatype,
+  std::string topic_name,
+  std::vector<uint8_t> & parser_buffer,
   std::string container_name)
 {
   std::string schema_name = capnp_types_[datatype];
@@ -802,7 +803,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype, std::strin
 
   // deserialize and rename the vectors
   bool success = parser_.deserializeIntoFlatContainer ( topic_name,
-  absl::Span<uint8_t> (parser_buffer_),
+  absl::Span<uint8_t> (parser_buffer),
   &flat_container, 500 );
 
   if (!success)
@@ -811,6 +812,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype, std::strin
       " could not be parsed successfully due to large array sizes!" <<
       std::endl;
   }
+
 
   parser_.applyNameTransform ( topic_name,
     flat_container, &renamed_values );
@@ -833,9 +835,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype, std::strin
     const std::string& value  = it.second;
 
     auto val = strdup(value.c_str());
-
     std::string name = key.substr (topic_len);
-
     set_dyn_capnp_value<char*>(capnp_builder, name, val);
   }
   madara::knowledge::GenericCapnObject any(topic_name.c_str(), buffer);
@@ -843,8 +843,36 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype, std::strin
   knowledge_->set_any(container_name, any);
 }
 
+
+void gams::utility::ros::RosParser::parse_any (std::string topic,
+  const topic_tools::ShapeShifter & m,
+  std::string container_name)
+{
+  // write the message into the buffer
+  const size_t msg_size  = m.size ();
+  std::vector<uint8_t> parser_buffer;
+
+  parser_buffer.resize (msg_size);
+  global_ros::serialization::OStream stream (parser_buffer.data (),
+    parser_buffer.size ());
+  m.write (stream);
+
+  parse_any(m.getDataType(), topic, parser_buffer, container_name);
+}
+
 void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m,
   std::string container_name)
 {
+  // write the message into the buffer
+  const std::string& topic  = m.getTopic ();
 
+  const size_t msg_size  = m.size ();
+  std::vector<uint8_t> parser_buffer;
+
+  parser_buffer.resize (msg_size);
+  global_ros::serialization::OStream stream (parser_buffer.data (),
+    parser_buffer.size ());
+  m.write (stream);
+
+  parse_any(m.getDataType(), topic, parser_buffer, container_name);
 }

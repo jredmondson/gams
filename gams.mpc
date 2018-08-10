@@ -228,6 +228,7 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_capnp {
   libs += rostime
   libs += rosbag
   libs += rosbag_storage
+  libs += yaml-cpp
 
   Documentation_Files {
   }
