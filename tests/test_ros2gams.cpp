@@ -15,8 +15,8 @@
 #include "kj/io.h"
 #include "capnp/serialize.h"
 #include "capnp/schema-loader.h"
-#include "capnfiles/Odometry.capn.h"
-#include "capnfiles/Point.capn.h"
+#include "capnfiles/Odometry.capnp.h"
+#include "capnfiles/Point.capnp.h"
 
 
 #include "gams/utility/ros/RosParser.cpp"
@@ -187,8 +187,7 @@ void test_any_point()
 
 	// The parser
 	std::map<std::string, std::string> typemap;
-	typemap["geometry_msgs/Point"] = madara::utility::expand_envs(
-		"tests/capnfiles/Point.capn:Point");
+	typemap["geometry_msgs/Point"] = "tests/capnfiles/Point.capnp:Point";
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
@@ -203,7 +202,7 @@ void test_any_point()
 
 	// Load the schemas from disk
 	auto point_schema_path = madara::utility::expand_envs(
-		"$(GAMS_ROOT)/tests/capnfiles/Point.capn.bin");
+		"$(GAMS_ROOT)/tests/capnfiles/Point.capnp.bin");
 	parser.load_capn_schema(point_schema_path);
 
 	// parse to capnp format
@@ -277,7 +276,7 @@ void test_any_odom()
 
 	// The parser
 	std::map<std::string, std::string> typemap;
-	typemap["nav_msgs/Odometry"] = "tests/capnfiles/Odometry.capn:Odometry";
+	typemap["nav_msgs/Odometry"] = "tests/capnfiles/Odometry.capnp:Odometry";
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
@@ -292,7 +291,7 @@ void test_any_odom()
 
 	// Load the schemas from disk
 	auto path = madara::utility::expand_envs(
-		"$(GAMS_ROOT)/tests/capnfiles/Odometry.capn.bin");
+		"$(GAMS_ROOT)/tests/capnfiles/Odometry.capnp.bin");
 	parser.load_capn_schema(path);
 
 	// parse to capnp format

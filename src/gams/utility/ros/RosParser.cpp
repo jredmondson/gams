@@ -31,8 +31,14 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
 void gams::utility::ros::RosParser::parse_message (
   const rosbag::MessageInstance m, std::string container_name)
 {
+  std::string datatype = m.getDataType();
 
-  if (m.isType<nav_msgs::Odometry> ())
+  auto search = capnp_types_.find(datatype);
+  if (search != capnp_types_.end())
+  {
+    parse_any(m, container_name);
+  }
+  else if (m.isType<nav_msgs::Odometry> ())
   {
     parse_odometry (m.instantiate<nav_msgs::Odometry> ().get (),
         container_name);
@@ -790,8 +796,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
 {
   std::string schema_name = capnp_types_[datatype];
   capnp::MallocMessageBuilder buffer;
-  auto dummy = schemas_.at(schema_name);
-  auto schema = dummy.asStruct();
+  auto schema = schemas_.at(schema_name).asStruct();
   //auto schema = schemas_.at(schema_name).asStruct();
   auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
   madara::knowledge::Any::register_schema(schema_name.c_str(), schema);

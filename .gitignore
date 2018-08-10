@@ -59,7 +59,7 @@ target/
 .settings
 
 #Capnproto files
-*.capn.bin
-*.capn.c++
-*.capn.h
+*.capnp.bin
+*.capnp.c++
+*.capnp.h
 

@@ -1,6 +1,6 @@
 @0x83cf22b7849690aa;
 
-using Twist = import "Twist.capn";
+using Twist = import "Twist.capnp";
 
 
 struct TwistWithCovariance {

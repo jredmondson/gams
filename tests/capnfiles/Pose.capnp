@@ -1,7 +1,7 @@
 @0xc0b2c1572d185015;
 
-using Point = import "Point.capn";
-using Quaternion = import "Quaternion.capn";
+using Point = import "Point.capnp";
+using Quaternion = import "Quaternion.capnp";
 
 struct Pose
 {

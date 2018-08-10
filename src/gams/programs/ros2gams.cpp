@@ -55,6 +55,8 @@
 #include <tf2_msgs/TFMessage.h>
 #include <std_msgs/String.h>
 
+#include "yaml-cpp/yaml.h"
+
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
@@ -90,9 +92,6 @@ bool save_as_binary = false;
 // the world and the base frame of the robot
 std::string base_frame = "";
 std::string world_frame = "";
-
-// cpnproto any type mapping
-std::map<std::string, std::string> capnp_types;
 
 //checkpoint frequency
 int checkpoint_frequency = 0;
@@ -204,49 +203,61 @@ int main (int argc, char ** argv)
   // Read the bag
   rosbag::Bag bag;
   bag.open (rosbag_path, rosbag::bagmode::Read);
-
+  
   rosbag::View view;
   std::map<std::string,std::string> topic_map;
+  std::vector<std::string> schema_files;
+  std::map<std::string, std::string> schema_map;
+
 
   // Use mapfile to filter topics
   if (map_file != "")
   {
     std::vector<std::string> selected_topics;
-    std::string line;
-    std::ifstream myfile (map_file);
-    if (myfile.is_open ())
+
+    YAML::Node config = YAML::LoadFile(map_file);
+    if (config["frames"])
     {
-      while ( getline (myfile, line) )
-      {
-        int ros_topic_end = line.find (" ");
-        //split the line in topic name and madara var name
-        std::string topic_name = line.substr (0, ros_topic_end);
-        std::string var_name = line.substr (ros_topic_end+1);
-        if (topic_name == "base_frame:")
-        {
-          // definition of the base_frame
-          base_frame = var_name;
-              std::replace ( base_frame.begin (), base_frame.end (), '/', '_');
-
-          std::cout << "Base frame: " << base_frame << std::endl;
-        }
-        else if (topic_name == "world_frame:")
-        {
-          // definition of the world_frame
-          world_frame = var_name;
-          std::replace (
-            world_frame.begin (), world_frame.end (), '/', '_');
-
-          std::cout << "World frame: " << world_frame << std::endl;
-        }
-        else
-        {
-          selected_topics.push_back (topic_name);
-          topic_map[topic_name] = var_name;
-        }
-      }
-      myfile.close ();
+      base_frame = config["frames"]["base_frame"].as<std::string>();
+      world_frame = config["frames"]["world_frame"].as<std::string>();
+      std::replace ( base_frame.begin (), base_frame.end (), '/', '_');
+      std::replace ( world_frame.begin (), world_frame.end (), '/', '_');
+      std::cout << "Base frame: " << base_frame << std::endl;
+      std::cout << "World frame: " << world_frame << std::endl;
     }
+    if (config["topics"])
+    {
+      for(YAML::const_iterator it=config["topics"].begin();
+          it!=config["topics"].end(); ++it)
+      {
+        
+        std::string topic_name = it->first.as<std::string>();
+        std::string var_name = it->second["name"].as<std::string>();
+
+        selected_topics.push_back (topic_name);
+        topic_map[topic_name] = var_name;
+      }
+    }
+    if (config["capnp_schemas"])
+    {
+      for (YAML::const_iterator it=config["capnp_schemas"].begin();
+           it!=config["capnp_schemas"].end();++it)
+      {
+        schema_files.push_back(it->as<std::string>());
+      }
+    }
+
+    if (config["schema_map"])
+    {
+      for(YAML::const_iterator it=config["schema_map"].begin();
+          it!=config["schema_map"].end(); ++it)
+      {
+        std::string ros_type = it->first.as<std::string>();
+        std::string schema_name = it->second.as<std::string>();
+        schema_map[ros_type] = schema_name;
+      }
+    }
+
     rosbag::TopicQuery topics (selected_topics);
     view.addQuery (bag, topics);
   }
@@ -282,9 +293,9 @@ int main (int argc, char ** argv)
     ++i;
   }
 
-  //Prepare the parser to be able to introspect unknown types
+  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame, schema_map);
 
-  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame, capnp_types);
+  // Register ros message types to prepare the parser's introspection features
   for (const rosbag::ConnectionInfo* connection: view.getConnections () )
   {
     const std::string  topic_name =  connection->topic;
@@ -293,6 +304,11 @@ int main (int argc, char ** argv)
     // register the type using the topic_name as identifier.
     parser.registerMessageDefinition (topic_name,
       RosIntrospection::ROSType (datatype), definition);
+  }
+  // Load the capnproto schemas
+  for (std::string path : schema_files)
+  {
+    parser.load_capn_schema(madara::utility::expand_envs(path));
   }
 
   // Iterate the messages

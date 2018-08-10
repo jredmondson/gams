@@ -1,6 +1,6 @@
 @0x8394dd54e6fff3bd;
 
-using Pose = import "Pose.capn";
+using Pose = import "Pose.capnp";
 
 
 struct PoseWithCovariance

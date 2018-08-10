@@ -10,10 +10,10 @@ project {
   Define_Custom (CAPN) {
     command = bash -c "capnp compile -I \$$CAPNP_ROOT/c++/src -oc++ \$$0;\
 capnp compile -I \$$CAPNP_ROOT/c++/src -o/bin/cat \$$0 > \$$0.bin"
-    inputext = .capn
-    source_outputext = .capn.c++
-    header_outputext = .capn.h
-    generic_outputext = .capn.bin
+    inputext = .capnp
+    source_outputext = .capnp.c++
+    header_outputext = .capnp.h
+    generic_outputext = .capnp.bin
     automatic_out = 1
   }
 

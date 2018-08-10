@@ -1,7 +1,7 @@
 @0xbebf4ee71f581bf1;
-using Header = import "Header.capn";
-using PoseWithCovariance = import "PoseWithCovariance.capn";
-using TwistWithCovariance = import "TwistWithCovariance.capn";
+using Header = import "Header.capnp";
+using PoseWithCovariance = import "PoseWithCovariance.capnp";
+using TwistWithCovariance = import "TwistWithCovariance.capnp";
 
 struct Odometry {
   header @0 :Header.Header;
