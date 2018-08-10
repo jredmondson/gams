@@ -749,6 +749,11 @@ if __name__ == "__main__":
     else:
         print "No whitelist or blacklist detected. Generating all"
 
+    print "Adding builtin types to the blacklist, doesn't make sense, really."
+    for k, v in CAPN_ROS_TYPE_MAPPING.iteritems():
+        GLOBAL_BLACKLIST.append(v)
+        print "Added " + v + " to the blacklist"
+
     if args.live:
         print "Attempting to generate templates from a running ROS System"
         templates = generate_schemas_from_live(output_directory)
