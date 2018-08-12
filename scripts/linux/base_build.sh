@@ -119,6 +119,8 @@ VREP_REPO_RESULT=0
 ZMQ_REPO_RESULT=0
 ZMQ_BUILD_RESULT=0
 LZ4_REPO_RESULT=0
+CAPNP_REPO_RESULT=0
+CAPNP_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -643,7 +645,7 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
    CAPNP_BUILD_RESULT=$?
 
    if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not built properly"
+       echo "CapNProto is not built properly. If you are building for Android check out the link, https://github.com/jredmondson/gams/wiki/GAMS-Installation#android-troubleshooting"
        exit 1;
    fi
  #Prereq if ends
@@ -740,6 +742,13 @@ fi
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
+
+  if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
+       echo "CapNProto is not built properly or not installed. Please run base_build with 'prereqs' option"
+       exit 1;
+  fi
+
+  
 
   cd $INSTALL_DIR
 
@@ -1014,7 +1023,7 @@ if [ $VREP -eq 1 ]; then
 fi
 
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
-  if [ $CAPNP_AS_A_PREREQ ]; then
+  if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     echo "  CAPNPROTO"
     if [ $CAPNP_REPO_RESULT -eq 0 ]; then
       echo -e "    REPO=\e[92mPASS\e[39m"
