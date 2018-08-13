@@ -124,15 +124,16 @@ def generate_schema(message_type, pkg_paths, directory_path=""):
     type_dirname = message_type.split('/')[0]
 
     filename = msgspec.short_name + ".capnp"
-    filepath = outdir + "/" + type_dirname
+    filepath = outdir + "/" + filename
 
-    if not os.path.isdir(filepath):
-        os.mkdir(filepath)
+    #if not os.path.isdir(filepath):
+    #    os.mkdir(filepath)
 
-    filenamepath = filepath + "/" + filename
+    # Disabled for now until I figure out how to handle the Capnp imports.
+    #filenamepath = filepath + "/" + filename
 
-    with open(filenamepath, 'w') as ostream:
-        print "Generating schema (.capnp) file for  %s at %s " % (message_type, filenamepath)
+    with open(filepath, 'w') as ostream:
+        print "Generating schema (.capnp) file for %s " % message_type
         ostream.write(template)
         ostream.close()
 
