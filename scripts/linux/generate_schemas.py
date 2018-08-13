@@ -121,7 +121,7 @@ def generate_schema(message_type, pkg_paths, directory_path=""):
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
-    type_dirname = message_type.split('/')[0].split('_msgs')[0]
+    type_dirname = message_type.split('/')[0]
 
     filename = msgspec.short_name + ".capnp"
     filepath = outdir + "/" + type_dirname
@@ -443,8 +443,6 @@ def generate_schemas(types_list, output_directory=""):
 
     Args:
         types_list [str]: List of types
-        blacklist [str]: List of packages/types to ignore
-        whitelist [str]: List of packages/types to allow
         output_directory str: Directory to output .h and .cpp files
 
     Returns:
@@ -498,7 +496,7 @@ def generate_schemas_from_all(output_directory=""):
             types = rosmsg._list_types(pkg_path[0], "msg", ".msg")
             print types
             for t in types:
-                if (t in GLOBAL_WHITELIST) or (t not in GLOBAL_BLACKLIST):
+                if (t in GLOBAL_WHITELIST) and (t not in GLOBAL_BLACKLIST):
                     full_type = pkg + "/" + t
                     GLOBAL_TYPES_LIST.append(full_type)
 
@@ -784,23 +782,28 @@ if __name__ == "__main__":
     if os.path.isfile('whitelist'):
        print "Using whitelist file"
        list_to_open = 'whitelist'
-    elif os.path.isfile('blacklist'):
+    
+    if os.path.isfile('blacklist'):
         print "Using blacklist file" 
         list_to_open = 'blacklist'
 
     if not (list_to_open == ""):
-        lines = [line.rstrip('\n') for line in open(list_to_open)]
-        for line in lines:
-            if list_to_open == 'blacklist':
-                print "Added " + line + " to the blacklist"
-                GLOBAL_BLACKLIST.append(line)
-            elif list_to_open == 'whitelist':
+        if os.path.isfile('whitelist'):
+            lines = [line.rstrip('\n') for line in open('whitelist')]
+            for line in lines:
                 print "Added " + line + " to the whitelist"
                 GLOBAL_WHITELIST.append(line)
+
+        if os.path.isfile('blacklist'):
+            lines = [line.rstrip('\n') for line in open('blacklist')]
+            for line in lines:        
+                print "Added " + line + " to the blacklist "
+                GLOBAL_BLACKLIST.append(line)
+
     else:
         print "No whitelist or blacklist detected. Generating all"
 
-    print "Adding builtin types to the blacklist, doesn't make sense, really."
+    print "Adding builtin types to the blacklist, doesn't make sense to have them generated, really."
     for k, v in CAPN_ROS_TYPE_MAPPING.iteritems():
         GLOBAL_BLACKLIST.append(v)
         print "Added " + v + " to the blacklist"
