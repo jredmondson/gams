@@ -530,16 +530,14 @@ def generate_schemas_from_rosbag(rosbag_path, output_directory=""):
     bag = rosbag.Bag(rosbag_path)
     generator = bag.get_type_and_topic_info()
 
-    top_level_types = []
-
     for type_, topic in generator[0].iteritems():
-        top_level_types.append(type_)
+        print type_
+        GLOBAL_TYPES_LIST.append(type_)
 
-    load_all_subtypes(top_level_types)
+    load_all_subtypes(GLOBAL_TYPES_LIST)
     print "Total number of types (recursively) used in system: %d" % len(GLOBAL_TYPES_LIST)
 
-    for rosmsg_type in GLOBAL_TYPES_LIST:
-        generate_schemas(rosmsg_type, pkg_paths, directory_path=output_directory)
+    templates = generate_schemas(GLOBAL_TYPES_LIST, output_directory)
 
     return templates
 
@@ -616,7 +614,7 @@ def get_subtypes(msg_type, msg_paths, pkg_paths):
                 pkg = msg_type.split('/')[0]
                 m = get_base_type(msg_type)
                 if (m in GLOBAL_BLACKLIST) or (pkg in GLOBAL_BLACKLIST):
-                    print "WARNING! %s is listed in the global blacklist but is a requirement for %s" (m, msg_type)
+                    print "WARNING! %s is listed in the global blacklist but is a requirement for %s" % (m, msg_type)
                 get_subtypes(msg_type, msg_paths, pkg_paths)
 
 def load_all_subtypes(rosmsg_types):
