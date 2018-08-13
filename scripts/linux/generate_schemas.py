@@ -59,6 +59,83 @@ struct ${TYPENAME} {
 }
 """
 
+REGISTERED_CLASSES_TEMPLATE_H = """
+
+#ifndef __GAMS_TYPES_H__
+#define __GAMS_TYPES_H__
+
+#include "madara/knowledge/Any.h"
+
+${registered_types_includes}
+
+using namespace madara::knowledge;
+
+namespace gams
+{
+  
+  namespace types 
+  {
+
+    void register_all_datatypes()
+    {
+        ${registered_types_statements}     
+    }
+
+  }
+}
+
+#endif
+"""
+
+def resolve_registered_classes_header(registered_types_includes, registered_types_statements):
+    """
+    Populates the REGISTERED_CLASSES_TEMPLATE_H string with variables and returns the string.
+
+    Args:
+        registered_types_includes: (str) of include statements representing the types to be registered
+        registered_types_statements: (str) of type statements actually registering types to Any
+    Return:
+        (str) String of .h file registereing the types with one function called register_all_datatypes()
+    """
+    registered_template = Template(REGISTERED_CLASSES_TEMPLATE_H)
+    header_mapping = {'registered_types_includes': registered_types_includes, 'registered_types_statements': registered_types_statements}
+    registered_template = registered_template.safe_substitute(header_mapping)
+    return registered_template
+
+def generate_registered_types_header(types_list=[], output_directory=""):
+   """
+   Generates a registered classes header file which defines one function and brings together all other types.
+   This function will register all types in the shared object with the Any class.
+
+   Args:
+       types_list: List of types to include in the header file
+       output_directory: Path to write the header file to
+
+   Return:
+       (str) The string of the template generated
+   """
+   TEMPLATE_FILENAME = "Datatypes.h"
+   registered_types_includes = ""
+   registered_types_statements = ""
+
+   for t in types_list:
+       base_type = get_base_type(t)
+       include_string = "#include \"%s.capnp.h\"\n" % base_type
+       registered_types_includes = registered_types_includes + include_string
+       register_string = "Any::register_type<CapnObject<%s> >(\"%s\");\n        " % (base_type, base_type)
+       registered_types_statements = registered_types_statements + register_string
+
+   template = resolve_registered_classes_header(registered_types_includes, registered_types_statements)
+   filepath = output_directory + "/" + TEMPLATE_FILENAME   
+
+   with open(filepath, 'w') as ostream:
+       ostream.write(template)
+       ostream.close()
+
+   return template
+
+
+
 def to_camelcase(s):
     return re.sub(r'(?!^)_([a-zA-Z])', lambda m: m.group(1).upper(), s)
 
@@ -454,6 +531,8 @@ def generate_schemas(types_list, output_directory=""):
     pkg_paths = get_rospkg_paths()
     for rosmsg_type in types_list:
         generate_schema(rosmsg_type, pkg_paths, directory_path=output_directory)
+
+    generate_registered_types_header(GLOBAL_TYPES_LIST, output_directory)
 
     return templates
 
