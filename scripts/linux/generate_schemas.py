@@ -555,16 +555,17 @@ def generate_schemas_from_live(output_directory=""):
     templates = []
 
     live_message_types = get_live_message_types()
-    load_all_subtypes(live_message_types)
-    print GLOBAL_TYPES_LIST
+
+    for t in live_message_types:
+        GLOBAL_TYPES_LIST.append(t)
+
+    load_all_subtypes(GLOBAL_TYPES_LIST)
     print "Total number of types (recursively) used in system: %d" % len(GLOBAL_TYPES_LIST)
     
     # Now that we have all the types used in this specific ROS system, generate classes for them.
     pkg_paths = get_rospkg_paths()
-    for rosmsg_type in GLOBAL_TYPES_LIST:
-        generate_headers(rosmsg_type, pkg_paths, directory_path=output_directory)
-        generate_cpp(rosmsg_type, pkg_paths, directory_path=output_directory)
         
+    templates = generate_schemas(GLOBAL_TYPES_LIST, output_directory)
             
     return templates
 
