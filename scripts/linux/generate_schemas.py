@@ -586,28 +586,37 @@ def get_subtypes(msg_type, msg_paths, pkg_paths):
 
     # We don't want to recurse into atomic types.
 
+    pkg = msg_type.split('/')[0]
     m = get_base_type(msg_type)
+    qual_type = pkg + "/" + m
 
     if m in msgs.BUILTIN_TYPES:
+        #print "MSG_TYPE: %s is BUILTIN TYPE. IGNORING" % m
         return 1
-    elif m in GLOBAL_TYPES_LIST:
-        #print "MSG_TYPE: %s ALREADY LOADED. IGNORING." % msg_type
+    elif qual_type in GLOBAL_TYPES_LIST:
+        #print "MSG_TYPE: %s ALREADY LOADED. IGNORING." % qual_type
         return 1
-    elif m is None:
+    elif qual_type is None:
+        #print "MSG_TYPE: None"
         return 1
 
-    GLOBAL_TYPES_LIST.append(msg_type)
+
+    GLOBAL_TYPES_LIST.append(qual_type)
 
     msg_context = msg_loader.MsgContext()
-    msgspec = msg_loader.load_msg_by_type(msg_context, msg_type, pkg_paths)
+    msgspec = msg_loader.load_msg_by_type(msg_context, qual_type, pkg_paths)
     
-    print "Adding type %s to processing list" % msg_type
+    print "Adding type %s to processing list" % qual_type
 
     if msgspec.types is not None:
         if len(msgspec.types):
             for msg_type in msgspec.types:
-                if msg_type.endswith(']'):
-                    msg_type = msg_type.split('[')[0]
+                #if msg_type.endswith(']'):
+                #    msg_type = msg_type.split('[')[0]
+                pkg = msg_type.split('/')[0]
+                m = get_base_type(msg_type)
+                if (m in GLOBAL_BLACKLIST) or (pkg in GLOBAL_BLACKLIST):
+                    print "WARNING! %s is listed in the global blacklist but is a requirement for %s" (m, msg_type)
                 get_subtypes(msg_type, msg_paths, pkg_paths)
 
 def load_all_subtypes(rosmsg_types):
