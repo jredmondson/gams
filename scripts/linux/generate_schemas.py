@@ -34,6 +34,7 @@ import random
 import numpy
 
 """ Global variables and constants """
+NO_SUBTYPES = False
 GLOBAL_TYPES_LIST = []
 GLOBAL_BLACKLIST = []
 GLOBAL_WHITELIST = []
@@ -457,6 +458,27 @@ def generate_schemas(types_list, output_directory=""):
 
     return templates
 
+def generate_schemas_from_msg(msg, output_directory=""):
+    """
+    Generates schema(s) from a fully qualified type e.g nav_msgs/Odometry
+
+    Args:
+        msg: String name of the .msg file or type. E.g sensor_msgs/PointCloud.msg, sensor_msgs/PointCloud is acceptable too.
+        output_directory: Self explanatory.
+    
+    Return:
+        List of templates (contents to be written to file)
+   
+    """
+
+    t = msg.split('.msg')[0]
+
+    GLOBAL_TYPES_LIST.append(t)
+
+    load_all_subtypes(GLOBAL_TYPES_LIST)
+
+    return generate_schemas(GLOBAL_TYPES_LIST, output_directory)
+
 def generate_schemas_from_all(output_directory=""):
     """
     Generates schemas from all ROS message types found in your ROS package paths
@@ -471,7 +493,6 @@ def generate_schemas_from_all(output_directory=""):
     templates = []
 
     pkg_paths = get_rospkg_paths()
-    types_list = []
     for pkg, pkg_path in pkg_paths.iteritems():
         if (pkg in GLOBAL_WHITELIST) or (pkg not in GLOBAL_BLACKLIST):
             types = rosmsg._list_types(pkg_path[0], "msg", ".msg")
@@ -481,7 +502,7 @@ def generate_schemas_from_all(output_directory=""):
                     full_type = pkg + "/" + t
                     GLOBAL_TYPES_LIST.append(full_type)
 
-    load_all_subtypes(types_list)
+    load_all_subtypes(GLOBAL_TYPES_LIST)
 
     print "Total number of types (recursively) used in system: %d" % len(GLOBAL_TYPES_LIST)
     return generate_schemas(GLOBAL_TYPES_LIST, output_directory)
@@ -565,13 +586,15 @@ def get_subtypes(msg_type, msg_paths, pkg_paths):
 
     # We don't want to recurse into atomic types.
 
-    if msg_type in msgs.BUILTIN_TYPES:
-        return
-    elif msg_type in GLOBAL_TYPES_LIST:
+    m = get_base_type(msg_type)
+
+    if m in msgs.BUILTIN_TYPES:
+        return 1
+    elif m in GLOBAL_TYPES_LIST:
         #print "MSG_TYPE: %s ALREADY LOADED. IGNORING." % msg_type
-        return
-    elif msg_type is None:
-        return
+        return 1
+    elif m is None:
+        return 1
 
     GLOBAL_TYPES_LIST.append(msg_type)
 
@@ -597,13 +620,21 @@ def load_all_subtypes(rosmsg_types):
 
     """
 
+    if NO_SUBTYPES:
+        print "WARNING: --no-subtypes selected. Not generating subtypes"
+        return  
+
     print "Gathering subtypes for %d ROS message types" % len(rosmsg_types)
     msg_paths = get_rosmsg_paths(rosmsg_types)
 
     pkg_paths = get_rospkg_paths()
 
     for msgtype in rosmsg_types:
-        get_subtypes(msgtype, msg_paths, pkg_paths)   
+        # Should be iterating this types subtypes.
+        msg_context = msg_loader.MsgContext()
+        msgspec = msg_loader.load_msg_by_type(msg_context, msgtype, pkg_paths)
+        for t in msgspec.types:
+            get_subtypes(t, msg_paths, pkg_paths)   
 
 def get_rospkg_paths():
     """
@@ -700,7 +731,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--path', '-p', action="store_true", help="Passing in --path will try and load the .msg file and generate a .h and .cpp file based on that message. This will be usable in MADARA/GAMS.")
 
-    parser.add_argument('--type', '-t', action="store_true", help="Passing in --type will try and load the ROS message type and generate a .h and .cpp file based on that message. The resulting files will be loadable as types for MADARA/GAMS and point to variables in the knowledgebase.")
+    parser.add_argument('--msg', '-m', help="Passing in --type will try and load the ROS message type and generate a .h and .cpp file based on that message. The resulting files will be loadable as types for MADARA/GAMS and point to variables in the knowledgebase.")
 
     parser.add_argument('--all', '-a', action="store_true", help="Generates all ROS message types found in the paths on your system. Anything on your ROS package path list will be generated into a .h and .cpp compatible with GAMS/MADARA.")
 
@@ -714,9 +745,14 @@ if __name__ == "__main__":
 
     parser.add_argument('--output', '-o', help="Output directory for the headers and cpp files", type=str)
 
+    parser.add_argument('--no-subtypes', action="store_true", help="Tells the script to not recursively generate new types from the provided list and only do top level generation")
+
     args = parser.parse_args()
     
     templates = []
+
+    if args.no_subtypes:
+        NO_SUBTYPES = True
 
     if args.debug:
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
@@ -769,9 +805,8 @@ if __name__ == "__main__":
     elif args.path:
         print "TODO"
         #templates = generate_templates_from_path(args.path)
-    elif args.type:
-        print "TODO"
-        #templates = generate_templates_from_type(args.type)
+    elif args.msg:
+        templates = generate_schemas_from_msg(args.msg, output_directory)
     elif args.all:
         templates = generate_schemas_from_all(output_directory)
     else:
