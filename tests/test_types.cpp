@@ -1,4 +1,7 @@
 #define TEST_TYPES
+#define BOOST_FILESYSTEM_VERSION 3
+#define BOOST_FILESYSTEM_NO_DEPRECATED 
+
 // GAMS
 #include <gams/types/Datatypes.h>
 
@@ -15,11 +18,16 @@
 // C++
 #include <iostream>
 #include <fcntl.h>
+#include <vector>
+
+// Boost
+#include <boost/filesystem.hpp>
 
 int gams_fails = 0;
 
 using namespace madara;
 using namespace knowledge;
+namespace fs = ::boost::filesystem;
 
 KnowledgeBase k;
 
@@ -55,6 +63,8 @@ inline void log(Args&&... args) {
 void test_registry()
 {
    gams::types::register_all_datatypes();
+
+   
 }
 
 /*
@@ -85,8 +95,8 @@ void test_scan()
 
    TEST_EQ(k_scan.reader().getAngleMin(), 0);
    TEST_GT((k_scan.reader().getAngleMax() - M_PI), 0);   
-   //TEST_EQ(k_scan.reader().getRanges()[0], 1.0);
-   //TEST_EQ(k_scan.reader().getRanges()[999], 1.0);      
+   TEST_EQ(k_scan.reader().getRanges()[0], 1.0);
+   TEST_EQ(k_scan.reader().getRanges()[999], 1.0);      
 }
 
 /*
@@ -123,7 +133,7 @@ void test_imu()
 }
 
 /*
-  \brief Tests that all of the schemas inside src/gams/types can be loaded at runtime.
+  \brief Tests that a schema in src/gams/types can be loaded at runtime and modified/used.
 */
 void test_laser_schema()
 {
@@ -151,9 +161,99 @@ void test_laser_schema()
 
    dynbuilder.set("angleMin", 0.1);
 
+   //k.set_any("dynamic_laser", dynbuilder);
+
    // Could not find dox on how to do this.
    //dynbuilder.set("header", header);
 
+}
+
+/*
+  \brief Tests that a schema in src/gams/types can be loaded at runtime and modified/used.
+*/
+void test_schema(fs::path& path)
+{
+   ::capnp::MallocMessageBuilder dyn_b;
+
+   int fd = open(path.c_str(), 0, O_RDONLY);
+   ::capnp::StreamFdMessageReader schema_message_reader(fd);
+   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+   ::capnp::SchemaLoader loader;
+   std::map<std::string, capnp::Schema> schemas;
+
+   for (auto schema : schema_reader.getNodes()) {
+    schemas[schema.getDisplayName()] = loader.load(schema);
+   }
+
+   std::string pre("/src/gams/types/");
+   std::string filename(path.filename().c_str());
+   std::string full_path = pre + filename;
+
+   auto schema = schemas.at(full_path).asStruct();
+   auto dynbuilder = dyn_b.initRoot<capnp::DynamicStruct>(schema);
+
+   //k.set_any("dynamic_laser", dynbuilder);
+
+   // Could not find dox on how to do this.
+   //dynbuilder.set("header", header);
+
+}
+
+
+
+/*
+  \brief Tests that all of the schemas inside src/gams/types can be loaded at runtime.
+*/
+void test_all_schemas()
+{
+    fs::path root(utility::expand_envs("$(GAMS_ROOT)/src/gams/types/").c_str());
+
+    std::vector<fs::path> paths;
+
+    if(!fs::exists(root) || !fs::is_directory(root)) 
+    {
+       log("src/gams/types does not exist!");
+       gams_fails++;
+       return;
+    }
+
+    fs::recursive_directory_iterator it(root);
+    fs::recursive_directory_iterator endit;
+
+    while(it != endit)
+    {
+        if(fs::is_regular_file(*it) && it->path().extension() == ".capnp") paths.push_back(it->path().filename());
+        ++it;
+    }
+
+    
+//   
+//   ::capnp::MallocMessageBuilder dyn_b;
+
+//   int fd = open(utility::expand_envs("$(GAMS_ROOT)/src/gams/types/LaserScan.capnp.bin").c_str(), 0, O_RDONLY);
+//   ::capnp::StreamFdMessageReader schema_message_reader(fd);
+//   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+//   ::capnp::SchemaLoader loader;
+//   std::map<std::string, capnp::Schema> schemas;
+
+//   for (auto schema : schema_reader.getNodes()) {
+//    schemas[schema.getDisplayName()] = loader.load(schema);
+//   }
+
+//   auto schema = schemas.at("src/gams/types/LaserScan.capnp:LaserScan").asStruct();
+//   auto dynbuilder = dyn_b.initRoot<capnp::DynamicStruct>(schema);
+
+//   ::capnp::MallocMessageBuilder header_b;
+//   auto header = header_b.initRoot<gams::types::Header>();
+
+//   header.setStamp(10);
+//   header.setFrameId("world");
+//   header.setSeq(100);
+
+//   dynbuilder.set("angleMin", 0.1);
+
+//    Could not find dox on how to do this.
+//   dynbuilder.set("header", header);
 }
 
 int main (int, char **)
@@ -164,6 +264,7 @@ int main (int, char **)
 	test_scan();
    test_imu();
    test_laser_schema();
+   test_all_schemas();
 
    if (gams_fails > 0)
    {
