@@ -96,6 +96,7 @@ int checkpoint_frequency = 0;
 
 // Differential checkpointing
 bool differential_checkpoints = false;
+bool same_file = false;
 
 
 
@@ -149,6 +150,11 @@ void handle_arguments (int argc, char ** argv)
     {
       differential_checkpoints = true;
     }
+    else if (arg1 == "-c" || arg1 == "--continuous")
+    {
+      differential_checkpoints = true;
+      same_file = true;
+    }
     else if (arg1 == "-y" || arg1 == "--frequency")
     {
       checkpoint_frequency = std::stoi(argv[i + 1]);
@@ -175,7 +181,10 @@ void handle_arguments (int argc, char ** argv)
       "                                       (default:checkpoint with each\n" \
       "                                        message in the bagfile)\n" \
       "  [-d|--differential]                  differential checkpoints\n" \
-      "                                       only for binary checkpoints\n";
+      "                                       only for binary checkpoints\n" \
+      "  [-c|--continuous]                    differential checkpoints\n" \
+      "                                       continuously stored in the same \n" \
+      "                                       file - only for binary checkpoints\n";
       exit (0);
     }
   }
@@ -280,7 +289,6 @@ int main (int argc, char ** argv)
   }
 
   //Prepare the parser to be able to introspect unknown types
-
   gams::utility::ros::RosParser parser(&kb, world_frame, base_frame);
   for (const rosbag::ConnectionInfo* connection: view.getConnections () )
   {
@@ -339,7 +347,14 @@ int main (int argc, char ** argv)
     id_ss << std::setw (id_digit_count) << std::setfill ('0') <<
       checkpoint_id;
     std::string id_str = id_ss.str ();
-    settings.filename = checkpoint_prefix + "_" + id_str;
+    if (same_file)
+    {
+      settings.filename = checkpoint_prefix + "_continuous";
+    }
+    else
+    {
+      settings.filename = checkpoint_prefix + "_" + id_str;
+    }
 
     uint64_t stamp = time.sec;
     stamp = stamp * 1000000000 + time.nsec;
@@ -350,7 +365,6 @@ int main (int argc, char ** argv)
       // this is the first message
       settings.initial_timestamp = settings.last_timestamp;
     }
-    settings.last_lamport_clock += 1;
 
     // Save checkpoint
     int ret = 0;
@@ -368,12 +382,15 @@ int main (int argc, char ** argv)
       last_checkpoint_timestamp = stamp;
       checkpoint_id++;
     }
+    
     // Check if the checkpoint was written correctly
     if ( ret == -1 )
     {
       std::cout << "Failed to write " << settings.filename << "!" << std::endl;
       exit(-1);
     }
+    settings.last_lamport_clock += 1;
+
   }
   
   // Storing stats in the manifest knowledge
@@ -430,13 +447,13 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
   if ( save_as_binary )
   {
     settings->filename = filename + ".kb";
-    if ( differential_checkpoints == true )
+    if ( differential_checkpoints == true)
     {
       ret = knowledge->save_checkpoint (*settings);
     }
     else
     {
-      ret= knowledge->save_context (*settings);
+      ret = knowledge->save_context (*settings);
     }
   }
   return ret;
