@@ -47,6 +47,7 @@ inline void log(Args&&... args) {
   } while(0)
 
 #define TEST_EQ(lhs, rhs) TEST_OP(lhs, ==, rhs)
+#define TEST_GT(lhs, rhs) TEST_OP(lhs, >,  rhs)
 
 /*
   \brief Another sanity and demo test. Shows the user how to register types and proves that it works by registering them.
@@ -83,6 +84,9 @@ void test_scan()
    CapnObject<gams::types::LaserScan> k_scan = k.get("scan").to_any<CapnObject<gams::types::LaserScan> >();
 
    TEST_EQ(k_scan.reader().getAngleMin(), 0);
+   TEST_GT((k_scan.reader().getAngleMax() - M_PI), 0);   
+   //TEST_EQ(k_scan.reader().getRanges()[0], 1.0);
+   //TEST_EQ(k_scan.reader().getRanges()[999], 1.0);      
 }
 
 /*
@@ -95,7 +99,7 @@ void test_imu()
 
    auto lin_acc = imu.initLinearAccelerationCovariance(9);
    lin_acc.set(0, 0.01);
-   lin_acc.set(0, 0.03);
+   lin_acc.set(1, 0.03);
 
    ::capnp::MallocMessageBuilder header_b;
    auto header = header_b.initRoot<gams::types::Header>();
@@ -109,6 +113,13 @@ void test_imu()
    k.set_any("imu", CapnObject<gams::types::Imu>(imu_b));
 
    CapnObject<gams::types::Imu> imu_ = k.get("imu").to_any<CapnObject<gams::types::Imu> >();
+
+   TEST_EQ(imu_.reader().getHeader().getStamp(), 10);
+   TEST_EQ(imu_.reader().getHeader().getFrameId().cStr(), std::string("world"));
+   TEST_EQ(imu_.reader().getHeader().getSeq(), 100);
+   TEST_EQ(imu_.reader().getLinearAccelerationCovariance()[0], 0.01);
+   TEST_EQ(imu_.reader().getLinearAccelerationCovariance()[1], 0.03);
+      
 }
 
 /*
@@ -139,7 +150,8 @@ void test_laser_schema()
    header.setSeq(100);
 
    dynbuilder.set("angleMin", 0.1);
-   // Could not find dox
+
+   // Could not find dox on how to do this.
    //dynbuilder.set("header", header);
 
 }
