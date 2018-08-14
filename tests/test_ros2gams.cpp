@@ -222,6 +222,11 @@ void test_any_point()
 	TEST(capn_point.get("x").as<float>(), x);
 	TEST(capn_point.get("y").as<float>(), y);
 	TEST(capn_point.get("z").as<float>(), z);
+
+	auto capn_point2 = any.reader<Point>();
+	TEST(capn_point2.getX(), x);
+	TEST(capn_point2.getY(), y);
+	TEST(capn_point2.getZ(), z);
 }
 
 void test_any_odom()
