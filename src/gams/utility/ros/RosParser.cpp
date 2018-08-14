@@ -728,6 +728,7 @@ void gams::utility::ros::RosParser::load_capn_schema(std::string path)
   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
   for (auto schema : schema_reader.getNodes()) {
     schemas_[schema.getDisplayName()] = capnp_loader_.load(schema);
+    std::cout << "    " << std::string(schema.getDisplayName()) << std::endl;
   }
 }
 

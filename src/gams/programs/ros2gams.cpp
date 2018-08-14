@@ -62,9 +62,6 @@
 #endif
 
 
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include <boost/foreach.hpp>
-
 namespace logger = madara::logger;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
@@ -314,6 +311,7 @@ int main (int argc, char ** argv)
       RosIntrospection::ROSType (datatype), definition);
   }
   // Load the capnproto schemas
+  std::cout << "Loading schemas..." << std::endl;
   for (std::string path : schema_files)
   {
     parser.load_capn_schema(madara::utility::expand_envs(path));
