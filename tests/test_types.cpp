@@ -171,12 +171,16 @@ void test_laser_schema()
 /*
   \brief Tests that a schema in src/gams/types can be loaded at runtime and modified/used.
 */
-void test_schema(fs::path& path)
+void test_schema(const fs::path& path)
 {
+
+   log("Loading schema %s\n", path.c_str());
    ::capnp::MallocMessageBuilder dyn_b;
 
    int fd = open(path.c_str(), 0, O_RDONLY);
+   log("Schema opened %s\n", path.c_str());   
    ::capnp::StreamFdMessageReader schema_message_reader(fd);
+
    auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
    ::capnp::SchemaLoader loader;
    std::map<std::string, capnp::Schema> schemas;
@@ -185,18 +189,15 @@ void test_schema(fs::path& path)
     schemas[schema.getDisplayName()] = loader.load(schema);
    }
 
-   std::string pre("/src/gams/types/");
-   std::string filename(path.filename().c_str());
-   std::string full_path = pre + filename;
-
-   auto schema = schemas.at(full_path).asStruct();
+   log("Building dynamic struct for %s", path.c_str());
+   auto schema = schemas.at(path.filename().c_str()).asStruct();
    auto dynbuilder = dyn_b.initRoot<capnp::DynamicStruct>(schema);
 
+   close(fd);
    //k.set_any("dynamic_laser", dynbuilder);
 
    // Could not find dox on how to do this.
    //dynbuilder.set("header", header);
-
 }
 
 
@@ -206,9 +207,7 @@ void test_schema(fs::path& path)
 */
 void test_all_schemas()
 {
-    fs::path root(utility::expand_envs("$(GAMS_ROOT)/src/gams/types/").c_str());
-
-    std::vector<fs::path> paths;
+    fs::path root(utility::expand_envs("$(GAMS_ROOT)/src/gams/types").c_str());
 
     if(!fs::exists(root) || !fs::is_directory(root)) 
     {
@@ -222,38 +221,12 @@ void test_all_schemas()
 
     while(it != endit)
     {
-        if(fs::is_regular_file(*it) && it->path().extension() == ".capnp") paths.push_back(it->path().filename());
+        if(fs::is_regular_file(*it) && it->path().extension() == ".capnp") 
+        {
+            test_schema(it->path());
+        }
         ++it;
     }
-
-    
-//   
-//   ::capnp::MallocMessageBuilder dyn_b;
-
-//   int fd = open(utility::expand_envs("$(GAMS_ROOT)/src/gams/types/LaserScan.capnp.bin").c_str(), 0, O_RDONLY);
-//   ::capnp::StreamFdMessageReader schema_message_reader(fd);
-//   auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
-//   ::capnp::SchemaLoader loader;
-//   std::map<std::string, capnp::Schema> schemas;
-
-//   for (auto schema : schema_reader.getNodes()) {
-//    schemas[schema.getDisplayName()] = loader.load(schema);
-//   }
-
-//   auto schema = schemas.at("src/gams/types/LaserScan.capnp:LaserScan").asStruct();
-//   auto dynbuilder = dyn_b.initRoot<capnp::DynamicStruct>(schema);
-
-//   ::capnp::MallocMessageBuilder header_b;
-//   auto header = header_b.initRoot<gams::types::Header>();
-
-//   header.setStamp(10);
-//   header.setFrameId("world");
-//   header.setSeq(100);
-
-//   dynbuilder.set("angleMin", 0.1);
-
-//    Could not find dox on how to do this.
-//   dynbuilder.set("header", header);
 }
 
 int main (int, char **)
