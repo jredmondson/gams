@@ -83,8 +83,6 @@ void test_scan()
    ranges.set(0, 1.0);
    ranges.set(999, 1.0);
 
-   scan.setRanges(ranges.asReader());
-
    // Setting to KB
    k.set_any("scan", CapnObject<gams::types::LaserScan>(scan_b));
 
@@ -114,9 +112,8 @@ void test_imu()
    header.setStamp(10);
    header.setFrameId("world");
    header.setSeq(100);
-   
+
    imu.setHeader(header);
-   imu.setLinearAccelerationCovariance(lin_acc.asReader());
 
    k.set_any("imu", CapnObject<gams::types::Imu>(imu_b));
 
