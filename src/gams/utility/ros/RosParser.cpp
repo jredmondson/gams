@@ -825,10 +825,18 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
 {
   std::string schema_name = capnp_types_[datatype];
   capnp::MallocMessageBuilder buffer;
-  auto schema = schemas_.at(schema_name).asStruct();
-  //auto schema = schemas_.at(schema_name).asStruct();
-  auto capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
-  madara::knowledge::Any::register_schema(schema_name.c_str(), schema);
+  capnp::DynamicStruct::Builder capnp_builder;
+  try
+  {
+    auto schema = schemas_.at(schema_name).asStruct();
+    capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
+    madara::knowledge::Any::register_schema(schema_name.c_str(), schema);
+  }
+  catch(...)
+  {
+    std::cout << "Schema with name " << schema_name << "not found!" << std::endl;
+    exit(1);
+  }
 
   RosIntrospection::FlatMessage& flat_container =
     flat_containers_[topic_name];
