@@ -63,8 +63,6 @@ inline void log(Args&&... args) {
 void test_registry()
 {
    gams::types::register_all_datatypes();
-
-   
 }
 
 /*
@@ -85,7 +83,7 @@ void test_scan()
    ranges.set(0, 1.0);
    ranges.set(999, 1.0);
 
-   scan.setRanges(ranges);
+   scan.setRanges(ranges.asReader());
 
    // Setting to KB
    k.set_any("scan", CapnObject<gams::types::LaserScan>(scan_b));
@@ -118,7 +116,7 @@ void test_imu()
    header.setSeq(100);
    
    imu.setHeader(header);
-   imu.setLinearAccelerationCovariance(lin_acc);
+   imu.setLinearAccelerationCovariance(lin_acc.asReader());
 
    k.set_any("imu", CapnObject<gams::types::Imu>(imu_b));
 
@@ -129,7 +127,6 @@ void test_imu()
    TEST_EQ(imu_.reader().getHeader().getSeq(), 100);
    TEST_EQ(imu_.reader().getLinearAccelerationCovariance()[0], 0.01);
    TEST_EQ(imu_.reader().getLinearAccelerationCovariance()[1], 0.03);
-      
 }
 
 /*
