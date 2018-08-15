@@ -1,8 +1,0 @@
-feature (boost) {
-
-  macros += _GAMS_BOOST_
-
-  includes += /usr/local/include/boost/
-  libpaths += /usr/local/lib/
-  libs += boost_system boost_filesystem
-}
