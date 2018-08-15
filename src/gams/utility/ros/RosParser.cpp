@@ -836,7 +836,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   // deserialize and rename the vectors
   bool success = parser_.deserializeIntoFlatContainer ( topic_name,
   absl::Span<uint8_t> (parser_buffer),
-  &flat_container, 500 );
+  &flat_container, 2000 );
 
   if (!success)
   {
