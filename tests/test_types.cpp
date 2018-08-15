@@ -171,7 +171,7 @@ void test_laser_schema()
 /*
   \brief Tests that a schema in src/gams/types can be loaded at runtime and modified/used.
 */
-void test_schema(const fs::path& path)
+bool test_schema(const fs::path& path)
 {
 
    log("Loading schema %s\n", path.c_str());
@@ -194,6 +194,8 @@ void test_schema(const fs::path& path)
    auto dynbuilder = dyn_b.initRoot<capnp::DynamicStruct>(schema);
 
    close(fd);
+
+   return true;
    //k.set_any("dynamic_laser", dynbuilder);
 
    // Could not find dox on how to do this.
@@ -221,10 +223,10 @@ void test_all_schemas()
 
     while(it != endit)
     {
-        if(fs::is_regular_file(*it) && it->path().extension() == ".capnp") 
+        if(fs::is_regular_file(*it) && it->path().extension() == ".capnp.bin") 
         {
-            test_schema(it->path());
-        }
+            TEST_EQ(test_schema(it->path()), 1);
+        } 
         ++it;
     }
 }
