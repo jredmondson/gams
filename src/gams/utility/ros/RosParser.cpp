@@ -5,6 +5,8 @@
  * This file contains parsing functionality for ROS topics
  **/
 #include "RosParser.h"
+#include <cmath>
+
 
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
@@ -804,7 +806,7 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
       if (index == 0)
       {
         // First element so init
-        dynvalue.init(var, 36);
+        dynvalue.init(var, 2048);
       }
       auto lst = dynvalue.get(var).as<capnp::DynamicList>();
       lst.set(index, val);
@@ -836,7 +838,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   // deserialize and rename the vectors
   bool success = parser_.deserializeIntoFlatContainer ( topic_name,
   absl::Span<uint8_t> (parser_buffer),
-  &flat_container, 2000 );
+  &flat_container, 2048 );
 
   if (!success)
   {
@@ -857,7 +859,16 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     const RosIntrospection::Variant& value   = it.second;
     std::string name = key.substr (topic_len);
 
-    double val = value.convert<double> ();
+
+    double val = NAN;
+    try
+    {
+      val = value.convert<double> ();
+    }
+    catch ( const std::exception& e )
+    {
+      // Value is NAN if it is not readable
+    }
     set_dyn_capnp_value<double>(capnp_builder, name, val);
     
   }
