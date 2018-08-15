@@ -11,8 +11,8 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
   std::map<std::string, std::string> capnp_types,
   std::map<std::string, int> circular_containers,
-  std::string frame_prefix) : 
-  eval_settings_(true, true, false, false, false), frame_prefix_(frame_prefix)
+  knowledge::EvalSettings eval_settings, std::string frame_prefix) : 
+  eval_settings_(eval_settings), frame_prefix_(frame_prefix)
 {
   world_frame_ = world_frame;
   base_frame_ = base_frame;
