@@ -77,8 +77,13 @@ fi
 MADARA_LIB=$MADARA_ROOT/lib/libMADARA.so
 GAMS_LIB=$GAMS_ROOT/lib/libGAMS.so
 
-if [ ! -f $MADARA_LIB ]  || [ ! -f $GAMS_LIB ]; then 
-   echo "Looks like not all required libraries are available. Please ensure BOOST, MADARA, GAMS libraries are available";
+if [ ! -f $MADARA_LIB ]; then 
+   echo "MADARA library not found. Please check";
+   exit 1;
+fi
+
+if [ ! -f $GAMS_LIB ]; then 
+   echo "GAMS library not found. Please check";
    exit 1;
 fi
 
@@ -89,9 +94,27 @@ mkdir -p $JNI_LIBS_DIR_ARCH
 cp $MADARA_LIB $JNI_LIBS_DIR_ARCH
 cp $GAMS_LIB $JNI_LIBS_DIR_ARCH
 
+#Copy ZMQ so file if needed.
 if [ $ZMQ -eq 1 ]; then
-cp $ZMQ_ROOT/lib/libzmq.so $JNI_LIBS_DIR_ARCH
+   
+  if [ ! -f $ZMQ_ROOT/lib/libzmq.so ]; then
+    echo "libzmq.so file not found in path. Check if ZMQ for Android is built properly"
+    exit 1;
+  fi
+  
+  cp $ZMQ_ROOT/lib/libzmq.so $JNI_LIBS_DIR_ARCH
 fi
+
+#Copy CAPNPRO files
+
+if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json-*.so ]; then
+    echo "CAPNP libraries not found in path. Check if the library for Android is built properly"
+    exit 1;
+  fi
+
+
+cp $CAPNP_ROOT/c++/.libs/libcapnp-*.so $JNI_LIBS_DIR_ARCH
+cp $CAPNP_ROOT/c++/.libs/libkj-*.so $JNI_LIBS_DIR_ARCH
 
 case $ANDROID_ARCH in
     arm32|arm|armeabi|armeabi-v7a)

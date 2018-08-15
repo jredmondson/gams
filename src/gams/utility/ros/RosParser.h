@@ -69,6 +69,7 @@ namespace gams
         public:
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
+            knowledge::EvalSettings eval_settings=knowledge::EvalSettings(),
             std::string frame_prefix=gams::pose::ReferenceFrame::default_prefix());
           void parse_message (const rosbag::MessageInstance m,
             std::string container_name);
