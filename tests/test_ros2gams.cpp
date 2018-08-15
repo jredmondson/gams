@@ -23,7 +23,6 @@
 #include "std_msgs/Header.h"
 #include "nav_msgs/Odometry.h"
 
-
 const double TEST_epsilon = 0.0001;
 int gams_fails = 0;
 
@@ -223,7 +222,7 @@ void test_any_point()
 	TEST(capn_point.get("y").as<float>(), y);
 	TEST(capn_point.get("z").as<float>(), z);
 
-	auto capn_point2 = any.reader<Point>();
+	auto capn_point2 = any.reader<gams::types::Point>();
 	TEST(capn_point2.getX(), x);
 	TEST(capn_point2.getY(), y);
 	TEST(capn_point2.getZ(), z);
@@ -318,10 +317,10 @@ void test_any_odom()
   }
 	auto capn_odom = any.reader(schemas[typemap["nav_msgs/Odometry"]].asStruct());
 
-	std::string cfd = capn_odom.get("childframeid").as<capnp::Text>().cStr();
+	std::string cfd = capn_odom.get("childFrameId").as<capnp::Text>().cStr();
 	if (cfd != odom.child_frame_id)
 	{
-		std::cout <<  "childframeid ?= " << odom.child_frame_id << "  FAIL! got " << cfd << " instead" << std::endl;
+		std::cout <<  "childFrameId ?= " << odom.child_frame_id << "  FAIL! got " << cfd << " instead" << std::endl;
 			++gams_fails;
 	}
 
