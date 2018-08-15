@@ -754,6 +754,7 @@ capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struc
   return dyn;
 }
 
+
 /*
 Sets the value of a specifiec schema member
 */
@@ -763,7 +764,30 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
   std::string name,
   T val)
 {
-    name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
+    //name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
+    //remove _ values from the name string and chang it to camelcase
+    std::stringstream camelcase;
+    for (unsigned int i = 0; i < name.size(); i++)
+    {
+      if (name[i] == '_')
+      {
+        camelcase.put(toupper(name[i + 1]));
+        i++;
+      }
+      else
+      {
+        if ( i == 0 )
+        {
+          // first character has to be lowercase
+          camelcase.put(tolower(name[i]));
+        }
+        else
+        {
+          camelcase.put(name[i]);
+        }
+      }
+    }
+    name = camelcase.str();
 
     int struct_end = name.find_last_of("/");
     std::string struct_name = name.substr(0,struct_end);
