@@ -331,7 +331,7 @@ int main (int argc, char ** argv)
   settings.last_lamport_clock = 0;
   settings.override_lamport = true;
   settings.override_timestamp = true;
-  settings.buffer_size = 10240000;
+  settings.buffer_size = 10240000000;
 
   uint64_t last_checkpoint_timestamp = 0;
 

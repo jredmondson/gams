@@ -889,7 +889,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     std::string name = key.substr (topic_len);
     set_dyn_capnp_value<char*>(capnp_builder, name, val);
   }
-  madara::knowledge::GenericCapnObject any(topic_name.c_str(), buffer);
+  madara::knowledge::GenericCapnObject any(schema_name.c_str(), buffer);
 
   auto search = circular_container_stats_.find(container_name);
   if (search != circular_container_stats_.end())
