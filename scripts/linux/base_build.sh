@@ -105,7 +105,7 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
-CAPNPROTO_AS_A_PREREQ=0
+CAPNP_AS_A_PREREQ=0
 
 MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
@@ -536,7 +536,7 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
 fi
 
 if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
-  CAPNPROTO_AS_A_PREREQ=1
+  CAPNP_AS_A_PREREQ=1
 fi
 
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
@@ -583,7 +583,7 @@ else
   echo "NOT CHECKING EIGEN"
 fi
 
-if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
+if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
