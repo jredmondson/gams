@@ -56,3 +56,10 @@ target/
 .project
 .settings
 
+blacklist
+whitelist
+*.bag
+src/gams/types/*.c++
+src/gams/types/*.h
+*.bin
+
