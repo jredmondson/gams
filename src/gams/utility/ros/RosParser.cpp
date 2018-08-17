@@ -764,7 +764,8 @@ template <class T>
 void gams::utility::ros::RosParser::set_dyn_capnp_value(
   capnp::DynamicStruct::Builder builder,
   std::string name,
-  T val)
+  T val,
+  unsigned int array_size)
 {
     //name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
     //remove _ values from the name string and chang it to camelcase
@@ -806,7 +807,7 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
       if (index == 0)
       {
         // First element so init
-        dynvalue.init(var, 2048);
+        dynvalue.init(var, array_size);
       }
       auto lst = dynvalue.get(var).as<capnp::DynamicList>();
       lst.set(index, val);
@@ -817,6 +818,40 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
     }
 }
 
+
+/*
+  Determines the size of an ros introspection array
+*/
+template <class T>
+unsigned int gams::utility::ros::RosParser::get_array_size(std::string var_name,
+  std::vector<std::pair<std::string, T>> array)
+{
+  std::size_t dot_pos = var_name.find(".");
+  if (dot_pos == std::string::npos)
+  {
+    // This is no array
+    return 1;
+  }
+  std::string array_name = var_name.substr(0, dot_pos);
+
+  auto cached = ros_array_sizes_.find(array_name);
+  if (cached != ros_array_sizes_.end())
+  {
+    return cached->second;
+  }
+
+  unsigned int len = 0;
+  for ( auto it : array)
+  {
+    std::string key = it.first;
+    if (key.rfind(array_name, 0) == 0)
+    {
+      len++;
+    }
+  }
+  ros_array_sizes_[array_name] = len;
+  return len;
+}
 
 void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   std::string topic_name,
@@ -855,9 +890,9 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
       std::endl;
   }
 
-
   parser_.applyNameTransform ( topic_name,
     flat_container, &renamed_values );
+
 
   // Save the content of the message to the knowledgebase
   int topic_len = topic_name.length ();
@@ -865,6 +900,9 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   {
     const std::string& key = it.first;
     const RosIntrospection::Variant& value   = it.second;
+
+    int array_size = get_array_size(key, renamed_values);
+
     std::string name = key.substr (topic_len);
 
 
@@ -877,7 +915,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     {
       // Value is NAN if it is not readable
     }
-    set_dyn_capnp_value<double>(capnp_builder, name, val);
+    set_dyn_capnp_value<double>(capnp_builder, name, val, array_size);
     
   }
   for (auto it: flat_container.name)
@@ -885,10 +923,14 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     const std::string& key    = it.first.toStdString ();
     const std::string& value  = it.second;
 
+    int array_size = get_array_size(key, renamed_values);
+
+
     auto val = strdup(value.c_str());
     std::string name = key.substr (topic_len);
-    set_dyn_capnp_value<char*>(capnp_builder, name, val);
+    set_dyn_capnp_value<char*>(capnp_builder, name, val, array_size);
   }
+  ros_array_sizes_.clear();
   madara::knowledge::GenericCapnObject any(schema_name.c_str(), buffer);
 
   auto search = circular_container_stats_.find(container_name);

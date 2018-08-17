@@ -185,6 +185,7 @@ namespace gams
           std::map<std::string, RosIntrospection::FlatMessage> flat_containers_;
           std::map<std::string, RosIntrospection::RenamedValues> renamed_vectors_;
           std::vector<uint8_t> parser_buffer_;
+          std::map<std::string, unsigned int> ros_array_sizes_;
 
           // Transform tree frame names
           std::string world_frame_;
@@ -214,7 +215,11 @@ namespace gams
 
           template <class T>
           void set_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
-            std::string name, T val);
+            std::string name, T val, unsigned int array_size);
+          
+          template <class T>
+          unsigned int get_array_size(std::string var_name,
+            std::vector<std::pair<std::string, T>> array);
 
       };
       std::string ros_to_gams_name (std::string ros_topic_name);
