@@ -86,6 +86,9 @@ bool save_as_karl = false;
 bool save_as_json = false;
 bool save_as_binary = false;
 
+//Buffer size
+int write_buffer_size = 10240000;
+
 // the world and the base frame of the robot
 std::string base_frame = "";
 std::string world_frame = "";
@@ -159,6 +162,15 @@ void handle_arguments (int argc, char ** argv)
       checkpoint_frequency = std::stoi(argv[i + 1]);
       i++;
     }
+    else if (arg1 == "-ss" || arg1 == "--save-size")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> write_buffer_size;
+      }
+      ++i;
+    }
     else if (arg1 == "-h" || arg1 == "--help")
     {
       std::cout << "\nProgram summary for ros2gams [options] [Logic]:\n\n" \
@@ -183,7 +195,8 @@ void handle_arguments (int argc, char ** argv)
       "                                       only for binary checkpoints\n" \
       "  [-c|--continuous]                    differential checkpoints\n" \
       "                                       continuously stored in the same \n" \
-      "                                       file - only for binary checkpoints\n";
+      "                                       file - only for binary checkpoints\n" \
+      "  [-ss|--save-size bytes]              size of buffer needed for file saves\n";
       exit (0);
     }
   }
@@ -331,7 +344,7 @@ int main (int argc, char ** argv)
   settings.last_lamport_clock = 0;
   settings.override_lamport = true;
   settings.override_timestamp = true;
-  settings.buffer_size = 10240000000;
+  settings.buffer_size = write_buffer_size;
 
   uint64_t last_checkpoint_timestamp = 0;
 
