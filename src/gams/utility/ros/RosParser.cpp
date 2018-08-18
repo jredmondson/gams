@@ -6,10 +6,6 @@
  **/
 #include "RosParser.h"
 #include <cmath>
-#include "madara/utility/SimTime.h"
-
-
-
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
@@ -1001,8 +997,8 @@ void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m
 
 void gams::utility::ros::RosParser::set_sim_time(global_ros::Time rostime)
 {
-  uint64_t sim_time = rostime.sec * 10e9 + rostime.nsec;
-  madara::utility::SimTime::sim_time_notify(sim_time, 0);
+  uint64_t sim_time = rostime.sec * 1e9 + rostime.nsec;
+  madara::utility::sim_time_notify(sim_time, 0.0);
 }
 
 

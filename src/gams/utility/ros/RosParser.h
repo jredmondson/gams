@@ -18,6 +18,7 @@
 #include "madara/knowledge/containers/Integer.h"
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/knowledge/containers/CircularBuffer.h"
+#include "madara/utility/SimTime.h"
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
