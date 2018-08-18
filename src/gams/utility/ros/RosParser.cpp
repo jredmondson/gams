@@ -6,6 +6,8 @@
  **/
 #include "RosParser.h"
 #include <cmath>
+#include "madara/utility/SimTime.h"
+
 
 
 
@@ -35,6 +37,9 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
 void gams::utility::ros::RosParser::parse_message (
   const rosbag::MessageInstance m, std::string container_name)
 {
+  //Update sim time before parsing
+  set_sim_time(m.getTime());
+  //Parse the message
   std::string datatype = m.getDataType();
 
   auto search = capnp_types_.find(datatype);
@@ -993,3 +998,11 @@ void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m
 
   parse_any(m.getDataType(), topic, parser_buffer, container_name);
 }
+
+void gams::utility::ros::RosParser::set_sim_time(global_ros::Time rostime)
+{
+  uint64_t sim_time = rostime.sec * 10e9 + rostime.nsec;
+  madara::utility::SimTime::sim_time_notify(sim_time, 0);
+}
+
+

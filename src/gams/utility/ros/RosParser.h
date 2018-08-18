@@ -221,6 +221,12 @@ namespace gams
           unsigned int get_array_size(std::string var_name,
             std::vector<std::pair<std::string, T>> array);
 
+          /*
+          Sets the current time to the ros header time if the simtime feature is
+          activated.
+          */
+          void set_sim_time(global_ros::Time rostime);
+
       };
       std::string ros_to_gams_name (std::string ros_topic_name);
     }
