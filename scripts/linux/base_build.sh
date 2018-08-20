@@ -105,7 +105,7 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
-CAPNPROTO_AS_A_PREREQ=0
+CAPNP_AS_A_PREREQ=0
 
 MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
@@ -536,7 +536,7 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
 fi
 
 if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
-  CAPNPROTO_AS_A_PREREQ=1
+  CAPNP_AS_A_PREREQ=1
 fi
 
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
@@ -583,7 +583,7 @@ else
   echo "NOT CHECKING EIGEN"
 fi
 
-if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
+if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
@@ -613,6 +613,8 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
   if [ $CLEAN -eq 1 ] ; then
     make clean -j $CORES
   fi
+
+
   autoreconf -i
 
   if [ $ANDROID -eq 1 ]; then
@@ -641,7 +643,7 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
 
   fi
 
-   make -j$CORES
+   make -j$CORES capnp capnpc-c++ libcapnp-json.la 
    CAPNP_BUILD_RESULT=$?
 
    if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
@@ -743,8 +745,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
 
-  if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not built properly or not installed. Please run base_build with 'prereqs' option"
+ if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json* ]; then
+       echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."
        exit 1;
   fi
 
@@ -789,7 +791,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
-    echo -e "\e[91m MADARA library did not build properly \e[39m"
+echo -e "\e[91m MADARA library did not build properly. If you are building for Android check out the link, https://github.com/jredmondson/gams/wiki/GAMS-Installation#android-troubleshooting \e[39m"
     exit 1;
   fi
 
