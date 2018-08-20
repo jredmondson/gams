@@ -9,6 +9,10 @@
 #include <string>
 #include <fstream>
 
+#include "boost/filesystem.hpp"
+#include "yaml-cpp/yaml.h"
+
+
 #include "madara/logger/GlobalLogger.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/knowledge/CheckpointStreamer.h"
@@ -56,7 +60,6 @@
 #include <tf2_msgs/TFMessage.h>
 #include <std_msgs/String.h>
 
-#include "yaml-cpp/yaml.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -105,9 +108,12 @@ int checkpoint_frequency = 0;
 bool differential_checkpoints = false;
 bool same_file = false;
 
+// Delete existing files
+bool delete_existing = false;
 
 
-
+//Function definitions
+void delete_existing_file(std::string path, bool delete_existing);
 int save_checkpoint (knowledge::KnowledgeBase *knowledge,
   knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
 std::string get_agent_var_prefix (std::string ros_topic_name);
@@ -174,6 +180,10 @@ void handle_arguments (int argc, char ** argv)
       differential_checkpoints = true;
       same_file = true;
     }
+    else if (arg1 == "-de" || arg1 == "--delete-existing")
+    {
+      delete_existing = true;
+    }
     else if (arg1 == "-y" || arg1 == "--frequency")
     {
       checkpoint_frequency = std::stoi(argv[i + 1]);
@@ -214,7 +224,8 @@ void handle_arguments (int argc, char ** argv)
       "                                       continuously stored in the same \n" \
       "                                       file - only for binary checkpoints\n" \
       "  [-ss|--save-size bytes]              size of buffer needed for file saves\n" \
-      "  [-stk|--stream file]                 stream checkpoints to file\n";
+      "  [-stk|--stream file]                 stream checkpoints to file\n"\
+      "  [-de|--delete-existing]              delete existing output files\n";
       exit (0);
     }
   }
@@ -386,6 +397,8 @@ int main (int argc, char ** argv)
   {
     madara::knowledge::CheckpointSettings stream_settings;
     stream_settings.filename = stream_file + ".stk";
+    delete_existing_file(stream_settings.filename, delete_existing);
+
     //kb.attach_streamer(std::move(stream_settings), kb, 100);
     //Todo: above is from the doc - below is from the tests
     kb.attach_streamer(madara::utility::mk_unique<
@@ -509,18 +522,22 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
   if ( save_as_karl )
   {
     settings->filename = filename + ".mf";
+    delete_existing_file(settings->filename, delete_existing);
     ret = knowledge->save_as_karl (*settings);
   }
   
   if ( save_as_json )
   {
     settings->filename = filename + ".json";
+    delete_existing_file(settings->filename, delete_existing);
     ret = knowledge->save_as_json (*settings);
   }
   
   if ( save_as_binary )
   {
     settings->filename = filename + ".kb";
+    delete_existing_file(settings->filename, delete_existing);
+
     if ( differential_checkpoints == true)
     {
       ret = knowledge->save_checkpoint (*settings);
@@ -559,4 +576,16 @@ std::string get_agent_var_prefix (std::string ros_topic_name)
   }
 }
 
+
+void delete_existing_file(std::string path, bool delete_existing)
+{
+  if (!delete_existing)
+  {
+    return;
+  }
+  if (boost::filesystem::is_regular_file(path))
+  {
+    boost::filesystem::remove(path);
+  }
+}
 
