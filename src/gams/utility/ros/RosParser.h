@@ -96,6 +96,8 @@ namespace gams
           // Parsing for unknown types
           void registerMessageDefinition(std::string topic_name,
             RosIntrospection::ROSType type, std::string definition);
+          void registerRenamingRules(RosIntrospection::ROSType type,
+            std::vector<RosIntrospection::SubstitutionRule> rules);
           void parse_unknown (const rosbag::MessageInstance m,
             std::string container_name);
           

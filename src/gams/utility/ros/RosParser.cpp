@@ -256,6 +256,13 @@ void gams::utility::ros::RosParser::registerMessageDefinition(
   parser_.registerMessageDefinition(topic_name, type, definition);
 }
 
+void gams::utility::ros::RosParser::registerRenamingRules(
+  RosIntrospection::ROSType type,
+  std::vector<RosIntrospection::SubstitutionRule> rules)
+{
+  parser_.registerRenamingRules(type, rules);
+}
+
 /**
 * Parses a ROS Odometry Message into two Madara Containers. One for the
 * location and a second one for the orientation.

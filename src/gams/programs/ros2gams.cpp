@@ -11,6 +11,7 @@
 
 #include "madara/logger/GlobalLogger.h"
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/CheckpointStreamer.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/containers/NativeIntegerVector.h"
 #include "madara/knowledge/containers/Double.h"
@@ -81,10 +82,14 @@ std::string checkpoint_prefix = "checkpoint_";
 // path to the filter definition file
 std::string map_file = "";
 
+//path to the checkpoint stream file
+std::string stream_file = "";
+
 // save as a karl or binary file
 bool save_as_karl = false;
 bool save_as_json = false;
 bool save_as_binary = false;
+bool save_as_stream = false;
 
 //Buffer size
 int write_buffer_size = 10240000;
@@ -128,7 +133,19 @@ void handle_arguments (int argc, char ** argv)
     }
     else if (arg1 == "-m" || arg1 == "--map-file")
     {
-      map_file = argv[i + 1];
+      if (i + 1 < argc)
+      {
+        map_file = argv[i + 1];
+      }
+      i++;
+    }
+    else if (arg1 == "-stk" || arg1 == "--stream")
+    {
+      if (i + 1 < argc)
+      {
+        stream_file = argv[i + 1];
+        save_as_stream = true;
+      }
       i++;
     }
     else if (arg1 == "-rp" || arg1 == "--ros-robot-prefix")
@@ -196,11 +213,12 @@ void handle_arguments (int argc, char ** argv)
       "  [-c|--continuous]                    differential checkpoints\n" \
       "                                       continuously stored in the same \n" \
       "                                       file - only for binary checkpoints\n" \
-      "  [-ss|--save-size bytes]              size of buffer needed for file saves\n";
+      "  [-ss|--save-size bytes]              size of buffer needed for file saves\n" \
+      "  [-stk|--stream file]                 stream checkpoints to file\n";
       exit (0);
     }
   }
-  if ( !save_as_binary && !save_as_json && !save_as_karl)
+  if ( !save_as_binary && !save_as_json && !save_as_karl && !save_as_stream)
   {
     // if no output format is selected -> save in karl format
     save_as_karl = true;
@@ -332,6 +350,11 @@ int main (int argc, char ** argv)
     parser.registerMessageDefinition (topic_name,
       RosIntrospection::ROSType (datatype), definition);
   }
+
+  /*std::vector<RosIntrospection::SubstitutionRule> rules;
+  rules.push_back( RosIntrospection::SubstitutionRule("angle_min", "angle_min", "aaa@") );
+  parser.registerRenamingRules( RosIntrospection::ROSType ("sensor_msgs/LaserScan"), rules);*/
+
   // Load the capnproto schemas
   std::cout << "Loading schemas..." << std::endl;
   for (std::string path : schema_files)
@@ -356,6 +379,17 @@ int main (int argc, char ** argv)
     checkpoint_intervall = checkpoint_intervall / checkpoint_frequency;
     std::cout << "\nCreating a checkpoint each " <<
       (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
+  }
+
+  // Attach streaming
+  if (save_as_stream)
+  {
+    madara::knowledge::CheckpointSettings stream_settings;
+    stream_settings.filename = stream_file + ".stk";
+    //kb.attach_streamer(std::move(stream_settings), kb, 100);
+    //Todo: above is from the doc - below is from the tests
+    kb.attach_streamer(madara::utility::mk_unique<
+      madara::knowledge::CheckpointStreamer>(stream_settings, kb));
   }
 
   // Iterate through all topics in the bagfile
