@@ -923,6 +923,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     {
       // Value is NAN if it is not readable
     }
+    name = substitute_name(datatype, name);
     set_dyn_capnp_value<double>(capnp_builder, name, val, array_size);
     
   }
@@ -936,6 +937,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
 
     auto val = strdup(value.c_str());
     std::string name = key.substr (topic_len);
+    name = substitute_name(datatype, name);
     set_dyn_capnp_value<char*>(capnp_builder, name, val, array_size);
   }
   ros_array_sizes_.clear();
@@ -1009,5 +1011,29 @@ void gams::utility::ros::RosParser::set_sim_time(global_ros::Time rostime)
   madara::utility::sim_time_notify(sim_time, 0.0);
   #endif
 }
+
+void gams::utility::ros::RosParser::register_rename_rules( std::map<std::string,
+  std::map<std::string, std::string>> name_substitution_map)
+{
+  name_substitution_map_ = std::move(name_substitution_map);
+}
+
+std::string gams::utility::ros::RosParser::substitute_name(std::string type,
+  std::string name)
+{
+  auto search = name_substitution_map_.find (type);
+  if (search != name_substitution_map_.end ())
+  {
+    std::map <std::string, std::string> name_map = search->second;
+    auto name_search = name_map.find (name);
+    if (name_search != name_map.end ())
+    {
+      return name_search->second;
+    }
+  }
+  return name;
+}
+
+
 
 

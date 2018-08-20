@@ -101,6 +101,13 @@ namespace gams
           void parse_unknown (const rosbag::MessageInstance m,
             std::string container_name);
           
+
+          /**
+           * Registers renaming rules for ros types
+           * @param name_substitution_map   map<rostype, map<name, newname>>
+           **/
+          void register_rename_rules( std::map<std::string, std::map<std::string, std::string>> name_substitution_map);
+
           /**
            * Parse defined Any types
            * @param  m               rosbag::MessageInstance to parse
@@ -211,6 +218,11 @@ namespace gams
             circular_producers_;
           std::map<std::string, int> circular_container_stats_;
 
+          //Name substitution
+          std::map<std::string, std::map<std::string, std::string>>
+            name_substitution_map_;
+
+
 
 
           capnp::DynamicStruct::Builder get_dyn_capnp_struct(
@@ -223,6 +235,12 @@ namespace gams
           template <class T>
           unsigned int get_array_size(std::string var_name,
             std::vector<std::pair<std::string, T>> array);
+
+          /**
+           * Substitutes the names of topic type members based on the registered
+           * rules
+           **/ 
+          std::string substitute_name(std::string type, std::string name);
 
           /*
           Sets the current time to the ros header time if the simtime feature is

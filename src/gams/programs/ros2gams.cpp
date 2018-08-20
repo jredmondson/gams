@@ -257,6 +257,7 @@ int main (int argc, char ** argv)
   std::vector<std::string> schema_files;
   std::map<std::string, std::string> schema_map;
   std::map<std::string, int> circular_variables;
+  std::map<std::string, std::map<std::string, std::string>> name_substitution_map;
 
 
   // Use mapfile to filter topics
@@ -293,6 +294,8 @@ int main (int argc, char ** argv)
         topic_map[topic_name] = var_name;
       }
     }
+
+    // the schema files
     if (config["capnp_schemas"])
     {
       for (YAML::const_iterator it=config["capnp_schemas"].begin();
@@ -302,6 +305,7 @@ int main (int argc, char ** argv)
       }
     }
 
+    // capnproto schema mappings
     if (config["schema_map"])
     {
       for(YAML::const_iterator it=config["schema_map"].begin();
@@ -310,6 +314,23 @@ int main (int argc, char ** argv)
         std::string ros_type = it->first.as<std::string>();
         std::string schema_name = it->second.as<std::string>();
         schema_map[ros_type] = schema_name;
+      }
+    }
+
+    // simple renameing of message members
+    if (config["name_substitution"])
+    {
+      for(YAML::const_iterator type_it=config["name_substitution"].begin();
+          type_it!=config["name_substitution"].end(); ++type_it)
+      {
+        std::string ros_type = type_it->first.as<std::string>();
+        std::map<std::string, std::string> subst;
+        for(YAML::const_iterator elem_it=type_it->second.begin();
+                  elem_it!=type_it->second.end(); ++elem_it)
+        {
+          subst[elem_it->first.as<std::string>()] = elem_it->second.as<std::string>();
+        }
+        name_substitution_map[ros_type] = subst;
       }
     }
 
@@ -365,6 +386,8 @@ int main (int argc, char ** argv)
   /*std::vector<RosIntrospection::SubstitutionRule> rules;
   rules.push_back( RosIntrospection::SubstitutionRule("angle_min", "angle_min", "aaa@") );
   parser.registerRenamingRules( RosIntrospection::ROSType ("sensor_msgs/LaserScan"), rules);*/
+  // Name substitution
+  parser.register_rename_rules(name_substitution_map);
 
   // Load the capnproto schemas
   std::cout << "Loading schemas..." << std::endl;
