@@ -119,6 +119,8 @@ VREP_REPO_RESULT=0
 ZMQ_REPO_RESULT=0
 ZMQ_BUILD_RESULT=0
 LZ4_REPO_RESULT=0
+CAPNP_REPO_RESULT=0
+CAPNP_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -214,6 +216,7 @@ do
     echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
+    echo "  CAPNP_ROOT          - location of Cap'n Proto"
     echo "  CORES               - number of build jobs to launch with make, optional"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
@@ -533,7 +536,7 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
 fi
 
 if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
-  CAPNP_AS_A_PREREQ=1
+  CAPNPROTO_AS_A_PREREQ=1
 fi
 
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
@@ -580,7 +583,7 @@ else
   echo "NOT CHECKING EIGEN"
 fi
 
-if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
+if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
@@ -605,20 +608,47 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     CAPNP_REPO_RESULT=$?
   fi
 
-  export PATH="$CAPNP_ROOT/c++:$PATH"
-  export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
-  if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
-    export CC=clang-5.0
-    export CXX=clang++-5.0
-    export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
+  
+  cd $CAPNP_ROOT/c++
+  if [ $CLEAN -eq 1 ] ; then
+    make clean -j $CORES
+  fi
+  autoreconf -i
+
+  if [ $ANDROID -eq 1 ]; then
+    export CROSS_PATH=${NDK_TOOLS}/bin/${ANDROID_TOOLCHAIN}
+    export AR=${CROSS_PATH}-ar
+    export AS=${CROSS_PATH}-as
+    export NM=${CROSS_PATH}-nm
+    export CC=${CROSS_PATH}-gcc
+    export CXX=${CROSS_PATH}-clang++
+    export LD=${CROSS_PATH}-ld
+    export RANLIB=${CROSS_PATH}-ranlib
+    export STRIP=${CROSS_PATH}-strip
+
+    ./configure --host=${ANDROID_TOOLCHAIN} --with-sysroot=${SYSROOT} CPPFLAGS="${CPPLAGS} --sysroot=${SYSROOT} -I${SYSROOT}/usr/include -I${NDK_TOOLS}/include -std=c++11" LDFLAGS="${LDFLAGS} -L${SYSROOT}/usr/lib -L${NDK_TOOLS}/lib -L${NDK_TOOLS}/${ANDROID_TOOLCHAIN}/lib" LIBS='-lc++_shared'
+
+  else 
+    export PATH="$CAPNP_ROOT/c++:$PATH"
+    export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
+    if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
+      export CC=clang-5.0
+      export CXX=clang++-5.0
+      export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
+    fi
+
+   ./configure
+
   fi
 
-  cd $CAPNP_ROOT/c++
-  make clean
-  autoreconf -i &&
-    ./configure &&
-    make -j$CORES
-  CAPNP_BUILD_RESULT=$?
+   make -j$CORES
+   CAPNP_BUILD_RESULT=$?
+
+   if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
+       echo "CapNProto is not built properly. If you are building for Android check out the link, https://github.com/jredmondson/gams/wiki/GAMS-Installation#android-troubleshooting"
+       exit 1;
+   fi
+ #Prereq if ends
 else
   echo "NOT CHECKING CAPNPROTO"
 fi
@@ -712,6 +742,13 @@ fi
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
+
+  if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
+       echo "CapNProto is not built properly or not installed. Please run base_build with 'prereqs' option"
+       exit 1;
+  fi
+
+  
 
   cd $INSTALL_DIR
 
@@ -986,7 +1023,7 @@ if [ $VREP -eq 1 ]; then
 fi
 
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
-  if [ $CAPNP_AS_A_PREREQ ]; then
+  if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     echo "  CAPNPROTO"
     if [ $CAPNP_REPO_RESULT -eq 0 ]; then
       echo -e "    REPO=\e[92mPASS\e[39m"
@@ -1080,12 +1117,11 @@ if [ $ANDROID -eq 1 ]; then
 fi
 
 if [ $MAC -eq 0 ]; then
-  echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+  echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs"
 else
-  echo -e "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT"
+  echo -e "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs"
 fi
-echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT"
-
+echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++"
 
 if [ $DMPL -eq 1 ]; then
   echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"

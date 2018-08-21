@@ -113,7 +113,7 @@ void test_imu()
    header.setStamp(10);
    header.setFrameId("world");
    header.setSeq(100);
-   
+
    // Incorrect
    //imu.setHeader(header);
    //imu.setLinearAccelerationCovariance(lin_acc.asReader());
