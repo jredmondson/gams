@@ -654,7 +654,13 @@ namespace gams
           parent = load(kb, parent_id, timestamp, settings);
 
           if (!parent.valid()) {
-            throw exceptions::ReferenceFrameException();
+            std::stringstream message;
+            message << "Could not load ";
+            message << id;
+            message << "'s parent ";
+            message << parent_id;
+            message << std::endl;
+            throw exceptions::ReferenceFrameException(message.str());
             //return {};
           }
 
