@@ -216,7 +216,7 @@ bool test_schema(const std::string& path, const std::string& sub_dir)
 void test_all_schemas()
 {
     std::string sub_dir("src/gams/types/");
-    std::string full_dir("$(GAMS_ROOT)");
+    std::string full_dir("$(GAMS_ROOT)/");
     std::string full_path = full_dir + sub_dir;
     std::string path_r = utility::expand_envs(full_path);
 
