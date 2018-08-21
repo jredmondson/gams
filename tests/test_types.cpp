@@ -1,6 +1,4 @@
 #define TEST_TYPES
-#define BOOST_FILESYSTEM_VERSION 3
-#define BOOST_FILESYSTEM_NO_DEPRECATED 
 
 // GAMS
 #include <gams/types/Datatypes.h>
@@ -20,14 +18,14 @@
 #include <fcntl.h>
 #include <vector>
 
-// Boost
-#include <boost/filesystem.hpp>
+// C
+#include <dirent.h>
+#include <stdio.h>
 
 int gams_fails = 0;
 
 using namespace madara;
 using namespace knowledge;
-namespace fs = ::boost::filesystem;
 
 KnowledgeBase k;
 
@@ -83,6 +81,9 @@ void test_scan()
    ranges.set(0, 1.0);
    ranges.set(999, 1.0);
 
+   // Incorrect
+   //scan.setRanges(ranges.asReader());
+
    // Setting to KB
    k.set_any("scan", CapnObject<gams::types::LaserScan>(scan_b));
 
@@ -108,12 +109,14 @@ void test_imu()
    lin_acc.set(1, 0.03);
 
    ::capnp::MallocMessageBuilder header_b;
-   auto header = header_b.initRoot<gams::types::Header>();
+   auto header = imu.initHeader();
    header.setStamp(10);
    header.setFrameId("world");
    header.setSeq(100);
 
-   imu.setHeader(header);
+   // Incorrect
+   //imu.setHeader(header);
+   //imu.setLinearAccelerationCovariance(lin_acc.asReader());
 
    k.set_any("imu", CapnObject<gams::types::Imu>(imu_b));
 
@@ -165,7 +168,7 @@ void test_laser_schema()
 /*
   \brief Tests that a schema in src/gams/types can be loaded at runtime and modified/used.
 */
-bool test_schema(const fs::path& path)
+bool test_schema(const std::string& path, const std::string& sub_dir)
 {
 
    log("Loading schema %s\n", path.c_str());
@@ -181,10 +184,21 @@ bool test_schema(const fs::path& path)
 
    for (auto schema : schema_reader.getNodes()) {
     schemas[schema.getDisplayName()] = loader.load(schema);
+    log(schema.getDisplayName().cStr());
    }
 
-   log("Building dynamic struct for %s", path.c_str());
-   auto schema = schemas.at(path.filename().c_str()).asStruct();
+   std::string class_name;
+   class_name = madara::utility::extract_filename(path);
+   log(class_name.c_str());
+   madara::utility::string_replace(class_name, ".capnp.bin", ""); 
+   log(class_name.c_str()); 
+
+   std::string schema_path;
+
+   // Unfortunately, capnproto requires this display name thing which uses a relative path instead of the absolute path at which it found the file, requiring all this directory management. Their API is like combing for needles through a haystack and the documentation doesn't help. User forums and support are a minimum for it too.
+   schema_path = sub_dir + class_name + std::string(".capnp:") + class_name;
+   log("Building dynamic struct for %s", schema_path.c_str());
+   auto schema = schemas.at(schema_path).asStruct();
    auto dynbuilder = dyn_b.initRoot<capnp::DynamicStruct>(schema);
 
    close(fd);
@@ -196,32 +210,36 @@ bool test_schema(const fs::path& path)
    //dynbuilder.set("header", header);
 }
 
-
-
 /*
   \brief Tests that all of the schemas inside src/gams/types can be loaded at runtime.
 */
 void test_all_schemas()
 {
-    fs::path root(utility::expand_envs("$(GAMS_ROOT)/src/gams/types").c_str());
+    std::string sub_dir("src/gams/types/");
+    std::string full_dir("$(GAMS_ROOT)");
+    std::string full_path = full_dir + sub_dir;
+    std::string path_r = utility::expand_envs(full_path);
 
-    if(!fs::exists(root) || !fs::is_directory(root)) 
+    struct dirent *dp;
+    DIR *dirf;
+
+    if ((dirf = opendir(path_r.c_str())) == NULL)
     {
-       log("src/gams/types does not exist!");
+       log("%s does not exist!", path_r.c_str());
        gams_fails++;
        return;
     }
 
-    fs::recursive_directory_iterator it(root);
-    fs::recursive_directory_iterator endit;
-
-    while(it != endit)
+    while (dp = readdir(dirf))
     {
-        if(fs::is_regular_file(*it) && it->path().extension() == ".capnp.bin") 
-        {
-            TEST_EQ(test_schema(it->path()), 1);
-        } 
-        ++it;
+       std::string file(dp->d_name);
+
+       if ((dp->d_name != NULL) && madara::utility::ends_with(file, std::string(".capnp.bin")))
+       {
+           std::string full_p = path_r + file;
+           log("Full path: %s\n", full_p.c_str());
+           TEST_EQ(test_schema(full_p, sub_dir), 1);
+       }
     }
 }
 
