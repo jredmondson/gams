@@ -62,7 +62,7 @@
 #include "gams/variables/Sensor.h"
 #include "gams/variables/Agent.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "AlgorithmFactory.h"
+#include "gams/algorithms/AlgorithmFactory.h"
 
 namespace gams
 {
