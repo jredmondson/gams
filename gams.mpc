@@ -1,4 +1,4 @@
-project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
+project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_capnp {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -11,6 +11,10 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
     .
     docs
 	  port/java
+  }
+
+  CAPN_Files {
+      src/gams/types
   }
 
   Documentation_Files {
@@ -65,6 +69,10 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
 
     Pose {
       src/gams/pose
+    }
+
+    Types {
+      src/gams/types
     }
 
     Utility {
@@ -123,6 +131,10 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
 
     Pose {
       src/gams/pose
+    }
+
+    Types {
+      src/gams/types
     }
 
     Utility {
@@ -193,6 +205,8 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
 
     src/gams
   }
+
+
 }
 
 
