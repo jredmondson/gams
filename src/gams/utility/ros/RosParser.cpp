@@ -1021,14 +1021,18 @@ void gams::utility::ros::RosParser::register_rename_rules( std::map<std::string,
 std::string gams::utility::ros::RosParser::substitute_name(std::string type,
   std::string name)
 {
-  auto search = name_substitution_map_.find (type);
-  if (search != name_substitution_map_.end ())
+  std::vector<std::string> values = {type, "general"};
+  for (std::string it : values)
   {
-    std::map <std::string, std::string> name_map = search->second;
-    auto name_search = name_map.find (name);
-    if (name_search != name_map.end ())
+    auto search = name_substitution_map_.find (it);
+    if (search != name_substitution_map_.end ())
     {
-      return name_search->second;
+      std::map <std::string, std::string> name_map = search->second;
+      auto name_search = name_map.find (name);
+      if (name_search != name_map.end ())
+      {
+        return name_search->second;
+      }
     }
   }
   return name;
