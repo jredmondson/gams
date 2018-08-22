@@ -745,8 +745,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
 
-  if ! ls $CAPNP_ROOT/c++/.libs/libcapnp*.so > /dev/null 2>&1; then 
-     echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."; 
+  if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json.so ] || [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp.so ] ; then 
+    echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."; 
     exit 1;
   fi
   
