@@ -647,7 +647,7 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
    CAPNP_BUILD_RESULT=$?
 
    if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not built properly. If you are building for Android check out the link, https://github.com/jredmondson/gams/wiki/GAMS-Installation#android-troubleshooting"
+       echo "CapNProto is not built properly."
        exit 1;
    fi
  #Prereq if ends
@@ -745,11 +745,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
 
- if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json* ]; then
-       echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."
-       exit 1;
-  fi
-
+  if ! ls $CAPNP_ROOT/c++/.libs/libcapnp-json* > /dev/null 2>&1; then 
+   echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."; 
+exit 1;
+fi
   
 
   cd $INSTALL_DIR
@@ -791,7 +790,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
-echo -e "\e[91m MADARA library did not build properly. If you are building for Android check out the link, https://github.com/jredmondson/gams/wiki/GAMS-Installation#android-troubleshooting \e[39m"
+echo -e "\e[91m MADARA library did not build properly. \e[39m"
     exit 1;
   fi
 

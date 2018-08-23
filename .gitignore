@@ -58,8 +58,10 @@ target/
 .project
 .settings
 
-#Capnproto files
-*.capnp.bin
-*.capnp.c++
-*.capnp.h
+blacklist
+whitelist
+*.bag
+src/gams/types/*.c++
+src/gams/types/*.h
+*.bin
 
