@@ -44,9 +44,6 @@
 #include "Point32.capnp.h"
 #include "ChannelFloat32.capnp.h"
 
-
-using namespace madara::knowledge;
-
 namespace gams
 {
   
@@ -55,45 +52,44 @@ namespace gams
 
     void register_all_datatypes()
     {
-        Any::register_type<CapnObject<DisparityImage> >("DisparityImage");
-      Any::register_type<CapnObject<GridCells> >("GridCells");
-      Any::register_type<CapnObject<OccupancyGrid> >("OccupancyGrid");
-      Any::register_type<CapnObject<Odometry> >("Odometry");
-      Any::register_type<CapnObject<Path> >("Path");
-      Any::register_type<CapnObject<PidState> >("PidState");
-      Any::register_type<CapnObject<VoxelGrid> >("VoxelGrid");
-      Any::register_type<CapnObject<Duration> >("Duration");
-      Any::register_type<CapnObject<Header> >("Header");
-      Any::register_type<CapnObject<Time> >("Time");
-      Any::register_type<CapnObject<BatteryState> >("BatteryState");
-      Any::register_type<CapnObject<CameraInfo> >("CameraInfo");
-      Any::register_type<CapnObject<CompressedImage> >("CompressedImage");
-      Any::register_type<CapnObject<FluidPressure> >("FluidPressure");
-      Any::register_type<CapnObject<Illuminance> >("Illuminance");
-      Any::register_type<CapnObject<Image> >("Image");
-      Any::register_type<CapnObject<Imu> >("Imu");
-      Any::register_type<CapnObject<JointState> >("JointState");
-      Any::register_type<CapnObject<Joy> >("Joy");
-      Any::register_type<CapnObject<LaserScan> >("LaserScan");
-      Any::register_type<CapnObject<MagneticField> >("MagneticField");
-      Any::register_type<CapnObject<PointCloud> >("PointCloud");
-      Any::register_type<CapnObject<PointCloud2> >("PointCloud2");
-      Any::register_type<CapnObject<PointField> >("PointField");
-      Any::register_type<CapnObject<Temperature> >("Temperature");
-      Any::register_type<CapnObject<TimeReference> >("TimeReference");
-      Any::register_type<CapnObject<RegionOfInterest> >("RegionOfInterest");
-      Any::register_type<CapnObject<Point> >("Point");
-      Any::register_type<CapnObject<MapMetaData> >("MapMetaData");
-      Any::register_type<CapnObject<Pose> >("Pose");
-      Any::register_type<CapnObject<Quaternion> >("Quaternion");
-      Any::register_type<CapnObject<PoseWithCovariance> >("PoseWithCovariance");
-      Any::register_type<CapnObject<TwistWithCovariance> >("TwistWithCovariance");
-      Any::register_type<CapnObject<Twist> >("Twist");
-      Any::register_type<CapnObject<Vector3> >("Vector3");
-      Any::register_type<CapnObject<PoseStamped> >("PoseStamped");
-      Any::register_type<CapnObject<Point32> >("Point32");
-      Any::register_type<CapnObject<ChannelFloat32> >("ChannelFloat32");
-           
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<DisparityImage> >("DisparityImage");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<GridCells> >("GridCells");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<OccupancyGrid> >("OccupancyGrid");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Odometry> >("Odometry");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Path> >("Path");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<PidState> >("PidState");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<VoxelGrid> >("VoxelGrid");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Duration> >("Duration");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Header> >("Header");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Time> >("Time");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<BatteryState> >("BatteryState");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<CameraInfo> >("CameraInfo");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<CompressedImage> >("CompressedImage");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<FluidPressure> >("FluidPressure");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Illuminance> >("Illuminance");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Image> >("Image");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Imu> >("Imu");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<JointState> >("JointState");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Joy> >("Joy");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<LaserScan> >("LaserScan");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<MagneticField> >("MagneticField");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<PointCloud> >("PointCloud");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<PointCloud2> >("PointCloud2");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<PointField> >("PointField");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Temperature> >("Temperature");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<TimeReference> >("TimeReference");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<RegionOfInterest> >("RegionOfInterest");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Point> >("Point");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<MapMetaData> >("MapMetaData");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Pose> >("Pose");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Quaternion> >("Quaternion");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<PoseWithCovariance> >("PoseWithCovariance");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<TwistWithCovariance> >("TwistWithCovariance");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Twist> >("Twist");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Vector3> >("Vector3");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<PoseStamped> >("PoseStamped");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<Point32> >("Point32");
+      madara::knowledge::Any::register_type<madara::knowledge::CapnObject<ChannelFloat32> >("ChannelFloat32"); 
     }
 
   }

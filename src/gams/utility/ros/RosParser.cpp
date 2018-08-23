@@ -5,17 +5,20 @@
  * This file contains parsing functionality for ROS topics
  **/
 #include "RosParser.h"
-
-namespace global_ros = ros;
+#include <cmath>
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
+  std::map<std::string, std::string> capnp_types,
+  std::map<std::string, int> circular_containers,
   knowledge::EvalSettings eval_settings, std::string frame_prefix) : 
   eval_settings_(eval_settings), frame_prefix_(frame_prefix)
 {
   world_frame_ = world_frame;
   base_frame_ = base_frame;
   knowledge_ = kb;
+  capnp_types_ = capnp_types;
+  circular_container_stats_ = circular_containers;
 
   if ( world_frame != "" )
   {
@@ -30,8 +33,17 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
 void gams::utility::ros::RosParser::parse_message (
   const rosbag::MessageInstance m, std::string container_name)
 {
+  //Update sim time before parsing
+  set_sim_time(m.getTime());
+  //Parse the message
+  std::string datatype = m.getDataType();
 
-  if (m.isType<nav_msgs::Odometry> ())
+  auto search = capnp_types_.find(datatype);
+  if (search != capnp_types_.end())
+  {
+    parse_any(m, container_name);
+  }
+  else if (m.isType<nav_msgs::Odometry> ())
   {
     parse_odometry (m.instantiate<nav_msgs::Odometry> ().get (),
         container_name);
@@ -242,6 +254,13 @@ void gams::utility::ros::RosParser::registerMessageDefinition(
   std::string definition)
 {
   parser_.registerMessageDefinition(topic_name, type, definition);
+}
+
+void gams::utility::ros::RosParser::registerRenamingRules(
+  RosIntrospection::ROSType type,
+  std::vector<RosIntrospection::SubstitutionRule> rules)
+{
+  parser_.registerRenamingRules(type, rules);
 }
 
 /**
@@ -711,3 +730,314 @@ std::string gams::utility::ros::ros_to_gams_name (std::string ros_topic_name)
 
   return topic;
 }
+
+void gams::utility::ros::RosParser::load_capn_schema(std::string path)
+{
+  int fd = open(path.c_str(), 0, O_RDONLY);
+  capnp::StreamFdMessageReader schema_message_reader(fd);
+  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+  for (auto schema : schema_reader.getNodes()) {
+    schemas_[schema.getDisplayName()] = capnp_loader_.load(schema);
+    std::cout << "    " << std::string(schema.getDisplayName()) << std::endl;
+  }
+}
+
+/*
+Searches for a given name in the schema builder and returns the new builder
+*/
+capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struct(
+  capnp::DynamicStruct::Builder builder,
+  std::string name)
+{
+  if (name == "")
+  {
+    return builder;
+  }
+  std::string n = name.substr(1);
+  std::istringstream f(n);
+  std::string s;
+  capnp::DynamicStruct::Builder dyn = builder;
+
+  while (getline(f, s, '/')) {
+    dyn = dyn.get(s).as<capnp::DynamicStruct>();
+  }
+  return dyn;
+}
+
+
+/*
+Sets the value of a specifiec schema member
+*/
+template <class T>
+void gams::utility::ros::RosParser::set_dyn_capnp_value(
+  capnp::DynamicStruct::Builder builder,
+  std::string name,
+  T val,
+  unsigned int array_size)
+{
+    //name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
+    //remove _ values from the name string and chang it to camelcase
+    std::stringstream camelcase;
+    for (unsigned int i = 0; i < name.size(); i++)
+    {
+      if (name[i] == '_')
+      {
+        camelcase.put(toupper(name[i + 1]));
+        i++;
+      }
+      else
+      {
+        if ( i == 0 )
+        {
+          // first character has to be lowercase
+          camelcase.put(tolower(name[i]));
+        }
+        else
+        {
+          camelcase.put(name[i]);
+        }
+      }
+    }
+    name = camelcase.str();
+
+    int struct_end = name.find_last_of("/");
+    std::string struct_name = name.substr(0,struct_end);
+    std::string var_name = name.substr(struct_end+1);
+
+    auto dynvalue = get_dyn_capnp_struct(builder, struct_name);
+
+    std::size_t dot_pos = var_name.find(".");
+    if (dot_pos != std::string::npos)
+    {
+      //This is a list
+      std::string var = var_name.substr(0, dot_pos);
+      int index = std::stoi(var_name.substr(dot_pos+1));
+      if (index == 0)
+      {
+        // First element so init
+        dynvalue.init(var, array_size);
+      }
+      auto lst = dynvalue.get(var).as<capnp::DynamicList>();
+      lst.set(index, val);
+    }
+    else
+    {
+      dynvalue.set(var_name, val);
+    }
+}
+
+
+/*
+  Determines the size of an ros introspection array
+*/
+template <class T>
+unsigned int gams::utility::ros::RosParser::get_array_size(std::string var_name,
+  std::vector<std::pair<std::string, T>> array)
+{
+  std::size_t dot_pos = var_name.find(".");
+  if (dot_pos == std::string::npos)
+  {
+    // This is no array
+    return 1;
+  }
+  std::string array_name = var_name.substr(0, dot_pos);
+
+  auto cached = ros_array_sizes_.find(array_name);
+  if (cached != ros_array_sizes_.end())
+  {
+    return cached->second;
+  }
+
+  unsigned int len = 0;
+  for ( auto it : array)
+  {
+    std::string key = it.first;
+    if (key.rfind(array_name, 0) == 0)
+    {
+      len++;
+    }
+  }
+  ros_array_sizes_[array_name] = len;
+  return len;
+}
+
+void gams::utility::ros::RosParser::parse_any ( std::string datatype,
+  std::string topic_name,
+  std::vector<uint8_t> & parser_buffer,
+  std::string container_name)
+{
+  std::string schema_name = capnp_types_[datatype];
+  capnp::MallocMessageBuilder buffer;
+  capnp::DynamicStruct::Builder capnp_builder;
+  try
+  {
+    auto schema = schemas_.at(schema_name).asStruct();
+    capnp_builder = buffer.initRoot<capnp::DynamicStruct>(schema);
+    madara::knowledge::Any::register_schema(schema_name.c_str(), schema);
+  }
+  catch(...)
+  {
+    std::cout << "Schema with name " << schema_name << "not found!" << std::endl;
+    exit(1);
+  }
+
+  RosIntrospection::FlatMessage& flat_container =
+    flat_containers_[topic_name];
+  RosIntrospection::RenamedValues& renamed_values =
+    renamed_vectors_[topic_name];
+
+  // deserialize and rename the vectors
+  bool success = parser_.deserializeIntoFlatContainer ( topic_name,
+  absl::Span<uint8_t> (parser_buffer),
+  &flat_container, 2048 );
+
+  if (!success)
+  {
+    std::cout << "Topic " << topic_name <<
+      " could not be parsed successfully due to large array sizes!" <<
+      std::endl;
+  }
+
+  parser_.applyNameTransform ( topic_name,
+    flat_container, &renamed_values );
+
+
+  // Save the content of the message to the knowledgebase
+  int topic_len = topic_name.length ();
+  for (auto it: renamed_values)
+  {
+    const std::string& key = it.first;
+    const RosIntrospection::Variant& value   = it.second;
+
+    int array_size = get_array_size(key, renamed_values);
+
+    std::string name = key.substr (topic_len);
+
+
+    double val = NAN;
+    try
+    {
+      val = value.convert<double> ();
+    }
+    catch ( const std::exception& e )
+    {
+      // Value is NAN if it is not readable
+    }
+    name = substitute_name(datatype, name);
+    set_dyn_capnp_value<double>(capnp_builder, name, val, array_size);
+    
+  }
+  for (auto it: flat_container.name)
+  {
+    const std::string& key    = it.first.toStdString ();
+    const std::string& value  = it.second;
+
+    int array_size = get_array_size(key, renamed_values);
+
+
+    auto val = strdup(value.c_str());
+    std::string name = key.substr (topic_len);
+    name = substitute_name(datatype, name);
+    set_dyn_capnp_value<char*>(capnp_builder, name, val, array_size);
+  }
+  ros_array_sizes_.clear();
+  madara::knowledge::GenericCapnObject any(schema_name.c_str(), buffer);
+
+  auto search = circular_container_stats_.find(container_name);
+  if (search != circular_container_stats_.end())
+  {
+    //This is var has to be a circular buffer
+    auto prod_search = circular_producers_.find(container_name);
+    madara::knowledge::containers::CircularBuffer c_buffer;
+    if (prod_search != circular_producers_.end())
+    {
+      // we already have a circular buffer producer
+      c_buffer = prod_search->second;
+    }
+    else
+    {
+      // we have to create a new producer
+      int buffer_size = search->second;
+      c_buffer = madara::knowledge::containers::CircularBuffer(container_name,
+        *knowledge_, buffer_size);
+    }
+    // add the value to the buffer
+    c_buffer.add(any);
+  }
+  else
+  {
+    knowledge_->set_any(container_name, any);
+  }
+}
+
+
+void gams::utility::ros::RosParser::parse_any (std::string topic,
+  const topic_tools::ShapeShifter & m,
+  std::string container_name)
+{
+  // write the message into the buffer
+  const size_t msg_size  = m.size ();
+  std::vector<uint8_t> parser_buffer;
+
+  parser_buffer.resize (msg_size);
+  global_ros::serialization::OStream stream (parser_buffer.data (),
+    parser_buffer.size ());
+  m.write (stream);
+
+  parse_any(m.getDataType(), topic, parser_buffer, container_name);
+}
+
+void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m,
+  std::string container_name)
+{
+  // write the message into the buffer
+  const std::string& topic  = m.getTopic ();
+
+  const size_t msg_size  = m.size ();
+  std::vector<uint8_t> parser_buffer;
+
+  parser_buffer.resize (msg_size);
+  global_ros::serialization::OStream stream (parser_buffer.data (),
+    parser_buffer.size ());
+  m.write (stream);
+
+  parse_any(m.getDataType(), topic, parser_buffer, container_name);
+}
+
+void gams::utility::ros::RosParser::set_sim_time(global_ros::Time rostime)
+{
+  #ifdef MADARA_FEATURE_SIMTIME
+  uint64_t sim_time = rostime.sec * 1e9 + rostime.nsec;
+  madara::utility::sim_time_notify(sim_time, 0.0);
+  #endif
+}
+
+void gams::utility::ros::RosParser::register_rename_rules( std::map<std::string,
+  std::map<std::string, std::string>> name_substitution_map)
+{
+  name_substitution_map_ = std::move(name_substitution_map);
+}
+
+std::string gams::utility::ros::RosParser::substitute_name(std::string type,
+  std::string name)
+{
+  std::vector<std::string> values = {type, "general"};
+  for (std::string it : values)
+  {
+    auto search = name_substitution_map_.find (it);
+    if (search != name_substitution_map_.end ())
+    {
+      std::map <std::string, std::string> name_map = search->second;
+      auto name_search = name_map.find (name);
+      if (name_search != name_map.end ())
+      {
+        return name_search->second;
+      }
+    }
+  }
+  return name;
+}
+
+
+
+

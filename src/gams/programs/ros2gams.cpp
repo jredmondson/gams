@@ -9,8 +9,13 @@
 #include <string>
 #include <fstream>
 
+#include "boost/filesystem.hpp"
+#include "yaml-cpp/yaml.h"
+
+
 #include "madara/logger/GlobalLogger.h"
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/CheckpointStreamer.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/containers/NativeIntegerVector.h"
 #include "madara/knowledge/containers/Double.h"
@@ -55,13 +60,11 @@
 #include <tf2_msgs/TFMessage.h>
 #include <std_msgs/String.h>
 
+
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif
 
-
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include <boost/foreach.hpp>
 
 namespace logger = madara::logger;
 namespace knowledge = madara::knowledge;
@@ -82,10 +85,17 @@ std::string checkpoint_prefix = "checkpoint_";
 // path to the filter definition file
 std::string map_file = "";
 
+//path to the checkpoint stream file
+std::string stream_file = "";
+
 // save as a karl or binary file
 bool save_as_karl = false;
 bool save_as_json = false;
 bool save_as_binary = false;
+bool save_as_stream = false;
+
+//Buffer size
+int write_buffer_size = 10240000;
 
 // the world and the base frame of the robot
 std::string base_frame = "";
@@ -98,9 +108,12 @@ int checkpoint_frequency = 0;
 bool differential_checkpoints = false;
 bool same_file = false;
 
+// Delete existing files
+bool delete_existing = false;
 
 
-
+//Function definitions
+void delete_existing_file(std::string path, bool delete_existing);
 int save_checkpoint (knowledge::KnowledgeBase *knowledge,
   knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
 std::string get_agent_var_prefix (std::string ros_topic_name);
@@ -126,7 +139,19 @@ void handle_arguments (int argc, char ** argv)
     }
     else if (arg1 == "-m" || arg1 == "--map-file")
     {
-      map_file = argv[i + 1];
+      if (i + 1 < argc)
+      {
+        map_file = argv[i + 1];
+      }
+      i++;
+    }
+    else if (arg1 == "-stk" || arg1 == "--stream")
+    {
+      if (i + 1 < argc)
+      {
+        stream_file = argv[i + 1];
+        save_as_stream = true;
+      }
       i++;
     }
     else if (arg1 == "-rp" || arg1 == "--ros-robot-prefix")
@@ -155,10 +180,23 @@ void handle_arguments (int argc, char ** argv)
       differential_checkpoints = true;
       same_file = true;
     }
+    else if (arg1 == "-de" || arg1 == "--delete-existing")
+    {
+      delete_existing = true;
+    }
     else if (arg1 == "-y" || arg1 == "--frequency")
     {
       checkpoint_frequency = std::stoi(argv[i + 1]);
       i++;
+    }
+    else if (arg1 == "-ss" || arg1 == "--save-size")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream buffer (argv[i + 1]);
+        buffer >> write_buffer_size;
+      }
+      ++i;
     }
     else if (arg1 == "-h" || arg1 == "--help")
     {
@@ -184,11 +222,14 @@ void handle_arguments (int argc, char ** argv)
       "                                       only for binary checkpoints\n" \
       "  [-c|--continuous]                    differential checkpoints\n" \
       "                                       continuously stored in the same \n" \
-      "                                       file - only for binary checkpoints\n";
+      "                                       file - only for binary checkpoints\n" \
+      "  [-ss|--save-size bytes]              size of buffer needed for file saves\n" \
+      "  [-stk|--stream file]                 stream checkpoints to file\n"\
+      "  [-de|--delete-existing]              delete existing output files\n";
       exit (0);
     }
   }
-  if ( !save_as_binary && !save_as_json && !save_as_karl)
+  if ( !save_as_binary && !save_as_json && !save_as_karl && !save_as_stream)
   {
     // if no output format is selected -> save in karl format
     save_as_karl = true;
@@ -210,49 +251,89 @@ int main (int argc, char ** argv)
   // Read the bag
   rosbag::Bag bag;
   bag.open (rosbag_path, rosbag::bagmode::Read);
-
+  
   rosbag::View view;
   std::map<std::string,std::string> topic_map;
+  std::vector<std::string> schema_files;
+  std::map<std::string, std::string> schema_map;
+  std::map<std::string, int> circular_variables;
+  std::map<std::string, std::map<std::string, std::string>> name_substitution_map;
+
 
   // Use mapfile to filter topics
   if (map_file != "")
   {
     std::vector<std::string> selected_topics;
-    std::string line;
-    std::ifstream myfile (map_file);
-    if (myfile.is_open ())
+
+    YAML::Node config = YAML::LoadFile(map_file);
+    if (config["frames"])
     {
-      while ( getline (myfile, line) )
-      {
-        int ros_topic_end = line.find (" ");
-        //split the line in topic name and madara var name
-        std::string topic_name = line.substr (0, ros_topic_end);
-        std::string var_name = line.substr (ros_topic_end+1);
-        if (topic_name == "base_frame:")
-        {
-          // definition of the base_frame
-          base_frame = var_name;
-              std::replace ( base_frame.begin (), base_frame.end (), '/', '_');
-
-          std::cout << "Base frame: " << base_frame << std::endl;
-        }
-        else if (topic_name == "world_frame:")
-        {
-          // definition of the world_frame
-          world_frame = var_name;
-          std::replace (
-            world_frame.begin (), world_frame.end (), '/', '_');
-
-          std::cout << "World frame: " << world_frame << std::endl;
-        }
-        else
-        {
-          selected_topics.push_back (topic_name);
-          topic_map[topic_name] = var_name;
-        }
-      }
-      myfile.close ();
+      base_frame = config["frames"]["base_frame"].as<std::string>();
+      world_frame = config["frames"]["world_frame"].as<std::string>();
+      std::replace ( base_frame.begin (), base_frame.end (), '/', '_');
+      std::replace ( world_frame.begin (), world_frame.end (), '/', '_');
+      std::cout << "Base frame: " << base_frame << std::endl;
+      std::cout << "World frame: " << world_frame << std::endl;
     }
+    if (config["topics"])
+    {
+      for(YAML::const_iterator it=config["topics"].begin();
+          it!=config["topics"].end(); ++it)
+      {
+        
+        std::string topic_name = it->first.as<std::string>();
+        std::string var_name = it->second["name"].as<std::string>();
+        if (it->second["circular_buffer_size"])
+        {
+          // This variable will be a circular buffer
+          circular_variables[var_name] =
+            it->second["circular_buffer_size"].as<int>();
+        }
+
+        selected_topics.push_back (topic_name);
+        topic_map[topic_name] = var_name;
+      }
+    }
+
+    // the schema files
+    if (config["capnp_schemas"])
+    {
+      for (YAML::const_iterator it=config["capnp_schemas"].begin();
+           it!=config["capnp_schemas"].end();++it)
+      {
+        schema_files.push_back(it->as<std::string>());
+      }
+    }
+
+    // capnproto schema mappings
+    if (config["schema_map"])
+    {
+      for(YAML::const_iterator it=config["schema_map"].begin();
+          it!=config["schema_map"].end(); ++it)
+      {
+        std::string ros_type = it->first.as<std::string>();
+        std::string schema_name = it->second.as<std::string>();
+        schema_map[ros_type] = schema_name;
+      }
+    }
+
+    // simple renameing of message members
+    if (config["name_substitution"])
+    {
+      for(YAML::const_iterator type_it=config["name_substitution"].begin();
+          type_it!=config["name_substitution"].end(); ++type_it)
+      {
+        std::string ros_type = type_it->first.as<std::string>();
+        std::map<std::string, std::string> subst;
+        for(YAML::const_iterator elem_it=type_it->second.begin();
+                  elem_it!=type_it->second.end(); ++elem_it)
+        {
+          subst[elem_it->first.as<std::string>()] = elem_it->second.as<std::string>();
+        }
+        name_substitution_map[ros_type] = subst;
+      }
+    }
+
     rosbag::TopicQuery topics (selected_topics);
     view.addQuery (bag, topics);
   }
@@ -288,8 +369,10 @@ int main (int argc, char ** argv)
     ++i;
   }
 
-  //Prepare the parser to be able to introspect unknown types
-  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame);
+  gams::utility::ros::RosParser parser(&kb, world_frame, base_frame,
+    schema_map, circular_variables);
+
+  // Register ros message types to prepare the parser's introspection features
   for (const rosbag::ConnectionInfo* connection: view.getConnections () )
   {
     const std::string  topic_name =  connection->topic;
@@ -300,12 +383,25 @@ int main (int argc, char ** argv)
       RosIntrospection::ROSType (datatype), definition);
   }
 
+  /*std::vector<RosIntrospection::SubstitutionRule> rules;
+  rules.push_back( RosIntrospection::SubstitutionRule("angle_min", "angle_min", "aaa@") );
+  parser.registerRenamingRules( RosIntrospection::ROSType ("sensor_msgs/LaserScan"), rules);*/
+  // Name substitution
+  parser.register_rename_rules(name_substitution_map);
+
+  // Load the capnproto schemas
+  std::cout << "Loading schemas..." << std::endl;
+  for (std::string path : schema_files)
+  {
+    parser.load_capn_schema(madara::utility::expand_envs(path));
+  }
+
   // Iterate the messages
   settings.initial_lamport_clock = 0;
   settings.last_lamport_clock = 0;
   settings.override_lamport = true;
   settings.override_timestamp = true;
-  settings.buffer_size = 10240000;
+  settings.buffer_size = write_buffer_size;
 
   uint64_t last_checkpoint_timestamp = 0;
 
@@ -317,6 +413,19 @@ int main (int argc, char ** argv)
     checkpoint_intervall = checkpoint_intervall / checkpoint_frequency;
     std::cout << "\nCreating a checkpoint each " <<
       (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
+  }
+
+  // Attach streaming
+  if (save_as_stream)
+  {
+    madara::knowledge::CheckpointSettings stream_settings;
+    stream_settings.filename = stream_file + ".stk";
+    delete_existing_file(stream_settings.filename, delete_existing);
+
+    //kb.attach_streamer(std::move(stream_settings), kb, 100);
+    //Todo: above is from the doc - below is from the tests
+    kb.attach_streamer(madara::utility::mk_unique<
+      madara::knowledge::CheckpointStreamer>(stream_settings, kb));
   }
 
   // Iterate through all topics in the bagfile
@@ -341,6 +450,7 @@ int main (int argc, char ** argv)
         gams::utility::ros::ros_to_gams_name (topic);
     }
     parser.parse_message (m, container_name);
+
 
     //kb.print ();
     std::stringstream id_ss;
@@ -435,18 +545,22 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
   if ( save_as_karl )
   {
     settings->filename = filename + ".mf";
+    delete_existing_file(settings->filename, delete_existing);
     ret = knowledge->save_as_karl (*settings);
   }
   
   if ( save_as_json )
   {
     settings->filename = filename + ".json";
+    delete_existing_file(settings->filename, delete_existing);
     ret = knowledge->save_as_json (*settings);
   }
   
   if ( save_as_binary )
   {
     settings->filename = filename + ".kb";
+    delete_existing_file(settings->filename, delete_existing);
+
     if ( differential_checkpoints == true)
     {
       ret = knowledge->save_checkpoint (*settings);
@@ -485,4 +599,16 @@ std::string get_agent_var_prefix (std::string ros_topic_name)
   }
 }
 
+
+void delete_existing_file(std::string path, bool delete_existing)
+{
+  if (!delete_existing)
+  {
+    return;
+  }
+  if (boost::filesystem::is_regular_file(path))
+  {
+    boost::filesystem::remove(path);
+  }
+}
 

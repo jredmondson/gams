@@ -1,0 +1,29 @@
+project {
+  includes += $(CAPNP_ROOT)/c++/src
+  libpaths += $(CAPNP_ROOT)/c++/.libs
+
+  libs += capnp
+  libs += capnpc
+  libs += capnp-json
+  libs += kj
+
+  Define_Custom (CAPN) {
+    command = bash -c "capnp compile -I \$$CAPNP_ROOT/c++/src -oc++ \$$0;\
+capnp compile -I \$$CAPNP_ROOT/c++/src -o/bin/cat \$$0 > \$$0.bin"
+    inputext = .capnp
+    source_outputext = .capnp.c++
+    header_outputext = .capnp.h
+    generic_outputext = .capnp.bin
+    automatic_out = 1
+  }
+
+  specific(prop:microsoft) {
+    DisableSpecificWarnings += 4005 4251 4275 4244
+    macros += _CRT_SECURE_NO_WARNINGS
+  }
+
+  verbatim(make, top) {
+    # Suppress implicit make rules
+    .SUFFIXES:
+  }
+}
