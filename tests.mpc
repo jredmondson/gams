@@ -338,11 +338,6 @@ project (test_ros2gams) : using_madara, using_ros, using_gams, using_capnp, usin
   }
 
   Header_Files {
-    tests/capnfiles
-  }
-
-  CAPN_Files {
-    tests/capnfiles
   }
 
   Source_Files {
