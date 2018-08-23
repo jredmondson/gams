@@ -370,24 +370,3 @@ project (test_rosbridge) : using_madara, using_ros, using_gams {
   }
 }
 
-project (test_types) : using_madara, using_gams, using_capnp, using_boost {
-  exeout = $(GAMS_ROOT)/bin
-  exename = test_types
-
-  libs += boost_system boost_filesystem
-
-  macros +=  _USE_MATH_DEFINES
-
-  Documentation_Files {
-  }
-
-  Header_Files {
-  }
-
-  Source_Files {
-    tests/test_types.cpp
-  }
-}
-
-
-
