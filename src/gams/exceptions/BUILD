@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
-    name = "pose",
+    name = "exceptions",
     srcs = glob([
         "*.cpp",
         "**/*.h",
@@ -10,14 +10,9 @@ cc_library(
         "*.h",
         "*.inl",
     ]),
-    include_prefix = "gams/pose",
+    include_prefix = "gams/exceptions",
     textual_hdrs = glob(["*.inl"]),
     deps = [
-        "@com_bitbucket_eigen3//:eigen",
         "@gams//:gams_base",
-        "@gams//src/gams/exceptions",
-        "@gams//src/gams/loggers",
-        "@gams//src/gams/utility:containerize",
-        "@madara",
     ],
 )
