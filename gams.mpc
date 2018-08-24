@@ -193,8 +193,9 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
 
     src/gams
   }
-}
 
+
+}
 
 project (gams_controller) : using_gams, using_madara, using_vrep {
   exeout = $(GAMS_ROOT)/bin
@@ -237,5 +238,25 @@ project (ros2gams) : using_madara, using_ros, using_gams {
 
   Source_Files {
     src/gams/programs/ros2gams.cpp
+  }
+}
+
+project (types) : using_madara, using_capnp {
+  requires += types
+
+  libout = lib
+  libout = $(GAMS_ROOT)/lib
+  sharedname = TYPES
+
+  CAPN_Files {
+    src/gams/types
+  }
+
+  Header_Files {
+    src/gams/types
+  }
+
+  Source_Files {
+    src/gams/types
   }
 }
