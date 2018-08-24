@@ -67,10 +67,6 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
       src/gams/pose
     }
 
-    Types {
-      src/gams/types
-    }
-
     Utility {
       src/gams/utility
     }
@@ -127,10 +123,6 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_vrep, vr
 
     Pose {
       src/gams/pose
-    }
-
-    Types {
-      src/gams/types
     }
 
     Utility {
