@@ -1,4 +1,4 @@
-project (gams) : build_files, using_madara, using_utm, using_ros, using_simtime, using_capnp, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
+project (gams) : using_capnp, build_files, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -13,9 +13,6 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_simtime,
 	  port/java
   }
 
-  CAPN_Files {
-      src/gams/types
-  }
 
   Documentation_Files {
     INSTALL.txt

@@ -312,7 +312,8 @@ int main (int argc, char ** argv)
           it!=config["schema_map"].end(); ++it)
       {
         std::string ros_type = it->first.as<std::string>();
-        std::string schema_name = it->second.as<std::string>();
+        std::string schema_name = 
+          gams::utility::ros::cleanCapnpSchemaName(it->second.as<std::string>());
         schema_map[ros_type] = schema_name;
       }
     }
@@ -390,11 +391,11 @@ int main (int argc, char ** argv)
   parser.register_rename_rules(name_substitution_map);
 
   // Load the capnproto schemas
-  std::cout << "Loading schemas..." << std::endl;
   for (std::string path : schema_files)
   {
     parser.load_capn_schema(madara::utility::expand_envs(path));
   }
+  parser.print_schemas();
 
   // Iterate the messages
   settings.initial_lamport_clock = 0;

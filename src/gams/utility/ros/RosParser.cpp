@@ -733,12 +733,28 @@ std::string gams::utility::ros::ros_to_gams_name (std::string ros_topic_name)
 
 void gams::utility::ros::RosParser::load_capn_schema(std::string path)
 {
-  int fd = open(path.c_str(), 0, O_RDONLY);
-  capnp::StreamFdMessageReader schema_message_reader(fd);
-  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
-  for (auto schema : schema_reader.getNodes()) {
-    schemas_[schema.getDisplayName()] = capnp_loader_.load(schema);
-    std::cout << "    " << std::string(schema.getDisplayName()) << std::endl;
+  try{
+    int fd = open(path.c_str(), 0, O_RDONLY);
+    capnp::StreamFdMessageReader schema_message_reader(fd);
+    auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+  
+    for (auto schema : schema_reader.getNodes()) {
+      std::string schema_name = cleanCapnpSchemaName (schema.getDisplayName());
+      schemas_[schema_name] = capnp_loader_.load(schema);
+    }
+  }
+  catch(...)
+  {
+    std::cout << "Could not load schema " << path << "!" << std::endl;
+  }
+}
+
+void gams::utility::ros::RosParser::print_schemas()
+{
+  std::cout << "Available schemas: " << std::endl;
+  for (auto schema : schemas_)
+  {
+    std::cout << "- " << schema.first << std::endl;
   }
 }
 
@@ -804,25 +820,37 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
     std::string struct_name = name.substr(0,struct_end);
     std::string var_name = name.substr(struct_end+1);
 
+    //Members start with lower case so set this for the varname
+    var_name[0] = tolower(var_name[0]);
+
     auto dynvalue = get_dyn_capnp_struct(builder, struct_name);
 
     std::size_t dot_pos = var_name.find(".");
-    if (dot_pos != std::string::npos)
+
+    try
     {
-      //This is a list
-      std::string var = var_name.substr(0, dot_pos);
-      int index = std::stoi(var_name.substr(dot_pos+1));
-      if (index == 0)
+      if (dot_pos != std::string::npos)
       {
-        // First element so init
-        dynvalue.init(var, array_size);
+        //This is a list
+        std::string var = var_name.substr(0, dot_pos);
+        int index = std::stoi(var_name.substr(dot_pos+1));
+        if (index == 0)
+        {
+          // First element so init
+          dynvalue.init(var, array_size);
+        }
+        auto lst = dynvalue.get(var).as<capnp::DynamicList>();
+        lst.set(index, val);
       }
-      auto lst = dynvalue.get(var).as<capnp::DynamicList>();
-      lst.set(index, val);
+      else
+      {
+          dynvalue.set(var_name, val);
+      }
     }
-    else
+    catch(kj::Exception ex)
     {
-      dynvalue.set(var_name, val);
+      std::cout << "Failed to set " << var_name << " in struct " <<
+        struct_name << "! (" << std::string(ex.getDescription()) << ")" << std::endl;
     }
 }
 
