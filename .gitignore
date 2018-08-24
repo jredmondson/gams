@@ -56,3 +56,15 @@ target/
 .project
 .settings
 
+blacklist
+whitelist
+*.bag
+src/gams/types/*.c++
+src/gams/types/*.h
+!src/gams/types/Datatypes.h
+*.bin
+*.tar.gz
+vrep/
+capnproto/
+MPC/
+

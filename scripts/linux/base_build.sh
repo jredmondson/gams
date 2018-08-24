@@ -97,6 +97,7 @@ PYTHON=0
 CLEAN=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
+TYPES=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -148,6 +149,8 @@ do
     PREREQS=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
+  elif [ "$var" = "types" ]; then
+    TYPES=1
   elif [ "$var" = "vrep-config" ]; then
     VREP_CONFIG=1
   elif [ "$var" = "java" ]; then
@@ -209,6 +212,7 @@ do
     echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
+    echo "  types           builds libTYPES.so"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
@@ -883,8 +887,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
 
   if [ $JAVA -eq 1 ]; then
     # sometimes the jar'ing will occur before all classes are actually built when performing
@@ -893,10 +897,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
-  make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
-  echo "make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
-  make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  echo "make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
+  make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  echo "make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
+  make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   GAMS_BUILD_RESULT=$?
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
