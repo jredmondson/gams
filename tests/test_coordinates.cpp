@@ -4,12 +4,38 @@
 #include <math.h>
 #include "gams/pose/Position.h"
 #include "gams/pose/CartesianFrame.h"
+#include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/GPSFrame.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "gams/exceptions/ReferenceFrameException.h"
 
 using namespace gams::pose;
 namespace exceptions = gams::exceptions;
+
+#define LOG(expr) \
+  std::cout << __LINE__ << ": " << #expr << " == " << (expr) << std::endl
+
+#define EXPECT_EXCEPTION(exception_type, expr) \
+  try { \
+    (expr); \
+    std::stringstream message; \
+    message << "FAIL    : "; \
+    message << #expr; \
+    message << " did not throw "; \
+    message << #exception_type; \
+    message << std::endl; \
+    LOG(message.str()); \
+    gams_fails++; \
+  } catch (exception_type e) { \
+    std::stringstream message; \
+    message << "SUCCESS : "; \
+    message << #expr; \
+    message << " threw "; \
+    message << #exception_type; \
+    message << std::endl; \
+    LOG(message.str()); \
+  }
+
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.01;
@@ -19,9 +45,6 @@ double round_nearest(double in)
 {
   return floor(in + 0.5);
 }
-
-#define LOG(expr) \
-  std::cout << __LINE__ << ": " << #expr << " == " << (expr) << std::endl
 
 #define TEST_EQ(expr, expect) \
   do {\
@@ -298,6 +321,11 @@ int main(int, char *[])
 
   std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
   std::vector<ReferenceFrame> frames;
+
+  // Test a direct call of load_exact, expect it to throw
+  // Disabled test for now since load_exact(...) is not accessable because it is in an anonymous namespace
+  //EXPECT_EXCEPTION(exceptions::ReferenceFrameException, gams::pose::load_exact(kb, ids, 1000, -1, FrameEvalSettings::DEFAULT))
+
   try {
     frames = ReferenceFrame::load_tree(kb, ids, 1000);
 

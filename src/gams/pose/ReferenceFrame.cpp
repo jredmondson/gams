@@ -406,6 +406,7 @@ namespace gams
       }
     }
 
+
     ReferenceFrame ReferenceFrameVersion::load_exact(
           KnowledgeBase &kb,
           const std::string &id,
@@ -413,17 +414,36 @@ namespace gams
           uint64_t parent_timestamp,
           const FrameEvalSettings &settings)
     {
+
+      ReferenceFrame frame = load_exact_internal(kb, id, timestamp, parent_timestamp, settings, true);
+
+      return frame;
+    }
+
+
+    ReferenceFrame ReferenceFrameVersion::load_exact_internal(
+          KnowledgeBase &kb,
+          const std::string &id,
+          uint64_t timestamp,
+          uint64_t parent_timestamp,
+          const FrameEvalSettings &settings,
+          bool throwOnErrors)
+    {
       ContextGuard guard(kb);
 
       auto ret = load_single(kb, id, timestamp, settings);
       if (!ret.first) {
-        std::stringstream message;
-        message << "pose::load_exact: ";
-        message << id;
-        message << " not first";
-        message << std::endl;
-        throw exceptions::ReferenceFrameException(message.str());
-        //return ReferenceFrame();
+        if (throwOnErrors == true) {
+          std::stringstream message;
+          message << "pose::load_exact: ";
+          message << id;
+          message << " not first";
+          message << std::endl;
+          throw exceptions::ReferenceFrameException(message.str());
+        }
+        else {
+          return ReferenceFrame();
+        }
       }
 
       ReferenceFrame frame(std::move(ret.first));
@@ -444,8 +464,12 @@ namespace gams
           message << "Couldn't find ";
           message << parent_frame;
           message << std::endl;
-          throw exceptions::ReferenceFrameException(message.str());
-          //return ReferenceFrame();
+          if (throwOnErrors == true) {
+            throw exceptions::ReferenceFrameException(message.str());
+          }
+          else {
+            return ReferenceFrame();
+          }
         }
         frame.impl_->mut_origin().frame(parent);
       }
@@ -466,6 +490,7 @@ namespace gams
       frame.impl_->ident().register_version(timestamp, frame.impl_);
       return frame;
     }
+
 
     namespace {
       uint64_t timestamp_from_key(const char *key)
@@ -590,12 +615,12 @@ namespace gams
         timestamp = latest_timestamp(kb, id, settings);
       }
 
-      ReferenceFrame ret = load_exact(kb, id, timestamp, timestamp, settings);
+      ReferenceFrame ret = load_exact_internal(kb, id, timestamp, timestamp, settings, false);
       if (ret.valid()) {
         return ret;
       }
 
-      ret = load_exact(kb, id, -1, timestamp, settings);
+      ret = load_exact_internal(kb, id, -1, timestamp, settings, false);
       if (ret.valid()) {
         return ret;
       }
