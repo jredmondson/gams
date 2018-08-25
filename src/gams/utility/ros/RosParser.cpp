@@ -844,7 +844,15 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
       }
       else
       {
-          dynvalue.set(var_name, val);
+          if (dynvalue.asReader().get(var_name).getType() == capnp::DynamicValue::BOOL)
+          {
+            bool bool_val = (bool) val;
+            dynvalue.set(var_name, bool_val);
+          }
+          else
+          {
+            dynvalue.set(var_name, val);
+          }
       }
     }
     catch(kj::Exception ex)

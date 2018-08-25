@@ -22,6 +22,7 @@
 #include "gams/utility/ros/RosParser.cpp"
 #include "std_msgs/Header.h"
 #include "nav_msgs/Odometry.h"
+#include "sensor_msgs/RegionOfInterest.h"
 
 const double TEST_epsilon = 0.0001;
 int gams_fails = 0;
@@ -186,7 +187,7 @@ void test_any_point()
 
 	// The parser
 	std::map<std::string, std::string> typemap;
-	typemap["geometry_msgs/Point"] = "src/gams/types/Point.capnp:Point";
+	typemap["geometry_msgs/Point"] = "Point";
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
@@ -203,6 +204,7 @@ void test_any_point()
 	auto point_schema_path = madara::utility::expand_envs(
 		"$(GAMS_ROOT)/src/gams/types/Point.capnp.bin");
 	parser.load_capn_schema(point_schema_path);
+  parser.print_schemas();
 
 	// parse to capnp format
 	parser.parse_any(topic_name, shape_shifter, container_name);
@@ -226,6 +228,86 @@ void test_any_point()
 	TEST(capn_point2.getX(), x);
 	TEST(capn_point2.getY(), y);
 	TEST(capn_point2.getZ(), z);
+}
+
+void test_any_bool()
+{
+	// This tests configures the parser so that Odometry messages are stored
+	// into capnproto any types.
+
+	std::cout << std::endl << std::endl << "test_any_bool" << std::endl << std::endl;
+
+	std::string container_name = "thisisatest";
+
+	sensor_msgs::RegionOfInterest roi;
+	
+
+	//set the position
+  roi.x_offset = 10;
+  roi.y_offset = 11;
+  roi.height = 12;
+  roi.width = 13;
+  roi.do_rectify = true;
+
+
+	// transform to shapeshifter object
+	topic_tools::ShapeShifter shape_shifter;
+  shape_shifter.morph(
+      ros::message_traits::MD5Sum<sensor_msgs::RegionOfInterest>::value(),
+      ros::message_traits::DataType<sensor_msgs::RegionOfInterest>::value(),
+      ros::message_traits::Definition<sensor_msgs::RegionOfInterest>::value(),
+      "" );
+
+  std::vector<uint8_t> buffer;
+	serialize_message_to_array(roi, buffer);
+  ros::serialization::OStream stream( buffer.data(), buffer.size() );
+  shape_shifter.read( stream );
+
+
+	// The parser
+	std::map<std::string, std::string> typemap;
+	typemap["sensor_msgs/RegionOfInterest"] = "RegionOfInterest";
+
+	knowledge::KnowledgeBase knowledge;
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+
+  // register the type using the topic_name as identifier. This allows us to
+	// use RosIntrospection
+  const std::string  topic_name =  "roi";
+  const std::string  datatype   =  shape_shifter.getDataType();
+  const std::string  definition =  shape_shifter.getMessageDefinition();
+  parser.registerMessageDefinition (topic_name,
+      RosIntrospection::ROSType (datatype), definition);
+
+	// Load the schemas from disk
+	auto point_schema_path = madara::utility::expand_envs(
+		"$(GAMS_ROOT)/src/gams/types/RegionOfInterest.capnp.bin");
+	parser.load_capn_schema(point_schema_path);
+  parser.print_schemas();
+
+	// parse to capnp format
+	parser.parse_any(topic_name, shape_shifter, container_name);
+
+	knowledge.print();
+
+	madara::knowledge::GenericCapnObject any = knowledge.get(container_name).to_any<madara::knowledge::GenericCapnObject>();
+
+	int fd = open(point_schema_path.c_str(), 0, O_RDONLY);
+  capnp::StreamFdMessageReader schema_message_reader(fd);
+  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+  capnp::SchemaLoader loader;
+	
+	std::map<std::string, capnp::Schema> schemas;
+  for (auto schema : schema_reader.getNodes()) {
+    schemas[gams::utility::ros::cleanCapnpSchemaName(schema.getDisplayName())] =
+			loader.load(schema);
+  }
+	auto capn_roi = any.reader(schemas[typemap["sensor_msgs/RegionOfInterest"]].asStruct());
+
+	TEST(capn_roi.get("doRectify").as<bool>(), true);
+
+	auto capn_roi2 = any.reader<gams::types::RegionOfInterest>();
+	TEST(capn_roi2.getDoRectify(), true);
 }
 
 void test_any_odom()
@@ -280,7 +362,7 @@ void test_any_odom()
 
 	// The parser
 	std::map<std::string, std::string> typemap;
-	typemap["nav_msgs/Odometry"] = "src/gams/types/Odometry.capnp:Odometry";
+	typemap["nav_msgs/Odometry"] = "Odometry";
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
@@ -297,6 +379,7 @@ void test_any_odom()
 	auto path = madara::utility::expand_envs(
 		"$(GAMS_ROOT)/src/gams/types/Odometry.capnp.bin");
 	parser.load_capn_schema(path);
+  parser.print_schemas();
 
 	// parse to capnp format
 	parser.parse_any(topic_name, shape_shifter, container_name);
@@ -313,7 +396,8 @@ void test_any_odom()
 	std::map<std::string, capnp::Schema> schemas;
 
   for (auto schema : schema_reader.getNodes()) {
-    schemas[schema.getDisplayName()] = loader.load(schema);
+    schemas[gams::utility::ros::cleanCapnpSchemaName(schema.getDisplayName())] =
+			loader.load(schema);
   }
 	auto capn_odom = any.reader(schemas[typemap["nav_msgs/Odometry"]].asStruct());
 
@@ -348,8 +432,9 @@ int main (int, char **)
 {
 	std::cout << "Testing ros2gams" << std::endl;
 	//test_pose();
-	//test_tf_tree();		
+	//test_tf_tree();
 	test_any_point();
+	test_any_bool();
 	test_any_odom();
 
   if (gams_fails > 0)
