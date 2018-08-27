@@ -790,7 +790,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
-echo -e "\e[91m MADARA library did not build properly. \e[39m"
+    echo -e "\e[91m MADARA library did not build properly. \e[39m"
     exit 1;
   fi
 
