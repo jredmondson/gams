@@ -1,0 +1,11 @@
+feature (types) {
+   macros += _GAMS_TYPES_
+
+   includes += $(CAPNP_ROOT)/c++/src
+   includes += $(GAMS_ROOT)/src/gams/types/
+
+   libpaths += $(CAPNP_ROOT)/c++/.libs
+   libpaths += $(GAMS_ROOT)/lib
+
+   libs += TYPES capnp capnpc capnp-json kj
+}
