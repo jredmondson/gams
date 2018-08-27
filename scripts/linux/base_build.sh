@@ -890,6 +890,11 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc"
   perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
 
+  if [ $TYPES -eq 1 ]; then
+    # Strip the unnecessary NOTPARALLEL: directives
+    sed -i '/\.NOTPARALLEL:/d' Makefile.types
+  fi
+
   if [ $JAVA -eq 1 ]; then
     # sometimes the jar'ing will occur before all classes are actually built when performing
     # multi-job builds, fix by deleting class files and recompiling with single build job
