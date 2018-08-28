@@ -334,6 +334,7 @@ project (test_ros2gams) : using_madara, using_ros, using_gams, using_capnp, usin
   libs += rostime
   libs += rosbag
   libs += rosbag_storage
+  libs += TYPES
 
   Documentation_Files {
   }
