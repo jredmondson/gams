@@ -323,11 +323,8 @@ project (test_ros2gams) : using_madara, using_ros, using_gams, using_capnp, usin
 
   requires += ros
   requires += tests
+  requires += types
 
-
-  CAPN_Files {
-      src/gams/types
-  }
 
   macros +=  _USE_MATH_DEFINES
 
