@@ -24,10 +24,9 @@
 
 int gams_fails = 0;
 
-using namespace madara;
-using namespace knowledge;
+namespace knowledge = madara::knowledge;
 
-KnowledgeBase k;
+knowledge::KnowledgeBase k;
 
 template<typename... Args>
 inline void log(Args&&... args) {
@@ -85,10 +84,10 @@ void test_scan()
    //scan.setRanges(ranges.asReader());
 
    // Setting to KB
-   k.set_any("scan", CapnObject<gams::types::LaserScan>(scan_b));
+   k.set_any("scan", madara::knowledge::CapnObject<gams::types::LaserScan>(scan_b));
 
    // Retrieving from KB
-   CapnObject<gams::types::LaserScan> k_scan = k.get("scan").to_any<CapnObject<gams::types::LaserScan> >();
+   madara::knowledge::CapnObject<gams::types::LaserScan> k_scan = k.get("scan").to_any<madara::knowledge::CapnObject<gams::types::LaserScan> >();
 
    TEST_EQ(k_scan.reader().getAngleMin(), 0);
    TEST_GT((k_scan.reader().getAngleMax() - M_PI), 0);   
@@ -118,13 +117,13 @@ void test_imu()
    //imu.setHeader(header);
    //imu.setLinearAccelerationCovariance(lin_acc.asReader());
 
-   k.set_any("imu", CapnObject<gams::types::Imu>(imu_b));
+   k.set_any("imu", madara::knowledge::CapnObject<gams::types::Imu>(imu_b));
 
-   CapnObject<gams::types::Imu> imu_ = k.get("imu").to_any<CapnObject<gams::types::Imu> >();
+   madara::knowledge::CapnObject<gams::types::Imu> imu_ = k.get("imu").to_any<madara::knowledge::CapnObject<gams::types::Imu> >();
 
    TEST_EQ(imu_.reader().getHeader().getStamp(), 10);
    TEST_EQ(imu_.reader().getHeader().getFrameId().cStr(), std::string("world"));
-   TEST_EQ(imu_.reader().getHeader().getSeq(), 100);
+   TEST_EQ((signed)imu_.reader().getHeader().getSeq(), 100);
    TEST_EQ(imu_.reader().getLinearAccelerationCovariance()[0], 0.01);
    TEST_EQ(imu_.reader().getLinearAccelerationCovariance()[1], 0.03);
 }
@@ -136,7 +135,7 @@ void test_laser_schema()
 {
    ::capnp::MallocMessageBuilder dyn_b;
 
-   int fd = open(utility::expand_envs("$(GAMS_ROOT)/src/gams/types/LaserScan.capnp.bin").c_str(), 0, O_RDONLY);
+   int fd = open(madara::utility::expand_envs("$(GAMS_ROOT)/src/gams/types/LaserScan.capnp.bin").c_str(), 0, O_RDONLY);
    ::capnp::StreamFdMessageReader schema_message_reader(fd);
    auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
    ::capnp::SchemaLoader loader;
@@ -195,7 +194,6 @@ bool test_schema(const std::string& path, const std::string& sub_dir)
 
    std::string schema_path;
 
-   // Unfortunately, capnproto requires this display name thing which uses a relative path instead of the absolute path at which it found the file, requiring all this directory management. Their API is like combing for needles through a haystack and the documentation doesn't help. User forums and support are a minimum for it too.
    schema_path = sub_dir + class_name + std::string(".capnp:") + class_name;
    log("Building dynamic struct for %s", schema_path.c_str());
    auto schema = schemas.at(schema_path).asStruct();
@@ -203,11 +201,14 @@ bool test_schema(const std::string& path, const std::string& sub_dir)
 
    close(fd);
 
-   return true;
-   //k.set_any("dynamic_laser", dynbuilder);
-
-   // Could not find dox on how to do this.
-   //dynbuilder.set("header", header);
+   if (dynbuilder.getSchema().getFields().size())
+   {
+       return true;
+   }
+   else
+   { 
+       return false;
+   }
 }
 
 /*
@@ -218,7 +219,7 @@ void test_all_schemas()
     std::string sub_dir("src/gams/types/");
     std::string full_dir("$(GAMS_ROOT)/");
     std::string full_path = full_dir + sub_dir;
-    std::string path_r = utility::expand_envs(full_path);
+    std::string path_r = madara::utility::expand_envs(full_path);
 
     struct dirent *dp;
     DIR *dirf;
@@ -230,7 +231,7 @@ void test_all_schemas()
        return;
     }
 
-    while (dp = readdir(dirf))
+    while ( (dp = readdir(dirf)) )
     {
        std::string file(dp->d_name);
 

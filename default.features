@@ -53,6 +53,10 @@ docs                    = 0
 /// Enable this to support ROS platforms
 ros                     = 0
 
+/// @feature types
+/// Enables this to build libTYPES.so
+types                   = 0
+
 
 /// @feature nortti
 /// Enable this feature if you don't want GAMS to use RTTI

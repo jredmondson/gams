@@ -616,7 +616,7 @@ gams::platforms::VREPBase::orient (const pose::Orientation & target,
   if (get_ready ())
   {
     // update variables
-    BasePlatform::orient (target);
+    BasePlatform::orient (target, bounds);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_TRACE,

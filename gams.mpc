@@ -1,4 +1,4 @@
-project (gams) : using_capnp, build_files, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
+project (gams) : build_files, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -12,7 +12,6 @@ project (gams) : using_capnp, build_files, using_madara, using_utm, using_ros, u
     docs
 	  port/java
   }
-
 
   Documentation_Files {
     INSTALL.txt
@@ -66,10 +65,6 @@ project (gams) : using_capnp, build_files, using_madara, using_utm, using_ros, u
 
     Pose {
       src/gams/pose
-    }
-
-    Types {
-      src/gams/types
     }
 
     Utility {
@@ -128,10 +123,6 @@ project (gams) : using_capnp, build_files, using_madara, using_utm, using_ros, u
 
     Pose {
       src/gams/pose
-    }
-
-    Types {
-      src/gams/types
     }
 
     Utility {
@@ -206,7 +197,6 @@ project (gams) : using_capnp, build_files, using_madara, using_utm, using_ros, u
 
 }
 
-
 project (gams_controller) : using_gams, using_madara, using_vrep {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
@@ -249,5 +239,25 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_capnp, using_sim
 
   Source_Files {
     src/gams/programs/ros2gams.cpp
+  }
+}
+
+project (types) : using_madara, using_capnp {
+  requires += types
+
+  libout = lib
+  libout = $(GAMS_ROOT)/lib
+  sharedname = TYPES
+
+  CAPN_Files {
+    src/gams/types
+  }
+
+  Header_Files {
+    src/gams/types
+  }
+
+  Source_Files {
+    src/gams/types
   }
 }

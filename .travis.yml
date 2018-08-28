@@ -142,8 +142,8 @@ script:
   - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
   - echo ls $TRAVIS_BUILD_DIR
   - ls $TRAVIS_BUILD_DIR
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
   - $GAMS_ROOT/bin/test_arguments_parser
   - $GAMS_ROOT/bin/test_auctions
   - $GAMS_ROOT/bin/test_controller_run

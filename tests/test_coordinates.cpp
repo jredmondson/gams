@@ -6,10 +6,8 @@
 #include "gams/pose/CartesianFrame.h"
 #include "gams/pose/GPSFrame.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "gams/exceptions/ReferenceFrameException.h"
 
 using namespace gams::pose;
-namespace exceptions = gams::exceptions;
 
 /* multiplicative factor for deciding if a TEST is sufficiently close */
 const double TEST_epsilon = 0.01;
@@ -297,129 +295,104 @@ int main(int, char *[])
   LOG(dump);
 
   std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
-  std::vector<ReferenceFrame> frames;
-  try {
-    frames = ReferenceFrame::load_tree(kb, ids, 1000);
 
-    TEST_EQ(frames.size(), ids.size());
+  std::vector<ReferenceFrame> frames = ReferenceFrame::load_tree(kb, ids, 1000);
 
-    if (frames.size() == ids.size()) {
-      TEST_EQ(frames[0].id(), "Drone");
-      TEST_EQ(frames[1].id(), "Drone2");
+  TEST_EQ(frames.size(), ids.size());
 
-      TEST((double)frames[0].timestamp(), 1000);
-      TEST((double)frames[1].timestamp(), 1000);
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
 
-      TEST_EQ(frames[0].interpolated(), false);
-      TEST_EQ(frames[1].interpolated(), false);
+    TEST((double)frames[0].timestamp(), 1000);
+    TEST((double)frames[1].timestamp(), 1000);
 
-      TEST(frames[0].origin().x(), 3);
-      TEST(frames[0].origin().y(), 2);
-      TEST(frames[1].origin().rz(), 0);
+    TEST_EQ(frames[0].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), false);
 
-      Position d2pos(frames[1], 1, 1);
-      Position d1pos = d2pos.transform_to(frames[0]);
-      LOG(d2pos);
-      LOG(d1pos);
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 2);
+    TEST(frames[1].origin().rz(), 0);
 
-    }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    Position d2pos(frames[1], 1, 1);
+    Position d1pos = d2pos.transform_to(frames[0]);
+    LOG(d2pos);
+    LOG(d1pos);
   }
 
-  std::vector<ReferenceFrame> pframes;
-  try {
-    pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
-    TEST_EQ(pframes.size(), ids.size());
+  auto pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
 
-    if (pframes.size() == ids.size()) {
-      TEST_EQ(pframes[0].id(), "Drone");
-      TEST_EQ(pframes[1].id(), "Drone2");
+  TEST_EQ(pframes.size(), ids.size());
 
-      TEST((double)pframes[0].timestamp(), 1500);
-      TEST((double)pframes[1].timestamp(), 1500);
+  if (pframes.size() == ids.size()) {
+    TEST_EQ(pframes[0].id(), "Drone");
+    TEST_EQ(pframes[1].id(), "Drone2");
 
-      TEST_EQ(pframes[0].interpolated(), true);
-      TEST_EQ(pframes[1].interpolated(), true);
+    TEST((double)pframes[0].timestamp(), 1500);
+    TEST((double)pframes[1].timestamp(), 1500);
 
-      TEST(pframes[0].origin().x(), 3);
-      TEST(pframes[0].origin().y(), 3);
-      TEST(pframes[1].origin().rz(), 0);
+    TEST_EQ(pframes[0].interpolated(), true);
+    TEST_EQ(pframes[1].interpolated(), true);
 
-      Position d2pos(pframes[1], 1, 1);
-      Position d1pos = d2pos.transform_to(pframes[0]);
-      LOG(d2pos);
-        LOG(d1pos);
-    }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    TEST(pframes[0].origin().x(), 3);
+    TEST(pframes[0].origin().y(), 3);
+    TEST(pframes[1].origin().rz(), 0);
+
+    Position d2pos(pframes[1], 1, 1);
+    Position d1pos = d2pos.transform_to(pframes[0]);
+    LOG(d2pos);
+    LOG(d1pos);
   }
 
-  try {
-    frames = ReferenceFrame::load_tree(kb, ids, 1500);
+  frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
-    TEST_EQ(frames.size(), ids.size());
+  TEST_EQ(frames.size(), ids.size());
 
-    if (frames.size() == ids.size()) {
-      TEST_EQ(frames[0].id(), "Drone");
-      TEST_EQ(frames[1].id(), "Drone2");
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
 
-      TEST((double)frames[0].timestamp(), 1500);
-      TEST((double)frames[1].timestamp(), 1500);
+    TEST((double)frames[0].timestamp(), 1500);
+    TEST((double)frames[1].timestamp(), 1500);
 
-      TEST_EQ(frames[0].interpolated(), true);
-      TEST_EQ(frames[1].interpolated(), true);
+    TEST_EQ(frames[0].interpolated(), true);
+    TEST_EQ(frames[1].interpolated(), true);
 
-      TEST(frames[0].origin().x(), 3);
-      TEST(frames[0].origin().y(), 3);
-      TEST(frames[2].origin().rz(), M_PI/8);
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 3);
+    TEST(frames[2].origin().rz(), M_PI/8);
 
-      Position d2pos(pframes[1], 1, 1);
-      Position d1pos = d2pos.transform_to(pframes[0]);
-      LOG(d2pos);
-      LOG(d1pos);
-    }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    Position d2pos(pframes[1], 1, 1);
+    Position d1pos = d2pos.transform_to(pframes[0]);
+    LOG(d2pos);
+    LOG(d1pos);
   }
 
-  try {
-    frames = ReferenceFrame::load_tree(kb, ids);
+  frames = ReferenceFrame::load_tree(kb, ids);
 
-    TEST_EQ(frames.size(), ids.size());
+  TEST_EQ(frames.size(), ids.size());
 
-    if (frames.size() == ids.size()) {
-      TEST_EQ(frames[0].id(), "Drone");
-      TEST_EQ(frames[1].id(), "Drone2");
+  if (frames.size() == ids.size()) {
+    TEST_EQ(frames[0].id(), "Drone");
+    TEST_EQ(frames[1].id(), "Drone2");
 
-      TEST((double)frames[0].timestamp(), 2250);
-      TEST((double)frames[1].timestamp(), 2250);
+    TEST((double)frames[0].timestamp(), 2250);
+    TEST((double)frames[1].timestamp(), 2250);
 
-      TEST_EQ(frames[0].interpolated(), false);
-      TEST_EQ(frames[1].interpolated(), true);
+    TEST_EQ(frames[0].interpolated(), false);
+    TEST_EQ(frames[1].interpolated(), true);
 
-      TEST(frames[0].origin().x(), 3);
-      TEST(frames[0].origin().y(), 6);
-      TEST(frames[2].origin().rz(), M_PI/2);
+    TEST(frames[0].origin().x(), 3);
+    TEST(frames[0].origin().y(), 6);
+    TEST(frames[2].origin().rz(), M_PI/2);
 
-      Position cpos = frames[0].origin();
-    }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    Position cpos = frames[0].origin();
   }
 
   FrameStore frame_store(kb, 4000);
-  try {
-    frames = frame_store.load_tree(ids, 2500);
-    TEST_EQ(frames.size(), 0UL);
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
-  }
+  frames = frame_store.load_tree(ids, 2500);
+
+  TEST_EQ(frames.size(), 0UL);
 
   for (int x = 0; x <= 10000; x += 500) {
     ReferenceFrame exp("expiring", Pose(), x);
@@ -468,33 +441,28 @@ int main(int, char *[])
 
     std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
 
-    try {
-      std::vector<gams::pose::ReferenceFrame> frames =
-        gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
+    std::vector<gams::pose::ReferenceFrame> frames =
+      gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
 
-      TEST ((double)frames.size(), 4);
-      if (frames.size() == 4)
+    TEST ((double)frames.size(), 4);
+    if (frames.size() == 4)
+    {
+      gams::pose::ReferenceFrame laser_frame = frames[0];
+      auto origin = laser_frame.origin();
+      gams::pose::ReferenceFrame map = frames[1];
+      LOG (laser_frame.timestamp());
+      LOG (map.timestamp());
+      gams::pose::ReferenceFrame base = frames[2];
+      gams::pose::ReferenceFrame odom = frames[3];
+      LOG (base.timestamp());
+      LOG (odom.timestamp());
+      if (map.valid())
       {
-        gams::pose::ReferenceFrame laser_frame = frames[0];
-        auto origin = laser_frame.origin();
-        gams::pose::ReferenceFrame map = frames[1];
-        LOG (laser_frame.timestamp());
-        LOG (map.timestamp());
-        gams::pose::ReferenceFrame base = frames[2];
-        gams::pose::ReferenceFrame odom = frames[3];
-        LOG (base.timestamp());
-        LOG (odom.timestamp());
-        if (map.valid())
-        {
-          gams::pose::Pose transformed = origin.transform_to(map);
-          TEST (transformed.x(), 2);
-          TEST (transformed.y(), 2.5);
-          TEST (transformed.z(), 1.75);
-        }
+        gams::pose::Pose transformed = origin.transform_to(map);
+        TEST (transformed.x(), 2);
+        TEST (transformed.y(), 2.5);
+        TEST (transformed.z(), 1.75);
       }
-    }
-    catch (exceptions::ReferenceFrameException e) {
-      std::cout << "Exception expected: SUCCESS " << e.what();
     }
   }
 

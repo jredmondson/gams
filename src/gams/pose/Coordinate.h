@@ -917,47 +917,204 @@ inline auto operator-(const BasicVector<LDerived, LUnits> &lhs,
   return ret;
 }
 
-/// Generates comparison operators for coordinate types
-#define GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(op) \
-  template<typename LDerived, typename RDerived, typename Units> \
-  inline bool operator op ( \
-      const BasicVector<LDerived, Units> &lhs, \
-      const BasicVector<RDerived, Units> &rhs) \
-  { \
-    for (int i = 0; i < lhs.vec().size(); ++i) { \
-      if (!(lhs.vec()[i] op rhs.vec()[i])) { \
-        return false; \
-      } \
-    } \
-    return true; \
-  } \
- \
-  template<typename LDerived, typename RDerived, typename Units> \
-  inline bool operator op ( \
-      const Framed<BasicVector<LDerived, Units>> &lhs, \
-      const Framed<BasicVector<RDerived, Units>> &rhs) \
-  { \
-    return lhs.frame() op rhs.frame() && \
-      static_cast<const BasicVector<LDerived, Units> &>(lhs) op \
-      static_cast<const BasicVector<RDerived, Units> &>(rhs); \
-  } \
- \
-  template<typename LDerived, typename RDerived, typename Units> \
-  inline bool operator op ( \
-      const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs, \
-      const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs) \
-  { \
-    return lhs.time() op rhs.time() && \
-      static_cast<const Framed<BasicVector<LDerived, Units> &>>(lhs) op \
-      static_cast<const Framed<BasicVector<RDerived, Units> &>>(rhs); \
+/**
+ * Equality operator for coordinates.
+ *
+ * @return true if all corresponding values are equal.
+ **/
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator == (
+    const BasicVector<LDerived, Units> &lhs,
+    const BasicVector<RDerived, Units> &rhs)
+{
+  for (int i = 0; i < lhs.vec().size(); ++i) {
+    if (!(lhs.vec()[i] == rhs.vec()[i])) {
+      return false;
+    }
   }
+  return true;
+}
 
-GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(==)
-GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(!=)
-GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(<)
-GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(<=)
-GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(>)
-GAMS_POSE_MAKE_COORDINATE_COMPARE_OPS(>=)
+/**
+ * Equality operator for Framed coordinates.
+ *
+ * @return true if frames and all corresponding values are equal.
+ **/
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator == (
+    const Framed<BasicVector<LDerived, Units>> &lhs,
+    const Framed<BasicVector<RDerived, Units>> &rhs)
+{
+  return lhs.frame() == rhs.frame() &&
+    static_cast<const BasicVector<LDerived, Units> &>(lhs) ==
+    static_cast<const BasicVector<RDerived, Units> &>(rhs);
+}
+
+/**
+ * Equality operator for Framed and Stamped coordinates.
+ *
+ * @return true if timestamps, frames and all corresponding values are equal.
+ **/
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator == (
+    const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs,
+    const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs)
+{
+  return lhs.time() == rhs.time() &&
+    static_cast<const Framed<BasicVector<LDerived, Units> &>>(lhs) ==
+    static_cast<const Framed<BasicVector<RDerived, Units> &>>(rhs);
+}
+
+/**
+ * Inequality operator for coordinates.
+ *
+ * @return !(lhs == rhs)
+ **/
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator != (
+    const BasicVector<LDerived, Units> &lhs,
+    const BasicVector<RDerived, Units> &rhs)
+{
+  return !(lhs == rhs);
+}
+
+/**
+ * Inequality operator for Framed coordinates.
+ *
+ * @return !(lhs == rhs)
+ **/
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator != (
+    const Framed<BasicVector<LDerived, Units>> &lhs,
+    const Framed<BasicVector<RDerived, Units>> &rhs)
+{
+  return !(lhs == rhs);
+}
+
+/**
+ * Inequality operator for Framed and Stamped coordinates.
+ *
+ * @return !(lhs == rhs)
+ **/
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator != (
+    const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs,
+    const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs)
+{
+  return !(lhs == rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator < (
+    const BasicVector<LDerived, Units> &lhs,
+    const BasicVector<RDerived, Units> &rhs)
+{
+  for (int i = 0; i < lhs.vec().size(); ++i) {
+    const auto &l = lhs.vec()[i];
+    const auto &r = rhs.vec()[i];
+
+    if (l > r) {
+      return false;
+    }
+
+    if (l < r) {
+      return true;
+    }
+  }
+  return false;
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator < (
+    const Framed<BasicVector<LDerived, Units>> &lhs,
+    const Framed<BasicVector<RDerived, Units>> &rhs)
+{
+  return &lhs.frame() < &rhs.frame() || (lhs.frame() == rhs.frame() &&
+    static_cast<const BasicVector<LDerived, Units> &>(lhs) ==
+    static_cast<const BasicVector<RDerived, Units> &>(rhs));
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator < (
+    const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs,
+    const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs)
+{
+  return lhs.time() < rhs.time() || (lhs.time() == rhs.time() &&
+    static_cast<const Framed<BasicVector<LDerived, Units> &>>(lhs) ==
+    static_cast<const Framed<BasicVector<RDerived, Units> &>>(rhs));
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator <= (
+    const BasicVector<LDerived, Units> &lhs,
+    const BasicVector<RDerived, Units> &rhs)
+{
+  return (lhs == rhs) || (lhs < rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator <= (
+    const Framed<BasicVector<LDerived, Units>> &lhs,
+    const Framed<BasicVector<RDerived, Units>> &rhs)
+{
+  return (lhs == rhs) || (lhs < rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator <= (
+    const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs,
+    const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs)
+{
+  return (lhs == rhs) || (lhs < rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator >= (
+    const BasicVector<LDerived, Units> &lhs,
+    const BasicVector<RDerived, Units> &rhs)
+{
+  return !(lhs < rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator >= (
+    const Framed<BasicVector<LDerived, Units>> &lhs,
+    const Framed<BasicVector<RDerived, Units>> &rhs)
+{
+  return !(lhs < rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator >= (
+    const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs,
+    const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs)
+{
+  return !(lhs < rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator > (
+    const BasicVector<LDerived, Units> &lhs,
+    const BasicVector<RDerived, Units> &rhs)
+{
+  return !(lhs <= rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator > (
+    const Framed<BasicVector<LDerived, Units>> &lhs,
+    const Framed<BasicVector<RDerived, Units>> &rhs)
+{
+  return !(lhs <= rhs);
+}
+
+template<typename LDerived, typename RDerived, typename Units>
+inline bool operator > (
+    const Stamped<Framed<BasicVector<LDerived, Units>>> &lhs,
+    const Stamped<Framed<BasicVector<RDerived, Units>>> &rhs)
+{
+  return !(lhs <= rhs);
+}
 
 /// Creates the three variants for each coordinate type:
 /// {Coordinate}Vector: just the coordinate values alone
