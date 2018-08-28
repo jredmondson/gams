@@ -97,6 +97,7 @@ PYTHON=0
 CLEAN=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
+TYPES=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -105,7 +106,7 @@ MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
-CAPNPROTO_AS_A_PREREQ=0
+CAPNP_AS_A_PREREQ=0
 
 MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
@@ -148,6 +149,8 @@ do
     PREREQS=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
+  elif [ "$var" = "types" ]; then
+    TYPES=1
   elif [ "$var" = "vrep-config" ]; then
     VREP_CONFIG=1
   elif [ "$var" = "java" ]; then
@@ -209,6 +212,7 @@ do
     echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
+    echo "  types           builds libTYPES.so"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
@@ -536,7 +540,7 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
 fi
 
 if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
-  CAPNPROTO_AS_A_PREREQ=1
+  CAPNP_AS_A_PREREQ=1
 fi
 
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
@@ -583,7 +587,7 @@ else
   echo "NOT CHECKING EIGEN"
 fi
 
-if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
+if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
@@ -613,6 +617,8 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
   if [ $CLEAN -eq 1 ] ; then
     make clean -j $CORES
   fi
+
+
   autoreconf -i
 
   if [ $ANDROID -eq 1 ]; then
@@ -641,11 +647,11 @@ if [ $CAPNPROTO_AS_A_PREREQ -eq 1 ]; then
 
   fi
 
-   make -j$CORES
+   make -j$CORES capnp capnpc-c++ libcapnp-json.la 
    CAPNP_BUILD_RESULT=$?
 
    if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not built properly. If you are building for Android check out the link, https://github.com/jredmondson/gams/wiki/GAMS-Installation#android-troubleshooting"
+       echo "CapNProto is not built properly."
        exit 1;
    fi
  #Prereq if ends
@@ -743,11 +749,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
 
-  if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not built properly or not installed. Please run base_build with 'prereqs' option"
-       exit 1;
+  if ! ls $CAPNP_ROOT/c++/.libs/libcapnp-json* > /dev/null 2>&1; then 
+    echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."; 
+    exit 1;
   fi
-
   
 
   cd $INSTALL_DIR
@@ -789,7 +794,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
-    echo -e "\e[91m MADARA library did not build properly \e[39m"
+    echo -e "\e[91m MADARA library did not build properly. \e[39m"
     exit 1;
   fi
 
@@ -882,8 +887,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,debug=$DEBUG gams.mwc
+
+  if [ $TYPES -eq 1 ]; then
+    # Strip the unnecessary NOTPARALLEL: directives
+    sed -i '/\.NOTPARALLEL:/d' Makefile.types
+  fi
 
   if [ $JAVA -eq 1 ]; then
     # sometimes the jar'ing will occur before all classes are actually built when performing
@@ -892,10 +902,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
-  make depend java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
-  echo "make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
-  make java=$JAVA ros=$ROS vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  echo "make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
+  make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
+  echo "make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES"
+  make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   GAMS_BUILD_RESULT=$?
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then

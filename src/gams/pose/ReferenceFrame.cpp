@@ -58,7 +58,6 @@
 #include "gams/pose/Linear.h"
 #include "gams/pose/Angular.h"
 #include "gams/pose/Quaternion.h"
-#include "gams/exceptions/ReferenceFrameException.h"
 
 #include <random>
 
@@ -433,17 +432,7 @@ namespace gams
 
       auto ret = load_single(kb, id, timestamp, settings);
       if (!ret.first) {
-        if (throwOnErrors == true) {
-          std::stringstream message;
-          message << "pose::load_exact: ";
-          message << id;
-          message << " not first";
-          message << std::endl;
-          throw exceptions::ReferenceFrameException(message.str());
-        }
-        else {
-          return ReferenceFrame();
-        }
+        return ReferenceFrame();
       }
 
       ReferenceFrame frame(std::move(ret.first));
@@ -460,16 +449,7 @@ namespace gams
         auto parent = load(kb, parent_frame, parent_timestamp, settings);
         if (!parent.valid()) {
           LOCAL_DEBUG(std::cerr << "Couldn't find " << parent_frame << std::endl;)
-          std::stringstream message;
-          message << "Couldn't find ";
-          message << parent_frame;
-          message << std::endl;
-          if (throwOnErrors == true) {
-            throw exceptions::ReferenceFrameException(message.str());
-          }
-          else {
-            return ReferenceFrame();
-          }
+          return ReferenceFrame();
         }
         frame.impl_->mut_origin().frame(parent);
       }
@@ -632,12 +612,7 @@ namespace gams
 
       if (pair.first == (uint64_t)-1 || pair.second == (uint64_t)-1) {
         LOCAL_DEBUG(std::cerr << "No valid timestamp pair for " << id << std::endl;)
-        std::stringstream message;
-        message << "No valid timestamp pair for ";
-        message << id;
-        message << std::endl;
-        throw exceptions::ReferenceFrameException (message.str());
-        //return {};
+        return {};
       }
 
       auto prev = load_single(kb, id, pair.first, settings);
@@ -654,23 +629,13 @@ namespace gams
             if (parent_id != next.first->origin_frame().id()) {
               LOCAL_DEBUG(std::cerr << "Mismatched frame parents " << parent_id <<
                           "  " << next_parent_id << std::endl;)
-              std::stringstream message;
-              message << "Mismatched frame parents ";
-              message << parent_id;
-              message << std::endl;
-              throw exceptions::ReferenceFrameException(message.str());
-              //return {};
+              return {};
             }
           } else {
             if (parent_id != next_parent_id) {
               LOCAL_DEBUG(std::cerr << "Mismatched frame parents " << parent_id <<
                           "  " << next_parent_id << std::endl;)
-              std::stringstream message;
-              message << "Mismatched frame parents ";
-              message << parent_id;
-              message << std::endl;
-              throw exceptions::ReferenceFrameException(message.str());
-              //return {};
+              return {};
             }
           }
 
@@ -679,14 +644,7 @@ namespace gams
           parent = load(kb, parent_id, timestamp, settings);
 
           if (!parent.valid()) {
-            std::stringstream message;
-            message << "Could not load ";
-            message << id;
-            message << "'s parent ";
-            message << parent_id;
-            message << std::endl;
-            throw exceptions::ReferenceFrameException(message.str());
-            //return {};
+            return {};
           }
 
           LOCAL_DEBUG(std::cerr << "Interpolating " << id << " with parent " <<
@@ -700,12 +658,7 @@ namespace gams
       }
 
       LOCAL_DEBUG(std::cerr << "No interpolation found for " << id << std::endl;)
-      std::stringstream message;
-      message << "No interpolation found for ";
-      message << id;
-      message << std::endl;
-      throw exceptions::ReferenceFrameException(message.str());
-      //return {};
+      return {};
     }
 
     // TODO implement O(height) algo instead of O(height ^ 2)

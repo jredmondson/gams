@@ -7,7 +7,6 @@
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/GPSFrame.h"
 #include "madara/knowledge/KnowledgeBase.h"
-#include "gams/exceptions/ReferenceFrameException.h"
 
 using namespace gams::pose;
 namespace exceptions = gams::exceptions;
@@ -321,14 +320,14 @@ int main(int, char *[])
 
   std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
   std::vector<ReferenceFrame> frames;
-
+  
   // Test a direct call of load_exact, expect it to throw
   // Disabled test for now since load_exact(...) is not accessable because it is in an anonymous namespace
   //EXPECT_EXCEPTION(exceptions::ReferenceFrameException, gams::pose::load_exact(kb, ids, 1000, -1, FrameEvalSettings::DEFAULT))
 
   try {
     frames = ReferenceFrame::load_tree(kb, ids, 1000);
-
+    
     TEST_EQ(frames.size(), ids.size());
 
     if (frames.size() == ids.size()) {
@@ -349,16 +348,16 @@ int main(int, char *[])
       Position d1pos = d2pos.transform_to(frames[0]);
       LOG(d2pos);
       LOG(d1pos);
-
-    }
+     }
   }
   catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    std::cout << "Exception: FAIL " << e.what();
   }
 
   std::vector<ReferenceFrame> pframes;
   try {
     pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
+
     TEST_EQ(pframes.size(), ids.size());
 
     if (pframes.size() == ids.size()) {
@@ -378,13 +377,13 @@ int main(int, char *[])
       Position d2pos(pframes[1], 1, 1);
       Position d1pos = d2pos.transform_to(pframes[0]);
       LOG(d2pos);
-        LOG(d1pos);
+      LOG(d1pos);
     }
   }
   catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    std::cout << "Exception: FAIL " << e.what();
   }
-
+  
   try {
     frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
@@ -411,9 +410,9 @@ int main(int, char *[])
     }
   }
   catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
-  }
-
+    std::cout << "Exception: FAIL " << e.what();
+  } 
+  
   try {
     frames = ReferenceFrame::load_tree(kb, ids);
 
@@ -437,7 +436,7 @@ int main(int, char *[])
     }
   }
   catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception expected: SUCCESS " << e.what();
+    std::cout << "Exception: FAIL " << e.what();
   }
 
   FrameStore frame_store(kb, 4000);
@@ -447,7 +446,7 @@ int main(int, char *[])
   }
   catch (exceptions::ReferenceFrameException e) {
     std::cout << "Exception expected: SUCCESS " << e.what();
-  }
+  } 
 
   for (int x = 0; x <= 10000; x += 500) {
     ReferenceFrame exp("expiring", Pose(), x);
@@ -495,35 +494,35 @@ int main(int, char *[])
     LOG(dump);
 
     std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
-
+    
     try {
       std::vector<gams::pose::ReferenceFrame> frames =
         gams::pose::ReferenceFrame::load_tree(data_, frame_ids, 3000);
 
       TEST ((double)frames.size(), 4);
-      if (frames.size() == 4)
-      {
-        gams::pose::ReferenceFrame laser_frame = frames[0];
-        auto origin = laser_frame.origin();
-        gams::pose::ReferenceFrame map = frames[1];
-        LOG (laser_frame.timestamp());
-        LOG (map.timestamp());
-        gams::pose::ReferenceFrame base = frames[2];
-        gams::pose::ReferenceFrame odom = frames[3];
-        LOG (base.timestamp());
-        LOG (odom.timestamp());
-        if (map.valid())
-        {
-          gams::pose::Pose transformed = origin.transform_to(map);
-          TEST (transformed.x(), 2);
-          TEST (transformed.y(), 2.5);
-          TEST (transformed.z(), 1.75);
-        }
-      }
+       if (frames.size() == 4)
+       {
+         gams::pose::ReferenceFrame laser_frame = frames[0];
+         auto origin = laser_frame.origin();
+         gams::pose::ReferenceFrame map = frames[1];
+         LOG (laser_frame.timestamp());
+         LOG (map.timestamp());
+         gams::pose::ReferenceFrame base = frames[2];
+         gams::pose::ReferenceFrame odom = frames[3];
+         LOG (base.timestamp());
+         LOG (odom.timestamp());
+         if (map.valid())
+         {
+           gams::pose::Pose transformed = origin.transform_to(map);
+           TEST (transformed.x(), 2);
+           TEST (transformed.y(), 2.5);
+           TEST (transformed.z(), 1.75);
+         }
+       }
     }
     catch (exceptions::ReferenceFrameException e) {
-      std::cout << "Exception expected: SUCCESS " << e.what();
-    }
+      std::cout << "Exception: FAIL " << e.what();
+    }      
   }
 
   {

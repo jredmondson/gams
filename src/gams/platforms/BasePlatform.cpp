@@ -157,8 +157,8 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
    * from the existing move location, then set status to
    * moving and return 1 (moving to the new location)
    **/
-  if (!*status_.paused_moving && gps_target != current &&
-     (!*status_.moving || gps_target != dest))
+  if (!*status_.paused_moving && !(gps_target == current) &&
+     (!*status_.moving || !(gps_target == dest)))
   {
     self_->agent.source = self_->agent.location;
     gps_target.to_container (self_->agent.dest);

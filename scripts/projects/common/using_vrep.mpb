@@ -1,0 +1,20 @@
+feature (vrep) {
+  requires += vrep
+
+  macros += _GAMS_VREP_
+  macros += MAX_EXT_API_CONNECTIONS=255
+  macros += NON_MATLAB_PARSING
+
+  includes += $(VREP_ROOT)/programming/remoteApi
+  includes += $(VREP_ROOT)/programming/include
+
+  Header_Files {
+    $(VREP_ROOT)/programming/remoteApi/extApi.h
+    $(VREP_ROOT)/programming/remoteApi/extApiPlatform.h
+  }
+
+  Source_Files {
+    $(VREP_ROOT)/programming/remoteApi/extApi.c
+    $(VREP_ROOT)/programming/remoteApi/extApiPlatform.c
+  }
+}
