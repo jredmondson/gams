@@ -7,6 +7,7 @@
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/GPSFrame.h"
 #include "madara/knowledge/KnowledgeBase.h"
+#include "gams/exceptions/ReferenceFrameException.h"
 
 using namespace gams::pose;
 namespace exceptions = gams::exceptions;
