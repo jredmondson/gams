@@ -667,7 +667,11 @@ namespace gams
           parent = load(kb, parent_id, timestamp, settings);
 
           if (!parent.valid()) {
-            throw exceptions::ReferenceFrameException();
+            std::stringstream message;
+            message << "Parent is invalid ";
+            message << parent_id;
+            message << std::endl;
+            throw exceptions::ReferenceFrameException(message.str());
             //return {};
           }
 
