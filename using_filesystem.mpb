@@ -1,0 +1,20 @@
+project : using_boost {
+	
+  expand(BOOST_FILESYSTEM_DEBUG) {
+    $BOOST_FILESYSTEM_DEBUG
+    $(BOOST_STATIC_LIB_PREFIX)boost_filesystem-$(BOOST_TOOLSET)-mt-gd-$(BOOST_ARCH)-$(BOOST_VERSION)
+  }
+  	
+  expand(BOOST_FILESYSTEM_RELEASE) {
+    $BOOST_FILESYSTEM_RELEASE
+    $(BOOST_STATIC_LIB_PREFIX)boost_filesystem-$(BOOST_TOOLSET)-mt-$(BOOST_ARCH)-$(BOOST_VERSION)
+  }
+  	  	  
+  specific(prop:windows) {
+    Debug::lit_libs += $(BOOST_FILESYSTEM_DEBUG)
+    Release::lit_libs += $(BOOST_FILESYSTEM_RELEASE)
+    // end if windows build
+  } else {
+    lit_libs += $(BOOST_STATIC_LIB_PREFIX)boost_filesystem$(BOOST_CFG)
+  }
+}

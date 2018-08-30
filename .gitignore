@@ -16,6 +16,8 @@ lib*
 *.bag
 *.vcxproj
 *.vcxproj.filters
+.vscode
+capnproto/
 
 gams.VC.db
 gams.sdf

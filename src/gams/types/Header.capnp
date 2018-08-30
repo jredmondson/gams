@@ -9,7 +9,7 @@ $Cxx.namespace("gams::types");
 
 # Type definition
 struct Header {
-   stamp @0: Int64;
+   stamp @0: Float64;
    frameId @1: Text;
    seq @2: UInt32;
    
