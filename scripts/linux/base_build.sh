@@ -918,13 +918,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo "STRIPPING GAMS"
     $STRIP_EXE libGAMS.so*
   fi
- if [ $ANDROID -eq 1 ]; then
-    echo "Building Demo Android app"
-    cd $GAMS_ROOT/port/android
-    chmod a+x build.sh
-    ./build.sh
-   cd $GAMS_ROOT
-  fi
+#  if [ $ANDROID -eq 1 ]; then
+#     echo "Building Demo Android app"
+#     cd $GAMS_ROOT/port/android
+#     chmod a+x build.sh
+#     ./build.sh
+#    cd $GAMS_ROOT
+#   fi
 else
   echo "NOT BUILDING GAMS"
 fi
