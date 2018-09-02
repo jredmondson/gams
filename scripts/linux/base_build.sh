@@ -462,7 +462,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     ) || exit $?
 
      if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
-       git clone "git@github.com:amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
+       git clone "https://github.com/amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
        cd $BOOST_ANDROID_ROOT;
        echo "Boost is cloned in $BOOST_ANDROID_ROOT"
        ./build-android.sh --boost=1.65.1 --arch=$ANDROID_ARCH $NDK_ROOT
