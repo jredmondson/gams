@@ -827,38 +827,30 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
 
     std::size_t dot_pos = var_name.find(".");
 
-    try
+    if (dot_pos != std::string::npos)
     {
-      if (dot_pos != std::string::npos)
+      //This is a list
+      std::string var = var_name.substr(0, dot_pos);
+      int index = std::stoi(var_name.substr(dot_pos+1));
+      if (index == 0)
       {
-        //This is a list
-        std::string var = var_name.substr(0, dot_pos);
-        int index = std::stoi(var_name.substr(dot_pos+1));
-        if (index == 0)
-        {
-          // First element so init
-          dynvalue.init(var, array_size);
-        }
-        auto lst = dynvalue.get(var).as<capnp::DynamicList>();
-        lst.set(index, val);
+        // First element so init
+        dynvalue.init(var, array_size);
       }
-      else
-      {
-          if (dynvalue.asReader().get(var_name).getType() == capnp::DynamicValue::BOOL)
-          {
-            bool bool_val = (bool) val;
-            dynvalue.set(var_name, bool_val);
-          }
-          else
-          {
-            dynvalue.set(var_name, val);
-          }
-      }
+      auto lst = dynvalue.get(var).as<capnp::DynamicList>();
+      lst.set(index, val);
     }
-    catch(kj::Exception ex)
+    else
     {
-      std::cout << "Failed to set " << var_name << " in struct " <<
-        struct_name << "! (" << std::string(ex.getDescription()) << ")" << std::endl;
+        if (dynvalue.asReader().get(var_name).getType() == capnp::DynamicValue::BOOL)
+        {
+          bool bool_val = (bool) val;
+          dynvalue.set(var_name, bool_val);
+        }
+        else
+        {
+          dynvalue.set(var_name, val);
+        }
     }
 }
 
@@ -960,7 +952,16 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
       // Value is NAN if it is not readable
     }
     name = substitute_name(datatype, name);
-    set_dyn_capnp_value<double>(capnp_builder, name, val, array_size);
+    if (name == IGNORE_MARKER) continue;
+    try
+    {
+      set_dyn_capnp_value<double>(capnp_builder, name, val, array_size);
+    }
+    catch(kj::Exception ex)
+    {
+      std::cout << "Failed to set " << name << " from topic " <<
+        topic_name << " (" << datatype << ")! (" << std::string(ex.getDescription()) << ")" << std::endl;
+    }
     
   }
   for (auto it: flat_container.name)
@@ -974,7 +975,16 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     auto val = strdup(value.c_str());
     std::string name = key.substr (topic_len);
     name = substitute_name(datatype, name);
-    set_dyn_capnp_value<char*>(capnp_builder, name, val, array_size);
+    if (name == IGNORE_MARKER) continue;
+    try
+    {
+      set_dyn_capnp_value<char*>(capnp_builder, name, val, array_size);
+    }
+    catch(kj::Exception ex)
+    {
+      std::cout << "Failed to set " << name << " from topic " <<
+        topic_name << " (" << datatype << ")! (" << std::string(ex.getDescription()) << ")" << std::endl;
+    }
   }
   ros_array_sizes_.clear();
   madara::knowledge::GenericCapnObject any(schema_name.c_str(), buffer);
@@ -1057,6 +1067,16 @@ void gams::utility::ros::RosParser::register_rename_rules( std::map<std::string,
 std::string gams::utility::ros::RosParser::substitute_name(std::string type,
   std::string name)
 {
+  //Check if this is an array
+  std::size_t dot_pos = name.find(".");
+  std::string array_index = "";
+  std::string search_name = name;
+  if (dot_pos != std::string::npos)
+  {
+    // This is no array
+    array_index = search_name.substr(dot_pos);
+    search_name = search_name.substr(0, dot_pos);
+  }
   std::vector<std::string> values = {type, "general"};
   for (std::string it : values)
   {
@@ -1064,10 +1084,19 @@ std::string gams::utility::ros::RosParser::substitute_name(std::string type,
     if (search != name_substitution_map_.end ())
     {
       std::map <std::string, std::string> name_map = search->second;
-      auto name_search = name_map.find (name);
+      
+      auto name_search = name_map.find (search_name);
       if (name_search != name_map.end ())
       {
-        return name_search->second;
+        if (name_search->second == IGNORE_MARKER)
+        {
+          return name_search->second;
+        }
+        else
+        {
+          return name_search->second + array_index;
+        }
+
       }
     }
   }

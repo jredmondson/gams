@@ -91,6 +91,9 @@ namespace gams
       class RosParser
       {
         public:
+
+          const std::string IGNORE_MARKER = "_IGNORE_";
+
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
             std::map<std::string, std::string> capnp_types,
