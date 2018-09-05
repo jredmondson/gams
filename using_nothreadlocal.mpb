@@ -1,0 +1,3 @@
+feature(nothreadlocal) {
+  macros += MADARA_NO_THREAD_LOCAL
+}
