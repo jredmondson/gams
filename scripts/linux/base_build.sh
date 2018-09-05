@@ -90,6 +90,7 @@ DOCS=0
 VREP_CONFIG=0
 ZMQ=0
 SIMTIME=0
+NOTHREADLOCAL=0
 SSL=0
 DMPL=0
 LZ4=0
@@ -179,6 +180,8 @@ do
     ZMQ=1
   elif [ "$var" = "simtime" ]; then
     SIMTIME=1
+  elif [ "$var" = "nothreadlocal" ]; then
+    NOTHREADLOCAL=1
   elif [ "$var" = "ssl" ]; then
     SSL=1
   elif [ "$var" = "odroid" ]; then
@@ -776,8 +779,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
