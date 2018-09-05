@@ -388,7 +388,7 @@ echo ""
 unzip_strip() (
   local zip=$1
   local dest=${2:-.}
-  local temp=$(mktemp -d) && unzip -d "$temp" "$zip" && mkdir -p "$dest" &&
+  local temp=$(mktemp -d) && unzip -qq -d "$temp" "$zip" && mkdir -p "$dest" &&
   shopt -s dotglob && local f=("$temp"/*) &&
   if (( ${#f[@]} == 1 )) && [[ -d "${f[0]}" ]] ; then
     mv "$temp"/*/* "$dest"
@@ -465,7 +465,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     ) || exit $?
 
      if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
-       git clone "git@github.com:amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
+       git clone "https://github.com/amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
        cd $BOOST_ANDROID_ROOT;
        echo "Boost is cloned in $BOOST_ANDROID_ROOT"
        ./build-android.sh --boost=1.65.1 --arch=$ANDROID_ARCH $NDK_ROOT
@@ -921,13 +921,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo "STRIPPING GAMS"
     $STRIP_EXE libGAMS.so*
   fi
- if [ $ANDROID -eq 1 ]; then
-    echo "Building Demo Android app"
-    cd $GAMS_ROOT/port/android
-    chmod a+x build.sh
-    ./build.sh
-   cd $GAMS_ROOT
-  fi
+#  if [ $ANDROID -eq 1 ]; then
+#     echo "Building Demo Android app"
+#     cd $GAMS_ROOT/port/android
+#     chmod a+x build.sh
+#     ./build.sh
+#    cd $GAMS_ROOT
+#   fi
 else
   echo "NOT BUILDING GAMS"
 fi
