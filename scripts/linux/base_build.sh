@@ -427,12 +427,13 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     sudo apt-get install -y -f clang-5.0 libc++-dev libc++abi-dev
   fi
 
-  if [ $JAVA -eq 1 ]; then
+  if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
     sudo apt-get install -y -f oracle-java8-set-default
     sudo apt-get install -y maven
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
     rc_str="export JAVA_HOME=$JAVA_HOME"
     append_if_needed "$rc_str" "$HOME/.bashrc"
+  
   fi
 
   if [ $PYTHON -eq 1 ]; then
@@ -757,10 +758,15 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     exit 1;
   fi
   
+  if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
+     echo "Set JAVA_HOME or use prereqs to download Oracle Java automatically"
+     exit 1;
+  fi
 
   cd $INSTALL_DIR
 
   if [ ! -d $MADARA_ROOT ] ; then
+  
     echo "DOWNLOADING MADARA"
     echo "git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT"
     git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
