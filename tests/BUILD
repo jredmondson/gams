@@ -4,6 +4,7 @@ DISABLED_CPP_TESTS = [
     "test_vrep_controller",
     "test_ros2gams",
     "test_controller_run",
+    "test_types",
 ]
 
 cc_library(
