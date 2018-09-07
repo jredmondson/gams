@@ -62,3 +62,8 @@ types                   = 0
 /// Enable this feature if you don't want GAMS to use RTTI
 /// (Run-Time Type Information, i.e., typeid and dynamic_cast)
 nortti                  = 0
+
+/// @feature simtime
+/// Because simtime feature is now a core part the project settings,
+/// we need to set this to 0
+simtime                 = 0
