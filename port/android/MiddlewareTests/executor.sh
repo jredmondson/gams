@@ -7,7 +7,7 @@ fi
 
 echo "Running basic tests"
 
-basicTests=($(jar tf app/libs/madara-3.3.0-tests.jar | grep "ai/madara/tests/basic/.*class$"))
+basicTests=($(jar tf app/libs/madara-tests.jar | grep "ai/madara/tests/basic/.*class$"))
 for testClass in "${basicTests[@]}"
 do
 
