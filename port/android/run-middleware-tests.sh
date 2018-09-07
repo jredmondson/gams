@@ -122,6 +122,7 @@ cp $CAPNP_ROOT/c++/.libs/libkj-*.so $JNI_LIBS_DIR_ARCH
 
 
 #Copy jars.
+mkdir -p $JAR_LIBS_DIR
 cp $MADARA_ROOT/lib/madara.jar $JAR_LIBS_DIR
 cp $MADARA_ROOT/lib/madara-tests.jar $JAR_LIBS_DIR
 cp $GAMS_ROOT/lib/gams.jar $JAR_LIBS_DIR
