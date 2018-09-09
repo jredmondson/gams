@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ai.gams</groupId>
 	<artifactId>gams</artifactId>
-	<version>1.2.2</version>
+	<version>1.2.3</version>
 	<description>Provides standardized algorithm and platform interfaces for multi-agent robotic systems.</description>
 	<name>Group Autonomy for Mobile Systems</name>
 	<url>http://gams.ai</url>

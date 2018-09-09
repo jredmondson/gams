@@ -100,6 +100,7 @@ CLEAN=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
 TYPES=0
+ANDROID_TESTS=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -127,7 +128,7 @@ CAPNP_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
-INSTALL_DIR=`pwd`
+export INSTALL_DIR=`pwd`
 SCRIPTS_DIR=`dirname $0`
 
 if [ -z $CORES ] ; then
@@ -194,6 +195,8 @@ do
     ANDROID=1
     JAVA=1
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
+  elif [ "$var" = "android-tests" ]; then 
+    ANDROID_TESTS=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
   else
@@ -985,6 +988,11 @@ if [ $DMPL -eq 1 ]; then
   make depend MZSRM=0 -j $CORES
   make MZSRM=0 -j $CORES
   DART_BUILD_RESULT=$?
+fi
+
+if [ $ANDROID_TESTS -eq 1 ]; then
+  cd $GAMS_ROOT/port/android
+  ./run-middleware-tests.sh
 fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
