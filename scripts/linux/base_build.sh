@@ -75,6 +75,7 @@
 
 DEBUG=0
 TESTS=0
+TUTORIALS=0
 VREP=0
 JAVA=0
 ROS=0
@@ -90,6 +91,7 @@ DOCS=0
 VREP_CONFIG=0
 ZMQ=0
 SIMTIME=0
+NOTHREADLOCAL=0
 SSL=0
 DMPL=0
 LZ4=0
@@ -98,6 +100,7 @@ CLEAN=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
 TYPES=0
+ANDROID_TESTS=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -125,7 +128,7 @@ CAPNP_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
-INSTALL_DIR=`pwd`
+export INSTALL_DIR=`pwd`
 SCRIPTS_DIR=`dirname $0`
 
 if [ -z $CORES ] ; then
@@ -179,6 +182,10 @@ do
     ZMQ=1
   elif [ "$var" = "simtime" ]; then
     SIMTIME=1
+  elif [ "$var" = "tutorials" ]; then
+    TUTORIALS=1
+  elif [ "$var" = "nothreadlocal" ]; then
+    NOTHREADLOCAL=1
   elif [ "$var" = "ssl" ]; then
     SSL=1
   elif [ "$var" = "odroid" ]; then
@@ -188,6 +195,8 @@ do
     ANDROID=1
     JAVA=1
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
+  elif [ "$var" = "android-tests" ]; then 
+    ANDROID_TESTS=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
   else
@@ -212,6 +221,7 @@ do
     echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
+    echo "  tutorials       build MADARA tutorials"
     echo "  types           builds libTYPES.so"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
@@ -385,7 +395,7 @@ echo ""
 unzip_strip() (
   local zip=$1
   local dest=${2:-.}
-  local temp=$(mktemp -d) && unzip -d "$temp" "$zip" && mkdir -p "$dest" &&
+  local temp=$(mktemp -d) && unzip -qq -d "$temp" "$zip" && mkdir -p "$dest" &&
   shopt -s dotglob && local f=("$temp"/*) &&
   if (( ${#f[@]} == 1 )) && [[ -d "${f[0]}" ]] ; then
     mv "$temp"/*/* "$dest"
@@ -424,12 +434,13 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     sudo apt-get install -y -f clang-5.0 libc++-dev libc++abi-dev
   fi
 
-  if [ $JAVA -eq 1 ]; then
+  if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
     sudo apt-get install -y -f oracle-java8-set-default
     sudo apt-get install -y maven
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
     rc_str="export JAVA_HOME=$JAVA_HOME"
     append_if_needed "$rc_str" "$HOME/.bashrc"
+  
   fi
 
   if [ $PYTHON -eq 1 ]; then
@@ -462,7 +473,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     ) || exit $?
 
      if [ ! -d $BOOST_ANDROID_ROOT ] || [ ! -d "$BOOST_ANDROID_ROOT/build/$ANDROID_ARCH" ]; then
-       git clone "git@github.com:amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
+       git clone "https://github.com/amsurana/Boost-for-Android.git" $BOOST_ANDROID_ROOT
        cd $BOOST_ANDROID_ROOT;
        echo "Boost is cloned in $BOOST_ANDROID_ROOT"
        ./build-android.sh --boost=1.65.1 --arch=$ANDROID_ARCH $NDK_ROOT
@@ -754,10 +765,15 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     exit 1;
   fi
   
+  if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
+     echo "Set JAVA_HOME or use prereqs to download Oracle Java automatically"
+     exit 1;
+  fi
 
   cd $INSTALL_DIR
 
   if [ ! -d $MADARA_ROOT ] ; then
+  
     echo "DOWNLOADING MADARA"
     echo "git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT"
     git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
@@ -776,8 +792,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,clang=$CLANG,debug=$DEBUG MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -787,10 +803,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
-  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
-  echo "make android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
-  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
+  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  echo "make android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
+  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
@@ -918,13 +934,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo "STRIPPING GAMS"
     $STRIP_EXE libGAMS.so*
   fi
- if [ $ANDROID -eq 1 ]; then
-    echo "Building Demo Android app"
-    cd $GAMS_ROOT/port/android
-    chmod a+x build.sh
-    ./build.sh
-   cd $GAMS_ROOT
-  fi
+#  if [ $ANDROID -eq 1 ]; then
+#     echo "Building Demo Android app"
+#     cd $GAMS_ROOT/port/android
+#     chmod a+x build.sh
+#     ./build.sh
+#    cd $GAMS_ROOT
+#   fi
 else
   echo "NOT BUILDING GAMS"
 fi
@@ -972,6 +988,11 @@ if [ $DMPL -eq 1 ]; then
   make depend MZSRM=0 -j $CORES
   make MZSRM=0 -j $CORES
   DART_BUILD_RESULT=$?
+fi
+
+if [ $ANDROID_TESTS -eq 1 ]; then
+  cd $GAMS_ROOT/port/android
+  ./run-middleware-tests.sh
 fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
