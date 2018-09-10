@@ -456,10 +456,13 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     std::replace ( child_frame_id.begin (), child_frame_id.end (), '/', '_');
 
     // parse the rotation and orientation
-    gams::pose::ReferenceFrame parent = gams::pose::ReferenceFrame::load (
-      *knowledge_, frame_id);
-
-    if (!parent.valid ())
+    gams::pose::ReferenceFrame parent;
+    try
+    {
+      parent = gams::pose::ReferenceFrame::load (
+        *knowledge_, frame_id);
+    }
+    catch (gams::exceptions::ReferenceFrameException)
     {
       parent = gams::pose::ReferenceFrame (frame_id,
         gams::pose::Pose (gams::pose::ReferenceFrame (), 0, 0));
@@ -489,34 +492,38 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
   {
     // World and base frames are defined so we can calculate the agent
     // location and orientation
-    gams::pose::ReferenceFrame world  = gams::pose::ReferenceFrame::load (
-    *knowledge_, world_frame_);
-    gams::pose::ReferenceFrame base  = gams::pose::ReferenceFrame::load (
-    *knowledge_, base_frame_, max_timestamp);
-
-    if (world.valid () && base.valid ())
+    gams::pose::ReferenceFrame world;
+    gams::pose::ReferenceFrame base;
+    try
     {
-      try
-      {
-        gams::pose::Pose base_pose = base.origin ().transform_to (world);
-        containers::NativeDoubleVector location ("agents.0.location",
-          *knowledge_, 3, eval_settings_);
-        containers::NativeDoubleVector orientation ("agents.0.orientation",
-          *knowledge_, 3, eval_settings_);
-        location.set (0, base_pose.as_location_vec ().get (0), eval_settings_);
-        location.set (1, base_pose.as_location_vec ().get (1), eval_settings_);
-        location.set (2, base_pose.as_location_vec ().get (2), eval_settings_);
-        orientation.set (0, base_pose.as_orientation_vec ().get (0),
-          eval_settings_);
-        orientation.set (1, base_pose.as_orientation_vec ().get (1),
-          eval_settings_);
-        orientation.set (2, base_pose.as_orientation_vec ().get (2),
-          eval_settings_);
-
-      }
-      catch ( gams::pose::unrelated_frames ex){}
+      world  = gams::pose::ReferenceFrame::load (
+      *knowledge_, world_frame_);
+      base  = gams::pose::ReferenceFrame::load (
+      *knowledge_, base_frame_, max_timestamp);
     }
+    catch (gams::exceptions::ReferenceFrameException)
+    {
+      return;
+    }
+    try
+    {
+      gams::pose::Pose base_pose = base.origin ().transform_to (world);
+      containers::NativeDoubleVector location ("agents.0.location",
+        *knowledge_, 3, eval_settings_);
+      containers::NativeDoubleVector orientation ("agents.0.orientation",
+        *knowledge_, 3, eval_settings_);
+      location.set (0, base_pose.as_location_vec ().get (0), eval_settings_);
+      location.set (1, base_pose.as_location_vec ().get (1), eval_settings_);
+      location.set (2, base_pose.as_location_vec ().get (2), eval_settings_);
+      orientation.set (0, base_pose.as_orientation_vec ().get (0),
+        eval_settings_);
+      orientation.set (1, base_pose.as_orientation_vec ().get (1),
+        eval_settings_);
+      orientation.set (2, base_pose.as_orientation_vec ().get (2),
+        eval_settings_);
 
+    }
+    catch ( gams::pose::unrelated_frames ex){}
   }
 }
 

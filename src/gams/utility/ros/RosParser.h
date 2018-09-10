@@ -22,6 +22,7 @@
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
+#include "gams/exceptions/ReferenceFrameException.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
