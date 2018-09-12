@@ -109,6 +109,8 @@ if [ ! -z $ZMQ ] && [ $ZMQ -eq 1 ]; then
   cp $ZMQ_ROOT/lib/libzmq.so $JNI_LIBS_DIR_ARCH
 fi
 
+
+
 #Copy CAPNPRO files
 
 if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json-*.so ]; then
@@ -153,7 +155,7 @@ echo "sdk.dir=$ANDROID_SDK_DIR" > "$DEMO_PRJ_DIR/local.properties"
 echo "ndk.dir=$NDK_ROOT" >> "$DEMO_PRJ_DIR/local.properties"
 
 #install adb.
-if ! [ -x "$(command -v adb)" ]; then
+if [ ! -x "$(command -v adb)" ]; then
   echo 'adb is not installed.' >&2
   exit 1
 fi
