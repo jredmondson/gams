@@ -385,7 +385,7 @@ if [ $ANDROID -eq 1 ]; then
   fi
 
   if [ $SSL -eq 1 ] && [ -z $SSL_ROOT ]; then
-       $SSL_ROOT= $INSTALL_DIR/openssl;
+       SSL_ROOT = $INSTALL_DIR/openssl;
   fi
 
 fi
