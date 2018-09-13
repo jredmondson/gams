@@ -385,7 +385,7 @@ if [ $ANDROID -eq 1 ]; then
   fi
 
   if [ $SSL -eq 1 ] && [ -z $SSL_ROOT ]; then
-       SSL_ROOT = $INSTALL_DIR/openssl;
+       SSL_ROOT=$INSTALL_DIR/openssl;
   fi
 
 fi
@@ -489,6 +489,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
      fi 
 
      if [ $SSL -eq 1 ]; then
+        echo "SSL_ROOT is set to $SSL_ROOT"
         if [ ! -d $SSL_ROOT ]; then
           git clone --depth 1 https://github.com/openssl/openssl.git $SSL_ROOT
         fi
