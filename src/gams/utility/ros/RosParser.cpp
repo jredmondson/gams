@@ -865,31 +865,35 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
 /*
   Determines the size of an ros introspection array
 */
-template <class T>
 unsigned int gams::utility::ros::RosParser::get_array_size(std::string var_name,
-  std::vector<std::pair<std::string, T>> array)
+  RosIntrospection::RenamedValues* array)
 {
+
+  unsigned int len = 0;
   std::size_t dot_pos = var_name.find(".");
+  std::string array_name = var_name.substr(0, dot_pos);
   if (dot_pos == std::string::npos)
   {
     // This is no array
-    return 1;
+    len = 1;
   }
-  std::string array_name = var_name.substr(0, dot_pos);
-
-  auto cached = ros_array_sizes_.find(array_name);
-  if (cached != ros_array_sizes_.end())
+  else
   {
-    return cached->second;
-  }
-
-  unsigned int len = 0;
-  for ( auto it : array)
-  {
-    std::string key = it.first;
-    if (key.rfind(array_name, 0) == 0)
+    auto cached = ros_array_sizes_.find(array_name);
+    if (cached != ros_array_sizes_.end())
     {
-      len++;
+      len = cached->second;
+    }
+    else
+    {
+      for ( auto it : *array)
+      {
+        std::string key = it.first;
+        if (key.rfind(array_name, 0) == 0)
+        {
+          len++;
+        }
+      }
     }
   }
   ros_array_sizes_[array_name] = len;
@@ -923,8 +927,8 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
 
   // deserialize and rename the vectors
   bool success = parser_.deserializeIntoFlatContainer ( topic_name,
-  absl::Span<uint8_t> (parser_buffer),
-  &flat_container, 2048 );
+    absl::Span<uint8_t> (parser_buffer),
+    &flat_container, 10240000 );
 
   if (!success)
   {
@@ -944,7 +948,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     const std::string& key = it.first;
     const RosIntrospection::Variant& value   = it.second;
 
-    int array_size = get_array_size(key, renamed_values);
+    int array_size = get_array_size(key, &renamed_values);
 
     std::string name = key.substr (topic_len);
 
@@ -976,7 +980,7 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     const std::string& key    = it.first.toStdString ();
     const std::string& value  = it.second;
 
-    int array_size = get_array_size(key, renamed_values);
+    int array_size = get_array_size(key, &renamed_values);
 
 
     auto val = strdup(value.c_str());
