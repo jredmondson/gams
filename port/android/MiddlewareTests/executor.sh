@@ -7,8 +7,14 @@ fi
 
 echo "Running basic tests"
 
-basicTests=($(jar tf app/libs/madara-tests.jar | grep "ai/madara/tests/basic/.*class$"))
-for testClass in "${basicTests[@]}"
+testFiles=($(jar tf app/libs/madara-tests.jar | grep "ai/madara/tests/basic/.*class$"))
+
+#Add SSL tests if SSL is enabled
+if [ ! -z $SSL ] && [ $SSL -eq 1 ]; then
+  testFiles+=($(jar tf app/libs/madara-tests.jar | grep "ai/madara/tests/ssl/.*class$"))
+fi
+
+for testClass in "${testFiles[@]}"
 do
 
 testClass="${testClass/.class/}"
