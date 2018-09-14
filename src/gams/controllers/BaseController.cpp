@@ -152,7 +152,7 @@ gams::controllers::BaseController::monitor (void)
       result = platform_->sense ();
     } catch (std::exception &e) {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
+        gams::loggers::LOG_ERROR,
         "gams::controllers::BaseController::analyze:" \
         " exception in platform_->sense (): %s\n", e.what());
     }
@@ -193,7 +193,8 @@ gams::controllers::BaseController::system_analyze (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::controllers::BaseController::system_analyze:" \
-        " agent.algorithm already analyzed (last_algorithm=%d, cur_algorithm=%d)\n",
+        " agent.algorithm already analyzed "
+        "(last_algorithm=%d, cur_algorithm=%d)\n",
         (int)*self_.agent.last_algorithm_id,
         (int)*self_.agent.algorithm_id);
 
@@ -202,7 +203,8 @@ gams::controllers::BaseController::system_analyze (void)
     else
     {
       std::string prefix (self_.agent.algorithm_args.get_name () + ".");
-      madara::knowledge::KnowledgeMap args (knowledge_.to_map_stripped (prefix));
+      madara::knowledge::KnowledgeMap args (
+        knowledge_.to_map_stripped (prefix));
 
       self_.agent.algorithm_args.sync_keys ();
 
@@ -245,12 +247,14 @@ gams::controllers::BaseController::system_analyze (void)
   }
   else if (swarm_.algorithm != "")
   {
-    if (swarm_.algorithm_id != 0 && self_.agent.last_algorithm_id == swarm_.algorithm_id)
+    if (swarm_.algorithm_id != 0 &&
+      self_.agent.last_algorithm_id == swarm_.algorithm_id)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::controllers::BaseController::system_analyze:" \
-        " swarm.algorithm already analyzed (last_algorithm=%d, cur_algorithm=%d)\n",
+        " swarm.algorithm already analyzed ("
+        "last_algorithm=%d, cur_algorithm=%d)\n",
         (int) *self_.agent.last_algorithm_id,
         (int)*swarm_.algorithm_id);
 
@@ -307,9 +311,11 @@ gams::controllers::BaseController::system_analyze (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Setting MADARA debug level to %d\n", (int)*self_.agent.madara_debug_level);
+      " Setting MADARA debug level to %d\n",
+      (int)*self_.agent.madara_debug_level);
 
-    madara::logger::global_logger->set_level ((int)*self_.agent.madara_debug_level);
+    madara::logger::global_logger->set_level (
+      (int)*self_.agent.madara_debug_level);
   }
 
   if (self_.agent.gams_debug_level !=
@@ -318,9 +324,11 @@ gams::controllers::BaseController::system_analyze (void)
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
-      " Setting GAMS debug level to %d\n", (int)*self_.agent.gams_debug_level);
+      " Setting GAMS debug level to %d\n",
+      (int)*self_.agent.gams_debug_level);
 
-    gams::loggers::global_logger->set_level ((int)*self_.agent.gams_debug_level);
+    gams::loggers::global_logger->set_level (
+      (int)*self_.agent.gams_debug_level);
   }
 
   return return_value;
@@ -366,7 +374,7 @@ gams::controllers::BaseController::analyze (void)
       return_value |= algorithm_->analyze ();
     } catch (std::exception &e) {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
+        gams::loggers::LOG_ERROR,
         "gams::controllers::BaseController::analyze:" \
         " exception in algorithm_->analyze (): %s\n", e.what());
     }
@@ -412,7 +420,7 @@ gams::controllers::BaseController::plan (void)
       return_value |= algorithm_->plan ();
     } catch (std::exception &e) {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
+        gams::loggers::LOG_ERROR,
         "gams::controllers::BaseController::analyze:" \
         " exception in algorithm_->plan (): %s\n", e.what());
     }
@@ -458,7 +466,7 @@ gams::controllers::BaseController::execute (void)
       return_value |= algorithm_->execute ();
     } catch (std::exception &e) {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
+        gams::loggers::LOG_ERROR,
         "gams::controllers::BaseController::analyze:" \
         " exception in algorithm_->execute (): %s\n", e.what());
     }
@@ -875,7 +883,8 @@ const madara::knowledge::KnowledgeMap & args)
     algorithms::global_algorithm_factory()->set_sensors (&sensors_);
     algorithms::global_algorithm_factory()->set_platform (platform_);
 
-    new_accent = algorithms::global_algorithm_factory()->create (algorithm, args);
+    new_accent = algorithms::global_algorithm_factory()->create (
+      algorithm, args);
 
     if (new_accent)
     {
@@ -907,7 +916,7 @@ void gams::controllers::BaseController::clear_accents (void)
 }
 void
 gams::controllers::BaseController::init_algorithm (
-const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
+  const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
 {
   // initialize the algorithm
 
@@ -947,13 +956,14 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
     algorithms::global_algorithm_factory()->set_sensors (&sensors_);
     algorithms::global_algorithm_factory()->set_platform (platform_);
 
-    algorithm_ = algorithms::global_algorithm_factory()->create (algorithm, args);
+    algorithm_ = algorithms::global_algorithm_factory()->create (
+      algorithm, args);
 
     if (algorithm_ == 0)
     {
-      // the user is going to expect this kind of error to be printed immediately
+      // the user is going to expect this kind of error to be printed
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
-        gams::loggers::LOG_MAJOR,
+        gams::loggers::LOG_WARNING,
         "gams::controllers::BaseController::init_algorithm:" \
         " failed to create algorithm\n");
     }
@@ -985,7 +995,8 @@ const std::string & algorithm, const madara::knowledge::KnowledgeMap & args)
             gams::loggers::LOG_MAJOR,
             "gams::controllers::BaseController::init_algorithm:" \
             " Calling BaseAlgorithm init method.\n");
-          jobject controller = jvm.env->CallStaticObjectMethod (controller_class,
+          jobject controller = jvm.env->CallStaticObjectMethod (
+            controller_class,
             controllerFromPointerCall, (jlong)this, (jboolean)false); 
 
           jvm.env->CallVoidMethod (
@@ -1090,7 +1101,8 @@ gams::controllers::BaseController::init_platform (
   }
 }
 
-void gams::controllers::BaseController::init_algorithm (algorithms::BaseAlgorithm * algorithm)
+void gams::controllers::BaseController::init_algorithm (
+  algorithms::BaseAlgorithm * algorithm)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -1119,7 +1131,8 @@ void gams::controllers::BaseController::init_algorithm (algorithms::BaseAlgorith
 }
 
 
-void gams::controllers::BaseController::init_platform (platforms::BasePlatform * platform)
+void gams::controllers::BaseController::init_platform (
+  platforms::BasePlatform * platform)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -1354,7 +1367,8 @@ const Integer & processes)
 }
 
 void
-gams::controllers::BaseController::init_vars (platforms::BasePlatform & platform)
+gams::controllers::BaseController::init_vars (
+  platforms::BasePlatform & platform)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
@@ -1370,7 +1384,8 @@ gams::controllers::BaseController::init_vars (platforms::BasePlatform & platform
 
 
 void
-gams::controllers::BaseController::init_vars (algorithms::BaseAlgorithm & algorithm)
+gams::controllers::BaseController::init_vars (
+  algorithms::BaseAlgorithm & algorithm)
 {
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
