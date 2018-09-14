@@ -250,9 +250,9 @@ namespace gams
           void set_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
             std::string name, T val, unsigned int array_size);
           
-          template <class T>
+          //template <class T>
           unsigned int get_array_size(std::string var_name,
-            std::vector<std::pair<std::string, T>> array);
+            RosIntrospection::RenamedValues* array);
 
           /**
            * Substitutes the names of topic type members based on the registered
