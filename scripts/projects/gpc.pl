@@ -2185,6 +2185,7 @@ containers::${new_container}::modify (void)
 
   if (scalar @new_algorithm > 0 or scalar @new_platform > 0
       or scalar @new_thread > 0 or scalar @new_transport > 0
+      or scalar @containers > 0
       or scalar @new_platform_thread > 0
       or scalar @new_receive_filters > 0
       or scalar @new_send_filters > 0)

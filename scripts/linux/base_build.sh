@@ -403,6 +403,10 @@ if [ $ANDROID -eq 1 ]; then
     echo "Boost root is set to $BOOST_ANDROID_ROOT is not set."
   fi
 
+  if [ $SSL -eq 1 ] && [ -z $SSL_ROOT ]; then
+      export SSL_ROOT=$INSTALL_DIR/openssl;
+  fi
+
 fi
 
 if [ $DOCS -eq 1 ]; then
@@ -502,7 +506,26 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
        echo "Unable to download or setup boos. Refer README-ANDROID.md for manual setup"
        exit 1;
      fi 
-  fi
+
+     if [ $SSL -eq 1 ]; then
+        echo "SSL_ROOT is set to $SSL_ROOT"
+        if [ ! -d $SSL_ROOT ]; then
+          git clone --depth 1 https://github.com/openssl/openssl.git $SSL_ROOT
+        fi
+        cd $SSL_ROOT
+        export ANDROID_NDK=$NDK_ROOT
+        HOST_ARCH="linux-x86_64";
+        if [ $MAC == 1 ]; then
+          HOST_ARCH="darwin-x86_64";
+        fi 
+        export PATH=$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN-$ANDROID_ABI/prebuilt/$HOST_ARCH/bin:$PATH
+        echo $PATH;
+        ./Configure android-arm
+        make clean
+        make -j4
+     fi
+
+  fi #android condition ends
 
   if [ $ROS -eq 1 ]; then
     sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
@@ -746,9 +769,12 @@ else
 fi
 
 if [ $SSL -eq 1 ]; then
+  export SSL=1;
   if [ -z $SSL_ROOT ]; then
     if [ $MAC -eq 0 ]; then
       export SSL_ROOT=/usr
+    elif [ $ANDROID -eq 1 ]; then
+      export SSL_ROOT=$INSTALL_DIR/openssl
     else
       export SSL_ROOT=/usr/local/opt/openssl
     fi
