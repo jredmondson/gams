@@ -138,7 +138,20 @@ if [ -z $CORES ] ; then
   export CORES=1  
 fi
 
-for var in "$@"
+# if $@ is empty, the user wants to repeat last build with noclean
+
+if [ $# == 0 ]; then
+  echo "Loading last build with noclean..."
+  IFS=$'\r\n' GLOBIGNORE='*' command eval  'ARGS=($(cat $GAMS_ROOT/last_build.lst))'
+  ARGS+=("noclean")
+else
+  echo "Processing user arguments..."
+  ARGS=("$@")
+fi
+
+echo "build features: ${ARGS[@]}"
+
+for var in "${ARGS[@]}"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
@@ -213,10 +226,16 @@ do
     echo "  java            build java jar"
     echo "  lz4             build with LZ4 compression"
     echo "  madara          build MADARA"
-    echo "  noclean         do not run 'make clean' before builds"
+    echo "  noclean         do not run 'make clean' before builds."
+    echo "                  This is an option that supercharges the build"
+    echo "                  process and can reduce build times to seconds."
+    echo "                  99.9% of update builds can use this, unless you"
+    echo "                  are changing features (e.g., enabling ssl when"
+    echo "                  you had previously not enabled ssl)"
     echo "  odroid          target ODROID computing platform"
     echo "  python          build with Python 2.7 support"
-    echo "  prereqs         use apt-get to install prereqs"
+    echo "  prereqs         use apt-get to install prereqs. This usually only"
+    echo "                  has to be used on the first usage of a feature"
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
@@ -676,9 +695,9 @@ if [ $ZMQ -eq 1 ]; then
 
   if [ -z $ZMQ_ROOT ]; then
       if [ $ANDROID -eq 1 ]; then
-         export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
+        export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
       else 
-          export ZMQ_ROOT=/usr/local
+        export ZMQ_ROOT=/usr/local
       fi
   fi
 
@@ -999,7 +1018,12 @@ if [ $VREP_CONFIG -eq 1 ]; then
   echo "CONFIGURING 20 VREP PORTS"
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
-  
+
+# save the last feature changing build (need to fix this by flattening $@)
+if [ $CLEAN -eq 1 ]; then
+  echo "$@" > $GAMS_ROOT/last_build.lst
+fi
+
 echo ""
 echo "BUILD STATUS"
 
