@@ -142,7 +142,7 @@ fi
 
 if [ $# == 0 ]; then
   echo "Loading last build with noclean..."
-  IFS=$'\r\n' GLOBIGNORE='*' command eval  'ARGS=($(cat $GAMS_ROOT/last_build.lst))'
+  IFS=$'\r\n ' GLOBIGNORE='*' command eval  'ARGS=($(cat $GAMS_ROOT/last_build.lst))'
   ARGS+=("noclean")
 else
   echo "Processing user arguments..."
