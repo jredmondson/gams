@@ -1210,7 +1210,8 @@ fi
 
 echo -e "\e[39m"
 echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
-echo -e "IN YOUR BASHRC OR TERMINAL."
+echo -e "IN YOUR BASHRC OR TERMINAL. To update with same parameters, try"
+echo -e "calling base_build.sh again with no arguments."
 echo -e ""
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
