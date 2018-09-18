@@ -573,14 +573,35 @@ if [ $LZ4 -eq 1 ] ; then
     cd $LZ4_ROOT
     git pull
   fi
+
+  if [ $ANDROID -eq 1 ]; then
+    cd $LZ4_ROOT
+    export CROSS_PATH=${NDK_TOOLS}/bin/${ANDROID_TOOLCHAIN}
+    export AR=${CROSS_PATH}-ar
+    export AS=${CROSS_PATH}-as
+    export NM=${CROSS_PATH}-nm
+    export CC=${CROSS_PATH}-gcc
+    export CXX=${CROSS_PATH}-clang++
+    export LD=${CROSS_PATH}-ld
+    export RANLIB=${CROSS_PATH}-ranlib
+    export STRIP=${CROSS_PATH}-strip
+
+    make clean
+    make 
+
+  fi
+
   LZ4_REPO_RESULT=$?
 
   if [ -f $LZ4_ROOT/lib/lz4.c ] ; then
     echo "mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
-    mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+    cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+  fi
+
+  if [ ! -f $LZ4_ROOT/lib/liblz4.so ]; then
+    echo "LZ4 library did not build properly";
   fi
 fi
-
 
 # check if MPC is a prereq for later packages
 
