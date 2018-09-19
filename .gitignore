@@ -4,6 +4,7 @@
 *.o
 *.d
 Makefile
+last_build.lst
 *algorithm*.txt
 *.csv
 .depend.*

@@ -138,7 +138,20 @@ if [ -z $CORES ] ; then
   export CORES=1  
 fi
 
-for var in "$@"
+# if $@ is empty, the user wants to repeat last build with noclean
+
+if [ $# == 0 ]; then
+  echo "Loading last build with noclean..."
+  IFS=$'\r\n ' GLOBIGNORE='*' command eval  'ARGS=($(cat $GAMS_ROOT/last_build.lst))'
+  ARGS+=("noclean")
+else
+  echo "Processing user arguments..."
+  ARGS=("$@")
+fi
+
+echo "build features: ${ARGS[@]}"
+
+for var in "${ARGS[@]}"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
@@ -213,10 +226,16 @@ do
     echo "  java            build java jar"
     echo "  lz4             build with LZ4 compression"
     echo "  madara          build MADARA"
-    echo "  noclean         do not run 'make clean' before builds"
+    echo "  noclean         do not run 'make clean' before builds."
+    echo "                  This is an option that supercharges the build"
+    echo "                  process and can reduce build times to seconds."
+    echo "                  99.9% of update builds can use this, unless you"
+    echo "                  are changing features (e.g., enabling ssl when"
+    echo "                  you had previously not enabled ssl)"
     echo "  odroid          target ODROID computing platform"
     echo "  python          build with Python 2.7 support"
-    echo "  prereqs         use apt-get to install prereqs"
+    echo "  prereqs         use apt-get to install prereqs. This usually only"
+    echo "                  has to be used on the first usage of a feature"
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
@@ -384,6 +403,10 @@ if [ $ANDROID -eq 1 ]; then
     echo "Boost root is set to $BOOST_ANDROID_ROOT is not set."
   fi
 
+  if [ $SSL -eq 1 ] && [ -z $SSL_ROOT ]; then
+      export SSL_ROOT=$INSTALL_DIR/openssl;
+  fi
+
 fi
 
 if [ $DOCS -eq 1 ]; then
@@ -483,7 +506,26 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
        echo "Unable to download or setup boos. Refer README-ANDROID.md for manual setup"
        exit 1;
      fi 
-  fi
+
+     if [ $SSL -eq 1 ]; then
+        echo "SSL_ROOT is set to $SSL_ROOT"
+        if [ ! -d $SSL_ROOT ]; then
+          git clone --depth 1 https://github.com/openssl/openssl.git $SSL_ROOT
+        fi
+        cd $SSL_ROOT
+        export ANDROID_NDK=$NDK_ROOT
+        HOST_ARCH="linux-x86_64";
+        if [ $MAC == 1 ]; then
+          HOST_ARCH="darwin-x86_64";
+        fi 
+        export PATH=$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN-$ANDROID_ABI/prebuilt/$HOST_ARCH/bin:$PATH
+        echo $PATH;
+        ./Configure android-arm
+        make clean
+        make -j4
+     fi
+
+  fi #android condition ends
 
   if [ $ROS -eq 1 ]; then
     sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
@@ -676,9 +718,9 @@ if [ $ZMQ -eq 1 ]; then
 
   if [ -z $ZMQ_ROOT ]; then
       if [ $ANDROID -eq 1 ]; then
-         export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
+        export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
       else 
-          export ZMQ_ROOT=/usr/local
+        export ZMQ_ROOT=/usr/local
       fi
   fi
 
@@ -727,9 +769,12 @@ else
 fi
 
 if [ $SSL -eq 1 ]; then
+  export SSL=1;
   if [ -z $SSL_ROOT ]; then
     if [ $MAC -eq 0 ]; then
       export SSL_ROOT=/usr
+    elif [ $ANDROID -eq 1 ]; then
+      export SSL_ROOT=$INSTALL_DIR/openssl
     else
       export SSL_ROOT=/usr/local/opt/openssl
     fi
@@ -999,7 +1044,12 @@ if [ $VREP_CONFIG -eq 1 ]; then
   echo "CONFIGURING 20 VREP PORTS"
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
-  
+
+# save the last feature changing build (need to fix this by flattening $@)
+if [ $CLEAN -eq 1 ]; then
+  echo "$@" > $GAMS_ROOT/last_build.lst
+fi
+
 echo ""
 echo "BUILD STATUS"
 
@@ -1160,7 +1210,8 @@ fi
 
 echo -e "\e[39m"
 echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
-echo -e "IN YOUR BASHRC OR TERMINAL."
+echo -e "IN YOUR BASHRC OR TERMINAL. To update with same parameters, try"
+echo -e "calling base_build.sh again with no arguments."
 echo -e ""
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
