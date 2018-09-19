@@ -14,6 +14,11 @@ if [ ! -z $SSL ] && [ $SSL -eq 1 ]; then
   testFiles+=($(jar tf app/libs/madara-tests.jar | grep "ai/madara/tests/ssl/.*class$"))
 fi
 
+
+if [ ! -z $LZ4 ] && [ $LZ4 -eq 1 ]; then
+  testFiles+=($(jar tf app/libs/madara-tests.jar | grep "ai/madara/tests/lz4/.*class$"))
+fi
+
 for testClass in "${testFiles[@]}"
 do
 

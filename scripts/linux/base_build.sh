@@ -210,6 +210,8 @@ do
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
   elif [ "$var" = "android-tests" ]; then 
     ANDROID_TESTS=1
+    ANDROID=1
+    JAVA=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
   else
@@ -347,7 +349,7 @@ if [ $ANDROID -eq 1 ]; then
     echo "ANDROID_ARCH has been set to $ANDROID_ARCH"
   fi
   if [ -z "$NDK_VERSION" ]; then
-    export NDK_VERSION=r16b
+    export NDK_VERSION=r17c
     echo "NDK_VERSION is unset; defaulting to $NDK_VERSION"
   else
     echo "NDK_VERSION has been set to $NDK_VERSION"
@@ -565,6 +567,7 @@ fi
 
 
 if [ $LZ4 -eq 1 ] ; then
+  export LZ4=1
   if [ ! -d $LZ4_ROOT  ]; then
     echo "git clone https://github.com/lz4/lz4.git $LZ4_ROOT"
     git clone https://github.com/lz4/lz4.git $LZ4_ROOT
@@ -594,7 +597,7 @@ if [ $LZ4 -eq 1 ] ; then
   LZ4_REPO_RESULT=$?
 
   if [ -f $LZ4_ROOT/lib/lz4.c ] ; then
-    echo "mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
+    echo "cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
     cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
   fi
 
