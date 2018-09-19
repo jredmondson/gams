@@ -1,4 +1,5 @@
 project {
+  libpaths += /usr/local/lib
   expand(BOOST_ROOT_LIB) {
     $BOOST_ROOT_LIB
     $(BOOST_ROOT)/stage/lib
