@@ -703,7 +703,7 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     export AR=${CROSS_PATH}-ar
     export AS=${CROSS_PATH}-as
     export NM=${CROSS_PATH}-nm
-    export CC=${CROSS_PATH}-gcc
+    export CC=${CROSS_PATH}-clang++
     export CXX=${CROSS_PATH}-clang++
     export LD=${CROSS_PATH}-ld
     export RANLIB=${CROSS_PATH}-ranlib
