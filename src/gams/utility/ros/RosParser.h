@@ -22,6 +22,7 @@
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
+#include "gams/exceptions/ReferenceFrameException.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -91,6 +92,9 @@ namespace gams
       class RosParser
       {
         public:
+
+          const std::string IGNORE_MARKER = "_IGNORE_";
+
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
             std::map<std::string, std::string> capnp_types,
@@ -246,9 +250,9 @@ namespace gams
           void set_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
             std::string name, T val, unsigned int array_size);
           
-          template <class T>
+          //template <class T>
           unsigned int get_array_size(std::string var_name,
-            std::vector<std::pair<std::string, T>> array);
+            RosIntrospection::RenamedValues* array);
 
           /**
            * Substitutes the names of topic type members based on the registered
