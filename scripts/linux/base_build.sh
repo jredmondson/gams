@@ -210,6 +210,8 @@ do
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
   elif [ "$var" = "android-tests" ]; then 
     ANDROID_TESTS=1
+    ANDROID=1
+    JAVA=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
   else
@@ -347,7 +349,7 @@ if [ $ANDROID -eq 1 ]; then
     echo "ANDROID_ARCH has been set to $ANDROID_ARCH"
   fi
   if [ -z "$NDK_VERSION" ]; then
-    export NDK_VERSION=r16b
+    export NDK_VERSION=r17c
     echo "NDK_VERSION is unset; defaulting to $NDK_VERSION"
   else
     echo "NDK_VERSION has been set to $NDK_VERSION"
@@ -565,6 +567,7 @@ fi
 
 
 if [ $LZ4 -eq 1 ] ; then
+  export LZ4=1
   if [ ! -d $LZ4_ROOT  ]; then
     echo "git clone https://github.com/lz4/lz4.git $LZ4_ROOT"
     git clone https://github.com/lz4/lz4.git $LZ4_ROOT
@@ -573,14 +576,35 @@ if [ $LZ4 -eq 1 ] ; then
     cd $LZ4_ROOT
     git pull
   fi
+
+  if [ $ANDROID -eq 1 ]; then
+    cd $LZ4_ROOT
+    export CROSS_PATH=${NDK_TOOLS}/bin/${ANDROID_TOOLCHAIN}
+    export AR=${CROSS_PATH}-ar
+    export AS=${CROSS_PATH}-as
+    export NM=${CROSS_PATH}-nm
+    export CC=${CROSS_PATH}-gcc
+    export CXX=${CROSS_PATH}-clang++
+    export LD=${CROSS_PATH}-ld
+    export RANLIB=${CROSS_PATH}-ranlib
+    export STRIP=${CROSS_PATH}-strip
+
+    make clean
+    make 
+
+  fi
+
   LZ4_REPO_RESULT=$?
 
   if [ -f $LZ4_ROOT/lib/lz4.c ] ; then
-    echo "mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
-    mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+    echo "cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
+    cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+  fi
+
+  if [ ! -f $LZ4_ROOT/lib/liblz4.so ]; then
+    echo "LZ4 library did not build properly";
   fi
 fi
-
 
 # check if MPC is a prereq for later packages
 

@@ -109,7 +109,15 @@ if [ ! -z $ZMQ ] && [ $ZMQ -eq 1 ]; then
   cp $ZMQ_ROOT/lib/libzmq.so $JNI_LIBS_DIR_ARCH
 fi
 
-
+if [ ! -z $LZ4 ] && [ $LZ4 -eq 1 ]; then
+   
+  if [ ! -f $LZ4_ROOT/lib/liblz4.so ]; then
+    echo "liblz4.so file not found in path. Check if LZ4 for Android is built properly"
+    exit 1;
+  fi
+  
+  cp $LZ4_ROOT/lib/liblz4.so $JNI_LIBS_DIR_ARCH
+fi
 
 #Copy CAPNPRO files
 
@@ -132,16 +140,16 @@ cp $GAMS_ROOT/lib/gams.jar $JAR_LIBS_DIR
 
 case $ANDROID_ARCH in
     arm32|arm|armeabi|armeabi-v7a)
-      cp $NDK_TOOLS/arm-linux-androideabi/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      cp $NDK_TOOLS/arm-linux-androideabi/lib/armv7-a/libc++_shared.so $JNI_LIBS_DIR_ARCH
       ;;
     arm64|aarch64)
-      cp $NDK_TOOLS/aarch64-linux-androidabi/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      cp $NDK_TOOLS/aarch64-linux-androidabi/lib/arm64-v8a/libc++_shared.so $JNI_LIBS_DIR_ARCH
       ;;
     x86)
-      cp $NDK_TOOLS/i686-linux-android/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      cp $NDK_TOOLS/i686-linux-android/lib/x86/libc++_shared.so $JNI_LIBS_DIR_ARCH
       ;;
     x64|x86_64)
-      cp $NDK_TOOLS/x86_64-linux-android/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH
+      cp $NDK_TOOLS/x86_64-linux-android/lib/x86_64/libc++_shared.so $JNI_LIBS_DIR_ARCH
       ;;
     *)
       echo "Unknown arch. Copy libc++_shared.so manually to $JNI_LIBS_DIR_ARCH"
