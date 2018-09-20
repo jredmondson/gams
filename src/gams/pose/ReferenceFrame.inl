@@ -772,7 +772,15 @@ inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
       const Container &ids,
       uint64_t timestamp,
       const FrameEvalSettings &settings) {
-  return load_tree(kb, ids.cbegin(), ids.cend(), timestamp, settings);
+  return load_tree(kb, ids.begin(), ids.end(), timestamp, settings);
+}
+
+inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
+      madara::knowledge::KnowledgeBase &kb,
+      const std::initializer_list<const char *> &ids,
+      uint64_t timestamp,
+      const FrameEvalSettings &settings) {
+  return load_tree(kb, ids.begin(), ids.end(), timestamp, settings);
 }
 
 inline void ReferenceFrame::save_as(
