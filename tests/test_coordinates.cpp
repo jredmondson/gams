@@ -694,7 +694,6 @@ int main(int, char *[])
     TEST(frames[0].origin().x(), 0);
   }
 
-#endif
   ReferenceFrameIdentity::gc();
   {
     madara::knowledge::KnowledgeBase kb;
@@ -828,6 +827,7 @@ int main(int, char *[])
       }
     }
   }
+#endif
 
   if (gams_fails > 0)
   {
