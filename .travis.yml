@@ -148,7 +148,7 @@ script:
   - $GAMS_ROOT/bin/test_auctions
   - $GAMS_ROOT/bin/test_controller_run
   - $GAMS_ROOT/bin/test_controller
-  - $GAMS_ROOT/bin/test_coordinates
+  - gdb -batch -ex "run" -ex "bt" $GAMS_ROOT/bin/test_coordinates
   - $GAMS_ROOT/bin/test_elections
   - $GAMS_ROOT/bin/test_groups
   - $GAMS_ROOT/bin/test_location
