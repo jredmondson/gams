@@ -351,9 +351,9 @@ int main(int, char *[])
       LOG(d1pos);
 
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
+  } catch (exceptions::ReferenceFrameException e) {
+    std::cout << "Exception: FAIL " << e.what() << std::endl;
+    TEST_EQ(0, 1);
   }
 
   std::vector<ReferenceFrame> pframes;
@@ -380,9 +380,9 @@ int main(int, char *[])
       LOG(d2pos);
         LOG(d1pos);
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
+  } catch (exceptions::ReferenceFrameException e) {
+    std::cout << "Exception: FAIL " << e.what() << std::endl;
+    TEST_EQ(0, 1);
   }
 
   try {
@@ -409,9 +409,9 @@ int main(int, char *[])
       LOG(d2pos);
       LOG(d1pos);
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
+  } catch (exceptions::ReferenceFrameException e) {
+    std::cout << "Exception: FAIL " << e.what() << std::endl;
+    TEST_EQ(0, 1);
   }
 
   try {
@@ -435,19 +435,15 @@ int main(int, char *[])
 
       Position cpos = frames[0].origin();
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
+  } catch (exceptions::ReferenceFrameException e) {
+    std::cout << "Exception: FAIL " << e.what() << std::endl;
+    TEST_EQ(0, 1);
   }
 
   FrameStore frame_store(kb, 4000);
-  try {
-    frames = frame_store.load_tree(ids, 2500);
-    TEST_EQ(frames.size(), 0UL);
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
-  }
+  EXPECT_EXCEPTION(
+    exceptions::ReferenceFrameException,
+    frames = frame_store.load_tree(ids, 2500));
 
   for (int x = 0; x <= 10000; x += 500) {
     ReferenceFrame exp("expiring", Pose(), x);
@@ -520,9 +516,9 @@ int main(int, char *[])
           TEST (transformed.z(), 1.75);
         }
       }
-    }
-    catch (exceptions::ReferenceFrameException e) {
-      std::cout << "Exception: FAIL " << e.what();
+    } catch (exceptions::ReferenceFrameException e) {
+      std::cout << "Exception: FAIL " << e.what() << std::endl;
+      TEST_EQ(0, 1);
     }
   }
 
@@ -595,8 +591,8 @@ int main(int, char *[])
     TEST_EQ(stamped_pose.frame() == gps_frame(), 0);
   }
 
-#if 0
   // TODO find out why this crashes in CI
+#if 0
   {
     madara::knowledge::KnowledgeBase kb;
 
@@ -613,11 +609,10 @@ int main(int, char *[])
     gchild.save(kb);
 
     std::vector<std::string> frame_ids = {"root", "child", "gchild"};
-    auto frames = ReferenceFrame::load_tree(kb, frame_ids);
     TEST_EQ(frames.empty(), 0);
 
-    frames = ReferenceFrame::load_tree(kb, frame_ids, 15);
-    TEST_EQ(frames.empty(), 1);
+    EXPECT_EXCEPTION(exceptions::ReferenceFrameException,
+        ReferenceFrame::load_tree(kb, frame_ids, 15));
 
     frames = ReferenceFrame::load_tree(kb, frame_ids, 10);
     TEST_EQ(frames.empty(), 0);
@@ -697,6 +692,140 @@ int main(int, char *[])
     auto frames = ReferenceFrame::load_tree(kb, std::vector<std::string>{"f1"});
     TEST(frames.size(), 1);
     TEST(frames[0].origin().x(), 0);
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto placeholder = ReferenceFrame("parent", Pose(ReferenceFrame()));
+      auto child = ReferenceFrame("child", Pose(placeholder));
+      auto child2 = ReferenceFrame("child2", Pose(placeholder, 5, 0));
+      child.save(kb);
+      child2.save(kb);
+    }
+
+    {
+      auto child = ReferenceFrame::load(kb, "child");
+      TEST_EQ(child.id(), std::string("child"));
+      TEST_EQ(child.origin_frame().id(), std::string("parent"));
+
+      auto child2 = ReferenceFrame::load(kb, "child2");
+      TEST_EQ(child2.origin_frame().id(), std::string("parent"));
+
+      Pose pose(child, 0,0);
+      Pose pose2 = pose.transform_to(child2);
+      TEST_EQ(pose2.x(), -5);
+    }
+
+    {
+      auto frames = ReferenceFrame::load_tree(kb, {"child", "child2"});
+      TEST_EQ(frames.size(), 2UL);
+      if (frames.size() == 2) {
+        TEST_EQ(frames[0].origin_frame().id(), std::string("parent"));
+        TEST_EQ(frames[1].origin_frame().id(), std::string("parent"));
+
+        Pose pose(frames[0], 0,0);
+        Pose pose2 = pose.transform_to(frames[1]);
+        TEST_EQ(pose2.x(), -5);
+      }
+    }
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto placeholder0 = ReferenceFrame("grandparent", Pose(ReferenceFrame()));
+      auto placeholder = ReferenceFrame("parent", Pose(placeholder0));
+      for (int i = 0; i < 11; ++i) {
+        auto child = ReferenceFrame("child", Pose(placeholder, 2 * i, 0),
+            10 * i);
+
+        auto child2 = ReferenceFrame("child2", Pose(placeholder, 4 * i + 4, 0),
+            10 * i + 4);
+        child.save(kb);
+        child2.save(kb);
+      }
+    }
+
+    {
+      auto child = ReferenceFrame::load(kb, "child");
+      TEST_EQ(child.id(), std::string("child"));
+      TEST_EQ(child.origin_frame().id(), std::string("parent"));
+
+      auto child2 = ReferenceFrame::load(kb, "child2");
+      TEST_EQ(child2.origin_frame().id(), std::string("parent"));
+
+      Pose pose(child, 0,0);
+      Pose pose2 = pose.transform_to(child2);
+      TEST_EQ(pose2.x(), -24);
+    }
+
+    {
+      auto frames = ReferenceFrame::load_tree(kb, {"child", "child2", "parent"});
+      TEST_EQ(frames.size(), 3UL);
+      if (frames.size() == 3) {
+        TEST_EQ(frames[0].origin_frame().id(), std::string("parent"));
+        TEST_EQ(frames[1].origin_frame().id(), std::string("parent"));
+
+        Pose pose(frames[0], 0,0);
+        Pose pose1 = pose.transform_to(frames[2]);
+        TEST_EQ(pose1.x(), 20);
+        Pose pose2 = pose.transform_to(frames[1]);
+        TEST(pose2.x(), -22.4);
+      }
+    }
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto placeholder = ReferenceFrame("grandparent", Pose(ReferenceFrame()));
+      auto parent = ReferenceFrame("parent", Pose(placeholder), 15);
+      parent.save(kb);
+      for (int i = 0; i < 11; ++i) {
+        auto child = ReferenceFrame("child", Pose(parent, 2 * i, 0),
+            10 * i);
+
+        auto child2 = ReferenceFrame("child2", Pose(parent, 4 * i + 4, 0),
+            10 * i + 4);
+        child.save(kb);
+        child2.save(kb);
+      }
+    }
+
+    {
+      auto child = ReferenceFrame::load(kb, "child");
+      TEST_EQ(child.id(), std::string("child"));
+      TEST_EQ(child.origin_frame().id(), std::string("parent"));
+
+      auto child2 = ReferenceFrame::load(kb, "child2");
+      TEST_EQ(child2.origin_frame().id(), std::string("parent"));
+
+      Pose pose(child, 0,0);
+      Pose pose2 = pose.transform_to(child2);
+      TEST_EQ(pose2.x(), -24);
+    }
+
+    {
+      auto frames = ReferenceFrame::load_tree(kb, {"child", "child2", "parent"});
+      TEST_EQ(frames.size(), 3UL);
+      if (frames.size() == 3) {
+        TEST_EQ(frames[0].origin_frame().id(), std::string("parent"));
+        TEST_EQ(frames[1].origin_frame().id(), std::string("parent"));
+
+        Pose pose(frames[0], 0,0);
+        Pose pose1 = pose.transform_to(frames[2]);
+        TEST_EQ(pose1.x(), 20);
+        Pose pose2 = pose.transform_to(frames[1]);
+        TEST(pose2.x(), -22.4);
+      }
+    }
   }
 #endif
 

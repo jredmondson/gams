@@ -82,6 +82,10 @@ class ReferenceFrameVersion;
  **/
 class GAMS_EXPORT ReferenceFrameIdentity
 {
+public:
+  static const uint64_t ETERNAL = ReferenceFrame::ETERNAL;
+  static const uint64_t TEMP = ReferenceFrame::TEMP;
+
 private:
     std::string id_;
 
@@ -95,7 +99,7 @@ private:
     mutable std::map<uint64_t, std::weak_ptr<ReferenceFrameVersion>>
       versions_;
 
-    mutable uint64_t expiry_ = -1;
+    mutable uint64_t expiry_ = ETERNAL;
 
     mutable std::mutex versions_lock_;
 
@@ -144,9 +148,9 @@ public:
      *
      * Expired frames are deleted from the KnowledgeBase.
      *
-     * Set to -1 (the default) to never expire frames.
+     * Set to ETERNAL (the default) to never expire frames.
      *
-     * Note: if a timestamp -1 frame is saved and this is not -1, all
+     * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
      * other frames will expire immediately.
      *
      * @return previous default expiry
@@ -172,9 +176,9 @@ public:
      *
      * Expired frames are deleted from the KnowledgeBase.
      *
-     * Set to -1 (the default) to never expire frames.
+     * Set to ETERNAL (the default) to never expire frames.
      *
-     * Note: if a timestamp -1 frame is saved and this is not -1, all
+     * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
      * other frames will expire immediately.
      *
      * @return previous expiry
@@ -224,7 +228,7 @@ namespace impl {
   inline static std::string &make_kb_key(
       std::string &prefix, uint64_t timestamp)
   {
-    if (timestamp == (uint64_t)-1) {
+    if (timestamp == ReferenceFrameIdentity::ETERNAL) {
       prefix += ".inf";
     } else {
       prefix += ".";
@@ -288,7 +292,7 @@ class GAMS_EXPORT ReferenceFrameVersion :
 private:
   mutable std::shared_ptr<ReferenceFrameIdentity> ident_;
   const ReferenceFrameType *type_;
-  uint64_t timestamp_ = -1;
+  uint64_t timestamp_ = ETERNAL;
   Pose origin_;
   mutable bool interpolated_ = false;
 
@@ -296,14 +300,17 @@ private:
   template<typename T>
   static uint64_t init_timestamp(uint64_t given, const T &p)
   {
-    if (given == (uint64_t)-1) {
-      return try_get_nano_time(-1, p);
+    if (given == ETERNAL) {
+      return try_get_nano_time(ETERNAL, p);
     } else {
       return given;
     }
   }
 
 public:
+  static const uint64_t ETERNAL = ReferenceFrameIdentity::ETERNAL;
+  static const uint64_t TEMP = ReferenceFrameIdentity::TEMP;
+
   /**
    * Constructor from an origin, and optional timestamp. Will be
    * constructed with Cartesian type, and a random id.
@@ -318,7 +325,7 @@ public:
       supports_transform_to<P>::value, void*>::type = nullptr>
   explicit ReferenceFrameVersion(
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : ReferenceFrameVersion({}, Cartesian,
         std::forward<P>(origin),
         timestamp) {}
@@ -340,7 +347,7 @@ public:
   ReferenceFrameVersion(
       const ReferenceFrameType *type,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : ReferenceFrameVersion({}, type,
         std::forward<P>(origin), timestamp) {}
 
@@ -360,7 +367,7 @@ public:
   ReferenceFrameVersion(
       std::string name,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : ReferenceFrameVersion(
         ReferenceFrameIdentity::lookup(std::move(name)), Cartesian,
         std::forward<P>(origin), timestamp) {}
@@ -383,7 +390,7 @@ public:
       const ReferenceFrameType *type,
       std::string name,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : ReferenceFrameVersion(
         ReferenceFrameIdentity::lookup(std::move(name)), type,
         std::forward<P>(origin), timestamp) {}
@@ -407,7 +414,7 @@ public:
       std::shared_ptr<ReferenceFrameIdentity> ident,
       const ReferenceFrameType *type,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : ident_(std::move(ident)),
       type_(type),
       timestamp_(init_timestamp(timestamp, origin)),
@@ -648,7 +655,7 @@ public:
   /**
    * Save this ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
-   * retrieval. If timestamp is -1, it will always be treated as the most
+   * retrieval. If timestamp is ETERNAL, it will always be treated as the most
    * recent frame.
    *
    * @param kb the KnowledgeBase to store into
@@ -664,7 +671,7 @@ public:
   /**
    * Save this ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
-   * retrieval. If timestamp is -1, it will always be treated as the most
+   * retrieval. If timestamp is ETERNAL, it will always be treated as the most
    * recent frame.
    *
    * @param kb the KnowledgeBase to store into
@@ -681,7 +688,7 @@ public:
    * ID and timestamp.
    *
    * @param id the ID of the frame to load
-   * @param timestamp of frame to load. -1 is matched exactly; it
+   * @param timestamp of frame to load. ETERNAL is matched exactly; it
    *   will only return a frame if one with that timestamp exists.
    * @param parent_timsteamp timestamp of parent to load. Parent is
    *   loaded using load()
@@ -692,17 +699,19 @@ public:
   static ReferenceFrame load_exact(
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
-          uint64_t timestamp = -1,
-          uint64_t parent_timestamp = -1,
-          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+          uint64_t timestamp = ETERNAL,
+          uint64_t parent_timestamp = ETERNAL,
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+          bool throw_on_errors = true);
 
+private:
   /**
    * Load a single ReferenceFrame, by ID and timestamp. Will not
    * interpolate. Returns an invalid frame if none exists with given
    * ID and timestamp.
    *
    * @param id the ID of the frame to load
-   * @param timestamp of frame to load. -1 is matched exactly; it
+   * @param timestamp of frame to load. ETERNAL is matched exactly; it
    *   will only return a frame if one with that timestamp exists.
    * @param parent_timsteamp timestamp of parent to load. Parent is
    *   loaded using load()
@@ -713,17 +722,18 @@ public:
   static ReferenceFrame load_exact_internal(
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
-          uint64_t timestamp = -1,
-          uint64_t parent_timestamp = -1,
+          uint64_t timestamp = ETERNAL,
+          uint64_t parent_timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
-          bool throwOnErrors = true);
+          bool throw_on_errors = true);
 
+public:
   /**
    * Load a single ReferenceFrame, by ID and timestamp, interpolated
    * if applicable.
    *
    * @param id the ID of the frame to load
-   * @param timestamp if -1, gets the latest frame (no interpolation)
+   * @param timestamp if ETERNAL, gets the latest frame (no interpolation)
    *   Otherwise, gets the frame at a specified timestamp,
    *   interpolated necessary.
    *
@@ -733,8 +743,9 @@ public:
   static ReferenceFrame load(
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
-          uint64_t timestamp = -1,
-          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+          uint64_t timestamp = ETERNAL,
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+          bool throw_on_errors = true);
 
   /**
    * Get the latest available timestamp in the knowledge base
@@ -743,7 +754,7 @@ public:
    * @param kb the knowledge base to search
    * @param id the id to search for
    *
-   * @return the latest timestamp for the id in kb. If timestamp -1 is
+   * @return the latest timestamp for the id in kb. If timestamp ETERNAL is
    *         available, that will be returned.
    **/
   static uint64_t latest_timestamp(
@@ -751,51 +762,86 @@ public:
           const std::string &id,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
+private:
+  using ancestor_elem = std::pair<std::string, uint64_t>;
+  using ancestor_vec = std::vector<ancestor_elem>;
+
+  static std::pair<uint64_t, uint64_t> find_nearest_neighbors(
+      madara::knowledge::KnowledgeBase &kb, const std::string &id,
+      uint64_t timestamp, const FrameEvalSettings &settings);
+
+  static ancestor_vec get_ancestry(
+      madara::knowledge::KnowledgeBase &kb,
+      std::string name,
+      const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+
+  static uint64_t find_common_timestamp_to_first_ancestor(
+      const std::vector<ancestor_vec> &stamps);
+
+public:
   /**
    * Get the latest available timestamp in the knowledge base
-   * common to all the given ids. Will return -1 if no common
+   * common to all the given ids. Will return ETERNAL if no common
    * timestamp is available.
    *
    * @param kb the knowledge base to search
-   * @param begin iterator which derences to std::string
+   * @param begin iterator which dereferences to std::string
    * @param end ending iterator
-   * @tparam ForwardIterator a ForwardIterator type
-   *         such as std::vector::iterator
+   * @tparam InputIterator an InputIterator type, such as std::vector::iterator
    *
-   * @return the latest timestamp for the id in kb. If timestamp -1 is
+   * @return the latest timestamp for the id in kb. If timestamp ETERNAL is
    *         available, that will be returned.
    **/
-  template<typename ForwardIterator>
+  template<typename InputIterator>
   static uint64_t latest_common_timestamp(
           madara::knowledge::KnowledgeBase &kb,
-          ForwardIterator begin,
-          ForwardIterator end,
+          InputIterator begin,
+          InputIterator end,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
-    madara::knowledge::ContextGuard guard(kb);
-
-    uint64_t timestamp = -1;
-    ForwardIterator cur = begin;
-    while (cur != end) {
-      uint64_t time = latest_timestamp(kb, *cur, settings);
-      if (time < timestamp) {
-        timestamp = time;
-      }
-      ++cur;
+    if (begin == end) {
+      return -1UL;
     }
-    return timestamp;
+
+    std::vector<ancestor_vec> stamps;
+
+    if (std::is_same<
+        typename std::iterator_traits<InputIterator>::iterator_category,
+        std::random_access_iterator_tag>::value) {
+      size_t count = std::distance(begin, end);
+
+      if (count == 1) {
+        madara::knowledge::ContextGuard guard(kb);
+
+        return find_nearest_neighbors(kb, *begin, -1, settings).first;
+      }
+
+      stamps.reserve(count);
+    }
+
+    {
+      madara::knowledge::ContextGuard guard(kb);
+
+      InputIterator cur = begin;
+      while (cur != end) {
+        stamps.emplace_back(get_ancestry(kb, *cur, settings));
+        ++cur;
+      }
+    }
+
+    return find_common_timestamp_to_first_ancestor(stamps);
   }
 
   /**
    * Get the latest available timestamp in the knowledge base
-   * common to all the given ids. Will return -1 if no common
+   * common to all the given ids. Will return ETERNAL if no common
    * timestamp is available.
    *
    * @param kb the knowledge base to search
    * @param container container of std::string
    * @tparam Container a container type (such as std::vector)
    *
-   * @return the latest timestamp for the id in kb. If timestamp -1 is
+   * @return the latest timestamp for the id in kb. If timestamp ETERNAL is
    *         available, that will be returned.
    **/
   template<typename Container>
@@ -818,7 +864,7 @@ public:
    *
    * @param begin beginning iterator
    * @param end ending iterator
-   * @param timestamp if -1, the latest possible tree will be returned.
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
    *   Otherwise, the specified timestamp will be returned.
    *
    * @return a vector of ReferenceFrames, each corresponding to the
@@ -830,11 +876,12 @@ public:
           madara::knowledge::KnowledgeBase &kb,
           ForwardIterator begin,
           ForwardIterator end,
-          uint64_t timestamp = -1,
+          uint64_t timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
     std::vector<ReferenceFrame> ret;
-    if (std::is_same<typename ForwardIterator::iterator_category,
+    if (std::is_same<
+        typename std::iterator_traits<ForwardIterator>::iterator_category,
         std::random_access_iterator_tag>::value) {
       size_t count = std::distance(begin, end);
       ret.reserve(count);
@@ -842,7 +889,7 @@ public:
 
     madara::knowledge::ContextGuard guard(kb);
 
-    if (timestamp == (uint64_t)-1) {
+    if (timestamp == ETERNAL) {
       timestamp = latest_common_timestamp(kb, begin, end, settings);
     }
     while (begin != end) {
@@ -853,8 +900,12 @@ public:
       ret.push_back(frame);
       ++begin;
     }
+    throw_if_not_connected(ret);
     return ret;
   }
+
+  static bool check_is_connected(const std::vector<ReferenceFrame> &frames);
+  static void throw_if_not_connected(const std::vector<ReferenceFrame> &frames);
 
   /**
    * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -865,7 +916,7 @@ public:
    *    of item type std::string
    *
    * @param ids a Container of ids
-   * @param timestamp if -1, the latest possible tree will be returned.
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
    *   Otherwise, the specified timestamp will be returned.
    *
    * @return a vector of ReferenceFrames, each corresponding to the
@@ -876,10 +927,10 @@ public:
   static std::vector<ReferenceFrame> load_tree(
           madara::knowledge::KnowledgeBase &kb,
           const Container &ids,
-          uint64_t timestamp = -1,
+          uint64_t timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
-    return load_tree(kb, ids.cbegin(), ids.cend(),
+    return load_tree(kb, ids.begin(), ids.end(),
                      timestamp, std::move(settings));
   }
 
@@ -984,6 +1035,9 @@ private:
   uint64_t expiry_;
 
 public:
+  static const uint64_t ETERNAL = ReferenceFrameIdentity::ETERNAL;
+  static const uint64_t TEMP = ReferenceFrameIdentity::TEMP;
+
   /**
    * Primary constructor for FrameStore
    *
@@ -1041,7 +1095,7 @@ public:
   /**
    * Save a ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
-   * retrieval. If timestamp is -1, it will always be treated as the most
+   * retrieval. If timestamp is ETERNAL, it will always be treated as the most
    * recent frame.
    *
    * @param frame the ReferenceFrame to store
@@ -1054,14 +1108,14 @@ public:
    * Load a single ReferenceFrame, by ID.
    *
    * @param id the ID of the frame to load
-   * @param timestamp if -1, gets the latest frame (no interpolation)
+   * @param timestamp if ETERNAL, gets the latest frame (no interpolation)
    *   Otherwise, gets the frame at a specified timestamp,
    *   interpolated necessary.
    *
    * @return the imported ReferenceFrame, or an invalid frame if none
    *         exists.
    **/
-   ReferenceFrame load(const std::string &id, uint64_t timestamp = -1) {
+   ReferenceFrame load(const std::string &id, uint64_t timestamp = ETERNAL) {
      return ReferenceFrame::load(kb_, id, timestamp, settings_);
    }
 
@@ -1074,7 +1128,7 @@ public:
    *
    * @param begin beginning iterator
    * @param end ending iterator
-   * @param timestamp if -1, the latest possible tree will be returned.
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
    *   Otherwise, the specified timestamp will be returned.
    *
    * @return a vector of ReferenceFrames, each corresponding to the
@@ -1085,7 +1139,7 @@ public:
   std::vector<ReferenceFrame> load_tree(
         InputIterator begin,
         InputIterator end,
-        uint64_t timestamp = -1) const {
+        uint64_t timestamp = ETERNAL) const {
    return ReferenceFrame::load_tree(kb_, begin, end, timestamp, settings_);
   }
 
@@ -1098,7 +1152,7 @@ public:
    *    of item type std::string
    *
    * @param ids a Container of ids
-   * @param timestamp if -1, the latest possible tree will be returned.
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
    *   Otherwise, the specified timestamp will be returned.
    *
    * @return a vector of ReferenceFrames, each corresponding to the
@@ -1108,7 +1162,7 @@ public:
   template<typename Container>
   std::vector<ReferenceFrame> load_tree(
         const Container &ids,
-        uint64_t timestamp = -1) const {
+        uint64_t timestamp = ETERNAL) const {
    return ReferenceFrame::load_tree(kb_, ids, timestamp, settings_);
   }
 };
