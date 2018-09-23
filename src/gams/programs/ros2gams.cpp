@@ -384,10 +384,6 @@ int main (int argc, char ** argv)
       RosIntrospection::ROSType (datatype), definition);
   }
 
-  /*std::vector<RosIntrospection::SubstitutionRule> rules;
-  rules.push_back( RosIntrospection::SubstitutionRule("angle_min", "angle_min", "aaa@") );
-  parser.registerRenamingRules( RosIntrospection::ROSType ("sensor_msgs/LaserScan"), rules);*/
-  // Name substitution
   parser.register_rename_rules(name_substitution_map);
 
   // Load the capnproto schemas
@@ -431,6 +427,9 @@ int main (int argc, char ** argv)
 
   // Iterate through all topics in the bagfile
   std::cout << "Converting...\n";
+  float progress;
+  int message_index = 0;
+  int progress_bar_width = 70;
   for (const rosbag::MessageInstance m: view)
   {
     std::string topic = m.getTopic ();
@@ -502,7 +501,31 @@ int main (int argc, char ** argv)
     }
     settings.last_lamport_clock += 1;
 
+    // Printing the progress bar
+    // See https://stackoverflow.com/questions/14539867/how-to-display-a-progress-indicator-in-pure-c-c-cout-printf
+    message_index++;
+    progress = message_index / float(view.size ());
+    std::cout << "[";
+    int pos = progress_bar_width * progress;
+    for (int i = 0; i < progress_bar_width; ++i) {
+        if (i < pos)
+        {
+          std::cout << "=";
+        }
+        else if (i == pos)
+        {
+          std::cout << ">";
+        }
+        else
+        {
+          std::cout << " ";
+        }
+    }
+    std::cout << "] " << int(progress * 100.0) << " % " << message_index << "/"
+      << view.size() << "\r";
+    std::cout.flush();
   }
+  std::cout << std::endl << "done" << std::endl;
   
   // Storing stats in the manifest knowledge
   manifest.set ("last_timestamp", (Integer) settings.last_timestamp);
@@ -513,7 +536,7 @@ int main (int argc, char ** argv)
   manifest.set ("initial_lamport_clock",
     (Integer) settings.initial_lamport_clock);
   manifest.set ("last_checkpoint_id", checkpoint_id-1);
-  manifest.save_as_karl(checkpoint_prefix + "_manifest.kb");
+  manifest.save_as_karl(checkpoint_prefix + ".manifest.kb");
 }
 #endif
 

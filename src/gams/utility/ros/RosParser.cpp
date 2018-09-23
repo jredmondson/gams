@@ -750,14 +750,14 @@ std::string gams::utility::ros::ros_to_gams_name (std::string ros_topic_name)
 void gams::utility::ros::RosParser::load_capn_schema(std::string path)
 {
   try{
-    int fd = open(path.c_str(), 0, O_RDONLY);
-    capnp::StreamFdMessageReader schema_message_reader(fd);
+    int fd = open (path.c_str (), 0, O_RDONLY);
+    capnp::StreamFdMessageReader schema_message_reader (fd);
     auto schema_reader = 
-      schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+      schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest> ();
   
-    for (auto schema : schema_reader.getNodes()) {
-      std::string schema_name = cleanCapnpSchemaName (schema.getDisplayName());
-      schemas_[schema_name] = capnp_loader_.load(schema);
+    for (auto schema : schema_reader.getNodes ()) {
+      std::string schema_name = cleanCapnpSchemaName (schema.getDisplayName ());
+      schemas_[schema_name] = capnp_loader_.load (schema);
     }
   }
   catch(...)
@@ -973,7 +973,8 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   }
   catch(...)
   {
-    std::cout << "Schema with name " << schema_name << "not found!" << std::endl;
+    std::cout << "Schema with name " << schema_name << "not found!"
+      << std::endl;
     exit(1);
   }
 
