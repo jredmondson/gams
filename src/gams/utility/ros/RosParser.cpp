@@ -34,13 +34,15 @@ void gams::utility::ros::RosParser::parse_message (
   const rosbag::MessageInstance m, std::string container_name)
 {
   //Update sim time before parsing
-  set_sim_time(m.getTime());
+  set_sim_time (m.getTime ());
   //Parse the message
-  std::string datatype = m.getDataType();
+  std::string datatype = m.getDataType ();
 
   auto search = capnp_types_.find(datatype);
   if (search != capnp_types_.end())
   {
+    // If the message type is in the mapfile we have to parse this message
+    // into a capnproto schema
     parse_any(m, container_name);
   }
   else if (m.isType<nav_msgs::Odometry> ())
@@ -508,9 +510,9 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     try
     {
       gams::pose::Pose base_pose = base.origin ().transform_to (world);
-      containers::NativeDoubleVector location ("agents.0.location",
+      containers::NativeDoubleVector location ("agent.0.location",
         *knowledge_, 3, eval_settings_);
-      containers::NativeDoubleVector orientation ("agents.0.orientation",
+      containers::NativeDoubleVector orientation ("agent.0.orientation",
         *knowledge_, 3, eval_settings_);
       location.set (0, base_pose.as_location_vec ().get (0), eval_settings_);
       location.set (1, base_pose.as_location_vec ().get (1), eval_settings_);
@@ -650,7 +652,8 @@ void gams::utility::ros::RosParser::parse_point (geometry_msgs::Point *point_msg
 * @param  quat      the geometry_msgs::Quaternion message
 * @param  orientatiom   the container 
 **/
-void gams::utility::ros::RosParser::parse_quaternion (geometry_msgs::Quaternion *quat,
+void gams::utility::ros::RosParser::parse_quaternion (
+  geometry_msgs::Quaternion *quat,
   containers::NativeDoubleVector *orientation)
 {
   tf::Quaternion tfquat (quat->x, quat->y, quat->z, quat->w);
@@ -666,7 +669,8 @@ void gams::utility::ros::RosParser::parse_quaternion (geometry_msgs::Quaternion 
 
 
 template <size_t N>
-void gams::utility::ros::RosParser::parse_float64_array (boost::array<double, N> *array,
+void gams::utility::ros::RosParser::parse_float64_array (
+  boost::array<double, N> *array,
   containers::NativeDoubleVector *target)
 {
   int i = 0;
@@ -678,7 +682,8 @@ void gams::utility::ros::RosParser::parse_float64_array (boost::array<double, N>
   }
 }
 
-void gams::utility::ros::RosParser::parse_float64_array (std::vector<float> *array,
+void gams::utility::ros::RosParser::parse_float64_array (
+  std::vector<float> *array,
   containers::NativeDoubleVector *target)
 {
   int i = 0;
@@ -704,7 +709,8 @@ void gams::utility::ros::RosParser::parse_int_array (std::vector<T> *array,
 }
 
 template <size_t N>
-void gams::utility::ros::RosParser::parse_int_array (boost::array<int, N> *array,
+void gams::utility::ros::RosParser::parse_int_array (
+  boost::array<int, N> *array,
   containers::NativeIntegerVector *target)
 {
   int i = 0;
@@ -738,16 +744,20 @@ std::string gams::utility::ros::ros_to_gams_name (std::string ros_topic_name)
   return topic;
 }
 
+/**
+ * Loads a capnp schema from a specified path
+ **/
 void gams::utility::ros::RosParser::load_capn_schema(std::string path)
 {
   try{
-    int fd = open(path.c_str(), 0, O_RDONLY);
-    capnp::StreamFdMessageReader schema_message_reader(fd);
-    auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+    int fd = open (path.c_str (), 0, O_RDONLY);
+    capnp::StreamFdMessageReader schema_message_reader (fd);
+    auto schema_reader = 
+      schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest> ();
   
-    for (auto schema : schema_reader.getNodes()) {
-      std::string schema_name = cleanCapnpSchemaName (schema.getDisplayName());
-      schemas_[schema_name] = capnp_loader_.load(schema);
+    for (auto schema : schema_reader.getNodes ()) {
+      std::string schema_name = cleanCapnpSchemaName (schema.getDisplayName ());
+      schemas_[schema_name] = capnp_loader_.load (schema);
     }
   }
   catch(...)
@@ -756,6 +766,9 @@ void gams::utility::ros::RosParser::load_capn_schema(std::string path)
   }
 }
 
+/**
+ * Helper method to print all available schemas
+ **/
 void gams::utility::ros::RosParser::print_schemas()
 {
   std::cout << "Available schemas: " << std::endl;
@@ -776,17 +789,50 @@ capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struc
   {
     return builder;
   }
-  std::string n = name.substr(1);
-  std::istringstream f(n);
+  // remove the leading slash
+  std::string n = name.substr (1);
+  std::istringstream f (n);
   std::string s;
   capnp::DynamicStruct::Builder dyn = builder;
 
-  while (getline(f, s, '/')) {
+  // Iterate through the dynamic struct
+  while (getline (f, s, '/')) {
     dyn = dyn.get(s).as<capnp::DynamicStruct>();
   }
   return dyn;
 }
 
+
+template <class T>
+void gams::utility::ros::RosParser::set_dyn_capnp_enum_value (
+  capnp::DynamicStruct::Builder dynvalue,
+  std::string var_name, T val)
+{ 
+  dynvalue.set(var_name, val);
+}
+
+// The template specialication has to be defined in these namespace structure
+// because of a gcc bug. 
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56480
+namespace gams
+{
+  namespace utility
+  {
+    namespace ros
+    {
+      void set_dyn_capnp_enum_value(
+        capnp::DynamicStruct::Builder dynvalue,
+        std::string var_name, char* val)
+      {
+        // We need to check for the enumerants
+        auto enum_schema =
+          dynvalue.get(var_name).as<capnp::DynamicEnum>().getSchema();
+        auto enumerant = enum_schema.getEnumerantByName(kj::StringPtr(val));
+        dynvalue.set(var_name, enumerant.getOrdinal());
+      }
+    }
+  }
+}
 
 /*
 Sets the value of a specifiec schema member
@@ -798,8 +844,7 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
   T val,
   unsigned int array_size)
 {
-    //name.erase(std::remove (name.begin (), name.end (), '_'), name.end());
-    //remove _ values from the name string and chang it to camelcase
+    //remove _ values from the name string and change it to camelcase
     std::stringstream camelcase;
     for (unsigned int i = 0; i < name.size(); i++)
     {
@@ -833,7 +878,6 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
     auto dynvalue = get_dyn_capnp_struct(builder, struct_name);
 
     std::size_t dot_pos = var_name.find(".");
-
     if (dot_pos != std::string::npos)
     {
       //This is a list
@@ -849,10 +893,17 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
     }
     else
     {
-        if (dynvalue.asReader().get(var_name).getType() == capnp::DynamicValue::BOOL)
+        if (dynvalue.asReader().get(var_name).getType() ==
+          capnp::DynamicValue::BOOL)
         {
+          // We need to specifically cast bool values before asignment
           bool bool_val = (bool) val;
           dynvalue.set(var_name, bool_val);
+        }
+        else if (dynvalue.asReader().get(var_name).getType() ==
+          capnp::DynamicValue::ENUM)
+        {
+          set_dyn_capnp_enum_value(dynvalue, var_name, val);
         }
         else
         {
@@ -868,7 +919,8 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
 unsigned int gams::utility::ros::RosParser::get_array_size(std::string var_name,
   RosIntrospection::RenamedValues* array)
 {
-
+  // This method caches list sizes into the private member ros_array_sizes_.
+  // IMPORTANT: Keep in mind to clear ros_array_sizes_ after each message!!
   unsigned int len = 0;
   std::size_t dot_pos = var_name.find(".");
   std::string array_name = var_name.substr(0, dot_pos);
@@ -882,10 +934,12 @@ unsigned int gams::utility::ros::RosParser::get_array_size(std::string var_name,
     auto cached = ros_array_sizes_.find(array_name);
     if (cached != ros_array_sizes_.end())
     {
+      // We already determined the arraylength in this message
       len = cached->second;
     }
     else
     {
+      // Count the members to determine the length of the array
       for ( auto it : *array)
       {
         std::string key = it.first;
@@ -905,6 +959,9 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   std::vector<uint8_t> & parser_buffer,
   std::string container_name)
 {
+  // This method uses ros_type_introspection to dynamically map values from
+  // ros messages to capnproto schemas
+
   std::string schema_name = capnp_types_[datatype];
   capnp::MallocMessageBuilder buffer;
   capnp::DynamicStruct::Builder capnp_builder;
@@ -916,7 +973,8 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   }
   catch(...)
   {
-    std::cout << "Schema with name " << schema_name << "not found!" << std::endl;
+    std::cout << "Schema with name " << schema_name << "not found!"
+      << std::endl;
     exit(1);
   }
 
@@ -962,8 +1020,13 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     {
       // Value is NAN if it is not readable
     }
+    // Apply name substitution rules from the mapfile
     name = substitute_name(datatype, name);
-    if (name == IGNORE_MARKER) continue;
+    if (name == IGNORE_MARKER)
+    {
+      // This member is marked as to be ignored
+      continue;
+    }
     try
     {
       set_dyn_capnp_value<double>(capnp_builder, name, val, array_size);
@@ -971,7 +1034,8 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     catch(kj::Exception ex)
     {
       std::cout << "Failed to set " << name << " from topic " <<
-        topic_name << " (" << datatype << ")! (" << std::string(ex.getDescription()) << ")" << std::endl;
+        topic_name << " (" << datatype << ")! (" <<
+        std::string(ex.getDescription()) << ")" << std::endl;
     }
     
   }
@@ -982,11 +1046,16 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
 
     int array_size = get_array_size(key, &renamed_values);
 
-
     auto val = strdup(value.c_str());
     std::string name = key.substr (topic_len);
+
+    // Apply name substitution rules from the mapfile
     name = substitute_name(datatype, name);
-    if (name == IGNORE_MARKER) continue;
+    if (name == IGNORE_MARKER)
+    {
+      // This member is marked as to be ignored
+      continue;
+    }
     try
     {
       set_dyn_capnp_value<char*>(capnp_builder, name, val, array_size);
@@ -994,12 +1063,18 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     catch(kj::Exception ex)
     {
       std::cout << "Failed to set " << name << " from topic " <<
-        topic_name << " (" << datatype << ")! (" << std::string(ex.getDescription()) << ")" << std::endl;
+        topic_name << " (" << datatype << ")! (" <<
+        std::string(ex.getDescription()) << ")" << std::endl;
     }
   }
+  // Clear the array size cache
   ros_array_sizes_.clear();
+
+  // Write to the Any object
   madara::knowledge::GenericCapnObject any(schema_name.c_str(), buffer);
 
+  // Check if this has to be stored in CircularBuffers
+  // TODO: remove this once the NativeCircularBuffers ar ready for use
   auto search = circular_container_stats_.find(container_name);
   if (search != circular_container_stats_.end())
   {
@@ -1027,6 +1102,9 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
   }
 }
 
+/**
+ * Wrapper for parse_any so that it can be called from ShapeShifter objects
+ **/
 
 void gams::utility::ros::RosParser::parse_any (std::string topic,
   const topic_tools::ShapeShifter & m,
@@ -1044,6 +1122,10 @@ void gams::utility::ros::RosParser::parse_any (std::string topic,
   parse_any(m.getDataType(), topic, parser_buffer, container_name);
 }
 
+/**
+ * Wrapper for parse_any so that it can be called from rosbag MessageInstance
+ * objects
+ **/
 void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m,
   std::string container_name)
 {
@@ -1061,7 +1143,10 @@ void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m
   parse_any(m.getDataType(), topic, parser_buffer, container_name);
 }
 
-void gams::utility::ros::RosParser::set_sim_time(global_ros::Time rostime)
+/**
+ * Update the simtime from a ros Time
+ **/
+void gams::utility::ros::RosParser::set_sim_time (global_ros::Time rostime)
 {
   #ifdef MADARA_FEATURE_SIMTIME
   uint64_t sim_time = rostime.sec * 1e9 + rostime.nsec;
@@ -1069,13 +1154,19 @@ void gams::utility::ros::RosParser::set_sim_time(global_ros::Time rostime)
   #endif
 }
 
-void gams::utility::ros::RosParser::register_rename_rules( std::map<std::string,
+/**
+ * Renaming rules for any type conversion
+ **/
+void gams::utility::ros::RosParser::register_rename_rules (std::map<std::string,
   std::map<std::string, std::string>> name_substitution_map)
 {
   name_substitution_map_ = std::move(name_substitution_map);
 }
 
-std::string gams::utility::ros::RosParser::substitute_name(std::string type,
+/**
+ * Name substitusion for any type conversion
+ **/
+std::string gams::utility::ros::RosParser::substitute_name (std::string type,
   std::string name)
 {
   //Check if this is an array

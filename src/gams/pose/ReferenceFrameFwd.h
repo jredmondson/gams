@@ -140,7 +140,7 @@ private:
  * * a timestamp: a timestamp representing at what time the transform was
  *    measured or derived. No units are assumed by GAMS, but interpolation
  *    assumes that timestamps progress linearly with respect to real time,
- *    and monotonically. A -1, the default if none is given, is treated
+ *    and monotonically. A ETERNAL, the default if none is given, is treated
  *    as "always correct" at all times.
  *
  * * an origin: a Pose in another frame which is the location and
@@ -165,6 +165,9 @@ private:
   std::shared_ptr<ReferenceFrameVersion> impl_;
 
 public:
+  static const uint64_t ETERNAL = -1UL;
+  static const uint64_t TEMP = -2UL;
+
   /**
    * Default constructor. This frame's valid() will return false. Calling
    * any other method is undefined behavior.
@@ -199,7 +202,7 @@ public:
       supports_transform_to<P>::value, void*>::type = nullptr>
   explicit ReferenceFrame(
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : impl_(std::make_shared<ReferenceFrameVersion>(
           std::forward<P>(origin), timestamp)) {}
 
@@ -220,7 +223,7 @@ public:
   ReferenceFrame(
       const ReferenceFrameType *type,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : impl_(std::make_shared<ReferenceFrameVersion>(
           type, std::forward<P>(origin), timestamp)) {}
 
@@ -240,7 +243,7 @@ public:
   ReferenceFrame(
       std::string id,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : impl_(std::make_shared<ReferenceFrameVersion>(
           id, std::forward<P>(origin), timestamp)) {}
 
@@ -262,7 +265,7 @@ public:
       const ReferenceFrameType *type,
       std::string id,
       P &&origin,
-      uint64_t timestamp = -1)
+      uint64_t timestamp = ETERNAL)
     : impl_(std::make_shared<ReferenceFrameVersion>(
           type, id, std::forward<P>(origin), timestamp)) {}
 
@@ -423,14 +426,14 @@ public:
    *
    * Expired frames are deleted from the KnowledgeBase.
    *
-   * Set to -1 (the default) to never expire frames.
+   * Set to ETERNAL (the default) to never expire frames.
    *
-   * Note: if a timestamp -1 frame is saved and this is not -1, all
+   * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
    * other frames will expire immediately.
    *
    * @return previous expiry
    **/
-  uint64_t expiry(uint64_t age = -1) const;
+  uint64_t expiry(uint64_t age = ETERNAL) const;
 
   /// Return the current expiry for frames of this ID
   uint64_t expiry() const;
@@ -445,9 +448,9 @@ public:
      *
      * Expired frames are deleted from the KnowledgeBase.
      *
-     * Set to -1 (the default) to never expire frames.
+     * Set to ETERNAL (the default) to never expire frames.
      *
-     * Note: if a timestamp -1 frame is saved and this is not -1, all
+     * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
      * other frames will expire immediately.
      *
      * @return previous default expiry
@@ -472,7 +475,7 @@ public:
   /**
    * Save this ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
-   * retrieval. If timestamp is -1, it will always be treated as the most
+   * retrieval. If timestamp is ETERNAL, it will always be treated as the most
    * recent frame.
    *
    * @param kb the KnowledgeBase to store into
@@ -483,7 +486,7 @@ public:
   /**
    * Save this ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
-   * retrieval. If timestamp is -1, it will always be treated as the most
+   * retrieval. If timestamp is ETERNAL, it will always be treated as the most
    * recent frame.
    *
    * @param kb the KnowledgeBase to store into
@@ -497,7 +500,7 @@ public:
    * Load a single ReferenceFrame, by ID.
    *
    * @param id the ID of the frame to load
-   * @param timestamp if -1, gets the latest frame (no interpolation)
+   * @param timestamp if ETERNAL, gets the latest frame (no interpolation)
    *   Otherwise, gets the frame at a specified timestamp,
    *   interpolated necessary.
    *
@@ -507,7 +510,7 @@ public:
   static ReferenceFrame load(
           madara::knowledge::KnowledgeBase &kb,
           const std::string &id,
-          uint64_t timestamp = -1,
+          uint64_t timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
   /**
@@ -519,7 +522,7 @@ public:
    *
    * @param begin beginning iterator
    * @param end ending iterator
-   * @param timestamp if -1, the latest possible tree will be returned.
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
    *   Otherwise, the specified timestamp will be returned.
    *
    * @return a vector of ReferenceFrames, each corresponding to the
@@ -531,7 +534,7 @@ public:
         madara::knowledge::KnowledgeBase &kb,
         InputIterator begin,
         InputIterator end,
-        uint64_t timestamp = -1,
+        uint64_t timestamp = ETERNAL,
         const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
   /**
@@ -543,7 +546,7 @@ public:
    *    of item type std::string
    *
    * @param ids a Container of ids
-   * @param timestamp if -1, the latest possible tree will be returned.
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
    *   Otherwise, the specified timestamp will be returned.
    *
    * @return a vector of ReferenceFrames, each corresponding to the
@@ -554,7 +557,26 @@ public:
   static std::vector<ReferenceFrame> load_tree(
         madara::knowledge::KnowledgeBase &kb,
         const Container &ids,
-        uint64_t timestamp = -1,
+        uint64_t timestamp = ETERNAL,
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+
+  /**
+   * Load ReferenceFrames, by ID, and their common ancestors. Will
+   * interpolate frames to ensure the returned frames all have a common
+   * timestamp.
+   *
+   * @param ids a list of ids
+   * @param timestamp if ETERNAL, the latest possible tree will be returned.
+   *   Otherwise, the specified timestamp will be returned.
+   *
+   * @return a vector of ReferenceFrames, each corresponding to the
+   *   input IDs, in the same order. If the timestamp specified cannot
+   *   be satisfied, returns an empty vector.
+   **/
+  static std::vector<ReferenceFrame> load_tree(
+        madara::knowledge::KnowledgeBase &kb,
+        const std::initializer_list<const char *> &ids,
+        uint64_t timestamp = ETERNAL,
         const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
 
   /**

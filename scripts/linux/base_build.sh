@@ -138,7 +138,20 @@ if [ -z $CORES ] ; then
   export CORES=1  
 fi
 
-for var in "$@"
+# if $@ is empty, the user wants to repeat last build with noclean
+
+if [ $# == 0 ]; then
+  echo "Loading last build with noclean..."
+  IFS=$'\r\n ' GLOBIGNORE='*' command eval  'ARGS=($(cat $GAMS_ROOT/last_build.lst))'
+  ARGS+=("noclean")
+else
+  echo "Processing user arguments..."
+  ARGS=("$@")
+fi
+
+echo "build features: ${ARGS[@]}"
+
+for var in "${ARGS[@]}"
 do
   if [ "$var" = "tests" ]; then
     TESTS=1
@@ -197,6 +210,8 @@ do
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
   elif [ "$var" = "android-tests" ]; then 
     ANDROID_TESTS=1
+    ANDROID=1
+    JAVA=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
   else
@@ -213,10 +228,16 @@ do
     echo "  java            build java jar"
     echo "  lz4             build with LZ4 compression"
     echo "  madara          build MADARA"
-    echo "  noclean         do not run 'make clean' before builds"
+    echo "  noclean         do not run 'make clean' before builds."
+    echo "                  This is an option that supercharges the build"
+    echo "                  process and can reduce build times to seconds."
+    echo "                  99.9% of update builds can use this, unless you"
+    echo "                  are changing features (e.g., enabling ssl when"
+    echo "                  you had previously not enabled ssl)"
     echo "  odroid          target ODROID computing platform"
     echo "  python          build with Python 2.7 support"
-    echo "  prereqs         use apt-get to install prereqs"
+    echo "  prereqs         use apt-get to install prereqs. This usually only"
+    echo "                  has to be used on the first usage of a feature"
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
     echo "  strip           strip symbols from the libraries"
@@ -328,7 +349,7 @@ if [ $ANDROID -eq 1 ]; then
     echo "ANDROID_ARCH has been set to $ANDROID_ARCH"
   fi
   if [ -z "$NDK_VERSION" ]; then
-    export NDK_VERSION=r16b
+    export NDK_VERSION=r17c
     echo "NDK_VERSION is unset; defaulting to $NDK_VERSION"
   else
     echo "NDK_VERSION has been set to $NDK_VERSION"
@@ -382,6 +403,10 @@ if [ $ANDROID -eq 1 ]; then
   if [ -z "$BOOST_ANDROID_ROOT" ]; then
     export BOOST_ANDROID_ROOT=$INSTALL_DIR/BoostAndroid
     echo "Boost root is set to $BOOST_ANDROID_ROOT is not set."
+  fi
+
+  if [ $SSL -eq 1 ] && [ -z $SSL_ROOT ]; then
+      export SSL_ROOT=$INSTALL_DIR/openssl;
   fi
 
 fi
@@ -483,7 +508,26 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
        echo "Unable to download or setup boos. Refer README-ANDROID.md for manual setup"
        exit 1;
      fi 
-  fi
+
+     if [ $SSL -eq 1 ]; then
+        echo "SSL_ROOT is set to $SSL_ROOT"
+        if [ ! -d $SSL_ROOT ]; then
+          git clone --depth 1 https://github.com/openssl/openssl.git $SSL_ROOT
+        fi
+        cd $SSL_ROOT
+        export ANDROID_NDK=$NDK_ROOT
+        HOST_ARCH="linux-x86_64";
+        if [ $MAC == 1 ]; then
+          HOST_ARCH="darwin-x86_64";
+        fi 
+        export PATH=$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN-$ANDROID_ABI/prebuilt/$HOST_ARCH/bin:$PATH
+        echo $PATH;
+        ./Configure android-arm
+        make clean
+        make -j4
+     fi
+
+  fi #android condition ends
 
   if [ $ROS -eq 1 ]; then
     sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
@@ -523,6 +567,7 @@ fi
 
 
 if [ $LZ4 -eq 1 ] ; then
+  export LZ4=1
   if [ ! -d $LZ4_ROOT  ]; then
     echo "git clone https://github.com/lz4/lz4.git $LZ4_ROOT"
     git clone https://github.com/lz4/lz4.git $LZ4_ROOT
@@ -531,14 +576,35 @@ if [ $LZ4 -eq 1 ] ; then
     cd $LZ4_ROOT
     git pull
   fi
+
+  if [ $ANDROID -eq 1 ]; then
+    cd $LZ4_ROOT
+    export CROSS_PATH=${NDK_TOOLS}/bin/${ANDROID_TOOLCHAIN}
+    export AR=${CROSS_PATH}-ar
+    export AS=${CROSS_PATH}-as
+    export NM=${CROSS_PATH}-nm
+    export CC=${CROSS_PATH}-gcc
+    export CXX=${CROSS_PATH}-clang++
+    export LD=${CROSS_PATH}-ld
+    export RANLIB=${CROSS_PATH}-ranlib
+    export STRIP=${CROSS_PATH}-strip
+
+    make clean
+    make 
+
+  fi
+
   LZ4_REPO_RESULT=$?
 
   if [ -f $LZ4_ROOT/lib/lz4.c ] ; then
-    echo "mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
-    mv $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+    echo "cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
+    cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
+  fi
+
+  if [ ! -f $LZ4_ROOT/lib/liblz4.so ]; then
+    echo "LZ4 library did not build properly";
   fi
 fi
-
 
 # check if MPC is a prereq for later packages
 
@@ -637,7 +703,7 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     export AR=${CROSS_PATH}-ar
     export AS=${CROSS_PATH}-as
     export NM=${CROSS_PATH}-nm
-    export CC=${CROSS_PATH}-gcc
+    export CC=${CROSS_PATH}-clang++
     export CXX=${CROSS_PATH}-clang++
     export LD=${CROSS_PATH}-ld
     export RANLIB=${CROSS_PATH}-ranlib
@@ -676,9 +742,9 @@ if [ $ZMQ -eq 1 ]; then
 
   if [ -z $ZMQ_ROOT ]; then
       if [ $ANDROID -eq 1 ]; then
-         export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
+        export ZMQ_ROOT=$INSTALL_DIR/libzmq/output
       else 
-          export ZMQ_ROOT=/usr/local
+        export ZMQ_ROOT=/usr/local
       fi
   fi
 
@@ -727,9 +793,12 @@ else
 fi
 
 if [ $SSL -eq 1 ]; then
+  export SSL=1;
   if [ -z $SSL_ROOT ]; then
     if [ $MAC -eq 0 ]; then
       export SSL_ROOT=/usr
+    elif [ $ANDROID -eq 1 ]; then
+      export SSL_ROOT=$INSTALL_DIR/openssl
     else
       export SSL_ROOT=/usr/local/opt/openssl
     fi
@@ -999,7 +1068,12 @@ if [ $VREP_CONFIG -eq 1 ]; then
   echo "CONFIGURING 20 VREP PORTS"
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
-  
+
+# save the last feature changing build (need to fix this by flattening $@)
+if [ $CLEAN -eq 1 ]; then
+  echo "$@" > $GAMS_ROOT/last_build.lst
+fi
+
 echo ""
 echo "BUILD STATUS"
 
@@ -1160,7 +1234,8 @@ fi
 
 echo -e "\e[39m"
 echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
-echo -e "IN YOUR BASHRC OR TERMINAL."
+echo -e "IN YOUR BASHRC OR TERMINAL. To update with same parameters, try"
+echo -e "calling base_build.sh again with no arguments."
 echo -e ""
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
