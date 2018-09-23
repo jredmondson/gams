@@ -509,7 +509,12 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     }
     try
     {
-      gams::pose::Pose base_pose = base.origin ().transform_to (world);
+      auto base_origin = base.origin ();
+      if (!base_origin.is_set () || !world.valid ())
+      {
+        return;
+      }
+      gams::pose::Pose base_pose = base_origin.transform_to (world);
       containers::NativeDoubleVector location ("agent.0.location",
         *knowledge_, 3, eval_settings_);
       containers::NativeDoubleVector orientation ("agent.0.orientation",
@@ -525,7 +530,7 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
         eval_settings_);
 
     }
-    catch ( gams::pose::unrelated_frames ex){}
+    catch (gams::pose::unrelated_frames ex){}
   }
 }
 

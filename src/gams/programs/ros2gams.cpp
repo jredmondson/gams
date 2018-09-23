@@ -94,6 +94,9 @@ bool save_as_json = false;
 bool save_as_binary = false;
 bool save_as_stream = false;
 
+//Metadata in the checkpoints
+bool store_metadata = false;
+
 //Buffer size
 int write_buffer_size = 10240000;
 
@@ -136,6 +139,10 @@ void handle_arguments (int argc, char ** argv)
     {
       checkpoint_prefix = argv[i + 1];
       i++;
+    }
+    else if (arg1 == "-meta")
+    {
+      store_metadata = true;
     }
     else if (arg1 == "-m" || arg1 == "--map-file")
     {
@@ -215,6 +222,7 @@ void handle_arguments (int argc, char ** argv)
       "                                       base as a karl checkpoint"\
                                               "(default)\n" \
       "  [-m|--map-file file]                 File with filter information\n" \
+      "  [-meta]                              stores metadata in the checkpoints\n" \
       "  [-y|--frequency hz]                  Checkpoint frequency\n" \
       "                                       (default:checkpoint with each\n" \
       "                                        message in the bagfile)\n" \
@@ -549,20 +557,17 @@ int main (int argc, char ** argv)
 int save_checkpoint (knowledge::KnowledgeBase * knowledge,
     knowledge::CheckpointSettings * settings, std::string meta_prefix)
 {
-  /*knowledge->set (meta_prefix + ".originator",
-        settings->originator);
-  knowledge->set (meta_prefix + ".version",
-  settings->version);
-  knowledge->set (meta_prefix + ".current_timestamp",
-    (Integer) time (NULL));*/
-  knowledge->set (meta_prefix + ".last_timestamp",
-    (Integer) settings->last_timestamp);
-  knowledge->set (meta_prefix + ".initial_timestamp",
-    (Integer) settings->initial_timestamp);
-  knowledge->set (meta_prefix + ".last_lamport_clock",
-    (Integer) settings->last_lamport_clock);
-  knowledge->set (meta_prefix + ".initial_lamport_clock",
-    (Integer) settings->initial_lamport_clock);
+  if ( store_metadata )
+  {
+    knowledge->set (meta_prefix + ".last_timestamp",
+      (Integer) settings->last_timestamp);
+    knowledge->set (meta_prefix + ".initial_timestamp",
+      (Integer) settings->initial_timestamp);
+    knowledge->set (meta_prefix + ".last_lamport_clock",
+      (Integer) settings->last_lamport_clock);
+    knowledge->set (meta_prefix + ".initial_lamport_clock",
+      (Integer) settings->initial_lamport_clock);
+  }
 
   int ret = 0;
   std::string filename = settings->filename;
