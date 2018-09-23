@@ -510,9 +510,9 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     try
     {
       gams::pose::Pose base_pose = base.origin ().transform_to (world);
-      containers::NativeDoubleVector location ("agents.0.location",
+      containers::NativeDoubleVector location ("agent.0.location",
         *knowledge_, 3, eval_settings_);
-      containers::NativeDoubleVector orientation ("agents.0.orientation",
+      containers::NativeDoubleVector orientation ("agent.0.orientation",
         *knowledge_, 3, eval_settings_);
       location.set (0, base_pose.as_location_vec ().get (0), eval_settings_);
       location.set (1, base_pose.as_location_vec ().get (1), eval_settings_);
@@ -803,6 +803,37 @@ capnp::DynamicStruct::Builder gams::utility::ros::RosParser::get_dyn_capnp_struc
 }
 
 
+template <class T>
+void gams::utility::ros::RosParser::set_dyn_capnp_enum_value (
+  capnp::DynamicStruct::Builder dynvalue,
+  std::string var_name, T val)
+{ 
+  dynvalue.set(var_name, val);
+}
+
+// The template specialication has to be defined in these namespace structure
+// because of a gcc bug. 
+// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56480
+namespace gams
+{
+  namespace utility
+  {
+    namespace ros
+    {
+      void set_dyn_capnp_enum_value(
+        capnp::DynamicStruct::Builder dynvalue,
+        std::string var_name, char* val)
+      {
+        // We need to check for the enumerants
+        auto enum_schema =
+          dynvalue.get(var_name).as<capnp::DynamicEnum>().getSchema();
+        auto enumerant = enum_schema.getEnumerantByName(kj::StringPtr(val));
+        dynvalue.set(var_name, enumerant.getOrdinal());
+      }
+    }
+  }
+}
+
 /*
 Sets the value of a specifiec schema member
 */
@@ -868,6 +899,11 @@ void gams::utility::ros::RosParser::set_dyn_capnp_value(
           // We need to specifically cast bool values before asignment
           bool bool_val = (bool) val;
           dynvalue.set(var_name, bool_val);
+        }
+        else if (dynvalue.asReader().get(var_name).getType() ==
+          capnp::DynamicValue::ENUM)
+        {
+          set_dyn_capnp_enum_value(dynvalue, var_name, val);
         }
         else
         {
