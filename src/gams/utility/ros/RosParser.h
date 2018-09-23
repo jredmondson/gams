@@ -28,15 +28,22 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 #endif
 
 #include "ros/ros.h"
+#include "ros/time.h"
 #include "ros/serialization.h"
 #include "rosbag/bag.h"
 #include "rosbag/view.h"
 #include "rosbag/message_instance.h"
 #include <ros_type_introspection/ros_introspection.hpp>
 #include <topic_tools/shape_shifter.h>
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl_ros/transforms.h>
 
 #include <tf/transform_datatypes.h>
 
@@ -59,6 +66,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <math.h>
 #include <string>
 #include <regex>
 #include <iostream>
@@ -161,6 +169,13 @@ namespace gams
            * @param  path        string with the path to the schema file
            **/
           void load_capn_schema(std::string path);
+
+          /**
+           * Parses a ros PointCloud2 into a PCL based capnp schema
+           **/
+          void parse_pointcloud2_pclschema (sensor_msgs::PointCloud2 * pointcloud,
+            std::string container_name);
+
           
           //known types
           void parse_odometry (nav_msgs::Odometry * odom,

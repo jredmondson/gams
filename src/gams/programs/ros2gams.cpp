@@ -98,7 +98,7 @@ bool save_as_stream = false;
 bool store_metadata = false;
 
 //Buffer size
-int write_buffer_size = 10240000;
+int write_buffer_size = 1024*1024*100;
 
 // the world and the base frame of the robot
 std::string base_frame = "";
@@ -425,6 +425,7 @@ int main (int argc, char ** argv)
   {
     madara::knowledge::CheckpointSettings stream_settings;
     stream_settings.filename = stream_file + ".stk";
+    stream_settings.buffer_size = write_buffer_size;
     delete_existing_file(stream_settings.filename, delete_existing);
 
     //kb.attach_streamer(std::move(stream_settings), kb, 100);
