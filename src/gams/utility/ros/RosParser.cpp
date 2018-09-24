@@ -523,10 +523,6 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     try
     {
       auto base_origin = base.origin ();
-      if (!base_origin.is_set () || !world.valid ())
-      {
-        return;
-      }
       gams::pose::Pose base_pose = base_origin.transform_to (world);
       containers::NativeDoubleVector location ("agent.0.location",
         *knowledge_, 3, eval_settings_);
