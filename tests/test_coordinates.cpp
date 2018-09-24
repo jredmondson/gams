@@ -263,6 +263,7 @@ int main(int, char *[])
 
   madara::knowledge::KnowledgeBase kb;
 
+#if 0
   {
     auto missing = ReferenceFrame::load(kb, "missing_frame");
     auto missing2 = ReferenceFrame::load(kb, "missing_frame_2");
@@ -270,6 +271,7 @@ int main(int, char *[])
       unrelated_frames,
       missing.origin().transform_to(missing2));
   }
+#endif
 
   {
     ReferenceFrame building_frame("Building", Pose{gps_frame(), 70, -40}, -1);
