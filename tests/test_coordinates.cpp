@@ -258,10 +258,18 @@ int main(int, char *[])
   LOG(Orientation(hex6.transform_to(hex_frame0)));
   TEST(hex0.angle_to(hex0), 0);
 
-  std::cout << std::endl << "Test saving and loading frame tree (TODO):"
+  std::cout << std::endl << "Test saving and loading frame tree:"
             << std::endl;
 
   madara::knowledge::KnowledgeBase kb;
+
+  {
+    auto missing = ReferenceFrame::load(kb, "missing_frame");
+    auto missing2 = ReferenceFrame::load(kb, "missing_frame_2");
+    EXPECT_EXCEPTION(
+      unrelated_frames,
+      missing.origin().transform_to(missing2));
+  }
 
   {
     ReferenceFrame building_frame("Building", Pose{gps_frame(), 70, -40}, -1);
