@@ -78,7 +78,8 @@ namespace gams { namespace pose {
 
 const FrameEvalSettings FrameEvalSettings::DEFAULT;
 
-const std::string FrameEvalSettings::default_prefix_(".gams.frames");
+std::string FrameEvalSettings::default_prefix_(".gams.frames");
+std::mutex FrameEvalSettings::defaults_lock_;
 
 std::map<std::string, std::weak_ptr<ReferenceFrameIdentity>>
   ReferenceFrameIdentity::idents_;

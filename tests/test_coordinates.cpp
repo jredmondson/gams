@@ -478,6 +478,8 @@ int main(int, char *[])
   {
     madara::knowledge::KnowledgeBase data_;
 
+    FrameEvalSettings::set_default_prefix("custom_prefix");
+
     gams::pose::default_frame().save(data_);
     auto map = gams::pose::ReferenceFrame("map", gams::pose::Pose());
     map.save(data_);
