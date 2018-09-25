@@ -415,9 +415,16 @@ inline void transform(
           CoordType &in,
           const ReferenceFrame &to_frame)
 {
-  if (to_frame == in.frame())
+  if (to_frame == in.frame()) {
     return;
-  else if (to_frame == in.frame().origin_frame())
+  }
+  if (!to_frame.valid()) {
+    throw unrelated_frames(in.frame(), to_frame);
+  }
+  if (!in.frame().valid()) {
+    throw unrelated_frames(in.frame(), to_frame);
+  }
+  if (to_frame == in.frame().origin_frame())
   {
     transform_to_origin(in);
     in.frame(in.frame().origin_frame());
