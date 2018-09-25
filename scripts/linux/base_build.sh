@@ -530,7 +530,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi #android condition ends
 
   if [ $ROS -eq 1 ]; then
-    sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev
+    sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev ros-kinetic-pcl-conversions ros-kinetic-pcl-ros libpcl-dev
 
     if [ $ROS_FIRST_SETUP -eq 1 ]; then
       sudo rosdep init

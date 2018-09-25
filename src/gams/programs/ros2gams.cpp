@@ -65,7 +65,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-
 namespace logger = madara::logger;
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
@@ -80,7 +79,7 @@ std::string rosbag_path = "";
 //std::string rosbag_robot_prefix = "robot_";
 
 // prefix for the madara checkoints
-std::string checkpoint_prefix = "checkpoint_";
+std::string checkpoint_prefix = "checkpoint";
 
 // path to the filter definition file
 std::string map_file = "";
@@ -88,14 +87,20 @@ std::string map_file = "";
 //path to the checkpoint stream file
 std::string stream_file = "";
 
+//path to the manifest file
+std::string manifest_file = "";
+
 // save as a karl or binary file
 bool save_as_karl = false;
 bool save_as_json = false;
 bool save_as_binary = false;
 bool save_as_stream = false;
 
+//Metadata in the checkpoints
+bool store_metadata = false;
+
 //Buffer size
-int write_buffer_size = 10240000;
+int write_buffer_size = 1024*1024*100;
 
 // the world and the base frame of the robot
 std::string base_frame = "";
@@ -137,6 +142,10 @@ void handle_arguments (int argc, char ** argv)
       checkpoint_prefix = argv[i + 1];
       i++;
     }
+    else if (arg1 == "-meta")
+    {
+      store_metadata = true;
+    }
     else if (arg1 == "-m" || arg1 == "--map-file")
     {
       if (i + 1 < argc)
@@ -151,6 +160,14 @@ void handle_arguments (int argc, char ** argv)
       {
         stream_file = argv[i + 1];
         save_as_stream = true;
+      }
+      i++;
+    }
+    else if (arg1 == "-mp" || arg1 == "--manifest-path")
+    {
+      if (i + 1 < argc)
+      {
+        manifest_file = argv[i + 1];
       }
       i++;
     }
@@ -215,6 +232,8 @@ void handle_arguments (int argc, char ** argv)
       "                                       base as a karl checkpoint"\
                                               "(default)\n" \
       "  [-m|--map-file file]                 File with filter information\n" \
+      "  [-meta]                              stores metadata in the checkpoints\n" \
+      "  [-mp|--manifest-path file]           path to the manifest file\n" \
       "  [-y|--frequency hz]                  Checkpoint frequency\n" \
       "                                       (default:checkpoint with each\n" \
       "                                        message in the bagfile)\n" \
@@ -413,10 +432,12 @@ int main (int argc, char ** argv)
   }
 
   // Attach streaming
+
+  madara::knowledge::CheckpointSettings stream_settings;
   if (save_as_stream)
   {
-    madara::knowledge::CheckpointSettings stream_settings;
     stream_settings.filename = stream_file + ".stk";
+    stream_settings.buffer_size = write_buffer_size;
     delete_existing_file(stream_settings.filename, delete_existing);
 
     //kb.attach_streamer(std::move(stream_settings), kb, 100);
@@ -527,16 +548,29 @@ int main (int argc, char ** argv)
   }
   std::cout << std::endl << "done" << std::endl;
   
-  // Storing stats in the manifest knowledge
-  manifest.set ("last_timestamp", (Integer) settings.last_timestamp);
-  manifest.set ("initial_timestamp", (Integer) settings.initial_timestamp);
-  manifest.set ("duration_ns", (Integer)
-    ( settings.last_timestamp - settings.initial_timestamp));
-  manifest.set ("last_lamport_clock", (Integer) settings.last_lamport_clock-1);
-  manifest.set ("initial_lamport_clock",
-    (Integer) settings.initial_lamport_clock);
-  manifest.set ("last_checkpoint_id", checkpoint_id-1);
-  manifest.save_as_karl(checkpoint_prefix + ".manifest.kb");
+  if (manifest_file != "")
+  {
+    // Storing stats in the manifest knowledge
+    manifest.set ("last_timestamp", (Integer) settings.last_timestamp);
+    manifest.set ("initial_timestamp", (Integer) settings.initial_timestamp);
+    manifest.set ("last_lamport_clock", (Integer) settings.last_lamport_clock-1);
+    manifest.set ("initial_lamport_clock",
+      (Integer) settings.initial_lamport_clock);
+    manifest.set ("last_checkpoint_id", checkpoint_id-1);
+
+    // ROSBAG infos
+    manifest.set ("name", bag.getFileName());
+    ros::Time begin_time = view.getBeginTime ();
+    ros::Time end_time = view.getEndTime ();
+    manifest.set ("date", begin_time.toNSec ());
+    manifest.set ("duration", (end_time - begin_time).toNSec ());
+    if (save_as_stream)
+    {
+      manifest.set ("size", 
+        boost::filesystem::file_size(stream_settings.filename));
+    }
+    manifest.save_as_karl (manifest_file + ".mf");
+  }
 }
 #endif
 
@@ -549,20 +583,17 @@ int main (int argc, char ** argv)
 int save_checkpoint (knowledge::KnowledgeBase * knowledge,
     knowledge::CheckpointSettings * settings, std::string meta_prefix)
 {
-  /*knowledge->set (meta_prefix + ".originator",
-        settings->originator);
-  knowledge->set (meta_prefix + ".version",
-  settings->version);
-  knowledge->set (meta_prefix + ".current_timestamp",
-    (Integer) time (NULL));*/
-  knowledge->set (meta_prefix + ".last_timestamp",
-    (Integer) settings->last_timestamp);
-  knowledge->set (meta_prefix + ".initial_timestamp",
-    (Integer) settings->initial_timestamp);
-  knowledge->set (meta_prefix + ".last_lamport_clock",
-    (Integer) settings->last_lamport_clock);
-  knowledge->set (meta_prefix + ".initial_lamport_clock",
-    (Integer) settings->initial_lamport_clock);
+  if ( store_metadata )
+  {
+    knowledge->set (meta_prefix + ".last_timestamp",
+      (Integer) settings->last_timestamp);
+    knowledge->set (meta_prefix + ".initial_timestamp",
+      (Integer) settings->initial_timestamp);
+    knowledge->set (meta_prefix + ".last_lamport_clock",
+      (Integer) settings->last_lamport_clock);
+    knowledge->set (meta_prefix + ".initial_lamport_clock",
+      (Integer) settings->initial_lamport_clock);
+  }
 
   int ret = 0;
   std::string filename = settings->filename;

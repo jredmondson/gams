@@ -43,7 +43,18 @@ void gams::utility::ros::RosParser::parse_message (
   {
     // If the message type is in the mapfile we have to parse this message
     // into a capnproto schema
-    parse_any(m, container_name);
+
+    if (m.isType<sensor_msgs::PointCloud2> () &&
+      capnp_types_["sensor_msgs/PointCloud2"] == "pcl")
+    {
+      parse_pointcloud2_pclschema (
+        m.instantiate<sensor_msgs::PointCloud2> ().get (),
+        container_name);
+    }
+    else
+    {
+      parse_any(m, container_name);
+    }
   }
   else if (m.isType<nav_msgs::Odometry> ())
   {
@@ -106,6 +117,8 @@ void gams::utility::ros::RosParser::parse_message (
   const topic_tools::ShapeShifter::ConstPtr& m,
   std::string container_name)
 {
+  // TODO: HANDLE CAPNP ANY TYPES!!!
+
   if (m->getDataType () == "std_msgs/Int32")
   {
     int value = m->instantiate<std_msgs::Int32>()->data;
@@ -509,7 +522,8 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     }
     try
     {
-      gams::pose::Pose base_pose = base.origin ().transform_to (world);
+      auto base_origin = base.origin ();
+      gams::pose::Pose base_pose = base_origin.transform_to (world);
       containers::NativeDoubleVector location ("agent.0.location",
         *knowledge_, 3, eval_settings_);
       containers::NativeDoubleVector orientation ("agent.0.orientation",
@@ -525,7 +539,7 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
         eval_settings_);
 
     }
-    catch ( gams::pose::unrelated_frames ex){}
+    catch (gams::pose::unrelated_frames ex){}
   }
 }
 
@@ -1143,13 +1157,72 @@ void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m
   parse_any(m.getDataType(), topic, parser_buffer, container_name);
 }
 
+void gams::utility::ros::RosParser::parse_pointcloud2_pclschema (
+  sensor_msgs::PointCloud2 * pointcloud,
+  std::string container_name)
+{
+  // THIS METHOD IS HARDCODED TO RUN WITH PCL BASED SCHEMAS
+
+  // Load PCL schema
+  std::string pointcloud_schema_name = "PointCloudXYZ";
+  capnp::MallocMessageBuilder buffer;
+  capnp::DynamicStruct::Builder pointcloud_builder;
+  try
+  {
+    auto pointcloud_schema = schemas_.at(pointcloud_schema_name).asStruct();
+    pointcloud_builder = buffer.initRoot<capnp::DynamicStruct>(pointcloud_schema);
+    madara::knowledge::Any::register_schema(pointcloud_schema_name.c_str(),
+      pointcloud_schema);
+  }
+  catch(...)
+  {
+    std::cout << "Schema with name " << pointcloud_schema_name <<
+      "not found!" << std::endl;
+    exit(1);
+  }
+
+  // Convert from ROS PointCloud2 to a PCL PointCloud
+  pcl::PCLPointCloud2 pcl_pc2;
+  pcl_conversions::toPCL (*pointcloud, pcl_pc2);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::fromPCLPointCloud2 (pcl_pc2, *temp_cloud);
+
+  //Fill the list of points with data
+  auto point_list = pointcloud_builder.init ("points",
+    (*temp_cloud).size ()).as<capnp::DynamicList>();
+  int point_counter = 0;
+  for (pcl::PointXYZ point : *temp_cloud)
+  {
+    auto capnp_point = point_list[point_counter].as<capnp::DynamicStruct> ();
+    capnp_point.set("x", point.x);
+    capnp_point.set("y", point.y);
+    capnp_point.set("z", point.z);
+    point_counter++;
+  }
+
+  // Now fill the other fields
+  pointcloud_builder.set ("tov",
+    ((unsigned long)pointcloud->header.stamp.sec * 1e9) +
+    (unsigned long)pointcloud->header.stamp.nsec);
+  pointcloud_builder.set ("frameId", pointcloud->header.frame_id.c_str());
+  pointcloud_builder.set ("width", pointcloud->width);
+  pointcloud_builder.set ("height", pointcloud->height);
+  pointcloud_builder.set ("isDense", (bool)pointcloud->is_dense);
+
+  // Store in the knowledgebase
+  madara::knowledge::GenericCapnObject any(pointcloud_schema_name.c_str(),
+    buffer);
+  knowledge_->set_any(container_name, any);
+}
+
 /**
  * Update the simtime from a ros Time
  **/
 void gams::utility::ros::RosParser::set_sim_time (global_ros::Time rostime)
 {
   #ifdef MADARA_FEATURE_SIMTIME
-  uint64_t sim_time = rostime.sec * 1e9 + rostime.nsec;
+  uint64_t sim_time = (unsigned long)rostime.sec * 1e9 +
+    (unsigned long)rostime.nsec;
   madara::utility::sim_time_notify(sim_time, 0.0);
   #endif
 }

@@ -22,7 +22,7 @@ if [ $PRINT_USAGE -eq 0 ] ; then
   SCRIPT=${BIN}.sh
   ZIP=${BIN}.zip
 
-  DEPS=$(ldd $BIN | cut -d' ' -f3 | egrep "(/opt|/home)")
+  DEPS=$(ldd $BIN | cut -d' ' -f3 | egrep "(/opt|/home|pcl)")
 
   mkdir -p $DIR
 
