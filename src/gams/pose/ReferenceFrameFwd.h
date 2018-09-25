@@ -96,7 +96,7 @@ public:
   /**
    * Custom prefix constructor. Frame save/load will use given prefix.
    **/
-  explicit FrameEvalSettings(std::string prefix, Base base = Base{true})
+  FrameEvalSettings(std::string prefix, Base base = Base{true})
     : Base(std::move(base)),
       prefix_(std::make_shared<std::string>(std::move(prefix))) {}
 
@@ -104,13 +104,13 @@ public:
    * Explicit default prefix constructor. Frame save/load will use
    * default_prefix. Exists to avoid ambiguity with nullptr.
    **/
-  explicit FrameEvalSettings(std::nullptr_t, Base base = Base{true})
+  FrameEvalSettings(std::nullptr_t, Base base = Base{true})
     : FrameEvalSettings(std::move(base)) {}
 
   /**
    * Custom prefix constructor. Frame save/load will use given prefix.
    **/
-  explicit FrameEvalSettings(const char *prefix, Base base = Base{true})
+  FrameEvalSettings(const char *prefix, Base base = Base{true})
     : FrameEvalSettings(std::string(prefix), std::move(base)) {}
 
   /**

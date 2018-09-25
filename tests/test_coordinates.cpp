@@ -46,20 +46,27 @@ double round_nearest(double in)
   return floor(in + 0.5);
 }
 
-#define TEST_EQ(expr, expect) \
+#define TEST_OP(expr, op, expect) \
   do {\
-    auto v = (expr); \
-    auto e = (expect); \
-    if(v == e) \
+    auto v__ = (expr); \
+    auto e__ = (expect); \
+    if(v__ op e__) \
     { \
-      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  SUCCESS! got " << v << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " " #op " " << e__ << "?  SUCCESS! got " << v__ << std::endl; \
     } \
     else \
     { \
-      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  FAIL! got " << v << " instead" << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " " #op " " << e__ << "?  FAIL! got " << v__ << " instead" << std::endl; \
       gams_fails++; \
     } \
   } while(0)
+
+#define TEST_EQ(expr, expect) TEST_OP(expr, ==, expect)
+#define TEST_NE(expr, expect) TEST_OP(expr, !=, expect)
+#define TEST_LT(expr, expect) TEST_OP(expr, <, expect)
+#define TEST_GT(expr, expect) TEST_OP(expr, >, expect)
+#define TEST_LE(expr, expect) TEST_OP(expr, <=, expect)
+#define TEST_GE(expr, expect) TEST_OP(expr, >=, expect)
 
 #define TEST(expr, expect) \
   do {\
@@ -501,6 +508,9 @@ int main(int, char *[])
 
     data_.to_string(dump);
     LOG(dump);
+
+    TEST_GT(data_.get("custom_prefix.laser.inf.origin").toi(), 0UL);
+    TEST_GT(data_.get("custom_prefix.laser.inf.toi").toi(), 0UL);
 
     std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
 
