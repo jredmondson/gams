@@ -2,6 +2,6 @@ feature(debug) {
   macros += MADARA_BUILD_DEBUG
 
   verbatim (make, local) {
-    CPPFLAGS += -g -Og
+    CPPFLAGS += -g -O0
   }
 }

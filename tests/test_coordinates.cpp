@@ -501,8 +501,7 @@ int main(int, char *[])
     auto laser = gams::pose::ReferenceFrame("laser", gams::pose::Pose(base, 0.0, 0.5, 0.75));
     laser.save(data_);
 
-    gams::pose::ReferenceFrame frame =
-      base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
+    auto frame = base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
     frame.save(data_);
 
 
@@ -850,6 +849,95 @@ int main(int, char *[])
     }
   }
 #endif
+
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto odom = ReferenceFrame("odom", Pose(default_frame()), 0);
+      auto body_mass = ReferenceFrame("body.mass", Pose(odom), 5);
+      auto imu = ReferenceFrame("imu", Pose(body_mass));
+      auto laser = ReferenceFrame("laser", Pose(imu));
+
+      auto map = ReferenceFrame("map", Pose(ReferenceFrame()), 0);
+
+      odom.save(kb);
+      odom.pose(Pose(map), 2).save(kb);
+      body_mass.save(kb);
+      body_mass.timestamp(10).save(kb);
+      body_mass.timestamp(20).save(kb);
+      body_mass.timestamp(30).save(kb);
+      imu.save(kb);
+      laser.save(kb);
+    }
+
+    //{
+    auto frames = ReferenceFrame::load_tree(kb, {"laser", "odom"});
+
+    LOG(frames[0].timestamp());
+    LOG(frames[1].timestamp());
+    //}
+
+    frames = ReferenceFrame::load_tree(kb, {"laser", "odom"}, 30);
+
+    LOG(frames[0].timestamp());
+    LOG(frames[1].timestamp());
+    LOG(frames[1].origin_frame().valid());
+
+    std::string dump;
+    kb.to_string(dump);
+    std::cerr << dump << std::endl;
+  }
+
+  ReferenceFrameIdentity::gc();
+
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    // Save reference frames
+    {
+      gams::pose::ReferenceFrame map_frame("map", gams::pose::Pose());  // parent frame (not saved here)
+
+      auto odom_frame = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map_frame), 1e9);
+      odom_frame.save(kb);
+
+      auto odom_frame2 = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map_frame), 2e9);
+      odom_frame2.save(kb);
+
+      auto body_frame = gams::pose::ReferenceFrame("body", gams::pose::Pose(odom_frame), 1.9e9);
+      body_frame.save(kb);
+
+      auto body_frame2 = gams::pose::ReferenceFrame("body", gams::pose::Pose(odom_frame), 3e9);
+      body_frame2.save(kb);
+
+      auto imu_frame = gams::pose::ReferenceFrame("imu", gams::pose::Pose(body_frame));
+      imu_frame.save(kb);
+
+      auto laser_frame = gams::pose::ReferenceFrame("laser", gams::pose::Pose(imu_frame));
+      laser_frame.save(kb);
+    }
+
+    kb.print();
+    std::vector<std::string> frame_ids = {"laser", "odom"};
+
+    // This load tree works, we limit its scope
+    {
+      auto frames = gams::pose::ReferenceFrame::load_tree(kb, frame_ids, 2e9);
+      TEST_EQ(!frames.empty(), true);
+
+      auto laser = frames[0];
+      auto odom = frames[1];
+      auto odom_laser_T = laser.origin().transform_to(odom);
+    }  // move this brace below the next call to load_tree to break things
+
+    // This load tree fails if the previous load tree is in the same scope
+    auto frames2 = gams::pose::ReferenceFrame::load_tree(kb, frame_ids, 3e9);
+    TEST_EQ(!frames2.empty(), true);
+
+    auto laser2 = frames2[0];
+    auto odom2 = frames2[1];
+    auto odom_laser_T2 = laser2.origin().transform_to(odom2);
+  }
 
   if (gams_fails > 0)
   {
