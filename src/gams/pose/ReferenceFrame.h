@@ -201,6 +201,7 @@ public:
         uint64_t time, const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
     static const std::string &default_prefix() {
+      std::lock_guard<std::mutex> guard(idents_lock_);
       return FrameEvalSettings::default_prefix();
     }
 

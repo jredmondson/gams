@@ -88,22 +88,53 @@ public:
 
   static const FrameEvalSettings DEFAULT;
 
+  /**
+   * Default constructor. Frame save/load will use default_prefix.
+   **/
   FrameEvalSettings(Base base = Base{true}) : Base(std::move(base)) {}
 
+  /**
+   * Custom prefix constructor. Frame save/load will use given prefix.
+   **/
   FrameEvalSettings(std::string prefix, Base base = Base{true})
     : Base(std::move(base)),
       prefix_(std::make_shared<std::string>(std::move(prefix))) {}
 
+  /**
+   * Explicit default prefix constructor. Frame save/load will use
+   * default_prefix. Exists to avoid ambiguity with nullptr.
+   **/
   FrameEvalSettings(std::nullptr_t, Base base = Base{true})
     : FrameEvalSettings(std::move(base)) {}
 
+  /**
+   * Custom prefix constructor. Frame save/load will use given prefix.
+   **/
   FrameEvalSettings(const char *prefix, Base base = Base{true})
     : FrameEvalSettings(std::string(prefix), std::move(base)) {}
 
+  /**
+   * Get default prefix for all FrameEvalSettings that don't have another
+   * prefix set.
+   **/
   static const std::string &default_prefix() {
+    std::lock_guard<std::mutex> guard(defaults_lock_);
     return default_prefix_;
   }
 
+  /**
+   * Set default prefix for all FrameEvalSettings that don't have another
+   * prefix set. Note that this is retroactively applied to any default
+   * constructed FrameEvalSettings objects.
+   **/
+  static void set_default_prefix(std::string new_prefix) {
+    std::lock_guard<std::mutex> guard(defaults_lock_);
+    default_prefix_ = new_prefix;
+  }
+
+  /**
+   * Get prefix set for this settings object.
+   **/
   const std::string &prefix() const {
     if (prefix_) {
       return *prefix_;
@@ -112,12 +143,16 @@ public:
     }
   }
 
+  /**
+   * Set prefix set for this settings object. Set to "" to use default_prefix.
+   **/
   void prefix(std::string prefix) {
     prefix_ = std::make_shared<std::string>(std::move(prefix));
   }
 
 private:
-  static const std::string default_prefix_;
+  static std::mutex defaults_lock_;
+  static std::string default_prefix_;
 
   std::shared_ptr<std::string> prefix_;
 };
