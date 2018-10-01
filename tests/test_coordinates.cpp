@@ -848,7 +848,6 @@ int main(int, char *[])
       }
     }
   }
-#endif
 
   {
     madara::knowledge::KnowledgeBase kb;
@@ -938,6 +937,7 @@ int main(int, char *[])
     auto odom2 = frames2[1];
     auto odom_laser_T2 = laser2.origin().transform_to(odom2);
   }
+#endif
 
   if (gams_fails > 0)
   {
