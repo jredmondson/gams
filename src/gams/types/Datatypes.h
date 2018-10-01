@@ -26,13 +26,15 @@
 #include "Joy.capnp.h"
 #include "LaserScan.capnp.h"
 #include "MagneticField.capnp.h"
-#include "PointCloud.capnp.h"
-#include "PointCloud2.capnp.h"
+#include "PointCloudXYZ.capnp.h"
+#include "PointCloudXYZI.capnp.h"
 #include "PointField.capnp.h"
 #include "Temperature.capnp.h"
 #include "TimeReference.capnp.h"
 #include "RegionOfInterest.capnp.h"
 #include "Point.capnp.h"
+#include "PointXYZ.capnp.h"
+#include "PointXYZI.capnp.h"
 #include "MapMetaData.capnp.h"
 #include "Pose.capnp.h"
 #include "Quaternion.capnp.h"
@@ -75,13 +77,15 @@ namespace gams
       mk::Any::register_type<mk::CapnObject<Joy> >("Joy");
       mk::Any::register_type<mk::CapnObject<LaserScan> >("LaserScan");
       mk::Any::register_type<mk::CapnObject<MagneticField> >("MagneticField");
-      mk::Any::register_type<mk::CapnObject<PointCloud> >("PointCloud");
-      mk::Any::register_type<mk::CapnObject<PointCloud2> >("PointCloud2");
+      mk::Any::register_type<mk::CapnObject<PointCloudXYZ> >("PointCloudXYZ");
+      mk::Any::register_type<mk::CapnObject<PointCloudXYZI> >("PointCloudXYZI");
       mk::Any::register_type<mk::CapnObject<PointField> >("PointField");
       mk::Any::register_type<mk::CapnObject<Temperature> >("Temperature");
       mk::Any::register_type<mk::CapnObject<TimeReference> >("TimeReference");
       mk::Any::register_type<mk::CapnObject<RegionOfInterest> >("RegionOfInterest");
       mk::Any::register_type<mk::CapnObject<Point> >("Point");
+      mk::Any::register_type<mk::CapnObject<PointXYZ> >("PointXYZ");
+      mk::Any::register_type<mk::CapnObject<PointXYZI> >("PointXYZI");
       mk::Any::register_type<mk::CapnObject<MapMetaData> >("MapMetaData");
       mk::Any::register_type<mk::CapnObject<Pose> >("Pose");
       mk::Any::register_type<mk::CapnObject<Quaternion> >("Quaternion");
