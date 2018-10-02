@@ -154,8 +154,7 @@ static std::string make_random_id(size_t len)
   // Avoid letters/numbers easily confused with others
   static const char alphabet[] = "23456789CDFHJKMNPRSTWXY";
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  static std::mt19937 gen(std::random_device{}());
   std::uniform_int_distribution<> dis(0, sizeof(alphabet) - 2);
 
   std::string ret;
@@ -321,12 +320,6 @@ void ReferenceFrameVersion::save_as(
 
     key += "toi";
     kb.set(key, madara::utility::get_time(), settings);
-
-    if (check_consistent()) {
-      interpolated_ = false;
-      ident().register_version(timestamp(),
-          const_cast<ReferenceFrameVersion*>(this)->shared_from_this());
-    }
   }
 
   if (timestamp() > expiry) {
@@ -341,26 +334,50 @@ void ReferenceFrameVersion::save_as(
 }
 
 namespace {
-  std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
-    load_single( KnowledgeBase &kb, const std::string &id,
-        uint64_t timestamp, const FrameEvalSettings &settings)
+  std::shared_ptr<ReferenceFrameVersion> try_load_cached(
+      const std::string &id, uint64_t timestamp)
   {
-    static const uint64_t TEMP = ReferenceFrame::TEMP;
-
+    LOCAL_DEBUG(std::cerr << "Looking for cached "<< id << "@" <<
+        timestamp << std::endl;)
     auto ident = ReferenceFrameIdentity::find(id);
     if (ident) {
       auto ver = ident->get_version(timestamp);
       if (ver) {
-        LOCAL_DEBUG(std::cerr << id << " already loaded" << std::endl;)
-        return std::make_pair(std::move(ver), std::string());
+        LOCAL_DEBUG(std::cerr << ver->id() << "@" << ver->timestamp() <<
+          " already loaded" << std::endl;)
+        return ver;
       }
     }
+    return nullptr;
+  }
 
-    if (timestamp == TEMP) {
-      auto ret = std::make_shared<ReferenceFrameVersion>(
-          Cartesian, id, Pose(ReferenceFrame()), TEMP);
-      LOCAL_DEBUG(std::cerr << "Creating TEMP frame for " << id << std::endl;)
-      return std::make_pair(std::move(ret), std::string());
+  ReferenceFrame make_temp_frame(const std::string &id, uint64_t timestamp)
+  {
+    auto cached = try_load_cached(id, timestamp);
+
+    if (cached) {
+      LOCAL_DEBUG(std::cerr << "Found temp frame for " << id <<
+          "@" << timestamp << std::endl;)
+      return ReferenceFrame(std::move(cached));
+    }
+
+    LOCAL_DEBUG(std::cerr << "Creating temp frame for " << id <<
+        "@" << timestamp << std::endl;)
+    auto impl = std::make_shared<ReferenceFrameVersion>(
+        id, Pose(ReferenceFrame()), timestamp);
+    impl->ident().register_version(timestamp, impl);
+
+    return ReferenceFrame(impl);
+  }
+
+  std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
+    load_single( KnowledgeBase &kb, const std::string &id,
+        uint64_t timestamp, const FrameEvalSettings &settings)
+  {
+    auto cached = try_load_cached(id, timestamp);
+
+    if (cached) {
+      return std::make_pair(std::move(cached), std::string());
     }
 
     auto key = settings.prefix();
@@ -446,6 +463,10 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
   ReferenceFrame frame(std::move(ret.first));
   std::string parent_frame = std::move(ret.second);
 
+  if (frame.timestamp() == ETERNAL) {
+    frame = frame.timestamp(parent_timestamp);
+  }
+
   if (frame.origin_frame().valid() &&
       frame.timestamp() == ETERNAL &&
       frame.origin_frame().timestamp() != parent_timestamp &&
@@ -456,7 +477,7 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
   if (parent_frame.size() > 0) {
     auto parent = load(kb, parent_frame, parent_timestamp, settings, false);
     if (!parent.valid()) {
-      parent = load(kb, parent_frame, TEMP, settings, true);
+      parent = make_temp_frame(parent_frame, parent_timestamp);
       (void)throw_on_errors;
       /*
       LOCAL_DEBUG(std::cerr << "Couldn't find " << parent_frame << std::endl;)
@@ -470,6 +491,9 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
       //return ReferenceFrame();
     }
     frame.impl_->mut_origin().frame(parent);
+    LOCAL_DEBUG(std::cerr << frame.id() << "@" << frame.timestamp() <<
+      " parent set to " << frame.origin_frame().id() << "@" << 
+      frame.origin_frame().timestamp() << std::endl;)
   }
 
   if (frame.origin_frame().valid()) {
@@ -479,13 +503,8 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
     LOCAL_DEBUG(std::cerr << frame.id() << ": " << frame.timestamp() << " has no parent" <<
       std::endl;)
   }
-  if (frame.origin_frame().valid() &&
-      frame.timestamp() == ETERNAL &&
-      frame.origin_frame().timestamp() != ETERNAL) {
-    frame = frame.timestamp(frame.origin_frame().timestamp());
-  }
 
-  frame.impl_->ident().register_version(timestamp, frame.impl_);
+  frame.impl_->ident().register_version(frame.timestamp(), frame.impl_);
   return frame;
 }
 
@@ -702,7 +721,7 @@ uint64_t ReferenceFrameVersion::find_common_timestamp_to_first_ancestor(
     for (size_t i = 0; i < stamps.size(); ++i) {
       std::cerr << " " << stamps[i].size();
     }
-    std::cerr << std::endl
+    std::cerr << std::endl;
   )
 
   const std::string *common = nullptr;
@@ -781,7 +800,7 @@ ReferenceFrame ReferenceFrameVersion::load(
               timestamp << " " << pair.second << std::endl;)
 
   if (pair.first == -1UL || pair.second == -1UL) {
-    return load(kb, id, TEMP, settings, true);
+    return make_temp_frame(id, timestamp);
     /*
     LOCAL_DEBUG(std::cerr << "No valid timestamp pair for " << id << std::endl;)
     if (throw_on_errors) {
@@ -803,6 +822,9 @@ ReferenceFrame ReferenceFrameVersion::load(
     std::string parent_id = std::move(prev.second);
     std::string next_parent_id = std::move(next.second);
 
+    LOCAL_DEBUG(std::cerr << "Attempting interpolation for " << id <<
+        " with parents " << parent_id << " and " << next_parent_id <<
+        std::endl;)
     if (parent_id != "") {
       if (next_parent_id.empty() && next.first->origin_frame().valid()) {
         if (parent_id != next.first->origin_frame().id()) {
@@ -835,7 +857,7 @@ ReferenceFrame ReferenceFrameVersion::load(
       parent = load(kb, parent_id, timestamp, settings, false);
 
       if (!parent.valid()) {
-        parent = load(kb, parent_id, TEMP, settings, true);
+        parent = make_temp_frame(parent_id, timestamp);
       }
 
       LOCAL_DEBUG(std::cerr << "Interpolating " << id << " with parent " <<
@@ -868,9 +890,12 @@ bool ReferenceFrameVersion::check_is_connected(
   const ReferenceFrame *common_frame = &frames[0];
 
   for (size_t i = 1; i < frames.size(); ++i) {
+    LOCAL_DEBUG(auto cur = common_frame;)
     common_frame = find_common_frame(common_frame, &frames[i]);
 
     if (!common_frame) {
+      LOCAL_DEBUG(std::cerr << "No path for " << cur->id() <<
+          " and " << frames[1].id() << std::endl;)
       return false;
     }
   }
@@ -902,6 +927,11 @@ const ReferenceFrame *find_common_frame(
     const ReferenceFrame *cur_from = from;
     for(;;)
     {
+      LOCAL_DEBUG(std::cerr << "find_common_frame: Examining " <<
+          cur_to->id() << "@" << cur_to->timestamp() <<
+            "(" << (void*)cur_to << ") and " <<
+          cur_from->id() << "@" << cur_from->timestamp() <<
+            "(" << (void*)cur_from << ")" << std::endl;)
       if(*cur_to == *cur_from)
       {
         return cur_to;
