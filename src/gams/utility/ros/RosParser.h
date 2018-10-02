@@ -28,15 +28,22 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 #endif
 
 #include "ros/ros.h"
+#include "ros/time.h"
 #include "ros/serialization.h"
 #include "rosbag/bag.h"
 #include "rosbag/view.h"
 #include "rosbag/message_instance.h"
 #include <ros_type_introspection/ros_introspection.hpp>
 #include <topic_tools/shape_shifter.h>
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl_ros/transforms.h>
 
 #include <tf/transform_datatypes.h>
 
@@ -59,6 +66,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <math.h>
 #include <string>
 #include <regex>
 #include <iostream>
@@ -84,7 +92,8 @@ namespace gams
       static std::string cleanCapnpSchemaName(const std::string& full_name)
       {
         std::regex re("[^\\/:]+");
-        std::sregex_token_iterator begin(full_name.begin(), full_name.end(), re), end;
+        std::sregex_token_iterator begin(full_name.begin(),
+          full_name.end(), re), end;
         std::vector<std::string> tokens;
         std::copy(begin, end, std::back_inserter(tokens));
         return tokens.back();
@@ -98,9 +107,11 @@ namespace gams
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
             std::map<std::string, std::string> capnp_types,
-            std::map<std::string, int> circular_containers=std::map<std::string, int>(),
-            knowledge::EvalSettings eval_settings=knowledge::EvalSettings(),
-            std::string frame_prefix=gams::pose::ReferenceFrame::default_prefix());
+            std::map<std::string, int> circular_containers=std::map<std::string,
+              int>(),
+              knowledge::EvalSettings eval_settings=knowledge::EvalSettings(),
+              std::string frame_prefix=
+                gams::pose::ReferenceFrame::default_prefix());
           void parse_message (const rosbag::MessageInstance m,
             std::string container_name);
           void parse_message (const topic_tools::ShapeShifter::ConstPtr& m,
@@ -119,7 +130,9 @@ namespace gams
            * Registers renaming rules for ros types
            * @param name_substitution_map   map<rostype, map<name, newname>>
            **/
-          void register_rename_rules( std::map<std::string, std::map<std::string, std::string>> name_substitution_map);
+          void register_rename_rules (
+            std::map<std::string, std::map<std::string,
+            std::string>> name_substitution_map);
 
           /**
            * Parse defined Any types
@@ -156,6 +169,13 @@ namespace gams
            * @param  path        string with the path to the schema file
            **/
           void load_capn_schema(std::string path);
+
+          /**
+           * Parses a ros PointCloud2 into a PCL based capnp schema
+           **/
+          void parse_pointcloud2_pclschema (sensor_msgs::PointCloud2 * pointcloud,
+            std::string container_name);
+
           
           //known types
           void parse_odometry (nav_msgs::Odometry * odom,
@@ -242,23 +262,39 @@ namespace gams
 
 
 
-
-          capnp::DynamicStruct::Builder get_dyn_capnp_struct(
+          /**
+           * Searches for the appropriate capnproto "substruct" builder defined
+           * by the name
+           **/
+          capnp::DynamicStruct::Builder get_dyn_capnp_struct (
             capnp::DynamicStruct::Builder builder, std::string name);
 
+          /**
+           * Sets the value of an enum in a capnproto struct 
+           **/
           template <class T>
-          void set_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
-            std::string name, T val, unsigned int array_size);
+          void set_dyn_capnp_enum_value (capnp::DynamicStruct::Builder dynvalue,
+            std::string var_name, T val);
           
-          //template <class T>
-          unsigned int get_array_size(std::string var_name,
+          /**
+           * Sets a value in a capnproto struct 
+           **/
+          template <class T>
+          void set_dyn_capnp_value (capnp::DynamicStruct::Builder builder,
+            std::string name, T val, unsigned int array_size);
+
+          /**
+           * Calculates the size of an array in ros type introspection
+           * generated values
+           **/
+          unsigned int get_array_size (std::string var_name,
             RosIntrospection::RenamedValues* array);
 
           /**
            * Substitutes the names of topic type members based on the registered
            * rules
            **/ 
-          std::string substitute_name(std::string type, std::string name);
+          std::string substitute_name (std::string type, std::string name);
 
           /*
           Sets the current time to the ros header time if the simtime feature is
