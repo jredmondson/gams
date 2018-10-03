@@ -973,7 +973,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   echo "GENERATING GAMS PROJECT"
   echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
+  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -990,9 +990,9 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   echo "make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
   make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
   echo "make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
+  make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
-  GAMS_BUILD_RESULT=$?
+  
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
     GAMS_BUILD_RESULT=1
     echo -e "\e[91mGAMS library did not build properly\e[39m";

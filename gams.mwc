@@ -3,6 +3,7 @@ workspace {
   cmdline += -feature_file $GAMS_ROOT/default.features
 
   gams.mpc
+  Gams_Python.mpc
   tests.mpc
   simulation.mpc
   docs/Documentation.mpc

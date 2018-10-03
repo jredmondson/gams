@@ -48,6 +48,10 @@ openjdk                 = 0
 /// Enable this feature if you want to generate documentation
 docs                    = 0
 
+/// @feature python
+/// Enable this to support python
+python                     = 0
+
 
 /// @feature ros
 /// Enable this to support ROS platforms

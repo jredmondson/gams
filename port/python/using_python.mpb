@@ -1,0 +1,73 @@
+feature (python) {
+  expand(BOOST_ROOT_LIB) {
+    $BOOST_ROOT_LIB
+    $(BOOST_ROOT)/stage/lib
+  }
+
+  // b2 builds libboost_system with the following example formats:
+  // libboost_python-vc141-mt-gd-x64-1_67.lib (Debug) 
+  // libboost_python-vc141-mt-x64-1_67.lib (Release)
+  // we want to allow Windows devs to customize their linked boost libs
+
+  expand(BOOST_TOOLSET) {
+    $BOOST_TOOLSET
+    vc141
+  }
+  	
+  expand(BOOST_ARCH) {
+    $BOOST_ARCH
+    x64
+  }
+  	
+  expand(BOOST_VERSION) {
+    $BOOST_VERSION
+    1_67
+  }
+
+  expand(PYTHON_ROOT) {
+    $PYTHON_ROOT
+    /usr
+  }
+
+  expand(PYTHON_VERSION) {
+    $PYTHON_VERSION
+    2.7
+  }
+
+  expand(BOOST_PYTHON_VERSION) {
+    $BOOST_PYTHON_VERSION
+    ""
+  }
+
+
+  expand(BOOST_PYTHON_DEBUG) {
+    $BOOST_PYTHON_DEBUG
+    $(BOOST_STATIC_LIB_PREFIX)boost_python-$(BOOST_TOOLSET)-mt-gd-$(BOOST_ARCH)-$(BOOST_VERSION)
+  }
+  	
+  expand(BOOST_PYTHON_RELEASE) {
+    $BOOST_PYTHON_RELEASE
+    $(BOOST_STATIC_LIB_PREFIX)boost_python-$(BOOST_TOOLSET)-mt-$(BOOST_ARCH)-$(BOOST_VERSION)
+  }
+
+  macros += _MADARA_PYTHON_CALLBACKS_
+
+  libpaths += $(PYTHON_ROOT)/lib/python$(PYTHON_VERSION)
+  lit_libs += python$(PYTHON_VERSION)
+
+  specific(prop:windows) {
+
+    macros += _WINSOCK_DEPRECATED_NO_WARNINGS BOOST_ALL_NO_LIB
+    DisableSpecificWarnings += 4267
+
+    Debug::lit_libs += $(BOOST_PYTHON_DEBUG)
+    Release::lit_libs += $(BOOST_PYTHON_RELEASE)
+    lit_libs += $(BOOST_STATIC_LIB_PREFIX)python$(PYTHON_VERSION)
+    // end if windows build
+  } else {
+    includes += $(PYTHON_ROOT)/include/python$(PYTHON_VERSION)
+    libpaths += $(PYTHON_ROOT)/lib/python$(PYTHON_VERSION)
+    lit_libs += $(BOOST_STATIC_LIB_PREFIX)boost_python$(BOOST_PYTHON_VERSION)$(BOOST_CFG)
+  }
+}
+
