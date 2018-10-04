@@ -97,6 +97,8 @@ DMPL=0
 LZ4=0
 PYTHON=0
 CLEAN=1
+MADARAPULL=1
+GAMSPULL=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
 TYPES=0
@@ -181,6 +183,13 @@ do
     MADARA=1
   elif [ "$var" = "noclean" ]; then
     CLEAN=0
+  elif [ "$var" = "nogamspull" ]; then
+    GAMSPULL=0
+  elif [ "$var" = "nomadarapull" ]; then
+    MADARAPULL=0
+  elif [ "$var" = "nopull" ]; then
+    GAMSPULL=0
+    MADARAPULL=0
   elif [ "$var" = "python" ]; then
     PYTHON=1
   elif [ "$var" = "gams" ]; then
@@ -234,6 +243,9 @@ do
     echo "                  99.9% of update builds can use this, unless you"
     echo "                  are changing features (e.g., enabling ssl when"
     echo "                  you had previously not enabled ssl)"
+    echo "  nogamspull      when building GAMS, don't do a git pull"
+    echo "  nomadarapull    when building MADARA, don't do a git pull"
+    echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
     echo "  python          build with Python 2.7 support"
     echo "  prereqs         use apt-get to install prereqs. This usually only"
@@ -848,10 +860,16 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     git clone -b master --depth 1 https://github.com/jredmondson/madara.git $MADARA_ROOT
     MADARA_REPO_RESULT=$?
   else
-    echo "UPDATING MADARA"
+
     cd $MADARA_ROOT
-    git pull
-    MADARA_REPO_RESULT=$?
+    if [ $MADARAPULL -eq 1 ]; then
+      echo "UPDATING MADARA"
+      git pull
+      MADARA_REPO_RESULT=$?
+    else
+      echo "NOT PULLING MADARA"
+    fi
+
     echo "CLEANING MADARA OBJECTS"
     if [ $CLEAN -eq 1 ] ; then
       make realclean -j $CORES
@@ -956,10 +974,15 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     GAMS_REPO_RESULT=$?
     
   else
-    echo "UPDATING GAMS"
     cd $GAMS_ROOT
-    git pull
-    GAMS_REPO_RESULT=$?
+
+    if [ $GAMSPULL -eq 1 ]; then
+      echo "UPDATING GAMS"
+      git pull
+      GAMS_REPO_RESULT=$?
+    else
+      echo "NOT PULLING GAMS"
+    fi
 
     echo "CLEANING GAMS OBJECTS"
     if [ $CLEAN -eq 1 ] ; then
@@ -1143,13 +1166,16 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
       (( BUILD_ERRORS++ ))
     fi
   fi
-  echo "  MADARA"
-  if [ $MADARA_REPO_RESULT -eq 0 ]; then
-    echo -e "    REPO=\e[92mPASS\e[39m"
-  else
-    echo -e "    REPO=\e[91mFAIL\e[39m"
-    (( BUILD_ERRORS++ ))
+
+  if [ $MADARAPULL -eq 1 ]; then
+    if [ $MADARA_REPO_RESULT -eq 0 ]; then
+      echo -e "    REPO=\e[92mPASS\e[39m"
+    else
+      echo -e "    REPO=\e[91mFAIL\e[39m"
+      (( BUILD_ERRORS++ ))
+    fi
   fi
+
   if [ $MADARA_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
@@ -1166,13 +1192,17 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo -e "    REPO=\e[91mFAIL\e[39m"
     (( BUILD_ERRORS++ ))
   fi
+
   echo "  GAMS"
-  if [ $GAMS_REPO_RESULT -eq 0 ]; then
-    echo -e "    REPO=\e[92mPASS\e[39m"
-  else
-    echo -e "    REPO=\e[91mFAIL\e[39m"
-    (( BUILD_ERRORS++ ))
+  if [ $GAMSPULL -eq 1 ]; then
+    if [ $GAMS_REPO_RESULT -eq 0 ]; then
+      echo -e "    REPO=\e[92mPASS\e[39m"
+    else
+      echo -e "    REPO=\e[91mFAIL\e[39m"
+      (( BUILD_ERRORS++ ))
+    fi
   fi
+
   if [ $GAMS_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
