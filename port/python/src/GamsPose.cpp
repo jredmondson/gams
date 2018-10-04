@@ -48,12 +48,26 @@ void define_pose(void)
    * Frame definitions
    ********************************************************/
 
+  namespace gp = gams::pose;
+
   class_<gams::pose::ReferenceFrame>(
       "ReferenceFrame", "Provides reference frame transforms", init<>())
 
     //   .def("id",
     //       &gams::pose::ReferenceFrame::id,
     //       "Gets the ID string of this frame")
+
+      .def("load_tree",
+          static_cast<std::vector<gp::ReferenceFrame> (*)(
+              madara::knowledge::KnowledgeBase &,
+           const std::vector<std::string>&, 
+           uint64_t timestamp,
+           const gp::FrameEvalSettings &)>(
+            &gams::pose::ReferenceFrame::load_tree),
+          "Load ReferenceFrames, by ID, and their common ancestors. Will"
+          "interpolate frames to ensure the returned frames all have a common"
+          "timestamp")
+      .staticmethod("load_tree")
 
       .def("name",
           &gams::pose::ReferenceFrame::name,
@@ -68,6 +82,8 @@ void define_pose(void)
       .def("valid",
           &gams::pose::ReferenceFrame::valid,
           "Tests whether the frame is valid")
+
+
       ;
 
   /********************************************************
@@ -93,6 +109,14 @@ void define_pose(void)
       .def("is_set",
           &gams::pose::Pose::is_set,
           "Tests if this is invalid; i.e., any values are INVAL_COORD")
+
+      .def("transform_to",
+          &gams::pose::Pose::transform_to,
+          "Copy and transform this coordinate to a new reference frame")
+
+      .def("transform_this_to",
+          &gams::pose::Pose::transform_this_to,
+          "Transform this coordinate, in place, to a new reference frame")
       ;
 
   class_<gams::pose::Orientation>(
@@ -122,6 +146,14 @@ void define_pose(void)
           &gams::pose::Position::is_set,
           "Tests if this is invalid; i.e., any values are INVAL_COORD")
       ;
+
+    class_<gams::pose::FrameEvalSettings>(
+       "FrameEvalSettings", "Settings class for saving/loading reference frames",
+        init<>())
+
+        // other constructors here
+      .def(init<const gams::pose::FrameEvalSettings&>())
+        ;
 
   /********************************************************
    * Free vector definitions
