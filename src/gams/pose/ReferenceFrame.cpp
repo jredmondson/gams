@@ -58,7 +58,6 @@
 #include "gams/pose/Linear.h"
 #include "gams/pose/Angular.h"
 #include "gams/pose/Quaternion.h"
-#include "gams/exceptions/ReferenceFrameException.h"
 
 #include <random>
 
@@ -463,7 +462,7 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
   ReferenceFrame frame(std::move(ret.first));
   std::string parent_frame = std::move(ret.second);
 
-  if (frame.timestamp() == ETERNAL) {
+  if (frame.timestamp() == ETERNAL && parent_timestamp != ETERNAL) {
     frame = frame.timestamp(parent_timestamp);
   }
 

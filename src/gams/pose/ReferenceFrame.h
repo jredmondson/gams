@@ -69,6 +69,7 @@
 #include "Pose.h"
 #include "Quaternion.h"
 #include "madara/knowledge/EvalSettings.h"
+#include "gams/exceptions/ReferenceFrameException.h"
 
 namespace gams { namespace pose {
 
@@ -896,7 +897,10 @@ public:
     while (begin != end) {
       ReferenceFrame frame = load(kb, *begin, timestamp, settings);
       if (!frame.valid()) {
-        return {};
+        std::stringstream msg;
+        msg << "ReferenceFrame::load_tree: could not find frame \"" <<
+            *begin << "\" at timestamp " << timestamp << std::endl;
+        throw exceptions::ReferenceFrameException(msg.str());
       }
       ret.push_back(frame);
       ++begin;
