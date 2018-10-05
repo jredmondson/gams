@@ -69,9 +69,21 @@ void define_pose(void)
           "timestamp")
       .staticmethod("load_tree")
 
+      .def("origin",
+          +[](gp::ReferenceFrame& frame) { return frame.origin(); },
+          "Returns the origin pose of this frame")
+
+      .def("origin_frame",
+          +[](gp::ReferenceFrame& frame) { return frame.origin_frame(); },
+          "Returns the parent frame of this frame")
+
       .def("name",
           &gams::pose::ReferenceFrame::name,
           "Returns a human-readable name for the reference frame type")
+
+      .def("id",
+          +[](gp::ReferenceFrame &frame) { return frame.id(); },
+          "Returns the ID the frame was saved with")
 
       .def("timestamp",
           static_cast<uint64_t (gams::pose::ReferenceFrame::*)(
@@ -105,6 +117,10 @@ void define_pose(void)
               &gams::pose::Pose::from_container),
           "Imports the pose from a STL vector of doubles. "
           "See gams.from_pydoubles for useful conversion.")
+
+      .def("to_string",
+          +[](gp::Pose& pose) { return pose.to_string(); },
+          "Creates a string representation of this pose")
 
       .def("is_set",
           &gams::pose::Pose::is_set,
