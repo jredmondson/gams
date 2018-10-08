@@ -103,6 +103,7 @@ namespace gams
         public:
 
           const std::string IGNORE_MARKER = "_IGNORE_";
+          const std::string NSEC_MARKER = "_TO_NSEC_";
 
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
