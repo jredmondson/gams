@@ -1,0 +1,24 @@
+
+project (GAMS_Python) : using_madara, using_gams, port/python/using_python {
+
+  requires += python
+  
+  after    += gams
+
+  sharedname = gams.pyd
+  postbuild = python port/python/rename_lib.py
+  libout = $(GAMS_ROOT)/lib
+  
+  Documentation_Files {
+    port/python
+  }
+
+  Header_Files {
+    port/python/src
+  }
+
+  Source_Files {
+    port/python/src
+  }
+}
+

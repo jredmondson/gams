@@ -1210,12 +1210,12 @@ class AngularAccelerations;
 GAMS_POSE_MAKE_COORDINATE_TYPE(Position, units::absolute<units::length>);
 GAMS_POSE_MAKE_COORDINATE_TYPE(Displacement, units::length);
 GAMS_POSE_MAKE_COORDINATE_TYPE(Velocity, units::velocity);
-GAMS_POSE_MAKE_COORDINATE_TYPE(Accleration, units::acceleration);
+GAMS_POSE_MAKE_COORDINATE_TYPE(Acceleration, units::acceleration);
 
 GAMS_POSE_MAKE_COORDINATE_TYPE(Orientation, units::absolute<units::plane_angle>);
 GAMS_POSE_MAKE_COORDINATE_TYPE(Rotation, units::plane_angle);
 GAMS_POSE_MAKE_COORDINATE_TYPE(AngularVelocity, units::angular_velocity);
-GAMS_POSE_MAKE_COORDINATE_TYPE(AngularAccleration, units::angular_acceleration);
+GAMS_POSE_MAKE_COORDINATE_TYPE(AngularAcceleration, units::angular_acceleration);
 
 template<>
 struct fixed_into_free<PositionVector>

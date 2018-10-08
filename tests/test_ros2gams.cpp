@@ -23,6 +23,8 @@
 #include "std_msgs/Header.h"
 #include "nav_msgs/Odometry.h"
 #include "sensor_msgs/RegionOfInterest.h"
+#include "sensor_msgs/CompressedImage.h"
+
 
 const double TEST_epsilon = 0.0001;
 int gams_fails = 0;
@@ -428,14 +430,106 @@ void test_any_odom()
 	TEST(pose_covariance[17].as<double>(), cov);
 }
 
+
+void test_any_compressed_image()
+{
+	// This tests configures the parser so that Odometry messages are stored
+	// into capnproto any types.
+
+	std::cout << std::endl << std::endl << "test_any_compressed_image" 
+		<< std::endl << std::endl;
+
+	std::string container_name = "thisisatest";
+
+	sensor_msgs::CompressedImage image;
+	image.header.frame_id = "img";
+
+	image.format = "jpeg";
+	int size = 100;
+	std::vector<uint8_t> data_reference;
+	for ( int i = 0; i < size; ++i)
+	{
+		uint8_t r = rand() % 255;
+		image.data.push_back(r);
+		data_reference.push_back(r);
+	}
+
+	// transform to shapeshifter object
+	topic_tools::ShapeShifter shape_shifter;
+  shape_shifter.morph(
+      ros::message_traits::MD5Sum<sensor_msgs::CompressedImage>::value(),
+      ros::message_traits::DataType<sensor_msgs::CompressedImage>::value(),
+      ros::message_traits::Definition<sensor_msgs::CompressedImage>::value(),
+      "" );
+
+  std::vector<uint8_t> buffer;
+	serialize_message_to_array(image, buffer);
+  ros::serialization::OStream stream( buffer.data(), buffer.size() );
+  shape_shifter.read( stream );
+
+
+	// The parser
+	std::map<std::string, std::string> typemap;
+	typemap["sensor_msgs/CompressedImage"] = "CompressedImage";
+
+	knowledge::KnowledgeBase knowledge;
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+
+  // register the type using the topic_name as identifier. This allows us to
+	// use RosIntrospection
+  const std::string  topic_name =  "img";
+  const std::string  datatype   =  shape_shifter.getDataType();
+  const std::string  definition =  shape_shifter.getMessageDefinition();
+  parser.registerMessageDefinition (topic_name,
+      RosIntrospection::ROSType (datatype), definition);
+
+	// Load the schemas from disk
+	auto path = madara::utility::expand_envs(
+		"$(GAMS_ROOT)/src/gams/types/CompressedImage.capnp.bin");
+	parser.load_capn_schema(path);
+  parser.print_schemas();
+
+	// parse to capnp format
+	parser.parse_any(topic_name, shape_shifter, container_name);
+
+	knowledge.print();
+
+	madara::knowledge::GenericCapnObject any = 
+		knowledge.get(container_name).to_any<madara::knowledge::GenericCapnObject>();
+
+	int fd = open(path.c_str(), 0, O_RDONLY);
+  capnp::StreamFdMessageReader schema_message_reader(fd);
+  auto schema_reader = schema_message_reader.getRoot<capnp::schema::CodeGeneratorRequest>();
+  capnp::SchemaLoader loader;
+	
+	std::map<std::string, capnp::Schema> schemas;
+
+  for (auto schema : schema_reader.getNodes()) {
+    schemas[gams::utility::ros::cleanCapnpSchemaName (schema.getDisplayName ())] =
+			loader.load(schema);
+  }
+	auto capn_img = 
+		any.reader(schemas[typemap["sensor_msgs/CompressedImage"]].asStruct ());
+
+	auto data = capn_img.get ("data").as<capnp::DynamicList> ();
+	TEST (data.size(), data_reference.size());
+	for ( int i = 0; i < size; ++i)
+	{
+		TEST(image.data[i], data_reference[i]);
+	}
+	auto format = capn_img.get("format").as<capnp::Text>().cStr();
+	std::cout << "Format: " << format << std::endl;
+}
+
 int main (int, char **)
 {
 	std::cout << "Testing ros2gams" << std::endl;
 	//test_pose();
 	//test_tf_tree();
-	test_any_point();
-	test_any_bool();
-	test_any_odom();
+	//test_any_point();
+	//test_any_bool();
+	//test_any_odom();
+	test_any_compressed_image();
 
   if (gams_fails > 0)
   {

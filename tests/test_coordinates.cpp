@@ -46,20 +46,27 @@ double round_nearest(double in)
   return floor(in + 0.5);
 }
 
-#define TEST_EQ(expr, expect) \
+#define TEST_OP(expr, op, expect) \
   do {\
-    auto v = (expr); \
-    auto e = (expect); \
-    if(v == e) \
+    auto v__ = (expr); \
+    auto e__ = (expect); \
+    if(v__ op e__) \
     { \
-      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  SUCCESS! got " << v << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " " #op " " << e__ << "?  SUCCESS! got " << v__ << std::endl; \
     } \
     else \
     { \
-      std::cout << __LINE__ << ": " << #expr << " ?= " << e << "  FAIL! got " << v << " instead" << std::endl; \
+      std::cout << __LINE__ << ": " << #expr << " " #op " " << e__ << "?  FAIL! got " << v__ << " instead" << std::endl; \
       gams_fails++; \
     } \
   } while(0)
+
+#define TEST_EQ(expr, expect) TEST_OP(expr, ==, expect)
+#define TEST_NE(expr, expect) TEST_OP(expr, !=, expect)
+#define TEST_LT(expr, expect) TEST_OP(expr, <, expect)
+#define TEST_GT(expr, expect) TEST_OP(expr, >, expect)
+#define TEST_LE(expr, expect) TEST_OP(expr, <=, expect)
+#define TEST_GE(expr, expect) TEST_OP(expr, >=, expect)
 
 #define TEST(expr, expect) \
   do {\
@@ -258,219 +265,219 @@ int main(int, char *[])
   LOG(Orientation(hex6.transform_to(hex_frame0)));
   TEST(hex0.angle_to(hex0), 0);
 
-  std::cout << std::endl << "Test saving and loading frame tree (TODO):"
+  std::cout << std::endl << "Test saving and loading frame tree:"
             << std::endl;
 
-  madara::knowledge::KnowledgeBase kb;
-
   {
-    ReferenceFrame building_frame("Building", Pose{gps_frame(), 70, -40}, -1);
-    ReferenceFrame room_frame("LivingRoom", Pose{building_frame, 10, 20}, -1);
-    ReferenceFrame kitchen_frame("Kitchen", Pose{building_frame, 30, 50}, -1);
+    madara::knowledge::KnowledgeBase kb;
 
-    TEST_EQ(building_frame.timestamp(), -1UL);
+    {
+      ReferenceFrame building_frame("Building", Pose{gps_frame(), 70, -40}, -1);
+      ReferenceFrame room_frame("LivingRoom", Pose{building_frame, 10, 20}, -1);
+      ReferenceFrame kitchen_frame("Kitchen", Pose{building_frame, 30, 50}, -1);
 
-    ReferenceFrame drone_frame("Drone", Pose{kitchen_frame, 3, 2, -2}, 1000);
-    ReferenceFrame camera_frame("Camera", Pose{drone_frame, 0, 0, 0.5}, 1000);
-    ReferenceFrame drone2_frame("Drone2", Pose{room_frame, 3, 2, -2}, 1000);
+      TEST_EQ(building_frame.timestamp(), -1UL);
 
-    TEST_EQ(drone_frame.timestamp(), 1000UL);
-    TEST_EQ(camera_frame.timestamp(), 1000UL);
+      ReferenceFrame drone_frame("Drone", Pose{kitchen_frame, 3, 2, -2}, 1000);
+      ReferenceFrame camera_frame("Camera", Pose{drone_frame, 0, 0, 0.5}, 1000);
+      ReferenceFrame drone2_frame("Drone2", Pose{room_frame, 3, 2, -2}, 1000);
 
-    gps_frame().save(kb);
-    building_frame.save(kb);
-    room_frame.save(kb);
-    kitchen_frame.save(kb);
-    drone_frame.save(kb);
-    camera_frame.save(kb);
-    drone2_frame.save(kb);
+      TEST_EQ(drone_frame.timestamp(), 1000UL);
+      TEST_EQ(camera_frame.timestamp(), 1000UL);
 
-    ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
-    ReferenceFrame camera_frame1 = camera_frame.orient({drone_frame1, 0, 0, M_PI/4}, 2000);
-    ReferenceFrame drone2_frame1 = drone2_frame.move({room_frame, 3, 6, -2}, 2000);
+      gps_frame().save(kb);
+      building_frame.save(kb);
+      room_frame.save(kb);
+      kitchen_frame.save(kb);
+      drone_frame.save(kb);
+      camera_frame.save(kb);
+      drone2_frame.save(kb);
 
-    TEST_EQ(drone_frame1.timestamp(), 2000UL);
-    TEST_EQ(camera_frame1.timestamp(), 2000UL);
-    TEST_EQ(camera_frame1.origin().rz(), M_PI/4);
+      ReferenceFrame drone_frame1 = drone_frame.move({kitchen_frame, 3, 4, -2}, 2000);
+      ReferenceFrame camera_frame1 = camera_frame.orient({drone_frame1, 0, 0, M_PI/4}, 2000);
+      ReferenceFrame drone2_frame1 = drone2_frame.move({room_frame, 3, 6, -2}, 2000);
 
-    drone_frame1.save(kb);
-    camera_frame1.save(kb);
-    drone2_frame1.save(kb);
+      TEST_EQ(drone_frame1.timestamp(), 2000UL);
+      TEST_EQ(camera_frame1.timestamp(), 2000UL);
+      TEST_EQ(camera_frame1.origin().rz(), M_PI/4);
 
-    gps_frame().save(kb, "public_frames");
-    building_frame.save(kb, "public_frames");
-    room_frame.save(kb, "public_frames");
-    kitchen_frame.save(kb, "public_frames");
-    drone_frame.save(kb, "public_frames");
-    camera_frame.save(kb, "public_frames");
-    drone2_frame.save(kb, "public_frames");
-    drone_frame1.save(kb, "public_frames");
-    camera_frame1.save(kb, "public_frames");
-    drone2_frame1.save(kb, "public_frames");
+      drone_frame1.save(kb);
+      camera_frame1.save(kb);
+      drone2_frame1.save(kb);
 
-    drone_frame.move({room_frame, 3, 6, -2}, 2250).save(kb);
-    camera_frame1.orient({drone_frame1, 0, 0, M_PI/2}, 2250).save(kb);
-    drone2_frame.move({room_frame, 3, 7, -2}, 2500).save(kb);
-  }
+      gps_frame().save(kb, "public_frames");
+      building_frame.save(kb, "public_frames");
+      room_frame.save(kb, "public_frames");
+      kitchen_frame.save(kb, "public_frames");
+      drone_frame.save(kb, "public_frames");
+      camera_frame.save(kb, "public_frames");
+      drone2_frame.save(kb, "public_frames");
+      drone_frame1.save(kb, "public_frames");
+      camera_frame1.save(kb, "public_frames");
+      drone2_frame1.save(kb, "public_frames");
 
-  ReferenceFrameIdentity::gc();
-
-  std::string dump;
-  kb.to_string(dump);
-  LOG(dump);
-
-  std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
-  std::vector<ReferenceFrame> frames;
-
-  // Test a direct call of load_exact, expect it to throw
-  // Disabled test for now since load_exact(...) is not accessable because it is in an anonymous namespace
-  //EXPECT_EXCEPTION(exceptions::ReferenceFrameException, gams::pose::load_exact(kb, ids, 1000, -1, FrameEvalSettings::DEFAULT))
-
-  try {
-    frames = ReferenceFrame::load_tree(kb, ids, 1000);
-
-    TEST_EQ(frames.size(), ids.size());
-
-    if (frames.size() == ids.size()) {
-      TEST_EQ(frames[0].id(), "Drone");
-      TEST_EQ(frames[1].id(), "Drone2");
-
-      TEST((double)frames[0].timestamp(), 1000);
-      TEST((double)frames[1].timestamp(), 1000);
-
-      TEST_EQ(frames[0].interpolated(), false);
-      TEST_EQ(frames[1].interpolated(), false);
-
-      TEST(frames[0].origin().x(), 3);
-      TEST(frames[0].origin().y(), 2);
-      TEST(frames[1].origin().rz(), 0);
-
-      Position d2pos(frames[1], 1, 1);
-      Position d1pos = d2pos.transform_to(frames[0]);
-      LOG(d2pos);
-      LOG(d1pos);
-
+      drone_frame.move({room_frame, 3, 6, -2}, 2250).save(kb);
+      camera_frame1.orient({drone_frame1, 0, 0, M_PI/2}, 2250).save(kb);
+      drone2_frame.move({room_frame, 3, 7, -2}, 2500).save(kb);
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
-  }
 
-  std::vector<ReferenceFrame> pframes;
-  try {
-    pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
-    TEST_EQ(pframes.size(), ids.size());
+    ReferenceFrameIdentity::gc();
 
-    if (pframes.size() == ids.size()) {
-      TEST_EQ(pframes[0].id(), "Drone");
-      TEST_EQ(pframes[1].id(), "Drone2");
+    std::string dump;
+    kb.to_string(dump);
+    LOG(dump);
 
-      TEST((double)pframes[0].timestamp(), 1500);
-      TEST((double)pframes[1].timestamp(), 1500);
+    std::vector<std::string> ids = {"Drone", "Drone2", "Camera"};
+    std::vector<ReferenceFrame> frames;
 
-      TEST_EQ(pframes[0].interpolated(), true);
-      TEST_EQ(pframes[1].interpolated(), true);
+    // Test a direct call of load_exact, expect it to throw
+    // Disabled test for now since load_exact(...) is not accessable because it is in an anonymous namespace
+    //EXPECT_EXCEPTION(exceptions::ReferenceFrameException, gams::pose::load_exact(kb, ids, 1000, -1, FrameEvalSettings::DEFAULT))
 
-      TEST(pframes[0].origin().x(), 3);
-      TEST(pframes[0].origin().y(), 3);
-      TEST(pframes[1].origin().rz(), 0);
+    try {
+      frames = ReferenceFrame::load_tree(kb, ids, 1000);
 
-      Position d2pos(pframes[1], 1, 1);
-      Position d1pos = d2pos.transform_to(pframes[0]);
-      LOG(d2pos);
+      TEST_EQ(frames.size(), ids.size());
+
+      if (frames.size() == ids.size()) {
+        TEST_EQ(frames[0].id(), "Drone");
+        TEST_EQ(frames[1].id(), "Drone2");
+
+        TEST((double)frames[0].timestamp(), 1000);
+        TEST((double)frames[1].timestamp(), 1000);
+
+        TEST_EQ(frames[0].interpolated(), false);
+        TEST_EQ(frames[1].interpolated(), false);
+
+        TEST(frames[0].origin().x(), 3);
+        TEST(frames[0].origin().y(), 2);
+        TEST(frames[1].origin().rz(), 0);
+
+        Position d2pos(frames[1], 1, 1);
+        Position d1pos = d2pos.transform_to(frames[0]);
+        LOG(d2pos);
         LOG(d1pos);
+
+      }
+    } catch (exceptions::ReferenceFrameException e) {
+      std::cout << "Exception: FAIL " << e.what() << std::endl;
+      TEST_EQ(0, 1);
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
-  }
 
-  try {
-    frames = ReferenceFrame::load_tree(kb, ids, 1500);
+    std::vector<ReferenceFrame> pframes;
+    try {
+      pframes = ReferenceFrame::load_tree(kb, ids, 1500, "public_frames");
+      TEST_EQ(pframes.size(), ids.size());
 
-    TEST_EQ(frames.size(), ids.size());
+      if (pframes.size() == ids.size()) {
+        TEST_EQ(pframes[0].id(), "Drone");
+        TEST_EQ(pframes[1].id(), "Drone2");
 
-    if (frames.size() == ids.size()) {
-      TEST_EQ(frames[0].id(), "Drone");
-      TEST_EQ(frames[1].id(), "Drone2");
+        TEST((double)pframes[0].timestamp(), 1500);
+        TEST((double)pframes[1].timestamp(), 1500);
 
-      TEST((double)frames[0].timestamp(), 1500);
-      TEST((double)frames[1].timestamp(), 1500);
+        TEST_EQ(pframes[0].interpolated(), true);
+        TEST_EQ(pframes[1].interpolated(), true);
 
-      TEST_EQ(frames[0].interpolated(), true);
-      TEST_EQ(frames[1].interpolated(), true);
+        TEST(pframes[0].origin().x(), 3);
+        TEST(pframes[0].origin().y(), 3);
+        TEST(pframes[1].origin().rz(), 0);
 
-      TEST(frames[0].origin().x(), 3);
-      TEST(frames[0].origin().y(), 3);
-      TEST(frames[2].origin().rz(), M_PI/8);
-
-      Position d2pos(pframes[1], 1, 1);
-      Position d1pos = d2pos.transform_to(pframes[0]);
-      LOG(d2pos);
-      LOG(d1pos);
+        Position d2pos(pframes[1], 1, 1);
+        Position d1pos = d2pos.transform_to(pframes[0]);
+        LOG(d2pos);
+          LOG(d1pos);
+      }
+    } catch (exceptions::ReferenceFrameException e) {
+      std::cout << "Exception: FAIL " << e.what() << std::endl;
+      TEST_EQ(0, 1);
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
-  }
 
-  try {
-    frames = ReferenceFrame::load_tree(kb, ids);
+    try {
+      frames = ReferenceFrame::load_tree(kb, ids, 1500);
 
-    TEST_EQ(frames.size(), ids.size());
+      TEST_EQ(frames.size(), ids.size());
 
-    if (frames.size() == ids.size()) {
-      TEST_EQ(frames[0].id(), "Drone");
-      TEST_EQ(frames[1].id(), "Drone2");
+      if (frames.size() == ids.size()) {
+        TEST_EQ(frames[0].id(), "Drone");
+        TEST_EQ(frames[1].id(), "Drone2");
 
-      TEST((double)frames[0].timestamp(), 2250);
-      TEST((double)frames[1].timestamp(), 2250);
+        TEST((double)frames[0].timestamp(), 1500);
+        TEST((double)frames[1].timestamp(), 1500);
 
-      TEST_EQ(frames[0].interpolated(), false);
-      TEST_EQ(frames[1].interpolated(), true);
+        TEST_EQ(frames[0].interpolated(), true);
+        TEST_EQ(frames[1].interpolated(), true);
 
-      TEST(frames[0].origin().x(), 3);
-      TEST(frames[0].origin().y(), 6);
-      TEST(frames[2].origin().rz(), M_PI/2);
+        TEST(frames[0].origin().x(), 3);
+        TEST(frames[0].origin().y(), 3);
+        TEST(frames[2].origin().rz(), M_PI/8);
 
-      Position cpos = frames[0].origin();
+        Position d2pos(pframes[1], 1, 1);
+        Position d1pos = d2pos.transform_to(pframes[0]);
+        LOG(d2pos);
+        LOG(d1pos);
+      }
+    } catch (exceptions::ReferenceFrameException e) {
+      std::cout << "Exception: FAIL " << e.what() << std::endl;
+      TEST_EQ(0, 1);
     }
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
-  }
 
-  FrameStore frame_store(kb, 4000);
-  try {
-    frames = frame_store.load_tree(ids, 2500);
-    TEST_EQ(frames.size(), 0UL);
-  }
-  catch (exceptions::ReferenceFrameException e) {
-    std::cout << "Exception: FAIL " << e.what();
-  }
+    try {
+      frames = ReferenceFrame::load_tree(kb, ids);
 
-  for (int x = 0; x <= 10000; x += 500) {
-    ReferenceFrame exp("expiring", Pose(), x);
+      TEST_EQ(frames.size(), ids.size());
+
+      if (frames.size() == ids.size()) {
+        TEST_EQ(frames[0].id(), "Drone");
+        TEST_EQ(frames[1].id(), "Drone2");
+
+        TEST((double)frames[0].timestamp(), 2250);
+        TEST((double)frames[1].timestamp(), 2250);
+
+        TEST_EQ(frames[0].interpolated(), false);
+        TEST_EQ(frames[1].interpolated(), true);
+
+        TEST(frames[0].origin().x(), 3);
+        TEST(frames[0].origin().y(), 6);
+        TEST(frames[2].origin().rz(), M_PI/2);
+
+        Position cpos = frames[0].origin();
+      }
+    } catch (exceptions::ReferenceFrameException e) {
+      std::cout << "Exception: FAIL " << e.what() << std::endl;
+      TEST_EQ(0, 1);
+    }
+
+    FrameStore frame_store(kb, 4000);
+    EXPECT_EXCEPTION(
+      exceptions::ReferenceFrameException,
+      frames = frame_store.load_tree(ids, 2500));
+
+    for (int x = 0; x <= 10000; x += 500) {
+      ReferenceFrame exp("expiring", Pose(), x);
+      frame_store.save(std::move(exp));
+    }
+
+    kb.to_string(dump);
+    LOG(dump);
+
+    ReferenceFrame exp("expiring", Pose(), -1);
+    exp.save(kb, -1);
+
+    kb.to_string(dump);
+    LOG(dump);
+
+    exp.save(kb);
     frame_store.save(std::move(exp));
+
+    kb.to_string(dump);
+    LOG(dump);
   }
-
-  kb.to_string(dump);
-  LOG(dump);
-
-  ReferenceFrame exp("expiring", Pose(), -1);
-  exp.save(kb, -1);
-
-  kb.to_string(dump);
-  LOG(dump);
-
-  exp.save(kb);
-  frame_store.save(std::move(exp));
-
-  kb.to_string(dump);
-  LOG(dump);
 
   {
     madara::knowledge::KnowledgeBase data_;
+
+    FrameEvalSettings::set_default_prefix("custom_prefix");
 
     gams::pose::default_frame().save(data_);
     auto map = gams::pose::ReferenceFrame("map", gams::pose::Pose());
@@ -486,13 +493,16 @@ int main(int, char *[])
     auto laser = gams::pose::ReferenceFrame("laser", gams::pose::Pose(base, 0.0, 0.5, 0.75));
     laser.save(data_);
 
-    gams::pose::ReferenceFrame frame =
-      base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
+    auto frame = base.pose(gams::pose::Pose(odom, 4, 4, 0.0), 5000);
     frame.save(data_);
 
 
+    std::string dump;
     data_.to_string(dump);
     LOG(dump);
+
+    TEST_GT(data_.get("custom_prefix.laser.inf.origin").toi(), 0UL);
+    TEST_GT(data_.get("custom_prefix.laser.inf.toi").toi(), 0UL);
 
     std::vector<std::string> frame_ids = {"laser", "map", "base", "odom"};
 
@@ -520,9 +530,9 @@ int main(int, char *[])
           TEST (transformed.z(), 1.75);
         }
       }
-    }
-    catch (exceptions::ReferenceFrameException e) {
-      std::cout << "Exception: FAIL " << e.what();
+    } catch (exceptions::ReferenceFrameException e) {
+      std::cout << "Exception: FAIL " << e.what() << std::endl;
+      TEST_EQ(0, 1);
     }
   }
 
@@ -595,8 +605,8 @@ int main(int, char *[])
     TEST_EQ(stamped_pose.frame() == gps_frame(), 0);
   }
 
-#if 0
   // TODO find out why this crashes in CI
+#if 0
   {
     madara::knowledge::KnowledgeBase kb;
 
@@ -613,13 +623,11 @@ int main(int, char *[])
     gchild.save(kb);
 
     std::vector<std::string> frame_ids = {"root", "child", "gchild"};
-    auto frames = ReferenceFrame::load_tree(kb, frame_ids);
-    TEST_EQ(frames.empty(), 0);
 
-    frames = ReferenceFrame::load_tree(kb, frame_ids, 15);
-    TEST_EQ(frames.empty(), 1);
+    EXPECT_EXCEPTION(exceptions::ReferenceFrameException,
+        ReferenceFrame::load_tree(kb, frame_ids, 15));
 
-    frames = ReferenceFrame::load_tree(kb, frame_ids, 10);
+    auto frames = ReferenceFrame::load_tree(kb, frame_ids, 10);
     TEST_EQ(frames.empty(), 0);
 
     TEST_EQ(frames[2].origin().transform_to(frames[0]).z(), 5);
@@ -697,6 +705,203 @@ int main(int, char *[])
     auto frames = ReferenceFrame::load_tree(kb, std::vector<std::string>{"f1"});
     TEST(frames.size(), 1);
     TEST(frames[0].origin().x(), 0);
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto placeholder = ReferenceFrame("parent", Pose(ReferenceFrame()));
+      auto child = ReferenceFrame("child", Pose(placeholder));
+      auto child2 = ReferenceFrame("child2", Pose(placeholder, 5, 0));
+      child.save(kb);
+      child2.save(kb);
+    }
+
+    {
+      auto frames = ReferenceFrame::load_tree(kb, {"child", "child2"});
+      TEST_EQ(frames.size(), 2UL);
+      if (frames.size() == 2) {
+        TEST_EQ(frames[0].origin_frame().id(), std::string("parent"));
+        TEST_EQ(frames[1].origin_frame().id(), std::string("parent"));
+
+        Pose pose(frames[0], 0,0);
+        Pose pose2 = pose.transform_to(frames[1]);
+        TEST_EQ(pose2.x(), -5);
+      }
+    }
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto placeholder0 = ReferenceFrame("grandparent", Pose(ReferenceFrame()));
+      auto placeholder = ReferenceFrame("parent", Pose(placeholder0));
+      for (int i = 0; i < 11; ++i) {
+        auto child = ReferenceFrame("child", Pose(placeholder, 2 * i, 0),
+            10 * i);
+
+        auto child2 = ReferenceFrame("child2", Pose(placeholder, 4 * i + 4, 0),
+            10 * i + 4);
+        child.save(kb);
+        child2.save(kb);
+      }
+    }
+
+    {
+      auto frames = ReferenceFrame::load_tree(kb, {"child", "child2", "parent"});
+      TEST_EQ(frames.size(), 3UL);
+      if (frames.size() == 3) {
+        TEST_EQ(frames[0].origin_frame().id(), std::string("parent"));
+        TEST_EQ(frames[1].origin_frame().id(), std::string("parent"));
+
+        Pose pose(frames[0], 0,0);
+        Pose pose1 = pose.transform_to(frames[2]);
+        TEST_EQ(pose1.x(), 20);
+        Pose pose2 = pose.transform_to(frames[1]);
+        TEST(pose2.x(), -22.4);
+      }
+    }
+  }
+
+  ReferenceFrameIdentity::gc();
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto placeholder = ReferenceFrame("grandparent", Pose(ReferenceFrame()));
+      auto parent = ReferenceFrame("parent", Pose(placeholder), 15);
+      parent.save(kb);
+      for (int i = 0; i < 11; ++i) {
+        auto child = ReferenceFrame("child", Pose(parent, 2 * i, 0),
+            10 * i);
+
+        auto child2 = ReferenceFrame("child2", Pose(parent, 4 * i + 4, 0),
+            10 * i + 4);
+        child.save(kb);
+        child2.save(kb);
+      }
+    }
+
+    {
+      auto frames = ReferenceFrame::load_tree(kb, {"child", "child2", "parent"});
+      TEST_EQ(frames.size(), 3UL);
+      if (frames.size() == 3) {
+        TEST_EQ(frames[0].origin_frame().id(), std::string("parent"));
+        TEST_EQ(frames[1].origin_frame().id(), std::string("parent"));
+
+        Pose pose(frames[0], 0,0);
+        Pose pose1 = pose.transform_to(frames[2]);
+        TEST_EQ(pose1.x(), 20);
+        Pose pose2 = pose.transform_to(frames[1]);
+        TEST(pose2.x(), -22.4);
+      }
+    }
+  }
+
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    {
+      auto odom = ReferenceFrame("odom", Pose(default_frame()), 0);
+      auto body_mass = ReferenceFrame("body.mass", Pose(odom), 5);
+      auto imu = ReferenceFrame("imu", Pose(body_mass));
+      auto laser = ReferenceFrame("laser", Pose(imu));
+
+      auto map = ReferenceFrame("map", Pose(ReferenceFrame()), 0);
+
+      odom.save(kb);
+      odom.pose(Pose(map), 2).save(kb);
+      body_mass.save(kb);
+      body_mass.timestamp(10).save(kb);
+      body_mass.timestamp(20).save(kb);
+      body_mass.timestamp(30).save(kb);
+      imu.save(kb);
+      laser.save(kb);
+    }
+
+    //{
+    auto frames = ReferenceFrame::load_tree(kb, {"laser", "odom"});
+
+    LOG(frames[0].timestamp());
+    LOG(frames[1].timestamp());
+    //}
+
+    frames = ReferenceFrame::load_tree(kb, {"laser", "odom"}, 30);
+
+    LOG(frames[0].timestamp());
+    LOG(frames[1].timestamp());
+    LOG(frames[1].origin_frame().valid());
+
+    std::string dump;
+    kb.to_string(dump);
+    std::cerr << dump << std::endl;
+  }
+
+  ReferenceFrameIdentity::gc();
+
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    // Save reference frames
+    {
+      gams::pose::ReferenceFrame map_frame("map", gams::pose::Pose());  // parent frame (not saved here)
+
+      auto odom_frame = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map_frame), 1e9);
+      odom_frame.save(kb);
+
+      auto odom_frame2 = gams::pose::ReferenceFrame("odom", gams::pose::Pose(map_frame), 2e9);
+      odom_frame2.save(kb);
+
+      auto body_frame = gams::pose::ReferenceFrame("body", gams::pose::Pose(odom_frame), 1.9e9);
+      body_frame.save(kb);
+
+      auto body_frame2 = gams::pose::ReferenceFrame("body", gams::pose::Pose(odom_frame), 3e9);
+      body_frame2.save(kb);
+
+      auto imu_frame = gams::pose::ReferenceFrame("imu", gams::pose::Pose(body_frame));
+      imu_frame.save(kb);
+
+      auto laser_frame = gams::pose::ReferenceFrame("laser", gams::pose::Pose(imu_frame));
+      laser_frame.save(kb);
+    }
+
+    kb.print();
+    std::vector<std::string> frame_ids = {"laser", "odom"};
+
+    // This load tree works, we limit its scope
+    {
+      auto frames = gams::pose::ReferenceFrame::load_tree(kb, frame_ids, 2e9);
+      TEST_EQ(!frames.empty(), true);
+
+      auto laser = frames[0];
+      auto odom = frames[1];
+      auto odom_laser_T = laser.origin().transform_to(odom);
+    }  // move this brace below the next call to load_tree to break things
+
+    // This load tree fails if the previous load tree is in the same scope
+    auto frames2 = gams::pose::ReferenceFrame::load_tree(kb, frame_ids, 3e9);
+    TEST_EQ(!frames2.empty(), true);
+
+    auto laser2 = frames2[0];
+    auto odom2 = frames2[1];
+    auto odom_laser_T2 = laser2.origin().transform_to(odom2);
+  }
+
+  {
+    madara::knowledge::KnowledgeBase kb;
+
+    auto body_frame = gams::pose::ReferenceFrame("body", gams::pose::Pose());
+    auto imu_frame = gams::pose::ReferenceFrame("imu", gams::pose::Pose(body_frame));
+    imu_frame.save(kb);
+
+    // This should work, loading one static tf
+    std::vector<std::string> frame_ids_static = {"body", "imu"};
+    auto frames = gams::pose::ReferenceFrame::load_tree(kb, frame_ids_static);
+    TEST_EQ(frames.empty(), false);
   }
 #endif
 
