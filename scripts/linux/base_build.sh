@@ -1167,6 +1167,9 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     fi
   fi
 
+
+  echo "  MADARA"
+
   if [ $MADARAPULL -eq 1 ]; then
     if [ $MADARA_REPO_RESULT -eq 0 ]; then
       echo -e "    REPO=\e[92mPASS\e[39m"

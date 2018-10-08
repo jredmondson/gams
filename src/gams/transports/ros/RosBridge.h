@@ -45,7 +45,7 @@ namespace gams
        *          been updated and could be sent.
        * @return  result of operation or -1 if we are shutting down
        **/
-      long send_data (const madara::knowledge::VariableReferenceMap & modifieds);
+      long send_data (const madara::knowledge::KnowledgeMap & modifieds);
 
       unsigned int in_message_count();
       unsigned int out_message_count();
