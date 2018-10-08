@@ -11,6 +11,7 @@
 #include <boost/python/import.hpp>
 #include <boost/python/enum.hpp>
 
+#include "gams/pose/ReferenceFrame.h"
 #include "madara/knowledge/KnowledgeBase.h"
 #include "FunctionDefaults.h"
 #include "GamsPose.h"
@@ -62,20 +63,12 @@ BOOST_PYTHON_MODULE(gams)
   class_<std::vector<std::string>>("StringVector")
       .def(vector_indexing_suite<std::vector<std::string>>());
 
-  class_<std::vector<madara::knowledge::KnowledgeRecord::Integer>>(
-      "IntegerVector")
-      .def(vector_indexing_suite<std::vector<int64_t>>());
+  class_<std::vector<gams::pose::ReferenceFrame>>("FrameVector")
+      .def(vector_indexing_suite<std::vector<gams::pose::ReferenceFrame>>());
 
-  class_<std::vector<double>>("DoubleVector")
-      .def(vector_indexing_suite<std::vector<double>>());
+  def("to_pyframes", &stl_to_python<std::vector<gams::pose::ReferenceFrame>>);
 
-  def("to_pydoubles", &stl_to_python<std::vector<double>>);
-
-  def("to_pylongs", &stl_to_python<std::vector<int64_t>>);
-
-  def("from_pydoubles", &python_to_stl<std::vector<double>>);
-
-  def("from_pylongs", &python_to_stl<std::vector<int64_t>>);
+  def("from_pyframes", &python_to_stl<std::vector<gams::pose::ReferenceFrame>>);
 
   define_pose();
 }
