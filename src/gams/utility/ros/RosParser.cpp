@@ -1050,6 +1050,13 @@ void gams::utility::ros::RosParser::parse_any ( std::string datatype,
     {
       // This member is marked as to be ignored
       continue;
+    } else if (
+      strncmp(name.c_str(), NSEC_MARKER.c_str(), NSEC_MARKER.size()) == 0)
+    {
+      // This member has to be converted to nsec
+      val = (unsigned long) (val * 1e9);
+      // remove NSEC marker
+      name = name.substr(NSEC_MARKER.size());
     }
     try
     {
