@@ -459,7 +459,7 @@ void gams::utility::ros::RosParser::parse_compressed_image (
 void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
 {
   // Expire frames after 0.1 seconds
-  gams::pose::ReferenceFrame::default_expiry (100000000);
+  gams::pose::ReferenceFrame::default_expiry (10000000000);
   uint64_t max_timestamp = 0;
   for (tf2_msgs::TFMessage::_transforms_type::iterator iter =
     tf->transforms.begin (); iter != tf->transforms.end (); ++iter)
@@ -511,12 +511,22 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
     gams::pose::ReferenceFrame base;
     try
     {
-      world  = gams::pose::ReferenceFrame::load (
-      *knowledge_, world_frame_);
-      base  = gams::pose::ReferenceFrame::load (
-      *knowledge_, base_frame_, max_timestamp);
+      std::vector<std::string> ids = {base_frame_, world_frame_};
+      std::vector<gams::pose::ReferenceFrame> frames = 
+        gams::pose::ReferenceFrame::load_tree (*knowledge_, ids);
+      for (gams::pose::ReferenceFrame frame : frames)
+      {
+        if (frame.id() == base_frame_)
+        {
+          base = frame;
+        }
+        else if (frame.id() == world_frame_)
+        {
+          world = frame;
+        }
+      }
     }
-    catch (gams::exceptions::ReferenceFrameException)
+    catch (gams::exceptions::ReferenceFrameException ex)
     {
       return;
     }
@@ -537,9 +547,9 @@ void gams::utility::ros::RosParser::parse_tf_message (tf2_msgs::TFMessage * tf)
         eval_settings_);
       orientation.set (2, base_pose.as_orientation_vec ().get (2),
         eval_settings_);
-
     }
-    catch (gams::pose::unrelated_frames ex){}
+    catch (gams::pose::unrelated_frames ex)
+    {}
   }
 }
 
