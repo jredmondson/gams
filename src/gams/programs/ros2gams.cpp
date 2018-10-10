@@ -277,6 +277,7 @@ int main (int argc, char ** argv)
   std::map<std::string, std::string> schema_map;
   std::map<std::string, int> circular_variables;
   std::map<std::string, std::map<std::string, std::string>> name_substitution_map;
+  std::string default_frame_prefix = ".gams.frames";
 
 
   // Use mapfile to filter topics
@@ -287,6 +288,13 @@ int main (int argc, char ** argv)
     YAML::Node config = YAML::LoadFile(map_file);
     if (config["frames"])
     {
+      if (config["frames"]["default_frame_prefix"])
+      {
+        default_frame_prefix = config["frames"]["default_frame_prefix"].as<std::string>();
+        // set the default reference frame prefix to be global
+        gams::pose::FrameEvalSettings::set_default_prefix(default_frame_prefix);
+      }
+
       base_frame = config["frames"]["base_frame"].as<std::string>();
       world_frame = config["frames"]["world_frame"].as<std::string>();
       std::replace ( base_frame.begin (), base_frame.end (), '/', '_');
