@@ -27,6 +27,7 @@ env:
     - TESTS="tests"
 
 matrix:
+
   allow_failures:
     - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
     - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS=""
