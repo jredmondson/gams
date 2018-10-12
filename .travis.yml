@@ -24,10 +24,14 @@ env:
     - CAPNP_ROOT=$TRAVIS_BUILD_DIR/capnproto
     - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH:$CAPNP_ROOT/c++/.libs
     - CORES=6
+    - TESTS="tests"
 
 matrix:
   allow_failures:
     - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
+    - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS=""
+    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS=""
+
   include:
       ################MAC#####################
 
@@ -142,19 +146,19 @@ script:
   - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
   - echo ls $TRAVIS_BUILD_DIR
   - ls $TRAVIS_BUILD_DIR
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams tests types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME
-  - $GAMS_ROOT/bin/test_arguments_parser
-  - $GAMS_ROOT/bin/test_auctions
-  - $GAMS_ROOT/bin/test_controller_run
-  - $GAMS_ROOT/bin/test_controller
-  - $GAMS_ROOT/bin/test_coordinates
-  - $GAMS_ROOT/bin/test_elections
-  - $GAMS_ROOT/bin/test_groups
-  - $GAMS_ROOT/bin/test_location
-  - $GAMS_ROOT/bin/test_mape_loop
-  - if [ "$ROS" == "ros" ]; then $GAMS_ROOT/bin/test_ros2gams; fi
-  - $GAMS_ROOT/bin/test_utility
-  - $GAMS_ROOT/bin/test_variables
-  - $GAMS_ROOT/bin/test_types
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_arguments_parser; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_auctions; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_controller_run; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_controller; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_coordinates; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_elections; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_groups; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_location; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_mape_loop; fi
+  - if [ ! -z $TESTS ] && [ "$ROS" == "ros" ]; then $GAMS_ROOT/bin/test_ros2gams; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_utility; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_variables; fi
+  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_types; fi
 
