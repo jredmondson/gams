@@ -56,70 +56,68 @@
 
 #include <string>
 
+#include "madara/knowledge/EvalSettings.h"
 #include "gams/GamsExport.h"
 
-namespace gams
+namespace gams { namespace controllers {
+
+enum CheckpointStrategies
 {
-  namespace controllers
-  {
-    enum CheckpointStrategies
-    {
-      CHECKPOINT_NONE = 0,
-      CHECKPOINT_EVERY_LOOP = 1,
-      CHECKPOINT_EVERY_SEND = 2,
-      CHECKPOINT_SAVE_DIFFS = 4,
-      CHECKPOINT_SAVE_FULL_CONTEXTS = 8,
-      CHECKPOINT_SAVE_ONE_FILE = 16,
-      CHECKPOINT_SAVE_DIFFS_IN_ONE_FILE = 20
-    };
+  CHECKPOINT_NONE = 0,
+  CHECKPOINT_EVERY_LOOP = 1,
+  CHECKPOINT_EVERY_SEND = 2,
+  CHECKPOINT_SAVE_DIFFS = 4,
+  CHECKPOINT_SAVE_FULL_CONTEXTS = 8,
+  CHECKPOINT_SAVE_ONE_FILE = 16,
+  CHECKPOINT_SAVE_DIFFS_IN_ONE_FILE = 20
+};
 
-    /**
-     * Settings used for initializing GAMS controllers
-     **/
-    class GAMS_EXPORT ControllerSettings
-    {
-    public:
-      /**
-       * Constructor
-       **/
-      ControllerSettings ()
-        : agent_prefix ("agent.0"), checkpoint_prefix ("checkpoint"),
-          checkpoint_strategy (CHECKPOINT_NONE), gams_log_level (-1), loop_hertz (2.0),
-          madara_log_level (-1), run_time (-1), send_hertz (1.0)
-      {
-      }
+/**
+ * Settings used for initializing GAMS controllers
+ **/
+class GAMS_EXPORT ControllerSettings
+{
+public:
+  /**
+   * Constructor
+   **/
+  ControllerSettings () = default;
 
-      /** the default agent prefix (e.g., "agent.bob" or "agent.0"). This is a prefix
-        * of what the self_ agent prefix will be in the knowledge base. For instance,
-        * agent.0.location, agent.0.algorithm, etc.
-        **/
-      std::string agent_prefix;
+  /**
+   * the default agent prefix (e.g., "agent.bob" or "agent.0"). This is a prefix
+   * of what the self_ agent prefix will be in the knowledge base. For instance,
+   * agent.0.location, agent.0.algorithm, etc.
+   **/
+  std::string agent_prefix = "agent.0";
 
-      /**
-      * the knowledge checkpointing file system prefix (e.g., "./checkpoint" will
-      * save checkpoints to currently directory in files that start with checkpoint
-      **/
-      std::string checkpoint_prefix;
+  /**
+   * the knowledge checkpointing file system prefix (e.g., "./checkpoint" will
+   * save checkpoints to currently directory in files that start with checkpoint
+   **/
+  std::string checkpoint_prefix = "checkpoint";
 
-      /// the knowledge checkpointing strategy
-      int checkpoint_strategy;
+  /// the knowledge checkpointing strategy
+  int checkpoint_strategy = CHECKPOINT_NONE;
 
-      /// the gams logging level (negative means don't change)
-      int gams_log_level;
+  /// the gams logging level (negative means don't change)
+  int gams_log_level = -1;
 
-      /// the hertz rate that a controller should run at
-      double loop_hertz;
+  /// the hertz rate that a controller should run at
+  double loop_hertz = 2.0;
 
-      /// the MADARA logging level (negative means don't change)
-      int madara_log_level;
+  /// the MADARA logging level (negative means don't change)
+  int madara_log_level = -1;
 
-      /// maximum runtime (-1 means persistent, forever)
-      double run_time;
+  /// maximum runtime (-1 means persistent, forever)
+  double run_time = -1;
 
-      /// the hertz rate to call send_modifieds at
-      double send_hertz;
-    };
-  }
-}
+  /// the hertz rate to call send_modifieds at
+  double send_hertz = 1.0;
+
+  /// settings used in any KnowledgeBase operations by this controller
+  madara::knowledge::EvalSettings eval_settings;
+};
+
+} }
 
 #endif // _GAMS_CONTROLLERS_CONTROLLERSETTINGS_H_
