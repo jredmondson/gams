@@ -80,7 +80,6 @@ void gams::utility::ros::RosParser::parse_message (
       std::cout << "Calling parse...\n";
       parse (&m, knowledge_, container_name);
 
-      knowledge_->print();
       // close the library
       std::cout << "Closing library...\n";
       dlclose (handle);

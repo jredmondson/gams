@@ -36,8 +36,8 @@ extern "C" void parse(const rosbag::MessageInstance* m,
   std::string container_name) {
   // THIS METHOD IS HARDCODED TO RUN WITH PCL BASED SCHEMAS
 
-  sensor_msgs::PointCloud2 *pointcloud =
-    m->instantiate<sensor_msgs::PointCloud2> ().get ();
+  boost::shared_ptr<sensor_msgs::PointCloud2> pointcloud =
+    m->instantiate<sensor_msgs::PointCloud2> ();
 
   // Load PCL schema
   std::string pointcloud_schema_name = "PointCloudXYZ";
@@ -75,6 +75,4 @@ extern "C" void parse(const rosbag::MessageInstance* m,
   madara::knowledge::GenericCapnObject any(pointcloud_schema_name.c_str(),
     buffer);
   kb->set_any(container_name, any);
-
-  std::cout << "WE DID IT!!" << std::endl;
 }
