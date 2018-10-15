@@ -583,11 +583,12 @@ gams::controllers::BaseController::run_once (void)
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,
-    "gams::controllers::BaseController::run:" \
+    "gams::controllers::BaseController::run_once:" \
     " sending updates\n");
 
   // send modified values through network
-  knowledge_.send_modifieds ();
+  knowledge_.send_modifieds ("BaseController::run_once",
+      settings_.eval_settings);
 
   return return_value;
 }
@@ -755,7 +756,8 @@ gams::controllers::BaseController::run (double loop_period,
         }
 
         // send modified values through network
-        knowledge_.send_modifieds ();
+        knowledge_.send_modifieds ("BaseController::run",
+            settings_.eval_settings);
 
         // setup the next send epoch
         if (send_period > 0)

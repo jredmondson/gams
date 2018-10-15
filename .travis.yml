@@ -1,4 +1,5 @@
 sudo: required
+dist: xenial
 group: travis_latest
 language: cpp
 os:
@@ -70,21 +71,19 @@ matrix:
 
       # clang, linux, no ssl
     - compiler: clang
-      env: NAME="Ubuntu 14.04 clang" CLANG="clang"
+      env: NAME="Ubuntu 16.04 clang" CLANG="clang"
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-5.0
           packages:
             - libssl-dev
-            - clang-5.0
       os: linux
 
       # g++, linux, no ssl
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 14.04 g++" CLANG=""
+      env: NAME="Ubuntu 16.04 g++" CLANG=""
 
       # g++, linux, ssl
     - compiler: gcc
@@ -95,27 +94,27 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - libssl-dev
-      env: NAME="Ubuntu 14.04 g++ ssl" CLANG="" SSL="ssl"
+      env: NAME="Ubuntu 16.04 g++ ssl" CLANG="" SSL="ssl"
 
       # g++, linux, java
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 14.04 g++ java" JAVA="java"
+      env: NAME="Ubuntu 16.04 g++ java" JAVA="java"
 
       # g++, linux, python
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 14.04 g++ python" PYTHON="python"
+      env: NAME="Ubuntu 16.04 g++ python" PYTHON="python"
 
       # g++, linux, zmq
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 14.04 g++ zmq" ZMQ="zmq"
+      env: NAME="Ubuntu 16.04 g++ zmq" ZMQ="zmq"
 
       # g++, linux, simtime
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 14.04 g++ simtime" SIMTIME="simtime"
+      env: NAME="Ubuntu 16.04 g++ simtime" SIMTIME="simtime"
 
 addons:
   apt:
@@ -129,10 +128,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install openssl; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install zeromq; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link openssl --force; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get -y update; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get -y install gcc-5 g++-5; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5; fi
 
 
 before_script:
