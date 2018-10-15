@@ -6,6 +6,7 @@
  **/
 #include "RosParser.h"
 #include <cmath>
+#include <dlfcn.h>
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
@@ -47,9 +48,42 @@ void gams::utility::ros::RosParser::parse_message (
     if (m.isType<sensor_msgs::PointCloud2> () &&
       capnp_types_["sensor_msgs/PointCloud2"] == "pcl")
     {
-      parse_pointcloud2_pclschema (
+      /*parse_pointcloud2_pclschema (
         m.instantiate<sensor_msgs::PointCloud2> ().get (),
         container_name);
+        */
+      // open the library
+      std::cout << "Opening r2g_pcl_plugin.so...\n";
+      void* handle = dlopen ("./bin/r2g_pcl_plugin.so", RTLD_NOW);
+      if (!handle) {
+        std::cerr << "Cannot open library: " << dlerror () << '\n';
+        return;
+      }
+
+      // load the symbol
+      std::cout << "Loading symbol parse...\n";
+      typedef void (*plugin_t) (const rosbag::MessageInstance*,
+        madara::knowledge::KnowledgeBase*, 
+        std::string);
+
+      // reset errors
+      dlerror();
+      plugin_t parse = (plugin_t) dlsym (handle, "parse");
+      const char *dlsym_error = dlerror ();
+      if (dlsym_error) {
+        std::cerr << "Cannot load symbol 'parse': " << dlsym_error << std::endl;
+        dlclose(handle);
+        return;
+      }
+
+      // use it to do the calculation
+      std::cout << "Calling parse...\n";
+      parse (&m, knowledge_, container_name);
+
+      knowledge_->print();
+      // close the library
+      std::cout << "Closing library...\n";
+      dlclose (handle);
     }
     else
     {
