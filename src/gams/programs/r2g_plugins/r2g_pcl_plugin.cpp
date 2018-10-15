@@ -38,7 +38,7 @@ extern "C" void parse(const rosbag::MessageInstance* m,
 
   sensor_msgs::PointCloud2 *pointcloud =
     m->instantiate<sensor_msgs::PointCloud2> ().get ();
-/*
+
   // Load PCL schema
   std::string pointcloud_schema_name = "PointCloudXYZ";
   capnp::MallocMessageBuilder buffer;
@@ -75,7 +75,6 @@ extern "C" void parse(const rosbag::MessageInstance* m,
   madara::knowledge::GenericCapnObject any(pointcloud_schema_name.c_str(),
     buffer);
   kb->set_any(container_name, any);
-*/
-  std::cout << "Frame ID: " << pointcloud->header.frame_id << std::endl;
+
   std::cout << "WE DID IT!!" << std::endl;
 }
