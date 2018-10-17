@@ -74,6 +74,27 @@
 namespace gams { namespace pose {
 
 class ReferenceFrameVersion;
+class ReferenceFrameIdentity;
+
+class ReferenceFrameArena
+{
+private:
+  std::map<std::string,
+      std::weak_ptr<ReferenceFrameIdentity>> idents_;
+
+public:
+  std::shared_ptr<ReferenceFrameIdentity> lookup(std::string id);
+
+  std::shared_ptr<ReferenceFrameIdentity> find(std::string id) const;
+
+  std::shared_ptr<ReferenceFrameIdentity> make_guid();
+
+  /**
+   * Old versions of frames can remain loaded in memory after they are no
+   * longer needed. Call this function to clean them out.
+   **/
+  void gc();
+};
 
 /**
  * For internal use. Use ReferenceFrame or FrameStore.
@@ -88,129 +109,152 @@ public:
   static const uint64_t TEMP = ReferenceFrame::TEMP;
 
 private:
-    std::string id_;
+  std::string id_;
 
-    static std::map<std::string,
-        std::weak_ptr<ReferenceFrameIdentity>> idents_;
+  static ReferenceFrameArena arena_;
+  //static std::map<std::string,
+      //std::weak_ptr<ReferenceFrameIdentity>> idents_;
 
-    static uint64_t default_expiry_;
+  static uint64_t default_expiry_;
 
-    static std::mutex idents_lock_;
+  static std::recursive_mutex idents_lock_;
 
-    mutable std::map<uint64_t, std::weak_ptr<ReferenceFrameVersion>>
-      versions_;
+  mutable std::map<uint64_t, std::weak_ptr<ReferenceFrameVersion>>
+    versions_;
 
-    mutable uint64_t expiry_ = ETERNAL;
+  mutable uint64_t expiry_ = ETERNAL;
 
-    mutable std::mutex versions_lock_;
+  mutable std::recursive_mutex versions_lock_;
 
 public:
-    /// Public by necessity. Use lookup instead.
-    ReferenceFrameIdentity(std::string id, uint64_t expiry)
-      : id_(std::move(id)), expiry_(expiry) {}
+  /// Public by necessity. Use lookup instead.
+  ReferenceFrameIdentity(std::string id, uint64_t expiry)
+    : id_(std::move(id)), expiry_(expiry) {}
 
-    static std::shared_ptr<ReferenceFrameIdentity> lookup(std::string id);
+  static std::shared_ptr<ReferenceFrameIdentity> lookup(std::string id)
+  {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
 
-    static std::shared_ptr<ReferenceFrameIdentity> find(std::string id);
+    return arena_.lookup(std::move(id));
+  }
 
-    static std::shared_ptr<ReferenceFrameIdentity> make_guid();
+  static std::shared_ptr<ReferenceFrameIdentity> find(std::string id)
+  {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
 
-    void register_version(uint64_t timestamp,
-        std::shared_ptr<ReferenceFrameVersion> ver) const
-    {
-      std::lock_guard<std::mutex> guard(versions_lock_);
+    return arena_.find(std::move(id));
+  }
 
-      std::weak_ptr<ReferenceFrameVersion> weak(std::move(ver));
-      versions_[timestamp] = ver;
+  static std::shared_ptr<ReferenceFrameIdentity> make_guid()
+  {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
+
+    return arena_.make_guid();
+  }
+
+  void register_version(uint64_t timestamp,
+      std::shared_ptr<ReferenceFrameVersion> ver) const
+  {
+    std::lock_guard<std::recursive_mutex> guard(versions_lock_);
+
+    std::weak_ptr<ReferenceFrameVersion> weak(std::move(ver));
+    versions_[timestamp] = ver;
+  }
+
+  std::shared_ptr<ReferenceFrameVersion> get_version(uint64_t timestamp) const
+  {
+    std::lock_guard<std::recursive_mutex> guard(versions_lock_);
+
+    auto find = versions_.find(timestamp);
+
+    if (find == versions_.end()) {
+      return nullptr;
     }
 
-    std::shared_ptr<ReferenceFrameVersion> get_version(uint64_t timestamp) const
-    {
-      std::lock_guard<std::mutex> guard(versions_lock_);
+    return find->second.lock();
+  }
 
-      auto find = versions_.find(timestamp);
+  const std::string &id() const { return id_; }
 
-      if (find == versions_.end()) {
-        return nullptr;
-      }
+  /**
+   * Set the default expiry value for new frames IDs. Setting this will
+   * not change any already created frame IDs.
+   *
+   * If a frame newer than its expiry is saved, saved frames expire
+   * of the same ID older than this duration into the past from the
+   * timestamp of the new frame.
+   *
+   * Expired frames are deleted from the KnowledgeBase.
+   *
+   * Set to ETERNAL (the default) to never expire frames.
+   *
+   * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
+   * other frames will expire immediately.
+   *
+   * @return previous default expiry
+   **/
+  static uint64_t default_expiry(uint64_t age) {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
 
-      return find->second.lock();
-    }
+    uint64_t ret = default_expiry_;
+    default_expiry_ = age;
+    return ret;
+  }
 
-    const std::string &id() const { return id_; }
+  /// Return the default expiry for new frame IDs
+  static uint64_t default_expiry() {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
+    return default_expiry_;
+  }
 
-    /**
-     * Set the default expiry value for new frames IDs. Setting this will
-     * not change any already created frame IDs.
-     *
-     * If a frame newer than its expiry is saved, saved frames expire
-     * of the same ID older than this duration into the past from the
-     * timestamp of the new frame.
-     *
-     * Expired frames are deleted from the KnowledgeBase.
-     *
-     * Set to ETERNAL (the default) to never expire frames.
-     *
-     * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
-     * other frames will expire immediately.
-     *
-     * @return previous default expiry
-     **/
-    static uint64_t default_expiry(uint64_t age) {
-      std::lock_guard<std::mutex> guard(idents_lock_);
+  /**
+   * If a frame newer than this time is saved, expire saved frames
+   * of the same ID older than this duration into the past from the
+   * timestamp of the new frame.
+   *
+   * Expired frames are deleted from the KnowledgeBase.
+   *
+   * Set to ETERNAL (the default) to never expire frames.
+   *
+   * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
+   * other frames will expire immediately.
+   *
+   * @return previous expiry
+   **/
+  uint64_t expiry(uint64_t age) const {
+    std::lock_guard<std::recursive_mutex> guard(versions_lock_);
 
-      uint64_t ret = default_expiry_;
-      default_expiry_ = age;
-      return ret;
-    }
+    uint64_t ret = expiry_;
+    expiry_ = age;
+    return ret;
+  }
 
-    /// Return the default expiry for new frame IDs
-    static uint64_t default_expiry() {
-      std::lock_guard<std::mutex> guard(idents_lock_);
-      return default_expiry_;
-    }
+  /// Return the current expiry
+  uint64_t expiry() const {
+    std::lock_guard<std::recursive_mutex> guard(versions_lock_);
+    return expiry_;
+  }
 
-    /**
-     * If a frame newer than this time is saved, expire saved frames
-     * of the same ID older than this duration into the past from the
-     * timestamp of the new frame.
-     *
-     * Expired frames are deleted from the KnowledgeBase.
-     *
-     * Set to ETERNAL (the default) to never expire frames.
-     *
-     * Note: if a timestamp ETERNAL frame is saved and this is not ETERNAL, all
-     * other frames will expire immediately.
-     *
-     * @return previous expiry
-     **/
-    uint64_t expiry(uint64_t age) const {
-      std::lock_guard<std::mutex> guard(versions_lock_);
+  void expire_older_than(madara::knowledge::KnowledgeBase &kb,
+      uint64_t time, const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
 
-      uint64_t ret = expiry_;
-      expiry_ = age;
-      return ret;
-    }
+  static const std::string &default_prefix() {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
+    return FrameEvalSettings::default_prefix();
+  }
 
-    /// Return the current expiry
-    uint64_t expiry() const {
-      std::lock_guard<std::mutex> guard(versions_lock_);
-      return expiry_;
-    }
+  /**
+   * Old versions of frames can remain loaded in memory after they are no
+   * longer needed. Call this function to clean them out.
+   **/
+  static void gc()
+  {
+    std::lock_guard<std::recursive_mutex> guard(idents_lock_);
 
-    void expire_older_than(madara::knowledge::KnowledgeBase &kb,
-        uint64_t time, const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
+    return arena_.gc();
+  }
 
-    static const std::string &default_prefix() {
-      std::lock_guard<std::mutex> guard(idents_lock_);
-      return FrameEvalSettings::default_prefix();
-    }
-
-    /**
-     * Old versions of frames can remain loaded in memory after they are no
-     * longer needed. Call this function to clean them out.
-     **/
-    static void gc();
+  void gc_versions();
 };
 
 /// Private implementation details
@@ -428,6 +472,29 @@ public:
       timestamp_(init_timestamp(timestamp, origin)),
       origin_(std::forward<P>(origin)),
       temp_(temp) {}
+
+  /**
+   * Constructor from an existing ReferenceFrameIdentity, an origin,
+   * and optional timestamp. Typical users should not use this constructor.
+   *
+   * @tparam a Coordinate type convertible to Pose
+   * @param ident shared_ptr to a ReferenceFrameIdentity, which holds
+   *        type and id information.
+   * @param id a string identifier for this frame.
+   * @param origin the origin of this frame, relative to another frame.
+   * @param timestamp the timestamp of this frame. By default, will be
+   *        treated as "always most current".
+   **/
+  template<typename P,
+    typename std::enable_if<
+      supports_transform_to<P>::value, void*>::type = nullptr>
+  ReferenceFrameVersion(
+      std::shared_ptr<ReferenceFrameIdentity> ident,
+      P &&origin,
+      uint64_t timestamp = ETERNAL,
+      bool temp = false)
+    : ReferenceFrameVersion(std::move(ident), Cartesian,
+        std::forward<P>(origin), timestamp, temp) {}
 
   /**
    * Get the ReferenceFrameIdentity object associated with this frame,
@@ -719,7 +786,8 @@ public:
           uint64_t timestamp = ETERNAL,
           uint64_t parent_timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
-          bool throw_on_errors = true);
+          bool throw_on_errors = true,
+          ReferenceFrameArena* arena = nullptr);
 
 private:
   /**
@@ -742,7 +810,8 @@ private:
           uint64_t timestamp = ETERNAL,
           uint64_t parent_timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
-          bool throw_on_errors = true);
+          bool throw_on_errors = true,
+          ReferenceFrameArena* arena = nullptr);
 
 public:
   /**
@@ -762,7 +831,8 @@ public:
           const std::string &id,
           uint64_t timestamp = ETERNAL,
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
-          bool throw_on_errors = true);
+          bool throw_on_errors = true,
+          ReferenceFrameArena* arena = nullptr);
 
   /**
    * Get the latest available timestamp in the knowledge base
@@ -869,7 +939,8 @@ public:
   {
     madara::knowledge::ContextGuard guard(kb);
 
-    return latest_common_timestamp(kb, ids.cbegin(), ids.cend(), settings);
+    return latest_common_timestamp(kb, ids.cbegin(), ids.cend(),
+        settings);
   }
 
   /**
@@ -894,7 +965,8 @@ public:
           ForwardIterator begin,
           ForwardIterator end,
           uint64_t timestamp = ETERNAL,
-          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
+          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+          ReferenceFrameArena* arena = nullptr)
   {
     std::vector<ReferenceFrame> ret;
     if (std::is_same<
@@ -909,8 +981,14 @@ public:
     if (timestamp == ETERNAL) {
       timestamp = latest_common_timestamp(kb, begin, end, settings);
     }
+
+    ReferenceFrameArena local_arena;
+    if (arena == nullptr) {
+      arena = &local_arena;
+    }
+
     while (begin != end) {
-      ReferenceFrame frame = load(kb, *begin, timestamp, settings);
+      ReferenceFrame frame = load(kb, *begin, timestamp, settings, arena);
       if (!frame.valid()) {
         std::stringstream msg;
         msg << "ReferenceFrame::load_tree: could not find frame \"" <<
@@ -945,13 +1023,13 @@ public:
    **/
   template<typename Container>
   static std::vector<ReferenceFrame> load_tree(
-          madara::knowledge::KnowledgeBase &kb,
-          const Container &ids,
-          uint64_t timestamp = ETERNAL,
-          const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
+      madara::knowledge::KnowledgeBase &kb, const Container &ids,
+      uint64_t timestamp = ETERNAL,
+      const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+      ReferenceFrameArena* arena = nullptr)
   {
     return load_tree(kb, ids.begin(), ids.end(),
-                     timestamp, std::move(settings));
+        timestamp, std::move(settings), arena);
   }
 
   /**
@@ -963,8 +1041,8 @@ public:
    * @param expiry use this expiry time instead of the one set on this ID
    **/
   void save_as(madara::knowledge::KnowledgeBase &kb,
-               std::string key, uint64_t expiry,
-               const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
+      std::string key, uint64_t expiry,
+      const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const;
   /**
    * Save this ReferenceFrame to the knowledge base,
    * with a specific key value.
@@ -973,8 +1051,8 @@ public:
    * @param key a key prefix to save with
    **/
   void save_as(madara::knowledge::KnowledgeBase &kb,
-               std::string key,
-               const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const
+      std::string key,
+      const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT) const
   {
     save_as(kb, key, ident().expiry(), settings);
   }

@@ -59,6 +59,8 @@
 #include "gams/pose/Angular.h"
 #include "gams/pose/Quaternion.h"
 
+#include "madara/logger/GlobalLogger.h"
+
 #include <random>
 
 using madara::knowledge::KnowledgeBase;
@@ -71,8 +73,7 @@ using kmpair = KnowledgeMap::value_type;
 
 // For simple toggling of debug code
 //#define LOCAL_DEBUG(stmt) stmt
-#define LOCAL_DEBUG(stmt) if (madara::logger::Logger::get_thread_name() == "SubmapUpdate") { stmt }
-//#define LOCAL_DEBUG(stmt)
+#define LOCAL_DEBUG(stmt)
 
 namespace gams { namespace pose {
 
@@ -81,18 +82,15 @@ const FrameEvalSettings FrameEvalSettings::DEFAULT;
 std::string FrameEvalSettings::default_prefix_(".gams.frames");
 std::mutex FrameEvalSettings::defaults_lock_;
 
-std::map<std::string, std::weak_ptr<ReferenceFrameIdentity>>
-  ReferenceFrameIdentity::idents_;
+ReferenceFrameArena ReferenceFrameIdentity::arena_;
 
 uint64_t ReferenceFrameIdentity::default_expiry_ = ReferenceFrame::ETERNAL;
 
-std::mutex ReferenceFrameIdentity::idents_lock_;
+std::recursive_mutex ReferenceFrameIdentity::idents_lock_;
 
 std::shared_ptr<ReferenceFrameIdentity>
-  ReferenceFrameIdentity::find(std::string id)
+  ReferenceFrameArena::find(std::string id) const
 {
-  std::lock_guard<std::mutex> guard(idents_lock_);
-
   auto find = idents_.find(id);
   if (find != idents_.end()) {
     auto ret = find->second.lock();
@@ -101,23 +99,12 @@ std::shared_ptr<ReferenceFrameIdentity>
   return nullptr;
 }
 
-void ReferenceFrameIdentity::gc()
+void ReferenceFrameArena::gc()
 {
-  std::lock_guard<std::mutex> guard(idents_lock_);
-
   for (auto ident_iter = idents_.begin(); ident_iter != idents_.end();) {
     if (auto ident = ident_iter->second.lock()) {
-      std::lock_guard<std::mutex> guard(ident->versions_lock_);
+      ident->gc_versions();
 
-      for (auto ver_iter = ident->versions_.begin(); ver_iter != ident->versions_.end();) {
-        if (ver_iter->second.expired()) {
-          auto tmp = ver_iter;
-          ++ver_iter;
-          ident->versions_.erase(tmp);
-        } else {
-          ++ver_iter;
-        }
-      }
       ++ident_iter;
     } else {
       auto tmp = ident_iter;
@@ -127,11 +114,25 @@ void ReferenceFrameIdentity::gc()
   }
 }
 
-std::shared_ptr<ReferenceFrameIdentity>
-  ReferenceFrameIdentity::lookup(std::string id)
+void ReferenceFrameIdentity::gc_versions()
 {
-  std::lock_guard<std::mutex> guard(idents_lock_);
+  std::lock_guard<std::recursive_mutex> guard(versions_lock_);
 
+  for (auto ver_iter = versions_.begin(); ver_iter != versions_.end();) {
+    if (ver_iter->second.expired()) {
+      auto tmp = ver_iter;
+      ++ver_iter;
+
+      versions_.erase(tmp);
+    } else {
+      ++ver_iter;
+    }
+  }
+}
+
+std::shared_ptr<ReferenceFrameIdentity>
+  ReferenceFrameArena::lookup(std::string id)
+{
   auto find = idents_.find(id);
   if (find != idents_.end()) {
     auto ret = find->second.lock();
@@ -139,7 +140,9 @@ std::shared_ptr<ReferenceFrameIdentity>
       return ret;
     }
   }
-  auto val = std::make_shared<ReferenceFrameIdentity>(id, default_expiry_);
+
+  auto val = std::make_shared<ReferenceFrameIdentity>(id,
+      ReferenceFrameIdentity::default_expiry());
   std::weak_ptr<ReferenceFrameIdentity> weak{val};
   if (find != idents_.end()) {
     find->second = std::move(weak);
@@ -168,14 +171,13 @@ static std::string make_random_id(size_t len)
 }
 
 std::shared_ptr<ReferenceFrameIdentity>
-  ReferenceFrameIdentity::make_guid()
+  ReferenceFrameArena::make_guid()
 {
   std::string key;
   decltype(idents_)::iterator find;
   for (;;) {
     key = make_random_id(30); // Over 128 bits of randomness
 
-    std::lock_guard<std::mutex> guard(idents_lock_);
     find = idents_.find(key);
     if (find != idents_.end()) {
       if (!find->second.expired()) {
@@ -183,7 +185,8 @@ std::shared_ptr<ReferenceFrameIdentity>
       }
     }
 
-    auto val = std::make_shared<ReferenceFrameIdentity>(key, default_expiry_);
+    auto val = std::make_shared<ReferenceFrameIdentity>(key,
+        ReferenceFrameIdentity::default_expiry());
 
     std::weak_ptr<ReferenceFrameIdentity> weak{val};
     if (find != idents_.end()) {
@@ -257,7 +260,7 @@ void ReferenceFrameIdentity::expire_older_than(
   }
 
   {
-    std::lock_guard<std::mutex> guard(versions_lock_);
+    std::lock_guard<std::recursive_mutex> guard(versions_lock_);
 
     auto iter = versions_.begin();
     while (iter != versions_.end()) {
@@ -335,11 +338,11 @@ void ReferenceFrameVersion::save_as(
 
 namespace {
   std::shared_ptr<ReferenceFrameVersion> try_load_cached(
-      const std::string &id, uint64_t timestamp)
+      const std::string &id, uint64_t timestamp, ReferenceFrameArena *arena)
   {
     LOCAL_DEBUG(std::cerr << "Looking for cached "<< id << "@" <<
         timestamp << std::endl;)
-    auto ident = ReferenceFrameIdentity::find(id);
+    auto ident = arena ? arena->find(id) : ReferenceFrameIdentity::find(id);
     if (ident) {
       auto ver = ident->get_version(timestamp);
       if (ver) {
@@ -352,9 +355,10 @@ namespace {
     return nullptr;
   }
 
-  ReferenceFrame make_temp_frame(const std::string &id, uint64_t timestamp)
+  ReferenceFrame make_temp_frame(const std::string &id, uint64_t timestamp,
+      ReferenceFrameArena *arena)
   {
-    auto cached = try_load_cached(id, timestamp);
+    auto cached = try_load_cached(id, timestamp, arena);
 
     if (cached) {
       LOCAL_DEBUG(std::cerr << "Found temp frame for " << id <<
@@ -364,8 +368,9 @@ namespace {
 
     LOCAL_DEBUG(std::cerr << "Creating temp frame for " << id <<
         "@" << timestamp << std::endl;)
+    auto ident = arena ? arena->lookup(id) : ReferenceFrameIdentity::lookup(id);
     auto impl = std::make_shared<ReferenceFrameVersion>(
-        id, Pose(ReferenceFrame()), timestamp, true);
+        ident, Pose(ReferenceFrame()), timestamp, true);
 
     LOCAL_DEBUG(std::cerr << "registering " << impl->id() << "@" << impl->timestamp() <<
       "(" << ((void*)impl.get()) << ")" << std::endl;)
@@ -395,9 +400,10 @@ namespace {
 
   std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
     load_single( KnowledgeBase &kb, const std::string &id,
-        uint64_t timestamp, const FrameEvalSettings &settings)
+        uint64_t timestamp, const FrameEvalSettings &settings,
+        ReferenceFrameArena *arena)
   {
-    auto cached = try_load_cached(id, timestamp);
+    auto cached = try_load_cached(id, timestamp, arena);
 
     if (cached && !has_temp_ancestry(*cached)) {
       return std::make_pair(std::move(cached), std::string());
@@ -445,8 +451,9 @@ namespace {
           std::string());
     }
 
+    auto ident = arena ? arena->lookup(id) : ReferenceFrameIdentity::lookup(id);
     auto ret = std::make_shared<ReferenceFrameVersion>(
-        type, id, std::move(origin), timestamp);
+        ident, type, std::move(origin), timestamp);
 
     LOCAL_DEBUG(std::cerr << "registering " << ret->id() << "@" << ret->timestamp() <<
       "(" << ((void*)ret.get()) << ")" << std::endl;)
@@ -465,10 +472,12 @@ ReferenceFrame ReferenceFrameVersion::load_exact(
       uint64_t timestamp,
       uint64_t parent_timestamp,
       const FrameEvalSettings &settings,
-      bool throw_on_errors)
+      bool throw_on_errors,
+      ReferenceFrameArena* arena)
 {
 
-  return load_exact_internal(kb, id, timestamp, parent_timestamp, settings, throw_on_errors);
+  return load_exact_internal(kb, id, timestamp, parent_timestamp, settings,
+      throw_on_errors, arena);
 }
 
 ReferenceFrame ReferenceFrameVersion::load_exact_internal(
@@ -477,11 +486,12 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
       uint64_t timestamp,
       uint64_t parent_timestamp,
       const FrameEvalSettings &settings,
-      bool throw_on_errors)
+      bool throw_on_errors,
+      ReferenceFrameArena* arena)
 {
   ContextGuard guard(kb);
 
-  auto ret = load_single(kb, id, timestamp, settings);
+  auto ret = load_single(kb, id, timestamp, settings, arena);
   if (!ret.first) {
     return ReferenceFrame(); // Don't throw here, return value is valid for test_coordinates
   }
@@ -501,9 +511,11 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
   }
 
   if (parent_frame.size() > 0) {
-    auto parent = load(kb, parent_frame, parent_timestamp, settings, false);
+    auto parent = load(kb, parent_frame, parent_timestamp, settings,
+        false, arena);
+
     if (!parent.valid()) {
-      parent = make_temp_frame(parent_frame, parent_timestamp);
+      parent = make_temp_frame(parent_frame, parent_timestamp, arena);
       (void)throw_on_errors;
       /*
       LOCAL_DEBUG(std::cerr << "Couldn't find " << parent_frame << std::endl;)
@@ -625,9 +637,9 @@ std::pair<uint64_t, uint64_t> ReferenceFrameVersion::find_nearest_neighbors(
 }
 
 uint64_t ReferenceFrameVersion::latest_timestamp(
-        madara::knowledge::KnowledgeBase &kb,
-        const std::string &id,
-        const FrameEvalSettings &settings)
+    madara::knowledge::KnowledgeBase &kb,
+    const std::string &id,
+    const FrameEvalSettings &settings)
 {
   ContextGuard guard(kb);
 
@@ -804,7 +816,8 @@ ReferenceFrame ReferenceFrameVersion::load(
         const std::string &id,
         uint64_t timestamp,
         const FrameEvalSettings &settings,
-        bool throw_on_errors)
+        bool throw_on_errors,
+        ReferenceFrameArena* arena)
 {
   ContextGuard guard(kb);
 
@@ -812,12 +825,14 @@ ReferenceFrame ReferenceFrameVersion::load(
     timestamp = latest_timestamp(kb, id, settings);
   }
 
-  ReferenceFrame ret = load_exact_internal(kb, id, timestamp, timestamp, settings, false);
+  ReferenceFrame ret = load_exact_internal(kb, id, timestamp, timestamp,
+      settings, false, arena);
+
   if (ret.valid()) {
     return ret;
   }
 
-  ret = load_exact_internal(kb, id, -1, timestamp, settings, false);
+  ret = load_exact_internal(kb, id, -1, timestamp, settings, false, arena);
   if (ret.valid()) {
     return ret;
   }
@@ -828,7 +843,7 @@ ReferenceFrame ReferenceFrameVersion::load(
               timestamp << " " << pair.second << std::endl;)
 
   if (pair.first == -1UL || pair.second == -1UL) {
-    return make_temp_frame(id, timestamp);
+    return make_temp_frame(id, timestamp, arena);
     /*
     LOCAL_DEBUG(std::cerr << "No valid timestamp pair for " << id << std::endl;)
     if (throw_on_errors) {
@@ -841,8 +856,8 @@ ReferenceFrame ReferenceFrameVersion::load(
     */
   }
 
-  auto prev = load_single(kb, id, pair.first, settings);
-  auto next = load_single(kb, id, pair.second, settings);
+  auto prev = load_single(kb, id, pair.first, settings, arena);
+  auto next = load_single(kb, id, pair.second, settings, arena);
 
   ReferenceFrame parent;
 
@@ -892,10 +907,10 @@ ReferenceFrame ReferenceFrameVersion::load(
 
       LOCAL_DEBUG(std::cerr << "Loading " << id << "'s parent " << parent_id <<
                   std::endl;)
-      parent = load(kb, parent_id, timestamp, settings, false);
+      parent = load(kb, parent_id, timestamp, settings, false, arena);
 
       if (!parent.valid()) {
-        parent = make_temp_frame(parent_id, timestamp);
+        parent = make_temp_frame(parent_id, timestamp, arena);
       }
 
       LOCAL_DEBUG(std::cerr << "Interpolating " << id << " with parent " <<
@@ -928,8 +943,8 @@ bool ReferenceFrameVersion::check_is_connected(
   const ReferenceFrame *common_frame = &frames[0];
 
   for (size_t i = 1; i < frames.size(); ++i) {
-    //LOCAL_DEBUG(auto cur = common_frame;)
-    auto cur = common_frame;
+    LOCAL_DEBUG(auto cur = common_frame;)
+
     common_frame = find_common_frame(common_frame, &frames[i]);
 
     if (!common_frame) {

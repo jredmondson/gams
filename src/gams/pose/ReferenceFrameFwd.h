@@ -62,6 +62,7 @@
 
 namespace gams { namespace pose {
 
+class ReferenceFrameArena;
 class ReferenceFrameIdentity;
 class ReferenceFrameVersion;
 struct ReferenceFrameType;
@@ -576,7 +577,8 @@ public:
         InputIterator begin,
         InputIterator end,
         uint64_t timestamp = ETERNAL,
-        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+        ReferenceFrameArena *arena = nullptr);
 
   /**
    * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -599,7 +601,8 @@ public:
         madara::knowledge::KnowledgeBase &kb,
         const Container &ids,
         uint64_t timestamp = ETERNAL,
-        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+        ReferenceFrameArena *arena = nullptr);
 
   /**
    * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -618,7 +621,8 @@ public:
         madara::knowledge::KnowledgeBase &kb,
         const std::initializer_list<const char *> &ids,
         uint64_t timestamp = ETERNAL,
-        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+        ReferenceFrameArena *arena = nullptr);
 
   /**
    * Save this ReferenceFrame to the knowledge base, with a specific key
