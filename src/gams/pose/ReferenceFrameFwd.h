@@ -508,6 +508,12 @@ public:
   bool interpolated() const;
 
   /**
+   * Returns true if this frame is a temporary; one invented to serve as
+   * root of a frame tree.
+   **/
+  bool temp() const;
+
+  /**
    * Save this ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
    * retrieval. If timestamp is ETERNAL, it will always be treated as the most
@@ -654,6 +660,9 @@ public:
       ReferenceFrame parent, uint64_t time) const;
 
   friend class ReferenceFrameVersion;
+  friend const ReferenceFrame *find_common_frame(
+    const ReferenceFrame *from, const ReferenceFrame *to,
+    std::vector<const ReferenceFrame *> *to_stack);
 };
 
 /**

@@ -729,6 +729,10 @@ inline bool ReferenceFrame::interpolated() const {
   return impl_->interpolated();
 }
 
+inline bool ReferenceFrame::temp() const {
+  return impl_->temp();
+}
+
 inline uint64_t ReferenceFrame::default_expiry(uint64_t age) {
   return ReferenceFrameIdentity::default_expiry(age);
 }

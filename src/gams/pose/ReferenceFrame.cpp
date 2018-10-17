@@ -71,7 +71,8 @@ using kmpair = KnowledgeMap::value_type;
 
 // For simple toggling of debug code
 //#define LOCAL_DEBUG(stmt) stmt
-#define LOCAL_DEBUG(stmt)
+#define LOCAL_DEBUG(stmt) if (madara::logger::Logger::get_thread_name() == "SubmapUpdate") { stmt }
+//#define LOCAL_DEBUG(stmt)
 
 namespace gams { namespace pose {
 
@@ -343,6 +344,7 @@ namespace {
       auto ver = ident->get_version(timestamp);
       if (ver) {
         LOCAL_DEBUG(std::cerr << ver->id() << "@" << ver->timestamp() <<
+          "(" << (void*)ver.get() << ")" <<
           " already loaded" << std::endl;)
         return ver;
       }
@@ -363,10 +365,32 @@ namespace {
     LOCAL_DEBUG(std::cerr << "Creating temp frame for " << id <<
         "@" << timestamp << std::endl;)
     auto impl = std::make_shared<ReferenceFrameVersion>(
-        id, Pose(ReferenceFrame()), timestamp);
+        id, Pose(ReferenceFrame()), timestamp, true);
+
+    LOCAL_DEBUG(std::cerr << "registering " << impl->id() << "@" << impl->timestamp() <<
+      "(" << ((void*)impl.get()) << ")" << std::endl;)
+
     impl->ident().register_version(timestamp, impl);
 
     return ReferenceFrame(impl);
+  }
+
+  bool has_temp_ancestry(const ReferenceFrameVersion &frame)
+  {
+    if (frame.temp())
+    {
+      return true;
+    }
+    ReferenceFrame cur = frame.origin_frame();
+    while (cur.valid())
+    {
+      if (cur.temp())
+      {
+        return true;
+      }
+      cur = cur.origin_frame();
+    }
+    return false;
   }
 
   std::pair<std::shared_ptr<ReferenceFrameVersion>, std::string>
@@ -375,7 +399,7 @@ namespace {
   {
     auto cached = try_load_cached(id, timestamp);
 
-    if (cached) {
+    if (cached && !has_temp_ancestry(*cached)) {
       return std::make_pair(std::move(cached), std::string());
     }
 
@@ -424,6 +448,10 @@ namespace {
     auto ret = std::make_shared<ReferenceFrameVersion>(
         type, id, std::move(origin), timestamp);
 
+    LOCAL_DEBUG(std::cerr << "registering " << ret->id() << "@" << ret->timestamp() <<
+      "(" << ((void*)ret.get()) << ")" << std::endl;)
+    ret->ident().register_version(timestamp, ret);
+
     LOCAL_DEBUG(std::cerr << "Made new " << id << " at " << (void*)ret.get() << std::endl;)
 
     return std::make_pair(std::move(ret), std::move(parent_name));
@@ -442,7 +470,6 @@ ReferenceFrame ReferenceFrameVersion::load_exact(
 
   return load_exact_internal(kb, id, timestamp, parent_timestamp, settings, throw_on_errors);
 }
-
 
 ReferenceFrame ReferenceFrameVersion::load_exact_internal(
       KnowledgeBase &kb,
@@ -503,6 +530,8 @@ ReferenceFrame ReferenceFrameVersion::load_exact_internal(
       std::endl;)
   }
 
+  LOCAL_DEBUG(std::cerr << "registering " << frame.id() << "@" << frame.timestamp() <<
+      "(" << ((void*)frame.impl_.get()) << ")" << std::endl;)
   frame.impl_->ident().register_version(frame.timestamp(), frame.impl_);
   return frame;
 }
@@ -821,10 +850,20 @@ ReferenceFrame ReferenceFrameVersion::load(
     std::string parent_id = std::move(prev.second);
     std::string next_parent_id = std::move(next.second);
 
+    if (parent_id.empty() && prev.first->origin_frame().valid())
+    {
+      parent_id = prev.first->origin_frame().id();
+    }
+    if (next_parent_id.empty() && next.first->origin_frame().valid())
+    {
+      next_parent_id = next.first->origin_frame().id();
+    }
+
     LOCAL_DEBUG(std::cerr << "Attempting interpolation for " << id <<
         " with parents " << parent_id << " and " << next_parent_id <<
-        std::endl;)
-    if (parent_id != "") {
+        " at " << timestamp << std::endl;)
+
+    if (!parent_id.empty()) {
       if (next_parent_id.empty() && next.first->origin_frame().valid()) {
         if (parent_id != next.first->origin_frame().id()) {
           LOCAL_DEBUG(std::cerr << "Mismatched frame parents " << parent_id <<
@@ -889,12 +928,13 @@ bool ReferenceFrameVersion::check_is_connected(
   const ReferenceFrame *common_frame = &frames[0];
 
   for (size_t i = 1; i < frames.size(); ++i) {
-    LOCAL_DEBUG(auto cur = common_frame;)
+    //LOCAL_DEBUG(auto cur = common_frame;)
+    auto cur = common_frame;
     common_frame = find_common_frame(common_frame, &frames[i]);
 
     if (!common_frame) {
       LOCAL_DEBUG(std::cerr << "No path for " << cur->id() <<
-          " and " << frames[1].id() << std::endl;)
+          " and " << frames[i].id() << std::endl;)
       return false;
     }
   }
@@ -928,11 +968,12 @@ const ReferenceFrame *find_common_frame(
     {
       LOCAL_DEBUG(std::cerr << "find_common_frame: Examining " <<
           cur_to->id() << "@" << cur_to->timestamp() <<
-            "(" << (void*)cur_to << ") and " <<
+            "(" << (void*)cur_to->impl_.get() << ") and " <<
           cur_from->id() << "@" << cur_from->timestamp() <<
-            "(" << (void*)cur_from << ")" << std::endl;)
+            "(" << (void*)cur_from->impl_.get() << ")" << std::endl;)
       if(*cur_to == *cur_from)
       {
+        LOCAL_DEBUG(std::cerr << "find_common_frame: found match for " << cur_to->id() << std::endl;)
         return cur_to;
       }
       cur_from = &cur_from->origin().frame();

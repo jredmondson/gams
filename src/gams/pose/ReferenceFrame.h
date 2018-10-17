@@ -297,6 +297,7 @@ private:
   uint64_t timestamp_ = ETERNAL;
   Pose origin_;
   mutable bool interpolated_ = false;
+  bool temp_ = false;
 
 private:
   template<typename T>
@@ -327,10 +328,11 @@ public:
       supports_transform_to<P>::value, void*>::type = nullptr>
   explicit ReferenceFrameVersion(
       P &&origin,
-      uint64_t timestamp = ETERNAL)
+      uint64_t timestamp = ETERNAL,
+      bool temp = false)
     : ReferenceFrameVersion({}, Cartesian,
         std::forward<P>(origin),
-        timestamp) {}
+        timestamp, temp) {}
 
   /**
    * Constructor from a type, an origin, and optional timestamp. Will be
@@ -349,9 +351,10 @@ public:
   ReferenceFrameVersion(
       const ReferenceFrameType *type,
       P &&origin,
-      uint64_t timestamp = ETERNAL)
+      uint64_t timestamp = ETERNAL,
+      bool temp = false)
     : ReferenceFrameVersion({}, type,
-        std::forward<P>(origin), timestamp) {}
+        std::forward<P>(origin), timestamp, temp) {}
 
   /**
    * Constructor from a id, an origin, and optional timestamp. Will be
@@ -369,10 +372,11 @@ public:
   ReferenceFrameVersion(
       std::string name,
       P &&origin,
-      uint64_t timestamp = ETERNAL)
+      uint64_t timestamp = ETERNAL,
+      bool temp = false)
     : ReferenceFrameVersion(
         ReferenceFrameIdentity::lookup(std::move(name)), Cartesian,
-        std::forward<P>(origin), timestamp) {}
+        std::forward<P>(origin), timestamp, temp) {}
 
   /**
    * Constructor from a type, id, an origin, and optional timestamp.
@@ -392,10 +396,11 @@ public:
       const ReferenceFrameType *type,
       std::string name,
       P &&origin,
-      uint64_t timestamp = ETERNAL)
+      uint64_t timestamp = ETERNAL,
+      bool temp = false)
     : ReferenceFrameVersion(
         ReferenceFrameIdentity::lookup(std::move(name)), type,
-        std::forward<P>(origin), timestamp) {}
+        std::forward<P>(origin), timestamp, temp) {}
 
   /**
    * Constructor from an existing ReferenceFrameIdentity, an origin,
@@ -416,11 +421,13 @@ public:
       std::shared_ptr<ReferenceFrameIdentity> ident,
       const ReferenceFrameType *type,
       P &&origin,
-      uint64_t timestamp = ETERNAL)
+      uint64_t timestamp = ETERNAL,
+      bool temp = false)
     : ident_(std::move(ident)),
       type_(type),
       timestamp_(init_timestamp(timestamp, origin)),
-      origin_(std::forward<P>(origin)) {}
+      origin_(std::forward<P>(origin)),
+      temp_(temp) {}
 
   /**
    * Get the ReferenceFrameIdentity object associated with this frame,
@@ -639,6 +646,14 @@ public:
    **/
   bool interpolated() const {
     return interpolated_;
+  }
+
+  /**
+   * Returns true if this frame is a temporary; one invented to serve as
+   * root of a frame tree.
+   **/
+  bool temp() const {
+    return temp_;
   }
 
   static const std::string &default_prefix() {
