@@ -115,6 +115,15 @@ matrix:
     - compiler: gcc
       os: linux
       env: NAME="Ubuntu 16.04 g++ simtime" SIMTIME="simtime"
+  # g++, linux, android, zmq
+    - compiler: gcc
+      os: linux
+      env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS=""
+
+    # g++, linux, android, ssl
+    - compiler: gcc
+      os: linux
+      env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS=""
 
 addons:
   apt:
