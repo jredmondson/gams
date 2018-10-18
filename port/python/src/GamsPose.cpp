@@ -58,12 +58,12 @@ void define_pose(void)
     //       "Gets the ID string of this frame")
 
       .def("load_tree",
-          static_cast<std::vector<gp::ReferenceFrame> (*)(
-              madara::knowledge::KnowledgeBase &,
-           const std::vector<std::string>&, 
-           uint64_t timestamp,
-           const gp::FrameEvalSettings &)>(
-            &gams::pose::ReferenceFrame::load_tree),
+          +[](madara::knowledge::KnowledgeBase& kb,
+              const std::vector<std::string>& names, uint64_t timestamp,
+              const gp::FrameEvalSettings& settings) {
+            return gp::ReferenceFrame::load_tree(
+                kb, names, timestamp, settings);
+          },
           "Load ReferenceFrames, by ID, and their common ancestors. Will"
           "interpolate frames to ensure the returned frames all have a common"
           "timestamp")

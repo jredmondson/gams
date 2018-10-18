@@ -62,6 +62,7 @@
 
 namespace gams { namespace pose {
 
+class ReferenceFrameArena;
 class ReferenceFrameIdentity;
 class ReferenceFrameVersion;
 struct ReferenceFrameType;
@@ -508,6 +509,12 @@ public:
   bool interpolated() const;
 
   /**
+   * Returns true if this frame is a temporary; one invented to serve as
+   * root of a frame tree.
+   **/
+  bool temp() const;
+
+  /**
    * Save this ReferenceFrame to the knowledge base,
    * The saved frames will be marked with their timestamp for later
    * retrieval. If timestamp is ETERNAL, it will always be treated as the most
@@ -570,7 +577,8 @@ public:
         InputIterator begin,
         InputIterator end,
         uint64_t timestamp = ETERNAL,
-        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+        ReferenceFrameArena *arena = nullptr);
 
   /**
    * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -593,7 +601,8 @@ public:
         madara::knowledge::KnowledgeBase &kb,
         const Container &ids,
         uint64_t timestamp = ETERNAL,
-        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+        ReferenceFrameArena *arena = nullptr);
 
   /**
    * Load ReferenceFrames, by ID, and their common ancestors. Will
@@ -612,7 +621,8 @@ public:
         madara::knowledge::KnowledgeBase &kb,
         const std::initializer_list<const char *> &ids,
         uint64_t timestamp = ETERNAL,
-        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT);
+        const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT,
+        ReferenceFrameArena *arena = nullptr);
 
   /**
    * Save this ReferenceFrame to the knowledge base, with a specific key
@@ -654,6 +664,9 @@ public:
       ReferenceFrame parent, uint64_t time) const;
 
   friend class ReferenceFrameVersion;
+  friend const ReferenceFrame *find_common_frame(
+    const ReferenceFrame *from, const ReferenceFrame *to,
+    std::vector<const ReferenceFrame *> *to_stack);
 };
 
 /**
