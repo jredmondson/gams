@@ -26,13 +26,14 @@ env:
     - LD_LIBRARY_PATH=$MADARA_ROOT/lib:$GAMS_ROOT/lib:$LD_LIBRARY_PATH:$CAPNP_ROOT/c++/.libs
     - CORES=6
     - TESTS="tests"
+    - GAMS="gams"
 
 matrix:
 
   allow_failures:
     - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
-    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG=""
-    - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG=""
+    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
+    - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS=""
 
   include:
       ################MAC#####################
@@ -118,12 +119,12 @@ matrix:
   # g++, linux, android, zmq
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG=""
+      env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
 
     # g++, linux, android, ssl
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG=""
+      env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS=""
 
 addons:
   apt:
@@ -151,8 +152,8 @@ script:
   - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
   - echo ls $TRAVIS_BUILD_DIR
   - ls $TRAVIS_BUILD_DIR
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara gams $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_arguments_parser; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_auctions; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_controller_run; fi
