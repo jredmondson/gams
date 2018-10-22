@@ -261,3 +261,37 @@ project (types) : using_madara, using_capnp {
     src/gams/types
   }
 }
+
+
+project (ros2gams_pcl_plugin) : using_madara, using_ros, using_gams, using_capnp, using_simtime, using_boost, using_filesystem, using_types {
+  requires = types
+
+
+  libout = $(GAMS_ROOT)/lib
+  sharedname = pcl_plugin
+  libpaths += $(ROS_ROOT)/../../lib
+
+  includes += src
+
+  requires += ros
+
+  macros +=  _USE_MATH_DEFINES
+
+  libs += roscpp
+  libs += cpp_common
+  libs += roscpp_serialization
+  libs += rostime
+  libs += rosbag
+  libs += rosbag_storage
+
+  Documentation_Files {
+  }
+
+  Header_Files {
+    src/gams
+  }
+
+  Source_Files {
+    src/gams/plugins/ros2gams/pcl_plugin.cpp
+  }
+}

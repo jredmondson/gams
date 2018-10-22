@@ -70,4 +70,5 @@ src/gams/types/*.h
 vrep/
 capnproto/
 MPC/
+!src/gams/plugins/ros2gams
 
