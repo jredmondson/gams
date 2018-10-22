@@ -729,6 +729,10 @@ inline bool ReferenceFrame::interpolated() const {
   return impl_->interpolated();
 }
 
+inline bool ReferenceFrame::temp() const {
+  return impl_->temp();
+}
+
 inline uint64_t ReferenceFrame::default_expiry(uint64_t age) {
   return ReferenceFrameIdentity::default_expiry(age);
 }
@@ -768,9 +772,10 @@ inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
       InputIterator begin,
       InputIterator end,
       uint64_t timestamp,
-      const FrameEvalSettings &settings) {
+      const FrameEvalSettings &settings,
+      ReferenceFrameArena *arena) {
   return ReferenceFrameVersion::load_tree(kb, begin, end,
-                                          timestamp, settings);
+                                          timestamp, settings, arena);
 }
 
 template<typename Container>
@@ -778,16 +783,18 @@ inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
       madara::knowledge::KnowledgeBase &kb,
       const Container &ids,
       uint64_t timestamp,
-      const FrameEvalSettings &settings) {
-  return load_tree(kb, ids.begin(), ids.end(), timestamp, settings);
+      const FrameEvalSettings &settings,
+      ReferenceFrameArena *arena) {
+  return load_tree(kb, ids.begin(), ids.end(), timestamp, settings, arena);
 }
 
 inline std::vector<ReferenceFrame> ReferenceFrame::load_tree(
       madara::knowledge::KnowledgeBase &kb,
       const std::initializer_list<const char *> &ids,
       uint64_t timestamp,
-      const FrameEvalSettings &settings) {
-  return load_tree(kb, ids.begin(), ids.end(), timestamp, settings);
+      const FrameEvalSettings &settings,
+      ReferenceFrameArena *arena) {
+  return load_tree(kb, ids.begin(), ids.end(), timestamp, settings, arena);
 }
 
 inline void ReferenceFrame::save_as(
