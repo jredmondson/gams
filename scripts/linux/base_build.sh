@@ -103,6 +103,7 @@ MAC=${MAC:-0}
 BUILD_ERRORS=0
 TYPES=0
 ANDROID_TESTS=0
+CAPNP_JAVA=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -202,6 +203,8 @@ do
     LZ4=1
   elif [ "$var" = "zmq" ]; then
     ZMQ=1
+  elif [ "$var" = "capnp-java" ]; then
+    CAPNP_JAVA=1
   elif [ "$var" = "simtime" ]; then
     SIMTIME=1
   elif [ "$var" = "tutorials" ]; then
@@ -1085,6 +1088,37 @@ fi
 if [ $ANDROID_TESTS -eq 1 ]; then
   cd $GAMS_ROOT/port/android
   ./run-middleware-tests.sh
+fi
+
+if [ $CAPNP_JAVA -eq 1 ]; then
+
+	export BASE_CAPNP_DIR=$INSTALL_DIR/capnproto-java
+	export CAPNP_PREFIX=$BASE_CAPNP_DIR/capnproto
+	export CAPNP_JAVA_DIR=$BASE_CAPNP_DIR/capnproto-java
+	if [ $CLEAN = 1 ]; then
+		rm -rf $BASE_CAPNP_DIR 
+		mkdir -p $BASE_CAPNP_DIR
+		cd $BASE_CAPNP_DIR
+		git clone --single-branch --branch release-0.6.1 --depth 1 https://github.com/capnproto/capnproto.git
+		git clone https://github.com/capnproto/capnproto-java.git 
+	fi
+	#Build CAPNP Dir.
+	cd $CAPNP_PREFIX/c++
+	autoreconf -i
+	./configure
+	make -j4
+	export PATH=$CAPNP_PREFiX/c++:$PATH
+	export CAPNP_CXX_FLAGS='-I $(CAPNP_PREFIX)/c++/src -L $(CAPNP_PREFIX)/c++/.libs -lkj -lcapnp'
+	#Build Capnp java
+	cd $CAPNP_JAVA_DIR/cmake/
+	cmake -DCAPNP_PKG_PATH=$CAPNP_PREFIX/c++/capnp.pc $CAPNP_PREFIX/c++/CMakeLists.txt
+	cd $CAPNP_PREFIX/c++
+	make -j4
+	cd $CAPNP_JAVA_DIR
+	sed -i -e 's/c++11/c++14/g' $CAPNP_JAVA_DIR/Makefile
+	sed -i '/CAPNP_CXX_FLAGS=\$/d' $CAPNP_JAVA_DIR/Makefile
+	make -j4
+
 fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
