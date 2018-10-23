@@ -58,6 +58,7 @@ double round_nearest(double in)
 
 
 std::map<std::string, std::string> capnp_types;
+std::map<std::string, std::pair<std::string, std::string>> plugin_types;
 
 
 void test_pose()
@@ -65,7 +66,8 @@ void test_pose()
 	std::cout << std::endl << "test geometry_msgs::Pose" << std::endl;
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser (&knowledge, "", "", capnp_types);
+	gams::utility::ros::RosParser parser (&knowledge, "", "", capnp_types,
+		plugin_types);
 
 	geometry_msgs::Pose p;
 	p.position.x = 1.0;
@@ -99,7 +101,7 @@ void test_tf_tree()
 
 	knowledge::KnowledgeBase knowledge;
 	gams::utility::ros::RosParser parser (&knowledge, "world", "frame1",
-		capnp_types);
+		capnp_types, plugin_types);
 
 	geometry_msgs::Transform transform;
 	geometry_msgs::Vector3 t;
@@ -192,7 +194,8 @@ void test_any_point()
 	typemap["geometry_msgs/Point"] = "Point";
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap,
+		plugin_types);
 
   // register the type using the topic_name as identifier. This allows us to
 	// use RosIntrospection
@@ -271,7 +274,8 @@ void test_any_bool()
 	typemap["sensor_msgs/RegionOfInterest"] = "RegionOfInterest";
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap,
+		plugin_types);
 
   // register the type using the topic_name as identifier. This allows us to
 	// use RosIntrospection
@@ -367,7 +371,8 @@ void test_any_odom()
 	typemap["nav_msgs/Odometry"] = "Odometry";
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap,
+		plugin_types);
 
   // register the type using the topic_name as identifier. This allows us to
 	// use RosIntrospection
@@ -473,7 +478,8 @@ void test_any_compressed_image()
 	typemap["sensor_msgs/CompressedImage"] = "CompressedImage";
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap);
+	gams::utility::ros::RosParser parser (&knowledge, "", "", typemap,
+		plugin_types);
 
   // register the type using the topic_name as identifier. This allows us to
 	// use RosIntrospection
@@ -526,9 +532,9 @@ int main (int, char **)
 	std::cout << "Testing ros2gams" << std::endl;
 	//test_pose();
 	//test_tf_tree();
-	//test_any_point();
-	//test_any_bool();
-	//test_any_odom();
+	test_any_point();
+	test_any_bool();
+	test_any_odom();
 	test_any_compressed_image();
 
   if (gams_fails > 0)
