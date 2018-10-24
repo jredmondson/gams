@@ -19,6 +19,7 @@
 #include "madara/knowledge/containers/StringVector.h"
 #include "madara/knowledge/containers/CircularBuffer.h"
 #include "madara/utility/SimTime.h"
+#include "madara/utility/Utility.h"
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Pose.h"
 #include "gams/pose/Quaternion.h"
@@ -108,11 +109,15 @@ namespace gams
           RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
             std::map<std::string, std::string> capnp_types,
+            std::map<std::string,
+              std::pair<std::string, std::string>> plugin_types,
             std::map<std::string, int> circular_containers=std::map<std::string,
               int>(),
               knowledge::EvalSettings eval_settings=knowledge::EvalSettings(),
               std::string frame_prefix=
                 gams::pose::ReferenceFrame::default_prefix());
+          ~RosParser();
+
           void parse_message (const rosbag::MessageInstance m,
             std::string container_name);
           void parse_message (const topic_tools::ShapeShifter::ConstPtr& m,
@@ -163,6 +168,15 @@ namespace gams
           void parse_any ( std::string datatype, std::string topic_name,
             std::vector<uint8_t> & parser_buffer,
             std::string container_name);
+
+          /**
+           * Parse with external plugin
+           * @param  m               rosbag::MessageInstance to parse
+           * @param  container_name  name of the madara variable
+           **/
+          void parse_external (const rosbag::MessageInstance & m,
+            std::string container_name);
+
 
           /**
            * Loads a Capnproto schema from disk for later usage
@@ -260,6 +274,17 @@ namespace gams
           //Name substitution
           std::map<std::string, std::map<std::string, std::string>>
             name_substitution_map_;
+
+          //Plugin map
+          std::map<std::string, std::pair<std::string, std::string>> plugin_map_;
+
+          //Plugin cache
+          typedef void (*plugin_t) (const rosbag::MessageInstance*,
+            madara::knowledge::KnowledgeBase*, 
+            std::string);
+          std::map<std::string, void*> plugin_cache_;
+
+
 
 
 

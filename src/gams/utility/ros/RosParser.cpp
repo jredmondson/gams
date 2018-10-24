@@ -6,10 +6,12 @@
  **/
 #include "RosParser.h"
 #include <cmath>
+#include <dlfcn.h>
 
 gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   std::string world_frame, std::string base_frame,
   std::map<std::string, std::string> capnp_types,
+  std::map<std::string, std::pair<std::string, std::string>> plugin_types,
   std::map<std::string, int> circular_containers,
   knowledge::EvalSettings eval_settings, std::string frame_prefix) : 
   eval_settings_(eval_settings), frame_prefix_(frame_prefix)
@@ -18,6 +20,7 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
   base_frame_ = base_frame;
   knowledge_ = kb;
   capnp_types_ = capnp_types;
+  plugin_map_ = plugin_types;
   circular_container_stats_ = circular_containers;
 
   if ( world_frame != "" )
@@ -28,6 +31,14 @@ gams::utility::ros::RosParser::RosParser (knowledge::KnowledgeBase * kb,
       gams::pose::FrameEvalSettings(frame_prefix_, eval_settings_));
   }
 }
+gams::utility::ros::RosParser::~RosParser()
+{
+  for (auto lib : plugin_cache_)
+  {
+    dlclose(lib.second);
+  }
+}
+
 
 
 void gams::utility::ros::RosParser::parse_message (
@@ -38,23 +49,18 @@ void gams::utility::ros::RosParser::parse_message (
   //Parse the message
   std::string datatype = m.getDataType ();
 
-  auto search = capnp_types_.find(datatype);
-  if (search != capnp_types_.end())
+  auto search_capnp = capnp_types_.find(datatype);
+  auto search_plugin = plugin_map_.find(datatype);
+  if (search_capnp != capnp_types_.end())
   {
     // If the message type is in the mapfile we have to parse this message
     // into a capnproto schema
-
-    if (m.isType<sensor_msgs::PointCloud2> () &&
-      capnp_types_["sensor_msgs/PointCloud2"] == "pcl")
-    {
-      parse_pointcloud2_pclschema (
-        m.instantiate<sensor_msgs::PointCloud2> ().get (),
-        container_name);
-    }
-    else
-    {
-      parse_any(m, container_name);
-    }
+    parse_any(m, container_name);
+  }
+  else if (search_plugin != plugin_map_.end())
+  {
+    // This type has to be parsed with an external plugin
+    parse_external(m, container_name);
   }
   else if (m.isType<nav_msgs::Odometry> ())
   {
@@ -1174,62 +1180,51 @@ void gams::utility::ros::RosParser::parse_any (const rosbag::MessageInstance & m
   parse_any(m.getDataType(), topic, parser_buffer, container_name);
 }
 
-void gams::utility::ros::RosParser::parse_pointcloud2_pclschema (
-  sensor_msgs::PointCloud2 * pointcloud,
+
+void gams::utility::ros::RosParser::parse_external (
+  const rosbag::MessageInstance & m,
   std::string container_name)
 {
-  // THIS METHOD IS HARDCODED TO RUN WITH PCL BASED SCHEMAS
-
-  // Load PCL schema
-  std::string pointcloud_schema_name = "PointCloudXYZ";
-  capnp::MallocMessageBuilder buffer;
-  capnp::DynamicStruct::Builder pointcloud_builder;
-  try
+  std::string datatype = m.getDataType();
+  auto plugin = plugin_map_.find(datatype);
+  if (plugin == plugin_map_.end())
   {
-    auto pointcloud_schema = schemas_.at(pointcloud_schema_name).asStruct();
-    pointcloud_builder = buffer.initRoot<capnp::DynamicStruct>(pointcloud_schema);
-    madara::knowledge::Any::register_schema(pointcloud_schema_name.c_str(),
-      pointcloud_schema);
-  }
-  catch(...)
-  {
-    std::cout << "Schema with name " << pointcloud_schema_name <<
-      "not found!" << std::endl;
-    exit(1);
+    return;
   }
 
-  // Convert from ROS PointCloud2 to a PCL PointCloud
-  pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL (*pointcloud, pcl_pc2);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::fromPCLPointCloud2 (pcl_pc2, *temp_cloud);
+  std::string path = madara::utility::expand_envs(plugin_map_[datatype].first);
+  std::string func = plugin_map_[datatype].second;
 
-  //Fill the list of points with data
-  auto point_list = pointcloud_builder.init ("points",
-    (*temp_cloud).size ()).as<capnp::DynamicList>();
-  int point_counter = 0;
-  for (pcl::PointXYZ point : *temp_cloud)
+  void* handle;
+  // check if library is already in the cache
+  if (plugin_cache_.find(path) == plugin_cache_.end())
   {
-    auto capnp_point = point_list[point_counter].as<capnp::DynamicStruct> ();
-    capnp_point.set("x", point.x);
-    capnp_point.set("y", point.y);
-    capnp_point.set("z", point.z);
-    point_counter++;
+    handle = dlopen (path.c_str(), RTLD_NOW);
+    if (!handle)
+    {
+      std::cerr << "Cannot open library: " << dlerror () << std::endl;
+      exit(0);
+    }
+    plugin_cache_[path] = handle;
+  }
+  else
+  {
+    handle = plugin_cache_[path];
   }
 
-  // Now fill the other fields
-  pointcloud_builder.set ("tov",
-    ((unsigned long)pointcloud->header.stamp.sec * 1e9) +
-    (unsigned long)pointcloud->header.stamp.nsec);
-  pointcloud_builder.set ("frameId", pointcloud->header.frame_id.c_str());
-  pointcloud_builder.set ("width", pointcloud->width);
-  pointcloud_builder.set ("height", pointcloud->height);
-  pointcloud_builder.set ("isDense", (bool)pointcloud->is_dense);
+  // load the symbol
+  dlerror();
+  plugin_t ext_func = (plugin_t) dlsym (handle, func.c_str());
+  const char *dlsym_error = dlerror ();
+  if (dlsym_error)
+  {
+    std::cerr << "Cannot load symbol '" << func << "': " << dlsym_error <<
+      std::endl;
+    exit(0);
+  }
 
-  // Store in the knowledgebase
-  madara::knowledge::GenericCapnObject any(pointcloud_schema_name.c_str(),
-    buffer);
-  knowledge_->set_any(container_name, any);
+  // call the external function
+  ext_func (&m, knowledge_, container_name);
 }
 
 /**

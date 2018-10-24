@@ -275,6 +275,7 @@ int main (int argc, char ** argv)
   std::map<std::string,std::string> topic_map;
   std::vector<std::string> schema_files;
   std::map<std::string, std::string> schema_map;
+  std::map<std::string, std::pair<std::string, std::string>> plugin_map;
   std::map<std::string, int> circular_variables;
   std::map<std::string, std::map<std::string, std::string>> name_substitution_map;
   std::string default_frame_prefix = ".gams.frames";
@@ -345,6 +346,19 @@ int main (int argc, char ** argv)
       }
     }
 
+    // plugin map
+    if (config["plugin_map"])
+    {
+      for(YAML::const_iterator it=config["plugin_map"].begin();
+          it!=config["plugin_map"].end(); ++it)
+      {
+        std::string ros_type = it->first.as<std::string>();
+        std::string lib = it->second["lib"].as<std::string>();
+        std::string func = it->second["func"].as<std::string>();
+        plugin_map[ros_type] = std::pair<std::string, std::string>(lib, func);
+      }
+    }
+
     // simple renameing of message members
     if (config["name_substitution"])
     {
@@ -398,7 +412,7 @@ int main (int argc, char ** argv)
   }
 
   gams::utility::ros::RosParser parser(&kb, world_frame, base_frame,
-    schema_map, circular_variables);
+    schema_map, plugin_map, circular_variables);
 
   // Register ros message types to prepare the parser's introspection features
   for (const rosbag::ConnectionInfo* connection: view.getConnections () )
