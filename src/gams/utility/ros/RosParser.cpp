@@ -1216,7 +1216,8 @@ void gams::utility::ros::RosParser::parse_external (
   dlerror();
   plugin_t ext_func = (plugin_t) dlsym (handle, func.c_str());
   const char *dlsym_error = dlerror ();
-  if (dlsym_error) {
+  if (dlsym_error)
+  {
     std::cerr << "Cannot load symbol '" << func << "': " << dlsym_error <<
       std::endl;
     exit(0);

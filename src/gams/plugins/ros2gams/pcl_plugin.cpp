@@ -33,7 +33,8 @@
 
 extern "C" void parse(const rosbag::MessageInstance* m,
   madara::knowledge::KnowledgeBase * kb, 
-  std::string container_name) {
+  std::string container_name)
+{
   // THIS METHOD IS HARDCODED TO RUN WITH PCL BASED SCHEMAS
 
   boost::shared_ptr<sensor_msgs::PointCloud2> pointcloud =
