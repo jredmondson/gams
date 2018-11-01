@@ -680,7 +680,7 @@ void start_simulator (const int & client_id,
   compiled = knowledge.compile (expression);
   cout << "waiting for " << num_agents << " agent(s) to come online...";
   cout << std::flush;
-  knowledge.wait (compiled);
+  knowledge.wait (compiled, madara::knowledge::WaitSettings::SEND);
   cout << "done" << endl;
 
   knowledge.evaluate ("vrep_ready=1");
