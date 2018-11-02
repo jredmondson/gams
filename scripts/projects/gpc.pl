@@ -4511,6 +4511,7 @@ int main (int argc, char ** argv)
     gams::loggers::global_logger->set_level (gams_debug_level);
   }
 
+  controller_settings.eval_settings = madara::knowledge::EvalSettings::SEND;
   controllers::BaseController controller (knowledge, controller_settings);
   madara::threads::Threader threader (knowledge);
 
