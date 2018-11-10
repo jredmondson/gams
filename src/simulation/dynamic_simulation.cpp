@@ -683,23 +683,29 @@ void start_simulator (const int & client_id,
   knowledge.wait (compiled, madara::knowledge::WaitSettings::SEND);
   cout << "done" << endl;
 
-  knowledge.evaluate ("vrep_ready=1");
+  knowledge.evaluate ("vrep_ready=1", madara::knowledge::EvalSettings::SEND);
 
   // start the simulation
   cout << "starting simulation...";
-  simxSetBooleanParameter (client_id, sim_boolparam_hierarchy_visible, false, simx_opmode_oneshot);
-  simxSetBooleanParameter (client_id, sim_boolparam_browser_visible, false, simx_opmode_oneshot);
+  simxSetBooleanParameter (client_id,
+    sim_boolparam_hierarchy_visible, false, simx_opmode_oneshot);
+  simxSetBooleanParameter (client_id, sim_boolparam_browser_visible,
+    false, simx_opmode_oneshot);
   simxStartSimulation (client_id, simx_opmode_oneshot_wait);
   cout << "done" << endl;
 
   // inform simulated control loops to begin
   cout << "informing agents to continue...";
-  knowledge.set ("begin_sim", Integer (1));
+  knowledge.set ("begin_sim", Integer (1),
+    madara::knowledge::EvalSettings::SEND);
 
   // just make sure
-  knowledge.evaluate ("vrep_ready=1; begin_sim=1");
-  knowledge.evaluate ("vrep_ready=1; begin_sim=1");
-  knowledge.evaluate ("vrep_ready=1; begin_sim=1");
+  knowledge.evaluate ("vrep_ready=1; begin_sim=1",
+    madara::knowledge::EvalSettings::SEND);
+  knowledge.evaluate ("vrep_ready=1; begin_sim=1",
+    madara::knowledge::EvalSettings::SEND);
+  knowledge.evaluate ("vrep_ready=1; begin_sim=1",
+    madara::knowledge::EvalSettings::SEND);
 
   cout << "done" << endl;
 }

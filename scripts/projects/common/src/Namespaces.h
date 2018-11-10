@@ -1,5 +1,5 @@
-#ifndef _RISLAB_NAMESPACES_H_
-#define _RISLAB_NAMESPACES_H_
+#ifndef _MY_NAMESPACES_H_
+#define _MY_NAMESPACES_H_
 
 /**
 * @file Namespaces.h
