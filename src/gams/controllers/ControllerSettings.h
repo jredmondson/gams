@@ -115,7 +115,8 @@ public:
   double send_hertz = 1.0;
 
   /// settings used in any KnowledgeBase operations by this controller
-  madara::knowledge::EvalSettings eval_settings;
+  madara::knowledge::EvalSettings eval_settings =
+    madara::knowledge::EvalSettings::SEND;
 };
 
 } }
