@@ -4960,6 +4960,11 @@ int main (int argc, char ** argv)
     copy "$script_dir/common/using_boost.mpb", "$path/";
   }
 
+  if (not -f "$path/using_vrep.mpb")
+  {
+    copy "$script_dir/common/using_vrep.mpb", "$path/";
+  }
+
   if (not -f "$path/using_capnp.mpb")
   {
     # the directory needs the new using_madara and using_capnp
