@@ -37,7 +37,11 @@ frames_key = 'frame_types'
 any_type_key = 'any_types'
 
 
-# TODO: also handle points per each graph
+#plot specific keys
+points_per_plot_key = 'points_per_plot'
+plot_3d_key = '3D'
+subplot_start_key = 'plot_'
+reference_frame_key = 'reference_frame'
 
 ########################### Specify Source  ############################
 # 1. Specify the path of the .yaml configuration file
@@ -91,11 +95,11 @@ def create_plotters_from_config(file_path):
     ####################################### Plot Data ###############################################
     # 1. Create list of KRs for which the user would like to be plotted.
     # Separate lists for Any and Frame type data
-    if user_specs[subkeys_key][frames_key]:
+    if frames_key in user_specs[subkeys_key]:
         frame_KRs = user_specs[subkeys_key][frames_key]   # list
     else:
         frame_KRs = {}
-    if user_specs[subkeys_key][any_type_key]:
+    if any_type_key in user_specs[subkeys_key]:
         any_KRs= user_specs[subkeys_key][any_type_key]     # list
     else:
         any_KRs = {}
@@ -104,15 +108,21 @@ def create_plotters_from_config(file_path):
     plot_dict = {}
 
     for key in user_specs[subkeys_key]:
+        plot_3d = False
+        points = 0
         if not (key == frames_key)  and not (key == any_type_key):
             has_other_key = True
             value = user_specs[subkeys_key][key]
             if not (value == None):
                 sub_plot_list = []
-                for subkey in value.keys():
-                    if 'plot' in subkey:
-                        sub_plot_list.append(value[subkey].items())
-                plot_dict[key] = Plotter(reader, key, subkeys=sub_plot_list)
+                for subkey, value in value.items():
+                    if subkey.startswith(subplot_start_key):
+                        sub_plot_list.append(value.items())
+                    elif subkey == plot_3d_key:
+                        plot_3d = value
+                    elif subkey == points_per_plot_key:
+                        points = value
+                plot_dict[key] = Plotter(reader, key, subkeys=sub_plot_list, points_per_plot=points, plot_to_3d=plot_3d)
             else:
                 plot_dict[key] = Plotter(reader, key)
 
@@ -121,164 +131,75 @@ def create_plotters_from_config(file_path):
         sys.exit()
 
     # 2. Frame type data plotting
+
+
     for key, value in frame_KRs.items():
         sub_plot_list = []
-        flagger = [0, 0, 0, 0]
+        plot_3d = False
+        points = 0
+        reference_frames=['geo', 'p1_base_stabilized'] # keep the default values
+
 
 
         try: 
-            if '3D' in value.keys() and value['3D']:
-                flagger[0] += 1
+            if plot_3d_key in value.keys():
+                plot_3d = value[plot_3d_key]
             
-            if 'points_per_plot' in value.keys():
-                points = value['points_per_plot']
-                flagger[1] += 1
+            if points_per_plot_key in value.keys():
+                points = value[points_per_plot_key]
 
-            if 'reference_frame' in value.keys():
-                reference_frames = value['reference_frame']
-                flagger[2] += 1
+            if reference_frame_key in value.keys():
+                reference_frames = value[reference_frame_key]
 
             # just to find if 'plot_' substring is in a value string
-            s = [s for s in value.keys() if 'plot_' in s]
+            s = [s for s in value.keys() if subplot_start_key in s]
             if s:
-            # if 'plot_' in value.keys():
-                flagger[3] += 1
                 for subkey in value.keys():
-                        if 'plot_' in subkey:
+                        if subplot_start_key in subkey:
                             sub_plot_list.append(frame_KRs[key][subkey].items())
 
         except: 
             pass
 
-        if flagger == [0, 0, 0, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key)
-            continue
-
-        if flagger == [1, 0, 0, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                plot_to_3d=True)
-            continue
-
-        if flagger == [0, 1, 0, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points)
-            continue
-
-        if flagger == [0, 0, 1, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        frames_of_choice=reference_frames)
-            continue
-
-        if flagger == [0, 0, 0, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        subkeys=sub_plot_list)
-            continue
-
-        if flagger == [1, 1, 0, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points, plot_to_3d=True)
-            continue
-
-        if flagger == [0, 1, 1, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points, frames_of_choice=reference_frames)
-            continue
-
-        if flagger == [0, 0, 1, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        frames_of_choice=reference_frames, subkeys=sub_plot_list)
-            continue
-
-        if flagger == [1, 0, 1, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        plot_to_3d=True, frames_of_choice=reference_frames)
-            continue
-
-        if flagger == [1, 0, 0, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        plot_to_3d=True, subkeys=sub_plot_list)
-            continue
-
-        if flagger == [0, 1, 0, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points, subkeys=sub_plot_list)
-            continue
-
-        if flagger == [1, 1, 1, 0]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points, plot_to_3d=True, 
-                                        frames_of_choice=reference_frames)
-            continue
-
-        if flagger == [0, 1, 1, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points, subkeys=sub_plot_list, 
-                                        frames_of_choice=reference_frames)
-            continue
-
-        if flagger == [1, 0, 1, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        plot_to_3d=True, subkeys=sub_plot_list, 
-                                        frames_of_choice=reference_frames)
-            continue
-        
-        if flagger == [1, 1, 0, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        plot_to_3d=True, subkeys=sub_plot_list, 
-                                        points_per_plot=points)
-            continue
-
-        if flagger == [1, 1, 1, 1]:
-            plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, 
-                                        points_per_plot=points, plot_to_3d=True, 
-                                        frames_of_choice=reference_frames, subkeys=sub_plot_list)
-            continue
+        # if it is empty set to None, so when passing to plotter it doesn't appear as an existing array
+        if not sub_plot_list:
+            print sub_plot_list
+            sub_plot_list = None
+        plot_dict[key] = Plotter(reader, data_reader_interface.frames_prefix + '.' + key, plot_to_3d=plot_3d,
+                                 points_per_plot=points, subkeys=sub_plot_list, frames_of_choice=reference_frames)
 
 
     # 3. Any type data plotting
     #TODO: Allow for handling of just specifying key and plotting subkeys automatically
     for key, value in any_KRs.items():
         sub_plot_list = []
-        flagger = [0, 0, 0]
+        plot_3d = False
+        points = 0
 
-        try: 
-            if '3D' in value.keys() and value['3D']:
-                flagger[0] += 1
-            
-            if 'points_per_plot' in value.keys():
-                points = value['points_per_plot']
-                flagger[1] += 1
+        try:
+            if plot_3d_key in value.keys():
+                plot_3d = value[plot_3d_key]
+
+            if points_per_plot_key in value.keys():
+                points = value[points_per_plot_key]
 
             # just to find if 'plot_' substring is in a value string
-            s = [s for s in value.keys() if 'plot_' in s]
+            s = [s for s in value.keys() if subplot_start_key in s]
             if s:
-                flagger[2] += 1
                 for subkey, subvalue in value.items():
-                        if 'plot_' in subkey:
+                        if subplot_start_key in subkey:
                             try:
                                 sub_plot_list.append(sorted(any_KRs[key][subkey].items()))
-
                             except:
                                 sub_plot_list.append(subvalue)
 
         except: 
             pass
 
-        if flagger == [0, 0, 1]:
-            plot_dict[key] = Plotter(reader, key, subkeys=sub_plot_list)
-            continue
+        if not sub_plot_list:
+            sub_plot_list = None
 
-        if flagger == [0, 1, 1]:
-            plot_dict[key] = Plotter(reader, key, subkeys=sub_plot_list, points_per_plot=points)
-            continue
-
-        if flagger == [1, 0, 1]:
-            plot_dict[key] = Plotter(reader, key, plot_to_3d=True, subkeys=sub_plot_list)
-            continue
-
-        if flagger == [1, 1, 1]:
-            plot_dict[key] = Plotter(reader, key, plot_to_3d=True, subkeys=sub_plot_list,
-                                    points_per_plot=points)
-            continue
+        plot_dict[key] = Plotter(reader, key, plot_to_3d=plot_3d,
+                                 points_per_plot=points, subkeys=sub_plot_list)
 
     return plot_dict
