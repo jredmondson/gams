@@ -26,6 +26,7 @@ my $duration;
 my $equidistant;
 my $buffer = 5;
 my $first;
+my $force;
 my $gams_debug;
 my $group;
 my $help;
@@ -105,6 +106,7 @@ GetOptions(
   'duration|d|t=i' => \$duration,
   'equidistant|distributed' => \$equidistant,
   'first|f=i' => \$first,
+  'force' => \$force,
   'gams-debug|gams_debug|gd=i' => \$gams_debug,
   'group=s' => \$group,
   'help|h' => \$help,
@@ -167,6 +169,8 @@ options:
   --duration|-t sec      max duration of simulation in secs
   --equidistant          alias to --distributed
   --first|-f num         first agent number (e.g 0, 1, 2, etc.)
+  --force                force the creation of GAMS project at path, even if
+                         the path is already created/not empty
   --gams-debug|-gd lev   log level for GAMS
   --group  prefix        group to change
   --help|-h              print guidance information
@@ -302,7 +306,7 @@ $script is using the following configuration:
   $filters_path = "$path/src/filters";
   $bin_path = "$path/bin";
   
-  if ($create_result)
+  if ($create_result || $force)
   {
     $algorithm = $algorithm ? $algorithm : "null";
     $agents = $agents ? $agents : 1;
@@ -558,7 +562,8 @@ user_simulation::run(
     
     my $run_contents;
     open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path."; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -698,7 +703,9 @@ agent.$i.algorithm = .algorithm;\n";
       $run_contents =~ s/Rotate logs for comparisons(.|\s)*# Run simulation/Rotate logs for comparisons\n${log_rotate_commands}\n# Run simulation/;
       
       open run_file, ">$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+        die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+        " Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n";
         print run_file  $run_contents; 
       close run_file;
           
@@ -723,7 +730,8 @@ agent.$i.algorithm = .algorithm;\n";
     {
       my $run_contents;
       open run_file, "$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
         $run_contents = join("", <run_file>); 
       close run_file;
       
@@ -761,7 +769,8 @@ agent.$i.algorithm = .algorithm;\n";
     {
       my $run_contents;
       open run_file, "$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
         $run_contents = join("", <run_file>); 
       close run_file;
       
@@ -1673,7 +1682,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     # read the run file
     open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -1714,7 +1724,9 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     # write the updated info to the run file
     open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+        " Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
     close run_file;
   }
@@ -1729,14 +1741,17 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     my $run_contents;
     open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
     $run_contents =~ s/(duration\s*=\s*)\d+/$1$duration/;  
     
     open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+        " Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
     close run_file;
     
@@ -1752,7 +1767,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     my $run_contents;
     open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -1763,7 +1779,9 @@ $region.3 = [$max_lat, $min_lon];\n";
     $run_contents =~ s/(domain\s*=\s*)['"][^'"]+['"]/$1\"$domain\"/;  
   
     open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+      "  Path was uninitialized." .
+      " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
     close run_file;
   }
@@ -1778,7 +1796,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     my $run_contents;
     open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -1801,7 +1820,9 @@ $region.3 = [$max_lat, $min_lon];\n";
     }
     
     open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+        " Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
     close run_file;
     
@@ -1821,7 +1842,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     my $run_contents;
     
     open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
@@ -1910,7 +1932,9 @@ $region.3 = [$max_lat, $min_lon];\n";
     }
     
     open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing\n";
+      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+       " Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
     close run_file;
   }
@@ -3824,7 +3848,8 @@ filters::${filter}::filter (
            
       # open files for reading 
       open run_file, "$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
         $run_contents = join("", <run_file>); 
       close run_file;
       
@@ -3851,7 +3876,8 @@ filters::${filter}::filter (
 
       # write changes to simulation run script     
       open run_file, ">$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl\n"; 
+        die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
         print run_file $run_contents;
       close run_file;   
 
