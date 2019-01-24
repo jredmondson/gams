@@ -56,7 +56,7 @@
 #
 # Build a custom project created by gpc.pl
 
-
+CLANG=0
 COMPILE=0
 COMPILE_VREP=0
 DOCS=0
@@ -90,6 +90,8 @@ do
     COMPILE=1
   elif [ "$var" = "compile-vrep" ]; then
     COMPILE_VREP=1
+  elif [ "$var" = "clang" ]; then
+    CLANG=1
   elif [ "$var" = "docs" ]; then
     DOCS=1
   elif [ "$var" = "prereqs" ]; then
@@ -136,7 +138,7 @@ if [ $COMPILE -eq 1 ]; then
   fi
 
   cd $SCRIPTS_DIR
-  $MPC_ROOT/mwc.pl -type make -features vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
+  $MPC_ROOT/mwc.pl -type make -features clang=$CLANG,vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
   
   
   if [ $VERBOSE -eq 1 ]; then
@@ -150,7 +152,7 @@ if [ $COMPILE -eq 1 ]; then
     echo "Building project..."
   fi
 
-  make vrep=$COMPILE_VREP docs=$DOCS -j $CORES
+  make clang=$CLANG vrep=$COMPILE_VREP docs=$DOCS -j $CORES
   
 fi
   

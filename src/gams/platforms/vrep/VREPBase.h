@@ -128,24 +128,24 @@ namespace gams
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void);
+      virtual int sense (void) override;
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze (void) override;
 
       /**
        * Get the position accuracy in meters
        * @return position accuracy
        **/
-      virtual double get_accuracy () const;
+      virtual double get_accuracy () const override;
 
       /**
        * Get move speed
        **/
-      virtual double get_move_speed () const;
+      virtual double get_move_speed () const override;
 
       /**
        * Instructs the platform to land
@@ -179,19 +179,19 @@ namespace gams
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed);
+      virtual void set_move_speed (const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void);
+      virtual int takeoff (void) override;
 
       /**
       * Method for returning the platform's current frame
       * @return frame that the platform's coordinate system is operating in
       **/
-      virtual const pose::ReferenceFrame & get_frame (void) const;
+      virtual const pose::ReferenceFrame & get_frame (void) const override;
 
       const pose::ReferenceFrame & get_vrep_frame (void) const;
 
