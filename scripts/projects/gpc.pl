@@ -3882,7 +3882,7 @@ filters::${filter}::filter (
       close run_file;   
 
       my $project_contents = "
-project (custom_controller) : using_gams, using_madara, using_vrep {
+project (custom_controller) : using_gams, using_madara, using_vrep, using_clang {
   exeout = bin
   exename = custom_controller
 
@@ -4975,6 +4975,11 @@ int main (int argc, char ** argv)
   if (not -f "$path/using_gams.mpb")
   {
     copy "$script_dir/common/using_gams.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_clang.mpb")
+  {
+    copy "$script_dir/common/using_clang.mpb", "$path/";
   }
 
   if (not -f "$path/using_madara.mpb")
