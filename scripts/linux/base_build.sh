@@ -73,6 +73,10 @@
 # For java
 #   $JAVA_HOME
 
+#COLORS
+ORANGE='\033[0;33m'
+NOCOLOR='\033[0m' 
+
 DEBUG=0
 TESTS=0
 TUTORIALS=0
@@ -104,6 +108,7 @@ BUILD_ERRORS=0
 TYPES=0
 ANDROID_TESTS=0
 CAPNP_JAVA=0
+UNREAL=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -113,6 +118,7 @@ VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
 CAPNP_AS_A_PREREQ=0
+UNREAL_AS_A_PREREQ=0
 
 MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
@@ -128,6 +134,8 @@ ZMQ_BUILD_RESULT=0
 LZ4_REPO_RESULT=0
 CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
+UNREAL_BUILD_RESULT=0
+SIMBOTIC_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -138,7 +146,7 @@ if [ -z $CORES ] ; then
   echo "CORES unset, so setting it to default of 1"
   echo "  If you have more than one CPU core, try export CORES=<num cores>"
   echo "  CORES=1 (the default) will be much slower than CORES=<num cores>"
-  export CORES=1  
+  export CORES=1
 fi
 
 # if $@ is empty, the user wants to repeat last build with noclean
@@ -226,6 +234,8 @@ do
     JAVA=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
+  elif [ "$var" = "unreal" ]; then
+    UNREAL=1
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
@@ -279,9 +289,18 @@ do
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  DMPL_ROOT           - location of DART DMPL directory"
+    echo "  UNREAL_ROOT         - location of UnrealEngine repository"
     exit
   fi
 done
+
+if [ $CORES -eq 1 ] ; then
+    echo -e "${ORANGE} Warning! The CORES environment variable is set to 1. With only one core installation will take longer than it could be. By increasing the number of cores to compile with you will be reducing compilation time substantially. ${NOCOLOR}"
+    CORE_COUNT=$(grep -c ^processor /proc/cpuinfo)
+    echo "The system has ${CORE_COUNT} cores. How many should be used for installation?"
+    read CORES
+    echo -e "${ORANGE} Now using $CORES CPU cores for installation. To permanently set this, add the line 'export CORES=$CORES to your ~/.bashrc file and open a new terminal. ${NOCOLOR}"
+fi
 
 if [ -z $MPC_ROOT ] ; then
   export MPC_ROOT=$INSTALL_DIR/MPC
@@ -299,6 +318,18 @@ if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
 fi
 
+if [ -z $UNREAL_ROOT ] ; then
+  export UNREAL_ROOT=$INSTALL_DIR/UnrealEngine
+fi
+
+if [ -z $SIMBOTIC_ROOT ] ; then
+  export SIMBOTIC_ROOT=$INSTALL_DIR/Simbotic
+fi
+
+if [ -z $SIMBOTIC_UE4 ] ; then
+  export SIMBOTIC_UE4=$UNREAL_ROOT
+fi
+
 
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
@@ -314,6 +345,9 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
+echo "UNREAL_ROOT is set to $UNREAL_ROOT"
+echo "SIMBOTIC_ROOT is set to $SIMBOTIC_ROOT"
+echo "SIMBOTIC_UE4 is set to $SIMBOTIC_UE4"
 echo "LZ4_ROOT is set to $LZ4_ROOT"
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
@@ -565,6 +599,51 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
   if [ $DMPL -eq 1 ]; then 
     sudo apt-get install -y perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
+  fi
+
+  if [ $UNREAL -eq 1 ]; then
+    if [ -d "$UNREAL_ROOT" ]; then
+      echo "${ORANGE} UnrealEngine directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your UNREAL_ROOT env var is set to. [$UNREAL_ROOT]. ${NOCOLOR}"
+      read YES
+    fi
+
+    if [ $YES -eq 'y' ] ; then
+      echo "rm -rf $UNREAL_ROOT"
+      rm -rf $UNREAL_ROOT
+      echo "Installing UnrealEngine"
+      echo "git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
+      git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+      cd $UNREAL_ROOT
+      echo "./Setup.sh"
+      ./Setup.sh
+      echo "./GenerateProjectFiles.sh"
+      ./GenerateProjectFiles.sh
+      echo "Making unreal"
+      make
+    else
+      echo "Skipping unreal re-installation..."
+    fi
+
+    if [ -d "$SIMBOTIC_ROOT" ] ; then
+      echo "${ORANGE} Simbotic directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your SIMBOTIC_ROOT env var is set to. [$SIMBOTIC_ROOT]. ${NOCOLOR}"
+    fi
+
+    if [ $YES -eq 'y' ] ; then
+      echo "rm -rf $SIMBOTIC_ROOT"
+      rm -rf $SIMBOTIC_ROOT
+      echo "Installing Simbotic"
+      cd $INSTALL_DIR
+      echo "git clone git@github.com:VertexStudio/Simbotic.git"
+      git clone git@github.com:VertexStudio/Simbotic.git
+      echo "cd $SIMBOTIC_ROOT"
+      cd $SIMBOTIC_ROOT
+      echo "./generate.sh"
+      ./generate.sh
+      echo "./build.sh"
+      ./build.sh
+      echo "Installation complete. Run './run.sh' to start the simulation. See more details at https://github.com/VertexStudio/Simbotic"
+    else
+      echo "Skipping simbotic re-installation..."
   fi
 
 fi
