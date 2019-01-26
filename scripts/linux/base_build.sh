@@ -75,6 +75,7 @@
 
 #COLORS
 ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
 NOCOLOR='\033[0m' 
 
 DEBUG=0
@@ -603,11 +604,11 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
   if [ $UNREAL -eq 1 ]; then
     if [ -d "$UNREAL_ROOT" ]; then
-      echo "${ORANGE} UnrealEngine directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your UNREAL_ROOT env var is set to. [$UNREAL_ROOT]. ${NOCOLOR}"
+      echo -e "${ORANGE} UnrealEngine directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your UNREAL_ROOT env var is set to. [$UNREAL_ROOT]. ${NOCOLOR}"
       read YES
     fi
 
-    if [ $YES -eq 'y' ] ; then
+    if [ $YES = 'y' ] ; then
       echo "rm -rf $UNREAL_ROOT"
       rm -rf $UNREAL_ROOT
       echo "Installing UnrealEngine"
@@ -621,14 +622,15 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       echo "Making unreal"
       make
     else
-      echo "Skipping unreal re-installation..."
+      echo "Skipping unreal re-installation...UnrealEngine already installed at $UNREAL_ROOT"
     fi
 
     if [ -d "$SIMBOTIC_ROOT" ] ; then
-      echo "${ORANGE} Simbotic directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your SIMBOTIC_ROOT env var is set to. [$SIMBOTIC_ROOT]. ${NOCOLOR}"
+      echo -e "${ORANGE} Simbotic directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your SIMBOTIC_ROOT env var is set to. [$SIMBOTIC_ROOT]. ${NOCOLOR}"
+      read YES
     fi
 
-    if [ $YES -eq 'y' ] ; then
+    if [ $YES = 'y' ] ; then
       echo "rm -rf $SIMBOTIC_ROOT"
       rm -rf $SIMBOTIC_ROOT
       echo "Installing Simbotic"
@@ -643,9 +645,9 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       ./build.sh
       echo "Installation complete. Run './run.sh' to start the simulation. See more details at https://github.com/VertexStudio/Simbotic"
     else
-      echo "Skipping simbotic re-installation..."
+      echo "Skipping simbotic re-installation...Simbotic already installed at $"
+    fi
   fi
-
 fi
 if [ $MAC -eq 1 ]; then
   # Install boost for mac
