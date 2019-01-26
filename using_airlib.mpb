@@ -6,12 +6,16 @@ feature (airlib) {
     Platforms {
       src/gams/platforms/airlib
     }
+
+   $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/include
   }
 
   Source_Files {
     Platforms {
       src/gams/platforms/airlib
     }
+
+    $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/src
   }
 
   includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/include/

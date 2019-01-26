@@ -83,6 +83,7 @@ gams::platforms::AirLibBase::move (const pose::Position & position/*position*/,
 void
 gams::platforms::AirLibBase::set_move_speed (const double & /*speed*/)
 {
+
 }
 
 int

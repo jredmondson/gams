@@ -28,6 +28,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <iostream>
 #include <vehicles/multirotor/api/MultirotorRpcLibClient.hpp>
 
 namespace gams
