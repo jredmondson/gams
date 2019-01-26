@@ -137,6 +137,7 @@ CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
 SIMBOTIC_BUILD_RESULT=0
+AIRLIB=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -237,9 +238,12 @@ do
     STRIP=1
   elif [ "$var" = "unreal" ]; then
     UNREAL=1
+  elif [ "$var" = "airlib" ]; then
+    AIRLIB=1
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
+    echo "  airlib          builds gams with the airlib dependency allowing gams controllers to interface with the Microsoft AirSim plugin"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  mpc             download MPC if prereqs is enabled"
     echo "  android         build android libs, turns on java"
@@ -270,6 +274,7 @@ do
     echo "  tests           build test executables"
     echo "  tutorials       build MADARA tutorials"
     echo "  types           builds libTYPES.so"
+    echo "  unreal          downloads, builds, and configures Unreal and AirSim if preqreqs is also enabled"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
@@ -291,6 +296,7 @@ do
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  DMPL_ROOT           - location of DART DMPL directory"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
+    echo "  SIMBOTIC_ROOT       - location of Simbotic repository"
     exit
   fi
 done
@@ -363,6 +369,7 @@ echo "ODROID has been set to $ODROID"
 echo "TESTS has been set to $TESTS"
 echo "ROS has been set to $ROS"
 echo "STRIP has been set to $STRIP"
+echo "AIRLIB has been set to $AIRLIB"
 if [ $STRIP -eq 1 ]; then
   echo "strip will use $STRIP_EXE"
 fi
@@ -622,7 +629,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       echo "Making unreal"
       make
     else
-      echo "Skipping unreal re-installation...UnrealEngine already installed at $UNREAL_ROOT"
+      echo -e "${BLUE}Skipping unreal re-installation...UnrealEngine already installed at $UNREAL_ROOT${NOCOLOR}"
     fi
 
     if [ -d "$SIMBOTIC_ROOT" ] ; then
@@ -636,7 +643,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       echo "Installing Simbotic"
       cd $INSTALL_DIR
       echo "git clone git@github.com:VertexStudio/Simbotic.git"
-      git clone git@github.com:VertexStudio/Simbotic.git
+      git clone git@github.com:VertexStudio/Simbocattic.git
       echo "cd $SIMBOTIC_ROOT"
       cd $SIMBOTIC_ROOT
       echo "./generate.sh"
@@ -645,7 +652,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       ./build.sh
       echo "Installation complete. Run './run.sh' to start the simulation. See more details at https://github.com/VertexStudio/Simbotic"
     else
-      echo "Skipping simbotic re-installation...Simbotic already installed at $"
+      echo -e "${BLUE}Skipping simbotic re-installation...Simbotic already installed at $SIMBOTIC_ROOT${NOCOLOR}"
     fi
   fi
 fi
@@ -1079,8 +1086,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1094,10 +1101,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
+  echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
+  make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
   echo "make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
+  make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
