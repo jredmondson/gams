@@ -28,6 +28,8 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <vehicles/multirotor/api/MultirotorRpcLibClient.hpp>
+
 namespace gams
 {
   namespace platforms
@@ -82,7 +84,7 @@ namespace gams
 
       // inherit BasePlatform's move overloads
       using BasePlatform::move;
-      
+
       /**
        * Set move speed
        * @param speed new speed in meters/loop execution
@@ -106,6 +108,7 @@ namespace gams
       /// the current frame (can theoretically be switched between options)
       pose::ReferenceFrame * frame_;
 
+      msr::airlib::MultirotorRpcLibClient client;
       /**
        * wait for go signal from controller
        */

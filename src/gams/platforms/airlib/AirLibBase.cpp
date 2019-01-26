@@ -16,7 +16,6 @@
 #include "madara/knowledge/containers/DoubleVector.h"
 
 #include "gams/platforms/airlib/AirLibBase.h"
-#include <vehicles/multirotor/api/MultirotorRpcLibClient.hpp>
 
 using std::endl;
 using std::cout;
@@ -29,6 +28,9 @@ gams::platforms::AirLibBase::AirLibBase (madara::knowledge::KnowledgeBase * know
   BasePlatform (knowledge, sensors, self), ready_ (false)
 {
   static bool init = false;
+
+  client.enableApiControl(true);
+  client.armDisarm(true);
 
   if (!init)
   {
@@ -60,6 +62,7 @@ gams::platforms::AirLibBase::get_accuracy () const
 int
 gams::platforms::AirLibBase::land ()
 {
+  client.landAsync()->waitOnLastTask();
   return 1;
 }
 
@@ -70,9 +73,10 @@ land ()
 }
 
 int
-gams::platforms::AirLibBase::move (const pose::Position & /*position*/,
-        const PositionBounds & /*bounds*/)
+gams::platforms::AirLibBase::move (const pose::Position & position/*position*/,
+        const PositionBounds & bounds/*bounds*/)
 {
+  client.moveToPositionAsync(position.x(), position.y(), position.z(), 1);
   return 1;
 }
 
@@ -84,6 +88,7 @@ gams::platforms::AirLibBase::set_move_speed (const double & /*speed*/)
 int
 gams::platforms::AirLibBase::takeoff ()
 {
+  client.takeoffAsync(5)->waitOnLastTask();
   return 1;
 }
 
