@@ -1,0 +1,20 @@
+feature (airlib) {
+  requires += airlib
+  macros += _GAMS_AIRLIB_
+
+  Header_Files {
+    Platforms {
+      src/gams/platforms/airlib
+    }
+  }
+
+  Source_Files {
+    Platforms {
+      src/gams/platforms/airlib
+    }
+  }
+
+  includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/include/
+  libpaths += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/lib/
+  libs += AirLib
+}
