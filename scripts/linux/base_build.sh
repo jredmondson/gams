@@ -110,6 +110,7 @@ TYPES=0
 ANDROID_TESTS=0
 CAPNP_JAVA=0
 UNREAL=0
+AIRLIB=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -137,7 +138,6 @@ CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
 SIMBOTIC_BUILD_RESULT=0
-AIRLIB=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -1086,8 +1086,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
