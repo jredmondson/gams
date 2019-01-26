@@ -10,7 +10,6 @@
 
 #ifdef _GAMS_AIRLIB_
 
-#include <vehicles/multirotor/api/MultirotorRpcLibClient.hpp>
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"

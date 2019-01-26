@@ -7,7 +7,6 @@
 
 #ifdef _GAMS_AIRLIB_ // only compile this if we are simulating in Unreal's AirSim
 
-#include "gams/platforms/airlib/AirLibBase.h"
 
 #include <iostream>
 #include <cmath>
@@ -15,6 +14,9 @@
 #include <vector>
 
 #include "madara/knowledge/containers/DoubleVector.h"
+
+#include "gams/platforms/airlib/AirLibBase.h"
+#include <vehicles/multirotor/api/MultirotorRpcLibClient.hpp>
 
 using std::endl;
 using std::cout;
