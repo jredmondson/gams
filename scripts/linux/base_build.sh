@@ -1103,7 +1103,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   echo "BUILDING GAMS"
   echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
   make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
-  echo "make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
+  echo "make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
   make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   
