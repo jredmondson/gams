@@ -1,8 +1,8 @@
 /**
- * @file AirLibBase.h
+ * @file AirLibMultirotorBase.h
  * @author Devon Ash <noobaca2@gmail.com>
  *
- * This file contains the definition of the AirLibBase abstract class
+ * This file contains the definition of the AirLibMultirotorBase abstract class
  **/
 
 #ifndef   _GAMS_PLATFORM_AIRLIB_BASE_H_
@@ -35,7 +35,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMS_EXPORT AirLibBase : public BasePlatform
+    class GAMS_EXPORT AirLibMultirotorBase : public BasePlatform
     {
     public:
       /**
@@ -45,7 +45,7 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       device variables that describe self state
        **/
-      AirLibBase (
+      AirLibMultirotorBase (
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Self * self);
@@ -117,7 +117,7 @@ namespace gams
 
       /// flag for simulated robot ready to receive instruction
       bool ready_;
-    }; // class AirLibBase
+    }; // class AirLibMultirotorBase
   } // namespace platform
 } // namespace gams
 
