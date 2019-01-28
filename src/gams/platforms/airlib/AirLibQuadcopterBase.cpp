@@ -1,8 +1,8 @@
 /**
- * @file AirLibMultirotorBase.cpp
+ * @file AirLibQuadcopterBase.cpp
  * @author Devon Ash <noobaca2@gmail.com>
  *
- * This file contains the definition of the AirLibMultirotorBase abstract class
+ * This file contains the definition of the AirLibQuadcopterBase abstract class
  **/
 
 #ifdef _GAMS_AIRLIB_ // only compile this if we are simulating in Unreal's AirSim
@@ -15,7 +15,7 @@
 
 #include "madara/knowledge/containers/DoubleVector.h"
 
-#include "gams/platforms/airlib/AirLibMultirotorBase.h"
+#include "gams/platforms/airlib/AirLibQuadcopterBase.h"
 
 using std::endl;
 using std::cout;
@@ -23,7 +23,7 @@ using std::cerr;
 using std::string;
 using std::map;
 
-gams::platforms::AirLibMultirotorBase::AirLibMultirotorBase (madara::knowledge::KnowledgeBase * knowledge,
+gams::platforms::AirLibQuadcopterBase::AirLibQuadcopterBase (madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Self * self) :
   BasePlatform (knowledge, sensors, self), ready_ (false)
 {
@@ -44,25 +44,25 @@ gams::platforms::AirLibMultirotorBase::AirLibMultirotorBase (madara::knowledge::
 }
 
 int
-gams::platforms::AirLibMultirotorBase::sense ()
+gams::platforms::AirLibQuadcopterBase::sense ()
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibMultirotorBase::analyze ()
+gams::platforms::AirLibQuadcopterBase::analyze ()
 {
   return 1;
 }
 
 double
-gams::platforms::AirLibMultirotorBase::get_accuracy () const
+gams::platforms::AirLibQuadcopterBase::get_accuracy () const
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibMultirotorBase::land ()
+gams::platforms::AirLibQuadcopterBase::land ()
 {
   client.landAsync()->waitOnLastTask();
   return 1;
@@ -75,7 +75,7 @@ land ()
 }
 
 int
-gams::platforms::AirLibMultirotorBase::move (const pose::Position & position/*position*/,
+gams::platforms::AirLibQuadcopterBase::move (const pose::Position & position/*position*/,
         const PositionBounds & bounds/*bounds*/)
 {
   client.moveToPositionAsync(position.x(), position.y(), position.z(), 1);
@@ -83,25 +83,25 @@ gams::platforms::AirLibMultirotorBase::move (const pose::Position & position/*po
 }
 
 void
-gams::platforms::AirLibMultirotorBase::set_move_speed (const double & /*speed*/)
+gams::platforms::AirLibQuadcopterBase::set_move_speed (const double & /*speed*/)
 {
 
 }
 
 int
-gams::platforms::AirLibMultirotorBase::takeoff ()
+gams::platforms::AirLibQuadcopterBase::takeoff ()
 {
   client.takeoffAsync(5)->waitOnLastTask();
   return 1;
 }
 
 void
-gams::platforms::AirLibMultirotorBase::wait_for_go () const
+gams::platforms::AirLibQuadcopterBase::wait_for_go () const
 {
 }
 
 const gams::pose::ReferenceFrame &
-gams::platforms::AirLibMultirotorBase::get_frame (void) const
+gams::platforms::AirLibQuadcopterBase::get_frame (void) const
 {
   return pose::gps_frame();
 }
