@@ -1,0 +1,15 @@
+feature (airlib) {
+  requires += airlib
+
+  Header_Files {
+    Platforms {
+      src/gams/platforms/airlib
+    }
+  }
+
+  Source_Files {
+    Platforms {
+      src/gams/platforms/airlib
+    }
+  }
+}

@@ -2,23 +2,11 @@ feature (airlib) {
   requires += airlib
   macros += _GAMS_AIRLIB_
 
-  Header_Files {
-    Platforms {
-      src/gams/platforms/airlib
-    }
-
-   $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/include
-  }
-
-  Source_Files {
-    Platforms {
-      src/gams/platforms/airlib
-    }
-
-    $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/src
-  }
-
+  includes += /usr/include/libcxxabi
   includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/include/
   libpaths += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/lib/
-  libs += AirLib
+  libpaths += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/lib/x64/Debug/
+  libpaths += /usr/lib/x86_64-linux-gnu
+  libs += AirLib rpc MavLinkCom
+
 }
