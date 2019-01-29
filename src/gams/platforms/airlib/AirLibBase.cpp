@@ -1,8 +1,8 @@
 /**
- * @file AirLibQuadcopterBase.cpp
+ * @file AirLibBase.cpp
  * @author Devon Ash <noobaca2@gmail.com>
  *
- * This file contains the definition of the AirLibQuadcopterBase abstract class
+ * This file contains the definition of the AirLibBase abstract class
  **/
 
 #ifdef _GAMS_AIRLIB_ // only compile this if we are simulating in Unreal's AirSim
@@ -15,7 +15,7 @@
 
 #include "madara/knowledge/containers/DoubleVector.h"
 
-#include "gams/platforms/airlib/AirLibQuadcopterBase.h"
+#include "gams/platforms/airlib/AirLibBase.h"
 
 using std::endl;
 using std::cout;
@@ -23,7 +23,7 @@ using std::cerr;
 using std::string;
 using std::map;
 
-gams::platforms::AirLibQuadcopterBase::AirLibQuadcopterBase (madara::knowledge::KnowledgeBase * knowledge,
+gams::platforms::AirLibBase::AirLibBase (madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Self * self) :
   BasePlatform (knowledge, sensors, self), ready_ (false)
 {
@@ -44,25 +44,25 @@ gams::platforms::AirLibQuadcopterBase::AirLibQuadcopterBase (madara::knowledge::
 }
 
 int
-gams::platforms::AirLibQuadcopterBase::sense ()
+gams::platforms::AirLibBase::sense ()
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibQuadcopterBase::analyze ()
+gams::platforms::AirLibBase::analyze ()
 {
   return 1;
 }
 
 double
-gams::platforms::AirLibQuadcopterBase::get_accuracy () const
+gams::platforms::AirLibBase::get_accuracy () const
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibQuadcopterBase::land ()
+gams::platforms::AirLibBase::land ()
 {
   client.landAsync()->waitOnLastTask();
   return 1;
@@ -75,7 +75,7 @@ land ()
 }
 
 int
-gams::platforms::AirLibQuadcopterBase::move (const pose::Position & position/*position*/,
+gams::platforms::AirLibBase::move (const pose::Position & position/*position*/,
         const PositionBounds & bounds/*bounds*/)
 {
   client.moveToPositionAsync(position.x(), position.y(), position.z(), 1);
@@ -83,25 +83,25 @@ gams::platforms::AirLibQuadcopterBase::move (const pose::Position & position/*po
 }
 
 void
-gams::platforms::AirLibQuadcopterBase::set_move_speed (const double & /*speed*/)
+gams::platforms::AirLibBase::set_move_speed (const double & /*speed*/)
 {
 
 }
 
 int
-gams::platforms::AirLibQuadcopterBase::takeoff ()
+gams::platforms::AirLibBase::takeoff ()
 {
   client.takeoffAsync(5)->waitOnLastTask();
   return 1;
 }
 
 void
-gams::platforms::AirLibQuadcopterBase::wait_for_go () const
+gams::platforms::AirLibBase::wait_for_go () const
 {
 }
 
 const gams::pose::ReferenceFrame &
-gams::platforms::AirLibQuadcopterBase::get_frame (void) const
+gams::platforms::AirLibBase::get_frame (void) const
 {
   return pose::gps_frame();
 }
