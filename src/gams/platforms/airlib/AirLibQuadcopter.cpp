@@ -29,8 +29,7 @@ using std::string;
 //{
 //}
 
-gams::platforms::BasePlatform *
-gams::platforms::AirLibQuadcopterFactory::create (
+gams::platforms::BasePlatform * gams::platforms::AirLibQuadcopterFactory::create (
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
@@ -94,7 +93,7 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : AirLibQuadcopter (knowledge, sensors, self)
+  : AirLibBase (knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
