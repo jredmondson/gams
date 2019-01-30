@@ -34,7 +34,7 @@ namespace gams
 {
   namespace platforms
   {
-    class GAMS_EXPORT AirLibBase: public BasePlatform
+    class GAMS_EXPORT AirLibBase : public BasePlatform
     {
     public:
       /**
@@ -60,12 +60,6 @@ namespace gams
        * @return bitmask status of the platform. @see Status.
        **/
       virtual int analyze (void) override;
-
-      /**
-       * Get the position accuracy in meters
-       * @return position accuracy
-       **/
-      virtual double get_accuracy () const override;
 
       /**
        * Instructs the platform to land

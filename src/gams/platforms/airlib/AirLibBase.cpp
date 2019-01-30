@@ -55,22 +55,10 @@ gams::platforms::AirLibBase::analyze ()
   return 1;
 }
 
-double
-gams::platforms::AirLibBase::get_accuracy () const
-{
-  return 1;
-}
-
 int
 gams::platforms::AirLibBase::land ()
 {
   client.landAsync()->waitOnLastTask();
-  return 1;
-}
-
-int
-land ()
-{
   return 1;
 }
 

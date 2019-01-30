@@ -31,13 +31,7 @@ namespace gams
     public:
 
       /**
-       * Default Quadcopter model
-       */
-      const static std::string DEFAULT_Quadcopter_MODEL;
-
-      /**
        * Constructor
-       * @param  file         file of model to load
        * @param  client_side  0 if model is server side, 1 if client side
        * @param  knowledge    knowledge base
        * @param  sensors      map of sensor names to sensor information
@@ -45,12 +39,16 @@ namespace gams
        * @param  self         agent variables that describe self state
        **/
       AirLibQuadcopter (
-        const std::string& file, 
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self
       );
+
+      /**
+       * Destructor
+       */
+      virtual ~AirLibQuadcopter ();
       
       /**
        * Gets the unique identifier of the platform. This should be an
@@ -64,23 +62,6 @@ namespace gams
        **/
       virtual std::string get_name () const;
 
-      /**
-       * Get the position accuracy in meters
-       * @return position accuracy
-       **/
-      virtual double get_accuracy () const;
-
-    protected:
-
-      /**
-       * Get target handle
-       */
-      virtual void get_target_handle ();
-  
-      /**
-       * Set initial position
-       */
-      virtual double get_initial_z () const;
     }; // class AirLibQuadcopter
 
     /**
@@ -102,13 +83,16 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
+
       virtual BasePlatform * create (
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
-    };
+     };
+
+
   } // namespace platform
 } // namespace gams
 

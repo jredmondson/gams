@@ -19,12 +19,6 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
-const string gams::platforms::AirLibQuadcopter::DEFAULT_BOAT_MODEL (
-  (getenv ("GAMS_ROOT") == 0) ? 
-  "" : // if GAMS_ROOT is not defined, then just leave this as empty string
-  (string (getenv ("GAMS_ROOT")) + "/resources/airlib/boat.ttm")
-  );
-
 
 gams::platforms::BasePlatform *
 gams::platforms::AirLibQuadcopterFactory::create (
@@ -34,9 +28,6 @@ gams::platforms::AirLibQuadcopterFactory::create (
   variables::Platforms * platforms,
   variables::Self * self)
 {
-  const static string DEFAULT_BOAT_MODEL (string (getenv ("GAMS_ROOT")) + 
-    "/resources/airlib/boat.ttm");
-
   BasePlatform * result (0);
   
   if (knowledge && sensors && platforms && self)
@@ -52,23 +43,7 @@ gams::platforms::AirLibQuadcopterFactory::create (
       knowledge_->activate_transport ();
     }
 
-    string file;
-    simxUChar is_client_side;
-
-    madara::knowledge::KnowledgeMap::const_iterator found =
-      args.find ("client_side");
-
-    if (found != args.end () && found->second.to_integer () == 1)
-    {
-      is_client_side = 1;
-    }
-    else
-    {
-      file = AirLibQuadcopter::DEFAULT_BOAT_MODEL;
-      is_client_side = 0;
-    }
-
-    result = new AirLibQuadcopter (file, is_client_side, knowledge, sensors, 
+    result = new AirLibQuadcopter (knowledge, sensors, 
       platforms, self);
   }
 
@@ -76,13 +51,11 @@ gams::platforms::AirLibQuadcopterFactory::create (
 }
 
 gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
-  const std::string& file,
-  const simxUChar client_side,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : airlibBase (file, client_side, knowledge, sensors, self)
+  : AirLibQuadcopter (knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
@@ -93,33 +66,9 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   self_->agent.desired_altitude = 0.05;
 }
 
-void
-gams::platforms::AirLibQuadcopter::add_model_to_environment (const std::string& file,
-  const simxUChar client_side)
+gams::platforms::AirLibQuadcopter::~AirLibQuadcopter()
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::platforms::AirLibQuadcopter::add_model_to_environment(" \
-    "%s, %d)\n", file.c_str (), (int)client_side);
 
-  if (simxLoadModel (client_id_, file.c_str (), client_side, &node_id_,
-    simx_opmode_oneshot_wait) != simx_error_noerror)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-      "gams::platforms::AirLibQuadcopter::add_model_to_environment:" \
-      " error loading model in airlib\n");
-    exit (-1);
-  }
-
-  if (node_id_ < 0)
-  {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_ERROR,
-      "gams::platforms::AirLibQuadcopter::add_model_to_environment:" \
-      " invalid handle id\n");
-    exit (-1);
-  }
 }
 
 std::string
@@ -132,45 +81,6 @@ std::string
 gams::platforms::AirLibQuadcopter::get_name () const
 {
   return "airlib quad";
-}
-
-double
-gams::platforms::AirLibQuadcopter::get_accuracy () const
-{
-  return 5;
-}
-
-void
-gams::platforms::AirLibQuadcopter::get_target_handle ()
-{
-  //find the dummy base sub-object
-  simxInt handlesCount = 0,*handles = NULL;
-  simxInt parentsCount = 0,*parents = NULL;
-  simxGetObjectGroupData (client_id_, sim_object_dummy_type, 2, &handlesCount,
-    &handles, &parentsCount, &parents, NULL, NULL, NULL, NULL,
-    simx_opmode_oneshot_wait);
-
-  // find node base
-  simxInt nodeBase = -1;
-  for(simxInt i = 0; i < handlesCount; ++i)
-  {
-    if(parents[i] == node_id_)
-    {
-      nodeBase = handles[i];
-      break;
-    }
-  }
-
-  // find the target sub-object of the base sub-object
-  node_target_ = -1;
-  simxGetObjectChild (client_id_, nodeBase, 0, &node_target_,
-    simx_opmode_oneshot_wait);
-}
-
-double
-gams::platforms::AirLibQuadcopter::get_initial_z() const
-{
-  return 0.16;
 }
 
 #endif // _GAMS_AIRLIB_
