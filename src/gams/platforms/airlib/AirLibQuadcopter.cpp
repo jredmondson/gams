@@ -19,16 +19,6 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
-
-//::gams::platforms::AirLibQuadcopterFactory::AirLibQuadcopterFactory ()
-//  : knowledge_ (0), platforms_ (0), self_ (0), sensors_ (0)
-//{
-//}
-
-//::gams::platforms::AirLibQuadcopterFactory::~AirLibQuadcopterFactory ()
-//{
-//}
-
 gams::platforms::BasePlatform * gams::platforms::AirLibQuadcopterFactory::create (
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
@@ -57,36 +47,6 @@ gams::platforms::BasePlatform * gams::platforms::AirLibQuadcopterFactory::create
 
   return result;
 }
-
-//gams::platforms::BasePlatform *
-//gams::platforms::AirLibQuadcopterFactory::create (
-//  const madara::knowledge::KnowledgeMap & args,
-//  madara::knowledge::KnowledgeBase * knowledge,
-//  variables::Sensors * sensors,
-//  variables::Platforms * platforms,
-//  variables::Self * self)
-//{
-//  BasePlatform * result (0);
-//  
-//  if (knowledge && sensors && platforms && self)
-//  {
-//    if (knowledge->get_num_transports () == 0)
-//    {
-//      madara::transport::QoSTransportSettings settings;
-
-//      settings.type = madara::transport::MULTICAST;
-//      settings.hosts.push_back ("239.255.0.1:4150");
-
-//      knowledge_->attach_transport ("", settings);
-//      knowledge_->activate_transport ();
-//    }
-
-//    result = new AirLibQuadcopter (knowledge, sensors, 
-//      platforms, self);
-//  }
-
-//  return result;
-//}
 
 gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   madara::knowledge::KnowledgeBase * knowledge,
