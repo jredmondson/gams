@@ -65,14 +65,14 @@ namespace gams
     }; // class AirLibQuadcopter
 
     /**
-     * A factory class for creating AIRLIB Quadcopter platforms
+     * A factory class for creating VREP Boat platforms
      **/
     class GAMS_EXPORT AirLibQuadcopterFactory : public PlatformFactory
     {
     public:
 
       /**
-       * Creates a AIRLIB ant platform.
+       * Creates a AirLibQuadcopter platform.
        * @param   args      no arguments are necessary for this platform
        * @param   knowledge the knowledge base. This will be set by the
        *                    controller in init_vars.
@@ -83,6 +83,7 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
+      virtual ~AirLibQuadcopterFactory (){};
 
       virtual BasePlatform * create (
         const madara::knowledge::KnowledgeMap & args,
@@ -90,9 +91,7 @@ namespace gams
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self);
-     };
-
-
+    };
   } // namespace platform
 } // namespace gams
 
