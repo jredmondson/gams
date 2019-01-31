@@ -16,6 +16,14 @@
 
 #include "gams/variables/Sensor.h"
 
+#include "common/common_utils/StrictMode.hpp"
+STRICT_MODE_OFF
+#ifndef RPCLIB_MSGPACK
+#define RPCLIB_MSGPACK clmdep_msgpack
+#endif
+#include "rpc/rpc_error.h"
+STRICT_MODE_ON
+
 gams::platforms::BasePlatform *
 gams::platforms::AirLibQuadcopterFactory::create (
         const madara::knowledge::KnowledgeMap & args,
