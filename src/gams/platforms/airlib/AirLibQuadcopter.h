@@ -1,6 +1,6 @@
 /**
  * @file AirLibQuadcopter.h
- * @author Devon Ash <noobaca2@gmail.com>
+ * @authors Alex Rozgo, Devon Ash <noobaca2@gmail.com>
  *
  * This file contains the declaration of the AirLibQuadcopter interface to AirSim's quadcopter. AirLib communicates to AirSim over RPC.
  **/
@@ -13,8 +13,12 @@
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
+#include "gams/pose/GPSFrame.h"
 #include "gams/variables/PlatformStatus.h"
+#include "gams/pose/CartesianFrame.h"
+
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/threads/Threader.h"
 
 #ifdef _GAMS_AIRLIB_
 
@@ -41,7 +45,6 @@ namespace gams
       AirLibQuadcopter (
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
-        variables::Platforms * platforms,
         variables::Self * self
       );
 
@@ -55,12 +58,34 @@ namespace gams
        * alphanumeric identifier that can be used as part of a MADARA
        * variable (e.g. AIRLIB_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const;
+      virtual std::string get_id () const override;
 
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const;
+      virtual std::string get_name () const override;
+
+      virtual int sense () override;
+
+      virtual int home () override;
+
+      virtual int takeoff () override;
+
+      virtual int land () override;
+
+      virtual int move (const gams::pose::Position & location, const gams::platforms::PositionBounds & bounds) override;
+
+      virtual const gams::pose::ReferenceFrame& get_frame () const override;
+
+      int rotate (const gams::pose::Orientation &target, double epsilon);
+
+    private:
+
+      msr::airlib::MultirotorRpcLibClient* client_;
+
+      std::string vehicle_name_;
+
+      madara::threads::Threader threader_;  
 
     }; // class AirLibQuadcopter
 
