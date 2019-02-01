@@ -137,7 +137,7 @@ LZ4_REPO_RESULT=0
 CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
-SIMBOTIC_BUILD_RESULT=0
+AIRSIM_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -296,7 +296,7 @@ do
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  DMPL_ROOT           - location of DART DMPL directory"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
-    echo "  SIMBOTIC_ROOT       - location of Simbotic repository"
+    echo "  AIRSIM_ROOT         - location of AirSim repository"
     exit
   fi
 done
@@ -329,12 +329,8 @@ if [ -z $UNREAL_ROOT ] ; then
   export UNREAL_ROOT=$INSTALL_DIR/UnrealEngine
 fi
 
-if [ -z $SIMBOTIC_ROOT ] ; then
-  export SIMBOTIC_ROOT=$INSTALL_DIR/Simbotic
-fi
-
-if [ -z $SIMBOTIC_UE4 ] ; then
-  export SIMBOTIC_UE4=$UNREAL_ROOT
+if [ -z $AIRSIM_ROOT ] ; then
+  export AIRSIM_ROOT=$INSTALL_DIR/AirSim
 fi
 
 
@@ -353,8 +349,7 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
 echo "UNREAL_ROOT is set to $UNREAL_ROOT"
-echo "SIMBOTIC_ROOT is set to $SIMBOTIC_ROOT"
-echo "SIMBOTIC_UE4 is set to $SIMBOTIC_UE4"
+echo "AIRSIM_ROOT is set to $AIRSIM_ROOT"
 echo "LZ4_ROOT is set to $LZ4_ROOT"
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
@@ -369,10 +364,10 @@ echo "ODROID has been set to $ODROID"
 echo "TESTS has been set to $TESTS"
 echo "ROS has been set to $ROS"
 echo "STRIP has been set to $STRIP"
-echo "AIRLIB has been set to $AIRLIB"
 if [ $STRIP -eq 1 ]; then
   echo "strip will use $STRIP_EXE"
 fi
+echo "AIRLIB has been set to $AIRLIB"
 
 echo "JAVA has been set to $JAVA"
 if [ $JAVA -eq 1 ]; then
@@ -632,27 +627,24 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       echo -e "${BLUE}Skipping unreal re-installation...UnrealEngine already installed at $UNREAL_ROOT${NOCOLOR}"
     fi
 
-    if [ -d "$SIMBOTIC_ROOT" ] ; then
-      echo -e "${ORANGE} Simbotic directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your SIMBOTIC_ROOT env var is set to. [$SIMBOTIC_ROOT]. ${NOCOLOR}"
+    if [ -d "$AIRSIM_ROOT" ] ; then
+      echo -e "${ORANGE} AirSim directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your AIRSIM_ROOT env var is set to. [$AIRSIM_ROOT]. ${NOCOLOR}"
       read YES
     fi
 
     if [ $YES = 'y' ] ; then
-      echo "rm -rf $SIMBOTIC_ROOT"
-      rm -rf $SIMBOTIC_ROOT
-      echo "Installing Simbotic"
+      echo "rm -rf $AIRSIM_ROOT"
+      rm -rf $AIRSIM_ROOT
+      echo "Installing AirSim"
       cd $INSTALL_DIR
-      echo "git clone https://github.com/TheDash/Simbotic.git"
-      git clone https://github.com/TheDash/Simbotic.git
-      echo "cd $SIMBOTIC_ROOT"
-      cd $SIMBOTIC_ROOT
-      echo "./generate.sh"
-      ./generate.sh
-      echo "./build.sh"
+      echo "git clone https://github.com/Microsoft/AirSim.git"
+      git clone https://github.com/Microsoft/AirSim.git
+      echo "Building AirSim"      
+      ./setup.sh
       ./build.sh
-      echo "Installation complete. Run './run.sh' to start the simulation. See more details at https://github.com/VertexStudio/Simbotic"
+      echo "Installation complete. Open UnrealEngine/Engine/Binaries/Linux/UE4Editor and then When Unreal Engine prompts for opening or creating project, select Browse and choose AirSim/Unreal/Environments/Blocks. For more information see \" How to Use AirSim\" at https://microsoft.github.io/AirSim/docs/build_linux/"
     else
-      echo -e "${BLUE}Skipping simbotic re-installation...Simbotic already installed at $SIMBOTIC_ROOT${NOCOLOR}"
+      echo -e "${BLUE}Skipping AirSim re-installation...AirSim already installed at $AIRSIM_ROOT ${NOCOLOR}"
     fi
   fi
 fi

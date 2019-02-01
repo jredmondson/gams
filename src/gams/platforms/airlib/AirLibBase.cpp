@@ -29,11 +29,6 @@ gams::platforms::AirLibBase::AirLibBase (madara::knowledge::KnowledgeBase * know
 {
   static bool init = false;
 
-  client.confirmConnection();
-  client.enableApiControl(true);
-  client.armDisarm(true);
-  takeoff();
-
   if (!init)
   {
 //    string node_name (knowledge->get (".ros_node").to_string ());
@@ -58,7 +53,6 @@ gams::platforms::AirLibBase::analyze ()
 int
 gams::platforms::AirLibBase::land ()
 {
-  client.landAsync()->waitOnLastTask();
   return 1;
 }
 
@@ -66,7 +60,6 @@ int
 gams::platforms::AirLibBase::move (const pose::Position & position/*position*/,
         const PositionBounds & bounds/*bounds*/)
 {
-  client.moveToPositionAsync(position.x(), position.y(), position.z(), 1);
   return 1;
 }
 
@@ -79,7 +72,6 @@ gams::platforms::AirLibBase::set_move_speed (const double & /*speed*/)
 int
 gams::platforms::AirLibBase::takeoff ()
 {
-  client.takeoffAsync(5)->waitOnLastTask();
   return 1;
 }
 
