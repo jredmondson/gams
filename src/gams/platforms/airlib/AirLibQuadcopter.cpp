@@ -50,7 +50,6 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   vehicle_name_ = "agent." + std::to_string(self_->id.to_integer());
   std::cout << "vehicle_name: " << vehicle_name_ << std::endl;
 
-  client_ = new msr::airlib::MultirotorRpcLibClient(vehicle_name_);
   std::cout << "RPC Connection Established with " << vehicle_name_ << std::endl;
 
   // as an example of what to do here, create a coverage sensor
@@ -80,14 +79,14 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
     // create threads
     // end create threads
 
-    client_->confirmConnection();
+    client.confirmConnection();
 
-    client_->enableApiControl(true, vehicle_name_);
+    client.enableApiControl(true, vehicle_name_);
 
-    client_->armDisarm(true, vehicle_name_);
-    client_->takeoffAsync(5, vehicle_name_);
+    client.armDisarm(true, vehicle_name_);
+    client.takeoffAsync(5, vehicle_name_);
     std::this_thread::sleep_for(std::chrono::duration<double>(5));
-    client_->enableApiControl(true, vehicle_name_);
+    client.enableApiControl(true, vehicle_name_);
 
     status_.movement_available = 1;
     
@@ -105,7 +104,6 @@ gams::platforms::AirLibQuadcopter::~AirLibQuadcopter()
 {
   threader_.terminate();
   threader_.wait();
-  delete client_;
 }
 
 std::string
@@ -123,7 +121,7 @@ gams::platforms::AirLibQuadcopter::get_name () const
 int 
 gams::platforms::AirLibQuadcopter::sense(void)
 {
-  auto location = client_->simGetVehiclePose(vehicle_name_).position;
+  auto location = client.simGetVehiclePose(vehicle_name_).position;
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
                         gams::loggers::LOG_MAJOR,
@@ -145,14 +143,14 @@ gams::platforms::AirLibQuadcopter::sense(void)
 int
 gams::platforms::AirLibQuadcopter::home(void)
 {
-  client_->goHomeAsync(Utils::max<float>(), vehicle_name_);
+  client.goHomeAsync(Utils::max<float>(), vehicle_name_);
   return gams::platforms::PLATFORM_IN_PROGRESS;
 }
 
 int 
 gams::platforms::AirLibQuadcopter::land(void)
 {
-  client_->landAsync(60, vehicle_name_);
+  client.landAsync(60, vehicle_name_);
   return gams::platforms::PLATFORM_IN_PROGRESS;
 }
 
@@ -161,11 +159,11 @@ gams::platforms::AirLibQuadcopter::move(
     const gams::pose::Position &location,
     const gams::platforms::PositionBounds &bounds)
 {
-  client_->enableApiControl(true, vehicle_name_);
-  client_->moveToPositionAsync(location.x(), location.y(), -40.0, 10,
+  client.enableApiControl(true, vehicle_name_);
+  client.moveToPositionAsync(location.x(), location.y(), -40.0, 10,
                                Utils::max<float>(), msr::airlib::DrivetrainType::MaxDegreeOfFreedom,
                                YawMode(), -1, 1, vehicle_name_);
-  // client_->hoverAsync(vehicle_name_)->waitOnLastTask();
+  // client.hoverAsync(vehicle_name_)->waitOnLastTask();
   return BasePlatform::move(location, bounds);
 }
 
@@ -175,14 +173,14 @@ gams::platforms::AirLibQuadcopter::rotate(
     double epsilon)
 {
   gams::pose::euler::EulerXYZ e(target);
-  client_->rotateToYawAsync(e.c(), Utils::max<float>(), 5, vehicle_name_);
+  client.rotateToYawAsync(e.c(), Utils::max<float>(), 5, vehicle_name_);
   return gams::platforms::PLATFORM_MOVING;
 }
 
 int 
 gams::platforms::AirLibQuadcopter::takeoff(void)
 {
-  client_->takeoffAsync(20, vehicle_name_)->waitOnLastTask();
+  client.takeoffAsync(20, vehicle_name_)->waitOnLastTask();
   return gams::platforms::PLATFORM_OK;
 }
 

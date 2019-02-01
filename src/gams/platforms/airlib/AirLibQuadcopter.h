@@ -81,8 +81,6 @@ namespace gams
 
     private:
 
-      msr::airlib::MultirotorRpcLibClient* client_;
-
       std::string vehicle_name_;
 
       madara::threads::Threader threader_;  
