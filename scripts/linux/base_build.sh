@@ -643,7 +643,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       echo "Installing Simbotic"
       cd $INSTALL_DIR
       echo "git clone git@github.com:VertexStudio/Simbotic.git"
-      git clone git@github.com:VertexStudio/Simbocattic.git
+      git clone git@github.com:VertexStudio/Simbotic.git
       echo "cd $SIMBOTIC_ROOT"
       cd $SIMBOTIC_ROOT
       echo "./generate.sh"

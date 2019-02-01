@@ -1,4 +1,25 @@
-project (gams) : build_files, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal {
+project (rpc) {
+  requires += airlib
+  includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/deps/rpclib/include/
+  libout = lib
+  libout = $(GAMS_ROOT)/lib
+  sharedname = rpc
+  
+  Header_Files {
+    $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/deps/rpclib/include/
+  }
+
+  Source_Files {
+
+  }
+
+  verbatim (make, local, true) {
+    CPPFLAGS := -std=c++14 -Wall -Wextra -Wnon-virtual-dtor \
+      -Woverloaded-virtual -O3 $(CPPFLAGS)
+  }
+}
+
+project (gams) : build_files, using_rpc, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -197,7 +218,7 @@ project (gams) : build_files, using_madara, using_utm, using_ros, using_simtime,
 
 }
 
-project (gams_controller) : using_gams, using_madara, using_vrep {
+project (gams_controller) : using_gams, using_madara, using_rpc {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
 
@@ -261,7 +282,6 @@ project (types) : using_madara, using_capnp {
     src/gams/types
   }
 }
-
 
 project (ros2gams_pcl_plugin) : using_madara, using_ros, using_gams, using_capnp, using_simtime, using_boost, using_filesystem, using_types {
   requires = types

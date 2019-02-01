@@ -5,9 +5,12 @@ feature (airlib) {
   includes += /usr/include/libcxxabi
   includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/include/
   includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/deps/rpclib/include/
+
+  libpaths += lib
+  libpaths += $(GAMS_ROOT)/lib
   libpaths += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/lib/
   libpaths += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/lib/x64/Debug/
   libpaths += /usr/lib/x86_64-linux-gnu
-  libs += AirLib rpc MavLinkCom
 
+  libs += AirLib MavLinkCom
 }

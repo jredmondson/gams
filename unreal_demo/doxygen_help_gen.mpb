@@ -1,0 +1,11 @@
+project {
+  requires += docs
+  
+  Define_Custom(DoxygenTypeSupport) {
+    command               = doxygen
+    inputext              = .dxy
+
+    keyword doxyflags     = commandflags
+  }
+  
+}

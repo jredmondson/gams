@@ -1,0 +1,7 @@
+feature (rpc) {
+  requires += airlib
+  includes += $(SIMBOTIC_ROOT)/Plugins/UE4-AirSim/Source/AirLib/deps/rpclib/include/
+  libpaths += lib
+  libpaths += $(GAMS_ROOT)/lib
+  libs += rpc
+}

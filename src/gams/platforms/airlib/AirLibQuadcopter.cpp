@@ -7,6 +7,9 @@
 
 #ifdef _GAMS_AIRLIB_ // only compile this if we are simulating in airsim
 
+
+#include "madara/knowledge/containers/NativeDoubleVector.h"
+
 #include "gams/platforms/airlib/AirLibQuadcopter.h"
 
 #include <iostream>
@@ -41,10 +44,14 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   variables::Self * self)
   : AirLibBase (knowledge, sensors, self)
 {
+
+  try
+  {
   vehicle_name_ = "agent." + std::to_string(self_->id.to_integer());
   std::cout << "vehicle_name: " << vehicle_name_ << std::endl;
 
-  client_ = new msr::airlib::MultirotorRpcLibClient();
+  client_ = new msr::airlib::MultirotorRpcLibClient(vehicle_name_);
+  std::cout << "RPC Connection Established with " << vehicle_name_ << std::endl;
 
   // as an example of what to do here, create a coverage sensor
   if (knowledge && sensors)
@@ -83,6 +90,14 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
     client_->enableApiControl(true, vehicle_name_);
 
     status_.movement_available = 1;
+    
+  }
+
+  std::cout << "AirLibQuadcopter active!" << std::endl;
+ }
+ catch (rpc::rpc_error&  e) {
+        std::string msg = e.get_error().as<std::string>();
+        std::cout << "Exception raised by the API, something went wrong." << std::endl << msg << std::endl;
   }
 }
 

@@ -1,0 +1,12 @@
+project : using_madara {
+  includes += $(GAMS_ROOT)/src
+  includes += $(EIGEN_ROOT)
+
+  libpaths += $(GAMS_ROOT)/lib
+
+  libs += GAMS
+
+  verbatim (make, local, true) {
+    LDLIBS := $(LDLIBS) -lGAMS
+  }
+}

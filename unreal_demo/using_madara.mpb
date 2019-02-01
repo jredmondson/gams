@@ -1,0 +1,17 @@
+project : using_boost, using_capnp {
+  includes += $(MADARA_ROOT)/include
+  libpaths += $(MADARA_ROOT)/lib
+
+  libs += MADARA
+
+  specific(prop:microsoft) {
+    DisableSpecificWarnings += 4005 4251 4275
+	macros += _CRT_SECURE_NO_WARNINGS
+  }
+
+  verbatim (make, local, true) {
+    CPPFLAGS := -std=c++11 -Wall -Wextra -Wnon-virtual-dtor \
+      -Woverloaded-virtual -O3 $(CPPFLAGS)
+    LDLIBS := $(LDLIBS) -lMADARA
+  }
+}
