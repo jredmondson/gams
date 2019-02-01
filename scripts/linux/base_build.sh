@@ -369,10 +369,10 @@ echo "ODROID has been set to $ODROID"
 echo "TESTS has been set to $TESTS"
 echo "ROS has been set to $ROS"
 echo "STRIP has been set to $STRIP"
-echo "AIRLIB has been set to $AIRLIB"
 if [ $STRIP -eq 1 ]; then
   echo "strip will use $STRIP_EXE"
 fi
+echo "AIRLIB has been set to $AIRLIB"
 
 echo "JAVA has been set to $JAVA"
 if [ $JAVA -eq 1 ]; then
@@ -642,12 +642,14 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       rm -rf $SIMBOTIC_ROOT
       echo "Installing Simbotic"
       cd $INSTALL_DIR
-      echo "git clone git@github.com:VertexStudio/Simbotic.git"
-      git clone git@github.com:VertexStudio/Simbotic.git
+      echo "git clone --recursive git@github.com:VertexStudio/Simbotic.git $SIMBOTIC_ROOT"
+      git clone  --recursive git@github.com:VertexStudio/Simbotic.git $SIMBOTIC_ROOT
       echo "cd $SIMBOTIC_ROOT"
       cd $SIMBOTIC_ROOT
       echo "./generate.sh"
       ./generate.sh
+      echo "./build_airsim.sh"
+      ./build_airsim.sh
       echo "./build.sh"
       ./build.sh
       echo "Installation complete. Run './run.sh' to start the simulation. See more details at https://github.com/VertexStudio/Simbotic"
