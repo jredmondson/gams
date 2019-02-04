@@ -49,7 +49,6 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   {
   vehicle_name_ = "agent." + std::to_string(self_->id.to_integer());
   std::cout << "vehicle_name: " << vehicle_name_ << std::endl;
-
   std::cout << "RPC Connection Established with " << vehicle_name_ << std::endl;
 
   // as an example of what to do here, create a coverage sensor

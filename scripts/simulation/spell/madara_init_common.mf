@@ -1,21 +1,30 @@
-group.nodes.members.size=3;
-group.nodes.members.0="agent.0";
-group.nodes.members.1="agent.1";
-group.nodes.members.2="agent.2";
-group.nodes.members.3="agent.3";
-group.nodes.members.4="agent.4";
-group.nodes.members.5="agent.5";
-group.nodes.members.6="agent.6";
-group.nodes.members.7="agent.7";
-group.nodes.members.8="agent.8";
-group.nodes.members.9="agent.9";
-group.nodes.members.10="agent.10";
-group.nodes.members.11="agent.11";
+group.nodes.members.size=20;
+ group.nodes.members.0="agent.0"; 
+ group.nodes.members.1="agent.1"; 
+ group.nodes.members.2="agent.2"; 
+ group.nodes.members.3="agent.3"; 
+ group.nodes.members.4="agent.4"; 
+ group.nodes.members.5="agent.5"; 
+ group.nodes.members.6="agent.6"; 
+ group.nodes.members.7="agent.7"; 
+ group.nodes.members.8="agent.8"; 
+ group.nodes.members.9="agent.9"; 
+ group.nodes.members.10="agent.10"; 
+ group.nodes.members.11="agent.11"; 
+ group.nodes.members.12="agent.12"; 
+ group.nodes.members.13="agent.13"; 
+ group.nodes.members.14="agent.14"; 
+ group.nodes.members.15="agent.15"; 
+ group.nodes.members.16="agent.16"; 
+ group.nodes.members.17="agent.17"; 
+ group.nodes.members.18="agent.18"; 
+ group.nodes.members.19="agent.19"; 
 
-.platform="vrep-uav";
+
+.platform="unreal-quad";
 
 {.prefix}.algorithm = "spell";
-{.prefix}.algorithm.args.text = "5";
+{.prefix}.algorithm.args.text = "galois";
 {.prefix}.algorithm.args.group = "group.nodes";
 {.prefix}.algorithm.args.origin = region.0.0;
 {.prefix}.algorithm.args.buffer = 3.0;
