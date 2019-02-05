@@ -426,6 +426,13 @@ region.0.3 = [40.443077, -79.940398];\n";
       $subclass_header_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.cpp';
       $subclass_cpp_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.h';
       print("Setting platform base class to $platform_base_class (AirLibQuadcopterBase)\n");
+
+      # generate settings.json script if unreal-quad is enabled given the number of agents
+      my $output = `$gams_root/scripts/projects/airsim_json_generator.py json $agents`;
+      # write settings.json to the --path directory
+      open (json_file, '>', "$sim_path/settings.json");
+        print json_file $output;
+      close (json_file);
     }
 
     if ($verbose)
@@ -453,7 +460,7 @@ region.0.3 = [40.443077, -79.940398];\n";
     {
       print("Creating individual agent initialization files...\n");
     }
-    
+
     # create the individual agent initialization
     for (my $i = 0, my $port = $vrep_start_port; $i < $agents; ++$i, ++$port)
     {
