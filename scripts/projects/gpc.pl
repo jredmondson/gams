@@ -419,15 +419,13 @@ region.0.1 = [40.443387, -79.940270];
 region.0.2 = [40.443187, -79.940098];
 region.0.3 = [40.443077, -79.940398];\n";
 
-
     if ($platform eq 'unreal-quad')
     {
       $platform_base_class = 'AirLibQuadcopterBase';
       $subclass_provided = 1;
       $subclass_header_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.cpp';
       $subclass_cpp_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.h';
-      print("Setting platform base class to $platform_base_class (AirLibQuadcopterBase");
-      print('Using header file at $subclass_header_path and source file at $subclass_cpp_path');
+      print("Setting platform base class to $platform_base_class (AirLibQuadcopterBase)\n");
     }
 
     if ($verbose)
@@ -5100,7 +5098,7 @@ HOW TO:\n";
 
   RUN UNREAL SIMULATION:
     open Unreal with an AirSim plugin
-    perl sim/run_unreal_sim.pl
+    perl sim/run.pl
     
 ";
 
