@@ -433,6 +433,18 @@ region.0.3 = [40.443077, -79.940398];\n";
       open (json_file, '>', "$sim_path/settings.json");
         print json_file $output;
       close (json_file);
+      # symlink ~/Documents/AirSim/settings.json to the above settings.json
+
+      my $home = "$ENV{HOME}";
+      if (-e "$home/Documents/AirSim/settings.json")
+      {
+          print ("$home/Documents/AirSim/settings.json already exists. Removing it to create a symlink.\n");
+          system "rm $home/Documents/AirSim/settings.json";
+      }
+          
+      my $symlink_exists = eval { symlink("$sim_path/settings.json", "$home/Documents/AirSim/settings.json"); 1 };
+      print("Symlink created between $sim_path/settings.json and $home/Documents/AirSim/settings.json. \nPlease edit and modify the settings.json in your gpc.pl created project now. A default settings.json has been created for you based on the number of agents ($agents) specified. \n");
+
     }
 
     if ($verbose)
