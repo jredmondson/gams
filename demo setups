@@ -1,0 +1,14 @@
+Commands/args for demo_generator.py:
+
+config_demo.py --demo --num-agents
+config_demo.py --demo waypoints --help
+config_demo.py --sim-env (unreal|vrep)
+
+How much does gpc.pl generate this? Especially for demos?
+
+perl run.pl 
+xterm -hold -e "/home/dash/contracting/galois/gams//bin/gams_controller -i 0 -n 1 -m 239.255.0.1:4150 --domain gams_sims --loop-time 300 --period 1 --queue-length 2000000 --madara-level 3 --gams-level 3 --logfile agent_0.log  --madara-file ./env.mf ./common.mf ./agent_0.mf " &/home/dash/contracting/galois/gams//bin/dynamic_simulation -t -1 --sim-time-poll-rate 2 -n 1 --domain gams_sims --madara-file ./env.mf -m 239.255.0.1:4150
+
+notice no --platform option.. so it reads from .platform right? or what? 
+
+difference between .platform and --platform?

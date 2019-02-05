@@ -44,7 +44,6 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   variables::Self * self)
   : AirLibBase (knowledge, sensors, self)
 {
-
   try
   {
   vehicle_name_ = "agent." + std::to_string(self_->id.to_integer());
@@ -124,7 +123,7 @@ gams::platforms::AirLibQuadcopter::sense(void)
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
                         gams::loggers::LOG_MAJOR,
-                        "SIMBOTIC position: %f,%f,%f\n", location.x() / 100.0, location.y() / 100.0,  location.z() / 100.0);
+                        "AirSim position: %f,%f,%f\n", location.x() / 100.0, location.y() / 100.0,  location.z() / 100.0);
 
   gams::pose::Position loc(get_frame(), location.x() / 100.0, location.y() / 100.0, 0);
 
