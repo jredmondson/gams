@@ -25,7 +25,6 @@ sub run {
       #$cmd = "$cmd gdb ";
       #$cmd = "$cmd -ex \\\"set breakpoint pending on\\\" ";
       #$cmd = "$cmd -ex run --args ";
-	  
 
       $cmd = "$cmd $gams_root/bin/gams_controller --platform unreal-quad -i $i -n $num --loop-time $time --period $period --queue-length 2000000";
       $cmd = "$cmd --madara-file $gams_root/scripts/simulation/madara_init_common.mf";
