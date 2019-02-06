@@ -3298,7 +3298,8 @@ namespace transports
      *          been updated and could be sent.
      * \@return  result of operation or -1 if we are shutting down
      **/
-    long send_data (const madara::knowledge::VariableReferenceMap & modifieds);
+    virtual long send_data (
+      const madara::knowledge::KnowledgeMap & modifieds) override;
     
   protected:
     /// threads for monitoring knowledge updates
@@ -3359,7 +3360,7 @@ transports::${new_trans}::~${new_trans} ()
 
 long
 transports::${new_trans}::send_data (
-  const madara::knowledge::VariableReferenceMap & modifieds)
+  const madara::knowledge::KnowledgeMap & modifieds)
 {
   /**
    * Return number of bytes sent or negative for error
@@ -3503,7 +3504,7 @@ void
 transports::${new_trans}ReadThread::run (void)
 {
   // prefix for logging purposes
-  char * print_prefix = \"transports::${new_trans}ReadThread\";
+  const char * print_prefix = \"transports::${new_trans}ReadThread\";
 
   /**
    * the MADARA logger is thread-safe, fast, and allows for specifying
@@ -3531,7 +3532,7 @@ transports::${new_trans}ReadThread::run (void)
    * this in with info from whatever transport you are using for this
    * to be effective.
    **/
-  char * remote_host = \"\";
+  const char * remote_host = \"\";
   
   // will be filled with rebroadcast records after applying filters
   knowledge::KnowledgeMap rebroadcast_records;
