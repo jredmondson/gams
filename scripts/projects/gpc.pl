@@ -53,6 +53,10 @@ my $ordered;
 my $path = '.';
 my $permute;
 my $platform;
+my $platform_base_class = 'BasePlatform';
+my $subclass_provided = 0;
+my $subclass_header_path;
+my $subclass_cpp_path;
 my @points;
 my $priority;
 my $randomize;
@@ -204,6 +208,10 @@ options:
                          vrep-boat            : boat
                          vrep-ant             : ant robot
                          vrep-summit          : Summit robot
+                         unreal-quad          : multirotor uav
+                         unreal-fixed-wing    : fixed wing uav
+                         unreal-satellite     : satellite 
+                         unreal-custom        : custom unreal robot
             
   --priority level       define the priority, generally to be used for regions
   --randomize            randomize the target locations or heights  
@@ -349,7 +357,11 @@ $script is using the following configuration:
  * vrep-boat       : A VREP boat
  * vrep-ant        : A VREP ant-like ground robot
  * vrep-summit     : A VREP Summit robot
- * 
+ * unreal-quad     : An UNREAL AirSim Quadcopter UAV
+ * unreal-fixed-wing    : fixed wing uav
+ * unreal-satellite     : satellite 
+ * unreal-custom        : custom unreal robot
+ *
  * Specialty options (must be compiled with more than just vrep feature)
  * ros-p3dx        : A ROS Pioneer 3DX robot
  **/
@@ -411,6 +423,34 @@ region.0.1 = [40.443387, -79.940270];
 region.0.2 = [40.443187, -79.940098];
 region.0.3 = [40.443077, -79.940398];\n";
 
+    if ($platform eq 'unreal-quad')
+    {
+      $platform_base_class = 'AirLibQuadcopterBase';
+      $subclass_provided = 1;
+      $subclass_header_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.cpp';
+      $subclass_cpp_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.h';
+      print("Setting platform base class to $platform_base_class (AirLibQuadcopterBase)\n");
+
+      # generate settings.json script if unreal-quad is enabled given the number of agents
+      my $output = `$gams_root/scripts/projects/airsim_json_generator.py json $agents`;
+      # write settings.json to the --path directory
+      open (json_file, '>', "$sim_path/settings.json");
+        print json_file $output;
+      close (json_file);
+      # symlink ~/Documents/AirSim/settings.json to the above settings.json
+
+      my $home = "$ENV{HOME}";
+      if (-e "$home/Documents/AirSim/settings.json")
+      {
+          print ("$home/Documents/AirSim/settings.json already exists. Removing it to create a symlink.\n");
+          system "rm $home/Documents/AirSim/settings.json";
+      }
+          
+      my $symlink_exists = eval { symlink("$sim_path/settings.json", "$home/Documents/AirSim/settings.json"); 1 };
+      print("Symlink created between $sim_path/settings.json and $home/Documents/AirSim/settings.json. \nPlease edit and modify the settings.json in your gpc.pl created project now. A default settings.json has been created for you based on the number of agents ($agents) specified. \n");
+
+    }
+
     if ($verbose)
     {
       print("Creating area environment file...\n");
@@ -436,7 +476,7 @@ region.0.3 = [40.443077, -79.940398];\n";
     {
       print("Creating individual agent initialization files...\n");
     }
-    
+
     # create the individual agent initialization
     for (my $i = 0, my $port = $vrep_start_port; $i < $agents; ++$i, ++$port)
     {
@@ -3115,13 +3155,28 @@ platforms::${new_plat}::get_frame (void) const
   return gams::pose::gps_frame();
 }
 ";
-      
+
+        if ($subclass_provided)
+        {
+           my $header_filename = $subclass_header_path;
+           open(my $fh, '<:encoding(UTF-8)', $header_filename)
+             or die "ERROR: Couldn't open $header_filename to use for header contents\n";
+             $header_contents = $fh;
+           close $header_filename;
+
+           my $source_filename = $subclass_cpp_path;
+           open(my $fs, '<:encoding(UTF-8)', $source_filename)
+             or die "ERROR: Couldn't open $source_filename to use for header contents\n";
+             $source_contents = $fs;
+           close $source_filename;
+        }
+
         # open files for writing
         open platform_header, ">$plats_path/$new_plat.h" or 
           die "ERROR: Couldn't open $plats_path/$new_plat.h for writing\n";
           print platform_header $header_contents;
         close platform_header;
-          
+
         open platform_source, ">$plats_path/$new_plat.cpp" or 
           die "ERROR: Couldn't open $plats_path/$new_plat.cpp for writing\n";
           print platform_source $source_contents;
@@ -5095,6 +5150,10 @@ HOW TO:\n";
   RUN THE SIMULATION:
     open VREP simulator
     perl sim/run.pl 
+
+  RUN UNREAL SIMULATION:
+    open Unreal with an AirSim plugin
+    perl sim/run.pl
     
 ";
 

@@ -63,6 +63,10 @@
 #include "gams/platforms/ros/RosP3Dx.h"
 #endif 
 
+#ifdef _GAMS_AIRLIB_
+#include "gams/platforms/airlib/AirLibQuadcopter.h"
+#endif
+
 #include "gams/loggers/GlobalLogger.h"
 
 #include <string>
@@ -170,6 +174,15 @@ platforms::PlatformFactoryRepository::initialize_default_mappings (void)
 
   add (aliases, new RosP3DxFactory ());
 #endif
+
+#ifdef _GAMS_AIRLIB_
+  aliases.resize (2);
+  aliases[0] = "unreal-quad";
+  aliases[1] = "unreal_quad";
+
+  add (aliases, new AirLibQuadcopterFactory ());
+#endif
+
 }
 
 void

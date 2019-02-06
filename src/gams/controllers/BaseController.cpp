@@ -1050,6 +1050,7 @@ gams::controllers::BaseController::init_platform (
       "SUPPORTED PLATFORMS:\n" \
       "  drone-rk\n" \
       "  vrep\n" \
+      "  unreal-quad\n" \
       );
   }
   else

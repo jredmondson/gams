@@ -6,7 +6,6 @@
 
 agent.0.algorithm="waypoints";
 
-
 agent.0.algorithm.args.locations.size=4;
 agent.0.algorithm.args.locations.0=[40.443237,-79.940570,2];
 agent.0.algorithm.args.locations.1=[40.443387,-79.940270,2];
