@@ -310,7 +310,6 @@ class DataReaderFromKB(DataReaderInterface):
       print "no valid knowledge base set"
       return None, False
 
-
     if key.startswith(frames_prefix):
       # gams frames are handled differently
       return self.get_frame(frames_of_choice)

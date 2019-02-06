@@ -75,7 +75,44 @@ class Plotter:
   def visualize(self):
     fig = plt.figure(self.plot_name)
     plt.clf()
-    value, has_next = self.reader.get_current_value(self.name, self.frames_of_choice)
+
+    all_names = []
+    if ('-' in self.name):
+
+      prefix = ''
+      if self.name.startswith('.'):
+        prefix = '.'
+      postfix = ''
+      is_prefix = True
+      first = 0
+      second = 0
+      substrings = self.name.split('.')
+      for substring in substrings:
+        if '-' in substring:
+          values = substring.split('-')
+          first = int(values[0])
+          second = int(values[1])
+          is_prefix = False
+        elif is_prefix:
+          prefix = prefix + substring + '.'
+        else:
+          postfix = postfix + '.' + substring
+      while first <= second:
+        all_names.append(prefix + str(first) + postfix)
+        first = first + 1
+
+    if not (all_names):
+      value, has_next = self.reader.get_current_value(self.name, self.frames_of_choice)
+    else:
+      has_next = False
+      value = []
+      for name in all_names:
+        value_local, has_next_local = self.reader.get_current_value(name, self.frames_of_choice)
+        if value_local == None or not has_next_local:
+          return
+        has_next = has_next | has_next_local
+        value.append(value_local)
+
     if (value == None) or not has_next:
       return
 
@@ -132,9 +169,23 @@ class Plotter:
       elif self.has_frames_key:
         self.values[index][i].append(value[subkey[i][0]])
       else:
-        self.values[index][i].append(value.retrieve_index(subkey[i][0]).to_double())
+        if isinstance(value, list):
+          #all_values = self.values[index][i]
+          need_to_init = False
+          if not self.values[index][i]:
+            need_to_init = True
+          for j in range(0, len(value)):
+            if need_to_init:
+              self.values[index][i].append([])
+            self.values[index][i][j].append(value[j].retrieve_index(subkey[i][0]).to_double())
+        else:
+          self.values[index][i].append(value.retrieve_index(subkey[i][0]).to_double())
 
-    if self.number_of_points_per_plot > 0 and len(self.values[index][0]) > self.number_of_points_per_plot:
+    if isinstance(value, list) and self.number_of_points_per_plot > 0 and len(self.values[index][0][0]) > self.number_of_points_per_plot:
+      for j in range(0, len(value)):
+        self.values[index][0][j].pop(0)
+        self.values[index][1][j].pop(0)
+    elif self.number_of_points_per_plot > 0 and len(self.values[index][0]) > self.number_of_points_per_plot:
       self.values[index][0].pop(0)
       self.values[index][1].pop(0)
       if plot_to_3d:
@@ -143,7 +194,11 @@ class Plotter:
     if plot_to_3d:
       plt.plot(self.values[index][0], self.values[index][1], self.values[index][2])
     else:
-      plt.plot(self.values[index][0], self.values[index][1])
+      if isinstance(value, list):
+        for j in range(0, len(value)):
+          plt.plot(self.values[index][0][j], self.values[index][1][j])
+      else:
+        plt.plot(self.values[index][0], self.values[index][1])
 
 
 
