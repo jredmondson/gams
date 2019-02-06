@@ -509,7 +509,9 @@ int main (int argc, char ** argv)
   // initialize the platform and algorithm
   // default to platform in knowledge base if platform not set in command line
   if (!plat_set && knowledge.exists (KNOWLEDGE_BASE_PLATFORM_KEY))
+  {
     platform = knowledge.get (KNOWLEDGE_BASE_PLATFORM_KEY).to_string ();
+  }
   loop.init_platform (platform);
   loop.init_algorithm (algorithm);
 

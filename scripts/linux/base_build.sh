@@ -73,6 +73,11 @@
 # For java
 #   $JAVA_HOME
 
+#COLORS
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+NOCOLOR='\033[0m' 
+
 DEBUG=0
 TESTS=0
 TUTORIALS=0
@@ -104,6 +109,8 @@ BUILD_ERRORS=0
 TYPES=0
 ANDROID_TESTS=0
 CAPNP_JAVA=0
+UNREAL=0
+AIRLIB=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -113,6 +120,7 @@ VREP_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
 CAPNP_AS_A_PREREQ=0
+UNREAL_AS_A_PREREQ=0
 
 MPC_REPO_RESULT=0
 DART_REPO_RESULT=0
@@ -128,6 +136,8 @@ ZMQ_BUILD_RESULT=0
 LZ4_REPO_RESULT=0
 CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
+UNREAL_BUILD_RESULT=0
+AIRSIM_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -138,7 +148,7 @@ if [ -z $CORES ] ; then
   echo "CORES unset, so setting it to default of 1"
   echo "  If you have more than one CPU core, try export CORES=<num cores>"
   echo "  CORES=1 (the default) will be much slower than CORES=<num cores>"
-  export CORES=1  
+  export CORES=1
 fi
 
 # if $@ is empty, the user wants to repeat last build with noclean
@@ -226,9 +236,14 @@ do
     JAVA=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
+  elif [ "$var" = "unreal" ]; then
+    UNREAL=1
+  elif [ "$var" = "airlib" ]; then
+    AIRLIB=1
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
+    echo "  airlib          builds gams with the airlib dependency allowing gams controllers to interface with the Microsoft AirSim plugin"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  mpc             download MPC if prereqs is enabled"
     echo "  android         build android libs, turns on java"
@@ -259,6 +274,7 @@ do
     echo "  tests           build test executables"
     echo "  tutorials       build MADARA tutorials"
     echo "  types           builds libTYPES.so"
+    echo "  unreal          downloads, builds, and configures Unreal and AirSim if preqreqs is also enabled"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
@@ -279,9 +295,19 @@ do
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  DMPL_ROOT           - location of DART DMPL directory"
+    echo "  UNREAL_ROOT         - location of UnrealEngine repository"
+    echo "  AIRSIM_ROOT         - location of AirSim repository"
     exit
   fi
 done
+
+if [ $CORES -eq 1 ] ; then
+    echo -e "${ORANGE} Warning! The CORES environment variable is set to 1. With only one core installation will take longer than it could be. By increasing the number of cores to compile with you will be reducing compilation time substantially. ${NOCOLOR}"
+    CORE_COUNT=$(grep -c ^processor /proc/cpuinfo)
+    echo "The system has ${CORE_COUNT} cores. How many should be used for installation?"
+    read CORES
+    echo -e "${ORANGE} Now using $CORES CPU cores for installation. To permanently set this, add the line 'export CORES=$CORES to your ~/.bashrc file and open a new terminal. ${NOCOLOR}"
+fi
 
 if [ -z $MPC_ROOT ] ; then
   export MPC_ROOT=$INSTALL_DIR/MPC
@@ -299,6 +325,14 @@ if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
 fi
 
+if [ -z $UNREAL_ROOT ] ; then
+  export UNREAL_ROOT=$INSTALL_DIR/UnrealEngine
+fi
+
+if [ -z $AIRSIM_ROOT ] ; then
+  export AIRSIM_ROOT=$INSTALL_DIR/AirSim
+fi
+
 
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
@@ -314,6 +348,8 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
+echo "UNREAL_ROOT is set to $UNREAL_ROOT"
+echo "AIRSIM_ROOT is set to $AIRSIM_ROOT"
 echo "LZ4_ROOT is set to $LZ4_ROOT"
 echo "MADARA will be built from $MADARA_ROOT"
 if [ $MADARA -eq 0 ]; then
@@ -331,6 +367,7 @@ echo "STRIP has been set to $STRIP"
 if [ $STRIP -eq 1 ]; then
   echo "strip will use $STRIP_EXE"
 fi
+echo "AIRLIB has been set to $AIRLIB"
 
 echo "JAVA has been set to $JAVA"
 if [ $JAVA -eq 1 ]; then
@@ -567,6 +604,49 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     sudo apt-get install -y perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
   fi
 
+  if [ $UNREAL -eq 1 ]; then
+    if [ -d "$UNREAL_ROOT" ]; then
+      echo -e "${ORANGE} UnrealEngine directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your UNREAL_ROOT env var is set to. [$UNREAL_ROOT]. ${NOCOLOR}"
+      read YES
+    fi
+
+    if [ $YES = 'y' ] ; then
+      echo "rm -rf $UNREAL_ROOT"
+      rm -rf $UNREAL_ROOT
+      echo "Installing UnrealEngine"
+      echo "git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
+      git clone -b 4.18 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+      cd $UNREAL_ROOT
+      echo "./Setup.sh"
+      ./Setup.sh
+      echo "./GenerateProjectFiles.sh"
+      ./GenerateProjectFiles.sh
+      echo "Making unreal"
+      make
+    else
+      echo -e "${BLUE}Skipping unreal re-installation...UnrealEngine already installed at $UNREAL_ROOT${NOCOLOR}"
+    fi
+
+    if [ -d "$AIRSIM_ROOT" ] ; then
+      echo -e "${ORANGE} AirSim directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your AIRSIM_ROOT env var is set to. [$AIRSIM_ROOT]. ${NOCOLOR}"
+      read YES
+    fi
+
+    if [ $YES = 'y' ] ; then
+      echo "rm -rf $AIRSIM_ROOT"
+      rm -rf $AIRSIM_ROOT
+      echo "Installing AirSim"
+      cd $INSTALL_DIR
+      echo "git clone https://github.com/Microsoft/AirSim.git"
+      git clone https://github.com/Microsoft/AirSim.git
+      echo "Building AirSim"      
+      ./setup.sh
+      ./build.sh
+      echo "Installation complete. Open UnrealEngine/Engine/Binaries/Linux/UE4Editor and then When Unreal Engine prompts for opening or creating project, select Browse and choose AirSim/Unreal/Environments/Blocks. For more information see \" How to Use AirSim\" at https://microsoft.github.io/AirSim/docs/build_linux/"
+    else
+      echo -e "${BLUE}Skipping AirSim re-installation...AirSim already installed at $AIRSIM_ROOT ${NOCOLOR}"
+    fi
+  fi
 fi
 if [ $MAC -eq 1 ]; then
   # Install boost for mac
@@ -998,8 +1078,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1013,10 +1093,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make depend java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
-  echo "make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
+  echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
+  make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
+  echo "make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
+  make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then

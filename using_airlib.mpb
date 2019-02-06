@@ -1,0 +1,20 @@
+feature (airlib) {
+  requires += airlib
+  macros += _GAMS_AIRLIB_
+
+  includes += /usr/include/libcxxabi
+  includes += $(AIRSIM_ROOT)/Unreal/Plugins/AirSim/Source/AirLib/include/
+  includes += $(AIRSIM_ROOT)/Unreal/Plugins/AirSim/Source/AirLib/deps/rpclib/include/
+  libpaths += lib
+  libpaths += $(GAMS_ROOT)/lib
+
+  libpaths += $(AIRSIM_ROOT)/Unreal/Plugins/AirSim/Source/AirLib/deps/rpclib/lib/
+  libpaths += $(AIRSIM_ROOT)/Unreal/Plugins/AirSim/Source/AirLib/lib/
+  libpaths += $(AIRSIM_ROOT)/Unreal/Plugins/AirSim/Source/AirLib/lib/x64/Debug/
+  libpaths += /usr/lib/x86_64-linux-gnu
+
+  libs += AirLib rpc MavLinkCom
+}
+
+
+

@@ -18,7 +18,7 @@ group.protectors.members.13="agent.15";
 group.enemies.members.size=1;
 group.enemies.members.0="agent.2";
 
-.platform="vrep-uav";
+.platform="unreal-quad";
 
 .zone_coverage_formation="onion";
 .zone_coverage_buffer=2;
