@@ -425,11 +425,11 @@ region.0.3 = [40.443077, -79.940398];\n";
 
     if ($platform eq 'unreal-quad')
     {
-      $platform_base_class = 'AirLibQuadcopterBase';
+      $platform_base_class = 'AirLibQuadcopter';
       $subclass_provided = 1;
       $subclass_header_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.cpp';
       $subclass_cpp_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.h';
-      print("Setting platform base class to $platform_base_class (AirLibQuadcopterBase)\n");
+      print("Setting platform base class to $platform_base_class (AirLibQuadcopter)\n");
 
       # generate settings.json script if unreal-quad is enabled given the number of agents
       my $output = `$gams_root/scripts/projects/airsim_json_generator.py json $agents`;

@@ -35,7 +35,54 @@ gams::platforms::AirLibQuadcopterFactory::create (
         variables::Platforms * platforms,
         variables::Self * self)
 {
-  return new AirLibQuadcopter(knowledge, sensors, self);
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MINOR,
+    "entering gams::platforms::AirLibQuadcopterFactory::create\n");
+
+  BasePlatform * result (0);
+
+  if (knowledge && sensors && platforms && self)
+  {
+    if (knowledge->get_num_transports () == 0)
+    {
+      madara::transport::QoSTransportSettings settings;
+
+      settings.type = madara::transport::MULTICAST;
+      settings.hosts.push_back ("239.255.0.1:4150");
+
+      knowledge_->attach_transport ("", settings);
+      knowledge_->activate_transport ();
+
+      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        gams::loggers::LOG_MINOR,
+         "gams::platforms::AirLibQuadcopterFactory::create:" \
+        " no transports found, attaching multicast\n");
+    }
+
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::platforms::AirLibQuadcopterFactory::create:" \
+      " creating AirLibQuadcopter object\n");
+
+    result = new AirLibQuadcopter(knowledge, sensors, self);
+  }
+  else
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_ERROR,
+       "gams::platforms::AirLibQuadcopterFactory:::create:" \
+      " invalid knowledge, sensors, platforms, or self\n");
+  }
+
+  if (result == 0)
+  {
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+       "gams::platforms::AirLibQuadcopterFactory:::create:" \
+      " error creating AirLibQuadcopter object\n");
+  }
+
+  return result;
 }
 
 gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
@@ -89,7 +136,6 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
     status_.movement_available = 1;
     
   }
-
   std::cout << "AirLibQuadcopter active!" << std::endl;
  }
  catch (rpc::rpc_error&  e) {
@@ -107,7 +153,7 @@ gams::platforms::AirLibQuadcopter::~AirLibQuadcopter()
 std::string
 gams::platforms::AirLibQuadcopter::get_id () const
 {
-  return "airlib_quad";
+  return "unreal_quad";
 }
 
 std::string
