@@ -652,6 +652,7 @@ if [ $MAC -eq 1 ]; then
   # Install boost for mac
   if [ $PREREQS -eq 1 ]; then
     brew install boost@1.59
+    brew install autoconf automake libtool
     if [ $JAVA -eq 1 ]; then
       brew install maven
     fi
