@@ -193,7 +193,7 @@ options:
   --multicast|m host     multicast ip/host to use for network transport
   --new-algorithm|na name create infrastructure for custom algorithm
   --new-platform|np name create infrastructure for custom platform
-  --new-platform-thread|ntp name 
+  --new-platform-thread|npt name 
                          create infrastructure for a custom platform thread
   --new-thread|nt name   create infrastructure for custom thread
   --new-transport|nr name create infrastructure for custom network transport
@@ -5136,12 +5136,17 @@ HOW TO:\n";
     $readme_contents .= "
   COMPILE ON LINUX:
   
-    mwc.pl -type gnuace workspace.mwc
-    make vrep=1
+    ./action.sh compile
+
+    Compiles a custom controller inside of the bin directory
+
+    ./action.sh compile compile-vrep
+
+    Compiles a custom controller with VREP support in the bin directory
     
   COMPILE ON WINDOWS:
   
-    mwc.pl -type vc12 workspace.mwc 
+    ./action.sh compile
     
     <Open Visual Studio and compile project>. Note that you should compile the
     solution in the same settings you used for ACE, MADARA, and GAMS. For most
