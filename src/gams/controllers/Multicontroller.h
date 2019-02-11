@@ -328,6 +328,12 @@ namespace gams
       int run_once(void);
 
       /**
+       * Runs iterations of the MAPE loop with configured settings
+       * @return  the result of the MAPE loop
+       **/
+      int run(void);
+      
+      /**
        * Runs iterations of the MAPE loop with specified periods
        * @param  loop_period  time(in seconds) between executions of the loop.
        *                      0 period is meant to run loop iterations as fast
@@ -338,7 +344,7 @@ namespace gams
        *                      loop period.
        * @return  the result of the MAPE loop
        **/
-      int run(double loop_period = 0.0,
+      int run(double loop_period,
         double max_runtime = -1,
         double send_period = -1.0);
       

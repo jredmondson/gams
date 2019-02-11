@@ -144,85 +144,6 @@ gams::controllers::Multicontroller::add_transports (
     kbs_[i].attach_transport(kbs_[i].get(".prefix").to_string(), settings);
   }
 }
-int
-gams::controllers::Multicontroller::run_once(void)
-{
-  // return value
-  int return_value = 0;
-
-  for(size_t i = 0; i < controllers_.size(); ++i)
-  {
-    return_value |= controllers_[i]->run_once();
-  }
-
-  return return_value;
-}
-
-int
-gams::controllers::Multicontroller::run(double loop_period,
-  double max_runtime, double send_period)
-{
-
-  // return value
-  int return_value (0);
-  bool first_execute (true);
-
-  // if user specified non-positive, then we are to use loop_period
-  if (send_period <= 0)
-  {
-    send_period = loop_period;
-  }
-
-  madara::utility::TimeValue current = madara::utility::Clock::now ();
-  madara::utility::Duration loop_window =
-    madara::utility::seconds_to_duration (loop_period);
-  madara::utility::TimeValue next_loop = current + loop_window;
-  madara::utility::TimeValue end_time = current +
-    madara::utility::seconds_to_duration (max_runtime);
-
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::controllers::BaseController::run:" \
-    " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
-    loop_period, max_runtime, send_period);
-  
-  if (loop_period >= 0.0)
-  {
-    //unsigned int iterations = 0;
-    while (first_execute || max_runtime < 0 || current < end_time)
-    {
-      // return value should be last return value of mape loop
-      return_value = run_once ();
-
-      current = madara::utility::Clock::now ();
-
-      // check to see if we need to sleep for next loop epoch
-      if (loop_period > 0.0 && (max_runtime < 0 || current < end_time))
-      {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_MINOR,
-          "gams::controllers::BaseController::run:" \
-          " sleeping until next epoch\n");
-
-        std::this_thread::sleep_until (next_loop);
-
-        current = madara::utility::Clock::now ();
-        while (next_loop <= current)
-        {
-          next_loop += loop_window;
-        }
-      }
-
-      // run will always execute at least one time. Update flag for execution.
-      if (first_execute)
-        first_execute = false;
-
-      current = madara::utility::Clock::now ();
-    }
-  }
-
-  return return_value;
-}
 
 void
 gams::controllers::Multicontroller::clear_accents(size_t controller_index)
@@ -428,7 +349,7 @@ void gams::controllers::Multicontroller::init_platform(
 
   if (controller_index < controllers_.size())
   {
-    controllers_[controller_index]->init_platform(algorithm);
+    controllers_[controller_index]->init_platform(platform);
   }
 }
 
@@ -513,12 +434,110 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
     }
     else // if (old_size < num_controllers)
     {
+      controllers_.resize(num_controllers);
+
       for (size_t i = old_size; i < num_controllers; ++i)
       {
         controllers_[i] = new BaseController (kbs_[i], settings_);
       }
     }
 
-    controllers_.resize(num_controllers);
   }
+}
+
+int
+gams::controllers::Multicontroller::run (void)
+{
+  // check the debug levels and set accordingly
+  if (settings_.madara_log_level >= 0)
+  {
+    madara::logger::global_logger->set_level (settings_.madara_log_level);
+  }
+  if (settings_.gams_log_level >= 0)
+  {
+    gams::loggers::global_logger->set_level (settings_.gams_log_level);
+  }
+
+  return run_hz (settings_.loop_hertz,
+    settings_.run_time, settings_.send_hertz);
+}
+
+int
+gams::controllers::Multicontroller::run(double loop_period,
+  double max_runtime, double send_period)
+{
+
+  // return value
+  int return_value (0);
+  bool first_execute (true);
+
+  // if user specified non-positive, then we are to use loop_period
+  if (send_period <= 0)
+  {
+    send_period = loop_period;
+  }
+
+  madara::utility::TimeValue current = madara::utility::Clock::now ();
+  madara::utility::Duration loop_window =
+    madara::utility::seconds_to_duration (loop_period);
+  madara::utility::TimeValue next_loop = current + loop_window;
+  madara::utility::TimeValue end_time = current +
+    madara::utility::seconds_to_duration (max_runtime);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::BaseController::run:" \
+    " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
+    loop_period, max_runtime, send_period);
+  
+  if (loop_period >= 0.0)
+  {
+    //unsigned int iterations = 0;
+    while (first_execute || max_runtime < 0 || current < end_time)
+    {
+      // return value should be last return value of mape loop
+      return_value = run_once ();
+
+      current = madara::utility::Clock::now ();
+
+      // check to see if we need to sleep for next loop epoch
+      if (loop_period > 0.0 && (max_runtime < 0 || current < end_time))
+      {
+        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          gams::loggers::LOG_MINOR,
+          "gams::controllers::BaseController::run:" \
+          " sleeping until next epoch\n");
+
+        std::this_thread::sleep_until (next_loop);
+
+        current = madara::utility::Clock::now ();
+        while (next_loop <= current)
+        {
+          next_loop += loop_window;
+        }
+      }
+
+      // run will always execute at least one time. Update flag for execution.
+      if (first_execute)
+        first_execute = false;
+
+      current = madara::utility::Clock::now ();
+    }
+  }
+
+  return return_value;
+}
+
+int
+gams::controllers::Multicontroller::run_once(void)
+{
+  // return value
+  int return_value = 0;
+
+  for(size_t i = 0; i < controllers_.size(); ++i)
+  {
+    return_value |= controllers_[i]->run_once();
+  }
+
+  return return_value;
 }

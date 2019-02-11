@@ -1,0 +1,35 @@
+
+project (custom_controller) : using_gams, using_madara, using_vrep, using_clang {
+  exeout = bin
+  exename = custom_controller
+
+  macros +=  _USE_MATH_DEFINES
+
+  Documentation_Files {
+    README.txt
+  }
+
+  Header_Files {
+    src/
+    src/algorithms
+    src/algorithms/threads
+    src/containers
+    src/filters
+    src/platforms
+    src/platforms/threads
+    src/threads
+    src/transports
+  }
+
+  Source_Files {
+    src
+    src/algorithms
+    src/algorithms/threads
+    src/containers
+    src/filters
+    src/platforms
+    src/platforms/threads
+    src/threads
+    src/transports
+  }
+}
