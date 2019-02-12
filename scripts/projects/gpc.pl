@@ -37,6 +37,7 @@ my $location;
 my $madara_debug;
 my $max_lat;
 my $max_lon;
+my $mc;
 my $min_height;
 my $min_lat;
 my $min_lon;
@@ -119,6 +120,7 @@ GetOptions(
   'invert|i' => \$invert,
   'last|l=i' => \$last,
   'location|position=s' => \$location,
+  'merge-controllers|mc=i' => \$mc,
   'madara-debug|madara_debug|md=i' => \$madara_debug,
   'max_lat|max-lat=f' => \$max_lat,
   'max_lon|max-lon=f' => \$max_lon,
@@ -184,6 +186,12 @@ options:
   --last|-l num          last agent number (e.g. 1, 2, 3, etc.)
   --location|--position p specifies a specific position in the format [x, y],
                          where x and y should be doubles
+  --merge-controllers|-mc num number of agent controllers to merge into one
+                         process. Merging agent controllers into one process
+                         can have significant performance benefits that can
+                         allow an operating system to appropriately schedule
+                         without constant context switches between heavyweight
+                         processes.
   --madara-debug|-md lev log level for MADARA
   --max-lat|max-lat x    defines the maximum latitude, generally for a region
   --max-lon|max-lon x    defines the maximum longitude, generally for a region
@@ -258,6 +266,7 @@ $script is using the following configuration:
   invert = " . ($invert ? 'yes' : 'no') . "
   last = " . (defined $last ? $last : 'default') . "
   location = " . ($location ? $location : 'no change') . "
+  mc = " . ($mc ? $mc : 'no change') . "
   madara_debug = " . ($madara_debug ? $madara_debug : 'no change') . "
   max_lat = " . ($max_lat ? $max_lat : 'no change') . "
   max_lon = " . ($max_lon ? $max_lon : 'no change') . "
@@ -318,11 +327,12 @@ $script is using the following configuration:
   {
     $algorithm = $algorithm ? $algorithm : "null";
     $agents = $agents ? $agents : 1;
+    $mc = $mc ? $mc : 1;
     $hz = $hz ? $hz : 1;
     $domain = $domain ? $domain : "gams_sims";
     $duration = $duration ? $duration : 300;
-    $madara_debug = $madara_debug ? $madara_debug : 3;
-    $gams_debug = $gams_debug ? $gams_debug : 3;
+    $madara_debug = $madara_debug ? $madara_debug : 2;
+    $gams_debug = $gams_debug ? $gams_debug : 2;
     $vrep_start_port = $vrep_start_port ? $vrep_start_port : 19906;
     $platform = $platform ? $platform : 'vrep-quad';
     $multicast = $multicast ? $multicast : "239.255.0.1:4150";
@@ -526,6 +536,7 @@ use File::Basename;
 \$num_coverages = 0;
 \$launch_controllers = 1;
 \$domain = \"$domain\";
+\$mc = $mc;
 \@hosts = ";
 
     if ($broadcast)
@@ -582,7 +593,8 @@ user_simulation::run(
     }
     
     $run_contents .= "
-  border => \\\@border);\n";
+  border => \\\@border,
+  mc => \$mc);\n";
 
     # create the run script
     open (run_file, '>', "$sim_path/run.pl");
@@ -1832,6 +1844,35 @@ $region.3 = [$max_lat, $min_lon];\n";
     close run_file;
   }
   
+  # check if the user wants to change the number of merged controllers
+  if ($mc)
+  {
+    if ($verbose)
+    {
+      print ("Changing num of merged controllers in $sim_path/run.pl...\n");
+    }
+    
+    my $run_contents;
+    open run_file, "$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
+      $run_contents = join("", <run_file>); 
+    close run_file;
+    
+    if ($verbose)
+    {
+      print ("  Changing num of merged controllers to $mc\n");
+    }
+    $run_contents =~ s/(mc\s*=\s*)\d+/$1$mc/;  
+
+    open run_file, ">$sim_path/run.pl" or
+      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+      "  Path was uninitialized." .
+      " Use --force to force necessary directories in $sim_path.\n";
+      print run_file  $run_contents; 
+    close run_file;
+  }
+  
   # check if the user wants to change debug levels
   if ($madara_debug or $gams_debug)
   {
@@ -1981,6 +2022,35 @@ $region.3 = [$max_lat, $min_lon];\n";
       die "ERROR: Couldn't open $sim_path/run.pl for writing." .
        " Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n";
+      print run_file  $run_contents; 
+    close run_file;
+  }
+  
+  # check if the user wants to change the platform
+  if ($platform)
+  {
+    if ($verbose)
+    {
+      print ("Changing platform in $sim_path/common.mf...\n");
+    }
+    
+    my $run_contents;
+    open run_file, "$sim_path/common.mf" or
+      die "ERROR: Couldn't open $sim_path/common.mf. Path was uninitialized." .
+        " Use --force to force necessary directories in $sim_path.\n"; 
+      $run_contents = join("", <run_file>); 
+    close run_file;
+    
+    if ($verbose)
+    {
+      print ("  Changing platform to $platform\n");
+    }
+    $run_contents =~ s/(platform\s*=\s*)['"][^'"]+['"]/$1\'$platform\'/;  
+  
+    open run_file, ">$sim_path/common.mf" or
+      die "ERROR: Couldn't open $sim_path/common.mf for writing." .
+      "  Path was uninitialized." .
+      " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
     close run_file;
   }
