@@ -69,7 +69,21 @@ enum CheckpointStrategies
   CHECKPOINT_SAVE_DIFFS = 4,
   CHECKPOINT_SAVE_FULL_CONTEXTS = 8,
   CHECKPOINT_SAVE_ONE_FILE = 16,
-  CHECKPOINT_SAVE_DIFFS_IN_ONE_FILE = 20
+  CHECKPOINT_SAVE_DIFFS_IN_ONE_FILE = 20,
+  CHECKPOINT_STREAM_TO_FILE = 32
+};
+
+enum ThreadingStrategies
+{
+  THREADS_NONE = 0,
+  THREADS_ONE_PER_CONTROLLER = 1
+};
+
+enum SchedulingStrategies
+{
+  SCHEDULE_ROUND_ROBIN = 0,
+  SCHEDULE_UNIFORM_RANDOM = 1,
+  SCHEDULE_FAIR_RANDOM = 2
 };
 
 /**
@@ -117,6 +131,15 @@ public:
   /// settings used in any KnowledgeBase operations by this controller
   madara::knowledge::EvalSettings eval_settings =
     madara::knowledge::EvalSettings::SEND;
+
+  /// for multicontrollers, launch each controller in a separate thread
+  int threading_strategy = THREADS_NONE;
+
+  /// for multicontrollers, call run on controllers in a round robin way
+  int scheduling_strategy = SCHEDULE_ROUND_ROBIN;
+
+  /// include a shared memory transport when managing multiple controllers
+  bool shared_memory_transport = true;
 };
 
 } }

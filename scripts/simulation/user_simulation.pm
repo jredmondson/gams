@@ -12,7 +12,7 @@ sub run {
   my %args = @_;
 
   my ($agents, $duration, $period, $dir, $madara_debug, $gams_debug,
-      @border, $coverages, $launch, $num_udps, $controller, $domain);
+      @border, $coverages, $launch, $num_udps, $controller, $domain, $mc);
     
   # get environment variables
   my $osname = $^O;
@@ -34,7 +34,9 @@ sub run {
   
   $madara_debug = $args{madara_debug} ? $args{madara_debug} : 1;
   $gams_debug = $args{gams_debug} ? $args{gams_debug} : 1;
+  $mc = $args{mc} ? $args{mc} : 1;
   
+
   if ($args{coverages})
   {
     $coverages = $args{coverages};
@@ -102,7 +104,13 @@ sub run {
           $common_args .= "-u " . @{$args{udp}}[$offset] . " ";
         }
       }
+      elsif ($args{nt})
+      {
+        # user has selected no transport
+        $common_args .= "-nt ";
+      }
       
+	    $common_args .= "--merge-controllers $mc ";
 	    $common_args .= "--domain $domain ";
 	    $common_args .= "--loop-time $duration --period $period ";
 	    $common_args .= "--queue-length 2000000 ";

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,6 +65,8 @@
 #include "gams/platforms/BasePlatform.h"
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/platforms/PlatformFactory.h"
+#include "gams/controllers/BaseController.h"
+#include "madara/transport/SharedMemoryPush.h"
 
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Vector.h"
@@ -78,52 +80,245 @@ namespace gams
   namespace controllers
   {
     /**
-     * A controller that has the capability of starting many different threads
+     * A controller that has the capability of managing multiple controllers
      **/
     class GAMS_EXPORT Multicontroller
     {
     public:
       /**
        * Constructor
-       * @param   knowledge   The knowledge base to reference and mutate
+       * @param  num_controllers  the number of controllers to manage
+       * @param  settings         settings to use
        **/
-      Multicontroller (madara::knowledge::KnowledgeBase & knowledge);
+      Multicontroller(size_t num_controllers = 1,
+        const ControllerSettings & settings = ControllerSettings());
 
       /**
        * Destructor
        **/
-      virtual ~Multicontroller ();
+      virtual ~Multicontroller();
 
       /**
-      * Defines the monitor function (the M of MAPE). This function should
-      * return a 0 unless the MAPE loop should stop.
-      **/
-      virtual int monitor (void);
+       * Adds an aliased algorithm factory. This factory will be
+       * initialized with all appropriate variables in the
+       * AlgorithmFactory class by the Multicontroller.
+       * @param  aliases   the named aliases for the factory. All
+       *                   aliases will be converted to lower case
+       * @param  factory   the factory for creating an algorithm
+       **/
+      void add_algorithm_factory(
+        const std::vector <std::string> & aliases,
+        algorithms::AlgorithmFactory * factory);
 
       /**
-      * Analyzes the system to determine if platform or algorithm changes
-      * are necessary. This function should
-      * return a 0 unless the MAPE loop should stop.
-      **/
-      virtual int system_analyze (void);
+       * Adds an aliased platform factory. This factory will be
+       * initialized with all appropriate variables in the
+       * PlatformFactory class by the Multicontroller.
+       * @param  aliases   the named aliases for the factory. All
+       *                   aliases will be converted to lower case
+       * @param  factory   the factory for creating a platform
+       **/
+      void add_platform_factory(
+        const std::vector <std::string> & aliases,
+        platforms::PlatformFactory * factory);
+      
+      /**
+       * Add transports to the knowledge bases that are being used
+       * by each controller. If multicast or broadcast transports,
+       * the hosts are simply copied. If using unicast-based connections,
+       * then the first host in the settings is used and ports are
+       * added in an ascending order for each subsequent KB. This
+       * latter functionality is meant to aid in the expected use
+       * case of the Multicontroller managing colocated agents that
+       * need to communicate with each other. Note that you should
+       * resize the Multicontroller to the appropriate number of
+       * controllers BEFORE calling this function. Changes made
+       * here are not retroactive for all future resizes. 
+       * @param  source_settings  base transport settings to copy from
+       **/
+      void add_transports(
+        const madara::transport::QoSTransportSettings & source_settings);
 
       /**
-      * Defines the analyze function (the A of MAPE). This function should
-      * return a 0 unless the MAPE loop should stop.
-      **/
-      virtual int analyze (void);
+       * Evaluates a karl logic across all controllers and knowledge bases
+       * @param logic  karl logic to evaluate
+       * @param settings  evaluation settings for the logic evaluation
+       **/
+      void evaluate(const std::string & logic,
+        const madara::knowledge::EvalSettings & settings =
+          madara::knowledge::EvalSettings::DELAY);
 
       /**
-      * Defines the plan function (the P of MAPE). This function should
-      * return a 0 unless the MAPE loop should stop.
-      **/
-      virtual int plan (void);
+       * Evaluates a karl logic across all controllers and knowledge bases
+       * @param controller_index  the index of the managed controllers
+       * @param logic             karl logic to evaluate
+       * @param settings          evaluation settings for the logic evaluation
+       **/
+      void evaluate(size_t controller_index, const std::string & logic,
+        const madara::knowledge::EvalSettings & settings =
+          madara::knowledge::EvalSettings::DELAY);
 
       /**
-      * Defines the execute function (the E of MAPE). This function should
-      * return a 0 unless the MAPE loop should stop.
-      **/
-      virtual int execute (void);
+       * Initializes all managed controllers with an accent algorithm
+       * @param  algorithm   the name of the accent algorithm to add
+       * @param  args        vector of knowledge record arguments
+       **/
+      void init_accent(
+        const std::string & algorithm,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
+
+      /**
+       * Adds an accent algorithm
+       * @param  controller_index  the index of the managed controllers
+       * @param  algorithm   the name of the accent algorithm to add
+       * @param  args        vector of knowledge record arguments
+       **/
+      void init_accent(size_t controller_index,
+        const std::string & algorithm,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
+
+      /**
+       * Initializes all managed controllers with an algorithm
+       * @param  algorithm   the name of the algorithm to run
+       * @param  args        vector of knowledge record arguments
+       **/
+      void init_algorithm(
+        const std::string & algorithm,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
+ 
+      /**
+       * Initializes a specific controller with an algorithm
+       * @param  controller_index  the index of the managed controllers
+       * @param  algorithm   the name of the algorithm to run
+       * @param  args        vector of knowledge record arguments
+       **/
+      void init_algorithm(size_t controller_index,
+        const std::string & algorithm,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
+ 
+      /**
+       * Initializes the controller with a user-provided algorithm. This
+       * algorithm's memory will be maintained by the controller. DO NOT
+       * DELETE THIS POINTER.
+       * @param  controller_index  the index of the managed controllers
+       * @param  algorithm   the algorithm to use
+       **/
+      void init_algorithm(size_t controller_index,
+        algorithms::BaseAlgorithm * algorithm);
+
+      /**
+       * Initializes all managed controllers with the platform
+       * @param  platform   the name of the platform the controller is using
+       * @param  args        vector of knowledge record arguments
+       **/
+      void init_platform(
+        const std::string & platform,
+        const madara::knowledge::KnowledgeMap & args =
+          madara::knowledge::KnowledgeMap());
+       
+      /**
+       * Initializes the platform
+       * @param  controller_index  the index of the managed controllers
+       * @param  platform   the name of the platform the controller is using
+       * @param  args        vector of knowledge record arguments
+       **/
+      void init_platform(size_t controller_index,
+        const std::string & platform,
+        const madara::knowledge::KnowledgeMap & args =
+          madara::knowledge::KnowledgeMap());
+       
+      /**
+       * Initializes the controller with a user-provided platform. This
+       * platform's memory will be maintained by the controller. DO NOT
+       * DELETE THIS POINTER.
+       * @param  controller_index  the index of the managed controllers
+       * @param  platform   the platform to use
+       **/
+      void init_platform(size_t controller_index,
+        platforms::BasePlatform * platform);
+           
+#ifdef _GAMS_JAVA_
+      /**
+       * Initializes a Java-based algorithm
+       * @param controller_index  the index of the managed controllers
+       * @param algorithm  the java-based algorithm to use
+       **/
+      void init_algorithm(size_t controller_index, jobject algorithm);
+      
+      /**
+       * Initializes a Java-based platform
+       * @param controller_index  the index of the managed controllers
+       * @param platform  the java-based platform to use
+       **/
+      void init_platform(size_t controller_index, jobject platform);
+#endif
+
+      /**
+       * Initializes global variable containers
+       * @param   id         node identifier
+       * @param   processes  processes
+       **/
+      void init_vars(const madara::knowledge::KnowledgeRecord::Integer & id = 0,
+        const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
+      
+      /**
+       * Initializes containers and knowledge base in a platform
+       * This is usually the first thing a developer should do with
+       * a user-defined platform.
+       * @param controller_index  the index of the managed controllers
+       * @param   platform   the platform to initialize
+       **/
+      void init_vars(size_t controller_index,
+        platforms::BasePlatform & platform);
+      
+      /**
+       * Initializes containers and knowledge base in an algorithm.
+       * This is usually the first thing a developer should do with
+       * a user-defined algorithm.
+       * @param controller_index  the index of the managed controllers
+       * @param   algorithm   the algorithm to initialize
+       **/
+      void init_vars(size_t controller_index,
+        algorithms::BaseAlgorithm & algorithm);
+
+      /**
+       * Gets the current algorithm at the controller index
+       * @param controller_index  the index of the managed controllers
+       * @return the algorithm
+       **/
+      algorithms::BaseAlgorithm * get_algorithm(size_t controller_index = 0);
+      
+      /**
+       * Gets the current platform at the controller index
+       * @param controller_index  the index of the managed controllers
+       * @return the platform
+       **/
+      platforms::BasePlatform * get_platform(size_t controller_index = 0);
+
+      /**
+       * Returns the number of controllers being managed
+       * @return the number of controllers managed by the multicontroller
+       **/
+      size_t get_num_controllers(void);
+
+      /**
+       * Returns the kb that is being used by the internal controller
+       * @param controller_index  the index of the managed controllers
+       * @return the knowledge base that is being referenced
+       **/
+      madara::knowledge::KnowledgeBase get_kb(size_t controller_index);
+
+      /**
+       * Clears all accent algorithms
+       * @param  controller_index  the index of the managed controllers
+       **/
+      void clear_accents(size_t controller_index = 0);
+
+      /**
+       * Resizes the number of controllers and knowledge bases
+       * @param   num_controllers  the number of controllers to manage
+       **/
+      void resize(size_t num_controllers);
 
       /**
        * Runs a single iteration of the MAPE loop
@@ -131,20 +326,26 @@ namespace gams
        *
        * @return  the result of the MAPE loop iteration
        **/
-      int run_once (void);
+      int run_once(void);
 
       /**
+       * Runs iterations of the MAPE loop with configured settings
+       * @return  the result of the MAPE loop
+       **/
+      int run(void);
+      
+      /**
        * Runs iterations of the MAPE loop with specified periods
-       * @param  loop_period  time (in seconds) between executions of the loop.
+       * @param  loop_period  time(in seconds) between executions of the loop.
        *                      0 period is meant to run loop iterations as fast
        *                      as possible. Negative loop periods are invalid.
        * @param  max_runtime  maximum total runtime to execute the MAPE loops
-       * @param  send_period  time (in seconds) between sending data.
+       * @param  send_period  time(in seconds) between sending data.
        *                      If send_period <= 0, send period will use the
        *                      loop period.
        * @return  the result of the MAPE loop
        **/
-      int run (double loop_period = 0.0,
+      int run(double loop_period,
         double max_runtime = -1,
         double send_period = -1.0);
       
@@ -158,185 +359,42 @@ namespace gams
        *                  non-positive, loop_hz is used.
        * @return  the result of the MAPE loop
        **/
-      inline int run_hz (double loop_hz = 0.0,
+      inline int run_hz(double loop_hz = 0.0,
         double max_runtime = -1,
         double send_hz = -1.0)
       {
         double loop_rate, send_rate;
 
         // check for bad data
-        if (loop_hz <= 0.0)
+        if(loop_hz <= 0.0)
           loop_rate = 0.0;
         // otherwise, set rate to 1s divided by the intended hz
         else
           loop_rate = 1.0 / loop_hz;
 
         // copy from loop hz if send hz is non-positive
-        if (send_hz <= 0)
+        if(send_hz <= 0)
           send_rate = loop_rate;
         // otherwise, set rate to 1s divided by the intended hz
         else
           send_rate = 1.0 / send_hz;
 
-        return run (loop_rate, max_runtime, send_rate);
+        return run(loop_rate, max_runtime, send_rate);
       }
-
-      /**
-       * Adds an accent algorithm
-       * @param  algorithm   the name of the accent algorithm to add
-       * @param  args        vector of knowledge record arguments
-       **/
-      void init_accent (const std::string & algorithm,
-        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
-
-      /**
-       * Clears all accent algorithms
-       **/
-      void clear_accents (void);
-
-      /**
-       * Adds an aliased platform factory. This factory will be
-       * initialized with all appropriate variables in the
-       * PlatformFactory class by the Multicontroller.
-       * @param  aliases   the named aliases for the factory. All
-       *                   aliases will be converted to lower case
-       * @param  factory   the factory for creating a platform
-       **/
-      void add_platform_factory (
-        const std::vector <std::string> & aliases,
-        platforms::PlatformFactory * factory);
-      
-      /**
-       * Adds an aliased algorithm factory. This factory will be
-       * initialized with all appropriate variables in the
-       * AlgorithmFactory class by the Multicontroller.
-       * @param  aliases   the named aliases for the factory. All
-       *                   aliases will be converted to lower case
-       * @param  factory   the factory for creating an algorithm
-       **/
-      void add_algorithm_factory (
-        const std::vector <std::string> & aliases,
-        algorithms::AlgorithmFactory * factory);
-
-      /**
-       * Initializes an algorithm
-       * @param  algorithm   the name of the algorithm to run
-       * @param  args        vector of knowledge record arguments
-       **/
-      void init_algorithm (const std::string & algorithm,
-        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
- 
-      /**
-       * Initializes the controller with a user-provided algorithm. This
-       * algorithm's memory will be maintained by the controller. DO NOT
-       * DELETE THIS POINTER.
-       * @param  algorithm   the algorithm to use
-       **/
-      void init_algorithm (algorithms::BaseAlgorithm * algorithm);
-
-      /**
-       * Initializes the platform
-       * @param  platform   the name of the platform the controller is using
-       * @param  args        vector of knowledge record arguments
-       **/
-      void init_platform (const std::string & platform,
-        const madara::knowledge::KnowledgeMap & args =
-          madara::knowledge::KnowledgeMap ());
-       
-      /**
-       * Initializes the controller with a user-provided platform. This
-       * platform's memory will be maintained by the controller. DO NOT
-       * DELETE THIS POINTER.
-       * @param  platform   the platform to use
-       **/
-      void init_platform (platforms::BasePlatform * platform);
-           
-#ifdef _GAMS_JAVA_
-      /**
-       * Initializes a Java-based algorithm
-       * @param  algorithm  the java-based algorithm to use
-       **/
-      void init_algorithm (jobject algorithm);
-      
-      /**
-       * Initializes a Java-based platform
-       * @param  platform  the java-based platform to use
-       **/
-      void init_platform (jobject platform);
-#endif
-
-      /**
-       * Initializes global variable containers
-       * @param   id         node identifier
-       * @param   processes  processes
-       **/
-      void init_vars (const madara::knowledge::KnowledgeRecord::Integer & id = 0,
-        const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
-      
-      /**
-       * Initializes containers and knowledge base in a platform
-       * This is usually the first thing a developer should do with
-       * a user-defined platform.
-       * @param   platform   the platform to initialize
-       **/
-      void init_vars (platforms::BasePlatform & platform);
-      
-      /**
-       * Initializes containers and knowledge base in an algorithm.
-       * This is usually the first thing a developer should do with
-       * a user-defined algorithm.
-       * @param   algorithm   the algorithm to initialize
-       **/
-      void init_vars (algorithms::BaseAlgorithm & algorithm);
-
-      /**
-       * Gets the current algorithm
-       * @return the algorithm
-       **/
-      algorithms::BaseAlgorithm * get_algorithm (void);
-      
-      /**
-       * Gets the current platform
-       * @return the platform
-       **/
-      platforms::BasePlatform * get_platform (void);
 
     protected:
 
-      /// Accents on the primary algorithm
-      algorithms::Algorithms accents_;
-
-      /// Algorithm to perform
-      algorithms::BaseAlgorithm * algorithm_;
-
-      /// Containers for algorithm information
-      variables::Algorithms algorithms_;
-      
-      /// Containers for agent-related variables
-      variables::Agents agents_;
+      /// Controllers that need to be instrumented
+      std::vector <BaseController *> controllers_;
 
       /// Knowledge base
-      madara::knowledge::KnowledgeBase & knowledge_;
+      std::vector <madara::knowledge::KnowledgeBase> kbs_;
 
-      /// Platform on which the controller is running
-      platforms::BasePlatform * platform_;
+      /// transports meant for fast memory transport within the controller
+      std::vector <madara::transport::SharedMemoryPush *> transports_;
 
-      /// Containers for platform information
-      variables::Platforms platforms_;
-
-      /// Containers for self-referencing variables
-      variables::Self self_;
-
-      /// Containers for sensor information
-      variables::Sensors sensors_;
-
-      /// Containers for swarm-related variables
-      variables::Swarm swarm_;
-
-    private:
-
-      /// Code shared between run and run_once
-      int run_once_ (void);
+      /// Settings for controller management and qos
+      ControllerSettings settings_;
     };
   }
 }

@@ -586,10 +586,20 @@ gams::controllers::BaseController::run_once (void)
     "gams::controllers::BaseController::run_once:" \
     " sending updates\n");
 
+  if (settings_.checkpoint_strategy & CHECKPOINT_EVERY_LOOP)
+  {
+    save_checkpoint ();
+  }
+
   // send modified values through network
   knowledge_.send_modifieds ("BaseController::run_once",
       settings_.eval_settings);
 
+  if (settings_.checkpoint_strategy & CHECKPOINT_EVERY_SEND)
+  {
+    save_checkpoint ();
+  }
+  
   return return_value;
 }
 
@@ -616,6 +626,13 @@ gams::controllers::BaseController::run (void)
 void
 gams::controllers::BaseController::save_checkpoint (void)
 {
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::BaseController::save_checkpoint:" \
+    " calling save checkpoint with strategy %d and file prefix %s\n",
+    settings_.checkpoint_strategy,
+    settings_.checkpoint_prefix.c_str());
+
   if (settings_.checkpoint_strategy != CHECKPOINT_NONE)
   {
     madara::knowledge::CheckpointSettings checkpoint_settings;
@@ -634,7 +651,7 @@ gams::controllers::BaseController::save_checkpoint (void)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
-        "gams::controllers::BaseController::run:" \
+        "gams::controllers::BaseController::save_checkpoint:" \
         " saving checkpoint to %s%d.kb\n",
         checkpoint_prefix.c_str (), checkpoint_count_);
 
@@ -646,7 +663,7 @@ gams::controllers::BaseController::save_checkpoint (void)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
-        "gams::controllers::BaseController::run:" \
+        "gams::controllers::BaseController::save_checkpoint:" \
         " saving context to %s%d.kb\n",
         checkpoint_prefix.c_str (), checkpoint_count_);
 
@@ -658,7 +675,7 @@ gams::controllers::BaseController::save_checkpoint (void)
     {
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
-        "gams::controllers::BaseController::run:" \
+        "gams::controllers::BaseController::save_checkpoint:" \
         " all checkpoints will be saved to %s%d.kb\n",
         checkpoint_prefix.c_str (), checkpoint_count_);
     }
@@ -668,7 +685,7 @@ gams::controllers::BaseController::save_checkpoint (void)
 
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MINOR,
-        "gams::controllers::BaseController::run:" \
+        "gams::controllers::BaseController::save_checkpoint:" \
         " next checkpoint will be %s%d.kb\n",
         checkpoint_prefix.c_str (), checkpoint_count_);
     }
@@ -1296,6 +1313,8 @@ gams::controllers::BaseController::init_vars (
   groups::GroupFactoryRepository factory (&knowledge_);
   groups::GroupBase * group = factory.create (group_name);
 
+  settings_.agent_prefix = self_prefix;
+
   init_vars (self_prefix, group);
 
   delete group;
@@ -1330,6 +1349,8 @@ gams::controllers::BaseController::init_vars (
   self_.init_vars (knowledge_, self_prefix);
   swarm_.init_vars (knowledge_);
 
+  settings_.agent_prefix = self_prefix;
+
   if (settings_.madara_log_level >= 0)
   {
     self_.agent.madara_debug_level = settings_.madara_log_level;
@@ -1356,6 +1377,12 @@ const Integer & processes)
   variables::init_vars (agents_, knowledge_, processes);
   swarm_.init_vars (knowledge_, processes);
   self_.init_vars (knowledge_, id);
+
+  // set the settings_ agent prefix to current agent prefix for checkpointing
+  std::stringstream prefix_buffer;
+  prefix_buffer << "agent.";
+  prefix_buffer << id;
+  settings_.agent_prefix = prefix_buffer.str();
 
   if (settings_.madara_log_level >= 0)
   {
