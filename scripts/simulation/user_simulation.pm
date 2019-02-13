@@ -104,6 +104,11 @@ sub run {
           $common_args .= "-u " . @{$args{udp}}[$offset] . " ";
         }
       }
+      elsif ($args{nt})
+      {
+        # user has selected no transport
+        $common_args .= "-nt ";
+      }
       
 	    $common_args .= "--merge-controllers $mc ";
 	    $common_args .= "--domain $domain ";

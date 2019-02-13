@@ -109,6 +109,12 @@ void
 gams::controllers::Multicontroller::add_transports (
   const madara::transport::QoSTransportSettings & source_settings)
 {
+  // if no transport, short circuit
+  if (source_settings.type == madara::transport::NO_TRANSPORT)
+  {
+    return;
+  }
+
   madara::transport::QoSTransportSettings settings (source_settings);
 
   // if using a unicast protocol and we have 0 or 1 host, extrapolate
@@ -425,6 +431,7 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
   {
     kbs_.resize(num_controllers);
 
+    // if we're shrinking the num controllers, resize later
     if (old_size > num_controllers)
     {
       for (size_t i = num_controllers; i < old_size; ++i)
@@ -432,13 +439,37 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
         delete controllers_[i];
       }
     }
-    else // if (old_size < num_controllers)
-    {
-      controllers_.resize(num_controllers);
 
+    // both conditions result in needing resizing here
+    controllers_.resize(num_controllers);
+    if (settings_.shared_memory_transport)
+    {
+      for (auto transport : transports_)
+      {
+        transport->set(kbs_);
+      }
+      
+      transports_.resize(num_controllers);
+    }
+
+    // if we're growing the num controllers, resize now
+    if (old_size < num_controllers)
+    {
+      madara::transport::QoSTransportSettings transport_settings;
       for (size_t i = old_size; i < num_controllers; ++i)
       {
         controllers_[i] = new BaseController (kbs_[i], settings_);
+
+        // only add shared memory transport if more than 1 controller
+        if (settings_.shared_memory_transport && num_controllers > 1)
+        {
+          transports_[i] = new madara::transport::SharedMemoryPush(
+            kbs_[i].get_id(), transport_settings, kbs_[i]);
+
+          transports_[i]->set(kbs_);
+
+          kbs_[i].attach_transport(transports_[i]);
+        }
       }
     }
 
@@ -466,7 +497,6 @@ int
 gams::controllers::Multicontroller::run(double loop_period,
   double max_runtime, double send_period)
 {
-
   // return value
   int return_value (0);
   bool first_execute (true);

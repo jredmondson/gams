@@ -51,6 +51,7 @@
  * This file contains a test driver for the GAMS controller loop.
  **/
 
+
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/threads/Threader.h"
 #include "gams/controllers/Multicontroller.h"
@@ -136,17 +137,18 @@ void print_usage(const char * prog_name, const char * arg = "")
 " [-i |--id id]                 the id of this agent(should be non-negative)\n" 
 " [-lt|--load-transport file] a file to load transport settings from\n" 
 " [-ltp|--load-transport-prefix prfx] prefix of saved settings\n" 
-" [-ltt|--load-transport-text file] a text file to load transport settings from\n" 
-" [--madara-level level]        the MADARA logger level(0+, higher is higher detail)\n" 
-" [--gams-level level]          the GAMS logger level(0+, higher is higher detail)\n" 
+" [-ltt|--load-transport-text file] text file to load transport settings from\n" 
+" [--madara-level level]        MADARA log level (larger is higher detail)\n"
+" [--gams-level level]          GAMS log level (larger is higher detail)\n"
 " [-L |--loop-time time]        time to execute loop\n"
 " [-m |--multicast ip:port]     the multicast ip to send and listen to\n" 
-" [-mc |--merge-controllers num] merge a number of agent controllers into this process\n" 
-"                               merging is useful for performance reasons if\n" 
-"                               you want to scale to hundreds of agents on same machine\n" 
+" [-mc |--merge-controllers num] merge a number of agent controllers.\n"
+"                               merging is useful for performance reasons if\n"
+"                               you want to scale agents on the same machine\n"
 " [-M |--madara-file <file>]    file containing madara commands to execute\n" 
 "                               multiple space-delimited files can be used\n" 
 " [-n |--num_agents <number>]   the number of agents in the swarm\n" 
+" [-nt |--no-transport]         do not configure an external transport\n" 
 " [-o |--host hostname]         the hostname of this process(def:localhost)\n" 
 " [-p |--platform type]         platform for loop(vrep, dronerk)\n" 
 " [-P |--period period]         time, in seconds, between control loop executions\n" 
@@ -455,6 +457,10 @@ void handle_arguments(int argc, char ** argv)
       }
 
       ++i;
+    }
+    else if (arg1 == "-nt" || arg1 == "--no-transport")
+    {
+      settings.type = madara::transport::NO_TRANSPORT;
     }
     else if (arg1 == "-o" || arg1 == "--host")
     {

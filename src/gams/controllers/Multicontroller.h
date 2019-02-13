@@ -66,6 +66,7 @@
 #include "gams/algorithms/AlgorithmFactory.h"
 #include "gams/platforms/PlatformFactory.h"
 #include "gams/controllers/BaseController.h"
+#include "madara/transport/SharedMemoryPush.h"
 
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Vector.h"
@@ -389,9 +390,11 @@ namespace gams
       /// Knowledge base
       std::vector <madara::knowledge::KnowledgeBase> kbs_;
 
+      /// transports meant for fast memory transport within the controller
+      std::vector <madara::transport::SharedMemoryPush *> transports_;
+
       /// Settings for controller management and qos
       ControllerSettings settings_;
-
     };
   }
 }

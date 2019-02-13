@@ -137,6 +137,9 @@ public:
 
   /// for multicontrollers, call run on controllers in a round robin way
   int scheduling_strategy = SCHEDULE_ROUND_ROBIN;
+
+  /// include a shared memory transport when managing multiple controllers
+  bool shared_memory_transport = true;
 };
 
 } }
