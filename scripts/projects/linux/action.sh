@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2015-2018 Carnegie Mellon University. All Rights Reserved.
+# Copyright (c) 2015-2019 Carnegie Mellon University. All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,7 +27,7 @@
 # 5. Redistributions of any form whatsoever must retain the following
 # acknowledgment:
 #
-# Copyright 2015-2018 Carnegie Mellon University
+# Copyright 2015-2019 Carnegie Mellon University
 #
 # This material is based upon work funded and supported by the
 # Department of Defense under Contract No. FA8721-05-C-0003 with
@@ -57,6 +57,7 @@
 # Build a custom project created by gpc.pl
 
 CLANG=0
+CLEAN=1
 COMPILE=0
 COMPILE_VREP=0
 DOCS=0
@@ -84,7 +85,16 @@ if [ -z $CORES ] ; then
   export CORES=1  
 fi
 
-for var in "$@"
+if [ $# == 0 ]; then
+  echo "Loading last build with noclean..."
+  IFS=$'\r\n ' GLOBIGNORE='*' command eval  'ARGS=($(cat $SCRIPTS_DIR/last_build.lst))'
+  ARGS+=("noclean")
+else
+  echo "Processing user arguments..."
+  ARGS=("$@")
+fi
+
+for var in "${ARGS[@]}"
 do
   if [ "$var" = "compile" ]; then
     COMPILE=1
@@ -94,6 +104,8 @@ do
     CLANG=1
   elif [ "$var" = "docs" ]; then
     DOCS=1
+  elif [ "$var" = "noclean" ]; then
+    CLEAN=0
   elif [ "$var" = "prereqs" ]; then
     PREREQS=1
   elif [ "$var" = "run" ]; then
@@ -107,8 +119,10 @@ do
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
+    echo "  clang           build with clang instead of g++"
     echo "  compile         build the custom project"
     echo "  compile-vrep    compile with vrep support"
+    echo "  noclean         do not do a make clean before building"
     echo "  prereqs         apt-get doxygen and other prereqs"
     echo "  run|sim         run the simulation"
     echo "  verbose         print verbose information during this script"
@@ -127,6 +141,13 @@ do
   fi
 done
 
+if [ $CLANG -eq 0 ]; then
+  if grep -q clang "$GAMS_ROOT/last_build.lst"; then
+    echo "Detected clang in GAMS build. Setting clang as compiler..."
+    CLANG=1
+  fi
+fi
+
 if [ $PREREQS -eq 1 ]; then
   sudo apt-get install doxygen graphviz
 fi
@@ -141,17 +162,22 @@ if [ $COMPILE -eq 1 ]; then
   $MPC_ROOT/mwc.pl -type make -features clang=$CLANG,vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
   
   
-  if [ $VERBOSE -eq 1 ]; then
-    echo "Cleaning project..."
+  if [ $CLEAN -eq 1 ]; then
+    if [ $VERBOSE -eq 1 ]; then
+      echo "Cleaning project..."
+    fi
+
+    make realclean
   fi
-
-  make realclean
-
 
   if [ $VERBOSE -eq 1 ]; then
     echo "Building project..."
   fi
 
+  echo "make depend clang=$CLANG vrep=$COMPILE_VREP docs=$DOCS -j $CORES"
+  make depend clang=$CLANG vrep=$COMPILE_VREP docs=$DOCS -j $CORES
+
+  echo "make clang=$CLANG vrep=$COMPILE_VREP docs=$DOCS -j $CORES"
   make clang=$CLANG vrep=$COMPILE_VREP docs=$DOCS -j $CORES
   
 fi
@@ -177,6 +203,14 @@ if [ $RUN -eq 1 ]; then
 
   cd $SCRIPTS_DIR/sim
   perl run.pl
+fi
+
+# save the last feature changing build (need to fix this by flattening $@)
+if [ $CLEAN -eq 1 ]; then
+  cd $INSTALL_DIR
+  echo "Saving the last build. If you want to rebuild with same arguments,"
+  echo "then just call action.sh with no arguments"
+  echo "$@" > $SCRIPTS_DIR/last_build.lst
 fi
 
 echo "Script finished"
