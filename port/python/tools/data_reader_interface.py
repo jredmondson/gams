@@ -58,7 +58,6 @@ class DataReaderInterface:
     new_value = value.to_any().reader()
     return new_value
 
-
 # this is an interface for simulating stk file as a knowledge base
 class DataReaderFromFile(DataReaderInterface):
 
