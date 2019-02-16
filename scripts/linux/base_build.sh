@@ -1329,6 +1329,13 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 fi
 
+
+# create example config files with default GAMS multicast IPs
+if [ ! -d $HOME/.madara ]; then
+  mkdir $HOME/.madara
+  cp $SCRIPTS_DIR/../common/README.txt $HOME/.madara
+fi
+
 echo -e ""
 echo -e "Make sure to update your environment variables to the following"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
