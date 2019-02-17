@@ -166,28 +166,42 @@ echo "build features: ${ARGS[@]}"
 
 for var in "${ARGS[@]}"
 do
-  if [ "$var" = "tests" ]; then
-    TESTS=1
-  elif [ "$var" = "clean" ]; then
-    CLEAN=1
-  elif [ "$var" = "debug" ]; then
-    DEBUG=1
-  elif [ "$var" = "docs" ]; then
-    DOCS=1
-  elif [ "$var" = "prereqs" ]; then
-    PREREQS=1
-  elif [ "$var" = "vrep" ]; then
-    VREP=1
-  elif [ "$var" = "types" ]; then
-    TYPES=1
-  elif [ "$var" = "vrep-config" ]; then
-    VREP_CONFIG=1
-  elif [ "$var" = "java" ]; then
+  if [ "$var" = "airlib" ] ||  [ "$var" = "airsim" ]; then
+    AIRLIB=1
+  elif [ "$var" = "android" ]; then
+    ANDROID=1
     JAVA=1
+    STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
+  elif [ "$var" = "android-tests" ]; then 
+    ANDROID_TESTS=1
+    ANDROID=1
+    JAVA=1
+  elif [ "$var" = "capnp-java" ]; then
+    CAPNP_JAVA=1
   elif [ "$var" = "clang" ]; then
     CLANG=1
-  elif [ "$var" = "ros" ]; then
-    ROS=1
+  elif [ "$var" = "clean" ]; then
+    CLEAN=1
+  elif [ "$var" = "dart" ]; then
+    DMPL=1
+  elif [ "$var" = "debug" ]; then
+    DEBUG=1
+  elif [ "$var" = "dmpl" ]; then
+    DMPL=1
+  elif [ "$var" = "docs" ]; then
+    DOCS=1
+  elif [ "$var" = "force-airsim" ]; then
+    AIRLIB=1
+    FORCE_AIRSIM=1
+  elif [ "$var" = "force-unreal" ]; then
+    UNREAL=1
+    FORCE_UNREAL=1
+  elif [ "$var" = "gams" ]; then
+    GAMS=1
+  elif [ "$var" = "java" ]; then
+    JAVA=1
+  elif [ "$var" = "lz4" ]; then
+    LZ4=1
   elif [ "$var" = "mpc" ]; then
     MPC=1
   elif [ "$var" = "madara" ]; then
@@ -201,60 +215,55 @@ do
   elif [ "$var" = "nopull" ]; then
     GAMSPULL=0
     MADARAPULL=0
-  elif [ "$var" = "python" ]; then
-    PYTHON=1
-  elif [ "$var" = "gams" ]; then
-    GAMS=1
-  elif [ "$var" = "dart" ]; then
-    DMPL=1
-  elif [ "$var" = "dmpl" ]; then
-    DMPL=1
-  elif [ "$var" = "lz4" ]; then
-    LZ4=1
-  elif [ "$var" = "zmq" ]; then
-    ZMQ=1
-  elif [ "$var" = "capnp-java" ]; then
-    CAPNP_JAVA=1
-  elif [ "$var" = "simtime" ]; then
-    SIMTIME=1
-  elif [ "$var" = "tutorials" ]; then
-    TUTORIALS=1
   elif [ "$var" = "nothreadlocal" ]; then
     NOTHREADLOCAL=1
-  elif [ "$var" = "ssl" ]; then
-    SSL=1
   elif [ "$var" = "odroid" ]; then
     ODROID=1
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
-  elif [ "$var" = "android" ]; then
-    ANDROID=1
-    JAVA=1
-    STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
-  elif [ "$var" = "android-tests" ]; then 
-    ANDROID_TESTS=1
-    ANDROID=1
-    JAVA=1
+  elif [ "$var" = "prereqs" ]; then
+    PREREQS=1
+  elif [ "$var" = "python" ]; then
+    PYTHON=1
+  elif [ "$var" = "ros" ]; then
+    ROS=1
+  elif [ "$var" = "simtime" ]; then
+    SIMTIME=1
+  elif [ "$var" = "ssl" ]; then
+    SSL=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
+  elif [ "$var" = "tests" ]; then
+    TESTS=1
+  elif [ "$var" = "tutorials" ]; then
+    TUTORIALS=1
+  elif [ "$var" = "types" ]; then
+    TYPES=1
   elif [ "$var" = "unreal" ]; then
     UNREAL=1
-  elif [ "$var" = "airlib" ]; then
-    AIRLIB=1
+  elif [ "$var" = "vrep" ]; then
+    VREP=1
+  elif [ "$var" = "vrep-config" ]; then
+    VREP_CONFIG=1
+  elif [ "$var" = "zmq" ]; then
+    ZMQ=1
   else
     echo "Invalid argument: $var"
     echo "  args can be zero or more of the following, space delimited"
-    echo "  airlib          builds gams with the airlib dependency allowing gams controllers to interface with the Microsoft AirSim plugin"
-    echo "  debug           create a debug build, with minimal optimizations"
-    echo "  mpc             download MPC if prereqs is enabled"
+    echo "  airlib|airsim   builds gams with the airlib dependency allowing gams controllers to interface with the Microsoft AirSim plugin"
     echo "  android         build android libs, turns on java"
     echo "  clang           build using clang++-5.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
+    echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
+    echo "  force-airsim    if airsim dir exists, rebuild"
+    echo "  force-unreal    if unreal dir exists, rebuild"
     echo "  gams            build GAMS"
+    echo "  help            get script usage"
     echo "  java            build java jar"
     echo "  lz4             build with LZ4 compression"
     echo "  madara          build MADARA"
+    echo "  mpc             download MPC if prereqs is enabled"
     echo "  noclean         do not run 'make clean' before builds."
     echo "                  This is an option that supercharges the build"
     echo "                  process and can reduce build times to seconds."
@@ -270,6 +279,7 @@ do
     echo "                  has to be used on the first usage of a feature"
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
+    echo "  simtime         build with simtime support in Madara"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
     echo "  tutorials       build MADARA tutorials"
@@ -278,8 +288,6 @@ do
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
-    echo "  simtime         build with simtime support in Madara"
-    echo "  help            get script usage"
     echo ""
     echo "The following environment variables are used"
     echo "  CAPNP_ROOT          - location of Cap'n Proto"
@@ -300,6 +308,14 @@ do
     exit
   fi
 done
+
+# make the .gams directory if it doesn't exist
+if [ ! -d $HOME/.gams ]; then
+  mkdir $HOME/.gams
+fi
+
+# save the last builds that have been performed
+echo "${ARGS[*]}" >> $HOME/.gams/build.lst
 
 if [ $CORES -eq 1 ] ; then
     echo -e "${ORANGE} Warning! The CORES environment variable is set to 1. With only one core installation will take longer than it could be. By increasing the number of cores to compile with you will be reducing compilation time substantially. ${NOCOLOR}"
@@ -323,6 +339,10 @@ fi
 
 if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
+fi
+
+if [ -z $VREP_ROOT ] ; then
+  export VREP_ROOT=$INSTALL_DIR/vrep
 fi
 
 if [ -z $UNREAL_ROOT ] ; then
@@ -605,17 +625,15 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   if [ $UNREAL -eq 1 ]; then
-    if [ -d "$UNREAL_ROOT" ]; then
-      echo -e "${ORANGE} UnrealEngine directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your UNREAL_ROOT env var is set to. [$UNREAL_ROOT]. ${NOCOLOR}"
-      read YES
+
+    if [ ! -d "$UNREAL_ROOT" ]; then
+      echo "Installing UnrealEngine"
+      echo "git clone -b 4.18 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
+      git clone -b 4.18 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+      FORCE_UNREAL=1 
     fi
 
-    if [ $YES = 'y' ] ; then
-      echo "rm -rf $UNREAL_ROOT"
-      rm -rf $UNREAL_ROOT
-      echo "Installing UnrealEngine"
-      echo "git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
-      git clone -b 4.18 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+    if [ $FORCE_UNREAL -eq 1 ] ; then
       cd $UNREAL_ROOT
       echo "./Setup.sh"
       ./Setup.sh
@@ -624,28 +642,25 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       echo "Making unreal"
       make
     else
-      echo -e "${BLUE}Skipping unreal re-installation...UnrealEngine already installed at $UNREAL_ROOT${NOCOLOR}"
+      echo -e "${BLUE}Skipping unreal re-installation... UnrealEngine already installed at $UNREAL_ROOT${NOCOLOR}"
     fi
 
-    if [ -d "$AIRSIM_ROOT" ] ; then
-      echo -e "${ORANGE} AirSim directory already exists. Would you like to delete this directory and re-install anyway? [y/n]. This will call 'rm -rf' on whatever your AIRSIM_ROOT env var is set to. [$AIRSIM_ROOT]. ${NOCOLOR}"
-      read YES
+    if [ ! -d "$AIRSIM_ROOT" ] ; then
+      echo "git clone https://github.com/Microsoft/AirSim.git $AIRSIM_ROOT"
+      git clone https://github.com/Microsoft/AirSim.git $AIRSIM_ROOT
+      FORCE_AIRSIM=1
     fi
 
-    if [ $YES = 'y' ] ; then
-      echo "rm -rf $AIRSIM_ROOT"
-      rm -rf $AIRSIM_ROOT
-      echo "Installing AirSim"
-      cd $INSTALL_DIR
-      echo "git clone https://github.com/Microsoft/AirSim.git"
-      git clone https://github.com/Microsoft/AirSim.git
-      echo "Building AirSim"      
+    if [ $FORCE_AIRSIM -eq 1 ] ; then
+      echo "Building AirSim"
+      cd $AIRSIM_ROOT
       ./setup.sh
       ./build.sh
-      echo "Installation complete. Open UnrealEngine/Engine/Binaries/Linux/UE4Editor and then When Unreal Engine prompts for opening or creating project, select Browse and choose AirSim/Unreal/Environments/Blocks. For more information see \" How to Use AirSim\" at https://microsoft.github.io/AirSim/docs/build_linux/"
     else
-      echo -e "${BLUE}Skipping AirSim re-installation...AirSim already installed at $AIRSIM_ROOT ${NOCOLOR}"
+      echo -e "${BLUE}Skipping AirSim re-installation... AirSim already installed at $AIRSIM_ROOT ${NOCOLOR}"
     fi
+    
+    echo "Installation complete. Open UnrealEngine/Engine/Binaries/Linux/UE4Editor and then When Unreal Engine prompts for opening or creating project, select Browse and choose AirSim/Unreal/Environments/Blocks. For more information see \" How to Use AirSim\" at https://microsoft.github.io/AirSim/docs/build_linux/"
   fi
 fi
 if [ $MAC -eq 1 ]; then
@@ -661,6 +676,33 @@ if [ $MAC -eq 1 ]; then
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
 fi
 
+# Update CORES in the GAMS environment file
+if grep -q CORES $HOME/.gams/env.sh ; then
+  sed -i 's@CORES=.*@CORES='"$CORES"'@' $HOME/.gams/env.sh
+else
+  echo "export CORES=$CORES" >> $HOME/.gams/env.sh
+fi
+
+# Update UNREAL_ROOT in the GAMS environment file
+if grep -q UNREAL_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@UNREAL_ROOT=.*@UNREAL_ROOT='"$UNREAL_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export UNREAL_ROOT=$UNREAL_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update AIRSIM_ROOT in the GAMS environment file
+if grep -q AIRSIM_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@AIRSIM_ROOT=.*@AIRSIM_ROOT='"$AIRSIM_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export AIRSIM_ROOT=$AIRSIM_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update GAMS environment script with VREP_ROOT
+if grep -q VREP_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@VREP_ROOT=.*@VREP_ROOT='"$VREP_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export VREP_ROOT=$VREP_ROOT" >> $HOME/.gams/env.sh
+fi
 
 if [ $LZ4 -eq 1 ] ; then
   export LZ4=1
@@ -1207,9 +1249,16 @@ if [ $VREP_CONFIG -eq 1 ]; then
   $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
 fi
 
+# create example config files with default GAMS multicast IPs
+if [ ! -d $HOME/.madara ]; then
+  mkdir $HOME/.madara
+  cp $SCRIPTS_DIR/../common/README.txt $HOME/.madara
+fi
+
 # save the last feature changing build (need to fix this by flattening $@)
 if [ $CLEAN -eq 1 ]; then
   echo "$@" > $GAMS_ROOT/last_build.lst
+  
 fi
 
 echo ""
@@ -1329,13 +1378,6 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 fi
 
-
-# create example config files with default GAMS multicast IPs
-if [ ! -d $HOME/.madara ]; then
-  mkdir $HOME/.madara
-  cp $SCRIPTS_DIR/../common/README.txt $HOME/.madara
-fi
-
 echo -e ""
 echo -e "Make sure to update your environment variables to the following"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
@@ -1345,30 +1387,109 @@ echo -e "export MADARA_ROOT=$MADARA_ROOT"
 echo -e "export GAMS_ROOT=$GAMS_ROOT"
 echo -e "export VREP_ROOT=$VREP_ROOT"
 
+if grep -q MPC_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@MPC_ROOT=.*@MPC_ROOT='"$MPC_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export MPC_ROOT=$MPC_ROOT" >> $HOME/.gams/env.sh
+fi
+
+if grep -q EIGEN_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@EIGEN_ROOT=.*@EIGEN_ROOT='"$EIGEN_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export EIGEN_ROOT=$EIGEN_ROOT" >> $HOME/.gams/env.sh
+fi
+
+if grep -q CAPNP_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@CAPNP_ROOT=.*@CAPNP_ROOT='"$CAPNP_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export CAPNP_ROOT=$CAPNP_ROOT" >> $HOME/.gams/env.sh
+fi
+
+if grep -q MADARA_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@MADARA_ROOT=.*@MADARA_ROOT='"$MADARA_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export MADARA_ROOT=$MADARA_ROOT" >> $HOME/.gams/env.sh
+fi
+
+if grep -q GAMS_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@GAMS_ROOT=.*@GAMS_ROOT='"$GAMS_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export GAMS_ROOT=$GAMS_ROOT" >> $HOME/.gams/env.sh
+fi
+
 if [ $SSL -eq 1 ]; then
   if [ -z $SSL_ROOT ]; then
     export SSL_ROOT=/usr
   fi
+
+  if grep -q SSL_ROOT $HOME/.gams/env.sh ; then
+    sed -i 's@SSL_ROOT=.*@SSL_ROOT='"$SSL_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export SSL_ROOT=$SSL_ROOT" >> $HOME/.gams/env.sh
+  fi
+
   echo -e "export SSL_ROOT=$SSL_ROOT"
 fi
 
 if [ $LZ4 -eq 1 ]; then
+
+  if grep -q LZ4_ROOT $HOME/.gams/env.sh ; then
+    sed -i 's@LZ4_ROOT=.*@LZ4_ROOT='"$LZ4_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export LZ4_ROOT=$LZ4_ROOT" >> $HOME/.gams/env.sh
+  fi
+
   echo -e "export LZ4_ROOT=$LZ4_ROOT"
 fi
 
 if [ $ZMQ -eq 1 ]; then
+
+  if grep -q ZMQ_ROOT $HOME/.gams/env.sh ; then
+    sed -i 's@ZMQ_ROOT=.*@ZMQ_ROOT='"$ZMQ_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export ZMQ_ROOT=$ZMQ_ROOT" >> $HOME/.gams/env.sh
+  fi
+
   echo -e "export ZMQ_ROOT=$ZMQ_ROOT"
 fi
 
 if [ $JAVA -eq 1 ]; then
+
+  if grep -q JAVA_HOME $HOME/.gams/env.sh ; then
+    sed -i 's@JAVA_HOME=.*@JAVA_HOME='"$JAVA_HOME"'@' $HOME/.gams/env.sh
+  else
+    echo "export JAVA_HOME=$JAVA_HOME" >> $HOME/.gams/env.sh
+  fi
+
   echo -e "export JAVA_HOME=$JAVA_HOME"
 fi
 
 if [ $DMPL -eq 1 ]; then
+
+  if grep -q DMPL_ROOT $HOME/.gams/env.sh ; then
+    sed -i 's@DMPL_ROOT=.*@DMPL_ROOT='"$DMPL_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export DMPL_ROOT=$DMPL_ROOT" >> $HOME/.gams/env.sh
+  fi
+
   echo -e "export DMPL_ROOT=$DMPL_ROOT"
 fi
 
 if [ $ANDROID -eq 1 ]; then
+  if grep -q DMPL_ROOT $HOME/.gams/env.sh ; then
+    sed -i 's@NDK_ROOT=.*@NDK_ROOT='"$NDK_ROOT"'@' $HOME/.gams/env.sh
+    sed -i 's@NDK_TOOLS=.*@NDK_TOOLS='"$NDK_TOOLS"'@' $HOME/.gams/env.sh
+    sed -i 's@SYSROOT=.*@SYSROOT='"$SYSROOT"'@' $HOME/.gams/env.sh
+    sed -i 's@ANDROID_ARCH=.*@ANDROID_ARCH='"$ANDROID_ARCH"'@' $HOME/.gams/env.sh
+    sed -i 's@BOOST_ANDROID_ROOT=.*@BOOST_ANDROID_ROOT='"$BOOST_ANDROID_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export NDK_ROOT=$NDK_ROOT" >> $HOME/.gams/env.sh
+    echo "export NDK_TOOLS=$NDK_TOOLS" >> $HOME/.gams/env.sh
+    echo "export SYSROOT=$SYSROOT" >> $HOME/.gams/env.sh
+    echo "export ANDROID_ARCH=$ANDROID_ARCH" >> $HOME/.gams/env.sh
+    echo "export BOOST_ANDROID_ROOT=$BOOST_ANDROID_ROOT" >> $HOME/.gams/env.sh
+  fi
+
   echo -e "export NDK_ROOT=$NDK_ROOT"
   echo -e "export NDK_TOOLS=$NDK_TOOLS"
   echo -e "export SYSROOT=$SYSROOT"
@@ -1378,10 +1499,27 @@ fi
 
 if [ $MAC -eq 0 ]; then
   echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs"
+  if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+  else
+    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+  fi
+
 else
   echo -e "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs"
+  if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+    sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+  else
+    echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+  fi
 fi
-echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++"
+
+echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin"
+if grep -q "export PATH" $HOME/.gams/env.sh ; then
+  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"'@' $HOME/.gams/env.sh
+else
+  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin" >> $HOME/.gams/env.sh
+fi
 
 if [ $DMPL -eq 1 ]; then
   echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
