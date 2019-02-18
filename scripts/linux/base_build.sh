@@ -364,6 +364,10 @@ if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
 fi
 
+if [ -z $OSCPP_ROOT ] ; then
+  export OSCPP_ROOT=$INSTALL_DIR/oscpp
+fi
+
 if [ -z $VREP_ROOT ] ; then
   export VREP_ROOT=$INSTALL_DIR/vrep
 fi
@@ -396,6 +400,7 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
+echo "OSCPP_ROOT is set to $OSCPP_ROOT"
 echo "UNREAL_ROOT is set to $UNREAL_ROOT"
 echo "AIRSIM_ROOT is set to $AIRSIM_ROOT"
 echo "LZ4_ROOT is set to $LZ4_ROOT"
@@ -748,6 +753,13 @@ else
   echo "export AIRSIM_ROOT=$AIRSIM_ROOT" >> $HOME/.gams/env.sh
 fi
 
+# Update OSCPP_ROOT in the GAMS environment file
+if grep -q OSCPP_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@OSCPP_ROOT=.*@OSCPP_ROOT='"$OSCPP_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export OSCPP_ROOT=$OSCPP_ROOT" >> $HOME/.gams/env.sh
+fi
+
 # Update GAMS environment script with VREP_ROOT
 if grep -q VREP_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@VREP_ROOT=.*@VREP_ROOT='"$VREP_ROOT"'@' $HOME/.gams/env.sh
@@ -858,6 +870,16 @@ fi
 if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
+
+  if [ ! -d $OSCPP_ROOT ]; then 
+    echo "Downloading OSCPP"
+    git clone https://github.com/kaoskorobase/oscpp.git $OSCPP_ROOT
+  else
+    echo "Updating OSCPP"
+    cd $OSCPP_ROOT
+    git pull
+    cd $INSTALL_DIR
+  fi
 
   echo "ENTERING $EIGEN_ROOT"
   if [ -d $EIGEN_ROOT ]; then
