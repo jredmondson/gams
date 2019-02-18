@@ -1380,7 +1380,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 fi
 
 echo -e ""
-echo -e "Make sure to update your environment variables to the following"
+echo -e "Saving environment variables into $HOME/.gams/env.sh"
 echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
 echo -e "export EIGEN_ROOT=$EIGEN_ROOT"
 echo -e "export CAPNP_ROOT=$CAPNP_ROOT"
@@ -1527,16 +1527,16 @@ if [ $DMPL -eq 1 ]; then
 fi
 
 echo -e "\e[39m"
-echo -e "IF YOUR BUILD IS NOT COMPILING, MAKE SURE THE ABOVE VARIABLES ARE SET"
-echo -e "IN YOUR BASHRC OR TERMINAL. To update with same parameters, try"
-echo -e "calling base_build.sh again with no arguments."
-echo -e ""
+
+if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
+  echo "Updating bashrc to load the environment changes"
+  echo ""
+  echo "" >> $HOME/.bashrc
+  echo "source \$HOME/.gams/env.sh" >> $HOME/.bashrc
+else
+  echo "If environment has changed, close terminals and reload bashrc"
+  echo ""
+fi
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
 exit $BUILD_ERRORS
-
-
-
-if ! grep -q .gams/env.sh $HOME/.bashrc ; then
-  echo "source $HOME/.gams/env.sh" >> $HOME/.bashrc
-fi
