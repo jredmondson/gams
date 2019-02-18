@@ -629,8 +629,8 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
     if [ ! -d "$UNREAL_ROOT" ]; then
       echo "Installing UnrealEngine"
-      echo "git clone -b 4.18 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
-      git clone -b 4.18 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+      echo "git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
+      git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
       FORCE_UNREAL=1 
     fi
 
