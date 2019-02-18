@@ -1537,4 +1537,6 @@ exit $BUILD_ERRORS
 
 
 
-
+if ! grep -q .gams/env.sh $HOME/.bashrc ; then
+  echo "source $HOME/.gams/env.sh" >> $HOME/.bashrc
+fi
