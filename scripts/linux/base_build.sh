@@ -111,6 +111,11 @@ ANDROID_TESTS=0
 CAPNP_JAVA=0
 UNREAL=0
 AIRLIB=0
+FORCE_UNREAL=0
+FORCE_AIRSIM=0
+UNREAL_DEV=0
+UNREAL_GAMS=0
+CLANG_DEFINED=0
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -181,6 +186,7 @@ do
     CAPNP_JAVA=1
   elif [ "$var" = "clang" ]; then
     CLANG=1
+    CLANG_DEFINED=1
   elif [ "$var" = "clean" ]; then
     CLEAN=1
   elif [ "$var" = "dart" ]; then
@@ -241,6 +247,12 @@ do
     TYPES=1
   elif [ "$var" = "unreal" ]; then
     UNREAL=1
+  elif [ "$var" = "unreal-dev" ]; then
+    UNREAL_DEV=1
+    UNREAL_GAMS=1
+    CLANG=1
+  elif [ "$var" = "unreal-gams" ]; then
+    UNREAL_GAMS=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
   elif [ "$var" = "vrep-config" ]; then
@@ -285,7 +297,9 @@ do
     echo "  tests           build test executables"
     echo "  tutorials       build MADARA tutorials"
     echo "  types           builds libTYPES.so"
-    echo "  unreal          downloads, builds, and configures Unreal and AirSim if preqreqs is also enabled"
+    echo "  unreal          builds Unreal and AirSim if preqreqs is enabled"
+    echo "  unreal-dev      builds Unreal Dev and UnrealGAMS"
+    echo "  unreal-gams     builds UnrealGAMS"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  zmq             build with ZeroMQ support"
@@ -315,6 +329,10 @@ if [ ! -d $HOME/.gams ]; then
   mkdir $HOME/.gams
 fi
 
+if [ $CLANG -eq 1 ] && [ $CLANG_DEFINED -eq 0 ] ; then
+  ARGS+=('clang')
+fi
+
 # save the last builds that have been performed
 echo "${ARGS[*]}" >> $HOME/.gams/build.lst
 
@@ -324,6 +342,10 @@ if [ $CORES -eq 1 ] ; then
     echo "The system has ${CORE_COUNT} cores. How many should be used for installation?"
     read CORES
     echo -e "${ORANGE} Now using $CORES CPU cores for installation. To permanently set this, add the line 'export CORES=$CORES to your ~/.bashrc file and open a new terminal. ${NOCOLOR}"
+fi
+
+if [ -z $DMPL_ROOT ] ; then
+  export DMPL_ROOT=$INSTALL_DIR/dmplc
 fi
 
 if [ -z $MPC_ROOT ] ; then
@@ -348,12 +370,17 @@ fi
 
 if [ -z $UNREAL_ROOT ] ; then
   export UNREAL_ROOT=$INSTALL_DIR/UnrealEngine
+  export UE4_ROOT=$INSTALL_DIR/UnrealEngine
 fi
 
 if [ -z $AIRSIM_ROOT ] ; then
   export AIRSIM_ROOT=$INSTALL_DIR/AirSim
 fi
 
+if [ -z $UNREAL_GAMS_ROOT ] ; then
+  export UNREAL_GAMS_ROOT=$INSTALL_DIR/UnrealGAMS
+  export UE4_GAMS=$INSTALL_DIR/UnrealGAMS
+fi
 
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
@@ -625,7 +652,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     sudo apt-get install -y perl git build-essential subversion libboost-all-dev bison flex realpath cbmc tk xvfb libyaml-cpp-dev ant
   fi
 
-  if [ $UNREAL -eq 1 ]; then
+  if [ $UNREAL -eq 1 ] || [ $UNREAL_DEV -eq 1 ] ; then
 
     if [ ! -d "$UNREAL_ROOT" ]; then
       echo "Installing UnrealEngine"
@@ -642,21 +669,23 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
       ./GenerateProjectFiles.sh
       echo "Making unreal"
       make
+      UNREAL_BUILD_RESULT=$?
     else
       echo -e "${BLUE}Skipping unreal re-installation... UnrealEngine already installed at $UNREAL_ROOT${NOCOLOR}"
     fi
 
-    if [ ! -d "$AIRSIM_ROOT" ] ; then
+    if [ ! -d "$AIRSIM_ROOT" ] && [ $AIRLIB -eq 1 ] ; then
       echo "git clone https://github.com/Microsoft/AirSim.git $AIRSIM_ROOT"
       git clone https://github.com/Microsoft/AirSim.git $AIRSIM_ROOT
       FORCE_AIRSIM=1
     fi
 
-    if [ $FORCE_AIRSIM -eq 1 ] ; then
+    if [ $AIRLIB -eq 1 ] && [ $FORCE_AIRSIM -eq 1 ] ; then
       echo "Building AirSim"
       cd $AIRSIM_ROOT
       ./setup.sh
       ./build.sh
+      AIRSIM_BUILD_RESULT=$?
     else
       echo -e "${BLUE}Skipping AirSim re-installation... AirSim already installed at $AIRSIM_ROOT ${NOCOLOR}"
     fi
@@ -689,6 +718,27 @@ if grep -q UNREAL_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@UNREAL_ROOT=.*@UNREAL_ROOT='"$UNREAL_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export UNREAL_ROOT=$UNREAL_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update UNREAL_ROOT in the GAMS environment file
+if grep -q UNREAL_GAMS_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@UNREAL_GAMS_ROOT=.*@UNREAL_GAMS_ROOT='"$UNREAL_GAMS_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export UNREAL_GAMS_ROOT=$UNREAL_GAMS_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update UE4_ROOT in the GAMS environment file
+if grep -q UE4_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@UE4_ROOT=.*@UE4_ROOT='"$UE4_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export UE4_ROOT=$UE4_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update UE4_GAMS in the GAMS environment file
+if grep -q UE4_GAMS $HOME/.gams/env.sh ; then
+  sed -i 's@UE4_GAMS=.*@UE4_GAMS='"$UE4_GAMS"'@' $HOME/.gams/env.sh
+else
+  echo "export UE4_GAMS=$UE4_GAMS" >> $HOME/.gams/env.sh
 fi
 
 # Update AIRSIM_ROOT in the GAMS environment file
@@ -735,6 +785,13 @@ if [ $LZ4 -eq 1 ] ; then
 
   LZ4_REPO_RESULT=$?
 
+  # Update GAMS environment script with VREP_ROOT
+  if grep -q LZ4_ROOT $HOME/.gams/env.sh ; then
+    sed -i 's@LZ4_ROOT=.*@LZ4_ROOT='"$LZ4_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export LZ4_ROOT=$LZ4_ROOT" >> $HOME/.gams/env.sh
+  fi
+
   if [ -f $LZ4_ROOT/lib/lz4.c ] ; then
     echo "cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp"
     cp $LZ4_ROOT/lib/lz4.c $LZ4_ROOT/lib/lz4.cpp
@@ -771,6 +828,31 @@ if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
   fi
 else
   echo "NOT CHECKING MPC"
+fi
+
+if [ $UNREAL_GAMS -eq 1 ] ; then
+
+  cd $INSTALL_DIR
+
+  if [ ! -d $UNREAL_GAMS_ROOT ] ; then
+    echo "CLONING UnrealGAMS"
+    echo "git clone git@github.com:VertexStudio/UnrealGAMS.git $UNREAL_GAMS_ROOT"
+    git clone git@github.com:VertexStudio/UnrealGAMS.git $UNREAL_GAMS_ROOT
+    UNREAL_GAMS_REPO_RESULT=$?
+  else
+    echo "UPDATING UnrealGAMS"
+    cd $UNREAL_GAMS_ROOT
+    git pull
+    UNREAL_GAMS_REPO_RESULT=$?
+  fi
+
+  cd $UNREAL_GAMS_ROOT
+
+  ./generate.sh
+  ./build.sh
+
+else
+  echo "NOT CHECKING EIGEN"
 fi
 
 if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
@@ -1187,7 +1269,7 @@ if [ $DMPL -eq 1 ]; then
     echo "SETTING DMPL_ROOT to $DMPL_ROOT"
   fi
   if [ ! -d $DMPL_ROOT ] ; then
-    echo "DOWNLOADING GAMS"
+    echo "DOWNLOADING DMPL"
     git clone --depth 1 -b release-0.4.0 https://github.com/cps-sei/dmplc.git $DMPL_ROOT
     DART_REPO_RESULT=$?
     
@@ -1196,7 +1278,7 @@ if [ $DMPL -eq 1 ]; then
     cd $DMPL_ROOT
     git pull
 
-    echo "CLEANING GAMS OBJECTS"
+    echo "CLEANING DMPL OBJECTS"
     if [ $CLEAN -eq 1]; then
       make clean -j $CORES
     fi
@@ -1352,6 +1434,26 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 fi
 
+if [ $UNREAL -eq 1 ] && [ $FORCE_UNREAL -eq 1 ]; then
+  echo "  UNREAL"
+  if [ $UNREAL_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+fi
+
+if [ $AIRLIB -eq 1 ] && [ $FORCE_AIRSIM -eq 1 ]; then
+  echo "  AIRSIM"
+  if [ $AIRSIM_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+fi
+
 if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   echo "  EIGEN"
   if [ $EIGEN_REPO_RESULT -eq 0 ]; then
@@ -1380,13 +1482,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 fi
 
 echo -e ""
-echo -e "Saving environment variables into $HOME/.gams/env.sh"
-echo -e "\e[96mexport MPC_ROOT=$MPC_ROOT"
-echo -e "export EIGEN_ROOT=$EIGEN_ROOT"
-echo -e "export CAPNP_ROOT=$CAPNP_ROOT"
-echo -e "export MADARA_ROOT=$MADARA_ROOT"
-echo -e "export GAMS_ROOT=$GAMS_ROOT"
-echo -e "export VREP_ROOT=$VREP_ROOT"
+echo -e "Saving environment variables into \$HOME/.gams/env.sh"
 
 if grep -q MPC_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@MPC_ROOT=.*@MPC_ROOT='"$MPC_ROOT"'@' $HOME/.gams/env.sh
@@ -1412,8 +1508,8 @@ else
   echo "export MADARA_ROOT=$MADARA_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q GAMS_ROOT $HOME/.gams/env.sh ; then
-  sed -i 's@GAMS_ROOT=.*@GAMS_ROOT='"$GAMS_ROOT"'@' $HOME/.gams/env.sh
+if grep -q "export GAMS_ROOT" $HOME/.gams/env.sh ; then
+  sed -i 's@export GAMS_ROOT=.*@export GAMS_ROOT='"$GAMS_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export GAMS_ROOT=$GAMS_ROOT" >> $HOME/.gams/env.sh
 fi
@@ -1429,7 +1525,6 @@ if [ $SSL -eq 1 ]; then
     echo "export SSL_ROOT=$SSL_ROOT" >> $HOME/.gams/env.sh
   fi
 
-  echo -e "export SSL_ROOT=$SSL_ROOT"
 fi
 
 if [ $LZ4 -eq 1 ]; then
@@ -1440,7 +1535,6 @@ if [ $LZ4 -eq 1 ]; then
     echo "export LZ4_ROOT=$LZ4_ROOT" >> $HOME/.gams/env.sh
   fi
 
-  echo -e "export LZ4_ROOT=$LZ4_ROOT"
 fi
 
 if [ $ZMQ -eq 1 ]; then
@@ -1450,8 +1544,6 @@ if [ $ZMQ -eq 1 ]; then
   else
     echo "export ZMQ_ROOT=$ZMQ_ROOT" >> $HOME/.gams/env.sh
   fi
-
-  echo -e "export ZMQ_ROOT=$ZMQ_ROOT"
 fi
 
 if [ $JAVA -eq 1 ]; then
@@ -1462,22 +1554,17 @@ if [ $JAVA -eq 1 ]; then
     echo "export JAVA_HOME=$JAVA_HOME" >> $HOME/.gams/env.sh
   fi
 
-  echo -e "export JAVA_HOME=$JAVA_HOME"
 fi
 
-if [ $DMPL -eq 1 ]; then
-
-  if grep -q DMPL_ROOT $HOME/.gams/env.sh ; then
-    sed -i 's@DMPL_ROOT=.*@DMPL_ROOT='"$DMPL_ROOT"'@' $HOME/.gams/env.sh
-  else
-    echo "export DMPL_ROOT=$DMPL_ROOT" >> $HOME/.gams/env.sh
-  fi
-
-  echo -e "export DMPL_ROOT=$DMPL_ROOT"
+if grep -q "export DMPL_ROOT" $HOME/.gams/env.sh ; then
+  sed -i 's@export DMPL_ROOT=.*@export DMPL_ROOT='"$DMPL_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export DMPL_ROOT=$DMPL_ROOT" >> $HOME/.gams/env.sh
 fi
+
 
 if [ $ANDROID -eq 1 ]; then
-  if grep -q DMPL_ROOT $HOME/.gams/env.sh ; then
+  if grep -q NDK_ROOT $HOME/.gams/env.sh ; then
     sed -i 's@NDK_ROOT=.*@NDK_ROOT='"$NDK_ROOT"'@' $HOME/.gams/env.sh
     sed -i 's@NDK_TOOLS=.*@NDK_TOOLS='"$NDK_TOOLS"'@' $HOME/.gams/env.sh
     sed -i 's@SYSROOT=.*@SYSROOT='"$SYSROOT"'@' $HOME/.gams/env.sh
@@ -1491,15 +1578,10 @@ if [ $ANDROID -eq 1 ]; then
     echo "export BOOST_ANDROID_ROOT=$BOOST_ANDROID_ROOT" >> $HOME/.gams/env.sh
   fi
 
-  echo -e "export NDK_ROOT=$NDK_ROOT"
-  echo -e "export NDK_TOOLS=$NDK_TOOLS"
-  echo -e "export SYSROOT=$SYSROOT"
-  echo -e "export ANDROID_ARCH=$ANDROID_ARCH"
-  echo -e "export BOOST_ANDROID_ROOT=$BOOST_ANDROID_ROOT"
 fi
 
 if [ $MAC -eq 0 ]; then
-  echo -e "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs"
+
   if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
     sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
   else
@@ -1507,34 +1589,30 @@ if [ $MAC -eq 0 ]; then
   fi
 
 else
-  echo -e "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs"
+
   if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
     sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
   else
     echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
   fi
+
 fi
 
-echo -e "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin"
+
 if grep -q "export PATH" $HOME/.gams/env.sh ; then
-  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"'@' $HOME/.gams/env.sh
+  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"'@' $HOME/.gams/env.sh
 else
-  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin" >> $HOME/.gams/env.sh
+  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep" >> $HOME/.gams/env.sh
 fi
 
-if [ $DMPL -eq 1 ]; then
-  echo -e "export PATH=\$PATH:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep"
-fi
-
-echo -e "\e[39m"
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
-  echo "Updating bashrc to load the environment changes"
+  echo "Updating bashrc to load environment. Close terminals to reload."
   echo ""
   echo "" >> $HOME/.bashrc
   echo "source \$HOME/.gams/env.sh" >> $HOME/.bashrc
 else
-  echo "If environment has changed, close terminals and reload bashrc"
+  echo "If environment has changed, close terminals or reload .bashrc"
   echo ""
 fi
 
