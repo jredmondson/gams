@@ -168,6 +168,7 @@ for var in "${ARGS[@]}"
 do
   if [ "$var" = "airlib" ] ||  [ "$var" = "airsim" ]; then
     AIRLIB=1
+    CLANG=1
   elif [ "$var" = "android" ]; then
     ANDROID=1
     JAVA=1
