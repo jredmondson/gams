@@ -2,13 +2,16 @@
 #ifndef   _GAMS_PLATFORM_OSCPLATFORM_H_
 #define   _GAMS_PLATFORM_OSCPLATFORM_H_
 
+#include "madara/knowledge/KnowledgeBase.h"
+
+#include "gams/variables/Self.h"
+#include "gams/variables/Sensor.h"
+#include "gams/variables/PlatformStatus.h"
 #include "gams/platforms/BasePlatform.h"
 #include "gams/platforms/PlatformFactory.h"
-#include "madara/threads/Threader.h"
-#include "gams/pose/GPSFrame.h"
 #include "gams/pose/CartesianFrame.h"
+
 #include "gams/utility/OscUdp.h"
-#include "gams/GamsExport.h"
 
 namespace gams { namespace platforms
 {        
@@ -22,8 +25,8 @@ namespace gams { namespace platforms
 
     enum MovementTypes
     {
-      MOVEMENT_STOP_ON_ARRIVAL=0,
-      MOVEMENT_PASSTHROUGH=1
+      MOVEMENT_STOP_ON_ARRIVAL = 0,
+      MOVEMENT_PASSTHROUGH = 1
     };
 
     /**
@@ -164,9 +167,6 @@ namespace gams { namespace platforms
     std::vector<double> calculate_thrust(
       const pose::Position & current, const pose::Position & target,
       int type = MOVEMENT_STOP_ON_ARRIVAL);
-
-    /// a threader for managing platform threads
-    madara::threads::Threader threader_;
 
     /// handle to OSC UDP utility class
     gams::utility::OscUdp osc_;
