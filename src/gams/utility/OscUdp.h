@@ -193,7 +193,7 @@ namespace gams
         int receive (OscMap & values, double max_wait_seconds = 0.5)
         {
           int result = -1;
-          std::string remote;
+          boost::asio::ip::udp::endpoint remote;
           size_t bytes_read;
 
           if (has_socket())
