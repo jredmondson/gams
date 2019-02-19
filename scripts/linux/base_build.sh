@@ -332,6 +332,7 @@ done
 # make the .gams directory if it doesn't exist
 if [ ! -d $HOME/.gams ]; then
   mkdir $HOME/.gams
+  touch $HOME/.gams/env.sh
 fi
 
 if [ $CLANG -eq 1 ] && [ $CLANG_DEFINED -eq 0 ] ; then
