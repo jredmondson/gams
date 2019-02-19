@@ -5,6 +5,11 @@
 #include "madara/utility/Utility.h"
 #include "OscPlatform.h"
 
+gams::platforms::OscPlatformFactory::~OscPlatformFactory()
+{
+  
+}
+
 // factory class for creating a OscPlatform 
 gams::platforms::BasePlatform *
 gams::platforms::OscPlatformFactory::create(

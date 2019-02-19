@@ -194,6 +194,12 @@ namespace gams { namespace platforms
   class GAMS_EXPORT OscPlatformFactory : public PlatformFactory
   {
   public:
+
+    /**
+     * Destructor. Shouldn't be necessary but trying to find vtable issue
+     **/
+    virtual ~OscPlatformFactory();
+
     /**
      * Creates a OscPlatform platform.
      * @param   args      no arguments are necessary for this platform
