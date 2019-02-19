@@ -149,6 +149,11 @@ VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
 export INSTALL_DIR=`pwd`
 SCRIPTS_DIR=`dirname $0`
 
+if [ "$EUID" == 0 ] ; then
+    echo "Please re-run this script without sudo."
+    exit
+fi
+
 if [ -z $CORES ] ; then
   echo "CORES unset, so setting it to default of 1"
   echo "  If you have more than one CPU core, try export CORES=<num cores>"
@@ -327,6 +332,7 @@ done
 # make the .gams directory if it doesn't exist
 if [ ! -d $HOME/.gams ]; then
   mkdir $HOME/.gams
+  touch $HOME/.gams/env.sh
 fi
 
 if [ $CLANG -eq 1 ] && [ $CLANG_DEFINED -eq 0 ] ; then
