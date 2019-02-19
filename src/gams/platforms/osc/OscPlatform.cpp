@@ -133,7 +133,7 @@ gams::platforms::OscPlatform::build_prefixes(void)
 
 std::vector<double>
 gams::platforms::OscPlatform::calculate_thrust(
-  const pose::Position & current, const pose::Position & target, int type)
+  const pose::Position & current, const pose::Position & target, int)
 {
   std::vector<double> difference (std::min(current.size(), target.size()));
   
@@ -147,21 +147,21 @@ gams::platforms::OscPlatform::calculate_thrust(
     }
     else if (difference[i] > 50 || difference[i] < -50)
     {
-      difference[i] /= abs(difference[i]);
+      difference[i] /= fabs(difference[i]);
     }
     else if (difference[i] > 20 || difference[i] < -20)
     {
-      difference[i] /= abs(difference[i]);
+      difference[i] /= fabs(difference[i]);
       difference[i] *= 2.0/3;
     }
     else if (difference[i] > 10 || difference[i] < -10)
     {
-      difference[i] /= abs(difference[i]);
+      difference[i] /= fabs(difference[i]);
       difference[i] *= 1.0/3;
     }
     else if (difference[i] > 1 || difference[i] < -1)
     {
-      difference[i] /= abs(difference[i]);
+      difference[i] /= fabs(difference[i]);
       difference[i] *= 1.0/6;
     }
   }
@@ -185,6 +185,14 @@ gams::platforms::OscPlatform::sense(void)
         "gams::platforms::OscPlatform::sense: " \
         " Processing %s => platform location with %d values\n",
         value.first.c_str(), (int)value.second.size());
+
+      
+      // convert osc order to the frame order
+      pose::Position loc(get_frame());
+      loc.from_array(value.second);
+
+      // save the location to the self container
+      loc.to_container (self_->agent.location);
     }
     else
     {
@@ -356,7 +364,7 @@ gams::platforms::OscPlatform::pause_move(void)
 
 // Set move speed. Optional.
 void
-gams::platforms::OscPlatform::set_move_speed(const double& speed)
+gams::platforms::OscPlatform::set_move_speed(const double& )
 {
 }
 

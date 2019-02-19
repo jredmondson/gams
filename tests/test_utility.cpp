@@ -58,6 +58,7 @@
 #include <vector>
 #include <cmath>
 
+#include "gams/utility/OscUdp.h"
 #include "gams/utility/Position.h"
 #include "gams/utility/GPSPosition.h"
 #include "gams/pose/Region.h"
@@ -80,8 +81,104 @@ void
 testing_output (const string& str, const unsigned int& tabs = 0)
 {
   for (unsigned int i = 0; i < tabs; ++i)
-    cout << "\t";
+    cout << "  ";
   cout << "testing " << str << "..." << endl;
+}
+
+void
+test_OscUdp ()
+{
+  testing_output("gams::utility::OscUdp");
+
+  gams::utility::OscUdp osc, osc_server;
+  gams::utility::OscUdp::OscMap source_map, dest_map;
+
+  size_t buf_size = 1000;
+  size_t read_size = 0;
+  char buffer[buf_size];
+
+  madara::transport::QoSTransportSettings settings;
+  settings.hosts.push_back("127.0.0.1:8000");
+  settings.hosts.push_back("127.0.0.1:5555");
+  settings.type = madara::transport::UDP;
+
+  source_map["/agent/0/velocity/xy"].push_back(1.0);
+  source_map["/agent/0/velocity/xy"].push_back(0.75);
+  source_map["/agent/0/velocity/z"].push_back(-0.25);
+  source_map["/agent/0/pos/xyz"].push_back(42.7234897);
+  source_map["/agent/0/pos/xyz"].push_back(78.1347113);
+  source_map["/agent/0/pos/xyz"].push_back(1050.00);
+
+  testing_output ("testing pack", 1);
+  read_size = osc.pack(buffer, buf_size, source_map);
+  testing_output ("testing unpack", 1);
+  osc.unpack(OSCPP::Server::Packet(buffer, read_size), dest_map);
+
+  std::cout << "    read_size=" << read_size << "\n";
+  std::cout << "    dest_map:\n";
+  for (auto entries : dest_map)
+  {
+    std::cout << "      " << entries.first << " =";
+    for (auto arg : entries.second)
+    {
+      std::cout << " " << arg;
+    }
+    std::cout << "\n";
+  }
+
+  assert (source_map.size() == dest_map.size() && 
+    dest_map["/agent/0/velocity/xy"].size() == 2 &&
+    dest_map["/agent/0/velocity/z"].size() == 1 &&
+    dest_map["/agent/0/pos/xyz"].size() == 3);
+
+  testing_output ("testing client-side create_socket", 1);
+  osc.create_socket(settings);
+
+  testing_output ("testing server-side create_socket", 1);
+
+  settings.hosts.clear();
+  settings.hosts.push_back("127.0.0.1:5555");
+  settings.hosts.push_back("127.0.0.1:8000");
+
+  osc_server.create_socket(settings);
+
+  dest_map.clear();
+
+  testing_output ("testing send", 1);
+  osc.send(source_map);
+
+  testing_output ("testing receive", 1);
+  osc_server.receive(dest_map);
+
+  testing_output ("testing result", 1);
+
+  std::cout << "    source_map:\n";
+  for (auto entries : source_map)
+  {
+    std::cout << "      " << entries.first << " =";
+    for (auto arg : entries.second)
+    {
+      std::cout << " " << arg;
+    }
+    std::cout << "\n";
+  }
+
+  std::cout << "    dest_map:\n";
+  for (auto entries : dest_map)
+  {
+    std::cout << "      " << entries.first << " =";
+    for (auto arg : entries.second)
+    {
+      std::cout << " " << arg;
+    }
+    std::cout << "\n";
+  }
+
+  assert (source_map.size() == dest_map.size() && 
+    dest_map["/agent/0/velocity/xy"].size() == 2 &&
+    dest_map["/agent/0/velocity/z"].size() == 1 &&
+    dest_map["/agent/0/pos/xyz"].size() == 3);
+
 }
 
 // TODO: fill out remaining Position function tests
@@ -352,6 +449,7 @@ main (int /*argc*/, char ** /*argv*/)
   gams::loggers::global_logger->set_level (-1);
   test_Position ();
   test_GPSPosition ();
+  test_OscUdp();
   //test_Region ();
   //test_SearchArea ();
   return 0;

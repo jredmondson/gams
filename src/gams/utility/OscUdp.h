@@ -59,6 +59,12 @@ namespace gams
          **/
         OscUdp() = default;
 
+        ~OscUdp()
+        {
+          // force transport to clear first then kb should clean
+          transport_ = 0;
+        }
+
         /**
          * Processes OSC packets and places them into an OSC map
          * @param packet   the packet to process
@@ -68,29 +74,30 @@ namespace gams
         {
           OSCPP::Client::Packet packet(buffer, size);
           
-          auto bundle =
+          OSCPP::Client::Packet * cur_p = &
             packet.openBundle((uint64_t)madara::utility::get_time());
  
           for (auto i : map)
           {
             // open a new message
-            auto msg = bundle.openMessage(
+            cur_p->openMessage(
               i.first.c_str(), OSCPP::Tags::array(i.second.size()));
 
             // create the message arguments
-            auto args = msg.openArray();
+            cur_p->openArray();
+
             for (auto arg : i.second)
             {
-              args.float32((float)arg);
+              cur_p->float32((float)arg);
             }
 
             // clean up the array and message
-            args.closeArray();
-            msg.closeMessage();
+            cur_p->closeArray();
+            cur_p->closeMessage();
           }
 
           // clean up the bundle
-          bundle.closeBundle();
+          cur_p->closeBundle();
 
           // return the size written
           return packet.size();
@@ -124,12 +131,15 @@ namespace gams
             // Get argument stream
             OSCPP::Server::ArgStream args(msg.args());
 
+            // Get argument stream
+            OSCPP::Server::ArgStream params(args.array());
+
             // Add args to the map
             std::vector<double> double_args;
 
-            while (!args.atEnd())
+            while (!params.atEnd())
             {
-              double_args.push_back(args.float32());
+              double_args.push_back(params.float32());
             }
 
             if (double_args.size() != 0)
@@ -201,17 +211,18 @@ namespace gams
             madara::utility::EpochEnforcer<madara::utility::Clock> enforcer(
               0.0, max_wait_seconds);
 
-            while (result == 0 || enforcer.is_done())
+            do
             {
               result = transport_.get()->receive_buffer(
                 buffer_.get(), bytes_read, remote);
 
-              if (result == 0)
+              if (result == 0 && bytes_read != 0)
               {
                 unpack(
                   OSCPP::Server::Packet(buffer_.get(), bytes_read), values);
               }
-            }
+            } while (result == 0 && !enforcer.is_done());
+            
           }
 
           return result;
