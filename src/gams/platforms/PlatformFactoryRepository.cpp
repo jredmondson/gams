@@ -67,6 +67,7 @@
 #include "gams/platforms/airlib/AirLibQuadcopter.h"
 #endif
 
+#include "gams/platforms/osc/OscPlatform.h"
 #include "gams/loggers/GlobalLogger.h"
 
 #include <string>
@@ -114,6 +115,12 @@ platforms::PlatformFactoryRepository::initialize_default_mappings (void)
 
   add (aliases, new NullPlatformFactory ());
   
+  aliases.resize (2);
+  aliases[0] = "osc-generic";
+  aliases[1] = "osc";
+
+  add (aliases, new OscPlatformFactory ());
+
   // VREP Platforms
 #ifdef _GAMS_VREP_
   
