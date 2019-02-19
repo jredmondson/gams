@@ -711,6 +711,12 @@ if [ $MAC -eq 1 ]; then
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
 fi
 
+if [ ! -f $HOME/.gams/env.sh ] ; then
+  echo "$HOME/.gams/env.sh did not exist. Creating"
+  mkdir -p $HOME/.gams/
+  touch $HOME/.gams/env.sh
+fi
+
 # Update CORES in the GAMS environment file
 if grep -q CORES $HOME/.gams/env.sh ; then
   sed -i 's@CORES=.*@CORES='"$CORES"'@' $HOME/.gams/env.sh
