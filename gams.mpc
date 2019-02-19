@@ -61,6 +61,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     
     Platforms {
       src/gams/platforms
+      src/gams/platforms/osc
     }
 
     Pose {
@@ -119,6 +120,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     
     Platforms {
       src/gams/platforms
+      src/gams/platforms/osc
     }
 
     Pose {
@@ -177,6 +179,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     
     Platforms {
       src/gams/platforms
+      src/gams/platforms/osc
     }
 
     Pose {
