@@ -116,7 +116,7 @@ gams::platforms::OscPlatform::build_prefixes(void)
     // build the common prefix
     xy_velocity_prefix_ = "/";
     xy_velocity_prefix_ += self_->agent.prefix;
-    xy_velocity_prefix_[5] = '/';
+    xy_velocity_prefix_[6] = '/';
 
     // build the common prefix
     z_velocity_prefix_ = xy_velocity_prefix_;
