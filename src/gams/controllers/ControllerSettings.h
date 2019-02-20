@@ -132,10 +132,10 @@ public:
   madara::knowledge::EvalSettings eval_settings =
     madara::knowledge::EvalSettings::SEND;
 
-  /// for multicontrollers, launch each controller in a separate thread
+  /// for multicontrollers, default to no launched threads
   int threading_strategy = THREADS_NONE;
 
-  /// for multicontrollers, call run on controllers in a round robin way
+  /// for multicontrollers, default to round robin schedule
   int scheduling_strategy = SCHEDULE_ROUND_ROBIN;
 
   /// include a shared memory transport when managing multiple controllers
