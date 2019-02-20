@@ -62,12 +62,12 @@ gams::platforms::OscPlatform::OscPlatform(
     madara::transport::QoSTransportSettings settings_;
 
     settings_.hosts.push_back(
-      knowledge->get(".osc_local_endpoint").to_string());
+      knowledge->get(".osc.local.endpoint").to_string());
     settings_.hosts.push_back(
-      knowledge->get(".osc_server_endpoint").to_string());
+      knowledge->get(".osc.server.endpoint").to_string());
 
     settings_.type =
-      knowledge->get(".osc_transport_type").to_integer();
+      knowledge->get(".osc.transport.type").to_integer();
     if (settings_.type == 0)
     {
       settings_.type = madara::transport::UDP;
@@ -87,13 +87,25 @@ gams::platforms::OscPlatform::OscPlatform(
     }
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_MAJOR,
+      gams::loggers::LOG_ALWAYS,
       "gams::platforms::OscPlatform::const: OSC settings:" \
-      " .osc_local_endpoint=%s, .osc_server_endpoint=%s,"
-      " .osc_transport_type=%d\n",
+      " %s: .osc.local.endpoint=%s, .osc.server.endpoint=%s,"
+      " .osc.transport_type=%d\n",
+      self_->agent.prefix.c_str(),
       settings_.hosts[0].c_str(),
       settings_.hosts[1].c_str(),
       (int)settings_.type);
+
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::OscPlatform::const: OSC prefixes:" \
+      " %s: xy_vel=%s, xy_z=%s,"
+      " pos=%s, rot=%s\n",
+      self_->agent.prefix.c_str(),
+      xy_velocity_prefix_.c_str(),
+      z_velocity_prefix_.c_str(),
+      position_prefix_.c_str(),
+      rotation_prefix_.c_str());
 
     osc_.create_socket(settings_);
 
@@ -120,14 +132,14 @@ gams::platforms::OscPlatform::build_prefixes(void)
 
     // build the common prefix
     z_velocity_prefix_ = xy_velocity_prefix_;
-    xyz_position_prefix_ = xy_velocity_prefix_;
-    xyz_quaternion_prefix_ = xy_velocity_prefix_;
+    position_prefix_ = xy_velocity_prefix_;
+    rotation_prefix_ = xy_velocity_prefix_;
 
     // build the specialized prefixes
     xy_velocity_prefix_ += "/velocity/xy";
     z_velocity_prefix_ += "/velocity/z";
-    xyz_position_prefix_ += "/pos/xyz";
-    xyz_quaternion_prefix_ += "/quat";
+    position_prefix_ += "/pos";
+    rotation_prefix_ += "/rot";
   }
 }
 
@@ -137,35 +149,62 @@ gams::platforms::OscPlatform::calculate_thrust(
 {
   std::vector<double> difference (std::min(current.size(), target.size()));
   
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_ALWAYS,
+    "gams::platforms::OscPlatform::calculate_thrust: " \
+    "%s: current=[%s], target=[%s]\n",
+    self_->agent.prefix.c_str(),
+    current.to_string().c_str(), target.to_string().c_str());
+
   for (size_t i = 0; i < difference.size(); ++i)
   {
     difference[i] = current.get(i) - target.get(i);
 
-    if (difference[i] > 0 && difference[i] < 0)
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_TRACE,
+      "gams::platforms::OscPlatform::calculate_thrust: " \
+      "%s: difference[%zu]=[%f]\n",
+      self_->agent.prefix.c_str(), i, difference[i]);
+
+    if (difference[i] <= 1.0 && difference[i] >= -1.0)
     {
       difference[i] = 0;
     }
-    else if (difference[i] > 50 || difference[i] < -50)
+    else
     {
       difference[i] /= fabs(difference[i]);
     }
-    else if (difference[i] > 20 || difference[i] < -20)
-    {
-      difference[i] /= fabs(difference[i]);
-      difference[i] *= 2.0/3;
-    }
-    else if (difference[i] > 10 || difference[i] < -10)
-    {
-      difference[i] /= fabs(difference[i]);
-      difference[i] *= 1.0/3;
-    }
-    else if (difference[i] > 1 || difference[i] < -1)
-    {
-      difference[i] /= fabs(difference[i]);
-      difference[i] *= 1.0/6;
-    }
+    
+    // else if (difference[i] >= 50 || difference[i] <= -50)
+    // {
+    //   difference[i] /= fabs(difference[i]);
+    // }
+    // else if (difference[i] >= 20 || difference[i] <= -20)
+    // {
+    //   difference[i] /= fabs(difference[i]);
+    //   difference[i] *= 2.0/3;
+    // }
+    // else if (difference[i] >= 10 || difference[i] <= -10)
+    // {
+    //   difference[i] /= fabs(difference[i]);
+    //   difference[i] *= 1.0/3;
+    // }
+    // else if (difference[i] >= 1 || difference[i] <= -1)
+    // {
+    //   difference[i] /= fabs(difference[i]);
+    //   difference[i] *= 1.0/6;
+    // }
   }
   
+  madara::knowledge::KnowledgeRecord record (difference);
+
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_ALWAYS,
+    "gams::platforms::OscPlatform::calculate_thrust: " \
+    "%s: returning thrust of [%s]\n",
+    self_->agent.prefix.c_str(),
+    record.to_string().c_str());
+
   return difference;
 }
 // Polls the sensor environment for useful information. Required.
@@ -174,16 +213,29 @@ gams::platforms::OscPlatform::sense(void)
 {
   utility::OscUdp::OscMap values;
 
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_MINOR,
+    "gams::platforms::OscPlatform::sense: " \
+    "%s: entering receive on OSC UDP\n",
+    self_->agent.prefix.c_str());
+
   osc_.receive(values);
+
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_MINOR,
+    "gams::platforms::OscPlatform::sense: " \
+    "%s: leaving receive on OSC UDP with %zu values\n",
+    self_->agent.prefix.c_str(), values.size());
 
   for (auto value: values)
   {
-    if (value.first == xyz_position_prefix_)
+    if (value.first == position_prefix_)
     {
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MAJOR,
+        gams::loggers::LOG_MINOR,
         "gams::platforms::OscPlatform::sense: " \
-        " Processing %s => platform location with %d values\n",
+        "%s: Processing %s => platform location with %d values\n",
+        self_->agent.prefix.c_str(),
         value.first.c_str(), (int)value.second.size());
 
       
@@ -193,16 +245,67 @@ gams::platforms::OscPlatform::sense(void)
 
       // save the location to the self container
       loc.to_container (self_->agent.location);
+
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "gams::platforms::OscPlatform::sense: " \
+        "%s: Platform location is [%s]\n",
+        self_->agent.prefix.c_str(),
+        self_->agent.location.to_record().to_string().c_str());
+
+    }
+    if (value.first == rotation_prefix_)
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::platforms::OscPlatform::sense: " \
+        " %s: Processing %s => platform orientation with %d values\n",
+        self_->agent.prefix.c_str(),
+        value.first.c_str(), (int)value.second.size());
+
+      
+      // convert osc order to the frame order
+      pose::Orientation angles(get_frame());
+      angles.from_array(value.second);
+
+      // save the location to the self container
+      angles.to_container (self_->agent.orientation);
+
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "gams::platforms::OscPlatform::sense: " \
+        "%s: Platform orientation is [%s]\n",
+        self_->agent.prefix.c_str(),
+        self_->agent.orientation.to_record().to_string().c_str());
+
     }
     else
     {
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_WARNING,
+        gams::loggers::LOG_ALWAYS,
         "gams::platforms::OscPlatform::sense: " \
-        " Unable to map topic %s to platform info\n",
+        "%s: Unable to map topic %s to platform info\n",
+        self_->agent.prefix.c_str(),
         value.first.c_str());
     }
     
+  }
+
+  if (values.size() == 0)
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::OscPlatform::sense: " \
+      "%s: No received values from UnrealGAMS\n",
+      self_->agent.prefix.c_str());
+  }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::OscPlatform::sense: " \
+      "%s: finished processing updates from OSC\n",
+      self_->agent.prefix.c_str());
   }
 
   return gams::platforms::PLATFORM_OK;
@@ -289,7 +392,8 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_TRACE,
     "gams::platforms::OscPlatform::move:" \
-    " requested target \"%f,%f,%f\"\n",
+    " %s: requested target \"%f,%f,%f\"\n",
+    self_->agent.prefix.c_str(),
     target.x(), target.y(), target.z());
 
   // convert from input reference frame to vrep reference frame, if necessary
@@ -298,7 +402,8 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_TRACE,
     "gams::platforms::OscPlatform::move:" \
-    " target \"%f,%f,%f\"\n",
+    " %s: target \"%f,%f,%f\"\n",
+    self_->agent.prefix.c_str(),
     new_target.x(), new_target.y(), new_target.z());
 
   pose::Position cur_loc = get_location();
@@ -312,7 +417,8 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::platforms::OscPlatform::move:" \
-      " ARRIVED at target \"%f,%f,%f\"\n",
+      " %s: ARRIVED at target \"%f,%f,%f\"\n",
+      self_->agent.prefix.c_str(),
       new_target.x(), new_target.y(), new_target.z());
 
     xy_velocity.push_back(0);
@@ -347,7 +453,8 @@ gams::platforms::OscPlatform::orient(const pose::Orientation & target,
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_TRACE,
     "gams::platforms::OscPlatform::orient:" \
-    " requested target \"%f,%f,%f\"\n", target.rx(), target.ry(), target.rz());
+    " %s: requested target \"%f,%f,%f\"\n",
+    self_->agent.prefix.c_str(), target.rx(), target.ry(), target.rz());
 
   // convert from input reference frame to vrep reference frame, if necessary
   pose::Orientation new_target(get_frame(), target);

@@ -174,17 +174,17 @@ namespace gams { namespace platforms
     /// transport settings for OSC
     madara::transport::QoSTransportSettings settings_;
 
-    /// holds xy velocity prefix
+    /// holds xy velocity prefix for OSC messages
     std::string xy_velocity_prefix_;
 
-    /// holds z velocity prefix
+    /// holds z velocity prefix for OSC messages
     std::string z_velocity_prefix_;
 
-    /// holds xy velocity prefix
-    std::string xyz_position_prefix_;
+    /// holds position prefix for OSC messages
+    std::string position_prefix_;
 
-    /// holds z velocity prefix
-    std::string xyz_quaternion_prefix_;
+    /// holds rotation prefix for OSC messages
+    std::string rotation_prefix_;
   }; // end OscPlatform class
     
 

@@ -30,6 +30,7 @@
 #include "madara/utility/EpochEnforcer.h"
 
 #include "gams/GamsExport.h"
+#include "gams/loggers/GlobalLogger.h"
 
 namespace gams
 {
@@ -70,84 +71,14 @@ namespace gams
          * @param packet   the packet to process
          * @param map      a map updated with recent messages
          **/
-        size_t pack (void* buffer, size_t size, const OscMap& map)
-        {
-          OSCPP::Client::Packet packet(buffer, size);
-          
-          OSCPP::Client::Packet * cur_p = &
-            packet.openBundle((uint64_t)madara::utility::get_time());
- 
-          for (auto i : map)
-          {
-            // open a new message
-            cur_p->openMessage(
-              i.first.c_str(), OSCPP::Tags::array(i.second.size()));
-
-            // create the message arguments
-            cur_p->openArray();
-
-            for (auto arg : i.second)
-            {
-              cur_p->float32((float)arg);
-            }
-
-            // clean up the array and message
-            cur_p->closeArray();
-            cur_p->closeMessage();
-          }
-
-          // clean up the bundle
-          cur_p->closeBundle();
-
-          // return the size written
-          return packet.size();
-        }
+        size_t pack (void* buffer, size_t size, const OscMap& map);
 
         /**
          * Processes OSC packets and places them into an OSC map
          * @param packet   the packet to process
          * @param map      a map updated with recent messages
          **/
-        void unpack (const OSCPP::Server::Packet& packet, OscMap & map)
-        {
-          if (packet.isBundle())
-          {
-            // Convert to bundle
-            OSCPP::Server::Bundle bundle(packet);
-
-            // Get packet stream
-            OSCPP::Server::PacketStream packets(bundle.packets());
-
-            while (!packets.atEnd())
-            {
-              unpack(packets.next(), map);
-            }
-          }
-          else
-          {
-            // Convert to message
-            OSCPP::Server::Message msg(packet);
-
-            // Get argument stream
-            OSCPP::Server::ArgStream args(msg.args());
-
-            // Get argument stream
-            OSCPP::Server::ArgStream params(args.array());
-
-            // Add args to the map
-            std::vector<double> double_args;
-
-            while (!params.atEnd())
-            {
-              double_args.push_back(params.float32());
-            }
-
-            if (double_args.size() != 0)
-            {
-              map[msg.address()] = double_args;
-            }
-          }
-        }
+        void unpack (const OSCPP::Server::Packet& packet, OscMap & map);
 
         /**
          * Returns if the UDP-based socket has been created properly
@@ -164,35 +95,7 @@ namespace gams
          *                 two hosts setup: [0] local_ip:port, [1] server:port
          **/
         void create_socket (
-          madara::transport::QoSTransportSettings& settings)
-        {
-          settings_ = settings;
-
-          // disable read thread settings
-          settings_.no_receiving = true;
-
-          // we're not implementing fragmentation right now
-          settings_.queue_length = 64000;
-
-          if (settings.type == madara::transport::UDP)
-          {
-            transport_ =
-              std::make_shared<madara::transport::UdpTransport>(
-                "", kb_.get_context(), settings_, true);
-          }
-          else if (settings.type == madara::transport::MULTICAST)
-          {
-            transport_ =
-              std::make_shared<madara::transport::MulticastTransport>(
-                "", kb_.get_context(), settings_, true);
-          }
-          else if (settings.type == madara::transport::BROADCAST)
-          {
-            transport_ =
-              std::make_shared<madara::transport::BroadcastTransport>(
-                "", kb_.get_context(), settings_, true);
-          }
-        }
+          madara::transport::QoSTransportSettings& settings);
 
         /**
          * Processes socket receives until empty buffer or max wait time
@@ -200,62 +103,14 @@ namespace gams
          * @param max_wait_seconds the max wait time in seconds (can be <1)
          * @return 0 if success, -1 if bad transport, 1 or 2 for socket issues
          **/
-        int receive (OscMap & values, double max_wait_seconds = 0.5)
-        {
-          int result = -1;
-          boost::asio::ip::udp::endpoint remote;
-          size_t bytes_read;
-
-          if (has_socket())
-          {
-            madara::utility::EpochEnforcer<madara::utility::Clock> enforcer(
-              0.0, max_wait_seconds);
-
-            do
-            {
-              result = transport_.get()->receive_buffer(
-                buffer_.get(), bytes_read, remote);
-
-              if (result == 0 && bytes_read != 0)
-              {
-                unpack(
-                  OSCPP::Server::Packet(buffer_.get(), bytes_read), values);
-              }
-            } while (result == 0 && !enforcer.is_done());
-            
-          }
-
-          return result;
-        }
+        int receive (OscMap & values, double max_wait_seconds = 0.5);
 
         /**
          * Sends a map of messages and args over the transport 
          * @param values   the values to send
          * @return 0 if success, -1 if bad transport, 1 or 2 for socket issues
          **/
-        int send (const OscMap & values)
-        {
-          int result = 0;
-          std::string remote;
-          size_t max_send = 64000;
-          size_t packed_bytes;
-
-          if (has_socket())
-          {
-            const std::vector<boost::asio::ip::udp::endpoint> & addresses =
-              transport_->get_udp_endpoints();
-
-            packed_bytes = pack(buffer_.get(), max_send, values);
-
-            for (auto address : addresses)
-            {
-              result = transport_->send_buffer(
-                address, buffer_.get(), packed_bytes);
-            }
-          }
-
-          return result;
-        }
+        int send (const OscMap & values);
     };
   }
 }
