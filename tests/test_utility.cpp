@@ -105,9 +105,13 @@ test_OscUdp ()
   source_map["/agent/0/velocity/xy"].push_back(1.0);
   source_map["/agent/0/velocity/xy"].push_back(0.75);
   source_map["/agent/0/velocity/z"].push_back(-0.25);
-  source_map["/agent/0/pos/xyz"].push_back(42.7234897);
-  source_map["/agent/0/pos/xyz"].push_back(78.1347113);
-  source_map["/agent/0/pos/xyz"].push_back(1050.00);
+  source_map["/agent/0/yaw"].push_back(-0.25);
+  source_map["/agent/0/pos"].push_back(42.7234897);
+  source_map["/agent/0/pos"].push_back(78.1347113);
+  source_map["/agent/0/pos"].push_back(1050.00);
+  source_map["/agent/0/rot"].push_back(20);
+  source_map["/agent/0/rot"].push_back(30);
+  source_map["/agent/0/rot"].push_back(50);
 
   testing_output ("testing pack", 1);
   read_size = osc.pack(buffer, buf_size, source_map);
@@ -115,6 +119,17 @@ test_OscUdp ()
   osc.unpack(OSCPP::Server::Packet(buffer, read_size), dest_map);
 
   std::cout << "    read_size=" << read_size << "\n";
+  std::cout << "    source_map:\n";
+  for (auto entries : source_map)
+  {
+    std::cout << "      " << entries.first << " =";
+    for (auto arg : entries.second)
+    {
+      std::cout << " " << arg;
+    }
+    std::cout << "\n";
+  }
+
   std::cout << "    dest_map:\n";
   for (auto entries : dest_map)
   {
@@ -129,7 +144,7 @@ test_OscUdp ()
   assert (source_map.size() == dest_map.size() && 
     dest_map["/agent/0/velocity/xy"].size() == 2 &&
     dest_map["/agent/0/velocity/z"].size() == 1 &&
-    dest_map["/agent/0/pos/xyz"].size() == 3);
+    dest_map["/agent/0/pos"].size() == 3);
 
   testing_output ("testing client-side create_socket", 1);
   osc.create_socket(settings);
@@ -177,7 +192,7 @@ test_OscUdp ()
   assert (source_map.size() == dest_map.size() && 
     dest_map["/agent/0/velocity/xy"].size() == 2 &&
     dest_map["/agent/0/velocity/z"].size() == 1 &&
-    dest_map["/agent/0/pos/xyz"].size() == 3);
+    dest_map["/agent/0/pos"].size() == 3);
 
 }
 

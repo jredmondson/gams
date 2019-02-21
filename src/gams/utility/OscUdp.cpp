@@ -27,13 +27,39 @@ gams::utility::OscUdp::pack (void* buffer, size_t size, const OscMap& map)
     cur_p->openMessage(
       i.first.c_str(), OSCPP::Tags::array(i.second.size()));
 
+    // velocity changes are arrays of floats
+    if (
+      madara::utility::ends_with (i.first, "/velocity/xy") ||
+      madara::utility::ends_with (i.first, "/velocity/z") ||
+      madara::utility::ends_with (i.first, "/yaw")
+    )
+    {
+      cur_p->openArray();
+      for (auto arg : i.second)
+      {
+        cur_p->float32((float)arg);
+      }
+      cur_p->closeArray();
+    }
+    // rotation and position are streams of floats
+    else if (
+      madara::utility::ends_with (i.first, "/pos") ||
+      madara::utility::ends_with (i.first, "/rot"))
+    {
+      for (auto arg : i.second)
+      {
+        cur_p->float32((float)arg);
+      }
+    }
+
     // create the message arguments
     // cur_p->openArray();
 
-    for (auto arg : i.second)
-    {
-      cur_p->float32((float)arg);
-    }
+
+    // for (auto arg : i.second)
+    // {
+    //   cur_p->float32((float)arg);
+    // }
 
     // clean up the array and message
     // cur_p->closeArray();
@@ -100,14 +126,39 @@ gams::utility::OscUdp::unpack (const OSCPP::Server::Packet& packet, OscMap & map
     // Add args to the map
     std::vector<double> double_args;
 
-    while (!args.atEnd())
+    // velocity changes are arrays of floats
+    if (
+      madara::utility::ends_with (msg.address(), "/velocity/xy") ||
+      madara::utility::ends_with (msg.address(), "/velocity/z") ||
+      madara::utility::ends_with (msg.address(), "/yaw")
+    )
     {
-      double_args.push_back(args.float32());
-      madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MINOR,
-        "gams::utility::OscUdp::unpack: " \
-        " %s temp double_args now at size %zu\n",
-        msg.address(), double_args.size());
+      OSCPP::Server::ArgStream params(args.array());
+      
+      while (!params.atEnd())
+      {
+        double_args.push_back(params.float32());
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
+          gams::loggers::LOG_TRACE,
+          "gams::utility::OscUdp::unpack: " \
+          " %s temp double_args now at size %zu\n",
+          msg.address(), double_args.size());
+      }
+    }
+    // rotation and position are streams of floats
+    else if (
+      madara::utility::ends_with (msg.address(), "/pos") ||
+      madara::utility::ends_with (msg.address(), "/rot"))
+    {
+        while (!args.atEnd())
+        {
+          double_args.push_back(args.float32());
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_TRACE,
+            "gams::utility::OscUdp::unpack: " \
+            " %s temp double_args now at size %zu\n",
+            msg.address(), double_args.size());
+        }
     }
 
     if (double_args.size() != 0)
