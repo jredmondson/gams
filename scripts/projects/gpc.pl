@@ -4285,9 +4285,9 @@ filters::${filter}::filter (
     copy "$script_dir/common/using_clang.mpb", "$path/";
   }
 
-  if (not -f "$path/using_oscpp.mpb")
+  if (not -f "$path/using_osc.mpb")
   {
-    copy "$script_dir/common/using_oscpp.mpb", "$path/";
+    copy "$script_dir/common/using_osc.mpb", "$path/";
   }
 
   if (not -f "$path/using_madara.mpb")

@@ -16,16 +16,15 @@
 size_t
 gams::utility::OscUdp::pack (void* buffer, size_t size, const OscMap& map)
 {
-  OSCPP::Client::Packet packet(buffer, size);
-  
-  OSCPP::Client::Packet * cur_p = &
-    packet.openBundle((uint64_t)madara::utility::get_time());
+  size_t result = 0, word_boundary = 0, pos = 0;
 
   for (auto i : map)
   {
-    // open a new message
-    cur_p->openMessage(
-      i.first.c_str(), OSCPP::Tags::array(i.second.size()));
+    // @Alex Rozgo. Here is where the OSC pack magic should happen
+    // map is a STL map of string->vector<double>. We just have to
+    // pack according to the types. I've left scaffolding in here for
+    // checking the message addresses by their ending. Feel free to
+    // do what you feel is necessary
 
     // velocity changes are arrays of floats
     if (
@@ -34,43 +33,19 @@ gams::utility::OscUdp::pack (void* buffer, size_t size, const OscMap& map)
       madara::utility::ends_with (i.first, "/yaw")
     )
     {
-      cur_p->openArray();
-      for (auto arg : i.second)
-      {
-        cur_p->float32((float)arg);
-      }
-      cur_p->closeArray();
+
     }
     // rotation and position are streams of floats
     else if (
       madara::utility::ends_with (i.first, "/pos") ||
       madara::utility::ends_with (i.first, "/rot"))
     {
-      for (auto arg : i.second)
-      {
-        cur_p->float32((float)arg);
-      }
+
     }
-
-    // create the message arguments
-    // cur_p->openArray();
-
-
-    // for (auto arg : i.second)
-    // {
-    //   cur_p->float32((float)arg);
-    // }
-
-    // clean up the array and message
-    // cur_p->closeArray();
-    cur_p->closeMessage();
   }
 
-  // clean up the bundle
-  cur_p->closeBundle();
-
   // return the size written
-  return packet.size();
+  return result;
 }
 
 /**
@@ -79,105 +54,10 @@ gams::utility::OscUdp::pack (void* buffer, size_t size, const OscMap& map)
  * @param map      a map updated with recent messages
  **/
 void
-gams::utility::OscUdp::unpack (const OSCPP::Server::Packet& packet, OscMap & map)
+gams::utility::OscUdp::unpack (void* buffer, size_t size, OscMap & map)
 {
-  packet.size();
-
-  madara_logger_ptr_log(gams::loggers::global_logger.get(),
-    gams::loggers::LOG_MAJOR,
-    "gams::utility::OscUdp::unpack: " \
-    " unpacking %zu bytes. Checking for bundle\n",
-    packet.size());
-
-  if (packet.isBundle())
-  {
-    // Convert to bundle
-    OSCPP::Server::Bundle bundle(packet);
-
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_MINOR,
-      "gams::utility::OscUdp::unpack: " \
-      " found bundle\n");
-
-    // Get packet stream
-    OSCPP::Server::PacketStream packets(bundle.packets());
-
-    while (!packets.atEnd())
-    {
-      unpack(packets.next(), map);
-    }
-  }
-  else
-  {
-    // Convert to message
-    OSCPP::Server::Message msg(packet);
-
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_MINOR,
-      "gams::utility::OscUdp::unpack: " \
-      " found message %s with %zu args\n", msg.address(), msg.args().size());
-
-    // Get argument stream
-    OSCPP::Server::ArgStream args(msg.args());
-
-    // // Get argument stream
-    // OSCPP::Server::ArgStream params(args.array());
-
-    // Add args to the map
-    std::vector<double> double_args;
-
-    // velocity changes are arrays of floats
-    if (
-      madara::utility::ends_with (msg.address(), "/velocity/xy") ||
-      madara::utility::ends_with (msg.address(), "/velocity/z") ||
-      madara::utility::ends_with (msg.address(), "/yaw")
-    )
-    {
-      OSCPP::Server::ArgStream params(args.array());
-      
-      while (!params.atEnd())
-      {
-        double_args.push_back(params.float32());
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_TRACE,
-          "gams::utility::OscUdp::unpack: " \
-          " %s temp double_args now at size %zu\n",
-          msg.address(), double_args.size());
-      }
-    }
-    // rotation and position are streams of floats
-    else if (
-      madara::utility::ends_with (msg.address(), "/pos") ||
-      madara::utility::ends_with (msg.address(), "/rot"))
-    {
-        while (!args.atEnd())
-        {
-          double_args.push_back(args.float32());
-          madara_logger_ptr_log(gams::loggers::global_logger.get(),
-            gams::loggers::LOG_TRACE,
-            "gams::utility::OscUdp::unpack: " \
-            " %s temp double_args now at size %zu\n",
-            msg.address(), double_args.size());
-        }
-    }
-
-    if (double_args.size() != 0)
-    {
-      map[msg.address()] = double_args;
-      madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MINOR,
-        "gams::utility::OscUdp::unpack: " \
-        " adding %s with %zu values to map\n",
-        msg.address(), double_args.size());
-    }
-  }
-  
-  madara_logger_ptr_log(gams::loggers::global_logger.get(),
-    gams::loggers::LOG_MAJOR,
-    "gams::utility::OscUdp::unpack: " \
-    " returning with %zu values\n",
-    map.size());
-
+  // @Alex Rozgo. I've removed all of this and changed the function signature
+  // to be more generic
 }
 
 /**

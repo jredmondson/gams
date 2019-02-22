@@ -68,17 +68,19 @@ namespace gams
 
         /**
          * Processes OSC packets and places them into an OSC map
-         * @param packet   the packet to process
+         * @param buffer   the buffer to pack into
+         * @param size     the size of the buffer
          * @param map      a map updated with recent messages
          **/
         size_t pack (void* buffer, size_t size, const OscMap& map);
 
         /**
          * Processes OSC packets and places them into an OSC map
-         * @param packet   the packet to process
+         * @param buffer   the buffer to unpack from
+         * @param size     the size of the buffer
          * @param map      a map updated with recent messages
          **/
-        void unpack (const OSCPP::Server::Packet& packet, OscMap & map);
+        void unpack (void* buffer, size_t size, OscMap & map);
 
         /**
          * Returns if the UDP-based socket has been created properly

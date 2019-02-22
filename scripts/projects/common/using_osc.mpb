@@ -1,0 +1,3 @@
+project {
+  includes += $(OSC_ROOT)
+}

@@ -1,3 +1,0 @@
-project {
-  includes += $(OSCPP_ROOT)/include
-}
