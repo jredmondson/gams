@@ -157,7 +157,15 @@ variables::Agents * /*agents*/)
         if (i->first == "origin")
         {
           origin.frame (platform->get_frame ());
-          origin.from_container (i->second.to_doubles ());
+          std::vector<double> origin_coords = i->second.to_doubles();
+          #ifdef _GAMS_VREP_
+          // vrep coordinates need to be switched, since it gets them in reverse order here
+          // TODO: this is a quick fix, if in vrep platform correct fix is found this can be removed
+          double switchValue = origin_coords[1];
+          origin_coords[1] = origin_coords[0];
+          origin_coords[0] = switchValue;
+          #endif
+          origin.from_container (origin_coords);
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,

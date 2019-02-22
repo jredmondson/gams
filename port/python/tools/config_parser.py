@@ -51,10 +51,11 @@ def create_plotters_from_config(file_path):
     # user_specs = OrderedDict(yaml_loader(file_path))
     # user_specs = OrderedDict(user_specs)
     # 2. Grab schema file
-    if user_specs[source_key][capnp_schemas_location]:
+    schemas = None
+    if capnp_schemas_location in user_specs[source_key]:
         schemas = user_specs[source_key][capnp_schemas_location]
     else:
-        sys.exit('You have not specified schema files')
+        print 'no schemas location specified'
 
     # 3. Grab source from which to read data (.stk or live transport)
     # Checks to see what source is specified (For now cannot be both)
