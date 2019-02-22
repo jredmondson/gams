@@ -20,10 +20,6 @@
 #include <vector>
 #include <string>
 
-#include <oscpp/client.hpp>
-#include <oscpp/server.hpp>
-#include <oscpp/print.hpp>
-
 #include "madara/transport/udp/UdpTransport.h"
 #include "madara/transport/multicast/MulticastTransport.h"
 #include "madara/transport/broadcast/BroadcastTransport.h"
