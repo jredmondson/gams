@@ -1,0 +1,13 @@
+data_source:
+
+  transport:
+    transport_type: MULTICAST
+    hosts: ['239.255.0.1:4150']
+    queue_length: 100000000
+    read_threads: 3
+    read_thread_hertz: 1000
+    kb_name: nothing
+
+
+
+knowledge_record_subkeys: 
