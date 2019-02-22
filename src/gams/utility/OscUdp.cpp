@@ -16,7 +16,7 @@
 size_t
 gams::utility::OscUdp::pack (void* buffer, size_t size, const OscMap& map)
 {
-  size_t result = 0, word_boundary = 0, pos = 0;
+  size_t result = 0;
 
   for (auto i : map)
   {
@@ -48,11 +48,7 @@ gams::utility::OscUdp::pack (void* buffer, size_t size, const OscMap& map)
   return result;
 }
 
-/**
- * Processes OSC packets and places them into an OSC map
- * @param packet   the packet to process
- * @param map      a map updated with recent messages
- **/
+
 void
 gams::utility::OscUdp::unpack (void* buffer, size_t size, OscMap & map)
 {
@@ -123,8 +119,7 @@ gams::utility::OscUdp::receive (OscMap & values, double max_wait_seconds)
           " received %zu bytes. Calling unpack\n",
           bytes_read);
 
-        unpack(
-          OSCPP::Server::Packet(buffer_.get(), bytes_read), values);
+        unpack(buffer_.get(), bytes_read, values);
       }
     } while (result == 0 && !enforcer.is_done());
   }

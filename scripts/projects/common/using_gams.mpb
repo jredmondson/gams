@@ -1,4 +1,4 @@
-project : using_madara, using_oscpp {
+project : using_madara, using_osc {
   includes += $(GAMS_ROOT)/src
   includes += $(EIGEN_ROOT)
 

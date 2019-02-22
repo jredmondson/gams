@@ -116,7 +116,7 @@ test_OscUdp ()
   testing_output ("testing pack", 1);
   read_size = osc.pack(buffer, buf_size, source_map);
   testing_output ("testing unpack", 1);
-  osc.unpack(OSCPP::Server::Packet(buffer, read_size), dest_map);
+  osc.unpack(buffer, read_size, dest_map);
 
   std::cout << "    read_size=" << read_size << "\n";
   std::cout << "    source_map:\n";

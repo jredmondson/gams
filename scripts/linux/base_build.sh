@@ -553,6 +553,25 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
     sudo add-apt-repository -y ppa:webupd8team/java
   fi
 
+  if [ ! -d $OSC_ROOT ]; then 
+    echo "Downloading oscpack"
+    git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
+  else
+    echo "Updating oscpack"
+    cd $OSC_ROOT
+    git pull
+  fi
+
+  cd $OSC_ROOT
+  echo "Cleaning oscpack"
+  make clean
+  echo "Building oscpack"
+  if [ $CLANG -eq 1 ]; then
+    sudo make CXX=clang++-5.0 COPTS='-Wall -Wextra -fPIC' install
+  else
+    sudo make CXX=clang++-5.0 COPTS='-Wall -Wextra -fPIC' install
+  fi
+  
   if [ $ROS -eq 1 ]; then
     ROS_FIRST_SETUP=0
     if [ ! -d "/opt/ros/kinetic" ] ; then
@@ -876,16 +895,6 @@ fi
 if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
-
-  if [ ! -d $OSC_ROOT ]; then 
-    echo "Downloading oscpack"
-    git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
-  else
-    echo "Updating oscpack"
-    cd $OSC_ROOT
-    git pull
-    cd $INSTALL_DIR
-  fi
 
   echo "ENTERING $EIGEN_ROOT"
   if [ -d $EIGEN_ROOT ]; then
