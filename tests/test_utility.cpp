@@ -464,7 +464,7 @@ main (int /*argc*/, char ** /*argv*/)
   gams::loggers::global_logger->set_level (-1);
   test_Position ();
   test_GPSPosition ();
-  test_OscUdp();
+  // test_OscUdp();
   //test_Region ();
   //test_SearchArea ();
   return 0;
