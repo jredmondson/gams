@@ -104,17 +104,11 @@ void gams::utility::OscUdp::process_message(const osc::ReceivedMessage &m, OscMa
 void gams::utility::OscUdp::unpack(void *buffer, size_t size, OscMap &map)
 {
   std::cout << "UNPACK: " << size << " bytes" << std::endl;
-
   osc::ReceivedPacket p((const char *)buffer, size);
   if (p.IsBundle())
     process_bundle(osc::ReceivedBundle(p), map);
   else
     process_message(osc::ReceivedMessage(p), map);
-
-  for (auto i : map)
-  {
-    std::cout << "UNPACK: YEAH!!! " << i.first << std::endl;
-  }
 }
 
 /**
