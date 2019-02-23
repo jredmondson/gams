@@ -644,6 +644,7 @@ int main(int argc, char ** argv)
   if (madara_debug_level >= 0)
   {
     madara::logger::global_logger->set_level(madara_debug_level);
+    controller_settings.madara_log_level = madara_debug_level;
   }
 
   // save transport always happens after all possible transport chagnes
@@ -666,6 +667,13 @@ int main(int argc, char ** argv)
 
   num_controllers = num_controllers > 1 ? num_controllers : 1;
 
+  // set this once to allow for debugging controller creation
+  if (gams_debug_level >= 0)
+  {
+    gams::loggers::global_logger->set_level(gams_debug_level);
+    controller_settings.gams_log_level = gams_debug_level;
+  }
+
   controller_settings.eval_settings = madara::knowledge::EvalSettings::SEND;
   controllers::Multicontroller controller(num_controllers, controller_settings);
 
@@ -681,12 +689,6 @@ int main(int argc, char ** argv)
   // begin transport creation 
   // end transport creation
   
-  // set this once to allow for debugging controller creation
-  if (gams_debug_level >= 0)
-  {
-    gams::loggers::global_logger->set_level(gams_debug_level);
-  }
-
   controller.add_transports(settings);
   madara::threads::Threader threader(kb);
 
@@ -709,15 +711,15 @@ int main(int argc, char ** argv)
   }
   
   // set debug levels if they have been set through command line
-  if (madara_debug_level >= 0)
-  {
-    madara::logger::global_logger->set_level(madara_debug_level);
-  }
+  // if (madara_debug_level >= 0)
+  // {
+  //   madara::logger::global_logger->set_level(madara_debug_level);
+  // }
 
-  if (gams_debug_level >= 0)
-  {
-    gams::loggers::global_logger->set_level(gams_debug_level);
-  }
+  // if (gams_debug_level >= 0)
+  // {
+  //   gams::loggers::global_logger->set_level(gams_debug_level);
+  // }
 
   // initialize the platform and algorithm
   // default to platform in knowledge base if platform not set in command line

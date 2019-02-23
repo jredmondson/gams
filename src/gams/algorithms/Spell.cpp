@@ -178,6 +178,7 @@ variables::Agents * /*agents*/)
         if (i->first == "text")
         {
           text = i->second.to_string ();
+          madara::utility::upper (text);
 
           madara_logger_ptr_log (gams::loggers::global_logger.get (),
             gams::loggers::LOG_DETAILED,

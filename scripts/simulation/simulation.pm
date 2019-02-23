@@ -14,7 +14,7 @@ sub run {
   # launch drone controllers
   my $gams_root = $ENV{"GAMS_ROOT"};
 
-  $launch_controllers //= 1;
+  # $launch_controllers //= 1;
 
   if ($launch_controllers == 1)
   {

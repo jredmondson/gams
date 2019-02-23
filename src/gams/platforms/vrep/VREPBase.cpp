@@ -380,7 +380,7 @@ gams::platforms::VREPBase::do_move (const pose::Position & target,
     double distance = target.distance_to (current);
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
-      gams::loggers::LOG_DETAILED,
+      gams::loggers::LOG_MAJOR,
       "gams::platforms::VREPBase::do_move:" \
       " moving from (%f, %f, %f) to (%f, %f, %f, distance %f m).",
       current.x (), current.y (), current.z (),
