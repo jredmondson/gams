@@ -116,6 +116,8 @@ FORCE_AIRSIM=0
 UNREAL_DEV=0
 UNREAL_GAMS=0
 CLANG_DEFINED=0
+CLANG_IN_LAST=0
+
 
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
@@ -339,8 +341,43 @@ if [ $CLANG -eq 1 ] && [ $CLANG_DEFINED -eq 0 ] ; then
   ARGS+=('clang')
 fi
 
+# did we compile with clang last time?
+if grep -q clang $GAMS_ROOT/last_build.lst ; then
+  CLANG_IN_LAST=1
+fi
+
+# if we have changed compilers, stop everything
+if [ $CLANG_IN_LAST -ne $CLANG ] ; then
+  echo "Compiler change detected. Forcing clean build"
+
+  for i in "${!ARGS[@]}"; do
+    if [ "${ARGS[i]}" != "noclean" ]; then
+      NEW_ARGS+=( "${ARGS[i]}" )
+    fi
+  done
+  ARGS=("${NEW_ARGS[@]}")
+  unset NEW_ARGS
+  CLEAN=1
+
+  if [ $MADARA -eq 0 ] && [ $GAMS -eq 1 ] ; then
+    echo "  MADARA needs to be rebuilt"
+    MADARA_AS_A_PREREQ=1
+  fi
+fi
+
+if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] ; then
+  MADARA_DEPENDENCY_ENABLED=1
+fi
+
+# check if MADARA is a prereq for later packages
+if [ $MADARA_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MADARA_ROOT ]; then
+  MADARA_AS_A_PREREQ=1
+fi
+
 # save the last builds that have been performed
 echo "${ARGS[*]}" >> $HOME/.gams/build.lst
+
+CLANG_IN_LAST=0
 
 if [ $CORES -eq 1 ] ; then
     echo -e "${ORANGE} Warning! The CORES environment variable is set to 1. With only one core installation will take longer than it could be. By increasing the number of cores to compile with you will be reducing compilation time substantially. ${NOCOLOR}"
@@ -849,8 +886,13 @@ if [ $MPC_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MPC_ROOT ]; then
   MPC_AS_A_PREREQ=1
 fi
 
-if [ $MADARA -eq 1 ]  && [ $PREREQS -eq 1 ]; then
-  CAPNP_AS_A_PREREQ=1
+#none of these appeared to work for me in 18.04 /bin/bash
+#if { [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; } && [ $PREREQS -eq 1 ]; then
+#if [[ ($MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1) && $PREREQS -eq 1 ]]; then
+if [ $PREREQS -eq 1 ]; then
+  if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
+    CAPNP_AS_A_PREREQ=1
+  fi
 fi
 
 if [ $MPC -eq 1 ] || [ $MPC_AS_A_PREREQ -eq 1 ]; then
@@ -1072,15 +1114,6 @@ fi
 # check if MADARA_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
 if [[ ! ":$LD_LIBRARY_PATH:" == *":$MADARA_ROOT/lib:"* ]]; then
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib
-fi
-
-if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] ; then
-  MADARA_DEPENDENCY_ENABLED=1
-fi
-
-# check if MADARA is a prereq for later packages
-if [ $MADARA_DEPENDENCY_ENABLED -eq 1 ] && [ ! -d $MADARA_ROOT ]; then
-  MADARA_AS_A_PREREQ=1
 fi
 
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
