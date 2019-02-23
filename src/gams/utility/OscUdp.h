@@ -28,6 +28,8 @@
 #include "gams/GamsExport.h"
 #include "gams/loggers/GlobalLogger.h"
 
+#include "osc/OscReceivedElements.h"
+
 namespace gams
 {
   namespace utility
@@ -109,6 +111,10 @@ namespace gams
          * @return 0 if success, -1 if bad transport, 1 or 2 for socket issues
          **/
         int send (const OscMap & values);
+
+
+        void process_bundle(const osc::ReceivedBundle& b, OscMap & map);
+        void process_message(const osc::ReceivedMessage& m, OscMap & map);
     };
   }
 }

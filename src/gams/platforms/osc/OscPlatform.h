@@ -180,6 +180,9 @@ namespace gams { namespace platforms
     /// holds z velocity prefix for OSC messages
     std::string z_velocity_prefix_;
 
+    /// holds yaw velocity prefix for OSC messages
+    std::string yaw_velocity_prefix_;
+
     /// holds position prefix for OSC messages
     std::string position_prefix_;
 

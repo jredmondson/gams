@@ -569,7 +569,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   if [ $CLANG -eq 1 ]; then
     sudo make CXX=clang++-5.0 COPTS='-Wall -Wextra -fPIC' install
   else
-    sudo make CXX=clang++-5.0 COPTS='-Wall -Wextra -fPIC' install
+    sudo make COPTS='-fPIC' install
   fi
   
   if [ $ROS -eq 1 ]; then

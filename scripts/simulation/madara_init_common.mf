@@ -9,7 +9,7 @@
  * Specialty options (must be compiled with more than just vrep feature)
  * ros-p3dx        : A ROS Pioneer 3DX robot
  **/
-.platform="vrep-quad";
+.platform="osc";
 
 /**
  * The host information where VREP is running
