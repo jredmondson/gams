@@ -166,7 +166,7 @@ namespace gams { namespace platforms
      **/
     std::vector<double> calculate_thrust(
       const pose::Position & current, const pose::Position & target,
-      int type = MOVEMENT_STOP_ON_ARRIVAL);
+      bool & finished);
 
     /// handle to OSC UDP utility class
     gams::utility::OscUdp osc_;

@@ -708,13 +708,13 @@ gams::platforms::VREPBase::set_initial_position ()
     pose::Position vrep_loc(get_vrep_frame (), gps_loc);
     vrep_loc.to_array(pos);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
-    gams::loggers::LOG_MAJOR,
-    "gams::platforms::VREPBase::set_inital_position:" \
-    " Converting from [%s] to [%s] via origin [%s]\n",
-    gps_loc.to_string().c_str(), vrep_loc.to_string().c_str(),
-    vrep_loc.frame().origin().to_string().c_str()
-    );
+    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      gams::loggers::LOG_MAJOR,
+      "gams::platforms::VREPBase::set_inital_position:" \
+      " Converting from [%s] to [%s] via origin [%s]\n",
+      gps_loc.to_string().c_str(), vrep_loc.to_string().c_str(),
+      vrep_loc.frame().origin().to_string().c_str()
+      );
 
     init_loc = gps_loc;
   }

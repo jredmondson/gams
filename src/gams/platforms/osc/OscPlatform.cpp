@@ -147,8 +147,10 @@ gams::platforms::OscPlatform::build_prefixes(void)
 
 std::vector<double>
 gams::platforms::OscPlatform::calculate_thrust(
-  const pose::Position & current, const pose::Position & target, int)
+  const pose::Position & current, const pose::Position & target,
+  bool & finished)
 {
+  finished = true;
   std::vector<double> difference (std::min(current.size(), target.size()));
   
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
@@ -168,39 +170,26 @@ gams::platforms::OscPlatform::calculate_thrust(
       "%s: difference[%zu]=[%f]\n",
       self_->agent.prefix.c_str(), i, difference[i]);
 
-    if (difference[i] <= 50.0 && difference[i] >= -50.0)
+    if (difference[i] <= 0.3 && difference[i] >= -0.3)
     {
       difference[i] = 0;
     }
-    else if (difference[i] <= 150.0 && difference[i] >= -150.0)
+    else if (difference[i] <= 0.5 && difference[i] >= -0.5)
+    {
+      difference[i] /= fabs(difference[i]);
+      difference[i] *= 0.25;
+    }
+    else if (difference[i] <= 1.5 && difference[i] >= -1.5)
     {
       difference[i] /= fabs(difference[i]);
       difference[i] *= 0.5;
+      finished ? finished = false : 0;
     }
     else
     {
       difference[i] /= fabs(difference[i]);
+      finished ? finished = false : 0;
     }
-    
-    // else if (difference[i] >= 50 || difference[i] <= -50)
-    // {
-    //   difference[i] /= fabs(difference[i]);
-    // }
-    // else if (difference[i] >= 20 || difference[i] <= -20)
-    // {
-    //   difference[i] /= fabs(difference[i]);
-    //   difference[i] *= 2.0/3;
-    // }
-    // else if (difference[i] >= 10 || difference[i] <= -10)
-    // {
-    //   difference[i] /= fabs(difference[i]);
-    //   difference[i] *= 1.0/3;
-    // }
-    // else if (difference[i] >= 1 || difference[i] <= -1)
-    // {
-    //   difference[i] /= fabs(difference[i]);
-    //   difference[i] *= 1.0/6;
-    // }
   }
   
   madara::knowledge::KnowledgeRecord record (difference);
@@ -262,6 +251,11 @@ gams::platforms::OscPlatform::sense(void)
       pose::Position loc(get_frame());
       loc.from_array(value.second);
 
+      // The UnrealEngine provides us with centimeters. Convert to meters.
+      loc.x(loc.x()/100);
+      loc.y(loc.y()/100);
+      loc.z(loc.z()/100);
+
       // save the location to the self container
       loc.to_container (self_->agent.location);
 
@@ -273,7 +267,7 @@ gams::platforms::OscPlatform::sense(void)
         self_->agent.location.to_record().to_string().c_str());
 
     }
-    if (value.first == rotation_prefix_)
+    else if (value.first == rotation_prefix_)
     {
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
@@ -359,7 +353,7 @@ gams::platforms::OscPlatform::get_id(void) const
 double
 gams::platforms::OscPlatform::get_accuracy(void) const
 {
-  return 1;
+  return 0.5;
 }
 
 
@@ -402,7 +396,7 @@ gams::platforms::OscPlatform::land(void)
 
 int
 gams::platforms::OscPlatform::move(const pose::Position & target,
-  const PositionBounds &bounds)
+  const PositionBounds & bounds)
 {
   // update variables
   BasePlatform::move(target, bounds);
@@ -431,7 +425,15 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
   std::vector<double> xy_velocity;
   std::vector<double> z_velocity;
 
-  if (bounds.check_position(cur_loc, new_target))
+  // if (bounds.check_position(cur_loc, new_target))
+  // quick hack to check position is within 0.5 meters
+
+  bool finished = false;
+  xy_velocity = calculate_thrust(cur_loc, new_target, finished);
+  z_velocity.push_back(xy_velocity[2]);
+  xy_velocity.resize(2);
+
+  if (finished)
   {
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
@@ -440,18 +442,7 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
       self_->agent.prefix.c_str(),
       new_target.x(), new_target.y(), new_target.z());
 
-    xy_velocity.push_back(0);
-    xy_velocity.push_back(0);
-    z_velocity.push_back(0);
-
     result = PLATFORM_ARRIVED;
-  }
-  else
-  {
-    xy_velocity = calculate_thrust(cur_loc, new_target, 0);
-
-    z_velocity.push_back(xy_velocity[2]);
-    xy_velocity.resize(2);
   }
   
   values[xy_velocity_prefix_] = xy_velocity;
@@ -484,7 +475,8 @@ gams::platforms::OscPlatform::orient(const pose::Orientation & target,
   values[yaw_velocity_prefix_] = yaw_velocity;
   osc_.send(values);
 
-  return 1;
+  // we're not changing orientation. this has to be done for move alg to work
+  return PLATFORM_ARRIVED;
 }
 
 // Pauses movement, keeps source and dest at current values. Optional.
