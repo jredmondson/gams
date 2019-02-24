@@ -87,7 +87,7 @@ gams::platforms::OscPlatform::OscPlatform(
     }
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ALWAYS,
+      gams::loggers::LOG_MAJOR,
       "gams::platforms::OscPlatform::const: OSC settings:" \
       " %s: .osc.local.endpoint=%s, .osc.server.endpoint=%s,"
       " .osc.transport_type=%d\n",
@@ -154,7 +154,7 @@ gams::platforms::OscPlatform::calculate_thrust(
   std::vector<double> difference (std::min(current.size(), target.size()));
   
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
-    gams::loggers::LOG_ALWAYS,
+    gams::loggers::LOG_MAJOR,
     "gams::platforms::OscPlatform::calculate_thrust: " \
     "%s: current=[%s], target=[%s]\n",
     self_->agent.prefix.c_str(),
@@ -195,7 +195,7 @@ gams::platforms::OscPlatform::calculate_thrust(
   madara::knowledge::KnowledgeRecord record (difference);
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
-    gams::loggers::LOG_ALWAYS,
+    gams::loggers::LOG_MAJOR,
     "gams::platforms::OscPlatform::calculate_thrust: " \
     "%s: returning thrust of [%s]\n",
     self_->agent.prefix.c_str(),
@@ -260,7 +260,7 @@ gams::platforms::OscPlatform::sense(void)
       loc.to_container (self_->agent.location);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_MAJOR,
         "gams::platforms::OscPlatform::sense: " \
         "%s: Platform location is [%s]\n",
         self_->agent.prefix.c_str(),
@@ -285,7 +285,7 @@ gams::platforms::OscPlatform::sense(void)
       angles.to_container (self_->agent.orientation);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_MAJOR,
         "gams::platforms::OscPlatform::sense: " \
         "%s: Platform orientation is [%s]\n",
         self_->agent.prefix.c_str(),

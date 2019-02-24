@@ -29,7 +29,12 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
   {
     if (madara::utility::ends_with(i.first, "/velocity/xy"))
     {
-      std::cout << "PACK XY: " << i.first << std::endl;
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::utility::OscUdp::pack: " \
+        "PACK XY: %s\n",
+        i.first.c_str());
+
       bundle
           << osc::BeginMessage(i.first.c_str())
           << (float)i.second[0] << (float)i.second[1]
@@ -37,7 +42,11 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
     }
     else if (madara::utility::ends_with(i.first, "/velocity/z"))
     {
-      std::cout << "PACK Z: " << i.first << std::endl;
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::utility::OscUdp::pack: " \
+        "PACK Z: %s\n",
+        i.first.c_str());
       bundle
           << osc::BeginMessage(i.first.c_str())
           << (float)i.second[0]
@@ -45,7 +54,11 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
     }
     else if (madara::utility::ends_with(i.first, "/yaw"))
     {
-      std::cout << "PACK Z: " << i.first << std::endl;
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::utility::OscUdp::pack: " \
+        "PACK YAW: %s\n",
+        i.first.c_str());
       bundle
           << osc::BeginMessage(i.first.c_str())
           << (float)i.second[0]
@@ -85,25 +98,36 @@ void gams::utility::OscUdp::process_message(const osc::ReceivedMessage &m, OscMa
       float x, y, z;
       args >> x >> y >> z >> osc::EndMessage;
       it->second = {x, y, z};
-      std::cout << "UNPACK: " << it->first
-                << " " << x << " " << y << " " << z
-                << std::endl;
+      
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::utility::OscUdp::process_message: " \
+        "UNPACK POS: %s=>[%f, %f, %f]\n",
+        it->first.c_str(), x, y, z);
     }
-    else if (madara::utility::ends_with(it->first, "/pos"))
+    else if (madara::utility::ends_with(it->first, "/rot"))
     {
       float roll, pitch, yaw;
       args >> roll >> pitch >> yaw >> osc::EndMessage;
       it->second = {roll, pitch, yaw};
-      std::cout << "UNPACK: " << it->first
-                << " " << roll << " " << pitch << " " << yaw
-                << std::endl;
+
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::utility::OscUdp::process_message: " \
+        "UNPACK ROT: %s=>[%f, %f, %f]\n",
+        it->first.c_str(), roll, pitch, yaw);
     }
   }
 }
 
 void gams::utility::OscUdp::unpack(void *buffer, size_t size, OscMap &map)
 {
-  std::cout << "UNPACK: " << size << " bytes" << std::endl;
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_MINOR,
+    "gams::utility::OscUdp::unpack: " \
+    "UNPACK %zu bytes\n",
+    size);
+
   osc::ReceivedPacket p((const char *)buffer, size);
   if (p.IsBundle())
     process_bundle(osc::ReceivedBundle(p), map);
@@ -200,7 +224,11 @@ int gams::utility::OscUdp::send(const OscMap &values)
 
     packed_bytes = pack(buffer_.get(), max_send, values);
 
-    std::cout << "SEND: " << packed_bytes << std::endl;
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+                          gams::loggers::LOG_MAJOR,
+                          "gams::utility::OscUdp::send: "
+                          " sending %zu bytes\n",
+                          packed_bytes);
 
     for (size_t i = 1; i < addresses.size(); ++i)
     {

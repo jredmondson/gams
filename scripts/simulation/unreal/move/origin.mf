@@ -1,0 +1,9 @@
+
+{.prefix}.algorithm="waypoints";
+
+!.origin => (.origin = [25 * .id, 25 * .id, 0]);
+
+{.prefix}.algorithm.args.locations.size=1;
+{.prefix}.algorithm.args.locations.0=.origin;
+{.prefix}.algorithm.args.repeat=3;
+
