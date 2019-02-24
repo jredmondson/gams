@@ -3,7 +3,7 @@ intelligent defaults that scale to N agents, but this may not be appropriate
 for your demo needs. To modify, consider the following tweakable parameters.
 
 *****************************************
-20m_square.mf | run_20m_square.sh
+# 20m_square.mf | run_20m_square.sh
 *****************************************
 
 ```bash
@@ -21,7 +21,7 @@ changing the .origin to be something else.
 
 
 *****************************************
-stop.mf | run_stop.sh
+# stop.mf | run_stop.sh
 *****************************************
 
 ```bash
@@ -37,7 +37,7 @@ script.
 
 
 *****************************************
-origin.mf | run_return.sh
+# origin.mf | run_return.sh
 *****************************************
 
 ```bash
