@@ -1,6 +1,5 @@
 project {
   includes += $(OSC_ROOT)
 
-  libpaths += /usr/lib/x86_64-linux-gnu
   libs += oscpack
 }
