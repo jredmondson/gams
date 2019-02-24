@@ -579,25 +579,6 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   
   fi
 
-  if [ ! -d $OSC_ROOT ]; then 
-    echo "Downloading oscpack"
-    git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
-  else
-    echo "Updating oscpack"
-    cd $OSC_ROOT
-    git pull
-  fi
-
-  cd $OSC_ROOT
-  echo "Cleaning oscpack"
-  make clean
-  echo "Building oscpack"
-  if [ $CLANG -eq 1 ]; then
-    sudo make CXX=clang++-5.0 COPTS='-Wall -Wextra -fPIC' install
-  else
-    sudo make COPTS='-fPIC' install
-  fi
-  
   if [ $PYTHON -eq 1 ]; then
     sudo apt-get install -y -f python2.7 python-pip
   fi
@@ -994,6 +975,37 @@ else
   echo "NOT CHECKING CAPNPROTO"
 fi
 
+# this is common to Mac and Linux, so it needs to be outside of the above
+if [ $PREREQS -eq 1 ]; then 
+  if [ ! -d $OSC_ROOT ]; then 
+    echo "Downloading oscpack"
+    git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
+  else
+    echo "Updating oscpack"
+    cd $OSC_ROOT
+    git pull
+  fi
+
+  cd $OSC_ROOT
+  echo "Cleaning oscpack"
+  make clean
+  echo "Building oscpack"
+  if [ $MAC -eq 1 ]; then
+    if [ $CLANG -eq 1 ]; then
+      export CXX=clang++
+    fi
+  elif [ $CLANG -eq 1 ]; then
+    export CXX=clang++-5.0
+  fi 
+
+  if [ ! -z "$CXX" ]; then
+    sudo make CXX=$CXX COPTS='-Wall -Wextra -fPIC' install
+  else
+    sudo make COPTS='-Wall -Wextra -fPIC' install
+  fi
+
+fi
+  
 if [ $ZMQ -eq 1 ]; then
   export ZMQ=1
   cd $INSTALL_DIR
