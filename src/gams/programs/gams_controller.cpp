@@ -52,6 +52,7 @@
  **/
 
 
+
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/threads/Threader.h"
 #include "gams/controllers/Multicontroller.h"
@@ -679,6 +680,9 @@ int main(int argc, char ** argv)
 
   // create knowledge base and a control loop
   madara::knowledge::KnowledgeBase kb = controller.get_kb(0);
+  
+  // begin buffer filters
+  // end buffer filters
   
   // begin on receive filters
   // end on receive filters

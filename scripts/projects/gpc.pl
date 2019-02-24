@@ -20,6 +20,7 @@ my ($script, $script_dir) = fileparse($0);
 my $algorithm;
 my $agents;
 my @border = ();
+my @buffer_filters;
 my $broadcast;
 my $domain;
 my $duration;
@@ -104,6 +105,7 @@ GetOptions(
   'algorithm|alg=s' => \$algorithm,
   'agents|a=i' => \$agents,
   'buffer=i' => \$buffer,
+  'buffer-filter|bf=s' => \@buffer_filters,
   'border=s' => \@border,
   'broadcast|b=s' => \$broadcast,
   'container|c=s' => \@containers,
@@ -167,6 +169,7 @@ options:
   --algorithm|-alg alg   configures agent files to use a specific algorithm
   --agents|-a num        number of agents that need to be in simulation
   --buffer|-m meters     buffer in meters between agents
+  --buffer-filter|-bf name  create or use a buffer filter
   --border r0 r1 ...     regions to put a border around
   --broadcast|b host     broadcast ip/host to use for network transport
   --container|c name     container data structure to modify
@@ -254,6 +257,8 @@ $script is using the following configuration:
     ("\n    " . join ("\n    ", @border)) : 'no') . "
   broadcast = " . ($broadcast ? $broadcast : 'no') . "
   buffer = $buffer meters
+  buffer_filters = " . (scalar @buffer_filters > 0 ?
+    ("\n    " . join ("\n    ", @buffer_filters)) : 'no') . "
   containers = " . (scalar @containers > 0 ?
     ("\n    " . join ("\n    ", @containers)) : 'no') . "
   domain = " . (defined $domain ? $domain : 'default') . "
@@ -2325,6 +2330,7 @@ containers::${new_container}::modify (void)
 
   if (scalar @new_algorithm > 0 or scalar @new_platform > 0
       or scalar @new_thread > 0 or scalar @new_transport > 0
+      or scalar @buffer_filters
       or scalar @containers > 0
       or scalar @new_platform_thread > 0
       or scalar @new_receive_filters > 0
@@ -3696,7 +3702,56 @@ transports::${new_trans}ReadThread::run (void)
         
       } #end if the new transport does not exist
     } #end foreach new transport
-      
+    
+    ##################### create buffer filter for user ########################
+
+    for my $filter (@buffer_filters)
+    {
+      my $path = $filters_path;
+      if (not -f "$path/src/filters/$filter.cpp")
+      {
+        copy "$script_dir/common/src/buffer_filter.cpp", "$path/src/filters/$filter.cpp"
+          or die "Copy failed: $!";
+        copy "$script_dir/common/src/buffer_filter.h", "$path/src/filters/$filter.h"
+          or die "Copy failed: $!";
+
+        # save an upper case version of the filter name
+        my $filter_uc = uc $filter;
+
+        # read the cpp contents and insert our filter name
+        my $contents;
+        open cpp_file, "$path/src/filters/$filter.cpp" or
+          die "ERROR: Couldn't open $path/src/filters/$filter.cpp\n"; 
+          $contents = join("", <cpp_file>); 
+        close cpp_file;
+
+        $contents =~ s/MyFilter/$filter/g;
+
+        open cpp_file, ">$path/src/filters/$filter.cpp" or
+          die "ERROR: Couldn't open $path/src/filters/$filter.cpp\n"; 
+          print cpp_file $contents;
+        close cpp_file;
+
+        # read the header contents and insert our filter name
+        open h_file, "$path/src/filters/$filter.h" or
+          die "ERROR: Couldn't open $path/src/filters/$filter.h\n"; 
+          $contents = join("", <h_file>); 
+        close h_file;
+
+        $contents =~ s/MyFilter/$filter/g;
+        $contents =~ s/MYFILTER/$filter_uc/g;
+
+        open h_file, ">$path/src/filters/$filter.h" or
+          die "ERROR: Couldn't open $path/src/filters/$filter.h\n"; 
+          print h_file $contents;
+        close h_file;
+      }
+      else
+      {
+        print "src/filters/$filter already exists. Not creating a new one.\n"
+      }
+    }
+  
     
     foreach my $filter (@new_receive_filters)
     {
@@ -4108,7 +4163,52 @@ filters::${filter}::filter (
     $controller_contents =~
       s/\/\/ begin transport creation(.|\s)*\/\/ end transport creation/\/\/ begin transport creation${transport_creation}\n  \/\/ end transport creation/;
       } # end if there are custom threads
-      
+          
+      my $buffer_filter_includes;
+      my $buffer_filter_creation;
+
+      if (scalar @buffer_filters > 0)
+      {
+        if ($verbose)
+        {
+          print ("  Custom buffer filters detected. Updating...\n");
+        }
+        
+        if (not $controller_contents =~ /\/\/ end filter includes/)
+        {
+          $controller_contents =~
+      s/\/\/ end transport includes/\/\/ end transport includes\n\n\/\/ begin filter includes\n\/\/ end filter includes/;
+        }
+        
+        if (not $controller_contents =~ /\/\/ end buffer filters/)
+        {
+          $controller_contents =~
+      s/KnowledgeBase kb;/KnowledgeBase kb;\n\n  \/\/ begin buffer filters\n  \/\/ end buffer filters/;
+        }
+
+        for (my $i = 0; $i < scalar @buffer_filters; ++$i)
+        {
+          if (not $controller_contents =~ /#include \"filters\/${buffer_filters[$i]}\.h\"/)
+          {
+            $buffer_filter_includes .= "\n#include \"filters/${buffer_filters[$i]}.h\"";
+          }
+          $buffer_filter_creation .= "
+      filters::${buffer_filters[$i]} buffer_filter_$i;
+      settings.add_filter(&buffer_filter_$i);";
+        }
+        
+        if ($buffer_filter_includes)
+        {
+          # change the includes         
+          $controller_contents =~
+      s/[\n \r]+\/\/ end filter includes/${buffer_filter_includes}\n\/\/ end filter includes/;
+        }
+        # change the creation process
+        $controller_contents =~
+      s/\/\/ begin buffer filters(.|\s)*\/\/ end buffer filters/\/\/ begin buffer filters${buffer_filter_creation}\n  \/\/ end buffer filters/;
+
+      } # end if there are custom buffer filters
+
       if (scalar @new_receive_filters > 0)
       {
         if ($verbose)
