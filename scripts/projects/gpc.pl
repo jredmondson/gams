@@ -3708,11 +3708,11 @@ transports::${new_trans}ReadThread::run (void)
     for my $filter (@buffer_filters)
     {
       my $path = $filters_path;
-      if (not -f "$path/src/filters/$filter.cpp")
+      if (not -f "$filters_path/$filter.cpp")
       {
-        copy "$script_dir/common/src/buffer_filter.cpp", "$path/src/filters/$filter.cpp"
+        copy "${script_dir}common/src/buffer_filter.cpp", "$filters_path/$filter.cpp"
           or die "Copy failed: $!";
-        copy "$script_dir/common/src/buffer_filter.h", "$path/src/filters/$filter.h"
+        copy "${script_dir}common/src/buffer_filter.h", "$filters_path/$filter.h"
           or die "Copy failed: $!";
 
         # save an upper case version of the filter name
@@ -3720,29 +3720,29 @@ transports::${new_trans}ReadThread::run (void)
 
         # read the cpp contents and insert our filter name
         my $contents;
-        open cpp_file, "$path/src/filters/$filter.cpp" or
-          die "ERROR: Couldn't open $path/src/filters/$filter.cpp\n"; 
+        open cpp_file, "$filters_path/$filter.cpp" or
+          die "ERROR: Couldn't open $filters_path/$filter.cpp\n"; 
           $contents = join("", <cpp_file>); 
         close cpp_file;
 
         $contents =~ s/MyFilter/$filter/g;
 
-        open cpp_file, ">$path/src/filters/$filter.cpp" or
-          die "ERROR: Couldn't open $path/src/filters/$filter.cpp\n"; 
+        open cpp_file, ">$filters_path/$filter.cpp" or
+          die "ERROR: Couldn't open $filters_path/$filter.cpp\n"; 
           print cpp_file $contents;
         close cpp_file;
 
         # read the header contents and insert our filter name
-        open h_file, "$path/src/filters/$filter.h" or
-          die "ERROR: Couldn't open $path/src/filters/$filter.h\n"; 
+        open h_file, "$filters_path/$filter.h" or
+          die "ERROR: Couldn't open $filters_path/$filter.h\n"; 
           $contents = join("", <h_file>); 
         close h_file;
 
         $contents =~ s/MyFilter/$filter/g;
         $contents =~ s/MYFILTER/$filter_uc/g;
 
-        open h_file, ">$path/src/filters/$filter.h" or
-          die "ERROR: Couldn't open $path/src/filters/$filter.h\n"; 
+        open h_file, ">$filters_path/$filter.h" or
+          die "ERROR: Couldn't open $filters_path/$filter.h\n"; 
           print h_file $contents;
         close h_file;
       }
