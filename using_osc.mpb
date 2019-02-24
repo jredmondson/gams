@@ -1,3 +1,5 @@
 project {
   includes += $(OSC_ROOT)
+
+  libs += oscpack
 }

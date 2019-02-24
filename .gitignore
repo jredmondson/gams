@@ -53,6 +53,7 @@ ACE_TAO/*
 MPC/*
 madara/
 eigen/
+oscpack/
 
 #Ignore maven project files
 target/

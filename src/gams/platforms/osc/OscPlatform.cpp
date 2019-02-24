@@ -126,18 +126,20 @@ gams::platforms::OscPlatform::build_prefixes(void)
     && madara::utility::begins_with(self_->agent.prefix, "agent."))
   {
     // build the common prefix
-    xy_velocity_prefix_ = "/";
-    xy_velocity_prefix_ += self_->agent.prefix;
-    xy_velocity_prefix_[6] = '/';
+    std::string common_prefix = "/";
+    common_prefix += self_->agent.prefix;
+    common_prefix[6] = '/';
 
-    // build the common prefix
-    z_velocity_prefix_ = xy_velocity_prefix_;
-    position_prefix_ = xy_velocity_prefix_;
-    rotation_prefix_ = xy_velocity_prefix_;
+    xy_velocity_prefix_ = common_prefix;
+    z_velocity_prefix_ = common_prefix;
+    yaw_velocity_prefix_ = common_prefix;
+    position_prefix_ = common_prefix;
+    rotation_prefix_ = common_prefix;
 
     // build the specialized prefixes
     xy_velocity_prefix_ += "/velocity/xy";
     z_velocity_prefix_ += "/velocity/z";
+    yaw_velocity_prefix_ += "/velocity/yaw";
     position_prefix_ += "/pos";
     rotation_prefix_ += "/rot";
   }
@@ -212,6 +214,8 @@ int
 gams::platforms::OscPlatform::sense(void)
 {
   utility::OscUdp::OscMap values;
+  values[position_prefix_] = std::vector<double>();
+  values[rotation_prefix_] = std::vector<double>();
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MINOR,
@@ -226,6 +230,16 @@ gams::platforms::OscPlatform::sense(void)
     "gams::platforms::OscPlatform::sense: " \
     "%s: leaving receive on OSC UDP with %zu values\n",
     self_->agent.prefix.c_str(), values.size());
+  
+  if (values[position_prefix_].size() != 3)
+  {
+    values.erase(position_prefix_);
+  }
+
+  if (values[rotation_prefix_].size() != 3)
+  {
+    values.erase(rotation_prefix_);
+  }
 
   for (auto value: values)
   {
@@ -458,6 +472,12 @@ gams::platforms::OscPlatform::orient(const pose::Orientation & target,
 
   // convert from input reference frame to vrep reference frame, if necessary
   pose::Orientation new_target(get_frame(), target);
+
+  utility::OscUdp::OscMap values;
+  std::vector<double> yaw_velocity;
+  yaw_velocity.push_back(0);
+  values[yaw_velocity_prefix_] = yaw_velocity;
+  osc_.send(values);
 
   return 1;
 }
