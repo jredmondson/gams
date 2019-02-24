@@ -160,7 +160,7 @@ gams::platforms::OscPlatform::calculate_thrust(
 
   for (size_t i = 0; i < difference.size(); ++i)
   {
-    difference[i] = current.get(i) - target.get(i);
+    difference[i] = target.get(i) - current.get(i);
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_TRACE,
