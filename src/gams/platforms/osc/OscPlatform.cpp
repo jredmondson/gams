@@ -168,9 +168,14 @@ gams::platforms::OscPlatform::calculate_thrust(
       "%s: difference[%zu]=[%f]\n",
       self_->agent.prefix.c_str(), i, difference[i]);
 
-    if (difference[i] <= 1.0 && difference[i] >= -1.0)
+    if (difference[i] <= 50.0 && difference[i] >= -50.0)
     {
       difference[i] = 0;
+    }
+    else if (difference[i] <= 150.0 && difference[i] >= -150.0)
+    {
+      difference[i] /= fabs(difference[i]);
+      difference[i] *= 0.5;
     }
     else
     {
