@@ -1375,16 +1375,16 @@ gams::controllers::BaseController::init_vars(
 void
 gams::controllers::BaseController::init_vars(
 const Integer & id,
-const Integer & processes)
+const Integer & agents)
 {
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::init_vars:" \
-    " %" PRId64 " id, %" PRId64 " processes\n", id, processes);
+    " %" PRId64 " id, %" PRId64 " processes\n", id, agents);
 
   // initialize the agents, swarm, and self variables
-  variables::init_vars(agents_, knowledge_, processes);
-  swarm_.init_vars(knowledge_, processes);
+  variables::init_vars(agents_, knowledge_, agents);
+  swarm_.init_vars(knowledge_, agents);
   self_.init_vars(knowledge_, id);
 
   // set the settings_ agent prefix to current agent prefix for checkpointing

@@ -22,8 +22,8 @@ if [ $NT -eq 1 ]; then
   echo gams_controller -mc $N -nt -p osc -M $SCRIPT
   gams_controller -mc $N -nt -p osc -M $SCRIPT
 else
-  echo gams_controller -mc $N -p osc -M $SCRIPT
-  gams_controller -mc $N -p osc -M $SCRIPT
+  echo gams_controller -mc $N -n $N -p osc -M $SCRIPT
+  gams_controller -mc $N -n $N -p osc -M $SCRIPT
 fi
   
 exit 0

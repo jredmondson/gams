@@ -286,10 +286,10 @@ namespace gams
       /**
        * Initializes global variable containers
        * @param   id         node identifier
-       * @param   processes  processes
+       * @param   agents     number of total agents
        **/
       void init_vars (const madara::knowledge::KnowledgeRecord::Integer & id = 0,
-        const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
+        const madara::knowledge::KnowledgeRecord::Integer & agents = -1);
 
       /**
       * Initializes global variable containers

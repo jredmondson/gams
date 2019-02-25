@@ -1,9 +1,9 @@
 
 // number of allies in the group
-group.allies.members.size={.processes};
+group.allies.members.size={swarm.size};
 
 // build the group from 0 to n-1
-.i[0 -> .processes)
+.i[0 -> swarm.size)
 (
   group.allies.members.{.i} = "agent." + .i;
 );
@@ -14,4 +14,4 @@ group.allies.members.size={.processes};
 {.prefix}.algorithm.args.end = [50, 50, 2];
 {.prefix}.algorithm.args.buffer = 1.0;
 {.prefix}.algorithm.args.group = "group.allies";
-{.prefix}.algorithm.args.formation = "rectangle";
+{.prefix}.algorithm.args.formation = "triangle";
