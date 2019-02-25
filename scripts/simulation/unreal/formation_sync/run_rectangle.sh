@@ -3,7 +3,7 @@
 N=1
 NT=0
 SCRIPTS_DIR=`dirname $0`
-SCRIPT="$SCRIPTS_DIR/stop.mf"
+SCRIPT="$SCRIPTS_DIR/rectangle.mf"
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then

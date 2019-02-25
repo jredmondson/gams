@@ -1,0 +1,15 @@
+
+// number of allies in the group
+group.allies.members.size=18;
+
+// build the group from 0 to n-1
+.i[0 -> 18)
+(
+  group.allies.members.{.i} = "agent." + .i;
+);
+
+{.prefix}.algorithm = "spell";
+{.prefix}.algorithm.args.text = "GALOIS";
+{.prefix}.algorithm.args.group = "group.allies";
+{.prefix}.algorithm.args.origin = [0, 0, 0];
+{.prefix}.algorithm.args.buffer = 3.0;

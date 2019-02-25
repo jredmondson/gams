@@ -3,11 +3,12 @@
 N=1
 NT=0
 SCRIPTS_DIR=`dirname $0`
-SCRIPT="$SCRIPTS_DIR/stop.mf"
+SCRIPT="$SCRIPTS_DIR/$2"
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then
-    echo "$0 [num agents] [no-transport]"
+    echo "$0 [num agents] [no-transport] [mf referenced from this dir]"
+    echo "e.g., $0 5 nt formation_sync/rectangle.mf"
     exit 0
   fi
 

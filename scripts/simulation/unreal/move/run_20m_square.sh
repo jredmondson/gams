@@ -3,6 +3,7 @@
 N=1
 NT=0
 SCRIPTS_DIR=`dirname $0`
+SCRIPT="$SCRIPTS_DIR/20m_square.mf"
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then
@@ -18,9 +19,11 @@ if [ $# -ge 1 ]; then
 fi
 
 if [ $NT -eq 1 ]; then
-  gams_controller -mc $N -nt -p osc -M $SCRIPTS_DIR/20m_square.mf
+  echo gams_controller -mc $N -nt -p osc -M $SCRIPT
+  gams_controller -mc $N -nt -p osc -M $SCRIPT
 else
-  gams_controller -mc $N -p osc -M $SCRIPTS_DIR/20m_square.mf
+  echo gams_controller -mc $N -p osc -M $SCRIPT
+  gams_controller -mc $N -p osc -M $SCRIPT
 fi
   
 exit 0
