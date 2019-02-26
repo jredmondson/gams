@@ -171,6 +171,8 @@ gams::platforms::OscPlatform::OscPlatform(
     last_orient_.rz(0);
 
     move_timer_.start();
+    last_thrust_timer_.start();
+    last_position_timer_.start();
 
     status_.movement_available = 1;
   }
@@ -216,6 +218,8 @@ gams::platforms::OscPlatform::calculate_thrust(
   finished = true;
   std::vector<double> difference (std::min(current.size(), target.size()));
   
+  last_thrust_timer_.start();
+
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::platforms::OscPlatform::calculate_thrust: " \
@@ -241,8 +245,9 @@ gams::platforms::OscPlatform::calculate_thrust(
     {
       difference[i] /= fabs(difference[i]);
       difference[i] *= 0.25;
+      finished ? finished = false : 0;
     }
-    else if (difference[i] <= 1.5 && difference[i] >= -1.5)
+    else if (difference[i] <= 1.5 && difference[i] >= -1,5)
     {
       difference[i] /= fabs(difference[i]);
       difference[i] *= 0.5;
@@ -331,6 +336,7 @@ gams::platforms::OscPlatform::sense(void)
         self_->agent.location.to_record().to_string().c_str());
 
       is_created_ = true;
+      last_position_timer_.start();
     }
     else if (value.first == rotation_prefix_)
     {
@@ -401,6 +407,48 @@ gams::platforms::OscPlatform::sense(void)
       "gams::platforms::OscPlatform::sense: " \
       "%s: finished processing updates from OSC\n",
       self_->agent.prefix.c_str());
+  }
+
+  // check for loiter timeout (have we thrusted recently?)
+  last_thrust_timer_.stop();
+  if (last_thrust_timer_.duration_ds() > 1)
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_ALWAYS,
+      "gams::platforms::OscPlatform::sense: " \
+      "%s: loiter timeout. Sending velocities [0,0,0]\n",
+      self_->agent.prefix.c_str());
+
+    // send 0 velocities to loiter
+
+    values.clear();
+    KnowledgeRecord record;
+
+    record.set_index(1, 0.0);
+    record.set_index(0, 0.0);
+    values[xy_velocity_prefix_] = record;
+
+    record.resize(1);
+    values[z_velocity_prefix_] = record;
+    osc_.send(values);
+
+    // restart the timer
+    last_thrust_timer_.start();
+  }
+
+  // check for last position timeout (need to recreate agent in sim)
+  last_position_timer_.stop();
+  if (last_position_timer_.duration_ds() > 2)
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_ALWAYS,
+      "gams::platforms::OscPlatform::sense: " \
+      "%s: haven't heard from simulator in %f seconds. Creating agent.\n",
+      self_->agent.prefix.c_str(),
+      last_position_timer_.duration_ds());
+
+    is_created_ = false;
+    last_position_timer_.start();
   }
 
   return gams::platforms::PLATFORM_OK;

@@ -207,6 +207,12 @@ namespace gams { namespace platforms
 
     /// timer for checking last movement
     madara::utility::Timer<madara::utility::Clock> move_timer_;
+
+    /// timer for last calculate thrust call
+    madara::utility::Timer<madara::utility::Clock> last_thrust_timer_;
+
+    /// timer for last updated position
+    madara::utility::Timer<madara::utility::Clock> last_position_timer_;
   }; // end OscPlatform class
     
 
