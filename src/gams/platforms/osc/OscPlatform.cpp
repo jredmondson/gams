@@ -160,6 +160,18 @@ gams::platforms::OscPlatform::OscPlatform(
 
     osc_.send(values);
 
+    last_move_.frame(get_frame());
+    last_move_.x(0);
+    last_move_.y(0);
+    last_move_.z(0);
+
+    last_orient_.frame(get_frame());
+    last_orient_.rx(0);
+    last_orient_.ry(0);
+    last_orient_.rz(0);
+
+    move_timer_.start();
+
     status_.movement_available = 1;
   }
 }
@@ -489,6 +501,13 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
     self_->agent.prefix.c_str(),
     new_target.x(), new_target.y(), new_target.z());
 
+  // are we moving to a new location? If so, start an acceleration timer
+  if (!last_move_.approximately_equal (new_target, 0.1))
+  {
+    move_timer_.start();
+    last_move_ = new_target;
+  }
+
   pose::Position cur_loc = get_location();
 
   utility::OscUdp::OscMap values;
@@ -500,6 +519,33 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
 
   bool finished = false;
   xy_velocity = calculate_thrust(cur_loc, new_target, finished);
+
+  // if we have just started our movement, modify velocity to account
+  // for acceleration. This will help animation be smooth in Unreal.
+  move_timer_.stop();
+  double move_time = move_timer_.duration_ds ();
+  if (move_time < 1.0)
+  {
+    // have acceleration ramp up over a second at .1 per 1/20 second
+    for (size_t i = 0; i < xy_velocity.size(); ++i)
+    {
+      double abs_velocity = fabs(xy_velocity[i]);
+      double signed_move_time = xy_velocity[i] < 0 ? -move_time : move_time;
+      xy_velocity[i] = move_time < abs_velocity ?
+        signed_move_time : xy_velocity[i];
+    }
+
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_ALWAYS,
+      "gams::platforms::OscPlatform::move:" \
+      " %s: moving to new target at time %f with modified velocity "
+      "[%f,%f,%f]\n",
+      self_->agent.prefix.c_str(),
+      move_time,
+      xy_velocity[0], xy_velocity[1], xy_velocity[2]);
+
+  }
+
   z_velocity.push_back(xy_velocity[2]);
   xy_velocity.resize(2);
 
@@ -538,6 +584,8 @@ gams::platforms::OscPlatform::orient(const pose::Orientation & target,
 
   // convert from input reference frame to vrep reference frame, if necessary
   pose::Orientation new_target(get_frame(), target);
+
+  last_orient_ = new_target;
 
   utility::OscUdp::OscMap values;
   std::vector<double> yaw_velocity;

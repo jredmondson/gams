@@ -19,11 +19,11 @@ if [ $# -ge 1 ]; then
 fi
 
 if [ $NT -eq 1 ]; then
-  echo gams_controller -mc $N -nt -p osc -M $SCRIPT
-  gams_controller -mc $N -nt -p osc -M $SCRIPT
+  echo gams_controller -mc $N -nt -p osc -M $SCRIPT -z 10
+  gams_controller -mc $N -nt -p osc -M $SCRIPT -z 10
 else
-  echo gams_controller -mc $N -n $N -p osc -M $SCRIPT
-  gams_controller -mc $N -n $N -p osc -M $SCRIPT
+  echo gams_controller -mc $N -n $N -p osc -M $SCRIPT -z 10
+  gams_controller -mc $N -n $N -p osc -M $SCRIPT -z 10
 fi
   
 exit 0

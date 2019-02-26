@@ -2,7 +2,11 @@
 #ifndef   _GAMS_PLATFORM_OSCPLATFORM_H_
 #define   _GAMS_PLATFORM_OSCPLATFORM_H_
 
+#include <vector>
+
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/utility/EpochEnforcer.h"
+#include "madara/utility/Timer.h"
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
@@ -194,6 +198,15 @@ namespace gams { namespace platforms
 
     /// message to hold on to for agent creation/recreation
     std::string json_creation_;
+
+    /// last move target
+    pose::Position last_move_;
+
+    /// last orient target
+    pose::Orientation last_orient_;
+
+    /// timer for checking last movement
+    madara::utility::Timer<madara::utility::Clock> move_timer_;
   }; // end OscPlatform class
     
 
