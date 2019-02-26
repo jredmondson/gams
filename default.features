@@ -76,3 +76,7 @@ simtime                 = 0
 /// @feature airlib
 /// This is required to build GAMS with AirLib. AirLib is a requirement to interface the GAMS algorithms with the Unreal engine and to see things working in an Unreal simulation. 'prereqs unreal' is used to actually pull in and download Unreal. The airlib command is used to build the GAMS library with an airlib integration, which is actually separate.
 airlib                  = 0
+
+/// @feature warnings
+/// This feature enables compilation warnings to debug GAMS core libraries
+warnings                = 0

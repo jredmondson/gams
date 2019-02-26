@@ -101,6 +101,7 @@ SSL=0
 DMPL=0
 LZ4=0
 PYTHON=0
+WARNINGS=0
 CLEAN=1
 MADARAPULL=1
 GAMSPULL=1
@@ -264,6 +265,8 @@ do
     VREP=1
   elif [ "$var" = "vrep-config" ]; then
     VREP_CONFIG=1
+  elif [ "$var" = "warnings" ]; then
+    WARNINGS=1
   elif [ "$var" = "zmq" ]; then
     ZMQ=1
   else
@@ -309,6 +312,7 @@ do
     echo "  unreal-gams     builds UnrealGAMS"
     echo "  vrep            build with vrep support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
+    echo "  warnings        build with compile warnings enabled in GAMS/MADARA"
     echo "  zmq             build with ZeroMQ support"
     echo ""
     echo "The following environment variables are used"
@@ -1170,8 +1174,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -1181,10 +1185,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
-  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
-  echo "make android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES"
-  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON -j $CORES
+  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
@@ -1286,8 +1290,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1301,10 +1305,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
-  echo "make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES"
-  make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS -j $CORES
+  echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then

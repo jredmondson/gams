@@ -147,12 +147,11 @@ gams::platforms::OscPlatform::OscPlatform(
 
     
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ALWAYS,
+      gams::loggers::LOG_MAJOR,
       "gams::platforms::OscPlatform::const: creating agent with JSON:" \
       " %s:\n%s\n",
       self_->agent.prefix.c_str(),
       json_creation_.c_str());
-
 
     osc_.create_socket(settings_);
 
@@ -370,6 +369,13 @@ gams::platforms::OscPlatform::sense(void)
     // if we've never received a server packet for this agent, recreate
     if (!is_created_)
     {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MAJOR,
+        "gams::platforms::OscPlatform::sense: recreating agent with JSON:" \
+        " %s:\n%s\n",
+        self_->agent.prefix.c_str(),
+        json_creation_.c_str());
+
       utility::OscUdp::OscMap values;
       values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
 

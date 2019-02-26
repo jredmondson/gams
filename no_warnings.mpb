@@ -1,0 +1,5 @@
+feature (!warnings) {
+  verbatim (make, local, true) {
+    CPPFLAGS := $(CPPFLAGS) -w
+  }
+}
