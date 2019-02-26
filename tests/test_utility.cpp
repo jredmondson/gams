@@ -77,6 +77,8 @@ using std::endl;
 using std::string;
 using std::vector;
 
+typedef madara::knowledge::KnowledgeRecord KnowledgeRecord;
+
 void
 testing_output (const string& str, const unsigned int& tabs = 0)
 {
@@ -102,16 +104,27 @@ test_OscUdp ()
   settings.hosts.push_back("127.0.0.1:5555");
   settings.type = madara::transport::UDP;
 
-  source_map["/agent/0/velocity/xy"].push_back(1.0);
-  source_map["/agent/0/velocity/xy"].push_back(0.75);
-  source_map["/agent/0/velocity/z"].push_back(-0.25);
-  source_map["/agent/0/yaw"].push_back(-0.25);
-  source_map["/agent/0/pos"].push_back(42.7234897);
-  source_map["/agent/0/pos"].push_back(78.1347113);
-  source_map["/agent/0/pos"].push_back(1050.00);
-  source_map["/agent/0/rot"].push_back(20);
-  source_map["/agent/0/rot"].push_back(30);
-  source_map["/agent/0/rot"].push_back(50);
+  KnowledgeRecord record;
+
+  record.set_index(1, 0.75);
+  record.set_index(0, 1.0);
+  source_map["/agent/0/velocity/xy"] = record;
+
+  record.resize(1);
+  record.set_index(0, -0.25);
+  source_map["/agent/0/velocity/z"] = record;
+
+  source_map["/agent/0/velocity/yaw"] = record;
+
+  record.set_index(2, 1050.00);
+  record.set_index(1, 78.1347113);
+  record.set_index(0, 42.7234897);
+  source_map["/agent/0/pos"] = record;
+
+  record.set_index(2, 50);
+  record.set_index(1, 30);
+  record.set_index(0, 20);
+  source_map["/agent/0/rot"] = record;
 
   testing_output ("testing pack", 1);
   read_size = osc.pack(buffer, buf_size, source_map);
@@ -123,7 +136,7 @@ test_OscUdp ()
   for (auto entries : source_map)
   {
     std::cout << "      " << entries.first << " =";
-    for (auto arg : entries.second)
+    for (auto arg : entries.second.to_doubles())
     {
       std::cout << " " << arg;
     }
@@ -134,7 +147,7 @@ test_OscUdp ()
   for (auto entries : dest_map)
   {
     std::cout << "      " << entries.first << " =";
-    for (auto arg : entries.second)
+    for (auto arg : entries.second.to_doubles())
     {
       std::cout << " " << arg;
     }
@@ -171,7 +184,7 @@ test_OscUdp ()
   for (auto entries : source_map)
   {
     std::cout << "      " << entries.first << " =";
-    for (auto arg : entries.second)
+    for (auto arg : entries.second.to_doubles())
     {
       std::cout << " " << arg;
     }
@@ -182,7 +195,7 @@ test_OscUdp ()
   for (auto entries : dest_map)
   {
     std::cout << "      " << entries.first << " =";
-    for (auto arg : entries.second)
+    for (auto arg : entries.second.to_doubles())
     {
       std::cout << " " << arg;
     }

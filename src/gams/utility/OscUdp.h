@@ -25,6 +25,8 @@
 #include "madara/transport/broadcast/BroadcastTransport.h"
 #include "madara/utility/EpochEnforcer.h"
 
+#include "madara/knowledge/KnowledgeRecord.h"
+
 #include "gams/GamsExport.h"
 #include "gams/loggers/GlobalLogger.h"
 
@@ -51,7 +53,8 @@ namespace gams
           new char[64000];
         
       public:
-        typedef  std::map<std::string, std::vector<double>>  OscMap;
+        typedef  std::map<std::string,
+          madara::knowledge::KnowledgeRecord>  OscMap;
 
         /**
          * Constructor

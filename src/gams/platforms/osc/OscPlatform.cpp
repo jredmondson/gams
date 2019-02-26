@@ -1,9 +1,13 @@
 #include <algorithm>
 #include <math.h>
+#include <sstream>
 
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/utility/Utility.h"
 #include "OscPlatform.h"
+
+namespace knowledge = madara::knowledge;
+typedef knowledge::KnowledgeRecord  KnowledgeRecord;
 
 gams::platforms::OscPlatformFactory::~OscPlatformFactory()
 {
@@ -66,6 +70,16 @@ gams::platforms::OscPlatform::OscPlatform(
     settings_.hosts.push_back(
       knowledge->get(".osc.server.endpoint").to_string());
 
+    knowledge::KnowledgeRecord initial_pose = knowledge->get(".initial_pose");
+
+    if (!initial_pose.is_array_type())
+    {
+      // by default initialize agents to [.id, .id, .id]
+      initial_pose.set_index(2, *(self_->id));
+      initial_pose.set_index(1, *(self_->id));
+      initial_pose.set_index(0, *(self_->id));
+    }
+
     settings_.type =
       knowledge->get(".osc.transport.type").to_integer();
     if (settings_.type == 0)
@@ -107,7 +121,45 @@ gams::platforms::OscPlatform::OscPlatform(
       position_prefix_.c_str(),
       rotation_prefix_.c_str());
 
+    std::stringstream json_buffer;
+    json_buffer << "{\n  \"id\": ";
+    json_buffer << *(self_->id);
+    json_buffer << ",\n  \"port\": ";
+    json_buffer << (*(self_->id) + 8000);
+    json_buffer << ",\n  \"location\": {\n";
+    json_buffer << "    \"x\": " <<
+      initial_pose.retrieve_index (0).to_double() << ", ";
+    json_buffer << "\"y\": " <<
+      initial_pose.retrieve_index (1).to_double() << ", ";
+    json_buffer << "\"z\": " <<
+      initial_pose.retrieve_index (2).to_double() << "\n";
+    json_buffer << "  },\n  \"rotation\": {\n";
+    json_buffer << "    \"x\": " <<
+      initial_pose.retrieve_index (3).to_double() << ", ";
+    json_buffer << "\"y\": " <<
+      initial_pose.retrieve_index (4).to_double() << ", ";
+    json_buffer << "\"z\": " <<
+      initial_pose.retrieve_index (5).to_double() << "\n";
+    json_buffer << "  }\n}";
+    
+
+    json_creation_ = json_buffer.str();
+
+    
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_ALWAYS,
+      "gams::platforms::OscPlatform::const: creating agent with JSON:" \
+      " %s:\n%s\n",
+      self_->agent.prefix.c_str(),
+      json_creation_.c_str());
+
+
     osc_.create_socket(settings_);
+
+    utility::OscUdp::OscMap values;
+    values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
+
+    osc_.send(values);
 
     status_.movement_available = 1;
   }
@@ -203,13 +255,14 @@ gams::platforms::OscPlatform::calculate_thrust(
 
   return difference;
 }
+
 // Polls the sensor environment for useful information. Required.
 int
 gams::platforms::OscPlatform::sense(void)
 {
   utility::OscUdp::OscMap values;
-  values[position_prefix_] = std::vector<double>();
-  values[rotation_prefix_] = std::vector<double>();
+  values[position_prefix_];
+  values[rotation_prefix_];
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MINOR,
@@ -249,7 +302,7 @@ gams::platforms::OscPlatform::sense(void)
       
       // convert osc order to the frame order
       pose::Position loc(get_frame());
-      loc.from_array(value.second);
+      loc.from_array(value.second.to_doubles());
 
       // The UnrealEngine provides us with centimeters. Convert to meters.
       loc.x(loc.x()/100);
@@ -266,6 +319,7 @@ gams::platforms::OscPlatform::sense(void)
         self_->agent.prefix.c_str(),
         self_->agent.location.to_record().to_string().c_str());
 
+      is_created_ = true;
     }
     else if (value.first == rotation_prefix_)
     {
@@ -279,7 +333,7 @@ gams::platforms::OscPlatform::sense(void)
       
       // convert osc order to the frame order
       pose::Orientation angles(get_frame());
-      angles.from_array(value.second);
+      angles.from_array(value.second.to_doubles());
 
       // save the location to the self container
       angles.to_container (self_->agent.orientation);
@@ -291,6 +345,7 @@ gams::platforms::OscPlatform::sense(void)
         self_->agent.prefix.c_str(),
         self_->agent.orientation.to_record().to_string().c_str());
 
+      is_created_ = true;
     }
     else
     {
@@ -311,6 +366,15 @@ gams::platforms::OscPlatform::sense(void)
       "gams::platforms::OscPlatform::sense: " \
       "%s: No received values from UnrealGAMS\n",
       self_->agent.prefix.c_str());
+
+    // if we've never received a server packet for this agent, recreate
+    if (!is_created_)
+    {
+      utility::OscUdp::OscMap values;
+      values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
+
+      osc_.send(values);
+    }
   }
   else
   {

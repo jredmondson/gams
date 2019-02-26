@@ -35,10 +35,15 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
         "PACK XY: %s\n",
         i.first.c_str());
 
-      bundle
-          << osc::BeginMessage(i.first.c_str())
-          << (float)i.second[0] << (float)i.second[1]
-          << osc::EndMessage;
+      std::vector<double> values = i.second.to_doubles();
+
+      if (values.size() >= 2)
+      {
+        bundle
+            << osc::BeginMessage(i.first.c_str())
+            << (float)values[0] << (float)values[1]
+            << osc::EndMessage;
+      }
     }
     else if (madara::utility::ends_with(i.first, "/velocity/z"))
     {
@@ -47,10 +52,16 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
         "gams::utility::OscUdp::pack: " \
         "PACK Z: %s\n",
         i.first.c_str());
-      bundle
-          << osc::BeginMessage(i.first.c_str())
-          << (float)i.second[0]
-          << osc::EndMessage;
+
+      std::vector<double> values = i.second.to_doubles();
+
+      if (values.size() >= 1)
+      {
+        bundle
+            << osc::BeginMessage(i.first.c_str())
+            << (float)values[0]
+            << osc::EndMessage;
+      }
     }
     else if (madara::utility::ends_with(i.first, "/yaw"))
     {
@@ -59,9 +70,30 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
         "gams::utility::OscUdp::pack: " \
         "PACK YAW: %s\n",
         i.first.c_str());
+
+      std::vector<double> values = i.second.to_doubles();
+
+      if (values.size() >= 1)
+      {
+        bundle
+            << osc::BeginMessage(i.first.c_str())
+            << (float)values[0]
+            << osc::EndMessage;
+      }
+    }
+    else if (madara::utility::begins_with(i.first, "/spawn"))
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MINOR,
+        "gams::utility::OscUdp::pack: " \
+        "PACK SPAWN: %s\n",
+        i.first.c_str());
+
+      std::string value = i.second.to_string();
+
       bundle
           << osc::BeginMessage(i.first.c_str())
-          << (float)i.second[0]
+          << osc::Blob(value.c_str(), value.size())
           << osc::EndMessage;
     }
   }
@@ -90,14 +122,18 @@ void gams::utility::OscUdp::process_bundle(const osc::ReceivedBundle &b, OscMap 
 void gams::utility::OscUdp::process_message(const osc::ReceivedMessage &m, OscMap &map)
 {
   auto it = map.find(m.AddressPattern());
-  if (it != map.end() && it->second.size() == 0)
+  if (it != map.end())
   {
     osc::ReceivedMessageArgumentStream args = m.ArgumentStream();
     if (madara::utility::ends_with(it->first, "/pos"))
     {
       float x, y, z;
       args >> x >> y >> z >> osc::EndMessage;
-      it->second = {x, y, z};
+
+      // set in reverse, simply so we are only creating the vector once
+      it->second.set_index(2, z);
+      it->second.set_index(1, y);;
+      it->second.set_index(0, x);
       
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
@@ -109,7 +145,13 @@ void gams::utility::OscUdp::process_message(const osc::ReceivedMessage &m, OscMa
     {
       float roll, pitch, yaw;
       args >> roll >> pitch >> yaw >> osc::EndMessage;
-      it->second = {roll, pitch, yaw};
+
+      // set in reverse, simply so we are only creating the vector once
+      it->second.set_index(2, yaw);
+      it->second.set_index(1, pitch);
+      it->second.set_index(0, roll);
+      
+      // it->second = {roll, pitch, yaw};
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,

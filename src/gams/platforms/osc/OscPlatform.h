@@ -188,6 +188,12 @@ namespace gams { namespace platforms
 
     /// holds rotation prefix for OSC messages
     std::string rotation_prefix_;
+
+    /// holds whether the agent is known to exist in the simulator
+    bool is_created_ = false;
+
+    /// message to hold on to for agent creation/recreation
+    std::string json_creation_;
   }; // end OscPlatform class
     
 
