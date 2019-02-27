@@ -42,7 +42,8 @@ namespace gams { namespace platforms
     OscPlatform (
       madara::knowledge::KnowledgeBase * knowledge = 0,
       gams::variables::Sensors * sensors = 0,
-      gams::variables::Self * self = 0);
+      gams::variables::Self * self = 0,
+      const std::string & type = "quadcopter");
 
     /**
      * Destructor
@@ -213,6 +214,9 @@ namespace gams { namespace platforms
 
     /// timer for last updated position
     madara::utility::Timer<madara::utility::Clock> last_position_timer_;
+
+    /// type of robotics platform to simulate
+    std::string type_;
   }; // end OscPlatform class
     
 
@@ -222,6 +226,13 @@ namespace gams { namespace platforms
   class GAMS_EXPORT OscPlatformFactory : public PlatformFactory
   {
   public:
+
+    /**
+     * Constructor
+     * @param type   the type of robotics system to simulate (quadcopter,
+     *               satellite)
+     **/
+    OscPlatformFactory(const std::string & type = "quadcopter");
 
     /**
      * Destructor. Shouldn't be necessary but trying to find vtable issue
@@ -239,6 +250,8 @@ namespace gams { namespace platforms
      *                    will be set by the controller in init_vars
      * @param   self      self-referencing variables. This will be
      *                    set by the controller in init_vars
+     * @param   type      self-referencing variables. This will be
+     *                    set by the controller in init_vars
      **/
     virtual BasePlatform * create (
       const madara::knowledge::KnowledgeMap & args,
@@ -246,6 +259,9 @@ namespace gams { namespace platforms
       variables::Sensors * sensors,
       variables::Platforms * platforms,
       variables::Self * self);
+
+    /// the type of the factory/platform
+    std::string type_;
   };
     
 } // end platforms namespace

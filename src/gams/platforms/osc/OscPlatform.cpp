@@ -9,6 +9,12 @@
 namespace knowledge = madara::knowledge;
 typedef knowledge::KnowledgeRecord  KnowledgeRecord;
 
+gams::platforms::OscPlatformFactory::OscPlatformFactory(const std::string & type)
+: type_(type)
+{
+  
+}
+
 gams::platforms::OscPlatformFactory::~OscPlatformFactory()
 {
   
@@ -24,10 +30,17 @@ gams::platforms::OscPlatformFactory::create(
         gams::variables::Self * self)
 {
   BasePlatform * result (0);
+
+  if (type_ != "quadcopter" &&
+      type_ != "satellite")
+  {
+    type_ = "quadcopter";
+  }
   
   if (knowledge && sensors && self)
   {
-    result = new OscPlatform (knowledge, sensors, self);
+    result = new OscPlatform (knowledge, sensors, self,
+      type_);
   }
 
   return result;
@@ -37,8 +50,10 @@ gams::platforms::OscPlatformFactory::create(
 gams::platforms::OscPlatform::OscPlatform(
   madara::knowledge::KnowledgeBase * knowledge,
   gams::variables::Sensors * sensors,
-  gams::variables::Self * self)
-: gams::platforms::BasePlatform(knowledge, sensors, self)
+  gams::variables::Self * self,
+  const std::string & type)        
+: gams::platforms::BasePlatform(knowledge, sensors, self),
+  type_(type)
 {
   // as an example of what to do here, create a coverage sensor
   if (knowledge && sensors)
@@ -75,10 +90,20 @@ gams::platforms::OscPlatform::OscPlatform(
     if (!initial_pose.is_array_type())
     {
       // by default initialize agents to [.id, .id, .id]
-      initial_pose.set_index(2, *(self_->id));
-      initial_pose.set_index(1, *(self_->id));
-      initial_pose.set_index(0, *(self_->id));
+      initial_pose.set_index(2, 200);
+      initial_pose.set_index(1, *(self_->id) * 300);
+      initial_pose.set_index(0, *(self_->id) * 300);
     }
+    else
+    {
+      double value = initial_pose.retrieve_index(0).to_double() * 100;
+      initial_pose.set_index(0, value);
+      value = initial_pose.retrieve_index(1).to_double() * 100;
+      initial_pose.set_index(1, value);
+      value = initial_pose.retrieve_index(2).to_double() * 100;
+      initial_pose.set_index(2, value);
+    }
+    
 
     settings_.type =
       knowledge->get(".osc.transport.type").to_integer();
@@ -122,25 +147,25 @@ gams::platforms::OscPlatform::OscPlatform(
       rotation_prefix_.c_str());
 
     std::stringstream json_buffer;
-    json_buffer << "{\n  \"id\": ";
+    json_buffer << "{\"id\":";
     json_buffer << *(self_->id);
-    json_buffer << ",\n  \"port\": ";
+    json_buffer << ",\"port\":";
     json_buffer << (*(self_->id) + 8000);
-    json_buffer << ",\n  \"location\": {\n";
-    json_buffer << "    \"x\": " <<
-      initial_pose.retrieve_index (0).to_double() << ", ";
+    json_buffer << ",\"location\":{";
+    json_buffer << "\"x\": " <<
+      initial_pose.retrieve_index (0).to_double() << ",";
     json_buffer << "\"y\": " <<
-      initial_pose.retrieve_index (1).to_double() << ", ";
+      initial_pose.retrieve_index (1).to_double() << ",";
     json_buffer << "\"z\": " <<
-      initial_pose.retrieve_index (2).to_double() << "\n";
-    json_buffer << "  },\n  \"rotation\": {\n";
-    json_buffer << "    \"x\": " <<
-      initial_pose.retrieve_index (3).to_double() << ", ";
-    json_buffer << "\"y\": " <<
-      initial_pose.retrieve_index (4).to_double() << ", ";
-    json_buffer << "\"z\": " <<
-      initial_pose.retrieve_index (5).to_double() << "\n";
-    json_buffer << "  }\n}";
+      initial_pose.retrieve_index (2).to_double();
+    json_buffer << "},\"rotation\":{\n";
+    json_buffer << "\"x\":" <<
+      initial_pose.retrieve_index (3).to_double() << ",";
+    json_buffer << "\"y\":" <<
+      initial_pose.retrieve_index (4).to_double() << ",";
+    json_buffer << "\"z\":" <<
+      initial_pose.retrieve_index (5).to_double();
+    json_buffer << "}}";
     
 
     json_creation_ = json_buffer.str();
@@ -148,17 +173,18 @@ gams::platforms::OscPlatform::OscPlatform(
     
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
-      "gams::platforms::OscPlatform::const: creating agent with JSON:" \
+      "gams::platforms::OscPlatform::const: creation JSON:" \
       " %s:\n%s\n",
       self_->agent.prefix.c_str(),
       json_creation_.c_str());
 
     osc_.create_socket(settings_);
 
-    utility::OscUdp::OscMap values;
-    values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
+    // instead of spawning, let's only spawn later in sense
+    // utility::OscUdp::OscMap values;
+    // values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
 
-    osc_.send(values);
+    // osc_.send(values);
 
     last_move_.frame(get_frame());
     last_move_.x(0);
@@ -173,6 +199,11 @@ gams::platforms::OscPlatform::OscPlatform(
     move_timer_.start();
     last_thrust_timer_.start();
     last_position_timer_.start();
+
+    // utility::OscUdp::OscMap values;
+    // values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
+
+    // osc_.send(values);
 
     status_.movement_available = 1;
   }
@@ -383,22 +414,6 @@ gams::platforms::OscPlatform::sense(void)
       "gams::platforms::OscPlatform::sense: " \
       "%s: No received values from UnrealGAMS\n",
       self_->agent.prefix.c_str());
-
-    // if we've never received a server packet for this agent, recreate
-    if (!is_created_)
-    {
-      madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MAJOR,
-        "gams::platforms::OscPlatform::sense: recreating agent with JSON:" \
-        " %s:\n%s\n",
-        self_->agent.prefix.c_str(),
-        json_creation_.c_str());
-
-      utility::OscUdp::OscMap values;
-      values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
-
-      osc_.send(values);
-    }
   }
   else
   {
@@ -438,17 +453,36 @@ gams::platforms::OscPlatform::sense(void)
 
   // check for last position timeout (need to recreate agent in sim)
   last_position_timer_.stop();
-  if (last_position_timer_.duration_ds() > 2)
-  {
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ALWAYS,
-      "gams::platforms::OscPlatform::sense: " \
-      "%s: haven't heard from simulator in %f seconds. Creating agent.\n",
-      self_->agent.prefix.c_str(),
-      last_position_timer_.duration_ds());
 
-    is_created_ = false;
-    last_position_timer_.start();
+  // if we've never received a server packet for this agent, recreate
+  if (last_position_timer_.duration_ds() > 3)
+  {
+    if (!is_created_)
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "gams::platforms::OscPlatform::sense: " \
+        "%s: haven't heard from simulator in %f seconds. Recreating agent.\n",
+        self_->agent.prefix.c_str(),
+        last_position_timer_.duration_ds());
+
+      is_created_ = false;
+
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "gams::platforms::OscPlatform::sense: recreating agent with JSON:" \
+        " %s:\n%s\n",
+        self_->agent.prefix.c_str(),
+        json_creation_.c_str());
+
+      last_position_timer_.start();
+
+      utility::OscUdp::OscMap values;
+      std::string address = "/spawn/" + type_;
+      values[address] = KnowledgeRecord(json_creation_);
+
+      osc_.send(values);
+    }
   }
 
   return gams::platforms::PLATFORM_OK;

@@ -116,10 +116,16 @@ platforms::PlatformFactoryRepository::initialize_default_mappings (void)
   add (aliases, new NullPlatformFactory ());
   
   aliases.resize (2);
-  aliases[0] = "osc-generic";
+  aliases[0] = "osc-quadcopter";
   aliases[1] = "osc";
 
   add (aliases, new OscPlatformFactory ());
+
+  aliases.resize (2);
+  aliases[0] = "osc-satellite";
+  aliases[1] = "osc";
+
+  add (aliases, new OscPlatformFactory ("satellite"));
 
   // VREP Platforms
 #ifdef _GAMS_VREP_

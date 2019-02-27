@@ -1,0 +1,12 @@
+{.prefix}.algorithm="waypoints";
+
+// if no one has set origin, then set it to [5 * agent id, 5 * agent id, 0] as origin
+!.origin => (.origin = [5, 5 * .id, 2]);
+!.initial_pose => (.initial_pose = .origin);
+
+{.prefix}.algorithm.args.locations.size=4;
+{.prefix}.algorithm.args.locations.0=[15, .origin[1], 2];
+{.prefix}.algorithm.args.locations.1=[10, .origin[1], 4];
+{.prefix}.algorithm.args.locations.2=[20, .origin[1], 6];
+{.prefix}.algorithm.args.locations.3=[25, .origin[1], 8];
+{.prefix}.algorithm.args.repeat=5;

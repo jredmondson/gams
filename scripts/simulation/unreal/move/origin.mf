@@ -1,7 +1,8 @@
 
 {.prefix}.algorithm="waypoints";
 
-!.origin => (.origin = [25 * .id, 25 * .id, 0]);
+!.origin => (.origin = [5, 5 * .id, 2]);
+!.initial_pose => (.initial_pose = .origin);
 
 {.prefix}.algorithm.args.locations.size=1;
 {.prefix}.algorithm.args.locations.0=.origin;
