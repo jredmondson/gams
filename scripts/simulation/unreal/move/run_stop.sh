@@ -1,5 +1,6 @@
 #/bin/bash
 
+TYPE="quadcopter"
 N=1
 NT=0
 SCRIPTS_DIR=`dirname $0`
@@ -7,23 +8,27 @@ SCRIPT="$SCRIPTS_DIR/stop.mf"
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then
-    echo "$0 [num agents] [no-transport]"
+    echo "$0 [type] [num agents] [no-transport]"
     exit 0
   fi
 
-  N=$1
+  TYPE="$1"
 
-  if [ $# == 2 ]; then
+  if [ $# -ge 2 ]; then
+    N=$2
+  fi
+
+  if [ $# -ge 3 ]; then
     NT=1
   fi
 fi
 
 if [ $NT -eq 1 ]; then
-  echo gams_controller -mc $N -nt -p osc -M $SCRIPT
-  gams_controller -mc $N -nt -p osc -M $SCRIPT
+  echo gams_controller -mc $N -nt -p osc-$TYPE -M $SCRIPT -z 10
+  gams_controller -mc $N -nt -p osc-$TYPE -M $SCRIPT -z 10
 else
-  echo gams_controller -mc $N -n $N -p osc -M $SCRIPT
-  gams_controller -mc $N -n $N -p osc -M $SCRIPT
+  echo gams_controller -mc $N -n $N -p osc-$TYPE -M $SCRIPT -z 10
+  gams_controller -mc $N -n $N -p osc-$TYPE -M $SCRIPT -z 10
 fi
   
 exit 0

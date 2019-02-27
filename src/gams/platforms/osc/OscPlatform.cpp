@@ -87,6 +87,8 @@ gams::platforms::OscPlatform::OscPlatform(
 
     knowledge::KnowledgeRecord initial_pose = knowledge->get(".initial_pose");
 
+    is_created_ = knowledge->get(".osc.is_created").is_true();
+
     if (!initial_pose.is_array_type())
     {
       // by default initialize agents to [.id, .id, .id]
@@ -200,10 +202,14 @@ gams::platforms::OscPlatform::OscPlatform(
     last_thrust_timer_.start();
     last_position_timer_.start();
 
-    // utility::OscUdp::OscMap values;
-    // values["/spawn/quadcopter"] = KnowledgeRecord(json_creation_);
+    if (!is_created_)
+    {
+      utility::OscUdp::OscMap values;
+      std::string address = "/spawn/" + type_;
+      values[address] = KnowledgeRecord(json_creation_);
 
-    // osc_.send(values);
+      osc_.send(values);
+    }
 
     status_.movement_available = 1;
   }
@@ -454,8 +460,8 @@ gams::platforms::OscPlatform::sense(void)
   // check for last position timeout (need to recreate agent in sim)
   last_position_timer_.stop();
 
-  // if we've never received a server packet for this agent, recreate
-  if (last_position_timer_.duration_ds() > 3)
+  //if we've never received a server packet for this agent, recreate
+  if (last_position_timer_.duration_ds() > 60)
   {
     if (!is_created_)
     {

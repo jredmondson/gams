@@ -3,6 +3,7 @@
 
 !.origin => (.origin = [5, 5 * .id, 2]);
 !.initial_pose => (.initial_pose = .origin);
+.osc.is_created=1;
 
 {.prefix}.algorithm.args.locations.size=1;
 {.prefix}.algorithm.args.locations.0=.origin;
