@@ -4151,8 +4151,8 @@ filters::${filter}::filter (
           $transport_includes .= "\n#include \"transports/" .
             $transports[$i] . ".h\"";            
           $transport_creation .= "
-  knowledge.attach_transport (new transports::${transports[$i]} (
-    knowledge.get_id (), settings, knowledge));";
+  kb.attach_transport (new transports::${transports[$i]} (
+    kb.get_id (), settings, kb));";
         }
         
         # change the includes         
