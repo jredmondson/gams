@@ -359,6 +359,12 @@ $script is using the following configuration:
     make_path("$filters_path");
     make_path("$bin_path");
     
+    if (not -f "$path/src/controller.cpp")
+    {
+      copy "$script_dir/common/src/controller.cpp", "$path/src";
+    }
+
+    
   my $common_contents = "
 /**
  * Common algorithm that may be used to initialize agent algorithms
@@ -4346,11 +4352,7 @@ filters::${filter}::filter (
   {
     copy "$script_dir/common/src/Namespaces.h", "$path/src";
   }
-  if (not -f "$path/src/controller.cpp")
-  {
-    copy "$script_dir/common/src/controller.cpp", "$path/src";
-  }
-
+  
   # copy main directory autogeneration files
   if (not -f "$path/doxygen_help_gen.mpb")
   {
