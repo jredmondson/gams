@@ -320,8 +320,20 @@ gams::algorithms::FormationSync::FormationSync (
     knowledge->print ();
   }
 
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::FormationSync::constructor:" \
+    " Attempting to find agent prefix %s in group %s\n",
+    self_->agent.prefix.c_str (), group.c_str ());
+
   position_ = gams::groups::find_member_index (
     self_->agent.prefix, group_members_);
+
+  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    gams::loggers::LOG_MAJOR,
+    "gams::algorithms::FormationSync::constructor:" \
+    " agent prefix %s position is %d\n",
+    self_->agent.prefix.c_str (), position_);
 
   madara_logger_ptr_log (gams::loggers::global_logger.get (),
     gams::loggers::LOG_MAJOR,

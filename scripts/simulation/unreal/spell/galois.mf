@@ -8,6 +8,8 @@ group.allies.members.size=18;
   group.allies.members.{.i} = "agent." + .i;
 );
 
+.initial.initial_pose=[5, 5 * .id, 2];
+
 {.prefix}.algorithm = "spell";
 {.prefix}.algorithm.args.text = "GALOIS";
 {.prefix}.algorithm.args.group = "group.allies";

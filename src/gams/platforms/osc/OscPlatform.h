@@ -217,6 +217,9 @@ namespace gams { namespace platforms
 
     /// type of robotics platform to simulate
     std::string type_;
+
+    /// timeout for when to loiter
+    double loiter_timeout_;
   }; // end OscPlatform class
     
 

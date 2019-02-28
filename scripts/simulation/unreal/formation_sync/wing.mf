@@ -1,12 +1,16 @@
 
 // number of allies in the group
-group.allies.members.size={swarm.size};
+group.allies.members.size=swarm.size;
 
 // build the group from 0 to n-1
 .i[0 -> swarm.size)
 (
   group.allies.members.{.i} = "agent." + .i;
 );
+
+// if no one has set origin, then set it to [5 * agent id, 5 * agent id, 0] as origin
+!.origin => (.origin = [5, 5 * .id, 2]);
+!.initial_pose => (.initial_pose = .origin);
 
 // initialize each agent
 {.prefix}.algorithm="formation sync";

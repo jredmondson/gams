@@ -1,6 +1,6 @@
 #/bin/bash
 
-N=1
+N=18
 NT=0
 SCRIPTS_DIR=`dirname $0`
 SCRIPT="$SCRIPTS_DIR/galois.mf"

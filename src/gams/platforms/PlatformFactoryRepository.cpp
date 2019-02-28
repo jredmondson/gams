@@ -115,15 +115,16 @@ platforms::PlatformFactoryRepository::initialize_default_mappings (void)
 
   add (aliases, new NullPlatformFactory ());
   
-  aliases.resize (2);
+  aliases.resize (3);
   aliases[0] = "osc-quadcopter";
   aliases[1] = "osc";
+  aliases[2] = "osc-quad";
 
   add (aliases, new OscPlatformFactory ());
 
   aliases.resize (2);
   aliases[0] = "osc-satellite";
-  aliases[1] = "osc";
+  aliases[1] = "osc-sat";
 
   add (aliases, new OscPlatformFactory ("satellite"));
 

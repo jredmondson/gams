@@ -106,6 +106,13 @@ gams::platforms::OscPlatform::OscPlatform(
       initial_pose.set_index(2, value);
     }
     
+    loiter_timeout_ = knowledge->get(".osc.loiter_timeout").to_double();
+
+    if (loiter_timeout_ >= 0 && loiter_timeout_ < 5)
+    {
+      loiter_timeout_ = 5;
+    }
+
 
     settings_.type =
       knowledge->get(".osc.transport.type").to_integer();
@@ -432,7 +439,8 @@ gams::platforms::OscPlatform::sense(void)
 
   // check for loiter timeout (have we thrusted recently?)
   last_thrust_timer_.stop();
-  if (last_thrust_timer_.duration_ds() > 1)
+  if (loiter_timeout_ > 0 &&
+      last_thrust_timer_.duration_ds() > loiter_timeout_)
   {
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
