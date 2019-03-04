@@ -1,0 +1,7 @@
+
+!.origin => (.origin = [3 * (.id / 100), 3 * (.id % 100), 5]);
+!.initial_pose => (.initial_pose = .origin);
+
+.osc.loiter_timeout=-1;
+
+.osc.local.handle="/dev/input/js1";

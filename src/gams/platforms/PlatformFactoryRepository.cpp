@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -68,6 +68,7 @@
 #endif
 
 #include "gams/platforms/osc/OscPlatform.h"
+#include "gams/platforms/osc/OscJoystickPlatform.h"
 #include "gams/loggers/GlobalLogger.h"
 
 #include <string>
@@ -82,176 +83,182 @@ GAMS_EXPORT platforms::PlatformFactoryRepository *
   return plat_repo;
 }
 
-platforms::PlatformFactoryRepository::PlatformFactoryRepository (
+platforms::PlatformFactoryRepository::PlatformFactoryRepository(
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-: knowledge_ (knowledge), platforms_ (platforms), self_ (self),
-  sensors_ (sensors)
+: knowledge_(knowledge), platforms_(platforms), self_(self),
+  sensors_(sensors)
 {
 }
 
-platforms::PlatformFactoryRepository::~PlatformFactoryRepository ()
+platforms::PlatformFactoryRepository::~PlatformFactoryRepository()
 {
 }
 
 void
-platforms::PlatformFactoryRepository::initialize_default_mappings (void)
+platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 {
   std::vector <std::string> aliases;
   
   // the debug platform
-  aliases.resize (3);
+  aliases.resize(3);
   aliases[0] = "debug";
   aliases[1] = "print";
   aliases[2] = "printer";
 
-  add (aliases, new DebugPlatformFactory ());
+  add(aliases, new DebugPlatformFactory());
   
   // the null platform
-  aliases.resize (1);
+  aliases.resize(1);
   aliases[0] = "null";
 
-  add (aliases, new NullPlatformFactory ());
+  add(aliases, new NullPlatformFactory());
   
-  aliases.resize (3);
+  aliases.resize(3);
   aliases[0] = "osc-quadcopter";
   aliases[1] = "osc";
   aliases[2] = "osc-quad";
 
-  add (aliases, new OscPlatformFactory ());
+  add(aliases, new OscPlatformFactory());
 
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "osc-satellite";
   aliases[1] = "osc-sat";
 
-  add (aliases, new OscPlatformFactory ("satellite"));
+  add(aliases, new OscPlatformFactory("satellite"));
+
+  aliases.resize(2);
+  aliases[0] = "osc-joystick";
+  aliases[1] = "osc-xbox";
+
+  add(aliases, new OscJoystickPlatformFactory());
 
   // VREP Platforms
 #ifdef _GAMS_VREP_
   
   // the VREP Ant platform
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "vrep-ant";
   aliases[1] = "vrep_ant";
 
-  add (aliases, new VREPAntFactory ());
+  add(aliases, new VREPAntFactory());
   
   // the VREP Quadcopter platform
-  aliases.resize (4);
+  aliases.resize(4);
   aliases[0] = "vrep-uav";
   aliases[1] = "vrep_uav";
   aliases[2] = "vrep-quad";
   aliases[3] = "vrep_quad";
 
-  add (aliases, new VREPQuadFactory ());
+  add(aliases, new VREPQuadFactory());
 
   // the VREP Quadcopter platform
-  aliases.resize (4);
+  aliases.resize(4);
   aliases[0] = "vrep-uav-laser";
   aliases[1] = "vrep_uav-laser";
   aliases[2] = "vrep-quad-laser";
   aliases[3] = "vrep_quad-laser";
 
-  add (aliases, new VREPQuadLaserFactory ());
+  add(aliases, new VREPQuadLaserFactory());
   
   // the VREP Quadcopter CDRA platform
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "vrep-quad-cdra";
   aliases[1] = "vrep_quad_cdra";
 
-  add (aliases, new VREPQuadCDRAFactory ());
+  add(aliases, new VREPQuadCDRAFactory());
 
   // the VREP Summit platform
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "vrep-summit";
   aliases[1] = "vrep_summit";
 
-  add (aliases, new VREPSummitFactory ());
+  add(aliases, new VREPSummitFactory());
   
  // the VREP Boat platform
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "vrep-boat";
   aliases[1] = "vrep_boat";
 
-  add (aliases, new VREPBoatFactory ());
+  add(aliases, new VREPBoatFactory());
 #endif
 
   // ROS Platforms
 #ifdef _GAMS_ROS_
   // the ROS P3DX platform
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "RosP3Dx";
   aliases[1] = "ros-p3dx";
   aliases[2] = "ROS_P3DX";
 
-  add (aliases, new RosP3DxFactory ());
+  add(aliases, new RosP3DxFactory());
 #endif
 
 #ifdef _GAMS_AIRLIB_
-  aliases.resize (2);
+  aliases.resize(2);
   aliases[0] = "unreal-quad";
   aliases[1] = "unreal_quad";
 
-  add (aliases, new AirLibQuadcopterFactory ());
+  add(aliases, new AirLibQuadcopterFactory());
 #endif
 
 }
 
 void
-platforms::PlatformFactoryRepository::add (
+platforms::PlatformFactoryRepository::add(
   const std::vector <std::string> & aliases,
   PlatformFactory * factory)
 {
-  for (size_t i = 0; i < aliases.size (); ++i)
+  for(size_t i = 0; i < aliases.size(); ++i)
   {
-    std::string alias (aliases[i]);
-    madara::utility::lower (alias);
+    std::string alias(aliases[i]);
+    madara::utility::lower(alias);
 
-    factory->set_knowledge (knowledge_);
-    factory->set_self (self_);
-    factory->set_sensors (sensors_);
-    factory->set_platforms (platforms_);
+    factory->set_knowledge(knowledge_);
+    factory->set_self(self_);
+    factory->set_sensors(sensors_);
+    factory->set_platforms(platforms_);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::platforms::PlatformFactoryRepository:add" \
-      " Adding %s factory.\n", alias.c_str ());
+      " Adding %s factory.\n", alias.c_str());
 
     factory_map_[alias] = factory;
   }
 }
 
 platforms::BasePlatform *
-platforms::PlatformFactoryRepository::create (
+platforms::PlatformFactoryRepository::create(
   const std::string & type,
   const madara::knowledge::KnowledgeMap & args)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MINOR,
     "gams::platforms::PlatformFactoryRepository::create(" \
-    "%s,...)\n", type.c_str ());
+    "%s,...)\n", type.c_str());
 
-  BasePlatform * result (0);
+  BasePlatform * result(0);
 
   if (type != "")
   {
-    std::string alias (type);
-    madara::utility::lower (alias);
+    std::string alias(type);
+    madara::utility::lower(alias);
 
-    FactoryMap::iterator it = factory_map_.find (alias);
-    if (it != factory_map_.end ())
+    FactoryMap::iterator it = factory_map_.find(alias);
+    if (it != factory_map_.end())
     {
-      result = it->second->create (args, knowledge_, sensors_, platforms_, 
+      result = it->second->create(args, knowledge_, sensors_, platforms_, 
         self_);
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "gams::platforms::PlatformFactoryRepository::create:" \
-        " could not find \"%s\" platform.\n", alias.c_str ());
+        " could not find \"%s\" platform.\n", alias.c_str());
     }
   }
 
@@ -259,27 +266,27 @@ platforms::PlatformFactoryRepository::create (
 }
 
 void
-platforms::PlatformFactoryRepository::set_knowledge (
+platforms::PlatformFactoryRepository::set_knowledge(
   madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-platforms::PlatformFactoryRepository::set_platforms (
+platforms::PlatformFactoryRepository::set_platforms(
   variables::Platforms * platforms)
 {
   platforms_ = platforms;
 }
 
 void
-platforms::PlatformFactoryRepository::set_self (variables::Self * self)
+platforms::PlatformFactoryRepository::set_self(variables::Self * self)
 {
   self_ = self;
 }
 
 void
-platforms::PlatformFactoryRepository::set_sensors (
+platforms::PlatformFactoryRepository::set_sensors(
   variables::Sensors * sensors)
 {
   sensors_ = sensors;

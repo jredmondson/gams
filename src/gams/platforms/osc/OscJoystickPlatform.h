@@ -1,6 +1,6 @@
 
-#ifndef   _GAMS_PLATFORM_OSCPLATFORM_H_
-#define   _GAMS_PLATFORM_OSCPLATFORM_H_
+#ifndef   _GAMS_PLATFORM_OSC_JOYSTICK_PLATFORM_H_
+#define   _GAMS_PLATFORM_OSC_JOYSTICK_PLATFORM_H_
 
 #include <vector>
 
@@ -16,14 +16,15 @@
 #include "gams/pose/CartesianFrame.h"
 
 #include "gams/utility/OscUdp.h"
+#include "gams/utility/LinuxJoystick.h"
 
 namespace gams { namespace platforms
 {        
   /**
-  * A low fidelity platform driver for issuing Open Sound Protocol
-  * bundles to control agents in UnrealGams
+  * A platform driver for Xbox controllers that want to interact
+  * with the UnrealGAMS simulations
   **/
-  class GAMS_EXPORT OscPlatform : public BasePlatform
+  class GAMS_EXPORT OscJoystickPlatform : public BasePlatform
   {
   public:
 
@@ -39,7 +40,7 @@ namespace gams { namespace platforms
      * @param  sensors    map of sensor names to sensor information
      * @param  self       self referencing variables for the agent
      **/
-    OscPlatform (
+    OscJoystickPlatform (
       madara::knowledge::KnowledgeBase * knowledge = 0,
       gams::variables::Sensors * sensors = 0,
       gams::variables::Self * self = 0,
@@ -48,7 +49,7 @@ namespace gams { namespace platforms
     /**
      * Destructor
      **/
-    virtual ~OscPlatform ();
+    virtual ~OscJoystickPlatform ();
 
     /**
      * Polls the sensor environment for useful information. Required.
@@ -220,13 +221,26 @@ namespace gams { namespace platforms
 
     /// timeout for when to loiter
     double loiter_timeout_;
-  }; // end OscPlatform class
+
+    /// the event that we must read from
+    std::string event_fd_;
+
+    /// mapping between the controller axes and the velocity to send
+    std::vector<double> xyz_velocity_;
+
+#ifndef __WIN32__
+
+    utility::Joystick joystick_;
+
+#endif // __WIN32__
+
+  }; // end OscJoystickPlatform class
     
 
   /**
-   * A factory class for creating OscPlatform platforms
+   * A factory class for creating OscJoystickPlatform platforms
    **/
-  class GAMS_EXPORT OscPlatformFactory : public PlatformFactory
+  class GAMS_EXPORT OscJoystickPlatformFactory : public PlatformFactory
   {
   public:
 
@@ -235,15 +249,15 @@ namespace gams { namespace platforms
      * @param type   the type of robotics system to simulate (quadcopter,
      *               satellite)
      **/
-    OscPlatformFactory(const std::string & type = "quadcopter");
+    OscJoystickPlatformFactory(const std::string & type = "quadcopter");
 
     /**
      * Destructor. Shouldn't be necessary but trying to find vtable issue
      **/
-    virtual ~OscPlatformFactory();
+    virtual ~OscJoystickPlatformFactory();
 
     /**
-     * Creates a OscPlatform platform.
+     * Creates a OscJoystickPlatform platform.
      * @param   args      no arguments are necessary for this platform
      * @param   knowledge the knowledge base. This will be set by the
      *                    controller in init_vars.
@@ -270,4 +284,4 @@ namespace gams { namespace platforms
 } // end platforms namespace
 } // end gams namespace
 
-#endif // _GAMS_PLATFORM_OSCPLATFORM_H_
+#endif // _GAMS_PLATFORM_OSC_JOYSTICK_PLATFORM_H_
