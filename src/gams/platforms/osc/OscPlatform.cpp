@@ -598,7 +598,7 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
     new_target.x(), new_target.y(), new_target.z());
 
   // are we moving to a new location? If so, start an acceleration timer
-  if (!last_move_.approximately_equal (new_target, 0.1))
+  if (!last_move_.approximately_equal (new_target, 5.0))
   {
     move_timer_.start();
     last_move_ = new_target;
