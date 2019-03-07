@@ -36,8 +36,8 @@ typedef Record::Integer Integer;
 
 const std::string KNOWLEDGE_BASE_PLATFORM_KEY(".platform");
 bool plat_set = false;
-std::string platform("debug");
-std::string algorithm("debug");
+std::string platform("null");
+std::string algorithm("null");
 std::vector <std::string> accents;
 
 // madara commands from a file

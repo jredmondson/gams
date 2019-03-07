@@ -401,6 +401,9 @@ $script is using the following configuration:
  **/
 .platform = '$platform';
 
+// setup default algorithm for agents
+{.prefix}.algorithm = .algorithm;
+
 sensor.coverage.origin=[40.443077,-79.940570, 0.0];
 \n";
 
@@ -429,6 +432,11 @@ sensor.coverage.origin=[40.443077,-79.940570, 0.0];
  **/
 .osc.local.endpoint='127.0.0.1:' + (.id + 8000);
 .osc.loiter_timeout=5.0;
+
+/**
+ * Setup initial pose for Unreal in meters along x,y,z
+ **/
+!.initial_pose => (.initial_pose = [.id, .id, 2]);
 
 /**
  * Max distance (meters) to move target when VREPBase::move is invoked,

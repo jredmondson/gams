@@ -56,7 +56,7 @@ sub run {
     
   if ($launch == 1)
   {
-    for (my $i=0; $i < $agents; $i++)
+    for (my $i=0; $i < $agents; $mc > 1 ? $i += $mc : $i++)
     {
 	    my $common_args = "";
 	  
@@ -120,7 +120,11 @@ sub run {
 	    $common_args .= " --madara-file ";
       $common_args .= "$dir/env.mf ";
       $common_args .= "$dir/common.mf ";
-      $common_args .= "$dir/agent_$i.mf ";
+
+      if ($mc <= 1)
+      {
+        $common_args .= "$dir/agent_$i.mf ";
+      }
 	  
 	    #command for POSIX operating systems
       my $cmd = "\"";	  
