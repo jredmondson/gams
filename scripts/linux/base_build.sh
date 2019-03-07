@@ -621,7 +621,11 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   if [ $PYTHON -eq 1 ]; then
-    sudo apt-get install -y -f python2.7 python-pip
+    sudo apt-get install -y -f python2.7 python-pip python-tk
+    sudo pip install matplotlib
+    sudo pip install pycapnp
+    sudo pip install pyyaml
+    sudo pip install yamlloader
   fi
 
   if [ $ANDROID -eq 1 ]; then
@@ -1646,6 +1650,12 @@ if grep -q "export DMPL_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@export DMPL_ROOT=.*@export DMPL_ROOT='"$DMPL_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export DMPL_ROOT=$DMPL_ROOT" >> $HOME/.gams/env.sh
+fi
+
+if grep -q "export PYTHONPATH" $HOME/.gams/env.sh ; then
+  sed -i 's@export PYTHONPATH=.*@export PYTHONPATH='"\$PYTHONPATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"'@' $HOME/.gams/env.sh
+else
+  echo "export PYTHONPATH=\$PYTHONPATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib" >> $HOME/.gams/env.sh
 fi
 
 

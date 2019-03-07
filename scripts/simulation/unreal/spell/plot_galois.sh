@@ -2,11 +2,7 @@
 
 
 #getting number of members
-membersKey='group.allies.members.size='
-membersValue=`grep $membersKey galois.mf`
-membersValue=${membersValue#"$membersKey"}
-membersValue=${membersValue%;}
-
+membersValue=18
 
 membersInGroup=3
 
