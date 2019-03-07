@@ -9,7 +9,7 @@
 );
 
 // if no one has set origin, then set it to [5 * agent id, 5 * agent id, 0] as origin
-!.origin => (.origin = [5, 5 * .id, 2]);
+!.origin => (.origin = [5, 2 * .id, 2]);
 !.initial_pose => (.initial_pose = .origin);
 
 // initialize each agent
