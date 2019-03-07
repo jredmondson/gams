@@ -1,8 +1,20 @@
 #!/bin/bash
 
+LETTERS=6
+
+if [ $# -ge 1 ]; then
+  if [ "$1" == "help" ] || [ "$1" == "-h" ]; then
+    echo "$0 [num letters=6]"
+    exit 0
+  fi
+
+  if [ $# == 1 ]; then
+    LETTERS=$1
+  fi
+fi
 
 #getting number of members
-membersValue=18
+membersValue=$(( LETTERS * 3 ))
 
 membersInGroup=3
 

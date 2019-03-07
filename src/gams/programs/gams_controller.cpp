@@ -52,7 +52,6 @@
  **/
 
 
-
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/threads/Threader.h"
 #include "gams/controllers/Multicontroller.h"
@@ -164,6 +163,8 @@ void print_usage(const char * prog_name, const char * arg = "")
 " [-u |--udp ip:port]           a udp ip to send to(first is self to bind to)\n" 
 " [-z |--loop-hertz hz]         hertz to run the MAPE loop\n"
 " [--zmq proto:ip:port]         specifies a 0MQ transport endpoint\n"
+" [-0|--init-logic logic] logic similar to -M but allows specifying KARL\n"
+"                               on command line instead of from file\n"
 "\n",
         arg, prog_name);
   exit(0);
@@ -611,6 +612,20 @@ void handle_arguments(int argc, char ** argv)
       {
         settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::ZMQ;
+      }
+      else
+      {
+        print_usage(argv[0], argv[i]);
+      }
+
+      ++i;
+    }
+    else if (arg1 == "-0" || arg1 == "--init-logic")
+    {
+      if (i + 1 < argc)
+      {
+        madara_commands += argv[i + 1];
+        madara_commands += ";\n";
       }
       else
       {
