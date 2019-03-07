@@ -211,17 +211,20 @@ sub run {
     $cmd .= " -c $coverages ";
   }
   
-  # launch dynamic_simulation
-  if ($osname eq "MSWin32")
+  if (!$args{unreal})
   {
-    $cmd =~ s{/}{\\}g;
-    print("start \"DeviceSimulator\" /REALTIME $cmd");
-    system("start \"DeviceSimulator\" /REALTIME $cmd");
-  }
-  else
-  {
-    print("$cmd");
-    system("$cmd");
+    # launch dynamic_simulation
+    if ($osname eq "MSWin32")
+    {
+      $cmd =~ s{/}{\\}g;
+      print("start \"DeviceSimulator\" /REALTIME $cmd");
+      system("start \"DeviceSimulator\" /REALTIME $cmd");
+    }
+    else
+    {
+      print("$cmd");
+      system("$cmd");
+    }
   }
 }
 
