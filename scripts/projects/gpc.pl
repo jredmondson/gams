@@ -539,7 +539,7 @@ use File::Basename;
 
 # Create core variables for simulation
 \$dir = dirname(\$0);
-\$controller = \"\$dir/../../bin/custom_controller\";
+\$controller = \"\$dir/../bin/custom_controller\";
 \$duration = $duration;
 \$madara_debug = $madara_debug;
 \$gams_debug = $gams_debug;
@@ -566,7 +566,7 @@ use File::Basename;
     }
 $run_contents .= "
 # if the user has not compiled, use the gams_controller
-if (not -f \"\$dir/../../bin/custom_controller\")
+if (not -f \"\$dir/../bin/custom_controller\")
 {
   \$controller = \"\$ENV{GAMS_ROOT}/bin/gams_controller\";
 }\n";

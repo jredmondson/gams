@@ -127,8 +127,8 @@ platforms::PlatformFactoryRepository::initialize_default_mappings (void)
   aliases.resize (4);
   aliases[0] = "osc-satellite";
   aliases[1] = "osc-sat";
-  aliases[0] = "unreal-satellite";
-  aliases[1] = "unreal-sat";
+  aliases[2] = "unreal-satellite";
+  aliases[3] = "unreal-sat";
 
   add (aliases, new OscPlatformFactory ("satellite"));
 
