@@ -382,6 +382,8 @@ $script is using the following configuration:
  * unreal-fixed-wing    : fixed wing uav
  * unreal-satellite     : satellite 
  * unreal-custom        : custom unreal robot
+ * osc|osc-quad|osc-quadcopter : OSC-controlled quadcopter (Unreal) 
+ * unreal-custom        : custom unreal robot
  *
  * Specialty options (must be compiled with more than just vrep feature)
  * ros-p3dx        : A ROS Pioneer 3DX robot
@@ -455,7 +457,7 @@ region.0.3 = [40.443077, -79.940398];\n";
       # generate settings.json script if unreal-quad is enabled given the number of agents
       my $output = `$gams_root/scripts/projects/airsim_json_generator.py json $agents`;
       # write settings.json to the --path directory
-      open (json_file, '>', "$sim_path/settings.json");
+      open (json_file, '>', "$sim_path/unreal/settings.json");
         print json_file $output;
       close (json_file);
       # symlink ~/Documents/AirSim/settings.json to the above settings.json
@@ -467,8 +469,8 @@ region.0.3 = [40.443077, -79.940398];\n";
           system "rm $home/Documents/AirSim/settings.json";
       }
           
-      my $symlink_exists = eval { symlink("$sim_path/settings.json", "$home/Documents/AirSim/settings.json"); 1 };
-      print("Symlink created between $sim_path/settings.json and $home/Documents/AirSim/settings.json. \nPlease edit and modify the settings.json in your gpc.pl created project now. A default settings.json has been created for you based on the number of agents ($agents) specified. \n");
+      my $symlink_exists = eval { symlink("$sim_path/unreal/settings.json", "$home/Documents/AirSim/settings.json"); 1 };
+      print("Symlink created between $sim_path/unreal/settings.json and $home/Documents/AirSim/settings.json. \nPlease edit and modify the settings.json in your gpc.pl created project now. A default settings.json has been created for you based on the number of agents ($agents) specified. \n");
 
     }
 
@@ -531,13 +533,13 @@ agent.$i.algorithm = .algorithm;\n";
     my $period = 1 / $hz;
     
     my $run_contents = "#!/usr/bin/perl
-use lib \"\$ENV{GAMS_ROOT}/scripts/simulation\";
+use lib \"\$ENV{GAMS_ROOT}/scripts/simulation/vrep\";
 use user_simulation;
 use File::Basename;
 
 # Create core variables for simulation
 \$dir = dirname(\$0);
-\$controller = \"\$dir/../bin/custom_controller\";
+\$controller = \"\$dir/../../bin/custom_controller\";
 \$duration = $duration;
 \$madara_debug = $madara_debug;
 \$gams_debug = $gams_debug;
@@ -564,7 +566,7 @@ use File::Basename;
     }
 $run_contents .= "
 # if the user has not compiled, use the gams_controller
-if (not -f \"\$dir/../bin/custom_controller\")
+if (not -f \"\$dir/../../bin/custom_controller\")
 {
   \$controller = \"\$ENV{GAMS_ROOT}/bin/gams_controller\";
 }\n";
@@ -608,7 +610,7 @@ user_simulation::run(
   mc => \$mc);\n";
 
     # create the run script
-    open (run_file, '>', "$sim_path/run.pl");
+    open (run_file, '>', "$sim_path/vrep_run.pl");
       print run_file $run_contents;
     close (run_file);
   } # end create directory
@@ -626,12 +628,12 @@ user_simulation::run(
     
     if ($verbose)
     {
-      print ("Reading agents info from $sim_path/run.pl\n");
+      print ("Reading agents info from $sim_path/vrep_run.pl\n");
     }
     
     my $run_contents;
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path."; 
       $run_contents = join("", <run_file>); 
     close run_file;
@@ -771,8 +773,8 @@ agent.$i.algorithm = .algorithm;\n";
 
       $run_contents =~ s/Rotate logs for comparisons(.|\s)*# Run simulation/Rotate logs for comparisons\n${log_rotate_commands}\n# Run simulation/;
       
-      open run_file, ">$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+      open run_file, ">$sim_path/vrep_run.pl" or
+        die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
         " Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n";
         print run_file  $run_contents; 
@@ -781,7 +783,7 @@ agent.$i.algorithm = .algorithm;\n";
     }
     else
     {
-      print ("ERROR: Couldn't find agents info in $sim_path/run.pl\n");
+      print ("ERROR: Couldn't find agents info in $sim_path/vrep_run.pl\n");
     }
   }  
   
@@ -798,8 +800,8 @@ agent.$i.algorithm = .algorithm;\n";
     if (!$agents)
     {
       my $run_contents;
-      open run_file, "$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+      open run_file, "$sim_path/vrep_run.pl" or
+        die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
         $run_contents = join("", <run_file>); 
       close run_file;
@@ -837,8 +839,8 @@ agent.$i.algorithm = .algorithm;\n";
     if (!$agents)
     {
       my $run_contents;
-      open run_file, "$sim_path/run.pl" or
-        die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+      open run_file, "$sim_path/vrep_run.pl" or
+        die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
         $run_contents = join("", <run_file>); 
       close run_file;
@@ -1750,8 +1752,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     my $found;
     
     # read the run file
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
@@ -1788,12 +1790,12 @@ $region.3 = [$max_lat, $min_lon];\n";
     
     if ($verbose)
     {
-      print ("  Writing back to $sim_path/run.pl\n");
+      print ("  Writing back to $sim_path/vrep_run.pl\n");
     }
     
     # write the updated info to the run file
-    open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+    open run_file, ">$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
         " Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
@@ -1805,20 +1807,20 @@ $region.3 = [$max_lat, $min_lon];\n";
   {
     if ($verbose)
     {
-      print ("Changing duration of sim in $sim_path/run.pl...\n");
+      print ("Changing duration of sim in $sim_path/vrep_run.pl...\n");
     }
     
     my $run_contents;
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
     
     $run_contents =~ s/(duration\s*=\s*)\d+/$1$duration/;  
     
-    open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+    open run_file, ">$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
         " Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
@@ -1831,12 +1833,12 @@ $region.3 = [$max_lat, $min_lon];\n";
   {
     if ($verbose)
     {
-      print ("Changing domain in $sim_path/run.pl...\n");
+      print ("Changing domain in $sim_path/vrep_run.pl...\n");
     }
     
     my $run_contents;
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
@@ -1847,8 +1849,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     }
     $run_contents =~ s/(domain\s*=\s*)['"][^'"]+['"]/$1\"$domain\"/;  
   
-    open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+    open run_file, ">$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
       "  Path was uninitialized." .
       " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
@@ -1860,12 +1862,12 @@ $region.3 = [$max_lat, $min_lon];\n";
   {
     if ($verbose)
     {
-      print ("Changing num of merged controllers in $sim_path/run.pl...\n");
+      print ("Changing num of merged controllers in $sim_path/vrep_run.pl...\n");
     }
     
     my $run_contents;
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
@@ -1876,8 +1878,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     }
     $run_contents =~ s/(mc\s*=\s*)\d+/$1$mc/;  
 
-    open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+    open run_file, ">$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
       "  Path was uninitialized." .
       " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
@@ -1889,12 +1891,12 @@ $region.3 = [$max_lat, $min_lon];\n";
   {
     if ($verbose)
     {
-      print ("Changing debug levels in $sim_path/run.pl...\n");
+      print ("Changing debug levels in $sim_path/vrep_run.pl...\n");
     }
     
     my $run_contents;
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
@@ -1917,8 +1919,8 @@ $region.3 = [$max_lat, $min_lon];\n";
       $run_contents =~ s/(gams_debug\s*=\s*)\d+/$1$gams_debug/; 
     }
     
-    open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+    open run_file, ">$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
         " Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 
@@ -1939,8 +1941,8 @@ $region.3 = [$max_lat, $min_lon];\n";
     my $transport;
     my $run_contents;
     
-    open run_file, "$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl. Path was uninitialized." .
+    open run_file, "$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl. Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n"; 
       $run_contents = join("", <run_file>); 
     close run_file;
@@ -2026,11 +2028,11 @@ $region.3 = [$max_lat, $min_lon];\n";
       
     if ($verbose)
     {
-      print ("  Writing back to $sim_path/run.pl\n");
+      print ("  Writing back to $sim_path/vrep_run.pl\n");
     }
     
-    open run_file, ">$sim_path/run.pl" or
-      die "ERROR: Couldn't open $sim_path/run.pl for writing." .
+    open run_file, ">$sim_path/vrep_run.pl" or
+      die "ERROR: Couldn't open $sim_path/vrep_run.pl for writing." .
        " Path was uninitialized." .
         " Use --force to force necessary directories in $sim_path.\n";
       print run_file  $run_contents; 

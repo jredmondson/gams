@@ -571,8 +571,9 @@ void create_environment (const int& client_id,
 
   // determine what type of surface to use
   string type = knowledge.get (".surface").to_string ();
+
   surface_enum surf_type (INVALID);
-  if (type == "concrete")
+  if (type == "concrete" || type == "")
     surf_type = CONCRETE;
   else if (type == "water")
     surf_type = WATER;

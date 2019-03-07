@@ -1240,7 +1240,7 @@ if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
     fi
 
     echo "CONFIGURING 20 VREP PORTS"
-    $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+    $GAMS_ROOT/scripts/simulation/vrep/remoteApiConnectionsGen.pl 19905 20
 
 
     echo "PATCHING VREP"
@@ -1419,7 +1419,7 @@ fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
   echo "CONFIGURING 20 VREP PORTS"
-  $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+  $GAMS_ROOT/scripts/simulation/vrep/remoteApiConnectionsGen.pl 19905 20
 fi
 
 # create example config files with default GAMS multicast IPs

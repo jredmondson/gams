@@ -79,6 +79,6 @@ AirSim
 port/python/tools/config_parser.pyc
 port/python/tools/data_reader_interface.pyc
 port/python/tools/plotting.pyc
-scripts/simulation/spell/config.yaml
+scripts/simulation/vrep/spell/config.yaml
 scripts/simulation/unreal/spell/config.yaml
 

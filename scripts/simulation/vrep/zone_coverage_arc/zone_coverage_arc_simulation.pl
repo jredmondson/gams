@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use lib "$ENV{GAMS_ROOT}/scripts/simulation";
+use lib "$ENV{GAMS_ROOT}/scripts/simulation/vrep";
 use simulation;
 
 $gams_root = $ENV{GAMS_ROOT};
