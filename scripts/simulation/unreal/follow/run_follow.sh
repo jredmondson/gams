@@ -24,8 +24,8 @@ if [ $# -ge 1 ]; then
 fi
 
 if [ $NT -eq 1 ]; then
-  echo gams_controller -mc $N -nt -p osc-$TYPE -M $SCRIPT -z 4
-  gams_controller -mc $N -nt -p osc-$TYPE -M $SCRIPT -z 4
+  echo gams_controller -mc $N -n $N -nt -p osc-$TYPE -M $SCRIPT -z 4
+  gams_controller -mc $N -n $N -nt -p osc-$TYPE -M $SCRIPT -z 4
 else
   echo gams_controller -mc $N -n $N -p osc-$TYPE -M $SCRIPT -z 4
   gams_controller -mc $N -n $N -p osc-$TYPE -M $SCRIPT -z 4
