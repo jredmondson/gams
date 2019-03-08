@@ -44,6 +44,10 @@ android                      = 0
 /// Enable this feature if you want to compile with OpenJDK (requires java=1)
 openjdk                 = 0
 
+/// @feature no_karl
+/// Enable this feature if you do not need to evaluate KaRL scripts
+no_karl                 = 0
+
 /// @feature docs
 /// Enable this feature if you want to generate documentation
 docs                    = 0

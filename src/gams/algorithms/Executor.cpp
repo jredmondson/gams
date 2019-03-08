@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -67,7 +67,7 @@ typedef KnowledgeRecord::Integer   Integer;
 typedef knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::ExecutorFactory::create (
+gams::algorithms::ExecutorFactory::create(
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -75,34 +75,34 @@ gams::algorithms::ExecutorFactory::create (
   variables::Self * self,
   variables::Agents * agents)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
      "gams::algorithms::ExecutorFactory::create:" \
-     " creating Executor with %d args\n", args.size ());
+     " creating Executor with %d args\n", args.size());
 
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
   if (knowledge && sensors && platform && self)
   {
     int repeat = 0;
     AlgorithmMetaDatas algorithms;
 
-    KnowledgeMap::const_iterator size_found = args.find ("size");
+    KnowledgeMap::const_iterator size_found = args.find("size");
 
-    if (size_found != args.end ())
+    if (size_found != args.end())
     {
-      int size = (int) size_found->second.to_integer ();
+      int size =(int) size_found->second.to_integer();
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::ExecutorFactory::create:" \
         " Number of algorithms is %d\n", size);
 
       if (size > 0)
       {
-        algorithms.resize (size);
+        algorithms.resize(size);
 
-        KnowledgeMap::const_iterator next = args.find ("0.algorithm");
+        KnowledgeMap::const_iterator next = args.find("0.algorithm");
 
         std::string alg_prefix = "0.algorithm";
         std::string args_prefix = "0.algorithm.args";
@@ -112,12 +112,12 @@ gams::algorithms::ExecutorFactory::create (
          **/
         for (; next != size_found; ++next)
         {
-          if (next->first.size () > 0)
+          if (next->first.size() > 0)
           {
             size_t last;
 
             // check for algorithm prefix of a number
-            for (last = 0; last < next->first.size () &&
+            for (last = 0; last < next->first.size() &&
               next->first[last] >= '0' && next->first[last] <= '9'; ++last)
             {
             };
@@ -125,8 +125,8 @@ gams::algorithms::ExecutorFactory::create (
             // if this is an algorithm prefix
             if (last > 0)
             {
-              std::string str_index = next->first.substr (0, last);
-              size_t index = (size_t)(KnowledgeRecord (str_index).to_integer ());
+              std::string str_index = next->first.substr(0, last);
+              size_t index =(size_t)(KnowledgeRecord(str_index).to_integer());
               const std::string alg_prefix = str_index + ".algorithm";
               const std::string args_prefix = alg_prefix + ".args.";
               const std::string precond_prefix = str_index + ".precond";
@@ -134,63 +134,63 @@ gams::algorithms::ExecutorFactory::create (
               // we have an algorithm definition
               if (next->first == alg_prefix)
               {
-                madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                madara_logger_ptr_log(gams::loggers::global_logger.get(),
                   gams::loggers::LOG_MINOR,
                   "gams::algorithms::ExecutorFactory::create:" \
                   " Algorithm %d id set to %s\n",
-                  (int)index, next->second.to_string ().c_str ());
+                 (int)index, next->second.to_string().c_str());
 
-                algorithms[index].id = next->second.to_string ();
+                algorithms[index].id = next->second.to_string();
               } // end algorithm define
-              else if (madara::utility::begins_with (next->first, args_prefix))
+              else if (madara::utility::begins_with(next->first, args_prefix))
               {
-                std::string arg = madara::utility::strip_prefix (
+                std::string arg = madara::utility::strip_prefix(
                   next->first, args_prefix);
 
-                madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                madara_logger_ptr_log(gams::loggers::global_logger.get(),
                   gams::loggers::LOG_MINOR,
                   "gams::algorithms::ExecutorFactory::create:" \
                   " Algorithm %d added arg %s = %s\n",
-                  (int)index, arg.c_str (), next->second.to_string ().c_str ());
+                 (int)index, arg.c_str(), next->second.to_string().c_str());
 
                 algorithms[index].args[arg] = next->second;
               } // end algorithm arg define
               else if (next->first == precond_prefix)
               {
-                madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                madara_logger_ptr_log(gams::loggers::global_logger.get(),
                   gams::loggers::LOG_MINOR,
                   "gams::algorithms::ExecutorFactory::create:" \
                   " Algorithm %d added precond %s\n",
-                  (int)index, next->second.to_string ().c_str ());
+                 (int)index, next->second.to_string().c_str());
 
-                algorithms[index].precond = next->second.to_string ();
+                algorithms[index].precond = next->second.to_string();
               }
-              else if (madara::utility::ends_with (next->first, "max_time"))
+              else if (madara::utility::ends_with(next->first, "max_time"))
               {
-                madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                madara_logger_ptr_log(gams::loggers::global_logger.get(),
                   gams::loggers::LOG_MINOR,
                   "gams::algorithms::ExecutorFactory::create:" \
                   " Algorithm %d setting max_time to %f seconds\n",
-                  (int)index, next->second.to_double ());
+                 (int)index, next->second.to_double());
 
-                algorithms[index].max_time = next->second.to_double ();
+                algorithms[index].max_time = next->second.to_double();
               }
               else
               {
-                madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                madara_logger_ptr_log(gams::loggers::global_logger.get(),
                   gams::loggers::LOG_ERROR,
                   "gams::algorithms::ExecutorFactory::create:" \
                   " Unable to process %s = %s.\n",
-                  next->first.c_str (), next->second.to_string ().c_str ());
+                  next->first.c_str(), next->second.to_string().c_str());
               } // end unknown arg
             } // end algorithm arg index found
             else // begin non-index prefixed argument
             {
               if (next->first == "repeat")
               {
-                repeat = (int)next->second.to_integer ();
+                repeat =(int)next->second.to_integer();
 
-                madara_logger_ptr_log (gams::loggers::global_logger.get (),
+                madara_logger_ptr_log(gams::loggers::global_logger.get(),
                   gams::loggers::LOG_ERROR,
                   "gams::algorithms::ExecutorFactory::create:" \
                   " Setting repeat to %d.\n",
@@ -200,18 +200,18 @@ gams::algorithms::ExecutorFactory::create (
           } // end if args string is not empty
         } // end iteration over args
 
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::algorithms::ExecutorFactory::create:" \
           " Creating Executor with %d algorithms and %d repeat.\n",
-          (int)algorithms.size (), repeat);
+         (int)algorithms.size(), repeat);
 
-        result = new Executor (algorithms, repeat,
+        result = new Executor(algorithms, repeat,
           knowledge, platform, sensors, self, agents);
       } // end size > 0
       else
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::algorithms::ExecutorFactory::create:" \
           " size <= 0. No algorithms to run.\n");
@@ -219,7 +219,7 @@ gams::algorithms::ExecutorFactory::create (
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::algorithms::ExecutorFactory::create:" \
         " no size found. Must set algorithm.size to the num of algorithms\n");
@@ -227,7 +227,7 @@ gams::algorithms::ExecutorFactory::create (
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::algorithms::ExecutorFactory::create:" \
       " knowledge, sensors, platform, self, or agents are invalid\n");
@@ -236,33 +236,33 @@ gams::algorithms::ExecutorFactory::create (
   return result;
 }
 
-gams::algorithms::Executor::Executor (
+gams::algorithms::Executor::Executor(
   AlgorithmMetaDatas algorithms,
   int repeat,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
-  BaseAlgorithm (knowledge, platform, sensors, self, agents),
-  algorithms_ (algorithms), repeat_ (repeat), alg_index_ (0), cycles_ (0),
-  current_ (0),
-  precond_met_ (false), enforcer_ (0.0, 0.0)
+  BaseAlgorithm(knowledge, platform, sensors, self, agents),
+  algorithms_(algorithms), repeat_(repeat), alg_index_(0), cycles_(0),
+  current_(0),
+  precond_met_(false), enforcer_(0.0, 0.0)
 {
-  status_.init_vars (*knowledge, "executor", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "executor", self->agent.prefix);
+  status_.init_variable_values();
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::Executor::constr:" \
     " Initialized with %d algorithms and %d repeat. Status stored at %s.\n",
-    (int)algorithms.size (), repeat, status_.name.c_str ());
+   (int)algorithms.size(), repeat, status_.name.c_str());
 }
 
-gams::algorithms::Executor::~Executor ()
+gams::algorithms::Executor::~Executor()
 {
 }
 
 void
-gams::algorithms::Executor::operator= (Executor& rhs)
+gams::algorithms::Executor::operator=(Executor& rhs)
 {
   if (this != &rhs)
   {
@@ -276,28 +276,28 @@ gams::algorithms::Executor::operator= (Executor& rhs)
 }
 
 int
-gams::algorithms::Executor::analyze (void)
+gams::algorithms::Executor::analyze(void)
 {
-  int result (OK);
-  bool create_algorithm (false);
+  int result(OK);
+  bool create_algorithm(false);
 
-  if (!precond_met_ && status_.finished.is_false ())
+  if (!precond_met_ && status_.finished.is_false())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Executor::analyze:" \
       " Cycle %d: Precondition for algorithm %d not met yet. Checking...\n",
-      cycles_, (int)alg_index_);
+      cycles_,(int)alg_index_);
 
     // if there is no precondition, set precond_met to true
     if (algorithms_[alg_index_].precond == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::Executor::analyze:" \
         " Cycle %d: Precondition empty for algorithm %d." \
         " Changing precond_met...\n",
-        cycles_, (int)alg_index_);
+        cycles_,(int)alg_index_);
 
       precond_met_ = true;
 
@@ -305,14 +305,18 @@ gams::algorithms::Executor::analyze (void)
     }
     else
     {
+#ifndef _MADARA_NO_KARL_
       precond_met_ =
-        knowledge_->evaluate (algorithms_[alg_index_].precond).is_true ();
+        knowledge_->evaluate(algorithms_[alg_index_].precond).is_true();
+#else // end karl support
+      precond_met_ = true;
+#endif // end no karl support
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Executor::analyze:" \
         " Cycle %d: Precondition check for algorithm %d is %s.\n",
-        cycles_, (int)alg_index_, precond_met_ ? "true" : "false");
+        cycles_,(int)alg_index_, precond_met_ ? "true" : "false");
 
       create_algorithm = precond_met_;
     }
@@ -320,79 +324,79 @@ gams::algorithms::Executor::analyze (void)
 
   if (create_algorithm)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::analyze:" \
       " Cycle %d: Precondition met for algorithm %d. Creating algorithm\n",
-      cycles_, (int)alg_index_);
+      cycles_,(int)alg_index_);
 
-    current_ = algorithms::global_algorithm_factory()->create (
+    current_ = algorithms::global_algorithm_factory()->create(
       algorithms_[alg_index_].id,
       algorithms_[alg_index_].args);
 
     if (algorithms_[alg_index_].max_time > 0)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Executor::analyze:" \
         " Cycle %d: Maximum time for algorithm %d set to %f\n",
-        cycles_, (int)alg_index_, algorithms_[alg_index_].max_time);
+        cycles_,(int)alg_index_, algorithms_[alg_index_].max_time);
 
-      enforcer_.start ();
-      enforcer_.set_duration (algorithms_[alg_index_].max_time);
+      enforcer_.start();
+      enforcer_.set_duration(algorithms_[alg_index_].max_time);
     }
   }
 
-  if (precond_met_ && status_.finished.is_false ())
+  if (precond_met_ && status_.finished.is_false())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::analyze:" \
       " Cycle %d: Analyzing algorithm %d\n",
-      cycles_, (int)alg_index_);
+      cycles_,(int)alg_index_);
 
-    current_->analyze ();
+    current_->analyze();
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::analyze:" \
       " Cycle %d: Algorithm %d precond = %s, finished = %d\n",
-      cycles_, (int)alg_index_, precond_met_ ? "true" : "false",
-      (int)*status_.finished);
+      cycles_,(int)alg_index_, precond_met_ ? "true" : "false",
+     (int)*status_.finished);
   }
 
   return result;
 }
       
 int
-gams::algorithms::Executor::execute (void)
+gams::algorithms::Executor::execute(void)
 {
-  int result (OK);
+  int result(OK);
 
-  if (precond_met_ && status_.finished.is_false ())
+  if (precond_met_ && status_.finished.is_false())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::execute:" \
       " Cycle %d: Calling algorithm %d execute\n",
-      cycles_, (int)alg_index_);
+      cycles_,(int)alg_index_);
 
-    current_->execute ();
+    current_->execute();
 
     // check if the algorithm status is finished or we've hit end time
-    if (current_->get_algorithm_status ()->finished.is_true () ||
-      (algorithms_[alg_index_].max_time > 0 && enforcer_.is_done ()))
+    if (current_->get_algorithm_status()->finished.is_true() ||
+     (algorithms_[alg_index_].max_time > 0 && enforcer_.is_done()))
     {
       // if we are at the end of the algorithms list
-      if (alg_index_ == algorithms_.size () - 1)
+      if (alg_index_ == algorithms_.size() - 1)
       {
         ++cycles_;
 
         if (cycles_ >= repeat_ && repeat_ >= 0)
         {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_MAJOR,
             "Executor::execute:" \
             " Cycle %d: Algorithm is finished after %d cycles\n",
@@ -407,7 +411,7 @@ gams::algorithms::Executor::execute (void)
           alg_index_ = 0;
           precond_met_ = false;
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_MAJOR,
             "Executor::execute:" \
             " Cycle %d: Proceeding to algorithm 0 in next cycle.\n",
@@ -421,51 +425,51 @@ gams::algorithms::Executor::execute (void)
         ++alg_index_;
         precond_met_ = false;
 
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "Execute::execute:" \
           " Cycle %d: Proceeding to algorithm %d.\n",
-          cycles_, (int)alg_index_);
+          cycles_,(int)alg_index_);
 
       } // if not the end of the list
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::execute:" \
       " Cycle %d: Algorithm %d precond = %s, finished = %d\n",
-      cycles_, (int)alg_index_, precond_met_ ? "true" : "false",
-      (int)*status_.finished);
+      cycles_,(int)alg_index_, precond_met_ ? "true" : "false",
+     (int)*status_.finished);
   }
 
   return result;
 }
 
 int
-gams::algorithms::Executor::plan (void)
+gams::algorithms::Executor::plan(void)
 {
-  int result (OK);
+  int result(OK);
 
-  if (precond_met_ && status_.finished.is_false ())
+  if (precond_met_ && status_.finished.is_false())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::plan:" \
       " Cycle %d: Calling algorithm %d plan\n",
-      cycles_, (int)alg_index_);
+      cycles_,(int)alg_index_);
 
-    current_->plan ();
+    current_->plan();
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Executor::plan:" \
       " Cycle %d: Algorithm %d precond = %s, finished = %d\n",
-      cycles_, (int)alg_index_, precond_met_ ? "true" : "false",
-      (int)*status_.finished);
+      cycles_,(int)alg_index_, precond_met_ ? "true" : "false",
+     (int)*status_.finished);
   }
 
   return result;

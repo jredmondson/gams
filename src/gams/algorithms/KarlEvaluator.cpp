@@ -219,8 +219,10 @@ gams::algorithms::KarlEvaluator::KarlEvaluator (
       actual_logic = logic;
     }
 
+#ifndef _MADARA_NO_KARL_
     // compile the logic for fast evaluation, which will be helpful if wait
     this->compiled_logic_ = knowledge->compile (actual_logic);
+#endif
 
 
     madara_logger_ptr_log (gams::loggers::global_logger.get (),
@@ -248,7 +250,9 @@ gams::algorithms::KarlEvaluator::operator= (KarlEvaluator& rhs)
 {
   if (this != &rhs)
   {
+#ifndef _MADARA_NO_KARL_
     compiled_logic_ = rhs.compiled_logic_;
+#endif
     settings_ = rhs.settings_;
     logic_ = rhs.logic_;
     is_wait_ = rhs.is_wait_;
@@ -274,8 +278,12 @@ gams::algorithms::KarlEvaluator::execute (void)
       gams::loggers::LOG_MAJOR,
       "KarlEvaluator::execute: Evaluating logic.\n");
 
+#ifndef _MADARA_NO_KARL_
     KnowledgeRecord eval_result = knowledge_->evaluate (
       compiled_logic_, settings_);
+#else
+    KnowledgeRecord eval_result;
+#endif
 
     if (eval_result.is_false () && is_wait_ && wait_time_ > 0)
     {

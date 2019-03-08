@@ -1,0 +1,3 @@
+feature (no_karl) {
+  macros += _MADARA_NO_KARL_
+}

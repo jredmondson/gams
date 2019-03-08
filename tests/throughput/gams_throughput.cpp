@@ -659,8 +659,10 @@ int main (int argc, char ** argv)
   // read madara initialization
   if (madara_commands != "")
   {
+#ifndef _MADARA_NO_KARL_
     knowledge.evaluate (madara_commands,
       madara::knowledge::EvalSettings (false, true));
+#endif
   }
 
   gams::loggers::global_logger->log (
@@ -676,9 +678,11 @@ int main (int argc, char ** argv)
 
     madara::logger::global_logger->set_level (madara_debug_level);
 
+#ifndef _MADARA_NO_KARL_
     // modify the debug level being used but don't send out to others
     knowledge.evaluate (temp_buffer.str (),
       madara::knowledge::EvalSettings (true, true));
+#endif
   }
 
   if (!rcv_only)
@@ -695,9 +699,11 @@ int main (int argc, char ** argv)
 
       gams::loggers::global_logger->set_level (gams_debug_level);
 
+#ifndef _MADARA_NO_KARL_
       // modify the debug level being used but don't send out to others
       knowledge.evaluate (temp_buffer.str (),
         madara::knowledge::EvalSettings (true, true));
+#endif
     }
 
     gams::loggers::global_logger->log (

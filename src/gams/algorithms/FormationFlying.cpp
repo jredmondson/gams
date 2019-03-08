@@ -302,7 +302,9 @@ gams::algorithms::FormationFlying::FormationFlying (
           formation_expr.str ().c_str ());
 
         Compiled temp;
+#ifndef _MADARA_NO_KARL_
         temp.ref = knowledge_->compile (formation_expr.str ());
+#endif
         temp.agent = m;
         compiled_formation_.push_back (temp);
       }
@@ -386,6 +388,7 @@ gams::algorithms::FormationFlying::analyze (void)
         int in_formation = 1;
         for (size_t i = 0; i < compiled_formation_.size (); ++i)
         {
+#ifndef _MADARA_NO_KARL_
           in_formation &= knowledge_->evaluate (compiled_formation_[i].ref).to_integer ();
           if (knowledge_->evaluate (compiled_formation_[i].ref).to_integer () == 0)
           {
@@ -401,6 +404,7 @@ gams::algorithms::FormationFlying::analyze (void)
               "gams::algorithms::FormationFlying::analyze:" \
               " agent %s ready\n", compiled_formation_[i].agent.c_str ());
           }
+#endif // end karl support enabled
         }
         in_formation_ = in_formation;
       }

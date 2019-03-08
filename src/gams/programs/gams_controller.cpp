@@ -725,8 +725,10 @@ int main(int argc, char ** argv)
   // read madara initialization
   if (madara_commands != "")
   {
+#ifndef _MADARA_NO_KARL_
     controller.evaluate(madara_commands,
       madara::knowledge::EvalSettings(false, true));
+#endif
   }
   
   // set debug levels if they have been set through command line

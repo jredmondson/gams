@@ -1183,7 +1183,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   if [ $NOKARL -eq 1 ] ; then
-    echo "REMOVING KARL EXPRESSION EVALUATION"
+    echo "REMOVING KARL EXPRESSION EVALUATION FROM MADARA BUILD"
   fi
 
   cd $MADARA_ROOT
@@ -1300,12 +1300,16 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     fi
 
   fi
-    
+
+  if [ $NOKARL -eq 1 ] ; then
+    echo "REMOVING KARL EXPRESSION EVALUATION FROM GAMS BUILD"
+  fi
+
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1319,10 +1323,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  echo "make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
