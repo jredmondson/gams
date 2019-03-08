@@ -220,6 +220,9 @@ namespace gams { namespace platforms
 
     /// timeout for when to loiter
     double loiter_timeout_;
+
+    /// timeout for calling respawn (-1 means don't respawn)
+    double respawn_timeout_;
   }; // end OscPlatform class
     
 

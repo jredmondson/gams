@@ -108,6 +108,8 @@ gams::platforms::OscPlatform::OscPlatform(
     
     loiter_timeout_ = knowledge->get(".osc.loiter_timeout").to_double();
 
+    respawn_timeout_ = knowledge->get(".osc.respawn_timeout").to_double();
+
     if (loiter_timeout_ >= 0 && loiter_timeout_ < 5)
     {
       loiter_timeout_ = 5;
@@ -469,7 +471,8 @@ gams::platforms::OscPlatform::sense(void)
   last_position_timer_.stop();
 
   //if we've never received a server packet for this agent, recreate
-  if (last_position_timer_.duration_ds() > 60)
+  if (respawn_timeout_ > 0 &&
+      last_position_timer_.duration_ds() > respawn_timeout_)
   {
     if (!is_created_)
     {
