@@ -100,6 +100,7 @@ NOTHREADLOCAL=0
 SSL=0
 DMPL=0
 LZ4=0
+NOKARL=0
 PYTHON=0
 WARNINGS=0
 CLEAN=1
@@ -225,6 +226,8 @@ do
     CLEAN=0
   elif [ "$var" = "nogamspull" ]; then
     GAMSPULL=0
+  elif [ "$var" = "nokarl" ]; then
+    NOKARL=1
   elif [ "$var" = "nomadarapull" ]; then
     MADARAPULL=0
   elif [ "$var" = "nopull" ]; then
@@ -294,6 +297,8 @@ do
     echo "                  are changing features (e.g., enabling ssl when"
     echo "                  you had previously not enabled ssl)"
     echo "  nogamspull      when building GAMS, don't do a git pull"
+    echo "  nokarl          when building MADARA, remove all karl evaluation"
+    echo "                  This is useful to remove RTTI dependencies"
     echo "  nomadarapull    when building MADARA, don't do a git pull"
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
@@ -1176,10 +1181,15 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     fi
 
   fi
+
+  if [ $NOKARL -eq 1 ] ; then
+    echo "REMOVING KARL EXPRESSION EVALUATION"
+  fi
+
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -1189,10 +1199,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  echo "make android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
