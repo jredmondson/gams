@@ -329,7 +329,7 @@ IF %GAMS% EQU 1 (
   msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
 )
 
-if %vrep_config% EQU 1 (
+if %VREP_CONFIG% EQU 1 (
   echo.
   echo Configuring 20 ports in VREP
   %GAMS_ROOT%\scripts\simulation\remoteApiConnectionsGen.pl 19905 20
