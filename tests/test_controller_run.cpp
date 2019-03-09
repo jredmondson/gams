@@ -160,8 +160,14 @@ test_period (engine::KnowledgeBase & knowledge,
     << period << "s period.\n";
   loop.run (period, duration);
   knowledge.set (".loops", algorithm->loops);
+
+
+#ifndef _MADARA_NO_KARL_
   knowledge.evaluate (".loop_speed = .loops / 10");
   knowledge.evaluate (".legible_speed = to_legible_hertz (.loop_speed)");
+#else
+  knowledge.set (".loop_speed", algorithm->loops / 10);
+#endif
   knowledge.print (
     "  Results: {.loops} loop executions @ {.legible_speed}\n");
 
@@ -188,8 +194,13 @@ test_hz (engine::KnowledgeBase & knowledge,
     << hz << "hz.\n";
   loop.run_hz (hz, duration);
   knowledge.set (".loops", algorithm->loops);
+
+#ifndef _MADARA_NO_KARL_
   knowledge.evaluate (".loop_speed = .loops / 10");
   knowledge.evaluate (".legible_speed = to_legible_hertz (.loop_speed)");
+#else
+  knowledge.set (".loop_speed", algorithm->loops / 10);
+#endif
   knowledge.print (
     "  Results: {.loops} loop executions @ {.legible_speed}\n");
 
@@ -222,7 +233,9 @@ int main (int /*argc*/, char ** /*argv*/)
   // set our priority to the default high priority
   madara::utility::set_thread_priority ();
 
+#ifndef _MADARA_NO_KARL_
   knowledge.define_function ("to_legible_hertz", to_legible_hertz);
+#endif
 
   // initialize variables and function stubs
   loop.init_vars (0, 4);

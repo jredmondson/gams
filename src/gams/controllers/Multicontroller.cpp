@@ -170,6 +170,8 @@ void
 gams::controllers::Multicontroller::evaluate(const std::string & logic,
   const madara::knowledge::EvalSettings & settings)
 {
+#ifndef _MADARA_NO_KARL_
+
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Multicontroller::evaluate:" \
@@ -179,6 +181,7 @@ gams::controllers::Multicontroller::evaluate(const std::string & logic,
   {
     kbs_[i].evaluate(logic, settings);
   }
+#endif
 }
 
 void
@@ -186,6 +189,8 @@ gams::controllers::Multicontroller::evaluate(size_t controller_index,
   const std::string & logic,
   const madara::knowledge::EvalSettings & settings)
 {
+#ifndef _MADARA_NO_KARL_
+
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Multicontroller::evaluate:" \
@@ -195,6 +200,8 @@ gams::controllers::Multicontroller::evaluate(size_t controller_index,
   {
     kbs_[controller_index].evaluate(logic, settings);
   }
+  
+#endif
 }
 
 void

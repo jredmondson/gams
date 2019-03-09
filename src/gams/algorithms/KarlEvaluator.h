@@ -125,8 +125,10 @@ namespace gams
 
     protected:
 
+#ifndef _MADARA_NO_KARL_
       /// the compiled logic
       madara::knowledge::CompiledExpression  compiled_logic_;
+#endif
 
       /// the evaluation settings
       madara::knowledge::EvalSettings settings_;

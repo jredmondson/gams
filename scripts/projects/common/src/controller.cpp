@@ -36,8 +36,8 @@ typedef Record::Integer Integer;
 
 const std::string KNOWLEDGE_BASE_PLATFORM_KEY(".platform");
 bool plat_set = false;
-std::string platform("debug");
-std::string algorithm("debug");
+std::string platform("null");
+std::string algorithm("null");
 std::vector <std::string> accents;
 
 // madara commands from a file
@@ -110,6 +110,8 @@ void print_usage(const char * prog_name, const char * arg = "")
 " [-u |--udp ip:port]           a udp ip to send to(first is self to bind to)\n" 
 " [-z |--loop-hertz hz]         hertz to run the MAPE loop\n"
 " [--zmq proto:ip:port]         specifies a 0MQ transport endpoint\n"
+" [-0|--init-logic logic] logic similar to -M but allows specifying KARL\n"
+"                               on command line instead of from file\n"
 "\n",
         arg, prog_name);
   exit(0);
@@ -565,6 +567,20 @@ void handle_arguments(int argc, char ** argv)
 
       ++i;
     }
+    else if (arg1 == "-0" || arg1 == "--init-logic")
+    {
+      if (i + 1 < argc)
+      {
+        madara_commands += argv[i + 1];
+        madara_commands += ";\n";
+      }
+      else
+      {
+        print_usage(argv[0], argv[i]);
+      }
+
+      ++i;
+    }
     else
     {
       print_usage(argv[0], argv[i]);
@@ -656,8 +672,10 @@ int main(int argc, char ** argv)
   // read madara initialization
   if (madara_commands != "")
   {
+#ifndef _MADARA_NO_KARL_
     controller.evaluate(madara_commands,
       madara::knowledge::EvalSettings(false, true));
+#endif
   }
   
   // set debug levels if they have been set through command line

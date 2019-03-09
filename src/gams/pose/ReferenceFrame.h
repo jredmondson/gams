@@ -887,7 +887,7 @@ public:
           const FrameEvalSettings &settings = FrameEvalSettings::DEFAULT)
   {
     if (begin == end) {
-      return -1UL;
+      return 0UL - 1;
     }
 
     std::vector<ancestor_vec> stamps;

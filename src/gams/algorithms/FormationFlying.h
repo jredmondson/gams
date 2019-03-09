@@ -146,7 +146,9 @@ namespace gams
       /// formation wait string
       struct Compiled
       {
+#ifndef _MADARA_NO_KARL_
         madara::knowledge::CompiledExpression ref;
+#endif
         std::string agent;
       };
       std::vector<Compiled> compiled_formation_;

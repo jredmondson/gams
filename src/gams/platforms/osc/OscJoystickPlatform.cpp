@@ -530,7 +530,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
 #ifndef __WIN32__
 
   // read the joystick
-  input_event event;
+  utility::JoystickEvent event;
   joystick_.get(event);
 
   if(joystick_.is_axis(event))
@@ -539,7 +539,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
       gams::loggers::LOG_ALWAYS,
       "gams::platforms::OscJoystickPlatform::sense: " \
       "Joystick: %d, %d, %d, %f.\n",
-      (int)event.type, (int)event.code,
+      (int)event.type, (int)event.number,
       (int)event.value, joystick_.to_double(event));
 
   }

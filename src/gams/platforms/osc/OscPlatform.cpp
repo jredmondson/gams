@@ -108,6 +108,8 @@ gams::platforms::OscPlatform::OscPlatform(
     
     loiter_timeout_ = knowledge->get(".osc.loiter_timeout").to_double();
 
+    respawn_timeout_ = knowledge->get(".osc.respawn_timeout").to_double();
+
     if (loiter_timeout_ >= 0 && loiter_timeout_ < 5)
     {
       loiter_timeout_ = 5;
@@ -469,7 +471,8 @@ gams::platforms::OscPlatform::sense(void)
   last_position_timer_.stop();
 
   //if we've never received a server packet for this agent, recreate
-  if (last_position_timer_.duration_ds() > 60)
+  if (respawn_timeout_ > 0 &&
+      last_position_timer_.duration_ds() > respawn_timeout_)
   {
     if (!is_created_)
     {
@@ -598,7 +601,7 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
     new_target.x(), new_target.y(), new_target.z());
 
   // are we moving to a new location? If so, start an acceleration timer
-  if (!last_move_.approximately_equal (new_target, 0.1))
+  if (!last_move_.approximately_equal (new_target, 5.0))
   {
     move_timer_.start();
     last_move_ = new_target;

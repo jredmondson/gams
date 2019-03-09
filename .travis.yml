@@ -162,7 +162,6 @@ script:
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_elections; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_groups; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_location; fi
-  - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_mape_loop; fi
   - if [ ! -z $TESTS ] && [ "$ROS" == "ros" ]; then $GAMS_ROOT/bin/test_ros2gams; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_utility; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_variables; fi

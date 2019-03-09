@@ -12,13 +12,13 @@ int main(int, char**)
   {
     while(true)
     {
-      input_event event;
+      gams::utility::JoystickEvent event;
       if (joystick.get(event))
       {
         if (joystick.is_axis(event))
         {
           std::cerr << "axis: " <<
-            "code=" << event.code <<
+            "code=" << event.number <<
             "type=" << event.type <<
             "value=" << event.value <<
             "double()=" << joystick.to_double(event) << "\n";
@@ -26,7 +26,7 @@ int main(int, char**)
         else if (joystick.is_button(event))
         {
           std::cerr << "button: " <<
-            "code=" << event.code <<
+            "code=" << event.number <<
             "type=" << event.type <<
             "value=" << event.value <<
             "double()=" << joystick.to_double(event) << "\n";
@@ -34,7 +34,7 @@ int main(int, char**)
         else if (joystick.is_init(event))
         {
           std::cerr << "init: " <<
-            "code=" << event.code <<
+            "code=" << event.number <<
             "type=" << event.type <<
             "value=" << event.value <<
             "double()=" << joystick.to_double(event) << "\n";

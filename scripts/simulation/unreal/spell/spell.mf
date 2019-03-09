@@ -1,0 +1,26 @@
+.buffer=3.0;
+.height=10;
+.width=8;
+!.origin => (.origin = [0, 0, 0]);
+.x_offset = .origin[0] + .id / 3 * (.width + .buffer) + .id % 3 * (.width / 3 + 1);
+.y_offset = .origin[1] + (.id % 3 - 1) * .height;
+!.initial_pose => (.initial_pose = [.x_offset, .y_offset, 1 + .id % 3 * .height]);
+
+.length=#size(.text);
+
+// number of allies in the group
+group.allies.members.size = (.length - 1) * 3;
+
+// build the group from 0 to n-1
+.i[0 -> group.allies.members.size)
+(
+  group.allies.members.{.i} = "agent." + .i;
+);
+
+{.prefix}.algorithm = "spell";
+{.prefix}.algorithm.args.group = "group.allies";
+{.prefix}.algorithm.args.origin = .origin;
+{.prefix}.algorithm.args.text = .text;
+{.prefix}.algorithm.args.buffer = .buffer;
+{.prefix}.algorithm.args.height = .height;
+{.prefix}.algorithm.args.width = .width;

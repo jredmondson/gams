@@ -71,9 +71,11 @@ my $surface;
 my $thread_hz;
 my @udp;
 my $unique;
+my $unreal = 1;
 my $update_vrep;
 my $verbose;
 my $vrep_start_port;
+my $vrep;
 my $sim_path;
 my $src_path;
 my $algs_path;
@@ -152,9 +154,11 @@ GetOptions(
   'transient' => \$transient,
   'vrep-start-port|vrep_start_port|s=i' => \$vrep_start_port,
   'unique' => \$unique,
+  'unreal' => \$unreal,
   'udp|u=s' => \@udp,
   'update-vrep|update_vrep|vrep' => \$update_vrep,
-  'verbose|v' => \$verbose
+  'verbose|v' => \$verbose,
+  'vrep' => \$vrep
   ) or $help = "yes";
 
 #check for help request  
@@ -239,8 +243,10 @@ options:
   --transient            indicates a transient group should be created/used
   --udp|u self h1 ...    udp ip/hosts to use for network transport 
   --unique|-u            requires unique attribute (e.g., height)
+  --unreal               set default sim to Unreal
   --update-vrep|vrep     updates the VREP bounding box with a min|max-lat|lon
   --verbose|-v           print detailed debug info
+  --vrep                 set default sim to VREP (rather than Unreal)
   --vrep-start-port|-s # VREP port number to start from\n";
   
   print("$output\n");
@@ -307,9 +313,16 @@ $script is using the following configuration:
   transient = " . ($transient ? 'yes' : 'no') . "
   vrep_start_port = " . ($vrep_start_port ? $vrep_start_port : 'no change') . "
   udp = " . (scalar @udp > 0 ? ("\n    " . join ("\n    ", @udp)) : 'no') . "
-  unique = " . ($unique ? 'yes' : 'no') . "\n";
+  unique = " . ($unique ? 'yes' : 'no') . "
+  unreal = " . ($unreal ? 'yes' : 'no') . "
+  vrep = " . ($vrep ? 'yes' : 'no') . "\n";
   
     print("$output\n");
+  }
+
+  if ($vrep)
+  {
+    $unreal = undef;
   }
 
   # recursively create path/name
@@ -339,7 +352,7 @@ $script is using the following configuration:
     $madara_debug = $madara_debug ? $madara_debug : 2;
     $gams_debug = $gams_debug ? $gams_debug : 2;
     $vrep_start_port = $vrep_start_port ? $vrep_start_port : 19906;
-    $platform = $platform ? $platform : 'vrep-quad';
+    $platform = $platform ? $platform : $vrep ? 'vrep-quad' : 'unreal-quad';
     $multicast = $multicast ? $multicast : "239.255.0.1:4150";
   
     if ($verbose)
@@ -373,27 +386,57 @@ $script is using the following configuration:
 
 /**
  * Type of platform to use. Options include:
- * vrep-quad       : A VREP quadcopter
- * vrep-quad-laser : A VREP quadcopter
- * vrep-boat       : A VREP boat
- * vrep-ant        : A VREP ant-like ground robot
- * vrep-summit     : A VREP Summit robot
- * unreal-quad     : An UNREAL AirSim Quadcopter UAV
- * unreal-fixed-wing    : fixed wing uav
- * unreal-satellite     : satellite 
- * unreal-custom        : custom unreal robot
+ * vrep-quad       : VREP quadcopter
+ * vrep-quad-laser : VREP quadcopter
+ * vrep-boat       : VREP boat
+ * vrep-ant        : VREP ant-like ground robot
+ * vrep-summit     : VREP Summit robot
+ *
+ * unreal-quad     : UNREAL Quadcopter UAV
+ * unreal-fixed-wing    : UNREAL fixed wing uav
+ * unreal-satellite     : UNREAL satellite 
  *
  * Specialty options (must be compiled with more than just vrep feature)
  * ros-p3dx        : A ROS Pioneer 3DX robot
  **/
 .platform = '$platform';
 
+// setup default algorithm for agents
+{.prefix}.algorithm = .algorithm;
+
 sensor.coverage.origin=[40.443077,-79.940570, 0.0];
+\n";
+
+  
+  my $env_contents = "
+/**
+ * Set VREP view area GPS mapping
+ **/
+.vrep_sw_position = [40.443077,-79.940570];
+.vrep_ne_position = [40.443387,-79.940098];
 
 /**
- * The host information where VREP is running
+ * Surface can be concrete or water 
+ **/
+.surface = 'water';
+
+/**
+ * The host information where VREP and UnrealGAMS are running
  **/
 .vrep_host = '127.0.0.1';
+.osc.server.endpoint ='127.0.0.1:5555';
+
+/**
+ * Some parameters you can change for UnrealGAMS (can safely comment
+ * these out as they are also the defaults in the OscPlatform
+ **/
+.osc.local.endpoint='127.0.0.1:' + (.id + 8000);
+.osc.loiter_timeout=5.0;
+
+/**
+ * Setup initial pose for Unreal in meters along x,y,z
+ **/
+!.initial_pose => (.initial_pose = [.id, .id, 2]);
 
 /**
  * Max distance (meters) to move target when VREPBase::move is invoked,
@@ -410,20 +453,7 @@ sensor.coverage.origin=[40.443077,-79.940570, 0.0];
  * Each thread tick, target will move at most vrep_thread_move_speed divided
  * by vrep_move_thread_rate meters.
  **/
-.vrep_thread_move_speed = 2;\n";
-
-  
-  my $env_contents = "
-/**
- * Set VREP view area GPS mapping
- **/
-.vrep_sw_position = [40.443077,-79.940570];
-.vrep_ne_position = [40.443387,-79.940098];
-
-/**
- * Surface can be concrete or water 
- **/
-.surface = 'water';
+.vrep_thread_move_speed = 2;
 
 /**
  * Define an example search area. Search areas can contain multiple regions.
@@ -443,34 +473,6 @@ region.0.0 = [40.443237, -79.940570];
 region.0.1 = [40.443387, -79.940270];
 region.0.2 = [40.443187, -79.940098];
 region.0.3 = [40.443077, -79.940398];\n";
-
-    if ($platform eq 'unreal-quad')
-    {
-      $platform_base_class = 'AirLibQuadcopter';
-      $subclass_provided = 1;
-      $subclass_header_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.cpp';
-      $subclass_cpp_path = '$gams_root/src/gams/platforms/airlib/$platform_base_class\.h';
-      print("Setting platform base class to $platform_base_class (AirLibQuadcopter)\n");
-
-      # generate settings.json script if unreal-quad is enabled given the number of agents
-      my $output = `$gams_root/scripts/projects/airsim_json_generator.py json $agents`;
-      # write settings.json to the --path directory
-      open (json_file, '>', "$sim_path/settings.json");
-        print json_file $output;
-      close (json_file);
-      # symlink ~/Documents/AirSim/settings.json to the above settings.json
-
-      my $home = "$ENV{HOME}";
-      if (-e "$home/Documents/AirSim/settings.json")
-      {
-          print ("$home/Documents/AirSim/settings.json already exists. Removing it to create a symlink.\n");
-          system "rm $home/Documents/AirSim/settings.json";
-      }
-          
-      my $symlink_exists = eval { symlink("$sim_path/settings.json", "$home/Documents/AirSim/settings.json"); 1 };
-      print("Symlink created between $sim_path/settings.json and $home/Documents/AirSim/settings.json. \nPlease edit and modify the settings.json in your gpc.pl created project now. A default settings.json has been created for you based on the number of agents ($agents) specified. \n");
-
-    }
 
     if ($verbose)
     {
@@ -514,6 +516,11 @@ region.0.3 = [40.443077, -79.940398];\n";
 .initial_alt = 4;
 
 /**
+ * Setup initial pose for Unreal in meters along x,y,z
+ **/
+!.initial_pose => (.initial_pose = [.id, .id, 2]);
+
+/**
  * Set the algorithm for the agent
  **/
 agent.$i.algorithm = .algorithm;\n";
@@ -531,7 +538,7 @@ agent.$i.algorithm = .algorithm;\n";
     my $period = 1 / $hz;
     
     my $run_contents = "#!/usr/bin/perl
-use lib \"\$ENV{GAMS_ROOT}/scripts/simulation\";
+use lib \"\$ENV{GAMS_ROOT}/scripts/simulation/vrep\";
 use user_simulation;
 use File::Basename;
 
@@ -548,6 +555,8 @@ use File::Basename;
 \$launch_controllers = 1;
 \$domain = \"$domain\";
 \$mc = $mc;
+\$nt = undef;
+\$unreal = " . ( $unreal ? 1 : 'undef' ).  ";
 \@hosts = ";
 
     if ($broadcast)
@@ -605,7 +614,9 @@ user_simulation::run(
     
     $run_contents .= "
   border => \\\@border,
-  mc => \$mc);\n";
+  mc => \$mc,
+  nt => \$nt,
+  unreal => \$unreal);\n";
 
     # create the run script
     open (run_file, '>', "$sim_path/run.pl");

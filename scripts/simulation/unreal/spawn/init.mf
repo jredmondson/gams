@@ -5,3 +5,4 @@
 !.initial_pose => (.initial_pose = .origin);
 
 .osc.loiter_timeout=-1;
+.osc.respawn_timeout=-1;

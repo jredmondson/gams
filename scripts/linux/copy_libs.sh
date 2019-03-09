@@ -17,8 +17,8 @@ do
   cp $NDK/arm-linux-androideabi/lib/libgnustl_shared.so $LIB_DIR/armeabi
 
   mkdir -p $LIB_DIR/../src/main/assets/areas
-  cp $GAMS_ROOT/scripts/simulation/areas/cmu.mf $LIB_DIR/../src/main/assets/areas/cmu.mf
-  cp $GAMS_ROOT/scripts/simulation/areas/small.mf $LIB_DIR/../src/main/assets/areas/small.mf
-  cp $GAMS_ROOT/scripts/simulation/madara_init_common.mf $LIB_DIR/../src/main/assets/madara_init_common.mf
+  cp $GAMS_ROOT/scripts/simulation/vrep/areas/cmu.mf $LIB_DIR/../src/main/assets/areas/cmu.mf
+  cp $GAMS_ROOT/scripts/simulation/vrep/areas/small.mf $LIB_DIR/../src/main/assets/areas/small.mf
+  cp $GAMS_ROOT/scripts/simulation/vrep/madara_init_common.mf $LIB_DIR/../src/main/assets/madara_init_common.mf
   cp $GAMS_ROOT/resources/vrep/Quadricopter_NoCamera.ttm $LIB_DIR/../src/main/assets/Quadricopter_NoCamera.ttm
 done

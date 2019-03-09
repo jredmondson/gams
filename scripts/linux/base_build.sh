@@ -100,6 +100,7 @@ NOTHREADLOCAL=0
 SSL=0
 DMPL=0
 LZ4=0
+NOKARL=0
 PYTHON=0
 WARNINGS=0
 CLEAN=1
@@ -225,6 +226,8 @@ do
     CLEAN=0
   elif [ "$var" = "nogamspull" ]; then
     GAMSPULL=0
+  elif [ "$var" = "nokarl" ]; then
+    NOKARL=1
   elif [ "$var" = "nomadarapull" ]; then
     MADARAPULL=0
   elif [ "$var" = "nopull" ]; then
@@ -294,6 +297,8 @@ do
     echo "                  are changing features (e.g., enabling ssl when"
     echo "                  you had previously not enabled ssl)"
     echo "  nogamspull      when building GAMS, don't do a git pull"
+    echo "  nokarl          when building MADARA, remove all karl evaluation"
+    echo "                  This is useful to remove RTTI dependencies"
     echo "  nomadarapull    when building MADARA, don't do a git pull"
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
@@ -621,7 +626,11 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   if [ $PYTHON -eq 1 ]; then
-    sudo apt-get install -y -f python2.7 python-pip
+    sudo apt-get install -y -f python2.7 python-pip python-tk
+    sudo pip install matplotlib
+    sudo pip install pycapnp
+    sudo pip install pyyaml
+    sudo pip install yamlloader
   fi
 
   if [ $ANDROID -eq 1 ]; then
@@ -1172,10 +1181,15 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     fi
 
   fi
+
+  if [ $NOKARL -eq 1 ] ; then
+    echo "REMOVING KARL EXPRESSION EVALUATION FROM MADARA BUILD"
+  fi
+
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -1185,10 +1199,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  echo "make depend android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make depend lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  echo "make android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
@@ -1236,7 +1250,7 @@ if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
     fi
 
     echo "CONFIGURING 20 VREP PORTS"
-    $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+    $GAMS_ROOT/scripts/simulation/vrep/remoteApiConnectionsGen.pl 19905 20
 
 
     echo "PATCHING VREP"
@@ -1286,12 +1300,16 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     fi
 
   fi
-    
+
+  if [ $NOKARL -eq 1 ] ; then
+    echo "REMOVING KARL EXPRESSION EVALUATION FROM GAMS BUILD"
+  fi
+
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1305,10 +1323,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make depend airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  echo "make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
@@ -1415,7 +1433,7 @@ fi
 
 if [ $VREP_CONFIG -eq 1 ]; then
   echo "CONFIGURING 20 VREP PORTS"
-  $GAMS_ROOT/scripts/simulation/remoteApiConnectionsGen.pl 19905 20
+  $GAMS_ROOT/scripts/simulation/vrep/remoteApiConnectionsGen.pl 19905 20
 fi
 
 # create example config files with default GAMS multicast IPs
@@ -1646,6 +1664,12 @@ if grep -q "export DMPL_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@export DMPL_ROOT=.*@export DMPL_ROOT='"$DMPL_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export DMPL_ROOT=$DMPL_ROOT" >> $HOME/.gams/env.sh
+fi
+
+if grep -q "export PYTHONPATH" $HOME/.gams/env.sh ; then
+  sed -i 's@export PYTHONPATH=.*@export PYTHONPATH='"\$PYTHONPATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"'@' $HOME/.gams/env.sh
+else
+  echo "export PYTHONPATH=\$PYTHONPATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib" >> $HOME/.gams/env.sh
 fi
 
 

@@ -436,47 +436,69 @@ gams::algorithms::FormationSync::generate_plan (int formation)
         " Formation type is TRIANGLE\n");
 
       /**
-      * the offset in the line has an open space between each process
-      * [0] [ ] [1] [ ] [2] [ ] n / 2 agents = row
-      * [ ] [3] [ ] [4] row - 1 agents
-      * [5] row - 2 agents
-      * initial position will be ref + position * buffer
-      **/
+       * if we consider populating the triangle in terms of area,
+       * then A = .5 * B * H. We can treat this like half a square
+       * and multiply by 2 and then void the upper right half of
+       * the square
+       **/
 
-      // first row
-      if (position_ <= (int)group_members_.size () / 2)
+      int square_size = (int)2 * group_members_.size ();
+      int num_rows = (size_t)std::sqrt ((double)square_size);
+      int num_cols = num_rows;
+      int base = 0;
+      int row = 0;
+      int col = 0;
+      bool is_set = false;
+
+      // 10 elements = 20 square size
+      // num_rows = 4 = sqrt (20)
+      // num_cols = 4
+      // 
+      // base = 0
+      // position_ = 3
+      // 0 + 4 <= 3 ? col = 3 - 0
+      // 
+      // base = 0
+      // position = 5
+      // base = 0 + 4 = 4
+      // num_cols = 3
+      //
+      // row = 1
+      // base = 4
+      // 5 <= 4 + 3 ? col = 5 - 4 = 1 
+
+
+      // base = 0
+      // position = 9
+      // base = 0 + 4 = 4
+      // num_cols = 3
+      // row = 1
+      // base = 4
+      // 9 <= 4 + 3 ? no
+      // base = 4 + 3 = 7
+      // num_cols = 2
+      // 9 <= 7 + 2
+      // row = 2
+      // 
+      // 9 * * *
+      // 7 8 * *
+      // 4 5 6 *
+      // 0 1 2 3
+
+      for (row = 0; row < num_rows; ++row)
       {
-        movement.x = position_ * latitude_move * 2;
-        movement.y = 0;
-      }
-      else
-      {
-        bool position_found = false;
-        int row_length = (int)group_members_.size () / 4;
-        int last_position = (int)group_members_.size () / 2;
-        for (int row = 1; !position_found; ++row, last_position += row_length, row_length /= 2)
+        if (position_ < base + num_cols || num_cols <= 1)
         {
-          if (row_length < 1)
-            row_length = 1;
-
-          if (position_ <= last_position + row_length)
-          {
-            int column = position_ - last_position - 1;
-            position_found = true;
-
-            // stagger the rows for a seamless buffer space for neighbor rows
-            if (row % 2 == 0)
-            {
-              movement.x = column * latitude_move * 2;
-            }
-            else
-            {
-              movement.x = latitude_move + column * latitude_move * 2;
-            }
-            movement.y = row * longitude_move;
-          }
+          col = position_ - base;
+          break;
         }
+
+        base += num_cols;
+        --num_cols;
       }
+
+      movement.y = row * longitude_move;
+      movement.x = latitude_move + col * latitude_move * 2;
     }
     else if (formation == PYRAMID)
     {

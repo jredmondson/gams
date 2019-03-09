@@ -1,21 +1,3 @@
-project (test_mape_loop) : using_gams, using_madara {
-  exeout = $(GAMS_ROOT)/bin
-  exename = test_mape_loop
-  
-  macros +=  _USE_MATH_DEFINES
-
-  requires += tests
-
-  Documentation_Files {
-  }
-
-  Header_Files {
-  }
-
-  Source_Files {
-    tests/test_mape_loop.cpp
-  }
-}
 
 project (gams_throughput) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin
