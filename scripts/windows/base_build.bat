@@ -285,12 +285,12 @@ IF %PREREQS% EQU 1 (
 
     echo cd %BOOST_ROOT%
     cd %BOOST_ROOT%
-    echo .\bootstrap.bat --with-library=system,python
-    .\bootstrap.bat --with-library=system,python
+    echo .\bootstrap.bat --with-library=system,python,filesystem
+    .\bootstrap.bat --with-library=system,python,filesystem
     echo cd %BOOST_ROOT%
     cd %BOOST_ROOT%
-    echo b2.exe --with-system --with-python
-    .\b2.exe --with-system --with-python
+    echo b2.exe --with-system --with-python --with-filesystem
+    .\b2.exe --with-system --with-python --with-filesystem
     SET BOOST_BUILD_RESULT=%ERRORLEVEL%
   )
   
@@ -311,7 +311,7 @@ IF %MADARA% EQU 1 (
   echo.
   echo Generating MADARA project with docs=%DOCS%, java=%JAVA%, tests=%TESTS% and tutorials=%TUTORIALS%
   cd "%MADARA_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features tests=%TESTS%,tutorials=%TUTORIALS%,java=%JAVA%,docs=%DOCS% MADARA.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,tests=%TESTS%,tutorials=%TUTORIALS%,java=%JAVA%,docs=%DOCS% MADARA.mwc
   echo Building MADARA library for Debug target with tests=%TESTS%
   msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:Madara
   echo Building MADARA for Release target with tests=%TESTS%
@@ -322,7 +322,7 @@ IF %GAMS% EQU 1 (
   echo.
   echo Generating GAMS project with docs=%DOCS%, java=%JAVA%, tests=%TESTS% and vrep=%VREP%
   cd "%GAMS_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features docs=%DOCS%,vrep=%VREP%,tests=%TESTS%,java=%JAVA% gams.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,docs=%DOCS%,vrep=%VREP%,tests=%TESTS%,java=%JAVA% gams.mwc
   echo Building GAMS library for Debug target with tests=%TESTS% and vrep=%VREP%
   msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:gams
   echo Building GAMS for Release target with tests=%TESTS% and vrep=%VREP%

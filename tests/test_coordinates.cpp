@@ -276,7 +276,7 @@ int main(int, char *[])
       ReferenceFrame room_frame("LivingRoom", Pose{building_frame, 10, 20}, -1);
       ReferenceFrame kitchen_frame("Kitchen", Pose{building_frame, 30, 50}, -1);
 
-      TEST_EQ(building_frame.timestamp(), -1UL);
+      TEST_EQ(building_frame.timestamp(), 0UL - 1);
 
       ReferenceFrame drone_frame("Drone", Pose{kitchen_frame, 3, 2, -2}, 1000);
       ReferenceFrame camera_frame("Camera", Pose{drone_frame, 0, 0, 0.5}, 1000);

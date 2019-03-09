@@ -201,8 +201,8 @@ private:
   std::shared_ptr<ReferenceFrameVersion> impl_;
 
 public:
-  static const uint64_t ETERNAL = -1UL;
-  static const uint64_t TEMP = -2UL;
+  static const uint64_t ETERNAL = 0UL - 1;
+  static const uint64_t TEMP = 0UL - 2;
 
   /**
    * Default constructor. This frame's valid() will return false. Calling

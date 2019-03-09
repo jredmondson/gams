@@ -82,3 +82,6 @@ port/python/tools/plotting.pyc
 scripts/simulation/vrep/spell/config.yaml
 scripts/simulation/unreal/spell/config.yaml
 
+.vs/
+Release/
+Debug/

@@ -788,12 +788,12 @@ uint64_t ReferenceFrameVersion::find_common_timestamp_to_first_ancestor(
 
   if (!common) {
     LOCAL_DEBUG(std::cerr << "No Common Ancestor" << std::endl;)
-    return -1UL;
+    return 0UL - 1;
   }
 
   LOCAL_DEBUG(std::cerr << "Common Ancestor: " << *common << std::endl;)
 
-  uint64_t timestamp = -1UL;
+  uint64_t timestamp = 0UL - 1;
 
   for (size_t i = 0; i < iter.size(); ++i) {
     for (size_t j = 0; j < iter[i]; ++j) {
@@ -842,7 +842,7 @@ ReferenceFrame ReferenceFrameVersion::load(
   LOCAL_DEBUG(std::cerr << "Nearest " << id << " " << pair.first << " " <<
               timestamp << " " << pair.second << std::endl;)
 
-  if (pair.first == -1UL || pair.second == -1UL) {
+  if (pair.first == 0UL - 1 || pair.second == 0UL - 1) {
     return make_temp_frame(id, timestamp, arena);
     /*
     LOCAL_DEBUG(std::cerr << "No valid timestamp pair for " << id << std::endl;)

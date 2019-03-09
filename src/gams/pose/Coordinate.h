@@ -69,8 +69,10 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#include "Eigen/Geometry"
+  #include "Eigen/Geometry"
 #pragma GCC diagnostic pop
+#elif defined _WIN32
+  #include "Eigen/Geometry"
 #endif
 
 #define INVAL_COORD DBL_MAX
