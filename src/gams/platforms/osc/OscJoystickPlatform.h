@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "madara/knowledge/KnowledgeBase.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/utility/EpochEnforcer.h"
 #include "madara/utility/Timer.h"
 
@@ -16,7 +17,6 @@
 #include "gams/pose/CartesianFrame.h"
 
 #include "gams/utility/OscUdp.h"
-#include "gams/utility/LinuxJoystick.h"
 
 namespace gams { namespace platforms
 {        
@@ -225,14 +225,20 @@ namespace gams { namespace platforms
     /// the event that we must read from
     std::string event_fd_;
 
+    /// check to see if user wishes y-axis to be inverted
+    bool inverted_y_;
+
+    /// check to see if user wishes z-axis to be inverted
+    bool inverted_z_;
+
+    /// check to see if user wishes to flip the x and y axis values
+    bool flip_xy_;
+
     /// mapping between the controller axes and the velocity to send
-    std::vector<double> xyz_velocity_;
+    madara::knowledge::containers::NativeDoubleVector xyz_velocity_;
 
-#ifndef __WIN32__
-
-    utility::Joystick joystick_;
-
-#endif // __WIN32__
+    /// threader for running threads
+    madara::threads::Threader threader_;
 
   }; // end OscJoystickPlatform class
     

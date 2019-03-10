@@ -4,7 +4,9 @@
 
 .osc.loiter_timeout=-1;
 
-.osc.local.handle="/dev/input/js1";
+!.eventid => ( .eventid = .id + 1 );
+
+.osc.local.handle="/dev/input/js" + .eventid;
 .osc.local.inverted_y=1;
 .osc.local.inverted_z=1;
 .osc.local.flip_xy=1;

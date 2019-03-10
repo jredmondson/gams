@@ -5,9 +5,10 @@ int gams_errors = 0;
 
 int main(int, char**)
 {
-#ifndef __WIN32__
   gams::utility::Joystick joystick;
   
+  gams::loggers::global_logger->set_level(4);
+
   if (joystick.open_handle ("/dev/input/js0"))
   {
     while(true)
@@ -17,28 +18,37 @@ int main(int, char**)
       {
         if (joystick.is_axis(event))
         {
-          std::cerr << "axis: " <<
+          std::cerr << "AXIS: " <<
             "code=" << event.number <<
-            "type=" << event.type <<
-            "value=" << event.value <<
-            "double()=" << joystick.to_double(event) << "\n";
+            ",type=" << event.type <<
+            ",value=" << event.value <<
+            ",double()=" << joystick.to_double(event) << "\n";
         }
         else if (joystick.is_button(event))
         {
-          std::cerr << "button: " <<
+          std::cerr << "BUTTON: " <<
             "code=" << event.number <<
-            "type=" << event.type <<
-            "value=" << event.value <<
-            "double()=" << joystick.to_double(event) << "\n";
+            ",type=" << event.type <<
+            ",value=" << event.value <<
+            ",double()=" << joystick.to_double(event) << "\n";
         }
         else if (joystick.is_init(event))
         {
-          std::cerr << "init: " <<
+          std::cerr << "INIT: " <<
             "code=" << event.number <<
-            "type=" << event.type <<
-            "value=" << event.value <<
-            "double()=" << joystick.to_double(event) << "\n";
+            ",type=" << event.type <<
+            ",value=" << event.value <<
+            ",double()=" << joystick.to_double(event) << "\n";
         }
+        else
+        {
+          std::cerr << "UNKNOWN: " <<
+            "code=" << event.number <<
+            ",type=" << event.type <<
+            ",value=" << event.value <<
+            ",double()=" << joystick.to_double(event) << "\n";
+        }
+        
       }
       else
       {
@@ -51,7 +61,5 @@ int main(int, char**)
     std::cerr << "Unable to open /dev/input/js0 for reading...\n";
   }
   
-
-#endif
   return 0;
 }

@@ -4,7 +4,7 @@
 
 .osc.loiter_timeout=-1;
 
-.osc.local.handle="/dev/input/js1";
+.osc.local.handle="/dev/input/js2";
 .osc.local.inverted_y=1;
 .osc.local.inverted_z=1;
 .osc.local.flip_xy=1;

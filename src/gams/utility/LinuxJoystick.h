@@ -34,10 +34,30 @@ class Joystick
 
   inline bool close_handle(void)
   {
-    fclose(file_);
+    if (file_ != 0)
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MAJOR,
+        "gams::utility::Joystick::open: " \
+        "attempting close on existing file %x\n",
+        file_);
 
-    // clean up just in case user calls close 2x
-    file_ = 0;
+      fclose(file_);
+
+      // clean up just in case user calls close 2x
+      file_ = 0;
+
+      return true;
+    }
+    else
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MAJOR,
+        "gams::utility::Joystick::open: " \
+        "file is unset\n");
+    }
+
+    return false;
   }
 
   inline bool open_handle(const std::string & handle)
@@ -45,7 +65,7 @@ class Joystick
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::utility::Joystick::open: " \
-      "attempting close on existing file %d\n",
+      "attempting close on file %x\n",
       file_);
 
     close_handle();
@@ -57,6 +77,12 @@ class Joystick
       handle.c_str());
 
     file_ = fopen(handle.c_str(), "rb");
+
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_MAJOR,
+      "gams::utility::Joystick::open: " \
+      "return of fopen is %x\n",
+      file_);
 
     return file_ != 0;
   }
@@ -83,24 +109,52 @@ class Joystick
 
   inline bool get(JoystickEvent & event)
   {
-    int bytes = 0;
+    size_t events = 0;
 
-    if (file_)
+    if (file_ != 0)
     {
-      bytes = fread(&event, sizeof(event), 1, file_);
+      events = fread(&event, sizeof(event), 1, file_);
     }
 
-    return bytes == sizeof(event);
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_MAJOR,
+      "gams::utility::Joystick::open: " \
+      "fread returned %zu events\n",
+      events);
+
+    return events == 1;
   }
 
   inline bool is_axis(const JoystickEvent & event) const
   {
-    return event.type & 0x02 != 0;
+    // we don't want inits
+    return (event.type & 0x02) != 0;
   }
 
   inline bool is_button(const JoystickEvent & event) const
   {
-    return event.type & 0x01 != 0;
+    // we don't want inits
+    return (event.type & 0x01) != 0;
+  }
+
+  inline bool is_x_move(const JoystickEvent & event) const
+  {
+    return event.number == 0;
+  }
+
+  inline bool is_y_move(const JoystickEvent & event) const
+  {
+    return event.number == 1;
+  }
+
+  inline bool is_rotate(const JoystickEvent & event) const
+  {
+    return event.number == 3;
+  }
+
+  inline bool is_z_move(const JoystickEvent & event) const
+  {
+    return event.number == 4;
   }
 
   inline bool is_init(const JoystickEvent & event) const

@@ -133,9 +133,10 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 
   add(aliases, new OscPlatformFactory("satellite"));
 
-  aliases.resize(2);
+  aliases.resize(3);
   aliases[0] = "osc-joystick";
   aliases[1] = "osc-xbox";
+  aliases[2] = "joystick";
 
   add(aliases, new OscJoystickPlatformFactory());
 

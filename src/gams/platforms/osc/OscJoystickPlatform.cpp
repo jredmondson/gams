@@ -2,7 +2,6 @@
 #include <math.h>
 #include <sstream>
 
-#include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/utility/Utility.h"
 #include "OscJoystickPlatform.h"
 
@@ -14,6 +13,177 @@
 
 namespace knowledge = madara::knowledge;
 typedef knowledge::KnowledgeRecord  KnowledgeRecord;
+
+class SenseThread : public madara::threads::BaseThread
+{
+  private:
+    /// data plane if we want to access the knowledge base
+    madara::knowledge::KnowledgeBase data_;
+
+    /// mapping of xyz_velocity_ so platform::sense method can read it
+    madara::knowledge::containers::NativeDoubleVector xyz_velocity_;
+
+    /// check to see if user wishes y-axis to be inverted
+    bool inverted_y_ = false;
+
+    /// check to see if user wishes z-axis to be inverted
+    bool inverted_z_ = false;
+
+    /// check to see if user wishes to flip the x and y axis values
+    bool flip_xy_ = false;
+
+    /// handle to the joystick
+    gams::utility::Joystick joystick_;
+
+  public:
+    /**
+     * Default constructor
+     **/
+    SenseThread () {}
+    
+    /**
+     * Destructor
+     **/
+    virtual ~SenseThread () {}
+    
+    /**
+      * Initializes thread with MADARA context
+      * @param   context   context for querying current program state
+      **/
+    virtual void init (madara::knowledge::KnowledgeBase & knowledge)
+    {
+      data_ = knowledge;
+      xyz_velocity_.set_name(".xyz_velocity", data_, 3);
+
+      std::string handle = knowledge.get(".osc.local.handle").to_string();
+
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "SenseThread::init: " \
+        "%s: attempting to open handle %s\n",
+        knowledge.get(".prefix").to_string().c_str(),
+        handle.c_str());
+
+      if (handle != "")
+      {
+        bool result = joystick_.open_handle (handle);
+
+        if (result)
+        {
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_ALWAYS,
+            "SenseThread::init: " \
+            "%s: SUCCESS: mapped to joystick %s\n",
+            knowledge.get(".prefix").to_string().c_str(),
+            handle.c_str());
+        }
+        else
+        {
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_ALWAYS,
+            "SenseThread::init: " \
+            "%s: FAIL: cannot map to joystick %s\n",
+            knowledge.get(".prefix").to_string().c_str(),
+            handle.c_str());
+        }
+        
+      }
+
+      inverted_y_ = knowledge.get(".osc.local.inverted_y").is_true();
+      inverted_z_ = knowledge.get(".osc.local.inverted_z").is_true();
+      flip_xy_ = knowledge.get(".osc.local.flip_xy").is_true();
+    }
+
+    /**
+      * Executes the main thread logic
+      **/
+    virtual void run (void)
+    {
+#ifndef __WIN32__
+
+      // read the joystick
+      gams::utility::JoystickEvent event;
+      
+      joystick_.get(event);
+
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Event: type=%d, number=%d, value=%d.\n",
+        (int)event.type, (int)event.number,
+        (int)event.value);
+
+      // if (!joystick_.is_init(event))
+      // {
+      if (joystick_.is_axis(event))
+      {
+        std::stringstream actions;
+
+        if (joystick_.is_x_move(event))
+        {
+          actions << "X MOVE: " << joystick_.to_double(event) << ", ";
+          xyz_velocity_.set(0, joystick_.to_double(event));
+        }
+
+        if (joystick_.is_y_move(event))
+        {
+          actions << "Y MOVE: " << joystick_.to_double(event) << ", ";
+
+          if (inverted_y_)
+          {
+            xyz_velocity_.set(1, -joystick_.to_double(event));
+          }
+          else
+          {
+            xyz_velocity_.set(1, joystick_.to_double(event));
+          }
+        }
+
+        if (joystick_.is_z_move(event))
+        {
+          actions << "Z MOVE: " << joystick_.to_double(event) << ", ";
+
+          if (inverted_z_)
+          {
+            xyz_velocity_.set(2, -joystick_.to_double(event));
+          }
+          else
+          {
+            xyz_velocity_.set(2, joystick_.to_double(event));
+          }
+        }
+
+        if (joystick_.is_rotate(event))
+        {
+          actions << "ROTATE: " << joystick_.to_double(event) << ", ";
+        }
+
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
+          gams::loggers::LOG_ALWAYS,
+          "AXIS: type=%d, number=%d, value=%d, double_value=%f, %s\n",
+          (int)event.type, (int)event.number,
+          (int)event.value, joystick_.to_double(event),
+          actions.str().c_str());
+      }
+      else if (joystick_.is_button(event))
+      {
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
+          gams::loggers::LOG_MAJOR,
+          "BUTTON: type=%d, number=%d, value=%d\n",
+          (int)event.type, (int)event.number,
+          (int)event.value);
+      }
+      else
+      {
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
+          gams::loggers::LOG_MAJOR,
+          "UNKNOWN: type=%d, number=%d, value=%d\n",
+          (int)event.type, (int)event.number,
+          (int)event.value);
+      }
+        
+#endif // __WIN32__
+    }
+};
 
 gams::platforms::OscJoystickPlatformFactory::OscJoystickPlatformFactory(const std::string & type)
 : type_(type)
@@ -64,6 +234,8 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
   // as an example of what to do here, create a coverage sensor
   if (knowledge && sensors)
   {
+    xyz_velocity_.set_name(".xyz_velocity", *knowledge, 3);
+
     // create a coverage sensor
     gams::variables::Sensors::iterator it = sensors->find("coverage");
     if (it == sensors->end()) // create coverage sensor
@@ -230,6 +402,10 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
 
     status_.movement_available = 1;
 
+    inverted_y_ = knowledge->get(".osc.local.inverted_y").is_true();
+    inverted_z_ = knowledge->get(".osc.local.inverted_z").is_true();
+    flip_xy_ = knowledge->get(".osc.local.flip_xy").is_true();
+
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::platforms::OscJoystickPlatform::const: " \
@@ -237,16 +413,9 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
       self_->agent.prefix.c_str(),
       event_fd_.c_str());
 
-#ifndef __WIN32__
-    joystick_.open_handle(event_fd_);
-#endif
+    threader_.set_data_plane(*knowledge);
 
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_MAJOR,
-      "gams::platforms::OscJoystickPlatform::const: " \
-      "%s: joystick %s opened. Leaving constructor\n",
-      self_->agent.prefix.c_str(),
-      event_fd_.c_str());
+    threader_.run(20, "ReadInput", new ::SenseThread ());
   }
 }
 
@@ -254,6 +423,8 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
 // Destructor
 gams::platforms::OscJoystickPlatform::~OscJoystickPlatform()
 {
+  threader_.terminate();
+  threader_.wait();
 }
 
 void
@@ -465,34 +636,6 @@ gams::platforms::OscJoystickPlatform::sense(void)
       self_->agent.prefix.c_str());
   }
 
-  // check for loiter timeout (have we thrusted recently?)
-  // last_thrust_timer_.stop();
-  // if (loiter_timeout_ > 0 &&
-  //     last_thrust_timer_.duration_ds() > loiter_timeout_)
-  // {
-  //   madara_logger_ptr_log(gams::loggers::global_logger.get(),
-  //     gams::loggers::LOG_ALWAYS,
-  //     "gams::platforms::OscJoystickPlatform::sense: " \
-  //     "%s: loiter timeout. Sending velocities [0,0,0]\n",
-  //     self_->agent.prefix.c_str());
-
-  //   // send 0 velocities to loiter
-
-  //   values.clear();
-  //   KnowledgeRecord record;
-
-  //   record.set_index(1, 0.0);
-  //   record.set_index(0, 0.0);
-  //   values[xy_velocity_prefix_] = record;
-
-  //   record.resize(1);
-  //   values[z_velocity_prefix_] = record;
-  //   osc_.send(values);
-
-  //   // restart the timer
-  //   last_thrust_timer_.start();
-  // }
-
   // check for last position timeout (need to recreate agent in sim)
   last_position_timer_.stop();
 
@@ -527,24 +670,36 @@ gams::platforms::OscJoystickPlatform::sense(void)
     }
   }
 
-#ifndef __WIN32__
-
-  // read the joystick
-  utility::JoystickEvent event;
-  joystick_.get(event);
-
-  if(joystick_.is_axis(event))
   {
+    // update the velocities that the user input through joystick
+    utility::OscUdp::OscMap values;
+    std::vector<double> xy_velocity;
+    std::vector<double> z_velocity;
+
+    if (flip_xy_)
+    {
+      xy_velocity.push_back(xyz_velocity_[1]);
+      xy_velocity.push_back(xyz_velocity_[0]);
+    }
+    else
+    {
+      xy_velocity.push_back(xyz_velocity_[0]);
+      xy_velocity.push_back(xyz_velocity_[1]);
+    }
+    
+    z_velocity.push_back(xyz_velocity_[2]);
+
+    values[xy_velocity_prefix_] = xy_velocity;
+    values[z_velocity_prefix_] = z_velocity;
+
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
-      "gams::platforms::OscJoystickPlatform::sense: " \
-      "Joystick: %d, %d, %d, %f.\n",
-      (int)event.type, (int)event.number,
-      (int)event.value, joystick_.to_double(event));
+      "Sending xyz velocities [%f, %f, %f]\n",
+      xyz_velocity_[0], xyz_velocity_[1], xyz_velocity_[2]);
+
+    osc_.send(values);
 
   }
-
-#endif // __WIN32__
 
   return gams::platforms::PLATFORM_OK;
 }
@@ -706,6 +861,8 @@ gams::platforms::OscJoystickPlatform::move(const pose::Position & target,
   
   values[xy_velocity_prefix_] = xy_velocity;
   values[z_velocity_prefix_] = z_velocity;
+
+  osc_.send(values);
 
   // unlike other platforms, we do not send the velocities
   // Moving to the location is up to the user with the controller
