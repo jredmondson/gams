@@ -47,7 +47,7 @@ project {
     // end if windows build
   } else {
     lit_libs += $(BOOST_STATIC_LIB_PREFIX)boost_system$(BOOST_CFG)
-	  libpaths += /usr/local/lib
+    libpaths += /usr/local/lib
     libpaths += /usr/local/Cellar/boost@1.59/1.59.0/lib
     includes += /usr/local/Cellar/boost@1.59/1.59.0/include
   }

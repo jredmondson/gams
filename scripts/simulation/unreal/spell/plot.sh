@@ -21,7 +21,7 @@ membersInGroup=3
 `cp config_template.yaml config.yaml`
 plotsString=""
 iterations=$(($membersValue/$membersInGroup))
-pointsPerPlot=40
+pointsPerPlot=80
 for ((plotNumber=0; plotNumber<$iterations ;++plotNumber)); do
   first=$((plotNumber*$membersInGroup))
   second=$(($first+$membersInGroup-1))

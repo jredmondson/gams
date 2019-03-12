@@ -834,7 +834,7 @@ gams::platforms::OscJoystickPlatform::move(const pose::Position & target,
     }
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ALWAYS,
+      gams::loggers::LOG_MAJOR,
       "gams::platforms::OscJoystickPlatform::move:" \
       " %s: moving to new target at time %f with modified velocity "
       "[%f,%f,%f]\n",
