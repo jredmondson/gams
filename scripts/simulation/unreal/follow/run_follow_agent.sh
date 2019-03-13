@@ -7,7 +7,7 @@ NT=0
 ID=1
 SCRIPTS_DIR=`dirname $0`
 SCRIPT="$SCRIPTS_DIR/follow_agent.mf"
-LOG_LEVEL=4
+LOG_LEVEL=1
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then
@@ -22,11 +22,11 @@ if [ $# -ge 1 ]; then
   fi
 
   if [ $# -ge 3 ]; then
-    TYPE=1
+    TYPE=$3
   fi
 
   if [ $# -ge 4 ]; then
-    N=1
+    N=$4
   fi
 
   if [ $# -ge 5 ]; then
