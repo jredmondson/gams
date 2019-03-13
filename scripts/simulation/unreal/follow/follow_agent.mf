@@ -1,0 +1,17 @@
+
+// if no one has set origin, then set it to [5 * agent id, 5 * agent id, 0] as origin
+
+!.lead => (.lead = 'agent.0');
+
+.prefix != .lead =>
+(
+  !.origin => (.origin = [.id % 5 - 2.5, .id / 5, 1 + .id % 3]);
+  !.initial_pose => (.initial_pose = .origin);
+
+  // we're basically trying to 
+  {.prefix}.algorithm="follow";
+  {.prefix}.algorithm.args.target=.lead;
+  {.prefix}.algorithm.args.offset=[(.id % 5 - 2.5) * 2, (.id / 5) * 2, (-1 + .id % 3) * 2];
+//  {.prefix}.gams_debug_level=4;
+);
+

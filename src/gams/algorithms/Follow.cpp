@@ -98,7 +98,7 @@ gams::algorithms::FollowFactory::create (
         offset = i->second.to_doubles ();
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
+          gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationFlyingFactory:" \
           " %d size offset set\n", (int)offset.size ());
         break;
@@ -110,7 +110,7 @@ gams::algorithms::FollowFactory::create (
         target = i->second.to_string ();
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
-          gams::loggers::LOG_DETAILED,
+          gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationFlyingFactory:" \
           " setting formation head/target to %s\n", target.c_str ());
         break;
@@ -247,7 +247,9 @@ gams::algorithms::Follow::analyze (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Follow::analyze:" \
-        " Target location is invalid. No movement needed yet.\n");
+        " Target location is invalid (%s->%s). No movement needed yet.\n",
+        target_.location.get_name().c_str(),
+        target_.location.to_record().to_string().c_str());
 
       need_move_ = false;
     }
@@ -330,7 +332,9 @@ gams::algorithms::Follow::execute (void)
       madara_logger_ptr_log (gams::loggers::global_logger.get (),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Follow::execute:" \
-        " Target does not have a location. Not moving.\n");
+        " Target location is invalid (%s->%s). No movement needed yet.\n",
+        target_.location.get_name().c_str(),
+        target_.location.to_record().to_string().c_str());
     }
   }
   else
