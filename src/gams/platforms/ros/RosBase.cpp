@@ -110,7 +110,7 @@ land ()
 
 int
 gams::platforms::RosBase::move (const pose::Position & /*position*/,
-        const PositionBounds & /*bounds*/)
+        const pose::PositionBounds & /*bounds*/)
 {
   return 1;
 }

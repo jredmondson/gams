@@ -136,7 +136,7 @@ namespace gams
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       int move (const pose::Position & position,
-        const PositionBounds &bounds) override;
+        const pose::PositionBounds &bounds) override;
 
       using BasePlatform::move;
       

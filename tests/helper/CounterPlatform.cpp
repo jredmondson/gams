@@ -141,7 +141,7 @@ gams::platforms::CounterPlatform::land (void)
 
 int
 gams::platforms::CounterPlatform::move (const pose::Position & /*position*/,
-  const PositionBounds & /*bounds*/)
+  const pose::PositionBounds & /*bounds*/)
 {
   //++move_counter_;
   

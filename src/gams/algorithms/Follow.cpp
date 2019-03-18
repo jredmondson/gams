@@ -99,7 +99,7 @@ gams::algorithms::FollowFactory::create (
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationFlyingFactory:" \
+          "gams::algorithms::FollowFactory:" \
           " %d size offset set\n", (int)offset.size ());
         break;
       }
@@ -111,7 +111,7 @@ gams::algorithms::FollowFactory::create (
 
         madara_logger_ptr_log (gams::loggers::global_logger.get (),
           gams::loggers::LOG_MAJOR,
-          "gams::algorithms::FormationFlyingFactory:" \
+          "gams::algorithms::FollowFactory:" \
           " setting formation head/target to %s\n", target.c_str ());
         break;
       }

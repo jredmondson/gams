@@ -577,7 +577,7 @@ gams::platforms::OscPlatform::land(void)
 
 int
 gams::platforms::OscPlatform::move(const pose::Position & target,
-  const PositionBounds & bounds)
+  const pose::PositionBounds & bounds)
 {
   // update variables
   BasePlatform::move(target, bounds);
@@ -670,7 +670,7 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
 
 int
 gams::platforms::OscPlatform::orient(const pose::Orientation & target,
-        const OrientationBounds &bounds)
+        const pose::OrientationBounds &bounds)
 {
   // update variables
   BasePlatform::orient(target, bounds);

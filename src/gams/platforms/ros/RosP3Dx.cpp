@@ -146,7 +146,7 @@ gams::platforms::RosP3Dx::get_name () const
 
 int
 gams::platforms::RosP3Dx::move (const pose::Position & position,
-        const PositionBounds &/*bounds*/)
+        const pose::PositionBounds &/*bounds*/)
 {
   // generate message
   move_base_msgs::MoveBaseGoal goal;

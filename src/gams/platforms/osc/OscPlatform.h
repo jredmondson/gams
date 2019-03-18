@@ -112,7 +112,7 @@ namespace gams { namespace platforms
      * @return the status of the move operation, @see PlatformReturnValues
      **/
     int move (const pose::Position & location,
-      const PositionBounds &bounds) override;
+      const pose::PositionBounds &bounds) override;
 
     using BasePlatform::move;
 
@@ -123,7 +123,7 @@ namespace gams { namespace platforms
      * @return the status of the orient operation, @see PlatformReturnValues
      **/
     int orient (const pose::Orientation & location,
-    const OrientationBounds &bounds) override;
+    const pose::OrientationBounds &bounds) override;
 
     using BasePlatform::orient;
 

@@ -58,7 +58,7 @@ gams::platforms::AirLibBase::land ()
 
 int
 gams::platforms::AirLibBase::move (const pose::Position & position/*position*/,
-        const PositionBounds & bounds/*bounds*/)
+        const pose::PositionBounds & bounds/*bounds*/)
 {
   return 1;
 }

@@ -63,6 +63,7 @@
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Position.h"
 #include "gams/pose/Pose.h"
+#include "gams/pose/Epsilon.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
@@ -103,85 +104,6 @@ namespace gams
       PLATFORM_MOVING = 1,
       PLATFORM_OK = 1,
       PLATFORM_ARRIVED = 2
-    };
-
-    /// Interface for defining a bounds checker for Positions
-    class GAMS_EXPORT PositionBounds {
-    public:
-      /// Override to return whether the current position
-      /// is within the expected bounds of target
-      virtual bool check_position(
-          const pose::Position &current,
-          const pose::Position &target) const = 0;
-
-      virtual ~PositionBounds() = default;
-    };
-
-    /// Interface for defining a bounds checker for Orientations
-    class GAMS_EXPORT OrientationBounds {
-    public:
-      /// Override to return whether the current orientation
-      /// is within the expected bounds of target
-      virtual bool check_orientation(
-          const pose::Orientation &current,
-          const pose::Orientation &target) const = 0;
-
-      virtual ~OrientationBounds() = default;
-    };
-
-    /// Interface for defining a bounds checker for Poses,
-    /// a combination of position and orientation checking.
-    class GAMS_EXPORT PoseBounds :
-      public PositionBounds, public OrientationBounds {};
-
-    /// A simple bounds checker which tests whether the
-    /// current position is within the given number of
-    /// meters of the expected position, and whether the
-    /// difference in angles is within the given number
-    /// of radians.
-    class GAMS_EXPORT Epsilon : public PoseBounds {
-    private:
-      double dist_ = 0.1, radians_ = M_PI/16;
-    public:
-      /// Use default values for position and angle tolerance.
-      Epsilon() {}
-
-      /// Use default value for angle tolerance.
-      ///
-      /// @param dist the position tolerance (in meters)
-      Epsilon(double dist)
-        : dist_(dist) {}
-
-      /// Use specified tolerances
-      ///
-      /// @param dist the position tolerance (in meters)
-      /// @param radians the angle tolerance (in radians)
-      Epsilon(double dist, double radians)
-        : dist_(dist), radians_(radians) {}
-
-      /// Use specified tolerances, with custom angle units
-      ///
-      /// @param dist the position tolerance (in meters)
-      /// @param angle the angle tolerance (in units given)
-      /// @param u an angle units object (such as pose::radians,
-      ///      pose::degrees, or pose::revolutions)
-      //
-      /// @tparam AngleUnits the units type for angle (inferred from u)
-      template<typename AngleUnits>
-      Epsilon(double dist, double angle, AngleUnits u)
-        : dist_(dist), radians_(u.to_radians(angle)) {}
-
-      bool check_position(
-          const pose::Position &current,
-          const pose::Position &target) const override {
-        return current.distance_to(target) <= dist_;
-      }
-
-      bool check_orientation(
-          const pose::Orientation &current,
-          const pose::Orientation &target) const override {
-        return fabs(current.angle_to(target)) <= radians_;
-      }
     };
 
     /**
@@ -306,7 +228,7 @@ namespace gams
        * @return the status of the move operation, @see PlatformReturnValues
        **/
       virtual int move (const pose::Position & target) {
-        return move (target, Epsilon());
+        return move (target, pose::Epsilon());
       }
 
       /**
@@ -316,7 +238,7 @@ namespace gams
        * @return the status of the move operation, @see PlatformReturnValues
        **/
       virtual int move (const pose::Position & target,
-        const PositionBounds &bounds);
+        const pose::PositionBounds &bounds);
 
       /**
        * Moves the platform to a location
@@ -325,7 +247,7 @@ namespace gams
        * @return the status of the move operation, @see PlatformReturnValues
        **/
       int move (const pose::Position & target, double epsilon) {
-        return move (target, Epsilon(epsilon));
+        return move (target, pose::Epsilon(epsilon));
       }
 
       /**
@@ -334,7 +256,7 @@ namespace gams
        * @return the status of the orient, @see PlatformReturnValues
        **/
       virtual int orient (const pose::Orientation & target) {
-        return orient (target, Epsilon());
+        return orient (target, pose::Epsilon());
       }
 
       /**
@@ -344,7 +266,7 @@ namespace gams
        * @return the status of the orient, @see PlatformReturnValues
        **/
       virtual int orient (const pose::Orientation & target,
-        const OrientationBounds &bounds);
+        const pose::OrientationBounds &bounds);
 
       /**
        * Rotates the platform to match a given angle
@@ -353,7 +275,7 @@ namespace gams
        * @return the status of the orient, @see PlatformReturnValues
        **/
       int orient (const pose::Orientation & target, double epsilon) {
-        return orient(target, Epsilon (epsilon));
+        return orient(target, pose::Epsilon (epsilon));
       }
 
       /**
@@ -372,7 +294,7 @@ namespace gams
        * @return the status of the operation, @see PlatformReturnValues
        **/
       virtual int pose (const pose::Pose & target) {
-        return pose (target, Epsilon());
+        return pose (target, pose::Epsilon());
       }
 
       /**
@@ -391,7 +313,7 @@ namespace gams
        * @param   bounds      object to compute if platform has arrived
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      virtual int pose (const pose::Pose & target, const PoseBounds &bounds);
+      virtual int pose (const pose::Pose & target, const pose::PoseBounds &bounds);
 
       /**
        * Moves the platform to a pose (location and orientation)
@@ -412,7 +334,7 @@ namespace gams
        **/
       int pose (const pose::Pose & target,
         double loc_epsilon, double rot_epsilon = M_PI/16) {
-        return pose(target, Epsilon(loc_epsilon, rot_epsilon));
+        return pose(target, pose::Epsilon(loc_epsilon, rot_epsilon));
       }
 
       /**

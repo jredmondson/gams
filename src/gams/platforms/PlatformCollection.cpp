@@ -139,7 +139,7 @@ gams::platforms::PlatformCollection::land (void)
 
 int
 gams::platforms::PlatformCollection::move (const pose::Position & /*position*/,
-  const PositionBounds & /*bounds*/)
+  const pose::PositionBounds & /*bounds*/)
 {
   return 0;
 }

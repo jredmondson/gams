@@ -140,7 +140,7 @@ gams::platforms::BasePlatform::move (const utility::Position & target,
 
 int
 gams::platforms::BasePlatform::move (const pose::Position & target,
-    const PositionBounds &bounds)
+    const pose::PositionBounds &bounds)
 {
   int result = 0;
 
@@ -183,7 +183,7 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
 
 int
 gams::platforms::BasePlatform::orient (const pose::Orientation & target,
-    const OrientationBounds &bounds)
+    const pose::OrientationBounds &bounds)
 {
   int result (0);
 
@@ -222,7 +222,7 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
 
 int
 gams::platforms::BasePlatform::pose (const pose::Pose & target,
-    const PoseBounds &bounds)
+    const pose::PoseBounds &bounds)
 {
   int move_status = move(pose::Position(target), bounds);
   int orient_status = orient(pose::Orientation(target), bounds);

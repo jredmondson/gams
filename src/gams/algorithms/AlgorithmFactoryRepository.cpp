@@ -59,6 +59,7 @@
 #include "gams/algorithms/KarlEvaluator.h"
 #include "gams/algorithms/ZoneCoverage.h"
 #include "gams/algorithms/Takeoff.h"
+#include "gams/algorithms/Greet.h"
 #include "gams/algorithms/Home.h"
 #include "gams/algorithms/Hold.h"
 #include "gams/algorithms/Follow.h"
@@ -291,6 +292,13 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings (
     aliases[1] = "spell";
 
     add (aliases, new SpellFactory ());
+
+    // text spelling
+    aliases.resize (2);
+    aliases[0] = "greeting";
+    aliases[1] = "greet";
+
+    add (aliases, new GreetFactory ());
 
 #if 0
     // the local pheromone coverage algorithm

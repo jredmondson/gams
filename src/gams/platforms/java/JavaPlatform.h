@@ -151,7 +151,7 @@ namespace gams
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int move (const pose::Position & position,
-        const PositionBounds &bounds) override;
+        const pose::PositionBounds &bounds) override;
       
       // inherit BasePlatform's move overloads
       using BasePlatform::move;
@@ -162,7 +162,7 @@ namespace gams
       * @return 1 if currently rotating, 0 if arrived, negative if error
       **/
       virtual int orient (const pose::Orientation & axes,
-        const OrientationBounds &bounds) override;
+        const pose::OrientationBounds &bounds) override;
 
       // inherit BasePlatform orient overloads
       using BasePlatform::orient;

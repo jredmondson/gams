@@ -143,7 +143,7 @@ namespace gams
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
       virtual int move (const pose::Position & target,
-        const PositionBounds &bounds);
+        const pose::PositionBounds &bounds);
 
       using BasePlatform::move;
       
