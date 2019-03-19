@@ -23,18 +23,18 @@ typedef  madara::utility::EpochEnforcer<
 
 madara::transport::QoSTransportSettings settings;
 
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
     bool error = true;
 
     if (arg1 == "-u" || arg1 == "--udp")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::UDP;
         error = false;
       }
@@ -45,7 +45,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::BROADCAST;
         error = false;
       }
@@ -56,7 +56,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::MULTICAST;
         error = false;
       }
@@ -88,7 +88,7 @@ void handle_arguments (int argc, char ** argv)
       ++i;
     }
 
-    if(error)
+    if (error)
     {
       cerr << "Test MADARA Writier: " << argv[0] << endl;
       cerr << "  Defaults to using multicast transport on 239.255.0.1:4150" << endl;
@@ -96,9 +96,9 @@ void handle_arguments (int argc, char ** argv)
       cerr << "    [-u | --udp <address>]         Address for UDP transport" << endl;
       cerr << "    [-b | --broadcast <address>]   Address for broadcast transport" << endl;
       cerr << "    [-m | --multicast <address>]   Address for multicast transport" << endl;
-      cerr << "    [-d | --duration <duration>]   number of seconds to run test (default: 12)" << endl;
-      cerr << "    [-p | --period <per>]          period for publish loop (default: 0.001)" << endl;
-      exit (0);
+      cerr << "    [-d | --duration <duration>]   number of seconds to run test(default: 12)" << endl;
+      cerr << "    [-p | --period <per>]          period for publish loop(default: 0.001)" << endl;
+      exit(0);
     }
   }
 }
@@ -111,20 +111,20 @@ int main(int argc, char** argv)
 
   // number of seconds to test
   std::string val("hello");
-  for(size_t i = 0; i < 5; ++i)
+  for (size_t i = 0; i < 5; ++i)
     val = val + val;
   uint64_t updates = 0;
   const std::string key("data");
   knowledge.set(key, val);
 
-  EpochEnforcer enforcer (poll_period, num_sec);
+  EpochEnforcer enforcer(poll_period, num_sec);
 
-  while(!enforcer.is_done ())
+  while (!enforcer.is_done())
   {
     knowledge.set(key, val);
     ++updates;
 
-    enforcer.sleep_until_next ();
+    enforcer.sleep_until_next();
   }
 
   cerr << double(updates) / num_sec << " Hz knowledge update rate" << endl;

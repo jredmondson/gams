@@ -31,7 +31,7 @@ gams::transports::RosBridge::RosBridge(
   
   // check the read hz settings to see if the user has passed something weird
   double hertz = new_settings.read_thread_hertz;
-  if(hertz < 0.0)
+  if (hertz < 0.0)
   {
     hertz = 0.0;
   }
@@ -63,23 +63,23 @@ gams::transports::RosBridge::send_data(
 {
   long result(0);
 
-  for(
+  for (
     madara::knowledge::KnowledgeMap::const_iterator it = modifieds.begin();
     it != modifieds.end(); it++)
   {
     const char * key = it->first.c_str();
     std::pair<std::string, std::string> names = get_update_container_pair_(key);
 
-    if(names.first != "")
+    if (names.first != "")
     {
       std::map<std::string, std::string>::iterator type_it =
         pub_topic_types_.find(names.first);
-      if(type_it != pub_topic_types_.end())
+      if (type_it != pub_topic_types_.end())
       {
         parser_->parse_message(names.second, names.first, type_it->second);
         message_count_++;
       }
-      else if(names.first == "/tf")
+      else if (names.first == "/tf")
       {
         std::string frame_name = std::string(key).substr(
           names.second.length()+1);
@@ -96,21 +96,23 @@ gams::transports::RosBridge::get_update_container_pair_(
   const char * container_name)
 {
   std::string current_key = container_name;
-  while( true )
+  while ( true )
   {
     std::map<std::string, std::string>::iterator top_it;
     std::string container;
-    for(top_it = topic_map_.begin(); top_it != topic_map_.end(); ++top_it)
+    for (top_it = topic_map_.begin(); top_it != topic_map_.end(); ++top_it)
     {
-      if(top_it->second == current_key)
+      if (top_it->second == current_key)
       {
         container = top_it->second;
         return std::make_pair(top_it->first, top_it->second);
       }
     }
     size_t delim_pos = current_key.find_last_of('.');
-    if(delim_pos == std::string::npos)
+    if (delim_pos == std::string::npos)
+    {
       break;
+    }
     current_key = current_key.substr(0, delim_pos);
   }
   return std::make_pair("", "");

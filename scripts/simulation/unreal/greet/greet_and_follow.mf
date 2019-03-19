@@ -15,7 +15,8 @@
 .id >= .targets => (
   !.origin => (.origin = [10, .id * 10, 20]);
   !.guard => (.guard = [0, .id * 10, 10]);
-  !.distance => (.distance = 40);
+  !.distance => (.distance = 30);
+  !.max_distance => (.max_distance = 40);
   !.initial_pose => (.initial_pose = .origin);
   !.targets => (.targets = 1);
   !.followers => (.followers = 2);
@@ -38,5 +39,6 @@
   {.prefix}.algorithm.args.home.location=.origin;
   {.prefix}.algorithm.args.guard.distance=.distance;
   {.prefix}.algorithm.args.guard.location=.guard;
+  {.prefix}.algorithm.args.guard.max_follow_distance=.max_distance;
   {.prefix}.algorithm.args.follow.max_agents=.followers;
 );

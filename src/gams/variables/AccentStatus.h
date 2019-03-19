@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -78,33 +78,33 @@ namespace gams
       /**
        * Constructor
        **/
-      AccentStatus ();
+      AccentStatus();
 
       /**
        * Destructor
        **/
-      ~AccentStatus ();
+      ~AccentStatus();
 
       /**
        * Assignment operator
        * @param  accent   accent to copy
        **/
-      void operator= (const AccentStatus & accent);
+      void operator=(const AccentStatus & accent);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
-       * @param   prefix     the prefix of the accents (e.g. swarm/agent)
+       * @param   prefix     the prefix of the accents(e.g. swarm/agent)
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & prefix);
       
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
-       * @param   prefix     the prefix of the accents (e.g. swarm/agent)
+       * @param   prefix     the prefix of the accents(e.g. swarm/agent)
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const std::string & prefix);
 
       /// accent specific command
@@ -117,7 +117,7 @@ namespace gams
       /**
        * Set variable settings
        */
-      void init_variable_settings ();
+      void init_variable_settings();
     };
 
     /**
@@ -129,9 +129,9 @@ namespace gams
       * Initializes accent status containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
-      * @param   prefix     the prefix of the accents (e.g. swarm/agent)
+      * @param   prefix     the prefix of the accents(e.g. swarm/agent)
       **/
-    GAMS_EXPORT void init_vars (AccentStatuses & variables,
+    GAMS_EXPORT void init_vars(AccentStatuses & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & prefix);
     
@@ -139,9 +139,9 @@ namespace gams
       * Initializes accent status containers
       * @param   variables  the variables to initialize
       * @param   knowledge  the knowledge base that houses the variables
-      * @param   prefix     the prefix of the accents (e.g. swarm/agent)
+      * @param   prefix     the prefix of the accents(e.g. swarm/agent)
       **/
-    GAMS_EXPORT void init_vars (AccentStatuses & variables,
+    GAMS_EXPORT void init_vars(AccentStatuses & variables,
       madara::knowledge::Variables & knowledge,
       const std::string & prefix);
   }

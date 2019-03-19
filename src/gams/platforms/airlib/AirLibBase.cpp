@@ -23,65 +23,65 @@ using std::cerr;
 using std::string;
 using std::map;
 
-gams::platforms::AirLibBase::AirLibBase (madara::knowledge::KnowledgeBase * knowledge,
+gams::platforms::AirLibBase::AirLibBase(madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors, variables::Self * self) :
-  BasePlatform (knowledge, sensors, self), ready_ (false)
+  BasePlatform(knowledge, sensors, self), ready_(false)
 {
   static bool init = false;
 
-  if (!init)
+  if(!init)
   {
-//    string node_name (knowledge->get (".ros_node").to_string ());
+//    string node_name(knowledge->get(".ros_node").to_string());
 //    map<string, string> remap;
-//    ros::init (remap, node_name);
+//    ros::init(remap, node_name);
     init = true;
   }
 }
 
 int
-gams::platforms::AirLibBase::sense ()
+gams::platforms::AirLibBase::sense()
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibBase::analyze ()
+gams::platforms::AirLibBase::analyze()
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibBase::land ()
+gams::platforms::AirLibBase::land()
 {
   return 1;
 }
 
 int
-gams::platforms::AirLibBase::move (const pose::Position & position/*position*/,
+gams::platforms::AirLibBase::move(const pose::Position & position/*position*/,
         const pose::PositionBounds & bounds/*bounds*/)
 {
   return 1;
 }
 
 void
-gams::platforms::AirLibBase::set_move_speed (const double & /*speed*/)
+gams::platforms::AirLibBase::set_move_speed(const double & /*speed*/)
 {
 
 }
 
 int
-gams::platforms::AirLibBase::takeoff ()
+gams::platforms::AirLibBase::takeoff()
 {
   return 1;
 }
 
 void
-gams::platforms::AirLibBase::wait_for_go () const
+gams::platforms::AirLibBase::wait_for_go() const
 {
 }
 
 const gams::pose::ReferenceFrame &
-gams::platforms::AirLibBase::get_frame (void) const
+gams::platforms::AirLibBase::get_frame(void) const
 {
   return pose::gps_frame();
 }

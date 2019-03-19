@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -78,25 +78,25 @@ namespace gams
       /**
        * Constructor
        **/
-      Swarm ();
+      Swarm();
 
       /**
        * Destructor
        **/
-      ~Swarm ();
+      ~Swarm();
 
       /**
        * Assignment operator
        * @param  agent   agent to copy
        **/
-      void operator= (const Swarm & agent);
+      void operator=(const Swarm & agent);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        * @param   swarm_size size of the swarm
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
       
       /**
@@ -104,7 +104,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   swarm_size size of the swarm
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
 
       /// the current command given to the swarm
@@ -130,7 +130,7 @@ namespace gams
        * Variable setup
        * @param  swarm_size   number of participating agents
        */
-      void init_vars (const madara::knowledge::KnowledgeRecord::Integer& swarm_size);
+      void init_vars(const madara::knowledge::KnowledgeRecord::Integer& swarm_size);
     };
     
     /**
@@ -139,7 +139,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   swarm_size size of the swarm
       **/
-    GAMS_EXPORT void init_vars (Swarm & variables,
+    GAMS_EXPORT void init_vars(Swarm & variables,
       madara::knowledge::KnowledgeBase & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
     
@@ -149,7 +149,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   swarm_size size of the swarm
       **/
-    GAMS_EXPORT void init_vars (Swarm & variables,
+    GAMS_EXPORT void init_vars(Swarm & variables,
       madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& swarm_size = 1);
   }

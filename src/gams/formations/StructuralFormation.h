@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -76,18 +76,18 @@ namespace gams
       /**
       * Constructor
       **/
-      StructuralFormation ();
+      StructuralFormation();
 
       /**
       * Constructor
       **/
-      virtual ~StructuralFormation ();
+      virtual ~StructuralFormation();
 
       /**
       * Configures the formation from arguments
       * @param  args   arguments to check through
       **/
-      virtual void from_args (madara::knowledge::FunctionArguments & args);
+      virtual void from_args(madara::knowledge::FunctionArguments & args);
 
       /**
       * Checks the goodness of an agent in the current formation.
@@ -95,24 +95,24 @@ namespace gams
       * @param  buffer  maximum allowed offset from correct location in meters
       * @return  the goodness of the formation, where 0 is bad and 1 is good
       **/
-      virtual double goodness (
+      virtual double goodness(
         const std::string & id = "", double buffer = 3.0) const;
 
       /**
       * Checks if the agent is a member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
+      * @param  id     the agent id(e.g. agent.0 or agent.leader). If null,
       *                uses the current agent's id
       * @return  true if the agent is in the formation
       **/
-      virtual bool is_member (const std::string & id = "") const;
+      virtual bool is_member(const std::string & id = "") const;
 
       /**
       * Checks if the agent is an extra member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
+      * @param  id     the agent id(e.g. agent.0 or agent.leader). If null,
       *                uses the current agent's id
       * @return  true if the agent is an extra member in the formation
       **/
-      virtual bool is_extra (const std::string & id = "") const;
+      virtual bool is_extra(const std::string & id = "") const;
 
     protected:
     };

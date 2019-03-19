@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,7 @@
 #include "gams/loggers/GlobalLogger.h"
 
 inline void
-gams::formations::AgentFormation::set_id (const std::string & id)
+gams::formations::AgentFormation::set_id(const std::string & id)
 {
   id_ = id;
 }

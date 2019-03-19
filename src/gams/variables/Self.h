@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -72,25 +72,25 @@ namespace gams
       /**
        * Constructor
        **/
-      Self ();
+      Self();
 
       /**
        * Destructor
        **/
-      ~Self ();
+      ~Self();
 
       /**
        * Assignment operator
        * @param  agent   agent to copy
        **/
-      void operator= (const Self & agent);
+      void operator=(const Self & agent);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the knowledge base that houses the variables
        * @param   id         node identifier
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer & id);
 
       /**
@@ -98,7 +98,7 @@ namespace gams
       * @param   knowledge   the knowledge base that houses the variables
       * @param   self_prefix the prefix of the agent's data in knowledge base
       **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & self_prefix);
 
       /**
@@ -106,7 +106,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer & id);
 
       /// the id of this agent
@@ -125,7 +125,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   id         node identifier
       **/
-    GAMS_EXPORT void init_vars (Self & container,
+    GAMS_EXPORT void init_vars(Self & container,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer & id);
 
@@ -135,7 +135,7 @@ namespace gams
     * @param   knowledge   the knowledge base that houses the variables
     * @param   self_prefix prefix of variables in the knowledge base
     **/
-    GAMS_EXPORT void init_vars (Self & container,
+    GAMS_EXPORT void init_vars(Self & container,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & self_prefix);
   }

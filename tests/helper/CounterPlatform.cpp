@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,33 +47,33 @@
 #include "gams/loggers/GlobalLogger.h"
 
 
-gams::platforms::CounterPlatform::CounterPlatform (
+gams::platforms::CounterPlatform::CounterPlatform(
   madara::knowledge::KnowledgeBase & knowledge)
-  : BasePlatform (&knowledge)
+  : BasePlatform(&knowledge)
 {
-  analyze_counter_.set_name (".platform_analyzes", knowledge);
-  get_gps_accuracy_counter_.set_name (".platform_get_gps_accuracies", knowledge);
-  get_move_speed_counter_.set_name (".platform_get_move_speeds", knowledge);
-  home_counter_.set_name (".platform_homes", knowledge);
-  land_counter_.set_name (".platform_lands", knowledge);
-  move_counter_.set_name (".platform_moves", knowledge);
-  sense_counter_.set_name (".platform_senses", knowledge);
-  set_move_speed_counter_.set_name (".platform_set_move_speeds", knowledge);
-  takeoff_counter_.set_name (".platform_takeoffs", knowledge);
+  analyze_counter_.set_name(".platform_analyzes", knowledge);
+  get_gps_accuracy_counter_.set_name(".platform_get_gps_accuracies", knowledge);
+  get_move_speed_counter_.set_name(".platform_get_move_speeds", knowledge);
+  home_counter_.set_name(".platform_homes", knowledge);
+  land_counter_.set_name(".platform_lands", knowledge);
+  move_counter_.set_name(".platform_moves", knowledge);
+  sense_counter_.set_name(".platform_senses", knowledge);
+  set_move_speed_counter_.set_name(".platform_set_move_speeds", knowledge);
+  takeoff_counter_.set_name(".platform_takeoffs", knowledge);
 }
 
-gams::platforms::CounterPlatform::~CounterPlatform ()
+gams::platforms::CounterPlatform::~CounterPlatform()
 {
 }
 
 void
-gams::platforms::CounterPlatform::operator= (const CounterPlatform & rhs)
+gams::platforms::CounterPlatform::operator=(const CounterPlatform & rhs)
 {
   if (this != &rhs)
   {
-    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *> (this);
+    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *>(this);
     const platforms::BasePlatform * source =
-      dynamic_cast <const platforms::BasePlatform *> (&rhs);
+      dynamic_cast <const platforms::BasePlatform *>(&rhs);
 
     *dest = *source;
     this->analyze_counter_ = rhs.analyze_counter_;
@@ -89,7 +89,7 @@ gams::platforms::CounterPlatform::operator= (const CounterPlatform & rhs)
 }
  
 int
-gams::platforms::CounterPlatform::analyze (void)
+gams::platforms::CounterPlatform::analyze(void)
 {
   //++analyze_counter_;
 
@@ -97,19 +97,19 @@ gams::platforms::CounterPlatform::analyze (void)
 }
 
 std::string
-gams::platforms::CounterPlatform::get_id () const
+gams::platforms::CounterPlatform::get_id() const
 {
   return "counter_platform";
 }
 
 std::string
-gams::platforms::CounterPlatform::get_name () const
+gams::platforms::CounterPlatform::get_name() const
 {
   return "Counter Platform";
 }
 
 double
-gams::platforms::CounterPlatform::get_accuracy () const
+gams::platforms::CounterPlatform::get_accuracy() const
 {
   //++get_gps_accuracy_counter_;
   
@@ -117,14 +117,14 @@ gams::platforms::CounterPlatform::get_accuracy () const
 }
 
 double
-gams::platforms::CounterPlatform::get_move_speed () const
+gams::platforms::CounterPlatform::get_move_speed() const
 {
   //++get_move_speed_counter_;
   return 0.0;
 }
 
 int
-gams::platforms::CounterPlatform::home (void)
+gams::platforms::CounterPlatform::home(void)
 {
   //++home_counter_;
   
@@ -132,7 +132,7 @@ gams::platforms::CounterPlatform::home (void)
 }
 
 int
-gams::platforms::CounterPlatform::land (void)
+gams::platforms::CounterPlatform::land(void)
 {
   //++land_counter_;
   
@@ -140,7 +140,7 @@ gams::platforms::CounterPlatform::land (void)
 }
 
 int
-gams::platforms::CounterPlatform::move (const pose::Position & /*position*/,
+gams::platforms::CounterPlatform::move(const pose::Position & /*position*/,
   const pose::PositionBounds & /*bounds*/)
 {
   //++move_counter_;
@@ -149,7 +149,7 @@ gams::platforms::CounterPlatform::move (const pose::Position & /*position*/,
 }
 
 int
-gams::platforms::CounterPlatform::sense (void)
+gams::platforms::CounterPlatform::sense(void)
 {
   //++sense_counter_;
   
@@ -157,13 +157,13 @@ gams::platforms::CounterPlatform::sense (void)
 }
 
 void
-gams::platforms::CounterPlatform::set_move_speed (const double& /*speed*/)
+gams::platforms::CounterPlatform::set_move_speed(const double& /*speed*/)
 {
   //++set_move_speed_counter_;
 }
 
 int
-gams::platforms::CounterPlatform::takeoff (void)
+gams::platforms::CounterPlatform::takeoff(void)
 {
   //++takeoff_counter_;
   
@@ -171,7 +171,7 @@ gams::platforms::CounterPlatform::takeoff (void)
 }
 
 const gams::pose::ReferenceFrame &
-gams::platforms::CounterPlatform::get_frame (void) const
+gams::platforms::CounterPlatform::get_frame(void) const
 {
   return gams::pose::default_frame();
 }

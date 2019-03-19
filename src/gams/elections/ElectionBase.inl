@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -51,31 +51,31 @@
 #include "gams/loggers/GlobalLogger.h"
 
 inline int
-gams::elections::ElectionBase::get_round (void) const
+gams::elections::ElectionBase::get_round(void) const
 {
   return round_;
 }
 
 inline const std::string &
-gams::elections::ElectionBase::get_agent_prefix (void) const
+gams::elections::ElectionBase::get_agent_prefix(void) const
 {
   return agent_prefix_;
 }
 
 inline void
-gams::elections::ElectionBase::set_agent_prefix (const std::string & prefix)
+gams::elections::ElectionBase::set_agent_prefix(const std::string & prefix)
 {
   agent_prefix_ = prefix;
 }
 
 inline const std::string &
-gams::elections::ElectionBase::get_election_prefix (void) const
+gams::elections::ElectionBase::get_election_prefix(void) const
 {
   return election_prefix_;
 }
 
 inline void
-gams::elections::ElectionBase::reset_votes_pointer (void)
+gams::elections::ElectionBase::reset_votes_pointer(void)
 {
   if (knowledge_ && election_prefix_ != "")
   {
@@ -83,15 +83,15 @@ gams::elections::ElectionBase::reset_votes_pointer (void)
     buffer << election_prefix_;
     buffer << ".";
     buffer << round_;
-    votes_.set_name (buffer.str (), *knowledge_);
+    votes_.set_name(buffer.str(), *knowledge_);
   }
 }
 
 inline void
-gams::elections::ElectionBase::vote (const std::string & candidate,
+gams::elections::ElectionBase::vote(const std::string & candidate,
   int votes)
 {
-  vote (agent_prefix_, candidate, votes);
+  vote(agent_prefix_, candidate, votes);
 }
 
 #endif // _GAMS_ELECTIONS_ELECTION_BASE_INL_

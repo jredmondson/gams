@@ -39,18 +39,18 @@ class SenseThread : public madara::threads::BaseThread
     /**
      * Default constructor
      **/
-    SenseThread () {}
+    SenseThread() {}
     
     /**
      * Destructor
      **/
-    virtual ~SenseThread () {}
+    virtual ~SenseThread() {}
     
     /**
       * Initializes thread with MADARA context
       * @param   context   context for querying current program state
       **/
-    virtual void init (madara::knowledge::KnowledgeBase & knowledge)
+    virtual void init(madara::knowledge::KnowledgeBase & knowledge)
     {
       data_ = knowledge;
       xyz_velocity_.set_name(".xyz_velocity", data_, 3);
@@ -66,7 +66,7 @@ class SenseThread : public madara::threads::BaseThread
 
       if (handle != "")
       {
-        bool result = joystick_.open_handle (handle);
+        bool result = joystick_.open_handle(handle);
 
         if (result)
         {
@@ -97,7 +97,7 @@ class SenseThread : public madara::threads::BaseThread
     /**
       * Executes the main thread logic
       **/
-    virtual void run (void)
+    virtual void run(void)
     {
 #ifndef __WIN32__
 
@@ -109,8 +109,8 @@ class SenseThread : public madara::threads::BaseThread
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "Event: type=%d, number=%d, value=%d.\n",
-        (int)event.type, (int)event.number,
-        (int)event.value);
+       (int)event.type,(int)event.number,
+       (int)event.value);
 
       // if (!joystick_.is_init(event))
       // {
@@ -160,8 +160,8 @@ class SenseThread : public madara::threads::BaseThread
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ALWAYS,
           "AXIS: type=%d, number=%d, value=%d, double_value=%f, %s\n",
-          (int)event.type, (int)event.number,
-          (int)event.value, joystick_.to_double(event),
+         (int)event.type,(int)event.number,
+         (int)event.value, joystick_.to_double(event),
           actions.str().c_str());
       }
       else if (joystick_.is_button(event))
@@ -169,16 +169,16 @@ class SenseThread : public madara::threads::BaseThread
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "BUTTON: type=%d, number=%d, value=%d\n",
-          (int)event.type, (int)event.number,
-          (int)event.value);
+         (int)event.type,(int)event.number,
+         (int)event.value);
       }
       else
       {
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "UNKNOWN: type=%d, number=%d, value=%d\n",
-          (int)event.type, (int)event.number,
-          (int)event.value);
+         (int)event.type,(int)event.number,
+         (int)event.value);
       }
         
 #endif // __WIN32__
@@ -205,7 +205,7 @@ gams::platforms::OscJoystickPlatformFactory::create(
         gams::variables::Platforms * ,
         gams::variables::Self * self)
 {
-  BasePlatform * result (0);
+  BasePlatform * result(0);
 
   if (type_ != "quadcopter" &&
       type_ != "satellite")
@@ -215,7 +215,7 @@ gams::platforms::OscJoystickPlatformFactory::create(
   
   if (knowledge && sensors && self)
   {
-    result = new OscJoystickPlatform (knowledge, sensors, self,
+    result = new OscJoystickPlatform(knowledge, sensors, self,
       type_);
   }
 
@@ -229,7 +229,7 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
   gams::variables::Self * self,
   const std::string & type)        
 : gams::platforms::BasePlatform(knowledge, sensors, self),
-  type_(type), event_fd_ ("/dev/input/js0")
+  type_(type), event_fd_("/dev/input/js0")
 {
   // as an example of what to do here, create a coverage sensor
   if (knowledge && sensors)
@@ -249,9 +249,9 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
       // establish sensor
       gams::variables::Sensor* coverage_sensor =
         new gams::variables::Sensor("coverage", knowledge, 2.5, origin);
-     (*sensors)["coverage"] = coverage_sensor;
+    (*sensors)["coverage"] = coverage_sensor;
     }
-   (*sensors_)["coverage"] =(*sensors)["coverage"];
+  (*sensors_)["coverage"] =(*sensors)["coverage"];
     status_.init_vars(*knowledge, get_id());
     
     build_prefixes();
@@ -312,7 +312,7 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
     {
       std::stringstream buffer;
       buffer << "127.0.0.1:";
-      buffer << (*(self_->id) + 8000);
+      buffer <<(*(self_->id) + 8000);
       settings_.hosts[0] = buffer.str();
     }
 
@@ -329,7 +329,7 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
       self_->agent.prefix.c_str(),
       settings_.hosts[0].c_str(),
       settings_.hosts[1].c_str(),
-      (int)settings_.type);
+     (int)settings_.type);
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
@@ -346,21 +346,21 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
     json_buffer << "{\"id\":";
     json_buffer << *(self_->id);
     json_buffer << ",\"port\":";
-    json_buffer << (*(self_->id) + 8000);
+    json_buffer <<(*(self_->id) + 8000);
     json_buffer << ",\"location\":{";
     json_buffer << "\"x\": " <<
-      initial_pose.retrieve_index (0).to_double() << ",";
+      initial_pose.retrieve_index(0).to_double() << ",";
     json_buffer << "\"y\": " <<
-      initial_pose.retrieve_index (1).to_double() << ",";
+      initial_pose.retrieve_index(1).to_double() << ",";
     json_buffer << "\"z\": " <<
-      initial_pose.retrieve_index (2).to_double();
+      initial_pose.retrieve_index(2).to_double();
     json_buffer << "},\"rotation\":{\n";
     json_buffer << "\"x\":" <<
-      initial_pose.retrieve_index (3).to_double() << ",";
+      initial_pose.retrieve_index(3).to_double() << ",";
     json_buffer << "\"y\":" <<
-      initial_pose.retrieve_index (4).to_double() << ",";
+      initial_pose.retrieve_index(4).to_double() << ",";
     json_buffer << "\"z\":" <<
-      initial_pose.retrieve_index (5).to_double();
+      initial_pose.retrieve_index(5).to_double();
     json_buffer << "}}";
     
 
@@ -415,7 +415,7 @@ gams::platforms::OscJoystickPlatform::OscJoystickPlatform(
 
     threader_.set_data_plane(*knowledge);
 
-    threader_.run(20, "ReadInput", new ::SenseThread ());
+    threader_.run(20, "ReadInput", new ::SenseThread());
   }
 }
 
@@ -459,7 +459,7 @@ gams::platforms::OscJoystickPlatform::calculate_thrust(
   bool & finished)
 {
   finished = true;
-  std::vector<double> difference (std::min(current.size(), target.size()));
+  std::vector<double> difference(std::min(current.size(), target.size()));
   
   last_thrust_timer_.start();
 
@@ -503,7 +503,7 @@ gams::platforms::OscJoystickPlatform::calculate_thrust(
     }
   }
   
-  madara::knowledge::KnowledgeRecord record (difference);
+  madara::knowledge::KnowledgeRecord record(difference);
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
@@ -556,7 +556,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
         "gams::platforms::OscJoystickPlatform::sense: " \
         "%s: Processing %s => platform location with %d values\n",
         self_->agent.prefix.c_str(),
-        value.first.c_str(), (int)value.second.size());
+        value.first.c_str(),(int)value.second.size());
 
       
       // convert osc order to the frame order
@@ -569,7 +569,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
       loc.z(loc.z()/100);
 
       // save the location to the self container
-      loc.to_container (self_->agent.location);
+      loc.to_container(self_->agent.location);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
@@ -588,7 +588,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
         "gams::platforms::OscJoystickPlatform::sense: " \
         " %s: Processing %s => platform orientation with %d values\n",
         self_->agent.prefix.c_str(),
-        value.first.c_str(), (int)value.second.size());
+        value.first.c_str(),(int)value.second.size());
 
       
       // convert osc order to the frame order
@@ -596,7 +596,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
       angles.from_array(value.second.to_doubles());
 
       // save the location to the self container
-      angles.to_container (self_->agent.orientation);
+      angles.to_container(self_->agent.orientation);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
@@ -636,7 +636,7 @@ gams::platforms::OscJoystickPlatform::sense(void)
       self_->agent.prefix.c_str());
   }
 
-  // check for last position timeout (need to recreate agent in sim)
+  // check for last position timeout(need to recreate agent in sim)
   last_position_timer_.stop();
 
   //if we've never received a server packet for this agent, recreate
@@ -800,7 +800,7 @@ gams::platforms::OscJoystickPlatform::move(const pose::Position & target,
     new_target.x(), new_target.y(), new_target.z());
 
   // are we moving to a new location? If so, start an acceleration timer
-  if (!last_move_.approximately_equal (new_target, 0.1))
+  if (!last_move_.approximately_equal(new_target, 0.1))
   {
     move_timer_.start();
     last_move_ = new_target;
@@ -821,7 +821,7 @@ gams::platforms::OscJoystickPlatform::move(const pose::Position & target,
   // if we have just started our movement, modify velocity to account
   // for acceleration. This will help animation be smooth in Unreal.
   move_timer_.stop();
-  double move_time = move_timer_.duration_ds ();
+  double move_time = move_timer_.duration_ds();
   if (move_time < 1.0)
   {
     // have acceleration ramp up over a second at .1 per 1/20 second

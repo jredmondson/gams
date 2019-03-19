@@ -22,18 +22,18 @@ typedef knowledge::KnowledgeRecord    KnowledgeRecord;
 
 madara::transport::QoSTransportSettings settings;
 
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
     bool error = true;
 
     if (arg1 == "-u" || arg1 == "--udp")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::UDP;
         error = false;
       }
@@ -44,7 +44,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::BROADCAST;
         error = false;
       }
@@ -55,7 +55,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::MULTICAST;
         error = false;
       }
@@ -75,16 +75,16 @@ void handle_arguments (int argc, char ** argv)
       ++i;
     }
 
-    if(error)
+    if (error)
     {
       cerr << "Test MADARA Reader: " << argv[0] << endl;
       cerr << "  Defaults to using multicast transport on 239.255.0.1:4150" << endl;
       cerr << endl;
       cerr << "    [-u | --udp <address>]         Address for UDP transport" << endl;
       cerr << "    [-b | --broadcast <address>]   Address for broadcast transport" << endl;
-      cerr << "    [-m | --multicast <address>]   Address for multicast transport (default: 239.255.0.1:4150)" << endl;
-      cerr << "    [-d | --duration <duration>]   number of seconds to run test (default: 10)" << endl;
-      exit (0);
+      cerr << "    [-m | --multicast <address>]   Address for multicast transport(default: 239.255.0.1:4150)" << endl;
+      cerr << "    [-d | --duration <duration>]   number of seconds to run test(default: 10)" << endl;
+      exit(0);
     }
   }
 }
@@ -109,9 +109,9 @@ int main(int argc, char** argv)
   handle_arguments(argc, argv);
 
   // set default transport
-  if(settings.hosts.size() == 0)
+  if (settings.hosts.size() == 0)
   {
-    const std::string default_multicast ("239.255.0.1:4150");
+    const std::string default_multicast("239.255.0.1:4150");
     settings.hosts.push_back(default_multicast);
     settings.type = madara::transport::MULTICAST;
   }

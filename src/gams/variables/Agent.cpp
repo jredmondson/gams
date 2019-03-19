@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,18 +50,18 @@
 
 using std::string;
 
-gams::variables::Agent::Agent ()
+gams::variables::Agent::Agent()
 {
 }
 
-gams::variables::Agent::~Agent ()
+gams::variables::Agent::~Agent()
 {
 }
 
 void
-gams::variables::Agent::operator= (const Agent & agent)
+gams::variables::Agent::operator=(const Agent & agent)
 {
-  if (this != &agent)
+  if(this != &agent)
   {
     this->acceleration = agent.acceleration;
     this->algorithm = agent.algorithm;
@@ -100,177 +100,177 @@ gams::variables::Agent::operator= (const Agent & agent)
 }
 
 void
-gams::variables::Agent::init_vars (
+gams::variables::Agent::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & prefix)
 {
   // initialize the variable containers
-  acceleration.set_name (prefix + ".acceleration", knowledge);
-  min_alt.set_name (prefix + ".min_alt", knowledge);
-  location.set_name (prefix + ".location", knowledge);
-  orientation.set_name (prefix + ".orientation", knowledge);
-  desired_altitude.set_name (prefix + ".desired_altitude", knowledge);
-  is_mobile.set_name (prefix + ".mobile", knowledge);
-  battery_remaining.set_name (prefix + ".battery", knowledge);
-  bridge_id.set_name (prefix + ".bridge_id", knowledge);
-  coverage_type.set_name (prefix + ".area_coverage_type", knowledge);
-  next_coverage_type.set_name (prefix + ".next_area_coverage_type",
+  acceleration.set_name(prefix + ".acceleration", knowledge);
+  min_alt.set_name(prefix + ".min_alt", knowledge);
+  location.set_name(prefix + ".location", knowledge);
+  orientation.set_name(prefix + ".orientation", knowledge);
+  desired_altitude.set_name(prefix + ".desired_altitude", knowledge);
+  is_mobile.set_name(prefix + ".mobile", knowledge);
+  battery_remaining.set_name(prefix + ".battery", knowledge);
+  bridge_id.set_name(prefix + ".bridge_id", knowledge);
+  coverage_type.set_name(prefix + ".area_coverage_type", knowledge);
+  next_coverage_type.set_name(prefix + ".next_area_coverage_type",
     knowledge);
-  search_area_id.set_name (prefix + ".search_area_id", knowledge);
-  algorithm.set_name (prefix + ".algorithm", knowledge);
-  algorithm_id.set_name (prefix + ".algorithm.id", knowledge);
-  algorithm_accepts.set_name (prefix + ".algorithm.accepts", knowledge);
-  algorithm_rejects.set_name (prefix + ".algorithm.rejects", knowledge);
-  algorithm_changed.set_name (prefix + ".algorithm.changed", knowledge);
-  algorithm_args.set_name (prefix + ".algorithm.args", knowledge);
-  last_algorithm.set_name (prefix + ".algorithm.last", knowledge);
-  last_algorithm_id.set_name (prefix + ".algorithm.last.id", knowledge);
-  last_algorithm_args.set_name (prefix + ".algorithm.last.args", knowledge);
-  variables::init_vars (accents, knowledge, prefix);
-  home.set_name (prefix + ".home", knowledge);
-  source.set_name (prefix + ".source", knowledge);
-  source_orientation.set_name (prefix + ".source_orientation", knowledge);
-  dest_orientation.set_name (prefix + ".dest_orientation", knowledge);
-  dest.set_name (prefix + ".dest", knowledge);
-  temperature.set_name (prefix + ".temperature", knowledge);
-  madara_debug_level.set_name (prefix + ".madara_debug_level", knowledge);
-  gams_debug_level.set_name (prefix + ".gams_debug_level", knowledge);
-  loop_hz.set_name (prefix + ".loop_hz", knowledge);
-  send_hz.set_name (prefix + ".send_hz", knowledge);
-  velocity.set_name (prefix + ".velocity", knowledge);
+  search_area_id.set_name(prefix + ".search_area_id", knowledge);
+  algorithm.set_name(prefix + ".algorithm", knowledge);
+  algorithm_id.set_name(prefix + ".algorithm.id", knowledge);
+  algorithm_accepts.set_name(prefix + ".algorithm.accepts", knowledge);
+  algorithm_rejects.set_name(prefix + ".algorithm.rejects", knowledge);
+  algorithm_changed.set_name(prefix + ".algorithm.changed", knowledge);
+  algorithm_args.set_name(prefix + ".algorithm.args", knowledge);
+  last_algorithm.set_name(prefix + ".algorithm.last", knowledge);
+  last_algorithm_id.set_name(prefix + ".algorithm.last.id", knowledge);
+  last_algorithm_args.set_name(prefix + ".algorithm.last.args", knowledge);
+  variables::init_vars(accents, knowledge, prefix);
+  home.set_name(prefix + ".home", knowledge);
+  source.set_name(prefix + ".source", knowledge);
+  source_orientation.set_name(prefix + ".source_orientation", knowledge);
+  dest_orientation.set_name(prefix + ".dest_orientation", knowledge);
+  dest.set_name(prefix + ".dest", knowledge);
+  temperature.set_name(prefix + ".temperature", knowledge);
+  madara_debug_level.set_name(prefix + ".madara_debug_level", knowledge);
+  gams_debug_level.set_name(prefix + ".gams_debug_level", knowledge);
+  loop_hz.set_name(prefix + ".loop_hz", knowledge);
+  send_hz.set_name(prefix + ".send_hz", knowledge);
+  velocity.set_name(prefix + ".velocity", knowledge);
 
   this->prefix = prefix;
 
   // init settings
-  init_variable_settings ();
+  init_variable_settings();
 }
 
 void
-gams::variables::Agent::init_vars (
+gams::variables::Agent::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const madara::knowledge::KnowledgeRecord::Integer& id)
 {
-  // create the agent name string identifier ('agent.{id}')
-  prefix = make_variable_name (id);
+  // create the agent name string identifier('agent.{id}')
+  prefix = make_variable_name(id);
 
-  init_vars (knowledge, prefix);
+  init_vars(knowledge, prefix);
 }
 
 void
-gams::variables::Agent::init_vars (
+gams::variables::Agent::init_vars(
   madara::knowledge::Variables & knowledge,
   const madara::knowledge::KnowledgeRecord::Integer& id)
 {
-  // create the agent name string identifier ('agent.{id}')
-  string agent_name (make_variable_name (id));
-  string local_agent_name ("." + agent_name);
+  // create the agent name string identifier('agent.{id}')
+  string agent_name(make_variable_name(id));
+  string local_agent_name("." + agent_name);
 
   prefix = agent_name;
 
   // initialize the variable containers
-  acceleration.set_name (agent_name + ".acceleration", knowledge);
-  min_alt.set_name (agent_name + ".min_alt", knowledge);
-  location.set_name (agent_name + ".location", knowledge, 3);
-  orientation.set_name (agent_name + ".orientation", knowledge, 3);
-  desired_altitude.set_name (agent_name + ".desired_altitude", knowledge);
-  is_mobile.set_name (agent_name + ".mobile", knowledge);
-  battery_remaining.set_name (agent_name + ".battery", knowledge);
-  bridge_id.set_name (agent_name + ".bridge_id", knowledge);
-  coverage_type.set_name (agent_name + ".area_coverage_type", knowledge);
-  next_coverage_type.set_name (agent_name + ".next_area_coverage_type",
+  acceleration.set_name(agent_name + ".acceleration", knowledge);
+  min_alt.set_name(agent_name + ".min_alt", knowledge);
+  location.set_name(agent_name + ".location", knowledge, 3);
+  orientation.set_name(agent_name + ".orientation", knowledge, 3);
+  desired_altitude.set_name(agent_name + ".desired_altitude", knowledge);
+  is_mobile.set_name(agent_name + ".mobile", knowledge);
+  battery_remaining.set_name(agent_name + ".battery", knowledge);
+  bridge_id.set_name(agent_name + ".bridge_id", knowledge);
+  coverage_type.set_name(agent_name + ".area_coverage_type", knowledge);
+  next_coverage_type.set_name(agent_name + ".next_area_coverage_type",
     knowledge);
-  search_area_id.set_name (agent_name + ".search_area_id", knowledge);
-  algorithm.set_name (agent_name + ".algorithm", knowledge);
-  algorithm_id.set_name (agent_name + ".algorithm.id", knowledge);
-  algorithm_accepts.set_name (agent_name + ".algorithm.accepts", knowledge);
-  algorithm_rejects.set_name (agent_name + ".algorithm.rejects", knowledge);
-  algorithm_changed.set_name (agent_name + ".algorithm.changed", knowledge);
-  algorithm_args.set_name (agent_name + ".algorithm.args", knowledge);
-  last_algorithm.set_name (agent_name + ".algorithm.last", knowledge);
-  last_algorithm_id.set_name (agent_name + ".algorithm.last.id", knowledge);
-  last_algorithm_args.set_name (agent_name + ".algorithm.last.args", knowledge);
-  variables::init_vars (accents, knowledge, agent_name);
-  home.set_name (agent_name + ".home", knowledge);
-  source.set_name (agent_name + ".source", knowledge);
-  source_orientation.set_name (agent_name + ".source_orientation", knowledge);
-  dest.set_name (agent_name + ".dest", knowledge);
-  dest_orientation.set_name (agent_name + ".dest_orientation", knowledge);
-  temperature.set_name (agent_name + ".temperature", knowledge);
-  madara_debug_level.set_name (agent_name + ".madara_debug_level", knowledge);
-  gams_debug_level.set_name (agent_name + ".gams_debug_level", knowledge);
-  loop_hz.set_name (agent_name + ".loop_hz", knowledge);
-  send_hz.set_name (agent_name + ".send_hz", knowledge);
-  velocity.set_name (agent_name + ".velocity", knowledge);
+  search_area_id.set_name(agent_name + ".search_area_id", knowledge);
+  algorithm.set_name(agent_name + ".algorithm", knowledge);
+  algorithm_id.set_name(agent_name + ".algorithm.id", knowledge);
+  algorithm_accepts.set_name(agent_name + ".algorithm.accepts", knowledge);
+  algorithm_rejects.set_name(agent_name + ".algorithm.rejects", knowledge);
+  algorithm_changed.set_name(agent_name + ".algorithm.changed", knowledge);
+  algorithm_args.set_name(agent_name + ".algorithm.args", knowledge);
+  last_algorithm.set_name(agent_name + ".algorithm.last", knowledge);
+  last_algorithm_id.set_name(agent_name + ".algorithm.last.id", knowledge);
+  last_algorithm_args.set_name(agent_name + ".algorithm.last.args", knowledge);
+  variables::init_vars(accents, knowledge, agent_name);
+  home.set_name(agent_name + ".home", knowledge);
+  source.set_name(agent_name + ".source", knowledge);
+  source_orientation.set_name(agent_name + ".source_orientation", knowledge);
+  dest.set_name(agent_name + ".dest", knowledge);
+  dest_orientation.set_name(agent_name + ".dest_orientation", knowledge);
+  temperature.set_name(agent_name + ".temperature", knowledge);
+  madara_debug_level.set_name(agent_name + ".madara_debug_level", knowledge);
+  gams_debug_level.set_name(agent_name + ".gams_debug_level", knowledge);
+  loop_hz.set_name(agent_name + ".loop_hz", knowledge);
+  send_hz.set_name(agent_name + ".send_hz", knowledge);
+  velocity.set_name(agent_name + ".velocity", knowledge);
 
   // init settings
-  init_variable_settings ();
+  init_variable_settings();
 
-  madara_debug_level = madara::logger::global_logger->get_level ();
-  gams_debug_level = gams::loggers::global_logger->get_level ();
+  madara_debug_level = madara::logger::global_logger->get_level();
+  gams_debug_level = gams::loggers::global_logger->get_level();
 }
 
-void gams::variables::init_vars (Agents & variables,
+void gams::variables::init_vars(Agents & variables,
   madara::knowledge::KnowledgeBase & knowledge,
   const madara::knowledge::KnowledgeRecord::Integer& processes)
 {
   madara::knowledge::KnowledgeRecord::Integer limit = processes;
   if (processes >= 0)
   {
-    variables.resize (processes);
+    variables.resize(processes);
   }
   else
   {
-    limit = knowledge.get ("agent.size").to_integer ();
+    limit = knowledge.get("agent.size").to_integer();
   }
 
   for (unsigned int i = 0; i < limit; ++i)
   {
-    variables[i].init_vars (knowledge, i);
+    variables[i].init_vars(knowledge, i);
   }
 }
 
-void gams::variables::init_vars (Agents & variables,
+void gams::variables::init_vars(Agents & variables,
   madara::knowledge::KnowledgeBase & knowledge,
   const groups::GroupBase & group)
 {
   // get the member identifiers
   groups::AgentVector members;
-  group.get_members (members);
+  group.get_members(members);
 
-  variables.resize (members.size ());
+  variables.resize(members.size());
 
-  for (unsigned int i = 0; i < members.size (); ++i)
+  for (unsigned int i = 0; i < members.size(); ++i)
   {
-    variables[i].init_vars (knowledge, members[i]);
+    variables[i].init_vars(knowledge, members[i]);
   } 
 }
 
 string
-gams::variables::Agent::make_variable_name (
+gams::variables::Agent::make_variable_name(
   const madara::knowledge::KnowledgeRecord::Integer& id)
 {
   std::stringstream buffer;
   buffer << "agent.";
   buffer << id;
-  return buffer.str ();
+  return buffer.str();
 }
 
 void
-gams::variables::Agent::init_variable_settings ()
+gams::variables::Agent::init_variable_settings()
 {
   // keep certain varaible changes as local only
-  madara::knowledge::KnowledgeUpdateSettings keep_local (true);
-  algorithm.set_settings (keep_local);
-  algorithm_args.set_settings (keep_local);
-  madara_debug_level.set_settings (keep_local);
-  gams_debug_level.set_settings (keep_local);
+  madara::knowledge::KnowledgeUpdateSettings keep_local(true);
+  algorithm.set_settings(keep_local);
+  algorithm_args.set_settings(keep_local);
+  madara_debug_level.set_settings(keep_local);
+  gams_debug_level.set_settings(keep_local);
 }
 
 bool
-gams::variables::Agent::is_agent (
+gams::variables::Agent::is_agent(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string prefix)
 {
-  return madara::utility::begins_with (prefix, "agent.")
-    || knowledge.exists (prefix + ".location");
+  return madara::utility::begins_with(prefix, "agent.")
+    || knowledge.exists(prefix + ".location");
 }

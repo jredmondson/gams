@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@
 #include <iostream>
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::NullAlgorithmFactory::create (
+gams::algorithms::NullAlgorithmFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -57,16 +57,16 @@ gams::algorithms::NullAlgorithmFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
   if (knowledge && sensors && platform && self)
   {
-    result = new NullAlgorithm (knowledge, platform, sensors, self);
+    result = new NullAlgorithm(knowledge, platform, sensors, self);
   }
 
   if (result == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::NullAlgorithmFactory::create:" \
       " unknown error creating Null algorithm\n");
@@ -75,23 +75,23 @@ gams::algorithms::NullAlgorithmFactory::create (
   return result;
 }
 
-gams::algorithms::NullAlgorithm::NullAlgorithm (
+gams::algorithms::NullAlgorithm::NullAlgorithm(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self)
+  : BaseAlgorithm(knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "null", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "null", self->agent.prefix);
+  status_.init_variable_values();
 }
 
-gams::algorithms::NullAlgorithm::~NullAlgorithm ()
+gams::algorithms::NullAlgorithm::~NullAlgorithm()
 {
 }
 
 void
-gams::algorithms::NullAlgorithm::operator= (const NullAlgorithm & rhs)
+gams::algorithms::NullAlgorithm::operator=(const NullAlgorithm & rhs)
 {
   if (this != &rhs)
   {
@@ -104,21 +104,21 @@ gams::algorithms::NullAlgorithm::operator= (const NullAlgorithm & rhs)
 
 
 int
-gams::algorithms::NullAlgorithm::analyze (void)
+gams::algorithms::NullAlgorithm::analyze(void)
 {
   return OK;
 }
       
 
 int
-gams::algorithms::NullAlgorithm::execute (void)
+gams::algorithms::NullAlgorithm::execute(void)
 {
   return 0;
 }
 
 
 int
-gams::algorithms::NullAlgorithm::plan (void)
+gams::algorithms::NullAlgorithm::plan(void)
 {
   return 0;
 }

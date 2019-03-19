@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -77,18 +77,18 @@ namespace gams
       /**
        * Constructor
        **/
-      AlgorithmStatus ();
+      AlgorithmStatus();
 
       /**
        * Destructor
        **/
-      ~AlgorithmStatus ();
+      ~AlgorithmStatus();
 
       /**
        * Assignment operator
        * @param  rhs   value to copy
        **/
-      void operator= (const AlgorithmStatus & rhs);
+      void operator=(const AlgorithmStatus & rhs);
 
       /**
       * Initializes variable containers
@@ -96,7 +96,7 @@ namespace gams
       * @param   new_name         the name of the algorithm
       * @param   agent_prefix     the agent prefix
       **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & new_name, const std::string & agent_prefix);
 
       /**
@@ -105,31 +105,31 @@ namespace gams
       * @param   new_name       the name of the algorithm
       * @param   agent_prefix   the agent prefix
       **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const std::string & new_name, const std::string & agent_prefix);
 
       /**
-       * Initializes variable containers (DEPRECATED)
+       * Initializes variable containers(DEPRECATED)
        * @param   knowledge  the knowledge base that houses the variables
        * @param   new_name   the name of the algorithm
        * @param   i          the agent id
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & new_name, int i);
       
       /**
-       * Initializes variable containers (DEPRECATED)
+       * Initializes variable containers(DEPRECATED)
        * @param   knowledge  the variable context
        * @param   new_name   the name of the algorithm
        * @param   i          the agent id
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const std::string & new_name, int i);
 
       /**
        * Initialize variable values
        */
-      void init_variable_values ();
+      void init_variable_values();
 
       /// the agent id
       int id;
@@ -165,7 +165,7 @@ namespace gams
       /**
        * Get prefix for variables
        */
-      std::string make_variable_prefix () const;
+      std::string make_variable_prefix() const;
     };
     
     /// deprecated typedef. Please use AlgorithmStatus instead.

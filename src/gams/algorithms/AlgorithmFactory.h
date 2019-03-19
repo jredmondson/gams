@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -75,12 +75,12 @@ namespace gams
       /**
        * Constructor
        **/
-      AlgorithmFactory ();
+      AlgorithmFactory();
 
       /**
        * Destructor
        **/
-      virtual ~AlgorithmFactory ();
+      virtual ~AlgorithmFactory();
 
       /**
        * Creates an algorithm
@@ -92,7 +92,7 @@ namespace gams
        * @param  agents      list of agents in the swarm
        * @return  the new algorithm
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
@@ -104,31 +104,31 @@ namespace gams
        * Sets list of agents participating in swarm
        * @param  agents    agents in the swarm
        **/
-      void set_agents (variables::Agents * agents);
+      void set_agents(variables::Agents * agents);
       
       /**
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
       
       /**
        * Sets the map of platform names to platform information
        * @param  platform   the platform to use
        **/
-      void set_platform (platforms::BasePlatform * platform);
+      void set_platform(platforms::BasePlatform * platform);
       
       /**
        * Sets self-referencing variables
        * @param  self       self-referencing variables
        **/
-      void set_self (variables::Self * self);
+      void set_self(variables::Self * self);
       
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
-      void set_sensors (variables::Sensors * sensors);
+      void set_sensors(variables::Sensors * sensors);
       
     protected:
       

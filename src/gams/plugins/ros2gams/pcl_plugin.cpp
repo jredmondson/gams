@@ -38,22 +38,22 @@ extern "C" void parse(const rosbag::MessageInstance* m,
   // THIS METHOD IS HARDCODED TO RUN WITH PCL BASED SCHEMAS
 
   boost::shared_ptr<sensor_msgs::PointCloud2> pointcloud =
-    m->instantiate<sensor_msgs::PointCloud2> ();
+    m->instantiate<sensor_msgs::PointCloud2>();
 
   // Load PCL schema
   std::string pointcloud_schema_name = "PointCloudXYZ";
   capnp::MallocMessageBuilder buffer;
   gams::types::PointCloudXYZ::Builder pointcloud_builder = 
-    buffer.initRoot<gams::types::PointCloudXYZ> ();
+    buffer.initRoot<gams::types::PointCloudXYZ>();
 
   // Convert from ROS PointCloud2 to a PCL PointCloud
   pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL (*pointcloud, pcl_pc2);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::fromPCLPointCloud2 (pcl_pc2, *temp_cloud);
+  pcl_conversions::toPCL(*pointcloud, pcl_pc2);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::fromPCLPointCloud2(pcl_pc2, *temp_cloud);
 
   //Fill the list of points with data
-  auto point_list = pointcloud_builder.initPoints((*temp_cloud).size ());
+  auto point_list = pointcloud_builder.initPoints((*temp_cloud).size());
   int point_counter = 0;
   for (pcl::PointXYZ point : *temp_cloud)
   {
@@ -64,12 +64,12 @@ extern "C" void parse(const rosbag::MessageInstance* m,
   }
 
   // Now fill the other fields
-  pointcloud_builder.setTov (
-    ((unsigned long)pointcloud->header.stamp.sec * 1e9) +
-    (unsigned long)pointcloud->header.stamp.nsec);
-  pointcloud_builder.setFrameId (pointcloud->header.frame_id.c_str());
-  pointcloud_builder.setWidth (pointcloud->width);
-  pointcloud_builder.setHeight (pointcloud->height);
+  pointcloud_builder.setTov(
+   ((unsigned long)pointcloud->header.stamp.sec * 1e9) +
+   (unsigned long)pointcloud->header.stamp.nsec);
+  pointcloud_builder.setFrameId(pointcloud->header.frame_id.c_str());
+  pointcloud_builder.setWidth(pointcloud->width);
+  pointcloud_builder.setHeight(pointcloud->height);
   pointcloud_builder.setIsDense((bool)pointcloud->is_dense);
 
   // Store in the knowledgebase

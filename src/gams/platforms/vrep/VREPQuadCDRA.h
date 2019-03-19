@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -78,7 +78,7 @@ namespace gams
     /**
     * A VREP platform for an autonomous aerial quadcopter developed
     * for the CDRA project. This has the ability to interface with a
-    * controller (Keyboard, XBOX360 etc.) and to send actuation
+    * controller(Keyboard, XBOX360 etc.) and to send actuation
     * commands to individual motors of the underlying VREP model.
     **/
     class GAMS_EXPORT VREPQuadCDRA : public VREPQuad
@@ -95,7 +95,7 @@ namespace gams
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
        **/
-      VREPQuadCDRA (
+      VREPQuadCDRA(
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,
@@ -106,14 +106,14 @@ namespace gams
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. vrep_ant, autonomous_snake, etc.)
+       * variable(e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const;
+      virtual std::string get_id() const;
 
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const;
+      virtual std::string get_name() const;
     }; // class VREPQuadCDRA
 
     /**
@@ -135,7 +135,7 @@ namespace gams
        * @param  self         agent variables that describe self state
        * @return a new VREPQuadCDRA
        **/
-      virtual VREPQuadCDRA *create_quad (
+      virtual VREPQuadCDRA *create_quad(
         std::string model_file, 
         simxUChar is_client_side, 
         madara::knowledge::KnowledgeBase * knowledge,

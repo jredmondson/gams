@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -85,7 +85,7 @@ namespace gams
        *                    within the knowledge base to use for printing,
        *                    after the .id identifier.
        **/
-      DebugPlatform (
+      DebugPlatform(
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
@@ -95,54 +95,54 @@ namespace gams
       /**
        * Destructor
        **/
-      ~DebugPlatform ();
+      ~DebugPlatform();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const DebugPlatform & rhs);
+      void operator=(const DebugPlatform & rhs);
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void) override;
+      virtual int analyze(void) override;
        
       /**
        * Get the location aproximation value of what is considered close enough
        * @return location approximation radius
        **/
-      virtual double get_accuracy () const override;
+      virtual double get_accuracy() const override;
       
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. vrep_ant, autonomous_snake, etc.)
+       * variable(e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const override;
+      virtual std::string get_id() const override;
 
       /**
        * Get move speed
        **/
-      virtual double get_move_speed () const override;
+      virtual double get_move_speed() const override;
       
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const override;
+      virtual std::string get_name() const override;
 
       /**
        * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int home (void) override;
+      virtual int home(void) override;
       
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void) override;
+      virtual int land(void) override;
       
       /**
        * Moves the platform to a position
@@ -150,7 +150,7 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      int move (const pose::Position & position,
+      int move(const pose::Position & position,
           const pose::PositionBounds &bounds) override;
 
       using BasePlatform::move;
@@ -159,19 +159,19 @@ namespace gams
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void) override;
+      virtual int sense(void) override;
       
       /**
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed) override;
+      virtual void set_move_speed(const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void) override;
+      virtual int takeoff(void) override;
 
     protected:
 
@@ -181,7 +181,7 @@ namespace gams
       /**
        * Used to keep track of executions. By default, this is
        * setup to refer to the algorithm executions used in 
-       * DebugAlgorithm (located at .executions in the knowledge
+       * DebugAlgorithm(located at .executions in the knowledge
        * base), but this can be changed to an arbitrary location
        * in the constructor
        **/
@@ -207,7 +207,7 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
-      virtual BasePlatform * create (
+      virtual BasePlatform * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -60,7 +60,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
+gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create(
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -68,21 +68,21 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
   variables::Self * self,
   variables::Agents * agents)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", args.size());
 
   if (knowledge && sensors && platform && self)
   {
     std::string search_area;
     double time = 360;
 
-    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    for(KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-      if (i->first.size () <= 0)
+      if (i->first.size() <= 0)
         continue;
 
       switch (i->first[0])
@@ -90,33 +90,33 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
       case 'a':
         if (i->first == "area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 's':
         if (i->first == "search_area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 't':
         if (i->first == "time")
         {
-          time = i->second.to_double ();
+          time = i->second.to_double();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting time to %f\n", time);
@@ -125,11 +125,11 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
         goto unknown;
       unknown:
       default:
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationSyncFactory:" \
           " argument unknown: %s -> %s\n",
-          i->first.c_str (), i->second.to_string ().c_str ());
+          i->first.c_str(), i->second.to_string().c_str());
         break;
       }
     }
@@ -137,14 +137,14 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
     // if group has not been set, use the swarm
     if (search_area == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create:" \
         " No search area specified. Returning null.\n");
     }
     else
     {
-      result = new area_coverage::UniformRandomAreaCoverage (
+      result = new area_coverage::UniformRandomAreaCoverage(
         search_area, time,
         knowledge, platform, sensors, self, agents);
     }
@@ -154,7 +154,7 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverageFactory::create (
 }
 
 gams::algorithms::area_coverage::UniformRandomAreaCoverage::
-  UniformRandomAreaCoverage (
+  UniformRandomAreaCoverage(
   const string& search_area_id,
   double e_time,
   madara::knowledge::KnowledgeBase * knowledge,
@@ -162,33 +162,33 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Agents * agents) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time)
+  BaseAreaCoverage(knowledge, platform, sensors, self, agents, e_time)
 {
   // init status vars
-  status_.init_vars (*knowledge, "urac", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "urac", self->agent.prefix);
+  status_.init_variable_values();
 
   // get region to cover
   pose::SearchArea search;
-  search.from_container (*knowledge, search_area_id);
-  region_ = search.get_convex_hull ();
+  search.from_container(*knowledge, search_area_id);
+  region_ = search.get_convex_hull();
 
   // generate initial waypoint
   generate_new_position();
 }
 
 gams::algorithms::area_coverage::UniformRandomAreaCoverage::
-  ~UniformRandomAreaCoverage ()
+  ~UniformRandomAreaCoverage()
 {
 }
 
 void
-gams::algorithms::area_coverage::UniformRandomAreaCoverage::operator= (
+gams::algorithms::area_coverage::UniformRandomAreaCoverage::operator=(
   const UniformRandomAreaCoverage & rhs)
 {
   if (this != &rhs)
   {
-    this->BaseAreaCoverage::operator= (rhs);
+    this->BaseAreaCoverage::operator=(rhs);
     this->region_ = rhs.region_;
   }
 }
@@ -202,24 +202,24 @@ gams::algorithms::area_coverage::UniformRandomAreaCoverage::operator= (
  */
 void
 gams::algorithms::area_coverage::UniformRandomAreaCoverage::
-  generate_new_position (void)
+  generate_new_position(void)
 {
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
     do
     {
-      next_position_.latitude (madara::utility::rand_double (region_.min_lat_,
+      next_position_.latitude(madara::utility::rand_double(region_.min_lat_,
         region_.max_lat_));
-      next_position_.longitude (madara::utility::rand_double (region_.min_lon_,
+      next_position_.longitude(madara::utility::rand_double(region_.min_lon_,
         region_.max_lon_));
-      next_position_.altitude (madara::utility::rand_double (region_.min_alt_,
+      next_position_.altitude(madara::utility::rand_double(region_.min_alt_,
         region_.max_alt_));
-    } while (!region_.contains (next_position_.to_gps_pos()));
+    } while (!region_.contains(next_position_.to_gps_pos()));
 
     // found an acceptable position, so set it as next
     utility::GPSPosition current;
-    current.from_container (self_->agent.location);
-    next_position_.altitude (current.altitude ()); // TODO: update when altitude is handled
+    current.from_container(self_->agent.location);
+    next_position_.altitude(current.altitude()); // TODO: update when altitude is handled
 
     initialized_ = true;
   }

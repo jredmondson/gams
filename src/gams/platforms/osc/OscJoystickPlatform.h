@@ -40,7 +40,7 @@ namespace gams { namespace platforms
      * @param  sensors    map of sensor names to sensor information
      * @param  self       self referencing variables for the agent
      **/
-    OscJoystickPlatform (
+    OscJoystickPlatform(
       madara::knowledge::KnowledgeBase * knowledge = 0,
       gams::variables::Sensors * sensors = 0,
       gams::variables::Self * self = 0,
@@ -49,62 +49,62 @@ namespace gams { namespace platforms
     /**
      * Destructor
      **/
-    virtual ~OscJoystickPlatform ();
+    virtual ~OscJoystickPlatform();
 
     /**
      * Polls the sensor environment for useful information. Required.
      * @return number of sensors updated/used
      **/
-    virtual int sense (void) override;
+    virtual int sense(void) override;
 
     /**
      * Analyzes platform information. Required.
      * @return bitmask status of the platform. @see PlatformAnalyzeStatus.
      **/
-    virtual int analyze (void) override;
+    virtual int analyze(void) override;
 
     /**
      * Gets the name of the platform. Required.
      **/
-    virtual std::string get_name () const override;
+    virtual std::string get_name() const override;
 
     /**
      * Gets the unique identifier of the platform. This should be an
      * alphanumeric identifier that can be used as part of a MADARA
-     * variable (e.g. vrep_ant, autonomous_snake, etc.) Required.
+     * variable(e.g. vrep_ant, autonomous_snake, etc.) Required.
      * @return the id of the platform to use in factory methods
      **/
-    virtual std::string get_id () const override;
+    virtual std::string get_id() const override;
 
     /**
      * Gets the position accuracy in meters. Optional.
      * @return position accuracy
      **/
-    virtual double get_accuracy (void) const override;
+    virtual double get_accuracy(void) const override;
 
     /**
      * Gets sensor radius. Optional.
      * @return minimum radius of all available sensors for this platform
      **/
-    virtual double get_min_sensor_range (void) const override;
+    virtual double get_min_sensor_range(void) const override;
 
     /**
      * Gets move speed. Optional.
      * @return speed in meters per second
      **/
-    virtual double get_move_speed (void) const override;
+    virtual double get_move_speed(void) const override;
 
     /**
      * Instructs the agent to return home. Optional.
      * @return the status of the home operation, @see PlatformReturnValues
      **/
-    virtual int home (void) override;
+    virtual int home(void) override;
 
     /**
      * Instructs the agent to land. Optional.
      * @return the status of the land operation, @see PlatformReturnValues
      **/
-    virtual int land (void) override;
+    virtual int land(void) override;
 
     /**
      * Moves the platform to a location
@@ -112,7 +112,7 @@ namespace gams { namespace platforms
      * @param   bounds   approximation value
      * @return the status of the move operation, @see PlatformReturnValues
      **/
-    int move (const pose::Position & location,
+    int move(const pose::Position & location,
       const pose::PositionBounds &bounds) override;
 
     using BasePlatform::move;
@@ -123,7 +123,7 @@ namespace gams { namespace platforms
      * @param   bounds   approximation value, in radians
      * @return the status of the orient operation, @see PlatformReturnValues
      **/
-    int orient (const pose::Orientation & location,
+    int orient(const pose::Orientation & location,
     const pose::OrientationBounds &bounds) override;
 
     using BasePlatform::orient;
@@ -131,30 +131,30 @@ namespace gams { namespace platforms
     /**
      * Pauses movement, keeps source and dest at current values. Optional.
      **/
-    virtual void pause_move (void) override;
+    virtual void pause_move(void) override;
 
     /**
      * Set move speed. Optional.
      * @param speed new speed in meters/second
      **/
-    virtual void set_move_speed (const double& speed) override;
+    virtual void set_move_speed(const double& speed) override;
 
     /**
      * Stops movement, resetting source and dest to current location.
      * Optional.
      **/
-    virtual void stop_move (void) override;
+    virtual void stop_move(void) override;
 
     /**
      * Instructs the agent to take off. Optional.
      * @return the status of the takeoff, @see PlatformReturnValues
      **/
-    virtual int takeoff (void) override;
+    virtual int takeoff(void) override;
     
     /**
-     * Returns the world reference frame for the platform (e.g. GPS or cartesian)
+     * Returns the world reference frame for the platform(e.g. GPS or cartesian)
      **/
-    virtual const gams::pose::ReferenceFrame & get_frame (void) const override;
+    virtual const gams::pose::ReferenceFrame & get_frame(void) const override;
     
   private:
     /**
@@ -166,7 +166,7 @@ namespace gams { namespace platforms
      * Calculate velocity/thrust necessary to send in OSC
      * @param current  current location
      * @param target   target location
-     * @param type     0 (try to stop at target), 1 (keep on trucking)
+     * @param type     0(try to stop at target), 1(keep on trucking)
      * @return  thrust vector to get from current to target according to
      *          movement profile
      **/
@@ -252,7 +252,7 @@ namespace gams { namespace platforms
 
     /**
      * Constructor
-     * @param type   the type of robotics system to simulate (quadcopter,
+     * @param type   the type of robotics system to simulate(quadcopter,
      *               satellite)
      **/
     OscJoystickPlatformFactory(const std::string & type = "quadcopter");
@@ -276,7 +276,7 @@ namespace gams { namespace platforms
      * @param   type      self-referencing variables. This will be
      *                    set by the controller in init_vars
      **/
-    virtual BasePlatform * create (
+    virtual BasePlatform * create(
       const madara::knowledge::KnowledgeMap & args,
       madara::knowledge::KnowledgeBase * knowledge,
       variables::Sensors * sensors,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,8 +56,8 @@
 #include "madara/logger/GlobalLogger.h"
 
 // default transport settings
-std::string host ("");
-const std::string default_multicast ("239.255.0.1:4150");
+std::string host("");
+const std::string default_multicast("239.255.0.1:4150");
 madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
@@ -66,8 +66,8 @@ namespace controllers = gams::controllers;
 typedef madara::knowledge::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
-std::string platform ("debug");
-std::string algorithm ("debug");
+std::string platform("debug");
+std::string algorithm("debug");
 std::vector <std::string> accents;
 
 // controllers variables
@@ -77,11 +77,11 @@ double max_wait = 50.0;
 int gams_fails = 0;
 
 // handle command line arguments
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
 
     if (arg1 == "-a" || arg1 == "--algorithm")
     {
@@ -95,7 +95,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        accents.push_back (argv[i + 1]);
+        accents.push_back(argv[i + 1]);
       }
       ++i;
     }
@@ -103,7 +103,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::BROADCAST;
       }
       ++i;
@@ -112,7 +112,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::UDP;
       }
       ++i;
@@ -135,7 +135,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> period;
       }
 
@@ -145,7 +145,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        madara::logger::global_logger->add_file (argv[i + 1]);
+        madara::logger::global_logger->add_file(argv[i + 1]);
       }
 
       ++i;
@@ -154,7 +154,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> settings.id;
       }
 
@@ -164,10 +164,10 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         int level;
         buffer >> level;
-        gams::loggers::global_logger->set_level (level);
+        gams::loggers::global_logger->set_level(level);
       }
 
       ++i;
@@ -176,7 +176,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::MULTICAST;
       }
       ++i;
@@ -198,11 +198,11 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         int hops;
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> hops;
 
-        settings.set_rebroadcast_ttl (hops);
-        settings.enable_participant_ttl (hops);
+        settings.set_rebroadcast_ttl(hops);
+        settings.enable_participant_ttl(hops);
       }
 
       ++i;
@@ -211,7 +211,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> settings.queue_length;
       }
 
@@ -221,7 +221,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> settings.slack_time;
       }
 
@@ -231,7 +231,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> max_wait;
       }
 
@@ -239,64 +239,64 @@ void handle_arguments (int argc, char ** argv)
     }
     else
     {
-      madara::logger::global_logger->log (madara::logger::LOG_ALWAYS,
+      madara::logger::global_logger->log(madara::logger::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" \
 "  Attempts to send a file over the network with a certain number\n" \
-"  of rebroadcasts (-e|--rebroadcasts controls the number of rebroadcasts)\n\n" \
+"  of rebroadcasts(-e|--rebroadcasts controls the number of rebroadcasts)\n\n" \
 " [-a|--algorithm type]    algorithm to start with\n" \
 " [-aa|--accent type]      accent algorithm to start with\n" \
 " [-b|--broadcast ip:port] the broadcast ip to send and listen to\n" \
 " [-d|--domain domain]     the knowledge domain to send and listen to\n" \
 " [-e|--period period]     time, in seconds, between control loop executions\n" \
 " [-f|--logfile file]      log to a file\n" \
-" [-i|--id id]             the id of this agent (should be non-negative)\n" \
-" [-l|--level level]       the logger level (0+, higher is higher detail)\n" \
+" [-i|--id id]             the id of this agent(should be non-negative)\n" \
+" [-l|--level level]       the logger level(0+, higher is higher detail)\n" \
 " [-m|--multicast ip:port] the multicast ip to send and listen to\n" \
-" [-o|--host hostname]     the hostname of this process (def:localhost)\n" \
-" [-p|--platform type]     platform for loop (vrep, dronerk)\n" \
+" [-o|--host hostname]     the hostname of this process(def:localhost)\n" \
+" [-p|--platform type]     platform for loop(vrep, dronerk)\n" \
 " [-q|--queue-length length] length of transport queue in bytes\n" \
 " [-r|--reduced]           use the reduced message header\n" \
 " [-st|--slack-time time]  time in seconds to sleep between fragment sends\n" \
-"                          (.001 seconds by default)\n" \
+"                         (.001 seconds by default)\n" \
 " [-t|--target path]       file system location to save received files to\n" \
-" [-u|--udp ip:port]       a udp ip to send to (first is self to bind to)\n" \
-" [-w|--max-wait time]     maximum time to wait in seconds (double format)\n"\
+" [-u|--udp ip:port]       a udp ip to send to(first is self to bind to)\n" \
+" [-w|--max-wait time]     maximum time to wait in seconds(double format)\n"\
 "\n",
         argv[0]);
-      exit (0);
+      exit(0);
     }
   }
 }
 
 // perform main logic of program
-int main (int argc, char ** argv)
+int main(int argc, char ** argv)
 {
-  handle_arguments (argc, argv);
+  handle_arguments(argc, argv);
 
   // create knowledge base and a control loop
   engine::KnowledgeBase knowledge;
-  controllers::BaseController loop (knowledge);
+  controllers::BaseController loop(knowledge);
 
   // initialize variables and function stubs
-  loop.init_vars (1, 4);
+  loop.init_vars(1, 4);
   
   // initialize the platform and algorithm
-  loop.init_algorithm (algorithm);
-  loop.init_platform (platform);
+  loop.init_algorithm(algorithm);
+  loop.init_platform(platform);
 
   // run a mape loop every 1s for 50s
-  loop.run (period, max_wait);
+  loop.run(period, max_wait);
 
   // print all knowledge values
-  knowledge.print ();
+  knowledge.print();
 
-  if (knowledge.get (".executions").to_double () >= (1/period) * max_wait * 0.5)
+  if (knowledge.get(".executions").to_double() >=(1/period) * max_wait * 0.5)
   {
-    knowledge.print ("SUCCESS: {.executions} is enough to pass\n");
+    knowledge.print("SUCCESS: {.executions} is enough to pass\n");
   }
   else
   {
-    knowledge.print ("SUCCESS: {.executions} is not enough to pass\n");
+    knowledge.print("SUCCESS: {.executions} is not enough to pass\n");
     ++gams_fails;
   }
   

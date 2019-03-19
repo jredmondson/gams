@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -67,13 +67,13 @@ inline BasicPose<Derived>::BasicPose(double x, double y, double z,
 
 template<typename Derived>
 inline BasicPose<Derived>::BasicPose(const PositionVector &loc)
-  : PositionVector (loc), OrientationVector (0, 0, 0)
+  : PositionVector(loc), OrientationVector(0, 0, 0)
 {
 }
 
 template<typename Derived>
 inline BasicPose<Derived>::BasicPose(const OrientationVector &rot)
-  : PositionVector (0, 0, 0), OrientationVector (rot)
+  : PositionVector(0, 0, 0), OrientationVector(rot)
 {
 }
 
@@ -102,8 +102,8 @@ inline BasicPose<Derived>::BasicPose(
 template<typename Derived>
 inline BasicPose<Derived>::BasicPose(
     const madara::knowledge::containers::NativeDoubleVector &vec)
-    : PositionVector (vec[0], vec[1], vec[2]),
-    OrientationVector (vec[3], vec[4], vec[5])
+    : PositionVector(vec[0], vec[1], vec[2]),
+    OrientationVector(vec[3], vec[4], vec[5])
 {
 }
 
@@ -122,21 +122,21 @@ inline bool BasicPose<Derived>::is_set() const
 }
 
 template<typename Derived>
-inline bool BasicPose<Derived>::is_position_set () const
+inline bool BasicPose<Derived>::is_position_set() const
 {
-  return PositionVector::is_set ();
+  return PositionVector::is_set();
 }
 
 template<typename Derived>
-inline bool BasicPose<Derived>::is_location_set () const
+inline bool BasicPose<Derived>::is_location_set() const
 {
-  return is_position_set ();
+  return is_position_set();
 }
 
 template<typename Derived>
-inline bool BasicPose<Derived>::is_orientation_set () const
+inline bool BasicPose<Derived>::is_orientation_set() const
 {
-  return OrientationVector::is_set ();
+  return OrientationVector::is_set();
 }
 
 template<typename Derived>
@@ -148,7 +148,7 @@ inline bool BasicPose<Derived>::is_position_zero() const
 template<typename Derived>
 inline bool BasicPose<Derived>::is_location_zero() const
 {
-  return is_position_zero ();
+  return is_position_zero();
 }
 
 template<typename Derived>
@@ -226,13 +226,13 @@ inline const PositionVector &BasicPose<Derived>::as_position_vec() const
 template<typename Derived>
 inline PositionVector &BasicPose<Derived>::as_location_vec()
 {
-  return as_position_vec ();
+  return as_position_vec();
 }
 
 template<typename Derived>
 inline const PositionVector &BasicPose<Derived>::as_location_vec() const
 {
-  return as_position_vec ();
+  return as_position_vec();
 }
 
 template<typename Derived>
@@ -261,7 +261,7 @@ inline double Pose::angle_to(const Orientation &target) const
 }
 
 template<typename U>
-inline double Pose::angle_to (const Pose &target, U u) const
+inline double Pose::angle_to(const Pose &target, U u) const
 {
   Orientation me(*this);
   Orientation other(target);
@@ -269,7 +269,7 @@ inline double Pose::angle_to (const Pose &target, U u) const
 }
 
 template<typename U>
-inline double Pose::angle_to (const Orientation &target, U u) const
+inline double Pose::angle_to(const Orientation &target, U u) const
 {
   Orientation me(*this);
   return me.angle_to(target, u);
@@ -286,58 +286,64 @@ inline Pose::operator Orientation() const
 }
 
 template<typename Derived>
-inline std::string BasicPose<Derived>::to_string (
+inline std::string BasicPose<Derived>::to_string(
     const std::string & delimiter,
     const std::string & unset_identifier) const
 {
   std::stringstream buffer;
 
-  buffer << Position (*this).to_string (delimiter, unset_identifier);
+  buffer << Position(*this).to_string(delimiter, unset_identifier);
 
   buffer << delimiter;
 
   buffer << Orientation
-  (*this).to_string (delimiter, unset_identifier);
+ (*this).to_string(delimiter, unset_identifier);
 
-  return buffer.str ();
+  return buffer.str();
 }
 
 template<typename Derived>
-inline void BasicPose<Derived>::to_container (
+inline void BasicPose<Derived>::to_container(
   madara::knowledge::containers::NativeDoubleVector &container) const
 {
-  container.resize (6);
-  for (int i = 0; i < 6; ++i)
+  container.resize(6);
+  for(int i = 0; i < 6; ++i)
   {
-    container.set (i, get (i));
+    container.set(i, get(i));
   }
 }
 
 
 template<typename Derived>
-inline void BasicPose<Derived>::from_container (
+inline void BasicPose<Derived>::from_container(
   const madara::knowledge::containers::NativeDoubleVector &container)
 {
   for (size_t i = 0; i < 6; ++i)
   {
-    if (i < container.size ()) {
-      set ((int)i, container[i]);
-    } else {
-      set ((int)i, 0);
+    if (i < container.size())
+    {
+      set((int)i, container[i]);
+    }
+    else
+    {
+      set((int)i, 0);
     }
   }
 }
 
 template<typename Derived>
-inline void BasicPose<Derived>::from_container (
+inline void BasicPose<Derived>::from_container(
   const std::vector <double> &container)
 {
-  for (size_t i = 0; i < 6; ++i)
+  for(size_t i = 0; i < 6; ++i)
   {
-    if (i < container.size ()) {
-      set ((int)i, container[i]);
-    } else {
-      set ((int)i, 0);
+    if(i < container.size())
+    {
+      set((int)i, container[i]);
+    }
+    else
+    {
+      set((int)i, 0);
     }
   }
 }

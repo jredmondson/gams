@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,51 +47,51 @@
 #include "gams/loggers/GlobalLogger.h"
 
 gams::platforms::BasePlatform *
-gams::platforms::DebugPlatformFactory::create (
+gams::platforms::DebugPlatformFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
 {
-  BasePlatform * result (0);
+  BasePlatform * result(0);
   
   if (knowledge && sensors && platforms && self)
   {
-    result = new DebugPlatform (knowledge, sensors, platforms, self);
+    result = new DebugPlatform(knowledge, sensors, platforms, self);
   }
 
   return result;
 }
 
-gams::platforms::DebugPlatform::DebugPlatform (
+gams::platforms::DebugPlatform::DebugPlatform(
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self,
   const std::string & executions_location)
-  : BasePlatform (knowledge, sensors, self)
+  : BasePlatform(knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
-    (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
-    status_ = (*platforms)[get_id ()];
-    executions_.set_name (executions_location, *knowledge);
+   (*platforms)[get_id()].init_vars(*knowledge, get_id());
+    status_ =(*platforms)[get_id()];
+    executions_.set_name(executions_location, *knowledge);
   }
 }
 
-gams::platforms::DebugPlatform::~DebugPlatform ()
+gams::platforms::DebugPlatform::~DebugPlatform()
 {
 }
 
 void
-gams::platforms::DebugPlatform::operator= (const DebugPlatform & rhs)
+gams::platforms::DebugPlatform::operator=(const DebugPlatform & rhs)
 {
   if (this != &rhs)
   {
-    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *> (this);
+    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *>(this);
     const platforms::BasePlatform * source =
-      dynamic_cast <const platforms::BasePlatform *> (&rhs);
+      dynamic_cast <const platforms::BasePlatform *>(&rhs);
 
     *dest = *source;
 
@@ -101,23 +101,23 @@ gams::platforms::DebugPlatform::operator= (const DebugPlatform & rhs)
 }
  
 int
-gams::platforms::DebugPlatform::analyze (void)
+gams::platforms::DebugPlatform::analyze(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ": platform.analyze ()\n",
+    "%" PRId64 ":%" PRId64 ": platform.analyze()\n",
     *self_->id, *executions_);
 
   if (sensors_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
       *self_->id, *executions_);
@@ -125,14 +125,14 @@ gams::platforms::DebugPlatform::analyze (void)
 
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
       *self_->id, *executions_);
@@ -144,7 +144,7 @@ gams::platforms::DebugPlatform::analyze (void)
   status_.sensors_available = 1;
   status_.waiting = 1;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
     "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
@@ -173,47 +173,47 @@ gams::platforms::DebugPlatform::analyze (void)
 }
 
 std::string
-gams::platforms::DebugPlatform::get_id () const
+gams::platforms::DebugPlatform::get_id() const
 {
   return "debug_printer";
 }
 
 std::string
-gams::platforms::DebugPlatform::get_name () const
+gams::platforms::DebugPlatform::get_name() const
 {
   return "Debug Printer";
 }
 
 double
-gams::platforms::DebugPlatform::get_accuracy () const
+gams::platforms::DebugPlatform::get_accuracy() const
 {
   return 0.0;
 }
 
 double
-gams::platforms::DebugPlatform::get_move_speed () const
+gams::platforms::DebugPlatform::get_move_speed() const
 {
   return 0.0;
 }
 
 int
-gams::platforms::DebugPlatform::home (void)
+gams::platforms::DebugPlatform::home(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ": platform.home ()\n",
+    "%" PRId64 ":%" PRId64 ": platform.home()\n",
     *self_->id, *executions_);
   
   if (sensors_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
       *self_->id, *executions_);
@@ -221,14 +221,14 @@ gams::platforms::DebugPlatform::home (void)
 
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
       *self_->id, *executions_);
@@ -236,7 +236,7 @@ gams::platforms::DebugPlatform::home (void)
   status_.waiting = 0;
   status_.moving = 1;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
     "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
@@ -265,23 +265,23 @@ gams::platforms::DebugPlatform::home (void)
 }
 
 int
-gams::platforms::DebugPlatform::land (void)
+gams::platforms::DebugPlatform::land(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ": platform.land ()\n",
+    "%" PRId64 ":%" PRId64 ": platform.land()\n",
     *self_->id, *executions_);
 
   if (sensors_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
       *self_->id, *executions_);
@@ -289,14 +289,14 @@ gams::platforms::DebugPlatform::land (void)
 
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
       *self_->id, *executions_);
@@ -305,7 +305,7 @@ gams::platforms::DebugPlatform::land (void)
   status_.waiting = 0;
   status_.moving = 1;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
     "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
@@ -334,24 +334,24 @@ gams::platforms::DebugPlatform::land (void)
 }
 
 int
-gams::platforms::DebugPlatform::move (const pose::Position & position,
+gams::platforms::DebugPlatform::move(const pose::Position & position,
   const pose::PositionBounds & /*bounds*/)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ": platform.move (%s)\n",
-    *self_->id, *executions_, position.to_string (", ").c_str ());
+    "%" PRId64 ":%" PRId64 ": platform.move(%s)\n",
+    *self_->id, *executions_, position.to_string(", ").c_str());
 
   if (sensors_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
       *self_->id, *executions_);
@@ -359,14 +359,14 @@ gams::platforms::DebugPlatform::move (const pose::Position & position,
 
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
       *self_->id, *executions_);
@@ -375,7 +375,7 @@ gams::platforms::DebugPlatform::move (const pose::Position & position,
   status_.waiting = 0;
   status_.moving = 1;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
     "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
@@ -401,29 +401,29 @@ gams::platforms::DebugPlatform::move (const pose::Position & position,
     *self_->id, *executions_, *status_.gps_spoofed);
   
   position_ = position;
-  position.to_container (self_->agent.location);
+  position.to_container(self_->agent.location);
 
   return 0;
 }
 
 int
-gams::platforms::DebugPlatform::sense (void)
+gams::platforms::DebugPlatform::sense(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ": platform.sense ()\n",
+    "%" PRId64 ":%" PRId64 ": platform.sense()\n",
     *self_->id, *executions_);
 
   if (sensors_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
       *self_->id, *executions_);
@@ -431,20 +431,20 @@ gams::platforms::DebugPlatform::sense (void)
 
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
       *self_->id, *executions_);
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
     "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"
@@ -473,28 +473,28 @@ gams::platforms::DebugPlatform::sense (void)
 }
 
 void
-gams::platforms::DebugPlatform::set_move_speed (const double& /*speed*/)
+gams::platforms::DebugPlatform::set_move_speed(const double& /*speed*/)
 {
 }
 
 int
-gams::platforms::DebugPlatform::takeoff (void)
+gams::platforms::DebugPlatform::takeoff(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
-    "%" PRId64 ":%" PRId64 ": platform.takeoff ()\n",
+    "%" PRId64 ":%" PRId64 ": platform.takeoff()\n",
     *self_->id, *executions_);
 
   if (sensors_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.sensors_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.sensors_ is not set\n",
       *self_->id, *executions_);
@@ -502,14 +502,14 @@ gams::platforms::DebugPlatform::takeoff (void)
 
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   platform.self_ is set\n",
       *self_->id, *executions_);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ALWAYS,
       "%" PRId64 ":%" PRId64 ":   ERROR: platform.self_ is not set\n",
       *self_->id, *executions_);
@@ -518,7 +518,7 @@ gams::platforms::DebugPlatform::takeoff (void)
   status_.waiting = 0;
   status_.moving = 1;
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
     "%" PRId64 ":%" PRId64 ":     platform.status_.ok == %" PRId64 "\n"
     "%" PRId64 ":%" PRId64 ":     platform.status_.waiting == %" PRId64 "\n"

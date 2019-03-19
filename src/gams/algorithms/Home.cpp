@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@
 #include <iostream>
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::HomeFactory::create (
+gams::algorithms::HomeFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -64,33 +64,33 @@ gams::algorithms::HomeFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
   if (knowledge && sensors && platform && self)
   {
-    result = new Home (knowledge, platform, sensors, self);
+    result = new Home(knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::Home::Home (
+gams::algorithms::Home::Home(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self)
+  : BaseAlgorithm(knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "home", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "home", self->agent.prefix);
+  status_.init_variable_values();
 }
 
-gams::algorithms::Home::~Home ()
+gams::algorithms::Home::~Home()
 {
 }
 
 void
-gams::algorithms::Home::operator= (const Home & rhs)
+gams::algorithms::Home::operator=(const Home & rhs)
 {
   if (this != &rhs)
   {
@@ -103,24 +103,24 @@ gams::algorithms::Home::operator= (const Home & rhs)
 
 
 int
-gams::algorithms::Home::analyze (void)
+gams::algorithms::Home::analyze(void)
 {
   if (self_)
   {
-    pose::Position current (platform_->get_frame ());
-    current.from_container (self_->agent.location);
+    pose::Position current(platform_->get_frame());
+    current.from_container(self_->agent.location);
 
-    pose::Position destination (platform_->get_frame ());
-    destination.from_container (self_->agent.home);
+    pose::Position destination(platform_->get_frame());
+    destination.from_container(self_->agent.home);
 
-    double distance = current.distance_to (destination);
+    double distance = current.distance_to(destination);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Home::analyze:" \
       " distance from [%s] to home position [%s] is %.2f\n",
-      current.to_string ().c_str (),
-      destination.to_string ().c_str (), distance);
+      current.to_string().c_str(),
+      destination.to_string().c_str(), distance);
   }
 
   return OK;
@@ -128,31 +128,31 @@ gams::algorithms::Home::analyze (void)
       
 
 int
-gams::algorithms::Home::execute (void)
+gams::algorithms::Home::execute(void)
 {
   int result = 0;
 
   if (platform_)
   {
-    std::vector <double> home = self_->agent.home.to_record ().to_doubles ();
+    std::vector <double> home = self_->agent.home.to_record().to_doubles();
 
-    if (home.size () >= 2)
+    if (home.size() >= 2)
     {
-      pose::Position destination (platform_->get_frame ());
-      destination.from_container (self_->agent.home);
+      pose::Position destination(platform_->get_frame());
+      destination.from_container(self_->agent.home);
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::Home::execute:" \
         " Home location is %s. Moving to home.\n",
-        destination.to_string ().c_str ());
+        destination.to_string().c_str());
 
-      int move_result = platform_->move (
-        destination, platform_->get_accuracy ());
+      int move_result = platform_->move(
+        destination, platform_->get_accuracy());
 
       executions_++;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Home::execute:" \
         " platform->move returned %d.\n", move_result);
@@ -166,7 +166,7 @@ gams::algorithms::Home::execute (void)
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Home::execute:" \
       " platform is null. No movement possible.\n");
@@ -177,7 +177,7 @@ gams::algorithms::Home::execute (void)
 
 
 int
-gams::algorithms::Home::plan (void)
+gams::algorithms::Home::plan(void)
 {
   return 0;
 }

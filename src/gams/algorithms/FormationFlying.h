@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -78,14 +78,14 @@ namespace gams
        * @param  head_id        target of the formation
        * @param  offset         offset of formation
        * @param  destination    destination of the formation
-       * @param  group_name     group identifier (e.g. group.group1)
+       * @param  group_name     group identifier(e.g. group.group1)
        * @param  modifier       modifier that influences the formation
        * @param  knowledge      the context containing variables and values
        * @param  platform       the underlying platform the algorithm will use
        * @param  sensors        map of sensor names to sensor information
        * @param  self           self-referencing variables
        **/
-      FormationFlying (
+      FormationFlying(
         const std::string & head_id,
         const std::vector<double> & offset,
         const std::vector<double> & destination,
@@ -99,42 +99,42 @@ namespace gams
       /**
        * Destructor
        **/
-      ~FormationFlying ();
+      ~FormationFlying();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const FormationFlying & rhs);
+      void operator=(const FormationFlying & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
 
       /**
        * Return true if this agent is head
        */
-      bool is_head () const;
+      bool is_head() const;
 
       /**
        * Get ready value
        * @return true if agents are in formation, false otherwise
        */
-      bool is_ready () const;
+      bool is_ready() const;
       
     protected:
       /**
@@ -220,7 +220,7 @@ namespace gams
        *                    args[2] = the destination of the movement
        *                    args[3] = the number of members in the formation
        *                    args[4] = a modifier on the formation
-       *                              (NONE or ROTATE)
+       *                             (NONE or ROTATE)
        * @param   knowledge the knowledge base to use
        * @param   platform  the platform. This will be set by the
        *                    controller in init_vars.
@@ -232,7 +232,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

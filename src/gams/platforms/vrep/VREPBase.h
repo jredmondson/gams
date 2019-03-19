@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -106,7 +106,7 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       agent variables that describe self state
        **/
-      VREPBase (
+      VREPBase(
         std::string model_file,
         simxUChar is_client_side,
         madara::knowledge::KnowledgeBase * knowledge,
@@ -116,42 +116,42 @@ namespace gams
       /**
        * Destructor
        **/
-      virtual ~VREPBase ();
+      virtual ~VREPBase();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const VREPBase & rhs);
+      void operator=(const VREPBase & rhs);
 
       /**
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void) override;
+      virtual int sense(void) override;
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void) override;
+      virtual int analyze(void) override;
 
       /**
        * Get the position accuracy in meters
        * @return position accuracy
        **/
-      virtual double get_accuracy () const override;
+      virtual double get_accuracy() const override;
 
       /**
        * Get move speed
        **/
-      virtual double get_move_speed () const override;
+      virtual double get_move_speed() const override;
 
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void) override;
+      virtual int land(void) override;
 
       /**
        * Moves the platform to a location
@@ -159,7 +159,7 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      int move (const pose::Position & location,
+      int move(const pose::Position & location,
         const PositionBounds &bounds) override;
 
       using BasePlatform::move;
@@ -170,7 +170,7 @@ namespace gams
        * @param   epsilon   approximation value, in radians
        * @return the status of the orient operation, @see PlatformReturnValues
        **/
-      int orient (const pose::Orientation & location,
+      int orient(const pose::Orientation & location,
         const OrientationBounds &bounds) override;
 
       using BasePlatform::orient;
@@ -179,44 +179,44 @@ namespace gams
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed) override;
+      virtual void set_move_speed(const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void) override;
+      virtual int takeoff(void) override;
 
       /**
       * Method for returning the platform's current frame
       * @return frame that the platform's coordinate system is operating in
       **/
-      virtual const pose::ReferenceFrame & get_frame (void) const override;
+      virtual const pose::ReferenceFrame & get_frame(void) const override;
 
-      const pose::ReferenceFrame & get_vrep_frame (void) const;
+      const pose::ReferenceFrame & get_vrep_frame(void) const;
 
     protected:
       /**
        * Add model to environment
        */
-      virtual void add_model_to_environment (const std::string& file, 
+      virtual void add_model_to_environment(const std::string& file, 
         const simxUChar client_side) = 0;
 
       /**
       * Prep VREP for agent introduction
       * @return  if vrep and agent are ready, then true
       **/
-      bool get_ready (void);
+      bool get_ready(void);
 
       /**
        * Get node target handle
        */
-      virtual void get_target_handle () = 0;
+      virtual void get_target_handle() = 0;
 
       /**
        * Set initial position for agent
        */
-      virtual void set_initial_position ();
+      virtual void set_initial_position();
 
       /**
        * Get what altitude agent should start at. Land agents might
@@ -227,17 +227,17 @@ namespace gams
       /**
        * wait for go signal from controller
        */
-      bool sim_is_running (void);
+      bool sim_is_running(void);
 
       /**
       * wait for signal from controller that vrep is initialized
       */
-      bool vrep_is_ready (void);
+      bool vrep_is_ready(void);
 
       /**
       * signal for whether or not the agent has created self image in sim
       */
-      bool agent_is_ready (void);
+      bool agent_is_ready(void);
 
       /// flag for drone being airborne
       bool airborne_;
@@ -254,7 +254,7 @@ namespace gams
       /// object id for quadrotor target
       simxInt node_target_;
 
-      /// gps coordinates corresponding to (0, 0) in vrep
+      /// gps coordinates corresponding to(0, 0) in vrep
       pose::Pose sw_pose_;
 
       /**
@@ -283,12 +283,12 @@ namespace gams
            * Constructor
            * @param base   the VREPBase object this thread belongs to
            **/
-          TargetMover (VREPBase &base);
+          TargetMover(VREPBase &base);
 
           /**
            * main thread function
            */
-          void run ();
+          void run();
 
           static const std::string NAME;
         private:
@@ -310,7 +310,7 @@ namespace gams
       /**
        * Create the conditions for checking is_ready
        **/
-      void create_ready_conditions (void);
+      void create_ready_conditions(void);
 
       /// tracks if the agent itself is ready
       bool agent_is_ready_;
@@ -342,10 +342,10 @@ namespace gams
 
       pose::Pose get_sw_pose(const pose::ReferenceFrame &frame);
 
-      int do_move (const pose::Position & target,
+      int do_move(const pose::Position & target,
                    const pose::Position & current, double max_delta);
 
-      int do_orient (pose::Orientation target,
+      int do_orient(pose::Orientation target,
                      const pose::Orientation & current, double max_delta);
     }; // class VREPBase
   } // namespace platform

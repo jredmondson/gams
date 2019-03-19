@@ -29,7 +29,7 @@ gams::platforms::OscPlatformFactory::create(
         gams::variables::Platforms * ,
         gams::variables::Self * self)
 {
-  BasePlatform * result (0);
+  BasePlatform * result(0);
 
   if (type_ != "quadcopter" &&
       type_ != "satellite")
@@ -39,7 +39,7 @@ gams::platforms::OscPlatformFactory::create(
   
   if (knowledge && sensors && self)
   {
-    result = new OscPlatform (knowledge, sensors, self,
+    result = new OscPlatform(knowledge, sensors, self,
       type_);
   }
 
@@ -71,9 +71,10 @@ gams::platforms::OscPlatform::OscPlatform(
       // establish sensor
       gams::variables::Sensor* coverage_sensor =
         new gams::variables::Sensor("coverage", knowledge, 2.5, origin);
-     (*sensors)["coverage"] = coverage_sensor;
+      (*sensors)["coverage"] = coverage_sensor;
     }
-   (*sensors_)["coverage"] =(*sensors)["coverage"];
+
+    (*sensors_)["coverage"] = (*sensors)["coverage"];
     status_.init_vars(*knowledge, get_id());
     
     build_prefixes();
@@ -127,7 +128,7 @@ gams::platforms::OscPlatform::OscPlatform(
     {
       std::stringstream buffer;
       buffer << "127.0.0.1:";
-      buffer << (*(self_->id) + 8000);
+      buffer <<(*(self_->id) + 8000);
       settings_.hosts[0] = buffer.str();
     }
 
@@ -144,7 +145,7 @@ gams::platforms::OscPlatform::OscPlatform(
       self_->agent.prefix.c_str(),
       settings_.hosts[0].c_str(),
       settings_.hosts[1].c_str(),
-      (int)settings_.type);
+     (int)settings_.type);
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
@@ -161,21 +162,21 @@ gams::platforms::OscPlatform::OscPlatform(
     json_buffer << "{\"id\":";
     json_buffer << *(self_->id);
     json_buffer << ",\"port\":";
-    json_buffer << (*(self_->id) + 8000);
+    json_buffer <<(*(self_->id) + 8000);
     json_buffer << ",\"location\":{";
     json_buffer << "\"x\": " <<
-      initial_pose.retrieve_index (0).to_double() << ",";
+      initial_pose.retrieve_index(0).to_double() << ",";
     json_buffer << "\"y\": " <<
-      initial_pose.retrieve_index (1).to_double() << ",";
+      initial_pose.retrieve_index(1).to_double() << ",";
     json_buffer << "\"z\": " <<
-      initial_pose.retrieve_index (2).to_double();
+      initial_pose.retrieve_index(2).to_double();
     json_buffer << "},\"rotation\":{\n";
     json_buffer << "\"x\":" <<
-      initial_pose.retrieve_index (3).to_double() << ",";
+      initial_pose.retrieve_index(3).to_double() << ",";
     json_buffer << "\"y\":" <<
-      initial_pose.retrieve_index (4).to_double() << ",";
+      initial_pose.retrieve_index(4).to_double() << ",";
     json_buffer << "\"z\":" <<
-      initial_pose.retrieve_index (5).to_double();
+      initial_pose.retrieve_index(5).to_double();
     json_buffer << "}}";
     
 
@@ -262,7 +263,7 @@ gams::platforms::OscPlatform::calculate_thrust(
   bool & finished)
 {
   finished = true;
-  std::vector<double> difference (std::min(current.size(), target.size()));
+  std::vector<double> difference(std::min(current.size(), target.size()));
   
   last_thrust_timer_.start();
 
@@ -306,7 +307,7 @@ gams::platforms::OscPlatform::calculate_thrust(
     }
   }
   
-  madara::knowledge::KnowledgeRecord record (difference);
+  madara::knowledge::KnowledgeRecord record(difference);
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
@@ -359,7 +360,7 @@ gams::platforms::OscPlatform::sense(void)
         "gams::platforms::OscPlatform::sense: " \
         "%s: Processing %s => platform location with %d values\n",
         self_->agent.prefix.c_str(),
-        value.first.c_str(), (int)value.second.size());
+        value.first.c_str(),(int)value.second.size());
 
       
       // convert osc order to the frame order
@@ -372,7 +373,7 @@ gams::platforms::OscPlatform::sense(void)
       loc.z(loc.z()/100);
 
       // save the location to the self container
-      loc.to_container (self_->agent.location);
+      loc.to_container(self_->agent.location);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
@@ -391,7 +392,7 @@ gams::platforms::OscPlatform::sense(void)
         "gams::platforms::OscPlatform::sense: " \
         " %s: Processing %s => platform orientation with %d values\n",
         self_->agent.prefix.c_str(),
-        value.first.c_str(), (int)value.second.size());
+        value.first.c_str(),(int)value.second.size());
 
       
       // convert osc order to the frame order
@@ -399,7 +400,7 @@ gams::platforms::OscPlatform::sense(void)
       angles.from_array(value.second.to_doubles());
 
       // save the location to the self container
-      angles.to_container (self_->agent.orientation);
+      angles.to_container(self_->agent.orientation);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
@@ -439,7 +440,7 @@ gams::platforms::OscPlatform::sense(void)
       self_->agent.prefix.c_str());
   }
 
-  // check for loiter timeout (have we thrusted recently?)
+  // check for loiter timeout(have we thrusted recently?)
   last_thrust_timer_.stop();
   if (loiter_timeout_ > 0 &&
       last_thrust_timer_.duration_ds() > loiter_timeout_)
@@ -467,7 +468,7 @@ gams::platforms::OscPlatform::sense(void)
     last_thrust_timer_.start();
   }
 
-  // check for last position timeout (need to recreate agent in sim)
+  // check for last position timeout(need to recreate agent in sim)
   last_position_timer_.stop();
 
   //if we've never received a server packet for this agent, recreate
@@ -601,7 +602,7 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
     new_target.x(), new_target.y(), new_target.z());
 
   // are we moving to a new location? If so, start an acceleration timer
-  if (!last_move_.approximately_equal (new_target, 5.0))
+  if (!last_move_.approximately_equal(new_target, 5.0))
   {
     move_timer_.start();
     last_move_ = new_target;
@@ -622,7 +623,7 @@ gams::platforms::OscPlatform::move(const pose::Position & target,
   // if we have just started our movement, modify velocity to account
   // for acceleration. This will help animation be smooth in Unreal.
   move_timer_.stop();
-  double move_time = move_timer_.duration_ds ();
+  double move_time = move_timer_.duration_ds();
   if (move_time < 1.0)
   {
     // have acceleration ramp up over a second at .1 per 1/20 second

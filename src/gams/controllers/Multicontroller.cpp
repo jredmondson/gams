@@ -85,7 +85,7 @@ gams::controllers::Multicontroller::~Multicontroller()
     "gams::controllers::Multicontroller::destructor:" \
     " deleting controllers.\n");
 
-  for(size_t i = 0; i < controllers_.size(); ++i)
+  for (size_t i = 0; i < controllers_.size(); ++i)
   {
     delete controllers_[i];
   }
@@ -145,7 +145,7 @@ gams::controllers::Multicontroller::add_transports (
   }
 
   // need to update this for unicast host:port splitting
-  for(size_t i = 0; i < kbs_.size(); ++i)
+  for (size_t i = 0; i < kbs_.size(); ++i)
   {
     kbs_[i].attach_transport(kbs_[i].get(".prefix").to_string(), settings);
   }
@@ -571,7 +571,7 @@ gams::controllers::Multicontroller::run_once(void)
   // return value
   int return_value = 0;
 
-  for(size_t i = 0; i < controllers_.size(); ++i)
+  for (size_t i = 0; i < controllers_.size(); ++i)
   {
     return_value |= controllers_[i]->run_once();
   }

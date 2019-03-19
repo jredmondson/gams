@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,52 +73,52 @@ namespace gams
        * Constructor
        * @param  knowledge    the context containing variables and values
        **/
-      CounterAlgorithm (
+      CounterAlgorithm(
         madara::knowledge::KnowledgeBase & knowledge);
 
       /**
        * Destructor
        **/
-      ~CounterAlgorithm ();
+      ~CounterAlgorithm();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const CounterAlgorithm & rhs);
+      void operator=(const CounterAlgorithm & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
       /**
        * Resets all counters
        **/
-      void reset_counters (void);
+      void reset_counters(void);
       
       /**
        * Enables all MADARA variable counters
        **/
-      void enable_counters (void);
+      void enable_counters(void);
       
       /**
        * Disables all MADARA variable counters
        **/
-      void disable_counters (void);
+      void disable_counters(void);
 
       /// enables the MADARA analyze counter
       bool enable_analyze_counter;

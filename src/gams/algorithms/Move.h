@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014-2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,15 +81,15 @@ namespace gams
       /**
        * Constructor
        * @param  locations    a list of targets to move to
-       * @param  repeat       number of times to repeat (-1 for indefinite)
-       * @param  wait_time    global wait (in s) after arriving at waypoints
+       * @param  repeat       number of times to repeat(-1 for indefinite)
+       * @param  wait_time    global wait(in s) after arriving at waypoints
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        * @param  agents      variables referencing agents
        **/
-      Move (
+      Move(
         const std::vector <pose::Pose> & locations,
         int repeat,
         double wait_time,
@@ -102,31 +102,31 @@ namespace gams
       /**
        * Destructor
        **/
-      ~Move ();
+      ~Move();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Move & rhs);
+      void operator=(const Move & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
     protected:
 
@@ -181,7 +181,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

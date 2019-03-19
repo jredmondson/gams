@@ -30,17 +30,17 @@ double round_nearest(double in)
 }
 
 #define LOG(expr) \
-  std::cout << #expr << " == " << (expr) << std::endl
+  std::cout << #expr << " == " <<(expr) << std::endl
 
 #define TEST(expr, expect) \
   do {\
-    double bv = (expr); \
+    double bv =(expr); \
     double v = round_nearest((bv) * 1024)/1024; \
     double e = round_nearest((expect) * 1024)/1024; \
     bool ok = \
-      e >= 0 ? (v >= e * (1 - TEST_epsilon) && v <= e * (1 + TEST_epsilon)) \
-             : (v >= e * (1 + TEST_epsilon) && v <= e * (1 - TEST_epsilon)); \
-    if(ok) \
+      e >= 0 ?(v >= e *(1 - TEST_epsilon) && v <= e *(1 + TEST_epsilon)) \
+             :(v >= e *(1 + TEST_epsilon) && v <= e *(1 - TEST_epsilon)); \
+    if (ok) \
     { \
       std::cout << #expr << " ?= " << e << "  SUCCESS! got " << bv << std::endl; \
     } \
@@ -70,10 +70,10 @@ double round_nearest(double in)
 
 // END DO NOT DELETE THIS SECTION
 
-const std::string default_broadcast ("192.168.1.255:15000");
+const std::string default_broadcast("192.168.1.255:15000");
 // default transport settings
-std::string host ("");
-const std::string default_multicast ("239.255.0.1:4150");
+std::string host("");
+const std::string default_multicast("239.255.0.1:4150");
 madara::transport::QoSTransportSettings settings;
 
 // create shortcuts to MADARA classes and namespaces
@@ -81,21 +81,21 @@ namespace controllers = gams::controllers;
 typedef madara::knowledge::KnowledgeRecord   Record;
 typedef Record::Integer Integer;
 
-const std::string KNOWLEDGE_BASE_PLATFORM_KEY (".platform");
+const std::string KNOWLEDGE_BASE_PLATFORM_KEY(".platform");
 bool plat_set = false;
-std::string platform ("debug");
-std::string algorithm ("debug");
+std::string platform("debug");
+std::string algorithm("debug");
 std::vector <std::string> accents;
 
 // madara commands from a file
 std::string madara_commands = "";
 
 // for setting debug levels through command line
-int madara_debug_level (-1);
-int gams_debug_level (-1);
+int madara_debug_level(-1);
+int gams_debug_level(-1);
 
 // number of agents in the swarm
-Integer num_agents (-1);
+Integer num_agents(-1);
 
 // file path to save received files to
 std::string file_path;
@@ -109,9 +109,9 @@ std::string load_transport_prefix;
 // controller settings for controller configuration
 gams::controllers::ControllerSettings controller_settings;
 
-void print_usage (char * prog_name)
+void print_usage(char * prog_name)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_ALWAYS,
 "\nProgram summary for %s:\n\n" 
 "     Loop controller setup for gams\n" 
@@ -124,20 +124,20 @@ void print_usage (char * prog_name)
 " [-d |--domain domain]         the knowledge domain to send and listen to\n" 
 " [-e |--rebroadcasts num]      number of hops for rebroadcasting messages\n" 
 " [-f |--logfile file]          log to a file\n" 
-" [-i |--id id]                 the id of this agent (should be non-negative)\n" 
+" [-i |--id id]                 the id of this agent(should be non-negative)\n" 
 " [-lt|--load-transport file] a file to load transport settings from\n" 
 " [-ltp|--load-transport-prefix prfx] prefix of saved settings\n" 
 " [-ltt|--load-transport-text file] a text file to load transport settings from\n" 
-" [--madara-level level]        the MADARA logger level (0+, higher is higher detail)\n" 
-" [--gams-level level]          the GAMS logger level (0+, higher is higher detail)\n" 
+" [--madara-level level]        the MADARA logger level(0+, higher is higher detail)\n" 
+" [--gams-level level]          the GAMS logger level(0+, higher is higher detail)\n" 
 " [--loop-hertz hz]             hertz to run the MAPE loop\n"
 " [-L |--loop-time time]        time to execute loop\n"
 " [-m |--multicast ip:port]     the multicast ip to send and listen to\n" 
 " [-M |--madara-file <file>]    file containing madara commands to execute\n" 
 "                               multiple space-delimited files can be used\n" 
 " [-n |--num_agents <number>]   the number of agents in the swarm\n" 
-" [-o |--host hostname]         the hostname of this process (def:localhost)\n" 
-" [-p |--platform type]         platform for loop (vrep, dronerk)\n" 
+" [-o |--host hostname]         the hostname of this process(def:localhost)\n" 
+" [-p |--platform type]         platform for loop(vrep, dronerk)\n" 
 " [-P |--period period]         time, in seconds, between control loop executions\n" 
 " [-q |--queue-length length]   length of transport queue in bytes\n" 
 " [-r |--reduced]               use the reduced message header\n" 
@@ -145,36 +145,36 @@ void print_usage (char * prog_name)
 " [-st|--save-transport file] a file to save transport settings to\n" 
 " [-stp|--save-transport-prefix prfx] prefix to save settings at\n" 
 " [-stt|--save-transport-text file] a text file to save transport settings to\n" 
-" [-t |--target path]           file system location to save received files (NYI)\n" 
-" [-u |--udp ip:port]           a udp ip to send to (first is self to bind to)\n" 
+" [-t |--target path]           file system location to save received files(NYI)\n" 
+" [-u |--udp ip:port]           a udp ip to send to(first is self to bind to)\n" 
 " [--zmq proto:ip:port]         specifies a 0MQ transport endpoint\n"
 "\n",
         prog_name);
-  exit (0);
+  exit(0);
 }
 
 // handle command line arguments
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
 
     if (arg1 == "-A" || arg1 == "--algorithm")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
         algorithm = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
     else if (arg1 == "-a" || arg1 == "--accent")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
-        accents.push_back (argv[i + 1]);
+        accents.push_back(argv[i + 1]);
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -182,11 +182,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::BROADCAST;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -197,7 +197,7 @@ void handle_arguments (int argc, char ** argv)
         controller_settings.checkpoint_prefix = argv[i + 1];
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -216,7 +216,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         settings.write_domain = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -225,14 +225,14 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
         int hops;
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> hops;
 
-        settings.set_rebroadcast_ttl (hops);
-        settings.enable_participant_ttl (hops);
+        settings.set_rebroadcast_ttl(hops);
+        settings.enable_participant_ttl(hops);
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -240,11 +240,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        madara::logger::global_logger->add_file (argv[i + 1]);
-        gams::loggers::global_logger->add_file (argv[i + 1]);
+        madara::logger::global_logger->add_file(argv[i + 1]);
+        gams::loggers::global_logger->add_file(argv[i + 1]);
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -253,11 +253,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i +1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> settings.id;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -266,9 +266,9 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         if (load_transport_prefix == "")
-          settings.load (argv[i + 1]);
+          settings.load(argv[i + 1]);
         else
-          settings.load (argv[i + 1], load_transport_prefix);
+          settings.load(argv[i + 1], load_transport_prefix);
       }
 
       ++i;
@@ -287,9 +287,9 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc)
       {
         if (load_transport_prefix == "")
-          settings.load_text (argv[i + 1]);
+          settings.load_text(argv[i + 1]);
         else
-          settings.load_text (argv[i + 1], load_transport_prefix);
+          settings.load_text(argv[i + 1], load_transport_prefix);
       }
 
       ++i;
@@ -298,11 +298,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> madara_debug_level;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -310,11 +310,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> gams_debug_level;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -322,11 +322,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> controller_settings.run_time;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -334,11 +334,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> controller_settings.loop_hertz;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -346,11 +346,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::MULTICAST;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -361,9 +361,9 @@ void handle_arguments (int argc, char ** argv)
       for (;i < argc && argv[i][0] != '-'; ++i)
       {
         std::string filename = argv[i];
-        if (madara::utility::file_exists (filename))
+        if (madara::utility::file_exists(filename))
         {
-          madara_commands += madara::utility::file_to_string (filename);
+          madara_commands += madara::utility::file_to_string(filename);
           madara_commands += ";\n";
           files = true;
         }
@@ -371,17 +371,17 @@ void handle_arguments (int argc, char ** argv)
       --i;
 
       if (!files)
-        print_usage (argv[0]);
+        print_usage(argv[0]);
     }
     else if (arg1 == "-n" || arg1 == "--num_agents")
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> num_agents;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -390,7 +390,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         host = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -402,7 +402,7 @@ void handle_arguments (int argc, char ** argv)
         plat_set = true;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -410,13 +410,13 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> controller_settings.loop_hertz;
 
         controller_settings.loop_hertz = 1 / controller_settings.loop_hertz;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -424,11 +424,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> settings.queue_length;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -441,7 +441,7 @@ void handle_arguments (int argc, char ** argv)
       if (i + 1 < argc && argv[i + 1][0] != '-')
         file_path = argv[i + 1];
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -476,11 +476,11 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::UDP;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
@@ -488,17 +488,17 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc && argv[i + 1][0] != '-')
       {
-        settings.hosts.push_back (argv[i + 1]);
+        settings.hosts.push_back(argv[i + 1]);
         settings.type = madara::transport::ZMQ;
       }
       else
-        print_usage (argv[0]);
+        print_usage(argv[0]);
 
       ++i;
     }
     else
     {
-      print_usage (argv[0]);
+      print_usage(argv[0]);
     }
   }
 }
@@ -540,7 +540,7 @@ void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
     ros::spinOnce();
     ros::Duration(0.5).sleep();
 
-    containers::NativeDoubleVector cont ("sensors.odom.pose", *knowledge);
+    containers::NativeDoubleVector cont("sensors.odom.pose", *knowledge);
     gams::pose::Pose p;
     p.from_container(cont);
 
@@ -560,9 +560,9 @@ void test_odometry(madara::knowledge::KnowledgeBase * knowledge,
 
   // FROM MADARA TO ROS
   knowledge::KnowledgeUpdateSettings settings(false);
-  containers::NativeDoubleVector cont ("sensors.odom.pose", *knowledge, -1,
+  containers::NativeDoubleVector cont("sensors.odom.pose", *knowledge, -1,
     settings);
-  cont.set (0, 123.0);
+  cont.set(0, 123.0);
   
   // trigger update and wait
   knowledge->set("foo", 1);
@@ -703,12 +703,12 @@ void test_imu(madara::knowledge::KnowledgeBase * knowledge,
     ros::spinOnce();
     ros::Duration(0.5).sleep();
 
-    containers::NativeDoubleVector ang_vel ("sensors.imu.angular_velocity",
+    containers::NativeDoubleVector ang_vel("sensors.imu.angular_velocity",
       *knowledge, -1);
     TEST(ang_vel[0], imu.angular_velocity.x);
     TEST(ang_vel[1], imu.angular_velocity.y);
     TEST(ang_vel[2], imu.angular_velocity.z);
-    containers::NativeDoubleVector lin_acc ("sensors.imu.linear_acceleration",
+    containers::NativeDoubleVector lin_acc("sensors.imu.linear_acceleration",
       *knowledge, -1);
     TEST(lin_acc[0], imu.linear_acceleration.x);
     TEST(lin_acc[1], imu.linear_acceleration.y);
@@ -727,7 +727,7 @@ void test_imu(madara::knowledge::KnowledgeBase * knowledge,
   }
 
   // MADARA TO ROS
-  containers::NativeDoubleVector ang_vel ("sensors.imu.angular_velocity",
+  containers::NativeDoubleVector ang_vel("sensors.imu.angular_velocity",
     *knowledge, -1);
   ang_vel.set(0, 17.0);
 
@@ -747,42 +747,42 @@ void test_imu(madara::knowledge::KnowledgeBase * knowledge,
 
 
 // perform main logic of program
-int main (int argc, char ** argv)
+int main(int argc, char ** argv)
 {
   settings.type = madara::transport::MULTICAST;
  
   // handle all user arguments
-  handle_arguments (argc, argv);
+  handle_arguments(argc, argv);
 
-  if (settings.hosts.size () == 0)
+  if (settings.hosts.size() == 0)
   {
     // setup default transport as multicast
-    settings.hosts.resize (1);
+    settings.hosts.resize(1);
     settings.hosts[0] = default_multicast;
   }
   
   // set this once to allow for debugging knowledge base creation
   if (madara_debug_level >= 0)
   {
-    madara::logger::global_logger->set_level (madara_debug_level);
+    madara::logger::global_logger->set_level(madara_debug_level);
   }
 
   // save transport always happens after all possible transport chagnes
   if (save_transport != "")
   {
     if (save_transport_prefix == "")
-      settings.save (save_transport);
+      settings.save(save_transport);
     else
-      settings.save (save_transport, save_transport_prefix);
+      settings.save(save_transport, save_transport_prefix);
   }
 
   // save transport always happens after all possible transport chagnes
   if (save_transport_text != "")
   {
     if (save_transport_prefix == "")
-      settings.save_text (save_transport_text);
+      settings.save_text(save_transport_text);
     else
-      settings.save_text (save_transport_text, save_transport_prefix);
+      settings.save_text(save_transport_text, save_transport_prefix);
   }
 
   // create knowledge base and a control loop
@@ -795,7 +795,7 @@ int main (int argc, char ** argv)
   // end on send filters
   
   // if you only want to use custom transports, delete following
-  knowledge.attach_transport (host, settings);
+  knowledge.attach_transport(host, settings);
   
   // begin transport creation 
   // add RosBridge factory
@@ -809,23 +809,23 @@ int main (int argc, char ** argv)
                                                  {"imu", "sensor_msgs/Imu"}};
 
   settings.read_threads = 1;
-  gams::transports::RosBridge * ros_bridge = new gams::transports::RosBridge (
-    knowledge.get_id (), settings, knowledge, selected_topics,
+  gams::transports::RosBridge * ros_bridge = new gams::transports::RosBridge(
+    knowledge.get_id(), settings, knowledge, selected_topics,
     topic_map, pub_types);
-  knowledge.attach_transport (ros_bridge);
+  knowledge.attach_transport(ros_bridge);
   // end transport creation
   
   // set this once to allow for debugging controller creation
   if (gams_debug_level >= 0)
   {
-    gams::loggers::global_logger->set_level (gams_debug_level);
+    gams::loggers::global_logger->set_level(gams_debug_level);
   }
 
-  controllers::BaseController controller (knowledge, controller_settings);
-  madara::threads::Threader threader (knowledge);
+  controllers::BaseController controller(knowledge, controller_settings);
+  madara::threads::Threader threader(knowledge);
 
   // initialize variables and function stubs
-  controller.init_vars (settings.id, num_agents);
+  controller.init_vars(settings.id, num_agents);
   
   std::vector <std::string> aliases;
   
@@ -838,7 +838,7 @@ int main (int argc, char ** argv)
   // read madara initialization
   if (madara_commands != "")
   {
-    knowledge.evaluate (madara_commands,
+    knowledge.evaluate(madara_commands,
       madara::knowledge::EvalSettings(false, true));
   }
   
@@ -849,11 +849,11 @@ int main (int argc, char ** argv)
     temp_buffer << "agent." << settings.id << ".madara_debug_level = ";
     temp_buffer << madara_debug_level;
 
-    madara::logger::global_logger->set_level (madara_debug_level);
+    madara::logger::global_logger->set_level(madara_debug_level);
 
     // modify the debug level being used but don't send out to others
-    knowledge.evaluate (temp_buffer.str (),
-      madara::knowledge::EvalSettings (true, true));
+    knowledge.evaluate(temp_buffer.str(),
+      madara::knowledge::EvalSettings(true, true));
   }
 
   if (gams_debug_level >= 0)
@@ -862,24 +862,24 @@ int main (int argc, char ** argv)
     temp_buffer << "agent." << settings.id << ".gams_debug_level = ";
     temp_buffer << gams_debug_level;
 
-    gams::loggers::global_logger->set_level (gams_debug_level);
+    gams::loggers::global_logger->set_level(gams_debug_level);
 
     // modify the debug level being used but don't send out to others
-    knowledge.evaluate (temp_buffer.str (),
-      madara::knowledge::EvalSettings (true, true));
+    knowledge.evaluate(temp_buffer.str(),
+      madara::knowledge::EvalSettings(true, true));
   }
 
   // initialize the platform and algorithm
   // default to platform in knowledge base if platform not set in command line
-  if (!plat_set && knowledge.exists (KNOWLEDGE_BASE_PLATFORM_KEY))
-    platform = knowledge.get (KNOWLEDGE_BASE_PLATFORM_KEY).to_string ();
-  controller.init_platform (platform);
-  controller.init_algorithm (algorithm);
+  if (!plat_set && knowledge.exists(KNOWLEDGE_BASE_PLATFORM_KEY))
+    platform = knowledge.get(KNOWLEDGE_BASE_PLATFORM_KEY).to_string();
+  controller.init_platform(platform);
+  controller.init_algorithm(algorithm);
 
   // add any accents
-  for (unsigned int i = 0; i < accents.size (); ++i)
+  for (unsigned int i = 0; i < accents.size(); ++i)
   {
-    controller.init_accent (accents[i]);
+    controller.init_accent(accents[i]);
   }
 
   /**
@@ -898,7 +898,7 @@ int main (int argc, char ** argv)
    **/
   
   // run a mape loop for algorithm and platform control
-  //controller.run ();
+  //controller.run();
 
   // wait until the bridge is set up correctly
   usleep(1000);
@@ -911,13 +911,13 @@ int main (int argc, char ** argv)
   ros::Duration(5).sleep();
 
   // terminate all threads after the controller
-  threader.terminate ();
+  threader.terminate();
   
   // wait for all threads
-  threader.wait ();
+  threader.wait();
   
   // print all knowledge values
-  knowledge.print ();
+  knowledge.print();
 
   return 0;
 }

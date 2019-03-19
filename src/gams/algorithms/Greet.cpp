@@ -56,6 +56,7 @@ gams::algorithms::GreetFactory::create(
   std::string target_group = "group.targets";
   double guard_distance = 20.0;
   std::vector <double> guard_location;
+  double guard_max_follow_distance = -1;
   std::vector <double> home_location;
   bool follow = false;
   std::string follow_group = "group.{.target}.follow";
@@ -64,139 +65,154 @@ gams::algorithms::GreetFactory::create(
 
   if (knowledge && platform && self)
   {
-  for(KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
-  {
-    if (i->first.size() <= 0)
-      continue;
-
-    switch(i->first[0])
+    for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-    case 'f':
-      if (i->first == "follow.group")
-      {
-        follow_group = i->second.to_string();
+      if (i->first.size() <= 0)
+        continue;
 
+      switch (i->first[0])
+      {
+      case 'f':
+        if (i->first == "follow.group")
+        {
+          follow_group = i->second.to_string();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " members for follow found in group %s\n", target_group.c_str());
+          follow = true;
+
+          break;
+        }
+        else if (i->first == "follow")
+        {
+          follow = i->second.is_true();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " setting follow to %s\n", follow ? "true" : "false");
+
+          break;
+        }
+        else if (i->first == "follow.max_agents" ||
+                i->first == "follow.max.agents" ||
+                i->first == "follow.agents.max")
+        {
+          follow_max_agents = (int)i->second.to_integer();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " setting follow max agents to %d\n", follow_max_agents);
+          follow = true;
+
+          break;
+        }
+        goto unknown;
+      case 'g':
+        if (i->first == "guard.location")
+        {
+          guard_location = i->second.to_doubles();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " guard location set to [%s]\n",  i->second.to_string().c_str());
+
+          break;
+        }
+        else if (i->first == "guard.distance")
+        {
+          guard_distance = i->second.to_double();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " guard distance set to %f\n", guard_distance);
+
+          break;
+        }
+        else if (i->first == "guard.max_follow_distance")
+        {
+          guard_max_follow_distance = i->second.to_double();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " guard max follow distance set to %f\n",
+            guard_max_follow_distance);
+
+          break;
+        }
+        goto unknown;
+      case 'h':
+        if (i->first == "home.location")
+        {
+          home_location = i->second.to_doubles();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " home location set to [%s]\n",  i->second.to_string().c_str());
+
+          break;
+        }
+        goto unknown;
+      case 't':
+        if (i->first == "target.group")
+        {
+          target_group = i->second.to_string();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " setting formation head/target to group %s\n",
+            target_group.c_str());
+
+          break;
+        }
+        goto unknown;
+      unknown:
+      default:
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::GreetFactory:" \
-          " members for follow found in group %s\n", target_group.c_str());
-        bool follow = true;
+          " argument unknown: %s -> %s\n",
+          i->first.c_str(), i->second.to_string().c_str());
 
         break;
-      }
-      else if (i->first == "follow")
-      {
-        follow = i->second.is_true();
+      } // end switch
+    } // end iterate over args
 
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::GreetFactory:" \
-          " setting follow to %s\n", follow ? "true" : "false");
-
-        break;
-      }
-      else if (i->first == "follow.max_agents" ||
-               i->first == "follow.max.agents" ||
-               i->first == "follow.agents.max")
-      {
-        follow_max_agents = (int)i->second.to_integer();
-
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::GreetFactory:" \
-          " setting follow max agents to %d\n", follow_max_agents);
-        bool follow = true;
-
-        break;
-      }
-      goto unknown;
-    case 'g':
-      if (i->first == "guard.location")
-      {
-        guard_location = i->second.to_doubles();
-
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::GreetFactory:" \
-          " guard location set to [%s]\n",  i->second.to_string().c_str());
-
-        break;
-      }
-      else if (i->first == "guard.distance")
-      {
-        guard_distance = i->second.to_double();
-
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::GreetFactory:" \
-          " guard distance set to %f\n", guard_distance);
-
-        break;
-      }
-      goto unknown;
-    case 'h':
-      if (i->first == "home.location")
-      {
-        home_location = i->second.to_doubles();
-
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::GreetFactory:" \
-          " home location set to [%s]\n",  i->second.to_string().c_str());
-
-        break;
-      }
-      goto unknown;
-    case 't':
-      if (i->first == "target.group")
-      {
-        target_group = i->second.to_string();
-
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::GreetFactory:" \
-          " setting formation head/target to group %s\n", target_group.c_str());
-
-        break;
-      }
-      goto unknown;
-    unknown:
-    default:
+    // if group has not been set, use the swarm
+    if (target_group == "")
+    {
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MAJOR,
-        "gams::algorithms::GreetFactory:" \
-        " argument unknown: %s -> %s\n",
-        i->first.c_str(), i->second.to_string().c_str());
-
-      break;
+        gams::loggers::LOG_ERROR,
+        "gams::algorithms::GreetFactory::create:" \
+        " No target specified. Returning null.\n");
+    }
+    else
+    {
+      result = new Greet(
+        target, target_group,
+        guard_distance, guard_location, guard_max_follow_distance,
+        home_location,
+        follow, follow_group, follow_max_agents,
+        knowledge, platform, sensors, self);
     }
   }
 
-  // if group has not been set, use the swarm
-  if (target_group == "")
-  {
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ERROR,
-      "gams::algorithms::GreetFactory::create:" \
-      " No target specified. Returning null.\n");
-  }
-  else
-  {
-    result = new Greet(
-      target, target_group,
-      guard_distance, guard_location, home_location,
-      follow, follow_group, follow_max_agents,
-      knowledge, platform, sensors, self);
-  }
-}
-
-return result;
+  return result;
 }
 
 gams::algorithms::Greet::Greet(
   const std::string & target, const std::string & target_group,
   double guard_distance,
   const std::vector<double> & guard_location,
+  double guard_max_follow_distance,
   const std::vector<double> & home_location,
   bool follow, const std::string & follow_group, int follow_max_agents,
   madara::knowledge::KnowledgeBase * knowledge,
@@ -206,6 +222,7 @@ gams::algorithms::Greet::Greet(
   group_factory_ (knowledge),
   guard_epsilon_(guard_distance),
   guard_location_(platform->get_frame()),
+  guard_max_follow_distance_ (guard_max_follow_distance),
   home_location_(platform->get_frame())
 {
   if (knowledge && platform && sensors && self)
@@ -273,9 +290,23 @@ gams::algorithms::Greet::Greet(
     {
       follow_group_prefix_ = follow_group_name_.substr(0, pattern_found);
       follow_group_suffix_ = follow_group_name_.substr(
-        pattern_found + sizeof("{.target}"));
+        pattern_found + sizeof("{.target}") - 1);
     }
 
+    if (follow_)
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Greet::ctr:"
+        " agent configured to guard and follow.\n");
+    }
+    else
+    {
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_MAJOR,
+        "gams::algorithms::Greet::ctr:"
+        " agent configured to guard only.\n");
+    }
   }
 }
 
@@ -346,8 +377,22 @@ gams::algorithms::Greet::analyze(void)
 
     if (targets.size() != 0)
     {
+      pose::Position location(platform_->get_frame());
+      location.from_container(self_->agent.location);
+
+      pose::Position target_location(platform_->get_frame());
+
+      pose::Position xy_location (location);
+      pose::Position xy_guard_location (guard_location_);
+      xy_location.z(0);
+      xy_guard_location.z(0);
+
       if (is_following_)
       {
+        target_location.from_container(target_.location);
+        pose::Position xy_target_location (target_location);
+        xy_target_location.z(0);
+
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::Greet::analyze:" \
@@ -355,23 +400,75 @@ gams::algorithms::Greet::analyze(void)
           target_.location.get_name().c_str(),
           target_.location.to_record().to_string().c_str());
 
-        pose::Position location(platform_->get_frame());
-        location.from_container(self_->agent.location);
-
-        pose::Position target_location(platform_->get_frame());
-        target_location.from_container(target_.location);
-
         pose::Epsilon epsilon(follow_max_distance_);
-        is_following_ = !epsilon.check_position(location, target_location);
+        is_following_ = epsilon.check_position(
+          xy_location, xy_target_location);
 
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::Greet::analyze:"
-          " target distance check results in following=%s.\n",
+          " %s target distance check (%f<%f) results in following=%s.\n",
+          self_->agent.prefix.c_str(),
+          xy_location.distance_to(xy_target_location),
+          follow_max_distance_,
           is_following_ ? "true" : "false");
+
+        if (is_following_ && guard_max_follow_distance_ > 0)
+        {
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MINOR,
+            "gams::algorithms::Greet::analyze:"
+            " %s max follow distance from guard check (%f<%f).\n",
+            self_->agent.prefix.c_str(),
+            xy_location.distance_to(xy_guard_location),
+            guard_max_follow_distance_);
+
+          pose::Epsilon rubberband(guard_max_follow_distance_);
+          is_following_ = rubberband.check_position(
+            xy_location, xy_guard_location);
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MINOR,
+            "gams::algorithms::Greet::analyze:"
+            " %s follow distance from guard check results in following=%s.\n",
+            self_->agent.prefix.c_str(),
+            is_following_ ? "true" : "false");
+
+        }
+
+        if (!is_following_)
+        {
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::Greet::analyze:"
+            " agent %s is removing name from group %s.\n",
+            self_->agent.prefix.c_str(),
+            follow_group_->get_prefix().c_str()
+          );
+
+          // follow_group_->remove_members({self_->agent.prefix});
+          knowledge_->set(
+            follow_group_->get_prefix() + ".members." + self_->agent.prefix,
+            (Integer)0, knowledge::EvalSettings::DELAY);
+        }
+
+        if (is_guarding_)
+        {
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_ERROR,
+            "gams::algorithms::Greet::analyze:"
+            " LOGIC ERROR: agent %s is guarding and following.\n",
+            self_->agent.prefix.c_str(),
+            follow_group_->get_prefix().c_str()
+          );
+        }
       } // end if is following
       else if (is_guarding_)
       {
+        target_location.from_container(target_.location);
+        pose::Position xy_target_location (target_location);
+        xy_target_location.z(0);
+
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::Greet::analyze:" \
@@ -384,14 +481,8 @@ gams::algorithms::Greet::analyze(void)
         target_group_->sync();
         target_group_->get_members(targets);
 
-        pose::Position location(platform_->get_frame());
-        location.from_container(self_->agent.location);
-
-        pose::Position target_location(platform_->get_frame());
-        target_location.from_container(target_.location);
-        
         is_guarding_ = guard_epsilon_.check_position(
-          location, target_location);
+          xy_location, xy_target_location);
 
         madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
@@ -412,8 +503,9 @@ gams::algorithms::Greet::analyze(void)
             containers::NativeDoubleVector target_container(
               target + ".location", *knowledge_);
             target_location.from_container(target_container);
+            target_location.z(0);
 
-            if (guard_epsilon_.check_position(location, target_location))
+            if (guard_epsilon_.check_position(xy_location, target_location))
             {
               target_.init_vars(*knowledge_, target);
               is_guarding_ = true;
@@ -436,11 +528,17 @@ gams::algorithms::Greet::analyze(void)
 
           std::string new_group;
 
-            std::stringstream buffer;
-            buffer << follow_group_prefix_;
-            buffer << target_.prefix;
-            buffer << follow_group_suffix_;
-            new_group = buffer.str();
+          std::stringstream buffer;
+          buffer << follow_group_prefix_;
+          buffer << target_.prefix;
+          buffer << follow_group_suffix_;
+          new_group = buffer.str();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MINOR,
+            "gams::algorithms::Greet::analyze:"
+            " GUARDING. Checking to see if we should follow in group %s.\n",
+            new_group.c_str());
 
           groups::AgentVector followers;
 
@@ -454,52 +552,78 @@ gams::algorithms::Greet::analyze(void)
               " Creating new group.\n",
               new_group.c_str());
 
-            follow_group_.reset(group_factory_.create(new_group));
+            // don't use factory as we need to force a transient group
+            follow_group_.reset(
+              new groups::GroupTransient(new_group, knowledge_));
+          }
+          else
+          {
+            follow_group_->sync();
           }
 
           follow_group_->get_members(followers);
 
-          if (followers.size() < (size_t)follow_max_agents_)
+          if (groups::find_member_index(self_->agent.prefix, followers) < 0)
+          {
+            if (followers.size() < (size_t)follow_max_agents_)
+            {
+              madara_logger_ptr_log(gams::loggers::global_logger.get(),
+                gams::loggers::LOG_MINOR,
+                "gams::algorithms::Greet::analyze:"
+                " Adding self prefix (%s) to group (%s). Size is %zu.\n",
+                self_->agent.prefix.c_str(),
+                new_group.c_str(),
+                followers.size());
+
+              followers.clear();
+              followers.push_back(self_->agent.prefix);
+              follow_group_->add_members (followers);
+
+              madara_logger_ptr_log(gams::loggers::global_logger.get(),
+                gams::loggers::LOG_MAJOR,
+                "gams::algorithms::Greet::analyze:"
+                " Finished adding self %s to group %s. New size is %zu.\n",
+                self_->agent.prefix.c_str(),
+                new_group.c_str(),
+                followers.size());
+
+              is_following_ = true;
+              is_guarding_ = false;
+            }
+            else
+            {
+              madara_logger_ptr_log(gams::loggers::global_logger.get(),
+                gams::loggers::LOG_MINOR,
+                "gams::algorithms::Greet::analyze:"
+                " Already have enough followers (%zu) for group %s.\n",
+                followers.size(), follow_group_->get_prefix().c_str()
+              );
+            }
+          }
+          else
           {
             madara_logger_ptr_log(gams::loggers::global_logger.get(),
-              gams::loggers::LOG_MINOR,
+              gams::loggers::LOG_ERROR,
               "gams::algorithms::Greet::analyze:"
-              " Adding self prefix (%s) to group (%s). Size is %zu.\n",
+              " LOGIC ERROR: agent %s is already in follow group %s.\n",
               self_->agent.prefix.c_str(),
-              new_group.c_str(),
-              followers.size());
-
-            followers.clear();
-            followers.push_back(self_->agent.prefix);
-            follow_group_->add_members (followers);
-
-            madara_logger_ptr_log(gams::loggers::global_logger.get(),
-              gams::loggers::LOG_MAJOR,
-              "gams::algorithms::Greet::analyze:"
-              " Finished adding self %s to group %s. New size is %zu.\n",
-              self_->agent.prefix.c_str(),
-              new_group.c_str(),
-              followers.size());
+              follow_group_->get_prefix().c_str()
+            );
           }
-
-        }
+        } // end if guarding and follow is enabled
       } // end if is guarding
       else
       {
-        // not currently following or guarding
-        pose::Position location(platform_->get_frame());
-        location.from_container(self_->agent.location);
-
-        pose::Position target_location(platform_->get_frame());
-
         // iterate through all targets to see if anything is near
         for (auto target : targets)
         {
           containers::NativeDoubleVector target_container(
             target + ".location", *knowledge_);
           target_location.from_container(target_container);
+          target_location.z(0);
 
-          if (guard_epsilon_.check_position(location, target_location))
+          if (guard_epsilon_.check_position(
+              xy_guard_location, target_location))
           {
             target_.init_vars(*knowledge_, target);
             is_guarding_ = true;
@@ -539,7 +663,13 @@ gams::algorithms::Greet::analyze(void)
       is_following_ = false;
       is_guarding_ = false;
     }
-    
+
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_MINOR,
+      "gams::algorithms::Greet::analyze:"
+      " Final analysis: Guarding=%s, Following=%s.\n",
+      is_guarding_ ? "true" : "false",
+      is_following_ ? "true" : "false");
   }
   else
   {
@@ -566,20 +696,7 @@ gams::algorithms::Greet::execute(void)
       is_guarding_ ? "true" : "false",
       is_following_ ? "true" : "false");
 
-
-    if (is_guarding_)
-    {
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-          gams::loggers::LOG_MAJOR,
-          "gams::algorithms::Greet::execute:" \
-          " GUARD: agent %s moving to guard location [%s].\n",
-          self_->agent.prefix.c_str(),
-          guard_location_.to_string().c_str()
-        );
-
-      platform_->move(guard_location_, platform_->get_accuracy());
-    }
-    else if (is_following_)
+    if (is_following_)
     {
       pose::Position target (platform_->get_frame());
       target.from_container (target_.location);
@@ -589,12 +706,10 @@ gams::algorithms::Greet::execute(void)
       groups::AgentVector followers;
       follow_group_->get_members(followers);
       
-      int found = 0;
+      int found = groups::find_member_index(self_->agent.prefix, followers);
 
-      for (size_t i = 0; i < followers.size() &&
-           followers[i] != self_->agent.prefix; ++i, ++found);
-
-      gams::pose::Position next_pos (cur_frame, 0, 0, 10.0 + found);
+      gams::pose::Position next_pos (cur_frame,
+        0, 0, target.z() + 10.0 + found);
       platform_->move(next_pos, platform_->get_accuracy());
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
@@ -606,6 +721,18 @@ gams::algorithms::Greet::execute(void)
         target.to_string().c_str(),
         next_pos.to_string().c_str()
       );
+    }
+    else if (is_guarding_)
+    {
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
+          gams::loggers::LOG_MAJOR,
+          "gams::algorithms::Greet::execute:" \
+          " GUARD: agent %s moving to guard location [%s].\n",
+          self_->agent.prefix.c_str(),
+          guard_location_.to_string().c_str()
+        );
+
+      platform_->move(guard_location_, platform_->get_accuracy());
     }
     else
     {

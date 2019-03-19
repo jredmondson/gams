@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -64,122 +64,122 @@
 using std::string;
 using std::vector;
 
-gams::pose::PrioritizedRegion::PrioritizedRegion (
+gams::pose::PrioritizedRegion::PrioritizedRegion(
   const vector <Position> & init_points, const unsigned int p, 
   const std::string& name) :
-  Region (init_points, 0, name), priority (p)
+  Region(init_points, 0, name), priority(p)
 {
 }
 
-gams::pose::PrioritizedRegion::PrioritizedRegion (const Region & region,
+gams::pose::PrioritizedRegion::PrioritizedRegion(const Region & region,
   const unsigned int p, const std::string& name) :
-  Region (region), priority (p)
+  Region(region), priority(p)
 {
-  set_name (name);
+  set_name(name);
 }
 
-gams::pose::PrioritizedRegion::~PrioritizedRegion ()
+gams::pose::PrioritizedRegion::~PrioritizedRegion()
 {
 }
 
 void
-gams::pose::PrioritizedRegion::operator= (const PrioritizedRegion & rhs)
+gams::pose::PrioritizedRegion::operator=(const PrioritizedRegion & rhs)
 {
   if (this != &rhs)
   {
-    this->Region::operator= (rhs);
+    this->Region::operator=(rhs);
     this->priority = rhs.priority;
   }
 }
 
 bool
-gams::pose::PrioritizedRegion::operator== (const PrioritizedRegion& rhs) const
+gams::pose::PrioritizedRegion::operator==(const PrioritizedRegion& rhs) const
 {
   return (this == &rhs) || 
-    (((Region*)this)->operator==(rhs) && (priority == rhs.priority));
+   (((Region*)this)->operator==(rhs) &&(priority == rhs.priority));
 }
 
 bool
-gams::pose::PrioritizedRegion::operator!= (const PrioritizedRegion& rhs) const
+gams::pose::PrioritizedRegion::operator!=(const PrioritizedRegion& rhs) const
 {
   return !(*this == rhs);
 }
 
 std::string
-gams::pose::PrioritizedRegion::to_string (const std::string & delimiter)
+gams::pose::PrioritizedRegion::to_string(const std::string & delimiter)
   const
 {
   std::stringstream ret_val;
-  ret_val << this->Region::to_string (delimiter) << std::endl;
+  ret_val << this->Region::to_string(delimiter) << std::endl;
   ret_val << "\tpriority: " << priority << std::endl;
-  return ret_val.str ();
+  return ret_val.str();
 }
 
 bool
-gams::pose::PrioritizedRegion::check_valid_type (
+gams::pose::PrioritizedRegion::check_valid_type(
   madara::knowledge::KnowledgeBase& kb, const std::string& name) const
 {
   const static Class_ID valid = 
-    (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
-  return Containerize::is_valid_type (kb, name, valid);
+   (Class_ID)(REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
+  return Containerize::is_valid_type(kb, name, valid);
 }
 
 void
-gams::pose::PrioritizedRegion::to_container_impl (
+gams::pose::PrioritizedRegion::to_container_impl(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  Region temp (*this);
-  temp.to_container (kb, name);
+  Region temp(*this);
+  temp.to_container(kb, name);
 
   madara::knowledge::containers::Integer object_type;
-  object_type.set_name (name + object_type_suffix_, kb);
+  object_type.set_name(name + object_type_suffix_, kb);
   object_type = PRIORITIZED_REGION_TYPE_ID;
 
   madara::knowledge::containers::Integer priority_container;
-  priority_container.set_name (name + ".priority", kb);
+  priority_container.set_name(name + ".priority", kb);
   priority_container = priority;
 }
 
 bool
-gams::pose::PrioritizedRegion::from_container_impl (
+gams::pose::PrioritizedRegion::from_container_impl(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  bool ret_val (false);
-  if (!check_valid_type (kb, name))
+  bool ret_val(false);
+  if (!check_valid_type(kb, name))
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::pose::PrioritizedRegion::from_container:" \
-      " \"%s\" is not a valid Region\n", name.c_str ());
+      " \"%s\" is not a valid Region\n", name.c_str());
     ret_val = false;
   }
   else
   {
     Region temp_reg;
-    ret_val = temp_reg.from_container (kb, name);
+    ret_val = temp_reg.from_container(kb, name);
     if (ret_val)
     {
       madara::knowledge::containers::Integer priority_container;
-      priority_container.set_name (name + ".priority", kb);
-      if (!priority_container.exists () && 
-        get_type (kb, name) != REGION_TYPE_ID)
+      priority_container.set_name(name + ".priority", kb);
+      if (!priority_container.exists() && 
+        get_type(kb, name) != REGION_TYPE_ID)
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::pose::PrioritizedRegion::from_container:" \
-          " \"%s\" is missing priority value\n", name.c_str ());
+          " \"%s\" is missing priority value\n", name.c_str());
         ret_val = false;
       }
-      else if (get_type (kb, name) == REGION_TYPE_ID)
+      else if (get_type(kb, name) == REGION_TYPE_ID)
       {
         priority_container = 1; // default to 1
       }
 
       if (ret_val)
       {
-        operator= (
-          PrioritizedRegion (temp_reg,
-            (unsigned int)priority_container.to_integer ()));
+        operator=(
+          PrioritizedRegion(temp_reg,
+           (unsigned int)priority_container.to_integer()));
       }
     }
   }

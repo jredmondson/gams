@@ -56,6 +56,11 @@ namespace gams
        *                          guard location
        * @param  guard_location   location to consider guard territory for
        *                          this agent
+       * @param  guard_max_follow_distance distance that a guard can reach
+       *                          from its guard location before it returns
+       *                          back to its area. During following, this
+       *                          can prevent infinite following. -1 means
+       *                          do not rubberband but follow indefinitely
        * @param  home_location    location to perch or home at if not
        *                          guarding or following
        * @param  follow           if true, follow up to follow_max_agents in
@@ -79,6 +84,7 @@ namespace gams
         const std::string & target, const std::string & target_group,
         double guard_distance,
         const std::vector<double> & guard_location,
+        double guard_max_follow_distance,
         const std::vector<double> & home_location,
         bool follow, const std::string & follow_group,
         int follow_max_agents,
@@ -143,6 +149,10 @@ namespace gams
 
       /// maximum follow distance from guard location
       double follow_max_distance_ = 1000;
+
+      /// maximum distance a guard can be displaced from guard location before
+      /// it returns to its guard area (prevents infinite follow)
+      double guard_max_follow_distance_ = -1;
 
       /// the distance from guard location (max of dimensions)
       pose::Epsilon guard_epsilon_;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -72,25 +72,25 @@ namespace gams
       /**
        * Constructor
        **/
-      SearchArea ();
+      SearchArea();
 
       /**
        * Destructor
        **/
-      ~SearchArea ();
+      ~SearchArea();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const SearchArea & rhs);
+      void operator=(const SearchArea & rhs);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the knowledge base that houses the variables
        * @param   area_name  name of the area
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
       const std::string & area_name = "0");
       
       /**
@@ -98,7 +98,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   area_name  name of the area
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
       const std::string & area_name = "0");
 
       /// region that the named search area points to
@@ -114,7 +114,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   area_name  name of the area
       **/
-    GAMS_EXPORT void init_vars (SearchArea & variables,
+    GAMS_EXPORT void init_vars(SearchArea & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & area_name = "0");
   }

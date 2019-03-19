@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -78,8 +78,9 @@ namespace gams
        * @param new_priority  associated priority
        * @param name          name of the region
        **/
-      PrioritizedRegion (const std::vector <Position>& init_points =
-        std::vector<Position> (), const unsigned int new_priority = 1, const std::string& name = "");
+      PrioritizedRegion(
+        const std::vector <Position>& init_points = std::vector<Position>(),
+        const unsigned int new_priority = 1, const std::string& name = "");
 
       /**
        * Constructor
@@ -87,39 +88,40 @@ namespace gams
        * @param new_priority  associated priority
        * @param name          name of the region
        **/
-      PrioritizedRegion (const Region& region, const unsigned int new_priority = 1, const std::string& name = "");
+      PrioritizedRegion(const Region& region,
+        const unsigned int new_priority = 1, const std::string& name = "");
 
       /**
        * Destructor
        **/
-      virtual ~PrioritizedRegion ();
+      virtual ~PrioritizedRegion();
 
       /**
        * Equality operator. Uses Region::operator== and checks if priority are equal
        * @param rhs   PrioritizedRegion to compare to
        * @return true if same vertices and same priority, false otherwise
        **/
-      bool operator== (const PrioritizedRegion& rhs) const;
+      bool operator==(const PrioritizedRegion& rhs) const;
 
       /**
        * Inequality operator. Uses operator== and inverses result
        * @param rhs   PrioritizedRegion to compare to
        * @return false if same vertices and same priority, true otherwise
        **/
-      bool operator!= (const PrioritizedRegion& rhs) const;
+      bool operator!=(const PrioritizedRegion& rhs) const;
 
       /**
        * Helper function for converting the position to a string
        * @param delimiter characters to insert between position components
        * @return string representation of this PrioritizedRegion
        **/
-      std::string to_string (const std::string & delimiter = ":") const;
+      std::string to_string(const std::string & delimiter = ":") const;
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const PrioritizedRegion& rhs);
+      void operator=(const PrioritizedRegion& rhs);
 
       /// priority
       madara::knowledge::KnowledgeRecord::Integer priority;
@@ -130,7 +132,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      Prefix of object in the KB
        */
-      virtual bool check_valid_type (madara::knowledge::KnowledgeBase& kb,
+      virtual bool check_valid_type(madara::knowledge::KnowledgeBase& kb,
         const std::string& name) const;
 
       /**
@@ -138,7 +140,7 @@ namespace gams
        * @param kb        Knowledge Base to store object in
        * @param name      location of object in Knowlege Base
        **/
-      virtual void to_container_impl (
+      virtual void to_container_impl(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
 
@@ -147,7 +149,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      location of object in Knowlege Base
        **/
-      virtual bool from_container_impl (
+      virtual bool from_container_impl(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
     }; // class PrioritizedRegion

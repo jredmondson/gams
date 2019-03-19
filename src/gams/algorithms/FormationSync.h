@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -96,17 +96,17 @@ namespace gams
        * Constructor
        * @param  start        the starting center of the formation
        * @param  end          the ending center of the formation
-       * @param  group        the group name (e.g., group.allies)
+       * @param  group        the group name(e.g., group.allies)
        * @param  buffer       the distance between formation participants in
        *                      meters
-       * @param  formation    type of formation (@see FormationTypes)
+       * @param  formation    type of formation(@see FormationTypes)
        * @param  barrier_name the barrier name to synchronize on
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      FormationSync (
+      FormationSync(
         pose::Position & start,
         pose::Position & end,
         const std::string & group,
@@ -121,38 +121,38 @@ namespace gams
       /**
        * Destructor
        **/
-      ~FormationSync ();
+      ~FormationSync();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const FormationSync & rhs);
+      void operator=(const FormationSync & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
     protected:
       /**
        * Generates the full plan
        * @param formation  the type of formation. @see FormationTypes
        **/
-      void generate_plan (int formation);
+      void generate_plan(int formation);
 
       /**
        * Generates a position at an angle and distance
@@ -161,7 +161,7 @@ namespace gams
        * @param distance   the distance in meters
        * @return  the new position at the angle and distance
        **/
-      pose::Position generate_position (pose::Position reference,
+      pose::Position generate_position(pose::Position reference,
         double angle, double distance);
 
       /// center of formation start
@@ -228,7 +228,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

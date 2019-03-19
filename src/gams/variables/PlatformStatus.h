@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,25 +76,25 @@ namespace gams
       /**
        * Constructor
        **/
-      PlatformStatus ();
+      PlatformStatus();
 
       /**
        * Destructor
        **/
-      ~PlatformStatus ();
+      ~PlatformStatus();
 
       /**
        * Assignment operator
        * @param  rhs   value to copy
        **/
-      void operator= (const PlatformStatus & rhs);
+      void operator=(const PlatformStatus & rhs);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the knowledge base that houses the variables
        * @param   new_name   the name of the platform
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & new_name = "");
       
       /**
@@ -102,7 +102,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   new_name   the name of the platform
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const std::string & new_name = "");
 
       /// the id of this agent
@@ -161,12 +161,12 @@ namespace gams
        * Get variable prefix
        * @return string variable prefix
        */
-      std::string make_variable_prefix () const;
+      std::string make_variable_prefix() const;
 
       /**
        * Initialize variable values
        */
-      void init_variable_values ();
+      void init_variable_values();
     };
     
     /// deprecated typedef. Please use PlatformStatus instead.

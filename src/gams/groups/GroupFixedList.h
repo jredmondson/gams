@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -77,71 +77,77 @@ namespace gams
        * Constructor. Note that if you do not specify prefix and
        * knowledge base, then you are essentially just working with
        * a local group with no connection to other agents.
-       * @param prefix    the name of the group (e.g. group.protectors)
+       * @param prefix    the name of the group(e.g. group.protectors)
        * @param knowledge the knowledge base to use for syncing
        **/
-      GroupFixedList (const std::string & prefix = "",
+      GroupFixedList(const std::string & prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Constructor
       **/
-      virtual ~GroupFixedList ();
+      virtual ~GroupFixedList();
 
       /**
       * Adds the members to the group
       * @param  members  list of members to add to formation
       **/
-      virtual void add_members (const AgentVector & members);
+      virtual void add_members(const AgentVector & members);
 
       /**
       * Clears the member list
       **/
-      virtual void clear_members (void);
+      virtual void clear_members(void);
 
       /**
       * Retrieves the members from the group
       * @param  members  a list of the members currently in the group
       **/
-      virtual void get_members (AgentVector & members) const;
+      virtual void get_members(AgentVector & members) const;
 
       /**
       * Checks if the agent is a  member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
+      * @param  id     the agent id(e.g. agent.0 or agent.leader). If null,
       *                uses the current agent's id
       * @return  true if the agent is a member of the group
       **/
-      virtual bool is_member (const std::string & id) const;
+      virtual bool is_member(const std::string & id) const;
+
+      /**
+      * Removes members from the group
+      * @param  members  list of members to remove if they exist
+      **/
+      virtual void remove_members(const AgentVector & members);
 
       /**
       * Writes the group information to a specified prefix
       * in a knowledge base. If no knowledge base is specified, then
       * saves in the original knowledge base. If no prefix is specified,
       * then saves in the original prefix location
-      * @param prefix    the name of the group (e.g. group.protectors)
+      * @param prefix    the name of the group(e.g. group.protectors)
       * @param knowledge the knowledge base to save into
       **/
-      virtual void write (const std::string & prefix = "",
+      virtual void write(const std::string & prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0) const;
 
       /**
       * Sets the prefix for the group in the knowledge base
-      * @param prefix   the name of the group (e.g. group.protectors)
+      * @param prefix   the name of the group(e.g. group.protectors)
       * @param knowledge the knowledge base to use for syncing
       **/
-      virtual void set_prefix (const std::string & prefix,
+      virtual void set_prefix(const std::string & prefix,
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Returns the number of members in the group
       * @return  the number of members
       **/
-      virtual size_t size (void);
+      virtual size_t size(void);
 
       /**
       * Syncs the list to the knowledge base
       **/
-      virtual void sync (void);
+      virtual void sync(void);
 
     protected:
 
@@ -166,20 +172,20 @@ namespace gams
       /**
       * Constructor
       **/
-      GroupFixedListFactory ();
+      GroupFixedListFactory();
 
       /**
       * Destructor
       **/
-      virtual ~GroupFixedListFactory ();
+      virtual ~GroupFixedListFactory();
 
       /**
       * Creates a group
-      * @param  prefix       the name of the group (e.g. group.protectors)
+      * @param  prefix       the name of the group(e.g. group.protectors)
       * @param  knowledge    the knowledge base of variables and values
       * @return  the new group
       **/
-      virtual GroupBase * create (
+      virtual GroupBase * create(
         const std::string & prefix,
         madara::knowledge::KnowledgeBase * knowledge);
     };

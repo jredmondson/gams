@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -82,7 +82,7 @@ namespace gams
          * @param  self         self-referencing variables
          * @param  agents      the list of all agents
          **/
-        LocalPheremoneAreaCoverage (
+        LocalPheremoneAreaCoverage(
           const std::string& search_id, 
           double e_time, 
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -95,13 +95,13 @@ namespace gams
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const LocalPheremoneAreaCoverage & rhs);
+        void operator=(const LocalPheremoneAreaCoverage & rhs);
         
       protected:
         /**
          * Generate new next position
          */
-        virtual void generate_new_position (void);
+        virtual void generate_new_position(void);
   
         /// Search Area to cover
         pose::SearchArea search_area_;
@@ -132,7 +132,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

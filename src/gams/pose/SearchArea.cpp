@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -82,44 +82,44 @@ using std::vector;
 namespace mutility = madara::utility;
 typedef madara::knowledge::KnowledgeRecord::Integer Integer;
 
-gams::pose::SearchArea::SearchArea () :
+gams::pose::SearchArea::SearchArea() :
   Containerize()
 {
 }
 
-gams::pose::SearchArea::SearchArea (const PrioritizedRegion& region, 
+gams::pose::SearchArea::SearchArea(const PrioritizedRegion& region, 
   const std::string& name) :
-  Containerize (name)
+  Containerize(name)
 {
-  regions_.push_back (region);
-  calculate_bounding_box ();
+  regions_.push_back(region);
+  calculate_bounding_box();
 }
 
-gams::pose::SearchArea::SearchArea (
+gams::pose::SearchArea::SearchArea(
   const vector<PrioritizedRegion>& regions, const std::string& name) :
-  Containerize (name), regions_ (regions)
+  Containerize(name), regions_(regions)
 {
-  calculate_bounding_box ();
+  calculate_bounding_box();
 }
 
-gams::pose::SearchArea::~SearchArea ()
+gams::pose::SearchArea::~SearchArea()
 {
 }
 
 bool
-gams::pose::SearchArea::operator== (const SearchArea& rhs) const
+gams::pose::SearchArea::operator==(const SearchArea& rhs) const
 {
   if (this == &rhs)
     return true;
 
-  if (regions_.size () != rhs.regions_.size ())
+  if (regions_.size() != rhs.regions_.size())
     return false;
 
   for (const PrioritizedRegion& lpr : regions_)
   {
     bool result = false;
     for (const PrioritizedRegion& rpr : rhs.regions_)
-      result |= (lpr != rpr);
+      result |=(lpr != rpr);
     if (!result)
       return false;
   }
@@ -127,13 +127,13 @@ gams::pose::SearchArea::operator== (const SearchArea& rhs) const
 }
 
 bool
-gams::pose::SearchArea::operator!= (const SearchArea& rhs) const
+gams::pose::SearchArea::operator!=(const SearchArea& rhs) const
 {
   return !(*this == rhs);
 }
 
 void
-gams::pose::SearchArea::operator= (const SearchArea & rhs)
+gams::pose::SearchArea::operator=(const SearchArea & rhs)
 {
   if (this != &rhs)
   {
@@ -149,22 +149,22 @@ gams::pose::SearchArea::operator= (const SearchArea & rhs)
 }
 
 void
-gams::pose::SearchArea::add_prioritized_region (const PrioritizedRegion& r)
+gams::pose::SearchArea::add_prioritized_region(const PrioritizedRegion& r)
 {
-  regions_.push_back (r);
+  regions_.push_back(r);
 
   // modify bounding box
-  min_lat_ = (min_lat_ > r.min_lat_) ? r.min_lat_ : min_lat_;
-  min_lon_ = (min_lon_ > r.min_lon_) ? r.min_lon_ : min_lon_;
-  min_alt_ = (min_alt_ > r.min_alt_) ? r.min_alt_ : min_alt_;
+  min_lat_ =(min_lat_ > r.min_lat_) ? r.min_lat_ : min_lat_;
+  min_lon_ =(min_lon_ > r.min_lon_) ? r.min_lon_ : min_lon_;
+  min_alt_ =(min_alt_ > r.min_alt_) ? r.min_alt_ : min_alt_;
 
-  max_lat_ = (max_lat_ < r.max_lat_) ? r.max_lat_ : max_lat_;
-  max_lon_ = (max_lon_ < r.max_lon_) ? r.max_lon_ : max_lon_;
-  max_alt_ = (max_alt_ < r.max_alt_) ? r.max_alt_ : max_alt_;
+  max_lat_ =(max_lat_ < r.max_lat_) ? r.max_lat_ : max_lat_;
+  max_lon_ =(max_lon_ < r.max_lon_) ? r.max_lon_ : max_lon_;
+  max_alt_ =(max_alt_ < r.max_alt_) ? r.max_alt_ : max_alt_;
 }
 
 gams::pose::Region
-gams::pose::SearchArea::get_convex_hull () const
+gams::pose::SearchArea::get_convex_hull() const
 {
   /**
    * completely rewritten by James Edmondson on 4/3/2016.
@@ -180,11 +180,11 @@ gams::pose::SearchArea::get_convex_hull () const
   class SortXThenY
   {
   public:
-    bool operator () (const gams::pose::Position & first,
+    bool operator()(const gams::pose::Position & first,
       const gams::pose::Position & second)
     {
       // prefer left-most x or if tie, bottom-most left-most x
-      return first.x() < second.x() || (first.x() == second.x() && first.y() < second.y());
+      return first.x() < second.x() ||(first.x() == second.x() && first.y() < second.y());
     }
   };
 
@@ -193,58 +193,58 @@ gams::pose::SearchArea::get_convex_hull () const
    * of all points
    **/
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::pose::SearchArea::get_convex_hull:" \
     " building a convex hull\n");
 
   Region result;
   vector<Position> positions;
-  vector<Position> & hull (result.vertices);
-  size_t num_points (0), current (0), k (0);
+  vector<Position> & hull(result.vertices);
+  size_t num_points(0), current(0), k(0);
 
   // iterate over all regions 
-  for (size_t i = 0; i < regions_.size (); ++i)
+  for (size_t i = 0; i < regions_.size(); ++i)
   {
-    num_points += regions_[i].vertices.size ();
+    num_points += regions_[i].vertices.size();
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::SearchArea::get_convex_hull:" \
     " total region vertices is %d. Resizing list.\n",
-    (int)num_points);
+   (int)num_points);
 
   // resize the positions array
-  positions.resize (num_points);
+  positions.resize(num_points);
 
   // fill the positions array
-  for (size_t i = 0; i < regions_.size (); ++i)
+  for (size_t i = 0; i < regions_.size(); ++i)
   {
-    for (size_t j = 0; j < regions_[i].vertices.size (); ++j, ++current)
+    for (size_t j = 0; j < regions_[i].vertices.size(); ++j, ++current)
     {
       positions[current] = regions_[i].vertices[j];
     }
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::SearchArea::get_convex_hull:" \
     " sorting vertices.\n");
 
   // sort by x and then y
-  std::sort (positions.begin (), positions.end (), SortXThenY ());
+  std::sort(positions.begin(), positions.end(), SortXThenY());
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::SearchArea::get_convex_hull:" \
     " removing duplicate vertices.\n");
 
   // get rid of duplicates
-  if (positions.size () > 2)
+  if (positions.size() > 2)
   {
     size_t vacant = 1;
-    for (size_t i = 1; i < positions.size (); ++i)
+    for (size_t i = 1; i < positions.size(); ++i)
     {
       // do we have a duplicate?
       if (positions[i] != positions[vacant - 1])
@@ -258,51 +258,51 @@ gams::pose::SearchArea::get_convex_hull () const
       }
     }
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::pose::SearchArea::get_convex_hull:" \
       " after duplicates check, positions size set to %d.\n",
-      (int)vacant);
+     (int)vacant);
 
     // resize positions to just past unique entries
-    positions.resize (vacant);
+    positions.resize(vacant);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::pose::SearchArea::get_convex_hull:" \
       " allocating %d vertices for potential hull.\n",
-      (int)vacant * 2);
+     (int)vacant * 2);
 
     // make hull twice as big for speed in constructing upper and lower hull
-    hull.resize (vacant * 2);
+    hull.resize(vacant * 2);
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::SearchArea::get_convex_hull:" \
     " building lower hull.\n");
 
   // build lower hull
-  for (int i = 0; i < (int)positions.size (); ++i)
+  for (int i = 0; i <(int)positions.size(); ++i)
   {
-    while (k >= 2 && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
+    while(k >= 2 && cross(hull[k - 2], hull[k - 1], positions[i]) <= 0)
       k--;
 
     hull[k++] = positions[i];
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::SearchArea::get_convex_hull:" \
-    " lower hull construction used %d points.\n", (int)k);
+    " lower hull construction used %d points.\n",(int)k);
 
-  if (positions.size () >= 2)
+  if (positions.size() >= 2)
   {
     // build upper hull
-    for (int i = (int)positions.size () - 2, t = (int)k + 1;
+    for (int i =(int)positions.size() - 2, t =(int)k + 1;
          i >= 0; i--)
     {
-      while ((int)k >= t && cross (hull[k - 2], hull[k - 1], positions[i]) <= 0)
+      while((int)k >= t && cross(hull[k - 2], hull[k - 1], positions[i]) <= 0)
         k--;
 
       hull[k++] = positions[i];
@@ -310,136 +310,136 @@ gams::pose::SearchArea::get_convex_hull () const
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::pose::SearchArea::get_convex_hull:" \
       " ERROR: not enough vertices in region for bounding box creation.\n");
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::SearchArea::get_convex_hull:" \
-    " upper hull construction finished hull with %d points.\n", (int)k - 1);
+    " upper hull construction finished hull with %d points.\n",(int)k - 1);
 
   if (k > 0)
   {
-    hull.resize (k - 1);
+    hull.resize(k - 1);
   }
   else
   {
-    hull.resize (0);
+    hull.resize(0);
   }
 
   return result;
 }
 
 const vector<gams::pose::PrioritizedRegion>&
-gams::pose::SearchArea::get_regions () const
+gams::pose::SearchArea::get_regions() const
 {
   return regions_;
 }
 
 madara::knowledge::KnowledgeRecord::Integer
-gams::pose::SearchArea::get_priority (const Position& pos) const
+gams::pose::SearchArea::get_priority(const Position& pos) const
 {
   madara::knowledge::KnowledgeRecord::Integer priority = 0;
-  for (vector<PrioritizedRegion>::const_iterator it = regions_.begin ();
-    it != regions_.end (); ++it)
+  for (vector<PrioritizedRegion>::const_iterator it = regions_.begin();
+    it != regions_.end(); ++it)
   {
-    if (it->contains (pos))
-      priority = max (priority, it->priority);
+    if (it->contains(pos))
+      priority = max(priority, it->priority);
   }
 
   return priority;
 }
 
 bool
-gams::pose::SearchArea::contains (const Position & p) const
+gams::pose::SearchArea::contains(const Position & p) const
 {
   for (unsigned int i = 0; i < regions_.size(); ++i)
-    if (regions_[i].contains (p))
+    if (regions_[i].contains(p))
       return true;
   return false;
 }
 
 string
-gams::pose::SearchArea::to_string () const
+gams::pose::SearchArea::to_string() const
 {
   stringstream buffer;
-  buffer << "Num regions: " << regions_.size () << endl;
-  for (unsigned int i = 0; i < regions_.size (); ++i)
-    buffer << "Region " << i << ": " << regions_[i].to_string () << endl;
+  buffer << "Num regions: " << regions_.size() << endl;
+  for (unsigned int i = 0; i < regions_.size(); ++i)
+    buffer << "Region " << i << ": " << regions_[i].to_string() << endl;
   return buffer.str();
 }
 
 void
-gams::pose::SearchArea::calculate_bounding_box ()
+gams::pose::SearchArea::calculate_bounding_box()
 {
   min_lat_ = min_lon_ = min_alt_ = DBL_MAX;
   max_lat_ = max_lon_ = max_alt_ = -DBL_MAX;
-  for (unsigned int i = 0; i < regions_.size (); ++i)
+  for (unsigned int i = 0; i < regions_.size(); ++i)
   {
-    min_lat_ = (min_lat_ > regions_[i].min_lat_) ? regions_[i].min_lat_ : min_lat_;
-    min_lon_ = (min_lon_ > regions_[i].min_lon_) ? regions_[i].min_lon_ : min_lon_;
-    min_alt_ = (min_alt_ > regions_[i].min_alt_) ? regions_[i].min_alt_ : min_alt_;
+    min_lat_ =(min_lat_ > regions_[i].min_lat_) ? regions_[i].min_lat_ : min_lat_;
+    min_lon_ =(min_lon_ > regions_[i].min_lon_) ? regions_[i].min_lon_ : min_lon_;
+    min_alt_ =(min_alt_ > regions_[i].min_alt_) ? regions_[i].min_alt_ : min_alt_;
 
-    max_lat_ = (max_lat_ < regions_[i].max_lat_) ? regions_[i].max_lat_ : max_lat_;
-    max_lon_ = (max_lon_ < regions_[i].max_lon_) ? regions_[i].max_lon_ : max_lon_;
-    max_alt_ = (max_alt_ < regions_[i].max_alt_) ? regions_[i].max_alt_ : max_alt_;
+    max_lat_ =(max_lat_ < regions_[i].max_lat_) ? regions_[i].max_lat_ : max_lat_;
+    max_lon_ =(max_lon_ < regions_[i].max_lon_) ? regions_[i].max_lon_ : max_lon_;
+    max_alt_ =(max_alt_ < regions_[i].max_alt_) ? regions_[i].max_alt_ : max_alt_;
   }
 }
 
 bool
-gams::pose::SearchArea::check_valid_type (
+gams::pose::SearchArea::check_valid_type(
   madara::knowledge::KnowledgeBase& kb, const std::string& name) const
 {
-  const static Class_ID valid = (Class_ID) 
-    (REGION_TYPE_ID        | PRIORITIZED_REGION_TYPE_ID | 
+  const static Class_ID valid =(Class_ID) 
+   (REGION_TYPE_ID        | PRIORITIZED_REGION_TYPE_ID | 
      SEARCH_AREA_TYPE_ID);
-  return Containerize::is_valid_type (kb, name, valid);
+  return Containerize::is_valid_type(kb, name, valid);
 }
 
 void
-gams::pose::SearchArea::to_container_impl (
+gams::pose::SearchArea::to_container_impl(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   // set object type
-  madara::knowledge::containers::Integer obj_type (
+  madara::knowledge::containers::Integer obj_type(
     name + object_type_suffix_, kb);
   obj_type = SEARCH_AREA_TYPE_ID;
   
   // set size
-  madara::knowledge::containers::Integer size (name + ".size", kb);
-  size = regions_.size ();
+  madara::knowledge::containers::Integer size(name + ".size", kb);
+  size = regions_.size();
 
   // add regions
   size_t idx = 0;
   for (PrioritizedRegion& pr : regions_)
   {
     // check if PR has name
-    string pr_name = pr.get_name ();
+    string pr_name = pr.get_name();
     if (pr_name == "")
     {
       // PR has no name, so assign a name
       std::stringstream new_pr_name;
       new_pr_name << name << "." << idx;
-      pr_name = new_pr_name.str ();
-      pr.set_name (pr_name);
+      pr_name = new_pr_name.str();
+      pr.set_name(pr_name);
     }
 
     // check if PR is in KB
-    const Class_ID valid = (Class_ID) 
-      (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
-    if (!is_valid_type (kb, pr_name, valid))
+    const Class_ID valid =(Class_ID) 
+     (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
+    if (!is_valid_type(kb, pr_name, valid))
     {
       // PR must not be in KB, so put it in there
-      pr.to_container (kb, pr_name);
+      pr.to_container(kb, pr_name);
     }
 
     // set PR as member of search area
     std::stringstream member_key;
     member_key << name << "." << idx;
-    madara::knowledge::containers::String member (member_key.str (), kb);
+    madara::knowledge::containers::String member(member_key.str(), kb);
     member = pr_name;
 
     // increment index
@@ -448,30 +448,30 @@ gams::pose::SearchArea::to_container_impl (
 }
 
 bool
-gams::pose::SearchArea::from_container_impl (
+gams::pose::SearchArea::from_container_impl(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  bool ret_val (false);
-  if (!check_valid_type (kb, name))
+  bool ret_val(false);
+  if (!check_valid_type(kb, name))
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::pose::SearchArea::from_container:" \
-      " \"%s\" is not a valid SearchArea\n", name.c_str ());
+      " \"%s\" is not a valid SearchArea\n", name.c_str());
   }
   else
   {
-    switch (get_type (kb, name))
+    switch(get_type(kb, name))
     {
       case REGION_TYPE_ID:
       case PRIORITIZED_REGION_TYPE_ID:
       {
         PrioritizedRegion reg;
-        if (reg.from_container (kb, name))
+        if (reg.from_container(kb, name))
         {
-          regions_.clear ();
-          regions_.push_back (reg);
-          calculate_bounding_box ();
+          regions_.clear();
+          regions_.push_back(reg);
+          calculate_bounding_box();
           ret_val = true;
         }
         break;
@@ -479,52 +479,52 @@ gams::pose::SearchArea::from_container_impl (
       case SEARCH_AREA_TYPE_ID:
       {
         // get size
-        madara::knowledge::containers::Integer size (name + ".size", kb);
-        if (size.exists ())
+        madara::knowledge::containers::Integer size(name + ".size", kb);
+        if (size.exists())
         {
           // reserve space in regions_
-          regions_.clear ();
-          regions_.reserve (size.to_integer ());
+          regions_.clear();
+          regions_.reserve(size.to_integer());
         
           // get regions
           ret_val = true;
-          for (Integer idx = 0; idx < size.to_integer () && ret_val; ++idx)
+          for (Integer idx = 0; idx < size.to_integer() && ret_val; ++idx)
           {
             std::stringstream pr_prefix;
             pr_prefix << name << "." << idx;
         
             PrioritizedRegion temp;
-            if(!(ret_val = temp.from_container (
-              kb, kb.get (pr_prefix.str ()).to_string ())))
+            if (!(ret_val = temp.from_container(
+              kb, kb.get(pr_prefix.str()).to_string())))
             {
-              madara_logger_ptr_log (gams::loggers::global_logger.get (),
+              madara_logger_ptr_log(gams::loggers::global_logger.get(),
                 gams::loggers::LOG_ERROR,
                 "gams::pose::SearchArea::from_container:" \
                 " \"%s\" is not valid PrioritizedRegion\n",
-                pr_prefix.str ().c_str ());
+                pr_prefix.str().c_str());
             }
             else
-              regions_.push_back (temp);
+              regions_.push_back(temp);
           }
         
           if (ret_val)
-            calculate_bounding_box ();
+            calculate_bounding_box();
         }
         else
         {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_ERROR,
             "gams::pose::SearchArea::from_container:" \
-            " \"%s\" does not have size value\n", name.c_str ());
+            " \"%s\" does not have size value\n", name.c_str());
         }
         break;
       }
       default:
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::pose::SearchArea::from_container:" \
-          " found invalid object_type %u\n", get_type (kb, name));
+          " found invalid object_type %u\n", get_type(kb, name));
       }
     }
   }

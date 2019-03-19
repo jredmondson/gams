@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -52,12 +52,12 @@
 namespace platforms = gams::platforms;
 namespace variables = gams::variables;
 
-gams::platforms::BasePlatform::~BasePlatform ()
+gams::platforms::BasePlatform::~BasePlatform()
 {
 }
 
 void
-gams::platforms::BasePlatform::operator= (const BasePlatform & rhs)
+gams::platforms::BasePlatform::operator=(const BasePlatform & rhs)
 {
   if (this != &rhs)
   {
@@ -69,60 +69,60 @@ gams::platforms::BasePlatform::operator= (const BasePlatform & rhs)
 }
 
 double
-gams::platforms::BasePlatform::get_min_sensor_range () const
+gams::platforms::BasePlatform::get_min_sensor_range() const
 {
   double min_range = DBL_MAX;
-  for (variables::Sensors::const_iterator it = sensors_->begin ();
-    it != sensors_->end (); ++it)
+  for (variables::Sensors::const_iterator it = sensors_->begin();
+    it != sensors_->end(); ++it)
   {
     /**
      * std::min appears to be confusing Visual Studio 2010. Consequently,
      * use a ternary operator here which should be highly optimized during
      * compilation
      **/
-    double cur_range (it->second->get_range ());
+    double cur_range(it->second->get_range());
     min_range = cur_range < min_range ? cur_range : min_range;
   }
   return min_range;
 }
 
 double
-gams::platforms::BasePlatform::get_move_speed () const
+gams::platforms::BasePlatform::get_move_speed() const
 {
   return move_speed_;
 }
 
 const gams::variables::Sensor&
-gams::platforms::BasePlatform::get_sensor (const std::string& name) const
+gams::platforms::BasePlatform::get_sensor(const std::string& name) const
 {
   return *((*sensors_)[name]);
 }
 
 void
-gams::platforms::BasePlatform::get_sensor_names (
+gams::platforms::BasePlatform::get_sensor_names(
   variables::SensorNames& sensors) const
 {
   variables::SensorNames ret_val;
-  for (variables::Sensors::iterator it = sensors_->begin ();
-    it != sensors_->end (); ++it)
+  for (variables::Sensors::iterator it = sensors_->begin();
+    it != sensors_->end(); ++it)
   {
-    ret_val.push_back (it->first);
+    ret_val.push_back(it->first);
   }
-  sensors.swap (ret_val);
+  sensors.swap(ret_val);
 }
 
 int
-gams::platforms::BasePlatform::home (void)
+gams::platforms::BasePlatform::home(void)
 {
   // check if home has been set
-  if (self_->agent.home.size () == 3)
+  if (self_->agent.home.size() == 3)
   {
     // read the home position
     pose::Position position(get_frame());
-    position.from_container (self_->agent.home);
+    position.from_container(self_->agent.home);
 
     // move to home
-    move (position);
+    move(position);
   }
 
   return 0;
@@ -130,7 +130,7 @@ gams::platforms::BasePlatform::home (void)
 
 #if 0
 int
-gams::platforms::BasePlatform::move (const utility::Position & target,
+gams::platforms::BasePlatform::move(const utility::Position & target,
   const double & epsilon)
 {
   return move(pose::Position(get_frame(),
@@ -139,7 +139,7 @@ gams::platforms::BasePlatform::move (const utility::Position & target,
 #endif
 
 int
-gams::platforms::BasePlatform::move (const pose::Position & target,
+gams::platforms::BasePlatform::move(const pose::Position & target,
     const pose::PositionBounds &bounds)
 {
   int result = 0;
@@ -147,7 +147,7 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
   pose::Position current(get_location());
 
   pose::Position dest(get_frame(), 0, 0);
-  dest.from_container (self_->agent.dest);
+  dest.from_container(self_->agent.dest);
 
   pose::Position gps_target(get_frame(), target);
 
@@ -155,20 +155,20 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
    * if we are not paused, we are not already at the target,
    * and we are either not moving or the target is different
    * from the existing move location, then set status to
-   * moving and return 1 (moving to the new location)
+   * moving and return 1(moving to the new location)
    **/
   if (!*status_.paused_moving && !(gps_target == current) &&
      (!*status_.moving || !(gps_target == dest)))
   {
     self_->agent.source = self_->agent.location;
-    gps_target.to_container (self_->agent.dest);
+    gps_target.to_container(self_->agent.dest);
 
     result = 1;
     status_.moving = 1;
   }
   /**
    * otherwise, if we are approximately at the target location,
-   * change status and paused to 0 and return 2 (arrived)
+   * change status and paused to 0 and return 2(arrived)
    **/
   else if (bounds.check_position(target, current))
   {
@@ -182,10 +182,10 @@ gams::platforms::BasePlatform::move (const pose::Position & target,
 
 
 int
-gams::platforms::BasePlatform::orient (const pose::Orientation & target,
+gams::platforms::BasePlatform::orient(const pose::Orientation & target,
     const pose::OrientationBounds &bounds)
 {
-  int result (0);
+  int result(0);
 
   pose::Orientation current(get_orientation());
 
@@ -193,7 +193,7 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
    * if we are not paused, we are not already at the target,
    * and we are either not moving or the target is different
    * from the existing move location, then set status to
-   * moving and return 1 (moving to the new location)
+   * moving and return 1(moving to the new location)
    **/
   if (!*status_.paused_rotating && target != current &&
      (!*status_.rotating ||
@@ -201,14 +201,14 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
         self_->agent.dest_orientation)))
   {
     self_->agent.source_orientation = self_->agent.orientation;
-    target.to_container (self_->agent.dest_orientation);
+    target.to_container(self_->agent.dest_orientation);
 
     result = 1;
     status_.rotating = 1;
   }
   /**
    * otherwise, if we are approximately at the target angle,
-   * change status and paused to 0 and return 2 (arrived)
+   * change status and paused to 0 and return 2(arrived)
    **/
   else if (bounds.check_orientation(target, current))
   {
@@ -221,37 +221,37 @@ gams::platforms::BasePlatform::orient (const pose::Orientation & target,
 }
 
 int
-gams::platforms::BasePlatform::pose (const pose::Pose & target,
+gams::platforms::BasePlatform::pose(const pose::Pose & target,
     const pose::PoseBounds &bounds)
 {
   int move_status = move(pose::Position(target), bounds);
   int orient_status = orient(pose::Orientation(target), bounds);
-  if(move_status == 0 || orient_status == 0)
+  if (move_status == 0 || orient_status == 0)
     return 0;
-  if(move_status == 2 && orient_status == 2)
+  if (move_status == 2 && orient_status == 2)
     return 2;
   return 1;
 }
 
 int
-gams::platforms::BasePlatform::takeoff (void)
+gams::platforms::BasePlatform::takeoff(void)
 {
   return 2;
 }
 
 int
-gams::platforms::BasePlatform::land (void)
+gams::platforms::BasePlatform::land(void)
 {
   return 2;
 }
 
-double gams::platforms::BasePlatform::get_accuracy (void) const
+double gams::platforms::BasePlatform::get_accuracy(void) const
 {
   return 5.0;
 }
 
 void
-gams::platforms::BasePlatform::pause_move (void)
+gams::platforms::BasePlatform::pause_move(void)
 {
   if (*status_.moving)
     status_.moving = 0;
@@ -260,26 +260,26 @@ gams::platforms::BasePlatform::pause_move (void)
 }
 
 void
-gams::platforms::BasePlatform::set_knowledge (
+gams::platforms::BasePlatform::set_knowledge(
   madara::knowledge::KnowledgeBase * rhs)
 {
   knowledge_ = rhs;
 }
 
 void
-gams::platforms::BasePlatform::set_move_speed (const double& speed)
+gams::platforms::BasePlatform::set_move_speed(const double& speed)
 {
   move_speed_ = speed;
 }
 
 void
-gams::platforms::BasePlatform::set_sensors (variables::Sensors * sensors)
+gams::platforms::BasePlatform::set_sensors(variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }
 
 void
-gams::platforms::BasePlatform::stop_move (void)
+gams::platforms::BasePlatform::stop_move(void)
 {
   if (*status_.moving)
     status_.moving = 0;
@@ -291,7 +291,7 @@ gams::platforms::BasePlatform::stop_move (void)
 }
 
 void
-gams::platforms::BasePlatform::resume_move (void)
+gams::platforms::BasePlatform::resume_move(void)
 {
   if (!*status_.moving)
     status_.moving = 1;
@@ -299,7 +299,7 @@ gams::platforms::BasePlatform::resume_move (void)
 }
 
 void
-gams::platforms::BasePlatform::stop_orientation (void)
+gams::platforms::BasePlatform::stop_orientation(void)
 {
   if (*status_.rotating)
     status_.rotating = 0;
@@ -311,7 +311,7 @@ gams::platforms::BasePlatform::stop_orientation (void)
 }
 
 void
-gams::platforms::BasePlatform::resume_orientation (void)
+gams::platforms::BasePlatform::resume_orientation(void)
 {
   if (!*status_.rotating)
     status_.rotating = 1;
@@ -323,7 +323,7 @@ gams::platforms::BasePlatform::resume_orientation (void)
 }
 
 const gams::pose::ReferenceFrame &
-gams::platforms::BasePlatform::get_frame (void) const
+gams::platforms::BasePlatform::get_frame(void) const
 {
   return pose::default_frame();
 }

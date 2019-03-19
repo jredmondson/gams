@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -85,7 +85,7 @@ namespace gams
          * @param self            self-referencing variables
          * @param agents         variables referencing agents
          **/
-        UniformRandomAreaCoverage (
+        UniformRandomAreaCoverage(
           const std::string& search_area_id,
           double e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -97,19 +97,19 @@ namespace gams
         /**
          * Destructor
          **/
-        ~UniformRandomAreaCoverage ();
+        ~UniformRandomAreaCoverage();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const UniformRandomAreaCoverage & rhs);
+        void operator=(const UniformRandomAreaCoverage & rhs);
         
       protected:
         /**
          * Generate new next position
          */
-        virtual void generate_new_position (void);
+        virtual void generate_new_position(void);
 
         /// region to cover
         pose::Region region_;
@@ -138,7 +138,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

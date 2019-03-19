@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -83,7 +83,7 @@ namespace gams
        * @param  self         self-referencing variables
        * @param  agents       variables referencing agents
        **/
-      KarlEvaluator (
+      KarlEvaluator(
         const std::string & logic,
         const std::string & store_result,
         bool is_wait,
@@ -97,31 +97,31 @@ namespace gams
       /**
        * Destructor
        **/
-      ~KarlEvaluator ();
+      ~KarlEvaluator();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (KarlEvaluator & rhs);
+      void operator=(KarlEvaluator & rhs);
 
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
 
     protected:
 
@@ -166,7 +166,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

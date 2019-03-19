@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -75,25 +75,25 @@ namespace gams
       /**
        * Constructor
        **/
-      Region ();
+      Region();
 
       /**
        * Destructor
        **/
-      ~Region ();
+      ~Region();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Region & rhs);
+      void operator=(const Region & rhs);
 
       /**
        * Initializes variable containers
        * @param   knowledge    the knowledge base that houses the variables
        * @param   region_name  name of the region
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & region_name = "0");
       
       /**
@@ -101,10 +101,10 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   region_name  name of the region
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const std::string & region_name = "0");
 
-      /// the type of region (0 for arbitary convex polygon)
+      /// the type of region(0 for arbitary convex polygon)
       madara::knowledge::containers::Integer type;
 
       /// vertices of the convex polygon
@@ -120,7 +120,7 @@ namespace gams
       * @param   knowledge    the knowledge base that houses the variables
       * @param   region_name  name of the region
       **/
-    GAMS_EXPORT void init_vars (Region & variables,
+    GAMS_EXPORT void init_vars(Region & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const std::string & region_name = "0");
   }

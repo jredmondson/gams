@@ -24,15 +24,15 @@ namespace gams
       class Acquire_VM
       {
       public:
-        Acquire_VM ()
+        Acquire_VM()
         {
           needs_detach = !gams_jni_is_attached();
-          env = gams_jni_get_env ();
+          env = gams_jni_get_env();
         }
 
         ~Acquire_VM()
         {
-          if (needs_detach)
+          if(needs_detach)
             jni_detach();
         }
 

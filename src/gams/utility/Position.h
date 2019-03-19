@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -79,11 +79,11 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param  init_x    the x axis coordinate (e.g. latitude)
-       * @param  init_y    the y axis coordinate (e.g. longitude)
-       * @param  init_z    the z axis coordinate (e.g. altitude)
+       * @param  init_x    the x axis coordinate(e.g. latitude)
+       * @param  init_y    the y axis coordinate(e.g. longitude)
+       * @param  init_z    the z axis coordinate(e.g. altitude)
        **/
-      Position (
+      Position(
         double init_x = DBL_MAX, double init_y = 0.0, double init_z = 0.0);
 
       /**
@@ -92,37 +92,37 @@ namespace gams
        **/
       Position(const Position & source);
 
-      Position (const pose::Position & pos)
+      Position(const pose::Position & pos)
         : x(pos.x()), y(pos.y()), z(pos.z()) {}
 
-      pose::Position to_pos (const pose::ReferenceFrame &frame) const {
-        return pose::Position (frame, x, y, z);
+      pose::Position to_pos(const pose::ReferenceFrame &frame) const {
+        return pose::Position(frame, x, y, z);
       }
 
       /**
        * Destructor
        **/
-      virtual ~Position ();
+      virtual ~Position();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Position & rhs);
+      void operator=(const Position & rhs);
 
       /**
        * Equality operator
        * @param  rhs   value to compare
        * @return true if x, y, z are equal in both objects, false otherwise
        **/
-      bool operator== (const Position & rhs) const;
+      bool operator==(const Position & rhs) const;
       
       /**
        * Equality operator
        * @param  rhs   value to compare
        * @return true if x, y, z are equal in both objects, false otherwise
        **/
-      bool operator== (const
+      bool operator==(const
         madara::knowledge::containers::DoubleArray & rhs) const;
 
       /**
@@ -130,7 +130,7 @@ namespace gams
        * @param  rhs   value to compare
        * @return true if x, y, z are equal in both objects, false otherwise
        **/
-      bool operator== (const
+      bool operator==(const
         madara::knowledge::containers::NativeDoubleArray & rhs) const;
       
       /**
@@ -138,14 +138,14 @@ namespace gams
        * @param  rhs   value to compare
        * @return true if x, y, z are equal in both objects, false otherwise
        **/
-      bool operator!= (const Position & rhs) const;
+      bool operator!=(const Position & rhs) const;
       
       /**
        * Inequality operator
        * @param  rhs   value to compare
        * @return true if x, y, z are equal in both objects, false otherwise
        **/
-      bool operator!= (const
+      bool operator!=(const
         madara::knowledge::containers::DoubleArray & rhs) const;
 
       /**
@@ -153,7 +153,7 @@ namespace gams
        * @param  rhs   value to compare
        * @return true if x, y, z are equal in both objects, false otherwise
        **/
-      bool operator!= (const
+      bool operator!=(const
         madara::knowledge::containers::NativeDoubleArray & rhs) const;
 
       /**
@@ -161,14 +161,14 @@ namespace gams
        * @param rhs   comparing position
        * @return true if *this is less than rhs
        **/
-      bool operator< (const Position& rhs) const;
+      bool operator<(const Position& rhs) const;
 
       /**
        * Dot product of two positions treated as vectors
        * @param p_2   other position
        * @return dot product of the two positions
        **/
-      virtual double dot (const Position& p_2) const;
+      virtual double dot(const Position& p_2) const;
 
       /**
        * Approximate equality
@@ -176,7 +176,7 @@ namespace gams
        * @param  epsilon  approximation value
        * @return true if position is within epsilon in each direction of this
        **/
-      bool approximately_equal (
+      bool approximately_equal(
         const Position & rhs, const double & epsilon) const;
 
       /**
@@ -185,7 +185,7 @@ namespace gams
        * @param  epsilon  approximation value
        * @return true if position is within epsilon in each direction of this
        **/
-      bool approximately_equal_2d (
+      bool approximately_equal_2d(
         const Position & rhs, const double & epsilon) const;
 
       /**
@@ -194,7 +194,7 @@ namespace gams
        * @param phi     direction in x/y plane
        * @param theta   direction in z plane
        **/
-      void direction_to (
+      void direction_to(
         const Position& rhs, double& phi, double& theta) const;
 
       /**
@@ -202,13 +202,13 @@ namespace gams
        * @param  rhs      second position
        * @return euclidean distance between the two points
        **/
-      double distance_to (const Position & rhs) const;
+      double distance_to(const Position & rhs) const;
 
       /**
        * @param  rhs      second position
        * @return euclidean distance between the two points with just x and y
        **/
-      virtual double distance_to_2d (const Position & rhs) const;
+      virtual double distance_to_2d(const Position & rhs) const;
 
       /**
        * Get distance between a point and a line segment
@@ -216,7 +216,7 @@ namespace gams
        * @param check point to find distance for
        * @return distance from check to line including *this and end
        **/
-      virtual double distance_to_2d (
+      virtual double distance_to_2d(
         const Position& end, const Position& check) const;
 
       /**
@@ -225,7 +225,7 @@ namespace gams
        * @param slope location to store slope between two points
        * @return      true if slope exists
        **/
-      virtual bool slope_2d (
+      virtual bool slope_2d(
         const Position & p, double & slope) const;
 
       /**
@@ -234,46 +234,46 @@ namespace gams
        * @param check   point to check
        * @return true if check is inline and between *this and end
        **/
-      virtual bool is_between_2d (const Position & end, const Position & check) const;
+      virtual bool is_between_2d(const Position & end, const Position & check) const;
       
       /**
        * Helper function for converting the position to a string
        * @param delimiter characters to insert between position components
        **/
-      std::string to_string (const std::string & delimiter = ",") const;
+      std::string to_string(const std::string & delimiter = ",") const;
 
       /**
        * Helper function for creating a Position from a string
        * @param delimiter characters to insert between position components
        **/
-      static Position from_string (const std::string & delimiter = ",");
+      static Position from_string(const std::string & delimiter = ",");
 
       /**
       * Helper function for creating a Position from a KnowledgeRecord
       * @param record  a record containing a double array
       * @return  the Position equivalent of the record
       **/
-      static Position from_record (const madara::knowledge::KnowledgeRecord & record);
+      static Position from_record(const madara::knowledge::KnowledgeRecord & record);
 
       /**
        * Helper function for copying values to a MADARA double array
        * @param target     target container to copy values to
        **/
-      virtual void to_container (
+      virtual void to_container(
         madara::knowledge::containers::DoubleArray & target) const;
       
       /**
        * Helper function for copying values to a MADARA double array
        * @param source     source container to copy values from
        **/
-      virtual void from_container (
+      virtual void from_container(
         madara::knowledge::containers::DoubleArray & source);
       
       /**
        * Helper function for copying values to a MADARA double array
        * @param target     target container to copy values to
        **/
-      virtual void to_container (
+      virtual void to_container(
         madara::knowledge::containers::NativeDoubleArray & target)
         const;
       
@@ -281,16 +281,16 @@ namespace gams
        * Helper function for copying values to a MADARA double array
        * @param source     source container to copy values from
        **/
-      virtual void from_container (
+      virtual void from_container(
         madara::knowledge::containers::NativeDoubleArray & source);
 
-      /// the x coordinate (e.g. latitude)
+      /// the x coordinate(e.g. latitude)
       double x;
 
-      /// the y coordinate (e.g. longitude)
+      /// the y coordinate(e.g. longitude)
       double y;
 
-      /// the z coordinate (e.g. altitude)
+      /// the z coordinate(e.g. altitude)
       double z;
 
     protected:
@@ -299,21 +299,21 @@ namespace gams
        * @param rhs   value to subtract from *this
        * @return element-wise subtraction of rhs from *this
        **/
-      Position operator- (const Position & rhs) const;
+      Position operator-(const Position & rhs) const;
 
       /**
        * Addition operator performs element-wise addition
        * @param rhs   value to add to *this
        * @return element-wise addition of *this and rhs
        **/
-      Position operator+ (const Position & rhs) const;
+      Position operator+(const Position & rhs) const;
 
       /**
        * Scale the position
        * @param scale   factor to scale by
        * @return scaled version of *this
        **/
-      Position operator* (const double& scale) const;
+      Position operator*(const double& scale) const;
     };
 
     // helpful typedef for vector of positions

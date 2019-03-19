@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,18 +49,18 @@
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
-gams::variables::Region::Region ()
+gams::variables::Region::Region()
 {
 }
 
-gams::variables::Region::~Region ()
+gams::variables::Region::~Region()
 {
 }
 
 void
-gams::variables::Region::operator= (const Region & rhs)
+gams::variables::Region::operator=(const Region & rhs)
 {
-  if (this != &rhs)
+  if(this != &rhs)
   {
     this->type = rhs.type;
     this->name = rhs.name;
@@ -69,7 +69,7 @@ gams::variables::Region::operator= (const Region & rhs)
 
 
 void
-gams::variables::Region::init_vars (
+gams::variables::Region::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & region_name)
 {
@@ -77,16 +77,16 @@ gams::variables::Region::init_vars (
   name = region_name;
 
   // swarm commands are prefixed with "swarm.movement_command"
-  std::string prefix ("region");
+  std::string prefix("region");
   prefix += ".";
   prefix += name;
 
   // initialize the variable containers
-  type.set_name (prefix + ".type", knowledge);
+  type.set_name(prefix + ".type", knowledge);
 }
 
 void
-gams::variables::Region::init_vars (
+gams::variables::Region::init_vars(
   madara::knowledge::Variables & knowledge,
   const std::string & region_name)
 {
@@ -94,17 +94,17 @@ gams::variables::Region::init_vars (
   name = region_name;
 
   // swarm commands are prefixed with "swarm.movement_command"
-  std::string prefix ("region");
+  std::string prefix("region");
   prefix += ".";
   prefix += name;
 
   // initialize the variable containers
-  type.set_name (prefix + ".type", knowledge);
+  type.set_name(prefix + ".type", knowledge);
 }
 
-void gams::variables::init_vars (Region & variables,
+void gams::variables::init_vars(Region & variables,
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & region_name)
 {
-  variables.init_vars (knowledge, region_name);
+  variables.init_vars(knowledge, region_name);
 }

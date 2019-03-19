@@ -62,46 +62,46 @@ namespace gams
       class GamsParser
       {
         public:
-          GamsParser (knowledge::KnowledgeBase * kb);
-          void parse_message (std::string container_name,
+          GamsParser(knowledge::KnowledgeBase * kb);
+          void parse_message(std::string container_name,
             std::string topic_name, std::string topic_type);
           
           //known types
-          void publish_odometry (std::string container_name,
+          void publish_odometry(std::string container_name,
             std::string topic_name);
 
           template <size_t N>
-          void parse_float64_array (boost::array<double, N> *array,
+          void parse_float64_array(boost::array<double, N> *array,
             containers::NativeDoubleVector *origin);
-          void parse_float64_array (std::vector<float> *array,
+          void parse_float64_array(std::vector<float> *array,
             containers::NativeDoubleVector *origin);
-          void parse_vector3 (
+          void parse_vector3(
             geometry_msgs::Vector3 *vec,
             containers::NativeDoubleVector *origin);
-          void parse_quaternion (geometry_msgs::Quaternion *quat,
+          void parse_quaternion(geometry_msgs::Quaternion *quat,
             containers::NativeDoubleVector *origin);
           void publish_imu(std::string container_name, std::string topic_name);
-          void publish_laserscan (std::string container_name,
+          void publish_laserscan(std::string container_name,
             std::string topic_name);
-          void publish_pointcloud2 (std::string container_name,
+          void publish_pointcloud2(std::string container_name,
             std::string topic_name);
-          void parse_pose (geometry_msgs::Pose *pose,
+          void parse_pose(geometry_msgs::Pose *pose,
             containers::NativeDoubleVector *origin);
-          void publish_compressed_image (std::string container_name,
+          void publish_compressed_image(std::string container_name,
             std::string topic_name);
-          void publish_range ( std::string container_name,
+          void publish_range( std::string container_name,
             std::string topic_name);
-          void publish_fluidpressure (std::string container_name,
+          void publish_fluidpressure(std::string container_name,
             std::string topic_name);
 
           template <class T>
-          void parse_int_array (std::vector<T> *array,
+          void parse_int_array(std::vector<T> *array,
             containers::NativeIntegerVector *origin);
           template <size_t N>
-          void parse_int_array (boost::array<int, N> *array,
+          void parse_int_array(boost::array<int, N> *array,
             containers::NativeIntegerVector *origin);
           
-          int publish_transform (std::string frame_id,
+          int publish_transform(std::string frame_id,
             std::string frame_prefix);
         protected:
           // The knowledgebase

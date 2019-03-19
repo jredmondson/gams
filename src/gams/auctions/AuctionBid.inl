@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -59,68 +59,68 @@
 #include "madara/utility/Utility.h"
 
 inline bool
-gams::auctions::AuctionBid::operator< (const AuctionBid & rhs) const
+gams::auctions::AuctionBid::operator<(const AuctionBid & rhs) const
 {
   return amount < rhs.amount;
 }
 
 inline bool
-gams::auctions::AuctionBid::operator== (const AuctionBid & rhs) const
+gams::auctions::AuctionBid::operator==(const AuctionBid & rhs) const
 {
   return amount == rhs.amount;
 }
 
 inline bool
-gams::auctions::AuctionBid::operator> (const AuctionBid & rhs) const
+gams::auctions::AuctionBid::operator>(const AuctionBid & rhs) const
 {
   return amount > rhs.amount;
 }
 
 inline bool
-gams::auctions::AuctionBidAscending::operator() (
+gams::auctions::AuctionBidAscending::operator()(
   const AuctionBid & lhs, const AuctionBid &rhs) const
 {
   return lhs < rhs;
 }
 
 inline bool
-gams::auctions::AuctionBidDescending::operator() (
+gams::auctions::AuctionBidDescending::operator()(
   const AuctionBid & lhs, const AuctionBid &rhs) const
 {
   return rhs < lhs;
 }
 
 inline void
-gams::auctions::sort_descending (AuctionBids & bids)
+gams::auctions::sort_descending(AuctionBids & bids)
 {
-  std::sort (bids.begin (), bids.end (), AuctionBidDescending ());
+  std::sort(bids.begin(), bids.end(), AuctionBidDescending());
 }
 
 inline void
-gams::auctions::sort_ascending (AuctionBids & bids)
+gams::auctions::sort_ascending(AuctionBids & bids)
 {
-  std::sort (bids.begin (), bids.end (), AuctionBidAscending ());
+  std::sort(bids.begin(), bids.end(), AuctionBidAscending());
 }
 
 inline void
-gams::auctions::strip_prefix_fast (
+gams::auctions::strip_prefix_fast(
   const std::string & prefix, AuctionBids & bids)
 {
-  for (size_t i = 0; i < bids.size (); ++i)
+  for (size_t i = 0; i < bids.size(); ++i)
   {
-    bids[i].bidder.erase (0, prefix.size ());
+    bids[i].bidder.erase(0, prefix.size());
   }
 }
 
 inline void
-gams::auctions::strip_prefix_safe (
+gams::auctions::strip_prefix_safe(
 const std::string & prefix, AuctionBids & bids)
 {
-  for (size_t i = 0; i < bids.size (); ++i)
+  for (size_t i = 0; i < bids.size(); ++i)
   {
-    if (madara::utility::begins_with (bids[i].bidder, prefix))
+    if (madara::utility::begins_with(bids[i].bidder, prefix))
     {
-      bids[i].bidder.erase (0, prefix.size ());
+      bids[i].bidder.erase(0, prefix.size());
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -51,54 +51,54 @@
 #include "gams/loggers/GlobalLogger.h"
 
 inline int
-gams::auctions::AuctionBase::get_round (void) const
+gams::auctions::AuctionBase::get_round(void) const
 {
   return round_;
 }
 
 inline const std::string &
-gams::auctions::AuctionBase::get_agent_prefix (void) const
+gams::auctions::AuctionBase::get_agent_prefix(void) const
 {
   return agent_prefix_;
 }
 
 inline void
-gams::auctions::AuctionBase::set_agent_prefix (const std::string & prefix)
+gams::auctions::AuctionBase::set_agent_prefix(const std::string & prefix)
 {
   agent_prefix_ = prefix;
 }
 
 inline const std::string &
-gams::auctions::AuctionBase::get_auction_prefix (void) const
+gams::auctions::AuctionBase::get_auction_prefix(void) const
 {
   return auction_prefix_;
 }
 
 inline void
-gams::auctions::AuctionBase::reset_bids_pointer (void)
+gams::auctions::AuctionBase::reset_bids_pointer(void)
 {
   if (knowledge_ && auction_prefix_ != "")
   {
-    bids_.set_name (get_auction_round_prefix (), *knowledge_);
+    bids_.set_name(get_auction_round_prefix(), *knowledge_);
   }
 }
 
 inline std::string
-gams::auctions::AuctionBase::get_auction_round_prefix (void) const
+gams::auctions::AuctionBase::get_auction_round_prefix(void) const
 {
   std::stringstream buffer;
   buffer << auction_prefix_;
   buffer << ".";
   buffer << round_;
 
-  return buffer.str ();
+  return buffer.str();
 }
 
 inline void
-gams::auctions::AuctionBase::bid (
+gams::auctions::AuctionBase::bid(
   const madara::knowledge::KnowledgeRecord & amount)
 {
-  bid (agent_prefix_, amount);
+  bid(agent_prefix_, amount);
 }
 
 #endif // _GAMS_AUCTIONS_AUCTION_BASE_INL_

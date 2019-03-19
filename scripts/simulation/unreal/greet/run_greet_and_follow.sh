@@ -8,7 +8,7 @@ NT=0
 TARGETS=1
 SCRIPTS_DIR=`dirname $0`
 SCRIPT="$SCRIPTS_DIR/greet_and_follow.mf"
-LOG_LEVEL=4
+LOG_LEVEL=1
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then

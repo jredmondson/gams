@@ -28,38 +28,38 @@ STRICT_MODE_OFF
 STRICT_MODE_ON
 
 gams::platforms::BasePlatform *
-gams::platforms::AirLibQuadcopterFactory::create (
+gams::platforms::AirLibQuadcopterFactory::create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self)
 {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MINOR,
     "entering gams::platforms::AirLibQuadcopterFactory::create\n");
 
-  BasePlatform * result (0);
+  BasePlatform * result(0);
 
   if (knowledge && sensors && platforms && self)
   {
-    if (knowledge->get_num_transports () == 0)
+    if (knowledge->get_num_transports() == 0)
     {
       madara::transport::QoSTransportSettings settings;
 
       settings.type = madara::transport::MULTICAST;
-      settings.hosts.push_back ("239.255.0.1:4150");
+      settings.hosts.push_back("239.255.0.1:4150");
 
-      knowledge_->attach_transport ("", settings);
-      knowledge_->activate_transport ();
+      knowledge_->attach_transport("", settings);
+      knowledge_->activate_transport();
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
          "gams::platforms::AirLibQuadcopterFactory::create:" \
         " no transports found, attaching multicast\n");
     }
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::AirLibQuadcopterFactory::create:" \
       " creating AirLibQuadcopter object\n");
@@ -68,7 +68,7 @@ gams::platforms::AirLibQuadcopterFactory::create (
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
        "gams::platforms::AirLibQuadcopterFactory:::create:" \
       " invalid knowledge, sensors, platforms, or self\n");
@@ -76,7 +76,7 @@ gams::platforms::AirLibQuadcopterFactory::create (
 
   if (result == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::AirLibQuadcopterFactory:::create:" \
       " error creating AirLibQuadcopter object\n");
@@ -85,11 +85,11 @@ gams::platforms::AirLibQuadcopterFactory::create (
   return result;
 }
 
-gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
+gams::platforms::AirLibQuadcopter::AirLibQuadcopter(
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Self * self)
-  : AirLibBase (knowledge, sensors, self)
+  : AirLibBase(knowledge, sensors, self)
 {
   try
   {
@@ -116,9 +116,9 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
       // establish sensor
       gams::variables::Sensor *coverage_sensor =
           new gams::variables::Sensor("coverage", knowledge, 2.5, origin);
-      (*sensors)["coverage"] = coverage_sensor;
+     (*sensors)["coverage"] = coverage_sensor;
     }
-    (*sensors_)["coverage"] = (*sensors)["coverage"];
+   (*sensors_)["coverage"] =(*sensors)["coverage"];
     status_.init_vars(*knowledge, get_id());
 
     // create threads
@@ -138,7 +138,7 @@ gams::platforms::AirLibQuadcopter::AirLibQuadcopter (
   }
   std::cout << "AirLibQuadcopter active!" << std::endl;
  }
- catch (rpc::rpc_error&  e) {
+ catch(rpc::rpc_error&  e) {
         std::string msg = e.get_error().as<std::string>();
         std::cout << "Exception raised by the API, something went wrong." << std::endl << msg << std::endl;
   }
@@ -151,13 +151,13 @@ gams::platforms::AirLibQuadcopter::~AirLibQuadcopter()
 }
 
 std::string
-gams::platforms::AirLibQuadcopter::get_id () const
+gams::platforms::AirLibQuadcopter::get_id() const
 {
   return "unreal_quad";
 }
 
 std::string
-gams::platforms::AirLibQuadcopter::get_name () const
+gams::platforms::AirLibQuadcopter::get_name() const
 {
   return "airlib quad";
 }

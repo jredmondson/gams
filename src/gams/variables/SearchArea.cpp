@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,18 +48,18 @@
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
-gams::variables::SearchArea::SearchArea ()
+gams::variables::SearchArea::SearchArea()
 {
 }
 
-gams::variables::SearchArea::~SearchArea ()
+gams::variables::SearchArea::~SearchArea()
 {
 }
 
 void
-gams::variables::SearchArea::operator= (const SearchArea & rhs)
+gams::variables::SearchArea::operator=(const SearchArea & rhs)
 {
-  if (this != &rhs)
+  if(this != &rhs)
   {
     //this->region = rhs.region;
     this->name = rhs.name;
@@ -68,7 +68,7 @@ gams::variables::SearchArea::operator= (const SearchArea & rhs)
 
 
 void
-gams::variables::SearchArea::init_vars (
+gams::variables::SearchArea::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & area_name)
 {
@@ -76,18 +76,18 @@ gams::variables::SearchArea::init_vars (
   name = area_name;
 
   // swarm commands are prefixed with "swarm.movement_command"
-  std::string prefix ("search_area");
+  std::string prefix("search_area");
   prefix += ".";
   prefix += area_name;
 
-  madara::knowledge::KnowledgeRecord region_id = knowledge.get (prefix);
+  madara::knowledge::KnowledgeRecord region_id = knowledge.get(prefix);
   
   // initialize the variable containers
-  //region.init_vars (knowledge, region_id.to_string ());
+  //region.init_vars(knowledge, region_id.to_string());
 }
 
 void
-gams::variables::SearchArea::init_vars (
+gams::variables::SearchArea::init_vars(
   madara::knowledge::Variables & knowledge,
   const std::string & area_name)
 {
@@ -95,19 +95,19 @@ gams::variables::SearchArea::init_vars (
   name = area_name;
 
   // swarm commands are prefixed with "swarm.movement_command"
-  std::string prefix ("search_area");
+  std::string prefix("search_area");
   prefix += ".";
   prefix += area_name;
 
-  madara::knowledge::KnowledgeRecord region_id = knowledge.get (prefix);
+  madara::knowledge::KnowledgeRecord region_id = knowledge.get(prefix);
   
   // initialize the variable containers
-  //region.init_vars (knowledge, region_id.to_string ());
+  //region.init_vars(knowledge, region_id.to_string());
 }
 
-void gams::variables::init_vars (SearchArea & variables,
+void gams::variables::init_vars(SearchArea & variables,
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & area_name)
 {
-  variables.init_vars (knowledge, area_name);
+  variables.init_vars(knowledge, area_name);
 }

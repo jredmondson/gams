@@ -11,7 +11,7 @@ int main(int, char**)
 
   if (joystick.open_handle ("/dev/input/js0"))
   {
-    while(true)
+    while (true)
     {
       gams::utility::JoystickEvent event;
       if (joystick.get(event))

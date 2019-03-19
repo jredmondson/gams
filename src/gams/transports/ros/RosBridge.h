@@ -19,14 +19,14 @@ namespace gams
     public:
       /**
        * Constructor
-       * @param   id                unique identifier (generally host:port)
+       * @param   id                unique identifier(generally host:port)
        * @param   new_settings      settings to apply to the transport
        * @param   context           the knowledge record context
        * @param   topics            vector of topics to subscribe
        * @param   topic_map         map from ros topic name to madara var name
        * @param   pub_topic_types   map from ros topic name to ros topic type
        **/
-      RosBridge (const std::string & id,
+      RosBridge(const std::string & id,
         madara::transport::TransportSettings & new_settings,
         madara::knowledge::KnowledgeBase & context,
         std::vector<std::string> topics,
@@ -36,7 +36,7 @@ namespace gams
       /**
        * Destructor
        **/
-      virtual ~RosBridge ();
+      virtual ~RosBridge();
       
       /**
        * Sends a list of updates to the domain. This function must be
@@ -45,7 +45,7 @@ namespace gams
        *          been updated and could be sent.
        * @return  result of operation or -1 if we are shutting down
        **/
-      long send_data (const madara::knowledge::KnowledgeMap & modifieds);
+      long send_data(const madara::knowledge::KnowledgeMap & modifieds);
 
       unsigned int in_message_count();
       unsigned int out_message_count();
@@ -63,7 +63,7 @@ namespace gams
       std::map<std::string, std::string> pub_topic_types_;
       gams::utility::ros::GamsParser * parser_;
 
-      std::pair<std::string, std::string> get_update_container_pair_ (
+      std::pair<std::string, std::string> get_update_container_pair_(
         const char * container_name);
       
       unsigned int message_count_;

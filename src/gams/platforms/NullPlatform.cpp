@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,116 +47,116 @@
 #include "gams/loggers/GlobalLogger.h"
 
 gams::platforms::BasePlatform *
-gams::platforms::NullPlatformFactory::create (
+gams::platforms::NullPlatformFactory::create(
 const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
 {
-  BasePlatform * result (0);
+  BasePlatform * result(0);
   
   if (knowledge && sensors && platforms && self)
   {
-    result = new NullPlatform (knowledge, sensors, platforms, self);
+    result = new NullPlatform(knowledge, sensors, platforms, self);
   }
 
   return result;
 }
 
-gams::platforms::NullPlatform::NullPlatform (
+gams::platforms::NullPlatform::NullPlatform(
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : BasePlatform (knowledge, sensors, self)
+  : BasePlatform(knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
-    (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
-    status_ = (*platforms)[get_id ()];
+   (*platforms)[get_id()].init_vars(*knowledge, get_id());
+    status_ =(*platforms)[get_id()];
   }
 }
 
-gams::platforms::NullPlatform::~NullPlatform ()
+gams::platforms::NullPlatform::~NullPlatform()
 {
 }
 
 void
-gams::platforms::NullPlatform::operator= (const NullPlatform & rhs)
+gams::platforms::NullPlatform::operator=(const NullPlatform & rhs)
 {
   if (this != &rhs)
   {
-    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *> (this);
+    platforms::BasePlatform * dest = dynamic_cast <platforms::BasePlatform *>(this);
     const platforms::BasePlatform * source =
-      dynamic_cast <const platforms::BasePlatform *> (&rhs);
+      dynamic_cast <const platforms::BasePlatform *>(&rhs);
 
     *dest = *source;
   }
 }
  
 int
-gams::platforms::NullPlatform::analyze (void)
+gams::platforms::NullPlatform::analyze(void)
 { 
   return 0;
 }
 
 std::string
-gams::platforms::NullPlatform::get_id () const
+gams::platforms::NullPlatform::get_id() const
 {
   return "null";
 }
 
 std::string
-gams::platforms::NullPlatform::get_name () const
+gams::platforms::NullPlatform::get_name() const
 {
   return "Null";
 }
 
 double
-gams::platforms::NullPlatform::get_accuracy () const
+gams::platforms::NullPlatform::get_accuracy() const
 {
   return 0.0;
 }
 
 double
-gams::platforms::NullPlatform::get_move_speed () const
+gams::platforms::NullPlatform::get_move_speed() const
 {
   return 0.0;
 }
 
 int
-gams::platforms::NullPlatform::home (void)
+gams::platforms::NullPlatform::home(void)
 {
   return 0;
 }
 
 int
-gams::platforms::NullPlatform::land (void)
+gams::platforms::NullPlatform::land(void)
 {
   return 0;
 }
 
 int
-gams::platforms::NullPlatform::move (const pose::Position & /*position*/,
+gams::platforms::NullPlatform::move(const pose::Position & /*position*/,
   const pose::PositionBounds & /*bounds*/)
 {
   return 0;
 }
 
 int
-gams::platforms::NullPlatform::sense (void)
+gams::platforms::NullPlatform::sense(void)
 {
   return 0;
 }
 
 void
-gams::platforms::NullPlatform::set_move_speed (const double& /*speed*/)
+gams::platforms::NullPlatform::set_move_speed(const double& /*speed*/)
 {
 }
 
 int
-gams::platforms::NullPlatform::takeoff (void)
+gams::platforms::NullPlatform::takeoff(void)
 {
   return 0;
 }
