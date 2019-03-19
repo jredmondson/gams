@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -84,75 +84,75 @@ namespace gams
     public:
       /**
       * Constructor
-      * @param election_prefix the name of the election (e.g. election.leader)
-      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param election_prefix the name of the election(e.g. election.leader)
+      * @param agent_prefix   the name of this bidder(e.g. agent.0)
       * @param knowledge      the knowledge base to use for syncing
       **/
-      ElectionBase (const std::string & election_prefix = "",
+      ElectionBase(const std::string & election_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Constructor
       **/
-      virtual ~ElectionBase ();
+      virtual ~ElectionBase();
 
       /**
       * Checks if the agent has voted in this round
-      * @param  agent_prefix  the participating agent's prefix (e.g. agent.0)
+      * @param  agent_prefix  the participating agent's prefix(e.g. agent.0)
       * @return  true if the agent is a member of the election
       **/
-      virtual bool has_voted (const std::string & agent_prefix);
+      virtual bool has_voted(const std::string & agent_prefix);
 
       /**
       * Gets the votes cast in the election
       * @param  results  the results of the vote
       **/
-      virtual void get_votes (CandidateVotes & results);
+      virtual void get_votes(CandidateVotes & results);
 
       /**
       * Gets the votes cast in the election by a specific group of agents
       * @param  group    the group that is of interest
       * @param  results  the results of the vote
       **/
-      virtual void get_votes (
+      virtual void get_votes(
         groups::GroupBase * group, CandidateVotes & results);
 
       /**
       * Sets the prefix for the current bidding agent
-      * @param prefix   the name of the agent (e.g. agent.0)
+      * @param prefix   the name of the agent(e.g. agent.0)
       **/
-      virtual void set_agent_prefix (const std::string & prefix);
+      virtual void set_agent_prefix(const std::string & prefix);
 
       /**
       * Sets the prefix for the election in the knowledge base
-      * @param prefix   the name of the election (e.g. election.protectors)
+      * @param prefix   the name of the election(e.g. election.protectors)
       **/
-      virtual void set_election_prefix (const std::string & prefix);
+      virtual void set_election_prefix(const std::string & prefix);
 
       /**
       * Sets the knowledge base
       * @param knowledge the knowledge base to use for syncing
       **/
-      virtual void set_knowledge_base (
+      virtual void set_knowledge_base(
         madara::knowledge::KnowledgeBase * knowledge);
 
       /**
       * Syncs the election information from the knowledge base
       **/
-      virtual void sync (void);
+      virtual void sync(void);
 
       /**
       * Gets the prefix for the current agent
-      * @return  the name of this bidding agent (e.g. agent.0)
+      * @return  the name of this bidding agent(e.g. agent.0)
       **/
-      const std::string & get_agent_prefix (void) const;
+      const std::string & get_agent_prefix(void) const;
 
       /**
       * Gets the prefix for the election in the knowledge base
-      * @return  the name of the election (e.g. election.protectors)
+      * @return  the name of the election(e.g. election.protectors)
       **/
-      const std::string & get_election_prefix (void) const;
+      const std::string & get_election_prefix(void) const;
 
       /**
       * Votes in the election. Uses the agent prefix that has been
@@ -160,7 +160,7 @@ namespace gams
       * @param  candidate   the candidate receiving votes
       * @param  votes       the number of votes cast
       **/
-      void vote (const std::string & candidate, int votes = 1);
+      void vote(const std::string & candidate, int votes = 1);
 
       /**
       * Bids in the election
@@ -168,7 +168,7 @@ namespace gams
       * @param  candidate   the candidate receiving votes
       * @param  votes       the number of votes cast
       **/
-      virtual void vote (const std::string & agent,
+      virtual void vote(const std::string & agent,
         const std::string & candidate, int votes = 1);
 
       /**
@@ -177,25 +177,25 @@ namespace gams
       * @param  num_leaders maximum leaders to return
       * @return the leaders of the election up to num_leaders
       **/
-      virtual CandidateList get_leaders (int num_leaders = 1) = 0;
+      virtual CandidateList get_leaders(int num_leaders = 1) = 0;
 
       /**
       * Proceeds to the next election round in a multi-round
       * election
       **/
-      virtual void advance_round (void);
+      virtual void advance_round(void);
 
       /**
       * Retrieves the round number, usually in a multi-round election
       * @return the agent prefix of the leader of the election
       **/
-      int get_round (void) const;
+      int get_round(void) const;
 
       /**
       * Resets the round
       * @return the agent prefix of the leader of the election
       **/
-      virtual void reset_round (void);
+      virtual void reset_round(void);
 
     protected:
 
@@ -203,7 +203,7 @@ namespace gams
       * calls a reset on the votes_ location in the knowledge base
       * using election_prefix_ + "." + round_.
       **/
-      void reset_votes_pointer (void);
+      void reset_votes_pointer(void);
 
       /**
       * The knowledge base to use as a data plane

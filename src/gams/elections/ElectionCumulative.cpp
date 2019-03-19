@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -55,78 +55,78 @@ namespace containers = knowledge::containers;
 
 typedef  knowledge::KnowledgeRecord  KnowledgeRecord;
 
-gams::elections::ElectionCumulativeFactory::ElectionCumulativeFactory ()
+gams::elections::ElectionCumulativeFactory::ElectionCumulativeFactory()
 {
 }
 
-gams::elections::ElectionCumulativeFactory::~ElectionCumulativeFactory ()
+gams::elections::ElectionCumulativeFactory::~ElectionCumulativeFactory()
 {
 }
 
 gams::elections::ElectionBase *
-gams::elections::ElectionCumulativeFactory::create (
+gams::elections::ElectionCumulativeFactory::create(
 const std::string & election_prefix,
 const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionCumulativeFactory:" \
-    " creating election from %s\n", election_prefix.c_str ());
+    " creating election from %s\n", election_prefix.c_str());
 
-  return new ElectionCumulative (election_prefix, agent_prefix, knowledge);
+  return new ElectionCumulative(election_prefix, agent_prefix, knowledge);
 }
 
-gams::elections::ElectionCumulative::ElectionCumulative (
+gams::elections::ElectionCumulative::ElectionCumulative(
   const std::string & election_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : ElectionBase (election_prefix, agent_prefix, knowledge)
+  : ElectionBase(election_prefix, agent_prefix, knowledge)
 {
 }
 
 /**
 * Constructor
 **/
-gams::elections::ElectionCumulative::~ElectionCumulative ()
+gams::elections::ElectionCumulative::~ElectionCumulative()
 {
 
 }
 
 gams::elections::CandidateList
-gams::elections::ElectionCumulative::get_leaders (int num_leaders)
+gams::elections::ElectionCumulative::get_leaders(int num_leaders)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionCumulative:get_leaders" \
-    " getting leaders from %s\n", election_prefix_.c_str ());
+    " getting leaders from %s\n", election_prefix_.c_str());
 
   CandidateList leaders;
 
   if (knowledge_)
   {
-    knowledge::ContextGuard guard (*knowledge_);
+    knowledge::ContextGuard guard(*knowledge_);
 
     typedef std::map <KnowledgeRecord::Integer, CandidateList> Leaderboard;
 
     CandidateVotes candidates;
     Leaderboard leaderboard;
 
-    get_votes (candidates);
+    get_votes(candidates);
 
     // construct the leaderboard
-    for (CandidateVotes::iterator i = candidates.begin ();
-      i != candidates.end (); ++i)
+    for (CandidateVotes::iterator i = candidates.begin();
+      i != candidates.end(); ++i)
     {
-      leaderboard[i->second].push_back (i->first);
+      leaderboard[i->second].push_back(i->first);
     }
 
     // leaderboard is in ascending order, so grab from the back
-    for (Leaderboard::reverse_iterator i = leaderboard.rbegin ();
-      i != leaderboard.rend () && (int) leaders.size () < num_leaders; ++i)
+    for (Leaderboard::reverse_iterator i = leaderboard.rbegin();
+      i != leaderboard.rend() &&(int) leaders.size() < num_leaders; ++i)
     {
       // if it is a tie, we could provide more than num_leaders
-      leaders.insert (leaders.end (), i->second.begin (), i->second.end ());
+      leaders.insert(leaders.end(), i->second.begin(), i->second.end());
     }
   }
 
@@ -134,17 +134,17 @@ gams::elections::ElectionCumulative::get_leaders (int num_leaders)
 }
 
 std::string
-gams::elections::ElectionCumulative::get_leader (void)
+gams::elections::ElectionCumulative::get_leader(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionCumulative:get_leader" \
-    " getting leader from %s\n", election_prefix_.c_str ());
+    " getting leader from %s\n", election_prefix_.c_str());
 
   std::string leader;
-  CandidateList leaders = get_leaders ();
+  CandidateList leaders = get_leaders();
 
-  if (leaders.size () > 0)
+  if (leaders.size() > 0)
   {
     leader = leaders[0];
   }

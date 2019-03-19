@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -46,11 +46,11 @@
 
 #include "AgentFormation.h"
 
-gams::formations::AgentFormation::AgentFormation ()
-: knowledge_ (0), id_ ("")
+gams::formations::AgentFormation::AgentFormation()
+: knowledge_(0), id_("")
 {
 }
 
-gams::formations::AgentFormation::~AgentFormation ()
+gams::formations::AgentFormation::~AgentFormation()
 {
 }

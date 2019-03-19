@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -28,7 +28,7 @@
  *      University for the operation of the Software Engineering Institute, a
  *      federally funded research and development center. Any opinions,
  *      findings and conclusions or recommendations expressed in this material
- *      are those of the author (s) and do not necessarily reflect the views of
+ *      are those of the author(s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
  * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
@@ -80,7 +80,7 @@ namespace gams
     *
     * "line": protectors arrange themselves in a line perpendicular to line
     *   connecting enemy to asset, and parallel to the ground; supports only
-    *   one enemy and one asset (only first in each group will be used)
+    *   one enemy and one asset(only first in each group will be used)
     **/
     class GAMS_EXPORT ZoneCoverage : public BaseAlgorithm
     {
@@ -92,7 +92,7 @@ namespace gams
        * @param  assets       name of group of agents to protect
        * @param  enemies      name of group of attacking agents
        * @param  formation    name of formation
-       * @param  frame        frame of reference (cartesian, GPS)
+       * @param  frame        frame of reference(cartesian, GPS)
        * @param  buffer       buffer between agents
        * @param  distance     distance from the asset
        * @param  knowledge    the context containing variables and values
@@ -100,7 +100,7 @@ namespace gams
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      ZoneCoverage (
+      ZoneCoverage(
         const std::string &protectors,
         const std::string &assets,
         const std::string &enemies,
@@ -114,31 +114,31 @@ namespace gams
       /**
        * Destructor
        **/
-      ~ZoneCoverage ();
+      ~ZoneCoverage();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const ZoneCoverage & rhs);
+      void operator=(const ZoneCoverage & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
     protected:
       /// factory for interacting with user-defined groups
@@ -162,15 +162,15 @@ namespace gams
 
       int index_;
 
-      typedef pose::Position (ZoneCoverage::*formation_func) () const;
+      typedef pose::Position(ZoneCoverage::*formation_func)() const;
 
       formation_func form_func_;
 
-      pose::Position line_formation () const;
-      pose::Position arc_formation () const;
-      pose::Position onion_formation () const;
+      pose::Position line_formation() const;
+      pose::Position arc_formation() const;
+      pose::Position onion_formation() const;
 
-      static formation_func get_form_func (const std::string &form_name);
+      static formation_func get_form_func(const std::string &form_name);
 
       typedef std::vector<madara::knowledge::containers::NativeDoubleArray> MadaraArrayVec;
 
@@ -182,9 +182,9 @@ namespace gams
       pose::Position next_loc_;
 
     private:
-      void update_arrays (const gams::groups::AgentVector &names,
+      void update_arrays(const gams::groups::AgentVector &names,
                          MadaraArrayVec &arrays) const;
-      void update_locs (const MadaraArrayVec &arrays,
+      void update_locs(const MadaraArrayVec &arrays,
                        std::vector<pose::Position> &locs) const;
     };
     
@@ -212,7 +212,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

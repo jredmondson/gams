@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,16 +51,16 @@ using std::string;
 
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
-gams::variables::AlgorithmStatus::AlgorithmStatus ()
+gams::variables::AlgorithmStatus::AlgorithmStatus()
 {
 }
 
-gams::variables::AlgorithmStatus::~AlgorithmStatus ()
+gams::variables::AlgorithmStatus::~AlgorithmStatus()
 {
 }
 
 void
-gams::variables::AlgorithmStatus::operator= (const AlgorithmStatus & rhs)
+gams::variables::AlgorithmStatus::operator=(const AlgorithmStatus & rhs)
 {
   if (this != &rhs)
   {
@@ -76,95 +76,95 @@ gams::variables::AlgorithmStatus::operator= (const AlgorithmStatus & rhs)
 }
 
 void
-gams::variables::AlgorithmStatus::init_vars (
+gams::variables::AlgorithmStatus::init_vars(
 madara::knowledge::KnowledgeBase & knowledge,
 const std::string & new_name, const std::string & agent_prefix)
 {
   id = -1;
   name = new_name;
 
-  std::string prefix (agent_prefix + ".algorithm." + name);
+  std::string prefix(agent_prefix + ".algorithm." + name);
 
   // initialize the variable containers
-  this->ok.set_name (prefix + ".ok", knowledge);
-  this->paused.set_name (prefix + ".paused", knowledge);
-  this->waiting.set_name (prefix + ".waiting", knowledge);
-  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
-  this->failed.set_name (prefix + ".failed", knowledge);
-  this->unknown.set_name (prefix + ".unknown", knowledge);
-  this->finished.set_name (prefix + ".finished", knowledge);
+  this->ok.set_name(prefix + ".ok", knowledge);
+  this->paused.set_name(prefix + ".paused", knowledge);
+  this->waiting.set_name(prefix + ".waiting", knowledge);
+  this->deadlocked.set_name(prefix + ".deadlocked", knowledge);
+  this->failed.set_name(prefix + ".failed", knowledge);
+  this->unknown.set_name(prefix + ".unknown", knowledge);
+  this->finished.set_name(prefix + ".finished", knowledge);
 }
 
 void
-gams::variables::AlgorithmStatus::init_vars (
+gams::variables::AlgorithmStatus::init_vars(
 madara::knowledge::Variables & knowledge,
 const std::string & new_name, const std::string & agent_prefix)
 {
   id = -1;
   name = new_name;
 
-  std::string prefix (agent_prefix + ".algorithm." + name);
+  std::string prefix(agent_prefix + ".algorithm." + name);
 
   // initialize the variable containers
-  this->ok.set_name (prefix + ".ok", knowledge);
-  this->paused.set_name (prefix + ".paused", knowledge);
-  this->waiting.set_name (prefix + ".waiting", knowledge);
-  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
-  this->failed.set_name (prefix + ".failed", knowledge);
-  this->unknown.set_name (prefix + ".unknown", knowledge);
-  this->finished.set_name (prefix + ".finished", knowledge);
+  this->ok.set_name(prefix + ".ok", knowledge);
+  this->paused.set_name(prefix + ".paused", knowledge);
+  this->waiting.set_name(prefix + ".waiting", knowledge);
+  this->deadlocked.set_name(prefix + ".deadlocked", knowledge);
+  this->failed.set_name(prefix + ".failed", knowledge);
+  this->unknown.set_name(prefix + ".unknown", knowledge);
+  this->finished.set_name(prefix + ".finished", knowledge);
 }
 
 void
-gams::variables::AlgorithmStatus::init_vars (
+gams::variables::AlgorithmStatus::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & new_name, int i)
 {
   id = i;
   name = new_name;
-  std::string prefix (make_variable_prefix ());
+  std::string prefix(make_variable_prefix());
 
   // initialize the variable containers
-  this->ok.set_name (prefix + ".ok", knowledge);
-  this->paused.set_name (prefix + ".paused", knowledge);
-  this->waiting.set_name (prefix + ".waiting", knowledge);
-  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
-  this->failed.set_name (prefix + ".failed", knowledge);
-  this->unknown.set_name (prefix + ".unknown", knowledge);
-  this->finished.set_name (prefix + ".finished", knowledge);
+  this->ok.set_name(prefix + ".ok", knowledge);
+  this->paused.set_name(prefix + ".paused", knowledge);
+  this->waiting.set_name(prefix + ".waiting", knowledge);
+  this->deadlocked.set_name(prefix + ".deadlocked", knowledge);
+  this->failed.set_name(prefix + ".failed", knowledge);
+  this->unknown.set_name(prefix + ".unknown", knowledge);
+  this->finished.set_name(prefix + ".finished", knowledge);
 }
 
 void
-gams::variables::AlgorithmStatus::init_vars (
+gams::variables::AlgorithmStatus::init_vars(
   madara::knowledge::Variables & knowledge,
   const std::string & new_name, int i)
 {
   id = i;
   name = new_name;
-  std::string prefix (make_variable_prefix ());
+  std::string prefix(make_variable_prefix());
 
   // initialize the variable containers
-  this->ok.set_name (prefix + ".ok", knowledge);
-  this->paused.set_name (prefix + ".paused", knowledge);
-  this->waiting.set_name (prefix + ".waiting", knowledge);
-  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
-  this->failed.set_name (prefix + ".failed", knowledge);
-  this->unknown.set_name (prefix + ".unknown", knowledge);
-  this->finished.set_name (prefix + ".finished", knowledge);
+  this->ok.set_name(prefix + ".ok", knowledge);
+  this->paused.set_name(prefix + ".paused", knowledge);
+  this->waiting.set_name(prefix + ".waiting", knowledge);
+  this->deadlocked.set_name(prefix + ".deadlocked", knowledge);
+  this->failed.set_name(prefix + ".failed", knowledge);
+  this->unknown.set_name(prefix + ".unknown", knowledge);
+  this->finished.set_name(prefix + ".finished", knowledge);
 }
 
 string
-gams::variables::AlgorithmStatus::make_variable_prefix () const
+gams::variables::AlgorithmStatus::make_variable_prefix() const
 {
   std::stringstream buffer;
   buffer << "agent." << id << ".algorithm.";
   buffer << name;
 
-  return buffer.str ();
+  return buffer.str();
 }
 
 void
-gams::variables::AlgorithmStatus::init_variable_values ()
+gams::variables::AlgorithmStatus::init_variable_values()
 {
   ok = 1;
   paused = 0;

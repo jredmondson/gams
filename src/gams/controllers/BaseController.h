@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -92,44 +92,44 @@ namespace gams
        * @param   knowledge   The knowledge base to reference and mutate
        * @param   settings    an initial configuration for the controller
        **/
-      BaseController (madara::knowledge::KnowledgeBase & knowledge,
-        const ControllerSettings & settings = ControllerSettings ());
+      BaseController(madara::knowledge::KnowledgeBase & knowledge,
+        const ControllerSettings & settings = ControllerSettings());
 
       /**
        * Destructor
        **/
-      virtual ~BaseController ();
+      virtual ~BaseController();
 
       /**
-       * Defines the monitor function (the M of MAPE). This function should
+       * Defines the monitor function(the M of MAPE). This function should
        * return a 0 unless the MAPE loop should stop.
        **/
-      virtual int monitor (void);
+      virtual int monitor(void);
 
       /**
        * Analyzes the system to determine if platform or algorithm changes
        * are necessary. This function should
        * return a 0 unless the MAPE loop should stop.
        **/
-      virtual int system_analyze (void);
+      virtual int system_analyze(void);
 
       /**
-       * Defines the analyze function (the A of MAPE). This function should
+       * Defines the analyze function(the A of MAPE). This function should
        * return a 0 unless the MAPE loop should stop.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
 
       /**
-       * Defines the plan function (the P of MAPE). This function should
+       * Defines the plan function(the P of MAPE). This function should
        * return a 0 unless the MAPE loop should stop.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
 
       /**
-       * Defines the execute function (the E of MAPE). This function should
+       * Defines the execute function(the E of MAPE). This function should
        * return a 0 unless the MAPE loop should stop.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Runs a single iteration of the MAPE loop
@@ -137,20 +137,20 @@ namespace gams
        *
        * @return  the result of the MAPE loop iteration
        **/
-      int run_once (void);
+      int run_once(void);
 
       /**
        * Runs iterations of the MAPE loop with specified periods
-       * @param  loop_period  time (in seconds) between executions of the loop.
+       * @param  loop_period  time(in seconds) between executions of the loop.
        *                      0 period is meant to run loop iterations as fast
        *                      as possible. Negative loop periods are invalid.
        * @param  max_runtime  maximum total runtime to execute the MAPE loops
-       * @param  send_period  time (in seconds) between sending data.
+       * @param  send_period  time(in seconds) between sending data.
        *                      If send_period <= 0, send period will use the
        *                      loop period.
        * @return  the result of the MAPE loop
        **/
-      int run (double loop_period,
+      int run(double loop_period,
         double max_runtime = -1,
         double send_period = -1.0);
       
@@ -164,48 +164,48 @@ namespace gams
        *                  non-positive, loop_hz is used.
        * @return  the result of the MAPE loop
        **/
-      inline int run_hz (double loop_hz = 0.0,
+      inline int run_hz(double loop_hz = 0.0,
         double max_runtime = -1,
         double send_hz = -1.0)
       {
         double loop_rate, send_rate;
 
         // check for bad data
-        if (loop_hz <= 0.0)
+        if(loop_hz <= 0.0)
           loop_rate = 0.0;
         // otherwise, set rate to 1s divided by the intended hz
         else
           loop_rate = 1.0 / loop_hz;
 
         // copy from loop hz if send hz is non-positive
-        if (send_hz <= 0)
+        if(send_hz <= 0)
           send_rate = loop_rate;
         // otherwise, set rate to 1s divided by the intended hz
         else
           send_rate = 1.0 / send_hz;
 
-        return run (loop_rate, max_runtime, send_rate);
+        return run(loop_rate, max_runtime, send_rate);
       }
 
       /**
        * Runs iterations of the MAPE loop with configured settings
        * @return  the result of the MAPE loop
        **/
-      int run (void);
+      int run(void);
 
       /**
        * Adds an accent algorithm
        * @param  algorithm   the name of the accent algorithm to add
        * @param  args        vector of knowledge record arguments
        **/
-      void init_accent (const std::string & algorithm,
+      void init_accent(const std::string & algorithm,
         const madara::knowledge::KnowledgeMap & args =
-          madara::knowledge::KnowledgeMap ());
+          madara::knowledge::KnowledgeMap());
 
       /**
        * Clears all accent algorithms
        **/
-      void clear_accents (void);
+      void clear_accents(void);
 
       /**
        * Adds an aliased platform factory. This factory will be
@@ -215,7 +215,7 @@ namespace gams
        *                   aliases will be converted to lower case
        * @param  factory   the factory for creating a platform
        **/
-      void add_platform_factory (
+      void add_platform_factory(
         const std::vector <std::string> & aliases,
         platforms::PlatformFactory * factory);
       
@@ -227,7 +227,7 @@ namespace gams
        *                   aliases will be converted to lower case
        * @param  factory   the factory for creating an algorithm
        **/
-      void add_algorithm_factory (
+      void add_algorithm_factory(
         const std::vector <std::string> & aliases,
         algorithms::AlgorithmFactory * factory);
 
@@ -236,8 +236,8 @@ namespace gams
        * @param  algorithm   the name of the algorithm to run
        * @param  args        vector of knowledge record arguments
        **/
-      void init_algorithm (const std::string & algorithm,
-        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
+      void init_algorithm(const std::string & algorithm,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
  
       /**
        * Initializes the controller with a user-provided algorithm. This
@@ -245,16 +245,16 @@ namespace gams
        * DELETE THIS POINTER.
        * @param  algorithm   the algorithm to use
        **/
-      void init_algorithm (algorithms::BaseAlgorithm * algorithm);
+      void init_algorithm(algorithms::BaseAlgorithm * algorithm);
 
       /**
        * Initializes the platform
        * @param  platform   the name of the platform the controller is using
        * @param  args        vector of knowledge record arguments
        **/
-      void init_platform (const std::string & platform,
+      void init_platform(const std::string & platform,
         const madara::knowledge::KnowledgeMap & args =
-          madara::knowledge::KnowledgeMap ());
+          madara::knowledge::KnowledgeMap());
        
       /**
        * Initializes the controller with a user-provided platform. This
@@ -262,25 +262,25 @@ namespace gams
        * DELETE THIS POINTER.
        * @param  platform   the platform to use
        **/
-      void init_platform (platforms::BasePlatform * platform);
+      void init_platform(platforms::BasePlatform * platform);
       
       /**
        * Configures the controller with initialization settings
        **/
-      void configure (const ControllerSettings & settings);
+      void configure(const ControllerSettings & settings);
 
 #ifdef _GAMS_JAVA_
       /**
        * Initializes a Java-based algorithm
        * @param  algorithm  the java-based algorithm to use
        **/
-      void init_algorithm (jobject algorithm);
+      void init_algorithm(jobject algorithm);
       
       /**
        * Initializes a Java-based platform
        * @param  platform  the java-based platform to use
        **/
-      void init_platform (jobject platform);
+      void init_platform(jobject platform);
 #endif
 
       /**
@@ -288,7 +288,7 @@ namespace gams
        * @param   id         node identifier
        * @param   agents     number of total agents
        **/
-      void init_vars (const madara::knowledge::KnowledgeRecord::Integer & id = 0,
+      void init_vars(const madara::knowledge::KnowledgeRecord::Integer & id = 0,
         const madara::knowledge::KnowledgeRecord::Integer & agents = -1);
 
       /**
@@ -297,7 +297,7 @@ namespace gams
       * @param   group_name   the name of the group that the agent listing
       *                       should come from
       **/
-      void init_vars (const std::string & self_prefix,
+      void init_vars(const std::string & self_prefix,
         const std::string & group_name = "");
 
       /**
@@ -305,7 +305,7 @@ namespace gams
       * @param   self_prefix  the prefix of the agent in the knowledge base
       * @param   group        the group that should populate agents
       **/
-      void init_vars (const std::string & self_prefix,
+      void init_vars(const std::string & self_prefix,
         const groups::GroupBase * group);
 
       /**
@@ -314,7 +314,7 @@ namespace gams
        * a user-defined platform.
        * @param   platform   the platform to initialize
        **/
-      void init_vars (platforms::BasePlatform & platform);
+      void init_vars(platforms::BasePlatform & platform);
       
       /**
        * Initializes containers and knowledge base in an algorithm.
@@ -322,30 +322,30 @@ namespace gams
        * a user-defined algorithm.
        * @param   algorithm   the algorithm to initialize
        **/
-      void init_vars (algorithms::BaseAlgorithm & algorithm);
+      void init_vars(algorithms::BaseAlgorithm & algorithm);
 
       /**
        * Gets the current algorithm
        * @return the algorithm
        **/
-      algorithms::BaseAlgorithm * get_algorithm (void);
+      algorithms::BaseAlgorithm * get_algorithm(void);
       
       /**
        * Gets the current platform
        * @return the platform
        **/
-      platforms::BasePlatform * get_platform (void);
+      platforms::BasePlatform * get_platform(void);
 
       /**
       * Gets the sensors map
       * @return the platform
       **/
-      variables::Sensors * get_sensors (void);
+      variables::Sensors * get_sensors(void);
 
       /**
        * Saves a checkpoint according to the configured settings
        **/
-      void save_checkpoint (void);
+      void save_checkpoint(void);
 
     protected:
 
@@ -387,7 +387,7 @@ namespace gams
     private:
 
       /// Code shared between run and run_once
-      int run_once_ (void);
+      int run_once_(void);
     };
   }
 }

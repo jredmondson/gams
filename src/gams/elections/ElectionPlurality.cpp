@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -55,61 +55,61 @@ namespace containers = knowledge::containers;
 
 typedef  knowledge::KnowledgeRecord  KnowledgeRecord;
 
-gams::elections::ElectionPluralityFactory::ElectionPluralityFactory ()
+gams::elections::ElectionPluralityFactory::ElectionPluralityFactory()
 {
 }
 
-gams::elections::ElectionPluralityFactory::~ElectionPluralityFactory ()
+gams::elections::ElectionPluralityFactory::~ElectionPluralityFactory()
 {
 }
 
 gams::elections::ElectionBase *
-gams::elections::ElectionPluralityFactory::create (
+gams::elections::ElectionPluralityFactory::create(
 const std::string & election_prefix,
 const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionPluralityFactory:" \
-    " creating election from %s\n", election_prefix.c_str ());
+    " creating election from %s\n", election_prefix.c_str());
 
-  return new ElectionPlurality (election_prefix, agent_prefix, knowledge);
+  return new ElectionPlurality(election_prefix, agent_prefix, knowledge);
 }
 
-gams::elections::ElectionPlurality::ElectionPlurality (
+gams::elections::ElectionPlurality::ElectionPlurality(
   const std::string & election_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : ElectionBase (election_prefix, agent_prefix, knowledge)
+  : ElectionBase(election_prefix, agent_prefix, knowledge)
 {
 }
 
 /**
 * Constructor
 **/
-gams::elections::ElectionPlurality::~ElectionPlurality ()
+gams::elections::ElectionPlurality::~ElectionPlurality()
 {
 
 }
 
 gams::elections::CandidateList
-gams::elections::ElectionPlurality::get_leaders (int num_leaders)
+gams::elections::ElectionPlurality::get_leaders(int num_leaders)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionPlurality:get_leaders" \
-    " getting leaders from %s\n", election_prefix_.c_str ());
+    " getting leaders from %s\n", election_prefix_.c_str());
 
   CandidateList leaders;
 
   if (knowledge_)
   {
-    knowledge::ContextGuard guard (*knowledge_);
+    knowledge::ContextGuard guard(*knowledge_);
 
     // create a list of votes for quick reference
     knowledge::VariableReferences votes;
-    knowledge_->get_matches (votes_.get_name (), "", votes);
+    knowledge_->get_matches(votes_.get_name(), "", votes);
 
     typedef std::map <KnowledgeRecord::Integer, CandidateList> Leaderboard;
 
@@ -118,17 +118,17 @@ gams::elections::ElectionPlurality::get_leaders (int num_leaders)
     std::string last_voter;
 
     // tally the votes
-    for (knowledge::VariableReferences::const_iterator i = votes.begin ();
-      i != votes.end (); ++i)
+    for (knowledge::VariableReferences::const_iterator i = votes.begin();
+      i != votes.end(); ++i)
     {
-      std::string ballot_string = i->get_name ();
-      std::string::size_type delimiter_pos = ballot_string.find ("->");
+      std::string ballot_string = i->get_name();
+      std::string::size_type delimiter_pos = ballot_string.find("->");
 
       if (delimiter_pos != std::string::npos)
       {
-        std::string candidate = ballot_string.substr (delimiter_pos + 2);
-        std::string voter = ballot_string.substr (
-          votes_.get_name ().size () + 1, delimiter_pos);
+        std::string candidate = ballot_string.substr(delimiter_pos + 2);
+        std::string voter = ballot_string.substr(
+          votes_.get_name().size() + 1, delimiter_pos);
 
         // plurality votes only allow one vote per voter
         if (voter != last_voter)
@@ -140,18 +140,18 @@ gams::elections::ElectionPlurality::get_leaders (int num_leaders)
     }
 
     // construct the leaderboard
-    for (CandidateVotes::iterator i = candidates.begin ();
-      i != candidates.end (); ++i)
+    for (CandidateVotes::iterator i = candidates.begin();
+      i != candidates.end(); ++i)
     {
-      leaderboard[i->second].push_back (i->first);
+      leaderboard[i->second].push_back(i->first);
     }
 
     // leaderboard is in ascending order, so grab from the back
-    for (Leaderboard::reverse_iterator i = leaderboard.rbegin ();
-      i != leaderboard.rend () && (int) leaders.size () < num_leaders; ++i)
+    for (Leaderboard::reverse_iterator i = leaderboard.rbegin();
+      i != leaderboard.rend() &&(int) leaders.size() < num_leaders; ++i)
     {
       // if it is a tie, we could provide more than num_leaders
-      leaders.insert (leaders.end (), i->second.begin (), i->second.end ());
+      leaders.insert(leaders.end(), i->second.begin(), i->second.end());
     }
   }
 
@@ -159,17 +159,17 @@ gams::elections::ElectionPlurality::get_leaders (int num_leaders)
 }
 
 std::string
-gams::elections::ElectionPlurality::get_leader (void)
+gams::elections::ElectionPlurality::get_leader(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionPlurality:get_leader" \
-    " getting leader from %s\n", election_prefix_.c_str ());
+    " getting leader from %s\n", election_prefix_.c_str());
 
   std::string leader;
-  CandidateList leaders = get_leaders ();
+  CandidateList leaders = get_leaders();
 
-  if (leaders.size () > 0)
+  if (leaders.size() > 0)
   {
     leader = leaders[0];
   }

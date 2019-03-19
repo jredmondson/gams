@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,60 +74,60 @@ namespace gams
        * Constructor
        * @param  knowledge  knowledge base
        **/
-      CounterPlatform (
+      CounterPlatform(
         madara::knowledge::KnowledgeBase & knowledge);
 
       /**
        * Destructor
        **/
-      ~CounterPlatform ();
+      ~CounterPlatform();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const CounterPlatform & rhs);
+      void operator=(const CounterPlatform & rhs);
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      int analyze (void) override;
+      int analyze(void) override;
        
       /**
        * Get the location aproximation value of what is considered close enough
        * @return location approximation radius
        **/
-      double get_accuracy () const override;
+      double get_accuracy() const override;
       
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. vrep_ant, autonomous_snake, etc.)
+       * variable(e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      std::string get_id () const override;
+      std::string get_id() const override;
 
       /**
        * Get move speed
        **/
-      double get_move_speed () const override;
+      double get_move_speed() const override;
       
       /**
        * Gets the name of the platform
        **/
-      std::string get_name () const override;
+      std::string get_name() const override;
 
       /**
        * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      int home (void) override;
+      int home(void) override;
       
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      int land (void) override;
+      int land(void) override;
       
       /**
        * Moves the platform to a position
@@ -135,8 +135,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      int move (const pose::Position & position,
-        const PositionBounds &bounds) override;
+      int move(const pose::Position & position,
+        const pose::PositionBounds &bounds) override;
 
       using BasePlatform::move;
       
@@ -144,25 +144,25 @@ namespace gams
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      int sense (void) override;
+      int sense(void) override;
       
       /**
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      void set_move_speed (const double& speed) override;
+      void set_move_speed(const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      int takeoff (void) override;
+      int takeoff(void) override;
 
       /**
       * Method for returning the platform's current frame
       * @return frame that the platform's coordinate system is operating in
       **/
-      const pose::ReferenceFrame & get_frame (void) const override;
+      const pose::ReferenceFrame & get_frame(void) const override;
 
     protected:
       /// current position

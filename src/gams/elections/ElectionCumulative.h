@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -76,18 +76,18 @@ namespace gams
     public:
       /**
       * Constructor.
-      * @param election_prefix the name of the election (e.g. election.leader)
-      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param election_prefix the name of the election(e.g. election.leader)
+      * @param agent_prefix   the name of this bidder(e.g. agent.0)
       * @param knowledge      the knowledge base to use for syncing
       **/
-      ElectionCumulative (const std::string & election_prefix = "",
+      ElectionCumulative(const std::string & election_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Constructor
       **/
-      virtual ~ElectionCumulative ();
+      virtual ~ElectionCumulative();
 
       /**
       * Returns the leaders of the election in order of popularity
@@ -95,12 +95,12 @@ namespace gams
       * @param  num_leaders maximum leaders to return
       * @return the leaders of the election up to num_leaders
       **/
-      virtual CandidateList get_leaders (int num_leaders = 1);
+      virtual CandidateList get_leaders(int num_leaders = 1);
 
       /**
        * Returns the leader of the voting
        **/
-      std::string get_leader (void);
+      std::string get_leader(void);
     };
 
     /**
@@ -113,21 +113,21 @@ namespace gams
       /**
       * Constructor
       **/
-      ElectionCumulativeFactory ();
+      ElectionCumulativeFactory();
 
       /**
       * Destructor
       **/
-      virtual ~ElectionCumulativeFactory ();
+      virtual ~ElectionCumulativeFactory();
 
       /**
       * Creates a plurality election
-      * @param election_prefix the name of the election (e.g. election.leader)
-      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param election_prefix the name of the election(e.g. election.leader)
+      * @param agent_prefix   the name of this bidder(e.g. agent.0)
       * @param knowledge      the knowledge base to use for syncing
       * @return  the new group
       **/
-      virtual ElectionBase * create (const std::string & election_prefix = "",
+      virtual ElectionBase * create(const std::string & election_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
     };

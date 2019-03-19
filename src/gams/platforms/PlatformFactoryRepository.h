@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -82,7 +82,7 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       agent variables that describe self state
        **/
-      PlatformFactoryRepository (
+      PlatformFactoryRepository(
         madara::knowledge::KnowledgeBase * knowledge = 0,
         variables::Sensors * sensors = 0,
         variables::Platforms * platforms = 0,
@@ -91,7 +91,7 @@ namespace gams
       /**
        * Destructor
        **/
-      ~PlatformFactoryRepository ();
+      ~PlatformFactoryRepository();
       
       /**
        * Adds an algorithm factory
@@ -100,7 +100,7 @@ namespace gams
        * @param  factory   the factory for creating an algorithm
        * @return  the new algorithm
        **/
-      void add (const std::vector <std::string> & aliases,
+      void add(const std::vector <std::string> & aliases,
         PlatformFactory * factory);
       
       /**
@@ -109,37 +109,37 @@ namespace gams
        * @param  args   a vector of Knowledge Record arguments
        * @return  the new platform
        **/
-      BasePlatform * create (const std::string & type,
-        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
+      BasePlatform * create(const std::string & type,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
       
       /**
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
       
       /**
        * Sets the map of platform names to platform information
        * @param  platforms   map of platform names to platform information
        **/
-      void set_platforms (variables::Platforms * platforms);
+      void set_platforms(variables::Platforms * platforms);
       
       /**
        * Sets self-referencing variables
        * @param  self       self-referencing variables
        **/
-      void set_self (variables::Self * self);
+      void set_self(variables::Self * self);
       
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
-      void set_sensors (variables::Sensors * sensors);
+      void set_sensors(variables::Sensors * sensors);
       
       /**
        * Initializes factories for all supported GAMS algorithms
        **/
-      void initialize_default_mappings (void);
+      void initialize_default_mappings(void);
 
     private:
 

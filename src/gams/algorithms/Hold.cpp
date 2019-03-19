@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@
 #include <iostream>
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::HoldFactory::create (
+gams::algorithms::HoldFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -64,49 +64,49 @@ gams::algorithms::HoldFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
   if (knowledge && sensors && platform && self)
   {
-    result = new Hold (knowledge, platform, sensors, self);
+    result = new Hold(knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::Hold::Hold (
+gams::algorithms::Hold::Hold(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self),
-  pose_set_ (false)
+  : BaseAlgorithm(knowledge, platform, sensors, self),
+  pose_set_(false)
 {
-  status_.init_vars (*knowledge, "hold", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "hold", self->agent.prefix);
+  status_.init_variable_values();
 
   if (platform)
   {
-    location_ = platform->get_location ();
-    orientation_ = platform->get_orientation ();
+    location_ = platform->get_location();
+    orientation_ = platform->get_orientation();
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Hold::constr:" \
       " setting hold location to [%s, %s]\n",
-      location_.to_string ().c_str (),
-      orientation_.to_string ().c_str ());
+      location_.to_string().c_str(),
+      orientation_.to_string().c_str());
 
     pose_set_ = true;
   }
 }
 
-gams::algorithms::Hold::~Hold ()
+gams::algorithms::Hold::~Hold()
 {
 }
 
 void
-gams::algorithms::Hold::operator= (const Hold & rhs)
+gams::algorithms::Hold::operator=(const Hold & rhs)
 {
   if (this != &rhs)
   {
@@ -119,35 +119,35 @@ gams::algorithms::Hold::operator= (const Hold & rhs)
 
 
 int
-gams::algorithms::Hold::analyze (void)
+gams::algorithms::Hold::analyze(void)
 {
   if (self_ && pose_set_)
   {
-    pose::Position current (platform_->get_frame ());
-    current.from_container (self_->agent.location);
+    pose::Position current(platform_->get_frame());
+    current.from_container(self_->agent.location);
 
-    double distance = current.distance_to (location_);
+    double distance = current.distance_to(location_);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Hold::analyze:" \
       " distance from [%s] to hold position [%s] is %.2f\n",
-      current.to_string ().c_str (),
-      location_.to_string ().c_str (), distance);
+      current.to_string().c_str(),
+      location_.to_string().c_str(), distance);
   }
   else
   {
     if (platform_ && !pose_set_)
     {
-      location_ = platform_->get_location ();
-      orientation_ = platform_->get_orientation ();
+      location_ = platform_->get_location();
+      orientation_ = platform_->get_orientation();
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Hold::analyze:" \
         " setting hold location to [%s, %s]\n",
-        location_.to_string ().c_str (),
-        orientation_.to_string ().c_str ());
+        location_.to_string().c_str(),
+        orientation_.to_string().c_str());
 
       pose_set_ = true;
     }
@@ -158,28 +158,28 @@ gams::algorithms::Hold::analyze (void)
       
 
 int
-gams::algorithms::Hold::execute (void)
+gams::algorithms::Hold::execute(void)
 {
   int result = 0;
 
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
-    std::vector <double> home = self_->agent.home.to_record ().to_doubles ();
+    std::vector <double> home = self_->agent.home.to_record().to_doubles();
 
     if (pose_set_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Hold::execute:" \
         " Hold location is %s. Moving to home.\n",
-        location_.to_string ().c_str ());
+        location_.to_string().c_str());
 
-      int move_result = platform_->move (
-        location_, platform_->get_accuracy ());
+      int move_result = platform_->move(
+        location_, platform_->get_accuracy());
 
       executions_++;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::Hold::execute:" \
         " platform->move returned %d.\n", move_result);
@@ -194,15 +194,15 @@ gams::algorithms::Hold::execute (void)
     {
       if (platform_)
       {
-        location_ = platform_->get_location ();
-        orientation_ = platform_->get_orientation ();
+        location_ = platform_->get_location();
+        orientation_ = platform_->get_orientation();
 
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::Hold::execute:" \
           " setting hold location to [%s, %s]\n",
-          location_.to_string ().c_str (),
-          orientation_.to_string ().c_str ());
+          location_.to_string().c_str(),
+          orientation_.to_string().c_str());
 
         pose_set_ = true;
       }
@@ -210,7 +210,7 @@ gams::algorithms::Hold::execute (void)
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Hold::execute:" \
       " platform is null. No movement possible.\n");
@@ -221,7 +221,7 @@ gams::algorithms::Hold::execute (void)
 
 
 int
-gams::algorithms::Hold::plan (void)
+gams::algorithms::Hold::plan(void)
 {
   return 0;
 }

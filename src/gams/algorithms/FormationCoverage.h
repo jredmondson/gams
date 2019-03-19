@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -81,7 +81,7 @@ namespace gams
        * @param  head_id        target of the formation
        * @param  offset         offset of formation
        * @param  destination    destination of the formation
-       * @param  group_name     group identifier (e.g. group.group1)
+       * @param  group_name     group identifier(e.g. group.group1)
        * @param  modifier       modifier that influences the formation
        * @param  coverage     area coverage algorithm to run
        * @param  cover_args   args for area coverage algorithm
@@ -90,7 +90,7 @@ namespace gams
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      FormationCoverage (
+      FormationCoverage(
         const std::string & head_id,
         const std::vector<double> & offset,
         const std::vector<double> & destination,
@@ -106,31 +106,31 @@ namespace gams
       /**
        * Destructor
        **/
-      ~FormationCoverage ();
+      ~FormationCoverage();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const FormationCoverage & rhs);
+      void operator=(const FormationCoverage & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
     protected:
       /// algorithm for area coverage by head
@@ -172,7 +172,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

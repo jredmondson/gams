@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,29 +50,29 @@
 namespace variables = gams::variables;
 namespace platforms = gams::platforms;
 
-gams::algorithms::BaseAlgorithm::BaseAlgorithm (
+gams::algorithms::BaseAlgorithm::BaseAlgorithm(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self,
   variables::Agents * agents)
-  : agents_ (agents), executions_ (0), knowledge_ (knowledge),
-    platform_ (platform), self_ (self), sensors_ (sensors)
+  : agents_(agents), executions_(0), knowledge_(knowledge),
+    platform_(platform), self_(self), sensors_(sensors)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::BaseAlgorithm:" \
     " constructor succeeded\n");
 }
 
-gams::algorithms::BaseAlgorithm::~BaseAlgorithm ()
+gams::algorithms::BaseAlgorithm::~BaseAlgorithm()
 {
 }
 
 void
-gams::algorithms::BaseAlgorithm::operator= (const BaseAlgorithm & rhs)
+gams::algorithms::BaseAlgorithm::operator=(const BaseAlgorithm & rhs)
 {
-  if (this != &rhs)
+  if(this != &rhs)
   {
     this->knowledge_ = rhs.knowledge_;
     this->platform_ = rhs.platform_;
@@ -83,61 +83,61 @@ gams::algorithms::BaseAlgorithm::operator= (const BaseAlgorithm & rhs)
 }
 
 void
-gams::algorithms::BaseAlgorithm::set_agents (variables::Agents * agents)
+gams::algorithms::BaseAlgorithm::set_agents(variables::Agents * agents)
 {
   agents_ = agents;
 }
 
 void
-gams::algorithms::BaseAlgorithm::set_platform (platforms::BasePlatform * platform)
+gams::algorithms::BaseAlgorithm::set_platform(platforms::BasePlatform * platform)
 {
   platform_ = platform;
 }
 
 void
-gams::algorithms::BaseAlgorithm::set_self (variables::Self * self)
+gams::algorithms::BaseAlgorithm::set_self(variables::Self * self)
 {
   self_ = self;
 }
 
 void
-gams::algorithms::BaseAlgorithm::set_sensors (variables::Sensors * sensors)
+gams::algorithms::BaseAlgorithm::set_sensors(variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }
 
 variables::Agents *
-gams::algorithms::BaseAlgorithm::get_agents (void)
+gams::algorithms::BaseAlgorithm::get_agents(void)
 {
   return agents_;
 }
 
 madara::knowledge::KnowledgeBase *
-gams::algorithms::BaseAlgorithm::get_knowledge_base (void)
+gams::algorithms::BaseAlgorithm::get_knowledge_base(void)
 {
   return knowledge_;
 }
 
 platforms::BasePlatform *
-gams::algorithms::BaseAlgorithm::get_platform (void)
+gams::algorithms::BaseAlgorithm::get_platform(void)
 {
   return platform_;
 }
 
 variables::Self *
-gams::algorithms::BaseAlgorithm::get_self (void)
+gams::algorithms::BaseAlgorithm::get_self(void)
 {
   return self_;
 }
 
 variables::Sensors *
-gams::algorithms::BaseAlgorithm::get_sensors (void)
+gams::algorithms::BaseAlgorithm::get_sensors(void)
 {
   return sensors_;
 }
 
 variables::AlgorithmStatus *
-gams::algorithms::BaseAlgorithm::get_algorithm_status (void)
+gams::algorithms::BaseAlgorithm::get_algorithm_status(void)
 {
   return &status_;
 }

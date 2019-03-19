@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,12 +74,12 @@ namespace gams
       /**
        * Constructor
        **/
-      PlatformFactory ();
+      PlatformFactory();
 
       /**
        * Destructor
        **/
-      virtual ~PlatformFactory ();
+      virtual ~PlatformFactory();
 
       /**
        * Creates a platform
@@ -91,7 +91,7 @@ namespace gams
        * 
        * @return  the new platform
        **/
-      virtual BasePlatform * create (
+      virtual BasePlatform * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
@@ -102,26 +102,26 @@ namespace gams
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (
+      void set_knowledge(
         madara::knowledge::KnowledgeBase * knowledge);
       
       /**
        * Sets the map of platform names to platform information
        * @param  platforms   map of platform names to platform information
        **/
-      void set_platforms (variables::Platforms * platforms);
+      void set_platforms(variables::Platforms * platforms);
       
       /**
        * Sets self-referencing variables
        * @param  self       self-referencing variables
        **/
-      void set_self (variables::Self * self);
+      void set_self(variables::Self * self);
       
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
-      void set_sensors (variables::Sensors * sensors);
+      void set_sensors(variables::Sensors * sensors);
       
     protected:
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,7 @@ typedef KnowledgeRecord::Integer            Integer;
 typedef madara::knowledge::KnowledgeMap     KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::WaitFactory::create (
+gams::algorithms::WaitFactory::create(
 const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -67,15 +67,15 @@ const madara::knowledge::KnowledgeMap & args,
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   double wait_time = 0.0;
   
   if (knowledge && sensors && platform && self)
   {
 
-    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-      if (i->first.size () <= 0)
+      if (i->first.size() <= 0)
         continue;
 
       switch (i->first[0])
@@ -83,62 +83,62 @@ const madara::knowledge::KnowledgeMap & args,
       case 't':
         if (i->first == "time")
         {
-          wait_time = i->second.to_double ();
+          wait_time = i->second.to_double();
         }
       }
     }
 
-    result = new Wait (wait_time, knowledge, platform, sensors, self);
+    result = new Wait(wait_time, knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::Wait::Wait (
+gams::algorithms::Wait::Wait(
   const double& length,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
-  BaseAlgorithm (knowledge, platform, sensors, self),
-  enforcer_ (length, length)
+  BaseAlgorithm(knowledge, platform, sensors, self),
+  enforcer_(length, length)
 {
-  status_.init_vars (*knowledge, "wait", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "wait", self->agent.prefix);
+  status_.init_variable_values();
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "algorithms::Wait::constr:" \
     " waiting for %.2f seconds.\n", length);
 }
 
-gams::algorithms::Wait::~Wait ()
+gams::algorithms::Wait::~Wait()
 {
 }
 
 void
-gams::algorithms::Wait::operator= (const Wait & rhs)
+gams::algorithms::Wait::operator=(const Wait & rhs)
 {
   this->BaseAlgorithm::operator=(rhs);
 }
 
 int
-gams::algorithms::Wait::analyze (void)
+gams::algorithms::Wait::analyze(void)
 {
-  int ret_val (OK);
-  if (enforcer_.is_done ())
+  int ret_val(OK);
+  if (enforcer_.is_done())
   {
     ret_val = FINISHED;
     status_.finished = 1;
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "algorithms::Wait::analyze:" \
       " finished set to 1. Algorithm ready to move on.\n");
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "algorithms::Wait::analyze:" \
       " we have not waited long enough.\n");
@@ -148,14 +148,14 @@ gams::algorithms::Wait::analyze (void)
 }
 
 int
-gams::algorithms::Wait::execute (void)
+gams::algorithms::Wait::execute(void)
 {
   ++executions_;
   return 0;
 }
 
 int
-gams::algorithms::Wait::plan (void)
+gams::algorithms::Wait::plan(void)
 {
   return 0;
 }

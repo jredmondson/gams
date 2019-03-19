@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  *
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -72,7 +72,7 @@ typedef  madara::utility::EpochEnforcer<
 typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::GroupBarrierFactory::create (
+gams::algorithms::GroupBarrierFactory::create(
 const madara::knowledge::KnowledgeMap & args,
 madara::knowledge::KnowledgeBase * knowledge,
 platforms::BasePlatform * platform,
@@ -80,12 +80,12 @@ variables::Sensors * sensors,
 variables::Self * self,
 variables::Agents * agents)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::GroupBarrierFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", args.size());
 
   if (knowledge && sensors && platform && self)
   {
@@ -97,39 +97,39 @@ variables::Agents * agents)
 
     ArgumentParser argp(args);
 
-    for(ArgumentParser::const_iterator i = argp.begin();
+    for (ArgumentParser::const_iterator i = argp.begin();
          i != argp.end(); i.next())
     {
       std::string name(i.name());
-      if(name.size() <= 0)
+      if (name.size() <= 0)
         continue;
-      switch(name[0])
+      switch (name[0])
       {
       case 'g':
-        if(i.value() == "group")
+        if (i.value() == "group")
         {
-          group = i.value().to_string ();
+          group = i.value().to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::GroupBarrierFactory:" \
-            " setting group to %s\n", group.c_str ());
+            " setting group to %s\n", group.c_str());
 
           std::string members_list_name = "group." + group + ".members";
 
-          containers::StringVector member_list (members_list_name, *knowledge);
+          containers::StringVector member_list(members_list_name, *knowledge);
 
-          member_list.copy_to (members);
+          member_list.copy_to(members);
 
           continue;
         }
         goto unknown;
       case 'i':
-        if(i.value() == "interval")
+        if (i.value() == "interval")
         {
-          interval = i.value().to_double ();
+          interval = i.value().to_double();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::GroupBarrierFactory:" \
             " setting interval to %.2f\n", interval);
@@ -138,28 +138,28 @@ variables::Agents * agents)
         }
         goto unknown;
       case 'b':
-        if(i.value() == "barrier")
+        if (i.value() == "barrier")
         {
-          barrier = i.value().to_string ();
+          barrier = i.value().to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::GroupBarrierFactory:" \
-            " setting barrier to %s\n", barrier.c_str ());
+            " setting barrier to %s\n", barrier.c_str());
 
           continue;
         }
         goto unknown;
       unknown:
       default:
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::ZoneCoverageFactory:" \
           " argument unknown: %s -> %s\n",
           name.c_str(), i.value().to_string().c_str());
         continue;
       }
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::ZoneCoverageFactory:" \
         " argument: %s -> %s\n", name.c_str(), i.value().to_string().c_str());
@@ -168,29 +168,29 @@ variables::Agents * agents)
     // if group has not been set, use the swarm
     if (group == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::GroupBarrier::constructor:" \
         " No group specified. Using swarm.\n");
 
-      Integer processes = (Integer)agents->size ();
+      Integer processes =(Integer)agents->size();
 
       for (Integer i = 0; i < processes; ++i)
       {
-        madara::knowledge::KnowledgeRecord temp ("agent.");
+        madara::knowledge::KnowledgeRecord temp("agent.");
         temp += madara::knowledge::KnowledgeRecord(i);
-        members.push_back (temp.to_string ());
+        members.push_back(temp.to_string());
       }
     }
 
-    result = new GroupBarrier (members, barrier, interval,
+    result = new GroupBarrier(members, barrier, interval,
       knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::GroupBarrier::GroupBarrier (
+gams::algorithms::GroupBarrier::GroupBarrier(
   const std::vector<std::string> & members,
   std::string barrier_name,
   double interval,
@@ -198,53 +198,53 @@ gams::algorithms::GroupBarrier::GroupBarrier (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) :
-  BaseAlgorithm (knowledge, platform, sensors, self),
-  members_ (members), enforcer_ (interval, interval)
+  BaseAlgorithm(knowledge, platform, sensors, self),
+  members_(members), enforcer_(interval, interval)
 {
-  status_.init_vars (*knowledge, "barrier", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "barrier", self->agent.prefix);
+  status_.init_variable_values();
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::GroupBarrier::constructor:" \
     " Creating algorithm with args: " \
     " barrier=%s\n",
-    barrier_name.c_str ());
+    barrier_name.c_str());
 
-  madara::knowledge::KnowledgeRecord temp ("agent.");
-  temp += madara::knowledge::KnowledgeRecord(self_->id.to_string ());
+  madara::knowledge::KnowledgeRecord temp("agent.");
+  temp += madara::knowledge::KnowledgeRecord(self_->id.to_string());
 
-  position_ = this->get_position_in_member_list (temp.to_string (), members_);
+  position_ = this->get_position_in_member_list(temp.to_string(), members_);
 
   if (position_ >= 0)
   {
-    barrier_.set_name (barrier_name, *knowledge, position_, (int)members.size ());
-    barrier_.set (0);
-    barrier_.next ();
+    barrier_.set_name(barrier_name, *knowledge, position_,(int)members.size());
+    barrier_.set(0);
+    barrier_.next();
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::GroupBarrier::constructor:" \
       " agent.%d does not have a position in group algorithm." \
       " Unable to participate in barrier.\n",
-      (int)self_->id.to_integer ());
+     (int)self_->id.to_integer());
   }
 }
 
 int
-gams::algorithms::GroupBarrier::get_position_in_member_list (
+gams::algorithms::GroupBarrier::get_position_in_member_list(
 std::string id,
 std::vector <std::string> & member_list)
 {
   int result = -1;
 
-  for (size_t i = 0; i < member_list.size (); ++i)
+  for (size_t i = 0; i < member_list.size(); ++i)
   {
     if (member_list[i] == id)
     {
-      result = (int)i;
+      result =(int)i;
       break;
     }
   }
@@ -252,16 +252,16 @@ std::vector <std::string> & member_list)
   return result;
 }
 
-gams::algorithms::GroupBarrier::~GroupBarrier ()
+gams::algorithms::GroupBarrier::~GroupBarrier()
 {
 }
 
 void
-gams::algorithms::GroupBarrier::operator= (const GroupBarrier & rhs)
+gams::algorithms::GroupBarrier::operator=(const GroupBarrier & rhs)
 {
   if (this != &rhs)
   {
-    this->BaseAlgorithm::operator= (rhs);
+    this->BaseAlgorithm::operator=(rhs);
 
     members_ = rhs.members_;
     position_ = rhs.position_;
@@ -270,37 +270,37 @@ gams::algorithms::GroupBarrier::operator= (const GroupBarrier & rhs)
 }
 
 int
-gams::algorithms::GroupBarrier::analyze (void)
+gams::algorithms::GroupBarrier::analyze(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::GroupBarrier::analyze:" \
     " entering analyze method\n");
 
   if (position_ >= 0)
   {
-    int round = (int)barrier_.get_round ();
+    int round =(int)barrier_.get_round();
 
-    barrier_.modify ();
+    barrier_.modify();
 
-    if (barrier_.is_done ())
+    if (barrier_.is_done())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::GroupBarrier::analyze:" \
         " %d: Round %d: Proceeding to next barrier round\n",
         position_, round);
 
-      if (enforcer_.has_reached_next ())
+      if (enforcer_.has_reached_next())
       {
-        barrier_.next ();
+        barrier_.next();
 
-        enforcer_.advance_next ();
+        enforcer_.advance_next();
       }
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::algorithms::GroupBarrier::analyze:" \
         " %d: Round %d: NOT proceeding to next barrier round\n",
@@ -309,21 +309,21 @@ gams::algorithms::GroupBarrier::analyze (void)
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::GroupBarrier::analyze:" \
       " agent.%d does not have a position in group algorithm." \
       " Nothing to analyze.\n",
-      (int)self_->id.to_integer ());
+     (int)self_->id.to_integer());
   }
 
   return OK;
 }
 
 int
-gams::algorithms::GroupBarrier::execute (void)
+gams::algorithms::GroupBarrier::execute(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::GroupBarrier::execute:" \
     " entering execute method\n");
@@ -332,9 +332,9 @@ gams::algorithms::GroupBarrier::execute (void)
 }
 
 int
-gams::algorithms::GroupBarrier::plan (void)
+gams::algorithms::GroupBarrier::plan(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::GroupBarrier::plan:" \
     " entering plan method\n");

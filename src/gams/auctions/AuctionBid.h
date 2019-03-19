@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -75,27 +75,27 @@ namespace gams
       /**
        * Compares for bid less than
        **/
-      bool operator< (const AuctionBid & rhs) const;
+      bool operator<(const AuctionBid & rhs) const;
 
       /**
       * Compares for bid equality
       **/
-      bool operator== (const AuctionBid & rhs) const;
+      bool operator==(const AuctionBid & rhs) const;
 
       /**
       * Compares for bid greater than
       **/
-      bool operator> (const AuctionBid & rhs) const;
+      bool operator>(const AuctionBid & rhs) const;
 
-      /// the id of the bidder (e.g., "agent.0")
+      /// the id of the bidder(e.g., "agent.0")
       std::string bidder;
 
-      /// the amount of the bid (e.g., 2.50)
+      /// the amount of the bid(e.g., 2.50)
       madara::knowledge::KnowledgeRecord amount;
     };
 
     /**
-     * Comparator for sorting bids in ascending order (least to greatest)
+     * Comparator for sorting bids in ascending order(least to greatest)
      **/
     class GAMS_EXPORT AuctionBidAscending
     {
@@ -105,11 +105,11 @@ namespace gams
       * @param  lhs  left hand side
       * @param  rhs  right hand side
       **/
-      bool operator() (const AuctionBid & lhs, const AuctionBid &rhs) const;
+      bool operator()(const AuctionBid & lhs, const AuctionBid &rhs) const;
     };
 
     /**
-    * Comparator for sorting bids in descending order (greater to least)
+    * Comparator for sorting bids in descending order(greater to least)
     **/
     class GAMS_EXPORT AuctionBidDescending
     {
@@ -119,14 +119,14 @@ namespace gams
        * @param  lhs  left hand side
        * @param  rhs  right hand side
        **/
-      bool operator() (const AuctionBid & lhs, const AuctionBid &rhs) const;
+      bool operator()(const AuctionBid & lhs, const AuctionBid &rhs) const;
     };
 
     /// convenience typedef for vector fo AuctionBid
     typedef std::vector <AuctionBid>   AuctionBids;
 
     /**
-     * Strips bids' bidder of an auction prefix for convenience (unsafe).
+     * Strips bids' bidder of an auction prefix for convenience(unsafe).
      * This is highly optimized for common usage where the prefix is obtained
      * using get_auction_round_prefix and the prefix is assumed to exist in
      * each auction bidder. This should never be called twice on the same bids,
@@ -137,7 +137,7 @@ namespace gams
      *                 AuctionBase
      * @param  bids    the bids to modify
      **/
-    void strip_prefix_fast (const std::string & prefix, AuctionBids & bids);
+    void strip_prefix_fast(const std::string & prefix, AuctionBids & bids);
 
     /**
     * Strips bids' bidder of an auction prefix for convenience. This method
@@ -147,21 +147,21 @@ namespace gams
     *                 AuctionBase
     * @param  bids    the bids to modify
     **/
-    void strip_prefix_safe (const std::string & prefix, AuctionBids & bids);
+    void strip_prefix_safe(const std::string & prefix, AuctionBids & bids);
 
     /**
      * Convenience function for sorting bids in ascending order, using
      * the AuctionBidAscending comparator
      * @param  bids  the bids to sort
      **/
-    void sort_ascending (AuctionBids & bids);
+    void sort_ascending(AuctionBids & bids);
 
     /**
     * Convenience function for sorting bids in descending order, using
     * the AuctionBidDescending comparator
     * @param  bids  the bids to sort
     **/
-    void sort_descending (AuctionBids & bids);
+    void sort_descending(AuctionBids & bids);
 
   } // end namespace auctions
 } // end namespace gams

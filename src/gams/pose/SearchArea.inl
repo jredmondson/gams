@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -57,13 +57,13 @@
 #include "gams/pose/SearchArea.h"
 
 inline double
-gams::pose::SearchArea::cross (
+gams::pose::SearchArea::cross(
   const Position& o, const Position& a,
   const Position& b) const
 {
   Position la(o.frame(), a);
   Position lb(o.frame(), b);
-  return (la.x() - o.x()) * (lb.y() - o.y()) - (la.y() - o.y()) * (lb.x() - o.x());
+  return(la.x() - o.x()) *(lb.y() - o.y()) -(la.y() - o.y()) *(lb.x() - o.x());
 }
 
 #endif // _GAMS_UTILITY_SEARCH_AREA_INL_

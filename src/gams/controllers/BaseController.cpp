@@ -195,8 +195,8 @@ gams::controllers::BaseController::system_analyze(void)
         "gams::controllers::BaseController::system_analyze:" \
         " agent.algorithm already analyzed "
         "(last_algorithm=%d, cur_algorithm=%d)\n",
-       (int)*self_.agent.last_algorithm_id,
-       (int)*self_.agent.algorithm_id);
+      (int)*self_.agent.last_algorithm_id,
+      (int)*self_.agent.algorithm_id);
 
       ++self_.agent.algorithm_rejects;
     }
@@ -231,7 +231,7 @@ gams::controllers::BaseController::system_analyze(void)
           gams::loggers::LOG_MAJOR,
           "gams::controllers::BaseController::system_analyze:" \
           " Algorithm(%s) rejected. Likely bad algorithm name or args.\n",
-         (*self_.agent.algorithm).c_str());
+        (*self_.agent.algorithm).c_str());
 
         ++self_.agent.algorithm_rejects;
       }
@@ -255,8 +255,8 @@ gams::controllers::BaseController::system_analyze(void)
         "gams::controllers::BaseController::system_analyze:" \
         " swarm.algorithm already analyzed("
         "last_algorithm=%d, cur_algorithm=%d)\n",
-       (int) *self_.agent.last_algorithm_id,
-       (int)*swarm_.algorithm_id);
+      (int) *self_.agent.last_algorithm_id,
+      (int)*swarm_.algorithm_id);
 
       ++self_.agent.algorithm_rejects;
     }
@@ -290,7 +290,7 @@ gams::controllers::BaseController::system_analyze(void)
           gams::loggers::LOG_MAJOR,
           "gams::controllers::BaseController::system_analyze:" \
           " Algorithm(%s) rejected. Likely bad algorithm name or args.\n",
-         (*swarm_.algorithm).c_str());
+        (*swarm_.algorithm).c_str());
 
         ++self_.agent.algorithm_rejects;
       }
@@ -306,29 +306,29 @@ gams::controllers::BaseController::system_analyze(void)
   }
 
   if (self_.agent.madara_debug_level !=
-   (Integer)madara::logger::global_logger->get_level())
+  (Integer)madara::logger::global_logger->get_level())
   {
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
       " Setting MADARA debug level to %d\n",
-     (int)*self_.agent.madara_debug_level);
+    (int)*self_.agent.madara_debug_level);
 
     madara::logger::global_logger->set_level(
-     (int)*self_.agent.madara_debug_level);
+    (int)*self_.agent.madara_debug_level);
   }
 
   if (self_.agent.gams_debug_level !=
-   (Integer)gams::loggers::global_logger->get_level())
+  (Integer)gams::loggers::global_logger->get_level())
   {
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::controllers::BaseController::system_analyze:" \
       " Setting GAMS debug level to %d\n",
-     (int)*self_.agent.gams_debug_level);
+    (int)*self_.agent.gams_debug_level);
 
     gams::loggers::global_logger->set_level(
-     (int)*self_.agent.gams_debug_level);
+    (int)*self_.agent.gams_debug_level);
   }
 
   return return_value;
@@ -397,7 +397,7 @@ gams::controllers::BaseController::analyze(void)
     for (algorithms::Algorithms::iterator i = accents_.begin();
       i != accents_.end(); ++i)
     {
-     (*i)->analyze();
+    (*i)->analyze();
     }
   }
 
@@ -443,7 +443,7 @@ gams::controllers::BaseController::plan(void)
     for (algorithms::Algorithms::iterator i = accents_.begin();
       i != accents_.end(); ++i)
     {
-     (*i)->plan();
+    (*i)->plan();
     }
   }
 
@@ -484,7 +484,7 @@ gams::controllers::BaseController::execute(void)
     for (algorithms::Algorithms::iterator i = accents_.begin();
       i != accents_.end(); ++i)
     {
-     (*i)->execute();
+    (*i)->execute();
     }
   }
 
@@ -511,7 +511,7 @@ gams::controllers::BaseController::run_once_(void)
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::run:" \
     " after monitor(), %d modifications to send\n",
-   (int)knowledge_.get_context().get_modifieds().size());
+  (int)knowledge_.get_context().get_modifieds().size());
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
@@ -529,7 +529,7 @@ gams::controllers::BaseController::run_once_(void)
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::run:" \
     " after analyze(), %d modifications to send\n",
-   (int)knowledge_.get_context().get_modifieds().size());
+  (int)knowledge_.get_context().get_modifieds().size());
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
@@ -547,7 +547,7 @@ gams::controllers::BaseController::run_once_(void)
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::run:" \
     " after plan(), %d modifications to send\n",
-   (int)knowledge_.get_context().get_modifieds().size());
+  (int)knowledge_.get_context().get_modifieds().size());
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
@@ -565,7 +565,7 @@ gams::controllers::BaseController::run_once_(void)
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::run:" \
     " after execute(), %d modifications to send\n",
-   (int)knowledge_.get_context().get_modifieds().size());
+  (int)knowledge_.get_context().get_modifieds().size());
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
@@ -750,7 +750,7 @@ gams::controllers::BaseController::run(double loop_period,
   if (loop_period >= 0.0)
   {
     //unsigned int iterations = 0;
-    while (first_execute || max_runtime < 0 || current < end_time)
+    while(first_execute || max_runtime < 0 || current < end_time)
     {
       // return value should be last return value of mape loop
       return_value = run_once_();
@@ -788,7 +788,7 @@ gams::controllers::BaseController::run(double loop_period,
         // setup the next send epoch
         if (send_period > 0)
         {
-          while (next_send <= current)
+          while(next_send <= current)
           {
             next_send += send_window;
           }
@@ -808,7 +808,7 @@ gams::controllers::BaseController::run(double loop_period,
         std::this_thread::sleep_until(next_loop);
 
         current = madara::utility::Clock::now();
-        while (next_loop <= current)
+        while(next_loop <= current)
         {
           next_loop += loop_window;
         }

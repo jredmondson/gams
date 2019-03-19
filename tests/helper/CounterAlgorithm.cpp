@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,25 +48,25 @@
 
 #include <iostream>
 
-gams::algorithms::CounterAlgorithm::CounterAlgorithm (
+gams::algorithms::CounterAlgorithm::CounterAlgorithm(
   madara::knowledge::KnowledgeBase & knowledge)
-  : BaseAlgorithm (&knowledge),
-  enable_analyze_counter (false),
-  enable_execute_counter (false),
-  enable_plan_counter (false)
+  : BaseAlgorithm(&knowledge),
+  enable_analyze_counter(false),
+  enable_execute_counter(false),
+  enable_plan_counter(false)
 {
-  status_.init_vars (knowledge, "counter", 0);
-  analyze_counter.set_name (".algorithm_analyzes", knowledge);
-  execute_counter.set_name (".algorithm_executes", knowledge);
-  plan_counter.set_name (".algorithm_plans", knowledge);
+  status_.init_vars(knowledge, "counter", 0);
+  analyze_counter.set_name(".algorithm_analyzes", knowledge);
+  execute_counter.set_name(".algorithm_executes", knowledge);
+  plan_counter.set_name(".algorithm_plans", knowledge);
 }
 
-gams::algorithms::CounterAlgorithm::~CounterAlgorithm ()
+gams::algorithms::CounterAlgorithm::~CounterAlgorithm()
 {
 }
 
 void
-gams::algorithms::CounterAlgorithm::operator= (const CounterAlgorithm & rhs)
+gams::algorithms::CounterAlgorithm::operator=(const CounterAlgorithm & rhs)
 {
   if (this != &rhs)
   {
@@ -85,7 +85,7 @@ gams::algorithms::CounterAlgorithm::operator= (const CounterAlgorithm & rhs)
 
 
 int
-gams::algorithms::CounterAlgorithm::analyze (void)
+gams::algorithms::CounterAlgorithm::analyze(void)
 {
   ++loops;
   if (enable_analyze_counter)
@@ -96,7 +96,7 @@ gams::algorithms::CounterAlgorithm::analyze (void)
       
 
 int
-gams::algorithms::CounterAlgorithm::execute (void)
+gams::algorithms::CounterAlgorithm::execute(void)
 {
   if (enable_execute_counter)
     ++execute_counter;
@@ -106,7 +106,7 @@ gams::algorithms::CounterAlgorithm::execute (void)
 
 
 int
-gams::algorithms::CounterAlgorithm::plan (void)
+gams::algorithms::CounterAlgorithm::plan(void)
 {
   if (enable_plan_counter)
     ++plan_counter;
@@ -115,7 +115,7 @@ gams::algorithms::CounterAlgorithm::plan (void)
 }
 
 void
-gams::algorithms::CounterAlgorithm::reset_counters (void)
+gams::algorithms::CounterAlgorithm::reset_counters(void)
 {
   loops = 0;
   analyze_counter = 0;
@@ -124,7 +124,7 @@ gams::algorithms::CounterAlgorithm::reset_counters (void)
 }
       
 void
-gams::algorithms::CounterAlgorithm::enable_counters (void)
+gams::algorithms::CounterAlgorithm::enable_counters(void)
 {
   this->enable_analyze_counter = true;
   this->enable_execute_counter = true;
@@ -132,7 +132,7 @@ gams::algorithms::CounterAlgorithm::enable_counters (void)
 }
       
 void
-gams::algorithms::CounterAlgorithm::disable_counters (void)
+gams::algorithms::CounterAlgorithm::disable_counters(void)
 {
   this->enable_analyze_counter = false;
   this->enable_execute_counter = false;

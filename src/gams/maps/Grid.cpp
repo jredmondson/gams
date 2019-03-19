@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,31 +48,31 @@
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
-gams::variables::Grid::Grid ()
+gams::variables::Grid::Grid()
 {
 }
 
-gams::variables::Grid::~Grid ()
+gams::variables::Grid::~Grid()
 {
 }
 
 void
-gams::variables::Grid::operator= (const Grid & rhs)
+gams::variables::Grid::operator=(const Grid & rhs)
 {
-  if (this != &rhs)
+  if(this != &rhs)
   {
   }
 }
 
 
 void
-gams::variables::Grid::init_vars (
+gams::variables::Grid::init_vars(
   madara::knowledge::KnowledgeBase & /*knowledge*/)
 {
 }
 
 void
-gams::variables::Grid::init_vars (
+gams::variables::Grid::init_vars(
   madara::knowledge::Variables & /*knowledge*/)
 {
 }

@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -47,19 +47,19 @@
 #include "gams/elections/ElectionFactoryRepository.h"
 #include "gams/elections/ElectionPlurality.h"
 
-gams::elections::ElectionFactoryRepository::ElectionFactoryRepository (
+gams::elections::ElectionFactoryRepository::ElectionFactoryRepository(
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : knowledge_ (knowledge), agent_prefix_ (agent_prefix)
+  : knowledge_(knowledge), agent_prefix_(agent_prefix)
 {
-  init ();
+  init();
 }
 
-gams::elections::ElectionFactoryRepository::~ElectionFactoryRepository ()
+gams::elections::ElectionFactoryRepository::~ElectionFactoryRepository()
 {
   // delete all factories
-  for (ElectionFactoryMap::iterator i = factory_map_.begin ();
-    i != factory_map_.end (); ++i)
+  for (ElectionFactoryMap::iterator i = factory_map_.begin();
+    i != factory_map_.end(); ++i)
   {
     delete i->second;
   }

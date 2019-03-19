@@ -106,7 +106,7 @@ namespace gams
           const std::string IGNORE_MARKER = "_IGNORE_";
           const std::string NSEC_MARKER = "_TO_NSEC_";
 
-          RosParser (knowledge::KnowledgeBase * kb, std::string world_frame,
+          RosParser(knowledge::KnowledgeBase * kb, std::string world_frame,
             std::string base_frame,
             std::map<std::string, std::string> capnp_types,
             std::map<std::string,
@@ -118,9 +118,9 @@ namespace gams
                 gams::pose::ReferenceFrame::default_prefix());
           ~RosParser();
 
-          void parse_message (const rosbag::MessageInstance m,
+          void parse_message(const rosbag::MessageInstance m,
             std::string container_name);
-          void parse_message (const topic_tools::ShapeShifter::ConstPtr& m,
+          void parse_message(const topic_tools::ShapeShifter::ConstPtr& m,
             std::string container_name);
 
           // Parsing for unknown types
@@ -128,7 +128,7 @@ namespace gams
             RosIntrospection::ROSType type, std::string definition);
           void registerRenamingRules(RosIntrospection::ROSType type,
             std::vector<RosIntrospection::SubstitutionRule> rules);
-          void parse_unknown (const rosbag::MessageInstance m,
+          void parse_unknown(const rosbag::MessageInstance m,
             std::string container_name);
           
 
@@ -136,7 +136,7 @@ namespace gams
            * Registers renaming rules for ros types
            * @param name_substitution_map   map<rostype, map<name, newname>>
            **/
-          void register_rename_rules (
+          void register_rename_rules(
             std::map<std::string, std::map<std::string,
             std::string>> name_substitution_map);
 
@@ -145,7 +145,7 @@ namespace gams
            * @param  m               rosbag::MessageInstance to parse
            * @param  container_name  name of the madara variable
            **/
-          void parse_any (const rosbag::MessageInstance & m,
+          void parse_any(const rosbag::MessageInstance & m,
             std::string container_name);
 
 
@@ -155,7 +155,7 @@ namespace gams
            * @param  m               topic_tools::ShapeShifter to parse
            * @param  container_name  name of the madara variable
            **/
-          void parse_any (std::string topic, const topic_tools::ShapeShifter & m,
+          void parse_any(std::string topic, const topic_tools::ShapeShifter & m,
             std::string container_name);
           
           /**
@@ -165,7 +165,7 @@ namespace gams
            * @param  parse_buffer    byte vector with the message
            * @param  container_name  name of the madara variable
            **/
-          void parse_any ( std::string datatype, std::string topic_name,
+          void parse_any( std::string datatype, std::string topic_name,
             std::vector<uint8_t> & parser_buffer,
             std::string container_name);
 
@@ -174,7 +174,7 @@ namespace gams
            * @param  m               rosbag::MessageInstance to parse
            * @param  container_name  name of the madara variable
            **/
-          void parse_external (const rosbag::MessageInstance & m,
+          void parse_external(const rosbag::MessageInstance & m,
             std::string container_name);
 
 
@@ -188,50 +188,50 @@ namespace gams
           /**
            * Parses a ros PointCloud2 into a PCL based capnp schema
            **/
-          void parse_pointcloud2_pclschema (sensor_msgs::PointCloud2 * pointcloud,
+          void parse_pointcloud2_pclschema(sensor_msgs::PointCloud2 * pointcloud,
             std::string container_name);
 
           
           //known types
-          void parse_odometry (nav_msgs::Odometry * odom,
+          void parse_odometry(nav_msgs::Odometry * odom,
             std::string container_name);
-          void parse_imu (sensor_msgs::Imu * imu,
+          void parse_imu(sensor_msgs::Imu * imu,
             std::string container_name);
-          void parse_laserscan (sensor_msgs::LaserScan * laser,
+          void parse_laserscan(sensor_msgs::LaserScan * laser,
             std::string container_name);
-          void parse_quaternion (geometry_msgs::Quaternion *quat,
+          void parse_quaternion(geometry_msgs::Quaternion *quat,
             containers::NativeDoubleVector *orientation);
-          void parse_point (geometry_msgs::Point *point_msg,
+          void parse_point(geometry_msgs::Point *point_msg,
             containers::NativeDoubleVector *point);
-          void parse_twist (geometry_msgs::Twist *twist,
+          void parse_twist(geometry_msgs::Twist *twist,
             std::string container_name);
-          void parse_vector3 (geometry_msgs::Vector3 *vec,
+          void parse_vector3(geometry_msgs::Vector3 *vec,
             containers::NativeDoubleVector *target);
-          void parse_pose (geometry_msgs::Pose *pose,
+          void parse_pose(geometry_msgs::Pose *pose,
             std::string container_name);
-          void parse_compressed_image (sensor_msgs::CompressedImage * img,
+          void parse_compressed_image(sensor_msgs::CompressedImage * img,
             std::string container_name);
-          void parse_pointcloud2 (sensor_msgs::PointCloud2 * pointcloud,
+          void parse_pointcloud2(sensor_msgs::PointCloud2 * pointcloud,
             std::string container_name);
-          void parse_range (sensor_msgs::Range * range,
+          void parse_range(sensor_msgs::Range * range,
             std::string container_name);
-          void parse_tf_message (tf2_msgs::TFMessage * tf);
-          void parse_fluidpressure (sensor_msgs::FluidPressure * press,
+          void parse_tf_message(tf2_msgs::TFMessage * tf);
+          void parse_fluidpressure(sensor_msgs::FluidPressure * press,
             std::string container_name);
 
 
           template <size_t N>
-          void parse_float64_array (boost::array<double, N> *array,
+          void parse_float64_array(boost::array<double, N> *array,
             containers::NativeDoubleVector *target);
-          void parse_float64_array (std::vector<float> *array,
+          void parse_float64_array(std::vector<float> *array,
             containers::NativeDoubleVector *target);
 
 
           template <size_t N>
-          void parse_int_array (boost::array<int, N> *array,
+          void parse_int_array(boost::array<int, N> *array,
             containers::NativeIntegerVector *target);
           template <class T>
-          void parse_int_array (std::vector<T> *array,
+          void parse_int_array(std::vector<T> *array,
             containers::NativeIntegerVector *target);
 
           /**
@@ -266,7 +266,7 @@ namespace gams
           knowledge::EvalSettings eval_settings_;
           std::string frame_prefix_;
 
-          // Map for circular buffer producers (maps from var name to the producer)
+          // Map for circular buffer producers(maps from var name to the producer)
           std::map<std::string, madara::knowledge::containers::CircularBuffer>
             circular_producers_;
           std::map<std::string, int> circular_container_stats_;
@@ -279,7 +279,7 @@ namespace gams
           std::map<std::string, std::pair<std::string, std::string>> plugin_map_;
 
           //Plugin cache
-          typedef void (*plugin_t) (const rosbag::MessageInstance*,
+          typedef void(*plugin_t)(const rosbag::MessageInstance*,
             madara::knowledge::KnowledgeBase*, 
             std::string);
           std::map<std::string, void*> plugin_cache_;
@@ -292,35 +292,35 @@ namespace gams
            * Searches for the appropriate capnproto "substruct" builder defined
            * by the name
            **/
-          capnp::DynamicStruct::Builder get_dyn_capnp_struct (
+          capnp::DynamicStruct::Builder get_dyn_capnp_struct(
             capnp::DynamicStruct::Builder builder, std::string name);
 
           /**
            * Sets the value of an enum in a capnproto struct 
            **/
           template <class T>
-          void set_dyn_capnp_enum_value (capnp::DynamicStruct::Builder dynvalue,
+          void set_dyn_capnp_enum_value(capnp::DynamicStruct::Builder dynvalue,
             std::string var_name, T val);
           
           /**
            * Sets a value in a capnproto struct 
            **/
           template <class T>
-          void set_dyn_capnp_value (capnp::DynamicStruct::Builder builder,
+          void set_dyn_capnp_value(capnp::DynamicStruct::Builder builder,
             std::string name, T val, unsigned int array_size);
 
           /**
            * Calculates the size of an array in ros type introspection
            * generated values
            **/
-          unsigned int get_array_size (std::string var_name,
+          unsigned int get_array_size(std::string var_name,
             RosIntrospection::RenamedValues* array);
 
           /**
            * Substitutes the names of topic type members based on the registered
            * rules
            **/ 
-          std::string substitute_name (std::string type, std::string name);
+          std::string substitute_name(std::string type, std::string name);
 
           /*
           Sets the current time to the ros header time if the simtime feature is
@@ -329,7 +329,7 @@ namespace gams
           void set_sim_time(global_ros::Time rostime);
 
       };
-      std::string ros_to_gams_name (std::string ros_topic_name);
+      std::string ros_to_gams_name(std::string ros_topic_name);
     }
   }
 }

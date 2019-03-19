@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ namespace gams
        * @param  self       self-referencing variables
        * @param  agents    agents of the swarm
        **/
-      AlgorithmFactoryRepository (
+      AlgorithmFactoryRepository(
         madara::knowledge::KnowledgeBase * knowledge = 0,
         variables::Sensors * sensors = 0,
         platforms::BasePlatform * platform = 0,
@@ -97,7 +97,7 @@ namespace gams
       /**
        * Destructor
        **/
-      ~AlgorithmFactoryRepository ();
+      ~AlgorithmFactoryRepository();
       
       /**
        * Adds an algorithm factory
@@ -106,7 +106,7 @@ namespace gams
        * @param  factory   the factory for creating an algorithm
        * @return  the new algorithm
        **/
-      void add (const std::vector <std::string> & aliases,
+      void add(const std::vector <std::string> & aliases,
         AlgorithmFactory * factory);
       
       /**
@@ -115,43 +115,43 @@ namespace gams
        * @param  args   a vector of Knowledge Record arguments
        * @return  the new algorithm
        **/
-      BaseAlgorithm * create (const std::string & type,
-        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap ());
+      BaseAlgorithm * create(const std::string & type,
+        const madara::knowledge::KnowledgeMap & args = madara::knowledge::KnowledgeMap());
       
       /**
        * Sets list of agents participating in swarm
        * @param  agents    agents in the swarm
        **/
-      void set_agents (variables::Agents * agents);
+      void set_agents(variables::Agents * agents);
       
       /**
        * Sets the knowledge base
        * @param  knowledge    the knowledge base to use
        **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
       
       /**
        * Sets the map of platform names to platform information
        * @param  platform   the platform to use
        **/
-      void set_platform (platforms::BasePlatform * platform);
+      void set_platform(platforms::BasePlatform * platform);
       
       /**
        * Sets self-referencing variables
        * @param  self       self-referencing variables
        **/
-      void set_self (variables::Self * self);
+      void set_self(variables::Self * self);
       
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
-      void set_sensors (variables::Sensors * sensors);
+      void set_sensors(variables::Sensors * sensors);
       
       /**
        * Initializes factories for all supported GAMS algorithms
        **/
-      void initialize_default_mappings (void);
+      void initialize_default_mappings(void);
 
     protected:
 

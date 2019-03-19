@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -74,29 +74,29 @@ namespace gams
       /**
        * Constructor
        **/
-      Containerize (const std::string& n = "");
+      Containerize(const std::string& n = "");
 
       /**
        * Destructor
        **/
-      virtual ~Containerize ();
+      virtual ~Containerize();
 
       /**
        * Get name of the object
        * @return name of the object
        **/
-      std::string get_name () const;
+      std::string get_name() const;
 
       /**
        * Set name of the object
        * @param n   new name of the object
        **/
-      void set_name (const std::string& n);
+      void set_name(const std::string& n);
 
       /**
        * Set knowledge base to use
        **/
-      void set_knowledge_base (madara::knowledge::KnowledgeBase* kb);
+      void set_knowledge_base(madara::knowledge::KnowledgeBase* kb);
 
       /**
        * Resend the information in the container using same knowledge base as
@@ -108,14 +108,14 @@ namespace gams
        * Store object in knowledge base used previously
        * @param name      location of object in Knowlege Base
        **/
-      void to_container (const std::string& name = "");
+      void to_container(const std::string& name = "");
 
       /**
        * Store object in knowledge base
        * @param kb        Knowledge Base to store object in
        * @param name      location of object in Knowlege Base
        **/
-      void to_container (madara::knowledge::KnowledgeBase& kb, 
+      void to_container(madara::knowledge::KnowledgeBase& kb, 
         const std::string& name = "");
 
       /**
@@ -123,7 +123,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        * @return true if object successfully loaded from knowledge base
        **/
-      bool from_container (const std::string& name = "");
+      bool from_container(const std::string& name = "");
 
       /**
        * Load object from knowledge base
@@ -131,7 +131,7 @@ namespace gams
        * @param name      location of object in Knowlege Base
        * @return true if object successfully loaded from knowledge base
        **/
-      bool from_container (
+      bool from_container(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name = "");
 
@@ -166,7 +166,7 @@ namespace gams
        * @param expected  Expected value
        * @return true if correct type, false otherwise
        **/
-      bool is_valid_type (madara::knowledge::KnowledgeBase& kb,
+      bool is_valid_type(madara::knowledge::KnowledgeBase& kb,
         const std::string& name, const Class_ID& expected) const;
 
       /**
@@ -175,7 +175,7 @@ namespace gams
        * @param name      Prefix of object in the KB
        * @return Class_ID of object in kb
        **/
-      static Class_ID get_type (madara::knowledge::KnowledgeBase& kb,
+      static Class_ID get_type(madara::knowledge::KnowledgeBase& kb,
         const std::string& name);
 
     private:
@@ -185,7 +185,7 @@ namespace gams
        * @param name      Prefix of object in the KB
        * @return true if name is a valid object type in kb
        **/
-      virtual bool check_valid_type (
+      virtual bool check_valid_type(
         madara::knowledge::KnowledgeBase& kb,
         const std::string& name) const = 0;
 
@@ -194,7 +194,7 @@ namespace gams
        * @param kb        Knowledge Base to store object in
        * @param name      location of object in Knowlege Base
        **/
-      virtual void to_container_impl (
+      virtual void to_container_impl(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name) = 0;
 
@@ -203,7 +203,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      location of object in Knowlege Base
        **/
-      virtual bool from_container_impl (
+      virtual bool from_container_impl(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name) = 0;
     };

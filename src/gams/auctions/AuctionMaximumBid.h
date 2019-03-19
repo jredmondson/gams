@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -75,24 +75,24 @@ namespace gams
     public:
       /**
        * Constructor.
-       * @param auction_prefix the name of the auction (e.g. auction.position)
-       * @param agent_prefix   the name of this bidder (e.g. agent.0)
+       * @param auction_prefix the name of the auction(e.g. auction.position)
+       * @param agent_prefix   the name of this bidder(e.g. agent.0)
        * @param knowledge      the knowledge base to use for syncing
        **/
-      AuctionMaximumBid (const std::string & auction_prefix = "",
+      AuctionMaximumBid(const std::string & auction_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Constructor
       **/
-      virtual ~AuctionMaximumBid ();
+      virtual ~AuctionMaximumBid();
 
       /**
       * Returns the leader of the bidding process
       * @return the agent prefix of the leader of the auction
       **/
-      virtual std::string get_leader (void);
+      virtual std::string get_leader(void);
     };
 
     /**
@@ -105,21 +105,21 @@ namespace gams
       /**
       * Constructor
       **/
-      AuctionMaximumBidFactory ();
+      AuctionMaximumBidFactory();
 
       /**
       * Destructor
       **/
-      virtual ~AuctionMaximumBidFactory ();
+      virtual ~AuctionMaximumBidFactory();
 
       /**
       * Creates a maximum-bid auction
-       * @param auction_prefix the name of the auction (e.g. auction.position)
-       * @param agent_prefix   the name of this bidder (e.g. agent.0)
+       * @param auction_prefix the name of the auction(e.g. auction.position)
+       * @param agent_prefix   the name of this bidder(e.g. agent.0)
        * @param knowledge      the knowledge base to use for syncing
       * @return  the new group
       **/
-      virtual AuctionBase * create (const std::string & auction_prefix = "",
+      virtual AuctionBase * create(const std::string & auction_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
     };

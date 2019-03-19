@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -56,179 +56,205 @@
 
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
+typedef knowledge::KnowledgeRecord  KnowledgeRecord;
+typedef KnowledgeRecord::Integer    Integer;
 
-gams::groups::GroupTransientFactory::GroupTransientFactory ()
+gams::groups::GroupTransientFactory::GroupTransientFactory()
 {
 }
 
-gams::groups::GroupTransientFactory::~GroupTransientFactory ()
+gams::groups::GroupTransientFactory::~GroupTransientFactory()
 {
 }
 
 gams::groups::GroupBase *
-gams::groups::GroupTransientFactory::create (
+gams::groups::GroupTransientFactory::create(
 const std::string & prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupTransientFactory:" \
-    " creating group from %s\n", prefix.c_str ());
+    " creating group from %s\n", prefix.c_str());
 
-  return new GroupTransient (prefix, knowledge);
+  return new GroupTransient(prefix, knowledge);
 }
 
-gams::groups::GroupTransient::GroupTransient (const std::string & prefix,
+gams::groups::GroupTransient::GroupTransient(const std::string & prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : GroupBase (prefix, knowledge)
+  : GroupBase(prefix, knowledge)
 {
   if (knowledge && prefix != "")
   {
-    members_.set_name (prefix + ".members", *knowledge);
-    sync ();
+    members_.set_name(prefix + ".members", *knowledge);
+    knowledge_->set(prefix + ".type",
+     (Integer)GROUP_TRANSIENT, knowledge::EvalSettings::DELAY);
+
+    sync();
   }
 }
 
-gams::groups::GroupTransient::~GroupTransient ()
+gams::groups::GroupTransient::~GroupTransient()
 {
 }
 
 void
-gams::groups::GroupTransient::add_members (const AgentVector & members)
+gams::groups::GroupTransient::add_members(const AgentVector & members)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupTransient:add_members" \
-    " adding %d members\n", (int)members.size ());
+    " adding %d members\n",(int)members.size());
 
   knowledge::KnowledgeRecord::Integer cur_time =
-    (knowledge::KnowledgeRecord::Integer)time (NULL);
+   (knowledge::KnowledgeRecord::Integer)time(NULL);
 
   bool update_knowledge = knowledge_ && prefix_ != "";
 
   // add the members to the underlying knowledge base
-  for (size_t i = 0; i < members.size (); ++i)
+  for (size_t i = 0; i < members.size(); ++i)
   {
     const std::string id = members[i];
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::groups::GroupTransient:add_members" \
-      " adding member %s to fast map\n", id.c_str ());
+      " adding member %s to fast map\n", id.c_str());
 
     fast_members_[id] = cur_time;
 
     if (update_knowledge)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::groups::GroupTransient:add_members" \
-        " adding member %s to %s\n", id.c_str (), prefix_.c_str ());
+        " adding member %s to %s\n", id.c_str(), prefix_.c_str());
 
-      members_.set (id, cur_time);
+      members_.set(id, cur_time);
     }
   }
 }
 
 void
-gams::groups::GroupTransient::clear_members (void)
+gams::groups::GroupTransient::clear_members(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupTransient:clear_members" \
-    " clearing all %d members\n", (int)fast_members_.size ());
+    " clearing all %d members\n",(int)fast_members_.size());
 
-  fast_members_.clear ();
-  members_.clear ();
+  fast_members_.clear();
+  members_.clear();
 }
 
 void
-gams::groups::GroupTransient::get_members (AgentVector & members) const
+gams::groups::GroupTransient::get_members(AgentVector & members) const
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupTransient:get_members" \
     " retrieving member list\n");
 
-  members.resize (fast_members_.size ());
+  members.resize(fast_members_.size());
 
   // iterate through the agent map and copy over the member info
   size_t j = 0;
-  for (AgentMap::const_iterator i = fast_members_.begin ();
-    i != fast_members_.end (); ++i, ++j)
+  for (AgentMap::const_iterator i = fast_members_.begin();
+    i != fast_members_.end(); ++i, ++j)
   {
     members[j] = i->first;
   }
 }
 
 bool
-gams::groups::GroupTransient::is_member (const std::string & id) const
+gams::groups::GroupTransient::is_member(const std::string & id) const
 {
-  return fast_members_.find (id) != fast_members_.end ();
+  return fast_members_.find(id) != fast_members_.end();
 }
 
 size_t
-gams::groups::GroupTransient::size (void)
+gams::groups::GroupTransient::size(void)
 {
-  return fast_members_.size ();
+  return fast_members_.size();
 }
 
 void
-gams::groups::GroupTransient::set_prefix (const std::string & prefix,
-  madara::knowledge::KnowledgeBase * knowledge)
+gams::groups::GroupTransient::remove_members(const AgentVector & members)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
-    "gams::groups::GroupTransient:set_prefix" \
-    " setting prefix to %s\n", prefix.c_str ());
+    "gams::groups::GroupTransient:remove_members" \
+    " removing %d members\n",(int)members.size());
 
-  GroupBase::set_prefix (prefix, knowledge);
-
-  if (knowledge && prefix != "")
+  for (auto member: members)
   {
-    members_.set_name (prefix + ".members", *knowledge);
-    sync ();
+    fast_members_.erase(member);
+    members_.erase(member);
   }
 }
 
 void
-gams::groups::GroupTransient::sync (void)
+gams::groups::GroupTransient::set_prefix(const std::string & prefix,
+  madara::knowledge::KnowledgeBase * knowledge)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_MAJOR,
+    "gams::groups::GroupTransient:set_prefix" \
+    " setting prefix to %s\n", prefix.c_str());
+
+  GroupBase::set_prefix(prefix, knowledge);
+
+  if (knowledge && prefix != "")
+  {
+    members_.set_name(prefix + ".members", *knowledge);
+    sync();
+  }
+}
+
+void
+gams::groups::GroupTransient::sync(void)
+{
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupTransient:sync" \
-    " syncing with %s source\n", prefix_.c_str ());
+    " syncing with %s source\n", prefix_.c_str());
 
   if (knowledge_ && prefix_ != "")
   {
+    knowledge::ContextGuard guard(*knowledge_);
+
     // sync with map is always expensive. Sync and clear
-    members_.sync_keys ();
-    fast_members_.clear ();
+    members_.sync_keys();
+    fast_members_.clear();
 
     // get the new list of keys
     std::vector <std::string> keys;
-    members_.keys (keys);
+    members_.keys(keys);
     
     // add the keys with values to the AgentMap fast_members_
-    for (size_t i = 0; i < keys.size (); ++i)
+    for (size_t i = 0; i < keys.size(); ++i)
     {
       const std::string key = keys[i];
-      fast_members_[key] = members_[key].to_integer ();
+
+      if (members_[key].to_integer() != 0)
+      {
+        fast_members_[key] = members_[key].to_integer();
+      }
     }
   }
 }
 
 void
-gams::groups::GroupTransient::write (const std::string & prefix,
+gams::groups::GroupTransient::write(const std::string & prefix,
 madara::knowledge::KnowledgeBase * knowledge) const
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::groups::GroupTransient:write" \
     " performing initialization checks\n");
 
   std::string location;
-  bool is_done (false);
+  bool is_done(false);
 
   // set location in knowledge base to write to
   if (prefix == "")
@@ -263,31 +289,31 @@ madara::knowledge::KnowledgeBase * knowledge) const
   // if we have a valid location and knowledge base, continue
   if (!is_done)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::groups::GroupTransient:write" \
-      " writing group information to %s\n", location.c_str ());
+      " writing group information to %s\n", location.c_str());
 
     // create members and type. Note we set type to 1.
-    containers::Map members (location + ".members", *knowledge);
-    containers::Integer type (location + ".type", *knowledge, 1);
+    containers::Map members(location + ".members", *knowledge);
+    containers::Integer type(location + ".type", *knowledge, 1);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::groups::GroupTransient:write" \
       " writing %d members to %s.members\n",
-      (int)fast_members_.size (), location.c_str ());
+     (int)fast_members_.size(), location.c_str());
 
     // iterate through the fast members list and set members at location
-    for (AgentMap::const_iterator i = fast_members_.begin ();
-      i != fast_members_.end (); ++i)
+    for (AgentMap::const_iterator i = fast_members_.begin();
+         i != fast_members_.end(); ++i)
     {
-      members.set (i->first, i->second);
+      members.set(i->first, i->second);
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::groups::GroupTransient:write" \
       " no valid prefix to write to. No work to do.\n");

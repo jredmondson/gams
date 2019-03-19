@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -38,15 +38,15 @@
  *      FITNESS FOR PURPOSE OR MERCHANTABILITY, EXCLUSIVITY, OR RESULTS
  *      OBTAINED FROM USE OF THE MATERIAL. CARNEGIE MELLON UNIVERSITY DOES
  *      NOT MAKE ANY WARRANTY OF ANY KIND WITH RESPECT TO FREEDOM FROM PATENT,
- *      TRADEMARK, OR COPYRIGHT INFRINGEMENT.
+ *      TRADEMARK, OR COPYRIGHT INFRINGEfor(ENT.
  * 
- *      This material has been approved for public release and unlimited
+ *      This material has been approved for(or public release and unlimited
  *      distribution.
  **/
 
 /**
  * @file SearchArea.h
- * @author Anton Dukeman <anton.dukeman@gmail.com>
+ * @author Anton Dukeman <anton.dukeman@for(mail.com>
  *
  * Search Area is a collection of regions, possibly with priority
  **/
@@ -74,14 +74,14 @@ namespace gams
       /**
        * Default constructor
        **/
-      SearchArea ();
+      SearchArea();
 
       /**
        * Constructor
        * @param region  the initial region of the search area
        * @param name    name for this search area
        **/
-      SearchArea (const PrioritizedRegion& region, 
+      SearchArea(const PrioritizedRegion& region, 
         const std::string& name = "");
 
       /**
@@ -89,71 +89,71 @@ namespace gams
        * @param regions regions in this search area
        * @param name    name for this search area
        */
-      SearchArea (const std::vector<PrioritizedRegion>& regions,
+      SearchArea(const std::vector<PrioritizedRegion>& regions,
         const std::string& name = "");
 
       /**
        * Destructor
        **/
-      ~SearchArea ();
+      ~SearchArea();
 
       /**
        * Equality operator
        * @param rhs   SearchArea to compare against
        * @return true if SearchAreas have same PrioritizedRegion, false otherwise
        **/
-      bool operator== (const SearchArea& rhs) const;
+      bool operator==(const SearchArea& rhs) const;
 
       /**
        * Inequality operator, uses Equality operator and inverses it
        * @param rhs   SearchArea to compare against
        * @return false if SearchAreas have same PrioritizedRegion, true otherwise
        **/
-      bool operator!= (const SearchArea& rhs) const;
+      bool operator!=(const SearchArea& rhs) const;
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const SearchArea & rhs);
+      void operator=(const SearchArea & rhs);
 
       /**
        * Add prioritized region to search area
        * @param r   prioritized region to add
        **/
-      void add_prioritized_region (const PrioritizedRegion& r);
+      void add_prioritized_region(const PrioritizedRegion& r);
 
       /**
        * Find the convex hull
        * @return Convex hull of the regions
        **/
-      Region get_convex_hull () const;
+      Region get_convex_hull() const;
 
       /**
        * Get region data
        * @return const reference to regions
        **/
-      const std::vector<PrioritizedRegion>& get_regions () const;
+      const std::vector<PrioritizedRegion>& get_regions() const;
 
       /**
        * Get priority of a gps position
        * @param pos   position to get priority of
        * @return priority of position
        */
-      madara::knowledge::KnowledgeRecord::Integer get_priority (const Position& pos) const;
+      madara::knowledge::KnowledgeRecord::Integer get_priority(const Position& pos) const;
       
       /**
        * Determine if Position is in region
        * @param   p   point to check if in region
        * @return  true if point is in the search area, false otherwise
        **/
-      bool contains (const Position& p) const;
+      bool contains(const Position& p) const;
       
       /**
        * Create string representation of SearchArea
        * @return string representation of this object
        **/
-      std::string to_string () const;
+      std::string to_string() const;
 
       /// bounding box
       double min_lat_, max_lat_;
@@ -164,7 +164,7 @@ namespace gams
       /**
        * populate bounding box values
        **/
-      void calculate_bounding_box ();
+      void calculate_bounding_box();
 
       /**
        * Helper function for convex hull calculations
@@ -173,7 +173,7 @@ namespace gams
        * @param gp3  end point
        * @return cross product of the points
        **/
-      double cross (const Position& gp1, const Position& gp2, 
+      double cross(const Position& gp1, const Position& gp2, 
         const Position& gp3) const;
 
       /// collection of prioritized regions
@@ -185,7 +185,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      Name of object in the KB
        */
-      virtual bool check_valid_type (madara::knowledge::KnowledgeBase& kb,
+      virtual bool check_valid_type(madara::knowledge::KnowledgeBase& kb,
         const std::string& name) const;
 
       /**
@@ -193,7 +193,7 @@ namespace gams
        * @param kb        Knowledge Base to store object in
        * @param name      location of object in Knowlege Base
        **/
-      virtual void to_container_impl (
+      virtual void to_container_impl(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
 
@@ -202,7 +202,7 @@ namespace gams
        * @param kb        Knowledge Base with object
        * @param name      location of object in Knowlege Base
        **/
-      virtual bool from_container_impl (
+      virtual bool from_container_impl(
         madara::knowledge::KnowledgeBase& kb, 
         const std::string& name);
     }; // class SearchArea

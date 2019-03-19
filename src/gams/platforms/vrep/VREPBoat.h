@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -93,7 +93,7 @@ namespace gams
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
        **/
-      VREPBoat (
+      VREPBoat(
         const std::string& file, 
         const simxUChar client_side,
         madara::knowledge::KnowledgeBase * knowledge,
@@ -104,37 +104,37 @@ namespace gams
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. vrep_ant, autonomous_snake, etc.)
+       * variable(e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const;
+      virtual std::string get_id() const;
 
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const;
+      virtual std::string get_name() const;
 
       /**
        * Get the position accuracy in meters
        * @return position accuracy
        **/
-      virtual double get_accuracy () const;
+      virtual double get_accuracy() const;
 
     protected:
       /**
        * Add model to environment
        */
-      virtual void add_model_to_environment (const std::string& file, 
+      virtual void add_model_to_environment(const std::string& file, 
         const simxUChar client_side);
 
       /**
        * Get target handle
        */
-      virtual void get_target_handle ();
+      virtual void get_target_handle();
   
       /**
        * Set initial position
        */
-      virtual double get_initial_z () const;
+      virtual double get_initial_z() const;
     }; // class VREPBoat
 
     /**
@@ -156,7 +156,7 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
-      virtual BasePlatform * create (
+      virtual BasePlatform * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,

@@ -17,8 +17,6 @@
 #include "capnp/schema-loader.h"
 #include <gams/types/Datatypes.h>
 
-
-
 #include "gams/utility/ros/RosParser.cpp"
 #include "std_msgs/Header.h"
 #include "nav_msgs/Odometry.h"

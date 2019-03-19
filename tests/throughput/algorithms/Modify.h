@@ -30,7 +30,7 @@ namespace algorithms
      * @param payload_size  the size of the payload that should be
      *                      generated and delivered
      **/
-    Modify (
+    Modify(
       madara::knowledge::KnowledgeBase * knowledge = 0,
       gams::platforms::BasePlatform * platform = 0,
       gams::variables::Sensors * sensors = 0,
@@ -41,25 +41,25 @@ namespace algorithms
     /**
      * Destructor
      **/
-    virtual ~Modify ();
+    virtual ~Modify();
 
     /**
      * Analyzes environment, platform, or other information
      * @return bitmask status of the platform. @see Status.
      **/
-    virtual int analyze (void);
+    virtual int analyze(void);
       
     /**
      * Plans the next execution of the algorithm
      * @return bitmask status of the platform. @see Status.
      **/
-    virtual int execute (void);
+    virtual int execute(void);
 
     /**
      * Plans the next execution of the algorithm
      * @return bitmask status of the platform. @see Status.
      **/
-    virtual int plan (void);
+    virtual int plan(void);
 
   protected:
     /// file payload
@@ -92,7 +92,7 @@ namespace algorithms
      *                     init_vars when a number of processes is set. This
      *                     will be set by the controller in init_vars
      **/
-    virtual gams::algorithms::BaseAlgorithm * create (
+    virtual gams::algorithms::BaseAlgorithm * create(
       const madara::knowledge::KnowledgeMap & args,
       madara::knowledge::KnowledgeBase * knowledge,
       gams::platforms::BasePlatform * platform,

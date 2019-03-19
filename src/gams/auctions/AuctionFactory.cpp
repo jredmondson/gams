@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -47,24 +47,24 @@
 #include "gams/auctions/AuctionFactory.h"
 #include <iostream>
 
-gams::auctions::AuctionFactory::AuctionFactory ()
-  : knowledge_ (0)
+gams::auctions::AuctionFactory::AuctionFactory()
+  : knowledge_(0)
 {
 }
 
-gams::auctions::AuctionFactory::~AuctionFactory ()
+gams::auctions::AuctionFactory::~AuctionFactory()
 {
 }
 
 void
-gams::auctions::AuctionFactory::set_knowledge (
+gams::auctions::AuctionFactory::set_knowledge(
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-gams::auctions::AuctionFactory::set_agent_prefix (
+gams::auctions::AuctionFactory::set_agent_prefix(
 const std::string & prefix)
 {
   agent_prefix_ = prefix;

@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -53,102 +53,102 @@
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
-gams::auctions::AuctionMinimumBidFactory::AuctionMinimumBidFactory ()
+gams::auctions::AuctionMinimumBidFactory::AuctionMinimumBidFactory()
 {
 }
 
-gams::auctions::AuctionMinimumBidFactory::~AuctionMinimumBidFactory ()
+gams::auctions::AuctionMinimumBidFactory::~AuctionMinimumBidFactory()
 {
 }
 
 gams::auctions::AuctionBase *
-gams::auctions::AuctionMinimumBidFactory::create (
+gams::auctions::AuctionMinimumBidFactory::create(
 const std::string & auction_prefix,
 const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumBidFactory::create:" \
-    " creating auction from %s\n", auction_prefix.c_str ());
+    " creating auction from %s\n", auction_prefix.c_str());
 
-  return new AuctionMinimumBid (auction_prefix, agent_prefix, knowledge);
+  return new AuctionMinimumBid(auction_prefix, agent_prefix, knowledge);
 }
 
-gams::auctions::AuctionMinimumBid::AuctionMinimumBid (
+gams::auctions::AuctionMinimumBid::AuctionMinimumBid(
   const std::string & auction_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : AuctionBase (auction_prefix, agent_prefix, knowledge)
+  : AuctionBase(auction_prefix, agent_prefix, knowledge)
 {
 }
 
-gams::auctions::AuctionMinimumBid::~AuctionMinimumBid ()
+gams::auctions::AuctionMinimumBid::~AuctionMinimumBid()
 {
 
 }
 
 std::string
-gams::auctions::AuctionMinimumBid::get_leader (void)
+gams::auctions::AuctionMinimumBid::get_leader(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumBid::get_leader:" \
-    " getting leader from %s\n", auction_prefix_.c_str ());
+    " getting leader from %s\n", auction_prefix_.c_str());
 
   std::string leader;
 
   if (knowledge_)
   {
-    madara::knowledge::ContextGuard guard (*knowledge_);
+    madara::knowledge::ContextGuard guard(*knowledge_);
 
     madara::knowledge::VariableReferences bids;
-    knowledge_->get_matches (get_auction_round_prefix (), "", bids);
+    knowledge_->get_matches(get_auction_round_prefix(), "", bids);
 
     double leader_bid = -1;
 
-    if (bids.size () > 0)
+    if (bids.size() > 0)
     {
-      leader_bid = knowledge_->get (bids[0]).to_double ();
-      leader = bids[0].get_name ();
+      leader_bid = knowledge_->get(bids[0]).to_double();
+      leader = bids[0].get_name();
     }
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::auctions::AuctionMinimumBid::get_leader:" \
       " iterating through bids from %s\n",
-      auction_prefix_.c_str ());
+      auction_prefix_.c_str());
 
-    for (size_t i = 1; i < bids.size (); ++i)
+    for (size_t i = 1; i < bids.size(); ++i)
     {
-      double current_bid = knowledge_->get (bids[i]).to_double ();
+      double current_bid = knowledge_->get(bids[i]).to_double();
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::auctions::AuctionMinimumBid::get_leader:" \
         " %s: bid from %s is %f\n",
-        auction_prefix_.c_str (), bids[i].get_name (), current_bid);
+        auction_prefix_.c_str(), bids[i].get_name(), current_bid);
 
       if (current_bid < leader_bid)
       {
         leader_bid = current_bid;
-        leader = bids[i].get_name ();
+        leader = bids[i].get_name();
 
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MINOR,
           "gams::auctions::AuctionMinimumBid::get_leader:" \
           " %s: %s is new leader of auction\n",
-          auction_prefix_.c_str (), bids[i].get_name ());
+          auction_prefix_.c_str(), bids[i].get_name());
       }
     }
   }
 
-  leader = leader.substr (bids_.get_name ().size () + 1);
+  leader = leader.substr(bids_.get_name().size() + 1);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumBid::get_leader:" \
-    " final leader is %s\n", leader.c_str ());
+    " final leader is %s\n", leader.c_str());
 
   return leader;
 }

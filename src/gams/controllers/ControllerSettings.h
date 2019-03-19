@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2017 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -95,17 +95,17 @@ public:
   /**
    * Constructor
    **/
-  ControllerSettings () = default;
+  ControllerSettings() = default;
 
   /**
-   * the default agent prefix (e.g., "agent.bob" or "agent.0"). This is a prefix
+   * the default agent prefix(e.g., "agent.bob" or "agent.0"). This is a prefix
    * of what the self_ agent prefix will be in the knowledge base. For instance,
    * agent.0.location, agent.0.algorithm, etc.
    **/
   std::string agent_prefix = "agent.0";
 
   /**
-   * the knowledge checkpointing file system prefix (e.g., "./checkpoint" will
+   * the knowledge checkpointing file system prefix(e.g., "./checkpoint" will
    * save checkpoints to currently directory in files that start with checkpoint
    **/
   std::string checkpoint_prefix = "checkpoint";
@@ -113,16 +113,16 @@ public:
   /// the knowledge checkpointing strategy
   int checkpoint_strategy = CHECKPOINT_NONE;
 
-  /// the gams logging level (negative means don't change)
+  /// the gams logging level(negative means don't change)
   int gams_log_level = -1;
 
   /// the hertz rate that a controller should run at
   double loop_hertz = 2.0;
 
-  /// the MADARA logging level (negative means don't change)
+  /// the MADARA logging level(negative means don't change)
   int madara_log_level = -1;
 
-  /// maximum runtime (-1 means persistent, forever)
+  /// maximum runtime(-1 means persistent, forever)
   double run_time = -1;
 
   /// the hertz rate to call send_modifieds at

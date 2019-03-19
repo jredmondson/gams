@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,81 +46,81 @@
 
 #include "gams/pose/Euler.h"
 
-inline gams::platforms::BasePlatform::BasePlatform (
+inline gams::platforms::BasePlatform::BasePlatform(
   madara::knowledge::KnowledgeBase * knowledge,
   gams::variables::Sensors * sensors,
   gams::variables::Self * self)
-  : knowledge_ (knowledge), self_ (self), sensors_ (sensors)
+  : knowledge_(knowledge), self_(self), sensors_(sensors)
 {
 }
 
 inline gams::utility::Position *
-gams::platforms::BasePlatform::get_position ()
+gams::platforms::BasePlatform::get_position()
 {
-  utility::Position * position = new utility::Position ();
-  position->from_container (self_->agent.location);
+  utility::Position * position = new utility::Position();
+  position->from_container(self_->agent.location);
   return position;
 }
 
 inline gams::pose::Position
-gams::platforms::BasePlatform::get_location () const
+gams::platforms::BasePlatform::get_location() const
 {
   pose::Position ret(get_frame(), 0, 0);
-  ret.from_container (self_->agent.location);
+  ret.from_container(self_->agent.location);
   return ret;
 }
 
 inline gams::pose::Orientation
-gams::platforms::BasePlatform::get_orientation () const
+gams::platforms::BasePlatform::get_orientation() const
 {
   pose::euler::RollPitchYaw euler;
 
-  euler.a (self_->agent.orientation[0]);
-  euler.b (self_->agent.orientation[1]);
-  euler.c (self_->agent.orientation[2]);
+  euler.a(self_->agent.orientation[0]);
+  euler.b(self_->agent.orientation[1]);
+  euler.c(self_->agent.orientation[2]);
 
-  return pose::Orientation(get_frame(), euler.to_quat ());
+  return pose::Orientation(get_frame(), euler.to_quat());
 }
 
 inline gams::pose::Pose
-gams::platforms::BasePlatform::get_pose () const
+gams::platforms::BasePlatform::get_pose() const
 {
   pose::euler::RollPitchYaw euler;
 
-  euler.a (self_->agent.orientation[0]);
-  euler.b (self_->agent.orientation[1]);
-  euler.c (self_->agent.orientation[2]);
+  euler.a(self_->agent.orientation[0]);
+  euler.b(self_->agent.orientation[1]);
+  euler.c(self_->agent.orientation[2]);
 
-  return pose::Pose (get_frame (), pose::Position (self_->agent.location),
-    pose::OrientationVector (euler.to_quat ()));
+  return pose::Pose(get_frame(), pose::Position(self_->agent.location),
+    pose::OrientationVector(euler.to_quat()));
 }
 
 inline madara::knowledge::KnowledgeBase *
-gams::platforms::BasePlatform::get_knowledge_base (void) const
+gams::platforms::BasePlatform::get_knowledge_base(void) const
 {
   return knowledge_;
 }
 
 inline gams::variables::Self *
-gams::platforms::BasePlatform::get_self (void) const
+gams::platforms::BasePlatform::get_self(void) const
 {
   return self_;
 }
 
 inline gams::variables::Sensors *
-gams::platforms::BasePlatform::get_sensors (void) const
+gams::platforms::BasePlatform::get_sensors(void) const
 {
   return sensors_;
 }
 
 inline const gams::variables::PlatformStatus *
-gams::platforms::BasePlatform::get_platform_status (void) const
+gams::platforms::BasePlatform::get_platform_status(void) const
 {
   return &status_;
 }
 
 inline gams::variables::PlatformStatus *
-gams::platforms::BasePlatform::get_platform_status (void)
+gams::platforms::BasePlatform::get_platform_status(void)
 {
   return &status_;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -62,10 +62,10 @@ using std::string;
 using madara::knowledge::containers::NativeDoubleVector;
 using madara::knowledge::containers::Double;
 
-const string gams::platforms::VREPQuadCDRA::DEFAULT_MODEL (
-  (getenv ("GAMS_ROOT") == 0) ? 
+const string gams::platforms::VREPQuadCDRA::DEFAULT_MODEL(
+ (getenv("GAMS_ROOT") == 0) ? 
   "" : // if GAMS_ROOT is not defined, then just leave this as empty string
-  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/Quadricopter_CDRA.ttm")
+ (string(getenv("GAMS_ROOT")) + "/resources/vrep/Quadricopter_CDRA.ttm")
   );
 
 std::string
@@ -75,7 +75,7 @@ gams::platforms::VREPQuadCDRAFactory::get_default_model()
 }
 
 gams::platforms::VREPQuadCDRA *
-gams::platforms::VREPQuadCDRAFactory::create_quad (
+gams::platforms::VREPQuadCDRAFactory::create_quad(
   std::string model_file, 
   simxUChar is_client_side, 
   madara::knowledge::KnowledgeBase * knowledge,
@@ -83,25 +83,25 @@ gams::platforms::VREPQuadCDRAFactory::create_quad (
   variables::Platforms * platforms,
   variables::Self * self)
 {
-  return new VREPQuadCDRA (model_file, is_client_side, knowledge, sensors, platforms, self);
+  return new VREPQuadCDRA(model_file, is_client_side, knowledge, sensors, platforms, self);
 }
 
-gams::platforms::VREPQuadCDRA::VREPQuadCDRA (
+gams::platforms::VREPQuadCDRA::VREPQuadCDRA(
   std::string model_file, 
   simxUChar is_client_side, 
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self) :
-  VREPQuad (model_file, is_client_side, knowledge, sensors, platforms, self)
+  VREPQuad(model_file, is_client_side, knowledge, sensors, platforms, self)
 {}
 
-std::string gams::platforms::VREPQuadCDRA::get_id () const
+std::string gams::platforms::VREPQuadCDRA::get_id() const
 {
   return "vrep_quad_laser";
 }
 
-std::string gams::platforms::VREPQuadCDRA::get_name () const
+std::string gams::platforms::VREPQuadCDRA::get_name() const
 {
   return "VREP CDRA Quadcopter";
 }

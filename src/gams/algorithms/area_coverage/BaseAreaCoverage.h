@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -82,7 +82,7 @@ namespace gams
          * @param  agents      list of agents in the swarm
          * @param  e_time    execution time
          **/
-        BaseAreaCoverage (
+        BaseAreaCoverage(
           madara::knowledge::KnowledgeBase * knowledge = 0,
           platforms::BasePlatform * platform = 0,
           variables::Sensors * sensors = 0,
@@ -93,48 +93,48 @@ namespace gams
         /**
          * Destructor
          **/
-        virtual ~BaseAreaCoverage ();
+        virtual ~BaseAreaCoverage();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const BaseAreaCoverage& rhs);
+        void operator=(const BaseAreaCoverage& rhs);
         
         /**
          * Analyzes environment, platform, or other information
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int analyze (void);
+        virtual int analyze(void);
         
         /**
          * Plans the next execution of the algorithm
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int execute (void);
+        virtual int execute(void);
   
         /**
          * Plans the next execution of the algorithm
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int plan (void);
+        virtual int plan(void);
 
         /**
          * Get next position
          * @return next_position_ member
          **/
-        utility::GPSPosition get_next_position (void) const;
+        utility::GPSPosition get_next_position(void) const;
 
       protected:
         /**
          * Generate new next position
          */
-        virtual void generate_new_position (void) = 0;
+        virtual void generate_new_position(void) = 0;
 
         /**
          * Check if finished based on time
          */
-        int check_if_finished (int ret_val) const;
+        int check_if_finished(int ret_val) const;
 
         /// next position
         utility::GPSPosition next_position_;

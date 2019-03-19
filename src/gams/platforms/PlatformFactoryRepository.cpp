@@ -116,7 +116,7 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 
   add(aliases, new NullPlatformFactory());
   
-  aliases.resize (5);
+  aliases.resize(5);
   aliases[0] = "osc-quadcopter";
   aliases[1] = "osc";
   aliases[2] = "osc-quad";
@@ -125,7 +125,7 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 
   add(aliases, new OscPlatformFactory());
 
-  aliases.resize (4);
+  aliases.resize(4);
   aliases[0] = "osc-satellite";
   aliases[1] = "osc-sat";
   aliases[2] = "unreal-satellite";

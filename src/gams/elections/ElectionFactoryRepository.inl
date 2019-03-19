@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -53,51 +53,51 @@
 #include "gams/elections/ElectionPlurality.h"
 
 inline void
-gams::elections::ElectionFactoryRepository::add (ElectionType type,
+gams::elections::ElectionFactoryRepository::add(ElectionType type,
 ElectionFactory * factory)
 {
   if (factory)
   {
-    factory->set_knowledge (knowledge_);
+    factory->set_knowledge(knowledge_);
     factory_map_[type] = factory;
   }
 }
 
 inline gams::elections::ElectionBase *
-gams::elections::ElectionFactoryRepository::create (const std::string & prefix)
+gams::elections::ElectionFactoryRepository::create(const std::string & prefix)
 {
-  ElectionBase * result (0);
+  ElectionBase * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::elections::ElectionFactoryRepository::create" \
     " reading election at prefix %s\n",
-    prefix.c_str ());
+    prefix.c_str());
 
   if (knowledge_)
   {
-    madara::knowledge::containers::Integer type (prefix + ".type", *knowledge_);
+    madara::knowledge::containers::Integer type(prefix + ".type", *knowledge_);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::elections::ElectionFactoryRepository::create" \
       " group type is %d\n",
-      (int)*type);
+     (int)*type);
 
-    ElectionFactoryMap::iterator found = factory_map_.find (*type);
+    ElectionFactoryMap::iterator found = factory_map_.find(*type);
 
-    if (found != factory_map_.end ())
+    if (found != factory_map_.end())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::elections::ElectionFactoryRepository::create" \
         " group type found. Populating member list and group.\n");
 
-      result = found->second->create (prefix, agent_prefix_, knowledge_);
+      result = found->second->create(prefix, agent_prefix_, knowledge_);
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::elections::ElectionFactoryRepository::create" \
         " group type not found. Returning null.\n");
@@ -108,41 +108,41 @@ gams::elections::ElectionFactoryRepository::create (const std::string & prefix)
 }
 
 inline gams::elections::ElectionBase *
-gams::elections::ElectionFactoryRepository::create (ElectionType type)
+gams::elections::ElectionFactoryRepository::create(ElectionType type)
 {
-  ElectionBase * result (0);
-  ElectionFactoryMap::iterator found = factory_map_.find (type);
+  ElectionBase * result(0);
+  ElectionFactoryMap::iterator found = factory_map_.find(type);
 
-  if (found != factory_map_.end ())
+  if (found != factory_map_.end())
   {
-    result = found->second->create ("", agent_prefix_, knowledge_);
+    result = found->second->create("", agent_prefix_, knowledge_);
   }
 
   return result;
 }
 
 inline void
-gams::elections::ElectionFactoryRepository::init (void)
+gams::elections::ElectionFactoryRepository::init(void)
 {
   // create appropriate default factories
 
   // set the knowledge base for each factory
-  for (ElectionFactoryMap::iterator i = factory_map_.begin ();
-    i != factory_map_.end (); ++i)
+  for (ElectionFactoryMap::iterator i = factory_map_.begin();
+    i != factory_map_.end(); ++i)
   {
-    i->second->set_knowledge (knowledge_);
+    i->second->set_knowledge(knowledge_);
   }
 }
 
 inline void
-gams::elections::ElectionFactoryRepository::set_knowledge (
+gams::elections::ElectionFactoryRepository::set_knowledge(
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 inline void
-gams::elections::ElectionFactoryRepository::set_agent_prefix (
+gams::elections::ElectionFactoryRepository::set_agent_prefix(
 const std::string & prefix)
 {
   agent_prefix_ = prefix;

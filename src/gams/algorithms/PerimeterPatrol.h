@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,7 +81,7 @@ namespace gams
       /**
        * Constructor
        * @param  area         the region or search area to patrol
-       * @param  max_time     the max time to run in secs (-1 for indefinite)
+       * @param  max_time     the max time to run in secs(-1 for indefinite)
        * @param  counter      indicates if patrol should be counter clockwise
        * @param  knowledge    the context containing variables and values
        * @param  platform     the underlying platform the algorithm will use
@@ -89,7 +89,7 @@ namespace gams
        * @param  self         self-referencing variables
        * @param  agents       variables referencing agents
        **/
-      PerimeterPatrol (
+      PerimeterPatrol(
         const std::string & area,
         double max_time,
         bool counter,
@@ -102,38 +102,38 @@ namespace gams
       /**
        * Destructor
        **/
-      ~PerimeterPatrol ();
+      ~PerimeterPatrol();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const PerimeterPatrol & rhs);
+      void operator=(const PerimeterPatrol & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
     protected:
 
       /**
        * Generates locations from region information
        **/
-      void generate_locations (void);
+      void generate_locations(void);
 
       /// the region/area to patrol
       std::string area_;
@@ -180,7 +180,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

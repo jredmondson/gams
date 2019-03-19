@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -74,21 +74,21 @@ namespace gams
       /**
       * Constructor
       **/
-      AuctionFactory ();
+      AuctionFactory();
 
       /**
       * Destructor
       **/
-      virtual ~AuctionFactory ();
+      virtual ~AuctionFactory();
 
       /**
       * Creates a auction
-      * @param auction_prefix the name of the auction (e.g. auction.position)
-      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param auction_prefix the name of the auction(e.g. auction.position)
+      * @param agent_prefix   the name of this bidder(e.g. agent.0)
       * @param knowledge      the knowledge base to use for syncing
       * @return  the new auction
       **/
-      virtual AuctionBase * create (const std::string & auction_prefix,
+      virtual AuctionBase * create(const std::string & auction_prefix,
         const std::string & agent_prefix,
         madara::knowledge::KnowledgeBase * knowledge ) = 0;
 
@@ -96,13 +96,13 @@ namespace gams
       * Sets the knowledge base
       * @param  knowledge    the knowledge base to use
       **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
 
       /**
       * Sets the prefix for the current bidding agent
-      * @param prefix   the name of the agent (e.g. agent.0)
+      * @param prefix   the name of the agent(e.g. agent.0)
       **/
-      void set_agent_prefix (const std::string & prefix);
+      void set_agent_prefix(const std::string & prefix);
 
     protected:
 

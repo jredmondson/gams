@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -80,12 +80,12 @@ namespace gams
       * Constructor
       * @param  knowledge  a knowledge base to look into for group prefixes
       **/
-      GroupFactoryRepository (madara::knowledge::KnowledgeBase * knowledge = 0);
+      GroupFactoryRepository(madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Destructor
       **/
-      virtual ~GroupFactoryRepository ();
+      virtual ~GroupFactoryRepository();
 
       /**
       * Adds an algorithm factory
@@ -93,35 +93,35 @@ namespace gams
       * @param  factory   the factory for creating an algorithm
       * @return  the new algorithm
       **/
-      void add (GroupType type,
+      void add(GroupType type,
         GroupFactory * factory);
 
       /**
       * Creates a group based on group prefix in the knowledge base
-      * @param  prefix       the name of the group (e.g. group.protectors)
+      * @param  prefix       the name of the group(e.g. group.protectors)
       * @return  the new group
       **/
-      GroupBase * create (const std::string & prefix);
+      GroupBase * create(const std::string & prefix);
 
       /**
       * Creates a group based on type
-      * @param  type     the type of the group (@see GroupTypes)
+      * @param  type     the type of the group(@see GroupTypes)
       * @return  the new group
       **/
-      GroupBase * create (GroupType type);
+      GroupBase * create(GroupType type);
 
       /**
       * Sets the knowledge base
       * @param  knowledge    the knowledge base to use
       **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
 
     protected:
 
       /**
       * Initializes factories for all supported GAMS groups
       **/
-      void init (void);
+      void init(void);
 
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;

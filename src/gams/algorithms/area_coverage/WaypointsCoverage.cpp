@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,7 +61,7 @@ using std::string;
 using std::vector;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
+gams::algorithms::area_coverage::WaypointsCoverageFactory::create(
   const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -69,9 +69,9 @@ gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
-  if (knowledge && sensors && self && map.size () >= 1)
+  if (knowledge && sensors && self && map.size() >= 1)
   {
     // Use a dumb workaround for now; TODO: convert this algo to use the map
     using namespace madara::knowledge;
@@ -80,17 +80,17 @@ gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
     std::vector<utility::Position> waypoints;
     bool error = false;
 
-    for (size_t i = 0; i < args.size (); ++i)
+    for (size_t i = 0; i < args.size(); ++i)
     {
-      vector <double> coords = args[i].to_doubles ();
+      vector <double> coords = args[i].to_doubles();
       utility::Position w;
-      if (coords.size () == 2)
+      if (coords.size() == 2)
       {
         w.x = coords[0];
         w.y = coords[1];
         w.z = 2;
       }
-      else if (coords.size () == 3)
+      else if (coords.size() == 3)
       {
         w.x = coords[0];
         w.y = coords[1];
@@ -98,23 +98,23 @@ gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
       }
       else
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::algorithms::area_coverage::WaypointsCoverageFactory:" \
-          " arg %u is of invalid size %u\n", i, coords.size ());
+          " arg %u is of invalid size %u\n", i, coords.size());
         error = true;
       }
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::area_coverage::WaypointsCoverageFactory:" \
         " waypoint %u is \"%f,%f,%f\"\n", i, w.x, w.y, w.z);
-      waypoints.push_back (w);
+      waypoints.push_back(w);
     }
 
     if (!error)
     {
-      result = new area_coverage::WaypointsCoverage (waypoints, 
+      result = new area_coverage::WaypointsCoverage(waypoints, 
         knowledge, platform, sensors, self);
     }
   }
@@ -126,55 +126,55 @@ gams::algorithms::area_coverage::WaypointsCoverageFactory::create (
  * WaypointsCoverage is a precomputed area coverage algorithm. The agent
  * traverses the waypoints until reaching the end
  */
-gams::algorithms::area_coverage::WaypointsCoverage::WaypointsCoverage (
+gams::algorithms::area_coverage::WaypointsCoverage::WaypointsCoverage(
   const std::vector<utility::Position>& waypoints,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, agents),
-  waypoints_(waypoints), cur_waypoint_ (0)
+  BaseAreaCoverage(knowledge, platform, sensors, self, agents),
+  waypoints_(waypoints), cur_waypoint_(0)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "WaypointsCoverage::const: calling init_vars\n");
 
-  status_.init_vars (*knowledge, "waypoints", self->agent.prefix);
+  status_.init_vars(*knowledge, "waypoints", self->agent.prefix);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "WaypointsCoverage::const: calling init_variable_values\n");
 
-  status_.init_variable_values ();
+  status_.init_variable_values();
 
   next_position_ = waypoints_[cur_waypoint_];
 }
 
-gams::algorithms::area_coverage::WaypointsCoverage::~WaypointsCoverage ()
+gams::algorithms::area_coverage::WaypointsCoverage::~WaypointsCoverage()
 {
 }
 
 void
-gams::algorithms::area_coverage::WaypointsCoverage::operator= (
+gams::algorithms::area_coverage::WaypointsCoverage::operator=(
   const WaypointsCoverage& rhs)
 {
   if (this != &rhs)
   {
     this->waypoints_ = rhs.waypoints_;
     this->cur_waypoint_ = rhs.cur_waypoint_;
-    this->BaseAreaCoverage::operator= (rhs);
+    this->BaseAreaCoverage::operator=(rhs);
   }
 }
 
 int
-gams::algorithms::area_coverage::WaypointsCoverage::analyze (void)
+gams::algorithms::area_coverage::WaypointsCoverage::analyze(void)
 {
-  int ret_val (OK);
+  int ret_val(OK);
 
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
-    if (cur_waypoint_ >= waypoints_.size ())
+    if (cur_waypoint_ >= waypoints_.size())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "WaypointsCoverage::analyze:" \
         " Final waypoint already reached. Setting status_.finished=1.\n");
@@ -184,17 +184,17 @@ gams::algorithms::area_coverage::WaypointsCoverage::analyze (void)
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "WaypointsCoverage::analyze:" \
         " currently pursuing waypoint %d -> [%s].\n",
-        (int)cur_waypoint_,
-        waypoints_[cur_waypoint_].to_string ().c_str ());
+       (int)cur_waypoint_,
+        waypoints_[cur_waypoint_].to_string().c_str());
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "WaypointsCoverage:analyze:" \
       " platform has not set movement_available to 1.\n");
@@ -207,13 +207,13 @@ gams::algorithms::area_coverage::WaypointsCoverage::analyze (void)
  * The next destination is simply the next point in the list
  */
 void
-gams::algorithms::area_coverage::WaypointsCoverage::generate_new_position (void)
+gams::algorithms::area_coverage::WaypointsCoverage::generate_new_position(void)
 {
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
     if (!initialized_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "WaypointsCoverage::generate_new_position:" \
         " First waypoint needed. Setting initialized.\n");
@@ -226,20 +226,20 @@ gams::algorithms::area_coverage::WaypointsCoverage::generate_new_position (void)
     {
       ++cur_waypoint_;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "WaypointsCoverage::generate_new_position:" \
-        " Proceeding to %d waypoint.\n", (int)cur_waypoint_);
+        " Proceeding to %d waypoint.\n",(int)cur_waypoint_);
 
-      if (cur_waypoint_ < waypoints_.size ())
+      if (cur_waypoint_ < waypoints_.size())
         next_position_ = waypoints_[cur_waypoint_];
       else
-        cur_waypoint_ = waypoints_.size (); // prevent overflow to become valid again
+        cur_waypoint_ = waypoints_.size(); // prevent overflow to become valid again
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "WaypointsCoverage::generate_new_position:" \
       " platform has not set movement_available to 1. Cannot move.\n");

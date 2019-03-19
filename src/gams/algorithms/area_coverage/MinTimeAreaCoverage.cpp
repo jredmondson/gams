@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,7 +81,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
+gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create(
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -89,21 +89,21 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
   variables::Self * self,
   variables::Agents * agents)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "MinTimeAreaCoverageFactory::create" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", args.size());
 
   if (knowledge && sensors && platform && self)
   {
     std::string search_area;
     double time = 360;
 
-    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-      if (i->first.size () <= 0)
+      if (i->first.size() <= 0)
         continue;
 
       switch (i->first[0])
@@ -111,33 +111,33 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
       case 'a':
         if (i->first == "area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "MinTimeAreaCoverageFactory::create:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 's':
         if (i->first == "search_area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "MinTimeAreaCoverageFactory::create:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 't':
         if (i->first == "time")
         {
-          time = i->second.to_double ();
+          time = i->second.to_double();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "MinTimeAreaCoverageFactory::create:" \
             " setting time to %f\n", time);
@@ -146,11 +146,11 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
         goto unknown;
       unknown:
       default:
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "MinTimeAreaCoverageFactory::create:" \
           " argument unknown: %s -> %s\n",
-          i->first.c_str (), i->second.to_string ().c_str ());
+          i->first.c_str(), i->second.to_string().c_str());
         break;
       }
     }
@@ -158,14 +158,14 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
     // if group has not been set, use the swarm
     if (search_area == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "MinTimeAreaCoverageFactory::create:" \
         " No search area specified. Returning null.\n");
     }
     else
     {
-      result = new area_coverage::MinTimeAreaCoverage (
+      result = new area_coverage::MinTimeAreaCoverage(
         search_area, time,
         knowledge, platform, sensors, self, agents);
     }
@@ -175,21 +175,21 @@ gams::algorithms::area_coverage::MinTimeAreaCoverageFactory::create (
 }
 
 gams::algorithms::area_coverage::MinTimeAreaCoverage::
-  MinTimeAreaCoverage (
+  MinTimeAreaCoverage(
   const std::string & search_id, double e_time, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents,
   const std::string & algo_name) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
-  min_time_ (search_id + "." + algo_name, knowledge)
+  BaseAreaCoverage(knowledge, platform, sensors, self, agents, e_time),
+  min_time_(search_id + "." + algo_name, knowledge)
 {
   // init status vars
-  status_.init_vars (*knowledge, algo_name, self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, algo_name, self->agent.prefix);
+  status_.init_variable_values();
 
   // get search area
-  search_area_.from_container (*knowledge, search_id);
+  search_area_.from_container(*knowledge, search_id);
 
   // fill out min_time_ sensor
   /**
@@ -200,33 +200,33 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
    */
   utility::GPSPosition origin;
   madara::knowledge::containers::NativeDoubleArray origin_container;
-  origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
-  origin.from_container (origin_container);
-  min_time_.set_origin (origin);
-  min_time_.set_range (2.5); // balance this between resolution and performance
+  origin_container.set_name("sensor.coverage.origin", *knowledge, 3);
+  origin.from_container(origin_container);
+  min_time_.set_origin(origin);
+  min_time_.set_range(2.5); // balance this between resolution and performance
 
   // perform setup
   /**
    * In this algorithm, individual agents will increment their local copies of
    * the sensor map to limit the amount of communication required.
    */
-  valid_positions_ = min_time_.discretize (search_area_);
+  valid_positions_ = min_time_.discretize(search_area_);
   static const madara::knowledge::KnowledgeUpdateSettings
-    NO_BROADCAST (true, false);
-  knowledge_->lock ();
-  for (std::set<utility::Position>::iterator it = valid_positions_.begin ();
-    it != valid_positions_.end (); ++it)
+    NO_BROADCAST(true, false);
+  knowledge_->lock();
+  for (std::set<utility::Position>::iterator it = valid_positions_.begin();
+    it != valid_positions_.end(); ++it)
   {
-    min_time_.set_value (*it, min_time_.get_value (*it) + 1, NO_BROADCAST);
+    min_time_.set_value(*it, min_time_.get_value(*it) + 1, NO_BROADCAST);
   }
-  knowledge_->unlock ();
+  knowledge_->unlock();
 
   // find first position to go to
-  generate_new_position ();
+  generate_new_position();
 }
 
 void
-gams::algorithms::area_coverage::MinTimeAreaCoverage::operator= (
+gams::algorithms::area_coverage::MinTimeAreaCoverage::operator=(
   const MinTimeAreaCoverage & rhs)
 {
   if (this != &rhs)
@@ -234,12 +234,12 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::operator= (
     this->search_area_ = rhs.search_area_;
     this->min_time_ = rhs.min_time_;
     this->valid_positions_ = rhs.valid_positions_;
-    this->BaseAreaCoverage::operator= (rhs);
+    this->BaseAreaCoverage::operator=(rhs);
   }
 }
 
 int
-gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze (void)
+gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze(void)
 {
   ++executions_;
 
@@ -249,58 +249,58 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::analyze (void)
    * limit the communications.
    */
   static const madara::knowledge::KnowledgeUpdateSettings
-    NO_BROADCAST (true, false);
-  knowledge_->lock ();
-  for (std::set<utility::Position>::iterator it = valid_positions_.begin ();
-    it != valid_positions_.end (); ++it)
+    NO_BROADCAST(true, false);
+  knowledge_->lock();
+  for (std::set<utility::Position>::iterator it = valid_positions_.begin();
+    it != valid_positions_.end(); ++it)
   {
-    min_time_.set_value (*it, min_time_.get_value (*it) + 1, NO_BROADCAST);
+    min_time_.set_value(*it, min_time_.get_value(*it) + 1, NO_BROADCAST);
   }
-  knowledge_->unlock ();
+  knowledge_->unlock();
 
   // mark current position as seen
   utility::GPSPosition current;
-  current.from_container (self_->agent.location);
+  current.from_container(self_->agent.location);
   /**
    * However, we do need to communicate when we reset a time value for out
    * current location. Note that due to lack of synchronization, this value 
    * could be changed to 1 on other agents before it is actually considered for
    * utility calculations. This is inconsequential.
    */
-  min_time_.set_value (current, 0);
-  position_value_map_.erase (min_time_.get_index_from_gps (current));
+  min_time_.set_value(current, 0);
+  position_value_map_.erase(min_time_.get_index_from_gps(current));
   
-  return check_if_finished (OK);
+  return check_if_finished(OK);
 }
 
 void
 gams::algorithms::area_coverage::MinTimeAreaCoverage::
-  generate_new_position (void)
+  generate_new_position(void)
 {
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
     // perform check for actually hitting cells
-    review_last_move ();
+    review_last_move();
     last_generation_ = executions_;
 
     // check each possible destination for max utility
     double max_util = -DBL_MAX;
     std::set<utility::Position> online;
     utility::GPSPosition current;
-    current.from_container (self_->agent.location);
+    current.from_container(self_->agent.location);
     next_position_ = current;
-    utility::Position cur_index = min_time_.get_index_from_gps (current);
-    for (std::set<utility::Position>::const_iterator it = valid_positions_.begin ();
-      it != valid_positions_.end (); ++it)
+    utility::Position cur_index = min_time_.get_index_from_gps(current);
+    for (std::set<utility::Position>::const_iterator it = valid_positions_.begin();
+      it != valid_positions_.end(); ++it)
     {
       std::set<utility::Position> cur_online;
-      double util = get_utility (cur_index, *it, cur_online);
+      double util = get_utility(cur_index, *it, cur_online);
       if (util > max_util)
       {
         max_util = util;
-        next_position_ = min_time_.get_gps_from_index (*it);
-        next_position_.altitude (self_->agent.desired_altitude.to_double ());
-        online.swap (cur_online);
+        next_position_ = min_time_.get_gps_from_index(*it);
+        next_position_.altitude(self_->agent.desired_altitude.to_double());
+        online.swap(cur_online);
       }
     }
 
@@ -310,11 +310,11 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
      * clearing. Once the move is complete, we will check if we actually hit the
      * cells and update them if we did not.
      */
-    for (std::set<utility::Position>::iterator it = online.begin ();
-      it != online.end (); ++it)
+    for (std::set<utility::Position>::iterator it = online.begin();
+      it != online.end(); ++it)
     {
-      position_value_map_[*it] = min_time_.get_value (*it);
-      min_time_.set_value (*it, 0.0);
+      position_value_map_[*it] = min_time_.get_value(*it);
+      min_time_.set_value(*it, 0.0);
     }
 
     initialized_ = true;
@@ -322,7 +322,7 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::
 }
 
 double
-gams::algorithms::area_coverage::MinTimeAreaCoverage::get_utility (
+gams::algorithms::area_coverage::MinTimeAreaCoverage::get_utility(
   const utility::Position& start, const utility::Position& end,
   std::set<utility::Position>& online)
 {
@@ -332,25 +332,25 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::get_utility (
    */
   double util = 0.0;
   const double radius =
-    min_time_.get_range () / min_time_.get_discretization ();
-  for (std::set<utility::Position>::const_iterator it = valid_positions_.begin ();
-    it != valid_positions_.end (); ++it)
+    min_time_.get_range() / min_time_.get_discretization();
+  for (std::set<utility::Position>::const_iterator it = valid_positions_.begin();
+    it != valid_positions_.end(); ++it)
   {
-    if (start.distance_to_2d (end, *it) < radius)
+    if (start.distance_to_2d(end, *it) < radius)
     {
-      double time = min_time_.get_value (*it);
-      double delta_util = pow (time, 3.0);
+      double time = min_time_.get_value(*it);
+      double delta_util = pow(time, 3.0);
       util += delta_util;
-      online.insert (*it);
+      online.insert(*it);
     }
   }
   
   // modify the utility based on the distance that will be travelled
-  return util / sqrt(start.distance_to_2d (end) + 1);
+  return util / sqrt(start.distance_to_2d(end) + 1);
 }
 
 void
-gams::algorithms::area_coverage::MinTimeAreaCoverage::review_last_move ()
+gams::algorithms::area_coverage::MinTimeAreaCoverage::review_last_move()
 {
   /**
    * We need to check that we actually hit the cells we said we would hit. If we
@@ -360,15 +360,15 @@ gams::algorithms::area_coverage::MinTimeAreaCoverage::review_last_move ()
    */
   double expected = executions_ - last_generation_;
   for (std::map<utility::Position, double>::const_iterator it = 
-    position_value_map_.begin (); it != position_value_map_.end ();
+    position_value_map_.begin(); it != position_value_map_.end();
     ++it)
   {
-    if (min_time_.get_value (it->first) == expected)
-      min_time_.set_value (it->first,
-        min_time_.get_value (it->first) + it->second);
+    if (min_time_.get_value(it->first) == expected)
+      min_time_.set_value(it->first,
+        min_time_.get_value(it->first) + it->second);
   }
 
-  position_value_map_.clear ();
+  position_value_map_.clear();
 }
 
 #endif

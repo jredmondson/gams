@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ namespace gams
          * @param  self       self-referencing variables
          * @param  agents    variables referencing agents
          **/
-        WaypointsCoverage (
+        WaypointsCoverage(
           const std::vector<utility::Position>& waypoints,
           madara::knowledge::KnowledgeBase * knowledge = 0,
           platforms::BasePlatform * platform = 0,
@@ -98,25 +98,25 @@ namespace gams
         /**
          * Destructor
          **/
-        virtual ~WaypointsCoverage ();
+        virtual ~WaypointsCoverage();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const WaypointsCoverage & rhs);
+        void operator=(const WaypointsCoverage & rhs);
 
         /**
          * Analyzes environment, platform, or other information
          * @return bitmask status of the platform. @see Status.
          **/
-        virtual int analyze (void);
+        virtual int analyze(void);
         
       protected:
         /**
          * Generate new next position
          */
-        void generate_new_position (void);
+        void generate_new_position(void);
         
         /// waypoints
         std::vector<utility::Position> waypoints_;
@@ -145,7 +145,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

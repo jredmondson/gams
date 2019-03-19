@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,7 +76,7 @@ namespace gams
   namespace algorithms
   {
     /**
-     * Possible algorithm statuses, as returnable by analyze ()
+     * Possible algorithm statuses, as returnable by analyze()
      **/
     enum AlgorithmAnalyzeStatus
     {
@@ -106,7 +106,7 @@ namespace gams
        * @param  self         self-referencing variables for this agent
        * @param  agents      list of agents in the swarm
        **/
-      BaseAlgorithm (
+      BaseAlgorithm(
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -116,85 +116,85 @@ namespace gams
       /**
        * Destructor
        **/
-      virtual ~BaseAlgorithm ();
+      virtual ~BaseAlgorithm();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const BaseAlgorithm & rhs);
+      void operator=(const BaseAlgorithm & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the algorithm. @see AlgorithmAnalyzeStatus
        **/
-      virtual int analyze (void) = 0;
+      virtual int analyze(void) = 0;
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the algorithm. @see AlgorithmAnalyzeStatus
        **/
-      virtual int execute (void) = 0;
+      virtual int execute(void) = 0;
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see AlgorithmAnalyzeStatus
        **/
-      virtual int plan (void) = 0;
+      virtual int plan(void) = 0;
       
       /**
        * Sets the list of agents in the swarm
        * @param  agents      list of agents
        **/
-      virtual void set_agents (variables::Agents * agents);
+      virtual void set_agents(variables::Agents * agents);
       
       /**
        * Sets the platform
        * @param  platform     the underlying platform the algorithm will use
        **/
-      virtual void set_platform (platforms::BasePlatform * platform);
+      virtual void set_platform(platforms::BasePlatform * platform);
 
       /**
        * Sets the map of sensor names to sensor information
        * @param  self      pointer to self-referencing variables container
        **/
-      virtual void set_self (variables::Self * self);
+      virtual void set_self(variables::Self * self);
       
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
-      virtual void set_sensors (variables::Sensors * sensors);
+      virtual void set_sensors(variables::Sensors * sensors);
       
       /**
        * Gets the list of agents
        **/
-      variables::Agents * get_agents (void);
+      variables::Agents * get_agents(void);
 
       /**
        * Gets the knowledge base
        **/
-      madara::knowledge::KnowledgeBase * get_knowledge_base (void);
+      madara::knowledge::KnowledgeBase * get_knowledge_base(void);
 
       /**
        * Gets the platform
        **/
-      platforms::BasePlatform * get_platform (void);
+      platforms::BasePlatform * get_platform(void);
 
       /**
        * Gets self-defined variables
        **/
-      variables::Self * get_self (void);
+      variables::Self * get_self(void);
 
       /**
        * Gets the available sensor information
        **/
-      variables::Sensors * get_sensors (void);
+      variables::Sensors * get_sensors(void);
 
       /**
        * Gets algorithm status variables
        **/
-      variables::AlgorithmStatus * get_algorithm_status (void);
+      variables::AlgorithmStatus * get_algorithm_status(void);
 
     protected:
       /// the list of agents potentially participating in the algorithm

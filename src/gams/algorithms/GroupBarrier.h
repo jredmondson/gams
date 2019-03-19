@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -89,7 +89,7 @@ namespace gams
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      GroupBarrier (
+      GroupBarrier(
         const std::vector<std::string> & members,
         std::string barrier_name,
         double interval,
@@ -101,31 +101,31 @@ namespace gams
       /**
        * Destructor
        **/
-      ~GroupBarrier ();
+      ~GroupBarrier();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const GroupBarrier & rhs);
+      void operator=(const GroupBarrier & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
     protected:
       /**
@@ -134,10 +134,10 @@ namespace gams
        * @param  member_list  the list of members
        * @return the position of the id in the member list. -1 if not found.
        **/
-      int get_position_in_member_list (std::string id,
+      int get_position_in_member_list(std::string id,
         std::vector <std::string> & member_list);
 
-      /// members of the formation (e.g., agent.0, agent.1, etc.)
+      /// members of the formation(e.g., agent.0, agent.1, etc.)
       std::vector <std::string> members_;
 
       /// position in member assignment
@@ -177,7 +177,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

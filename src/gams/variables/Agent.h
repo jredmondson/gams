@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2018 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014-2018 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -82,25 +82,25 @@ namespace gams
       /**
        * Constructor
        **/
-      Agent ();
+      Agent();
 
       /**
        * Destructor
        **/
-      ~Agent ();
+      ~Agent();
 
       /**
        * Assignment operator
        * @param  agent   agent to copy
        **/
-      void operator= (const Agent & agent);
+      void operator=(const Agent & agent);
 
       /**
       * Initializes variable containers
       * @param   knowledge  the variable context
       * @param   prefix     the prefix of the agent in the knowledge base
       **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const std::string & prefix);
 
       /**
@@ -108,7 +108,7 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge,
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& id);
       
       /**
@@ -116,14 +116,14 @@ namespace gams
        * @param   knowledge  the variable context
        * @param   id         node identifier
        **/
-      void init_vars (madara::knowledge::Variables & knowledge,
+      void init_vars(madara::knowledge::Variables & knowledge,
         const madara::knowledge::KnowledgeRecord::Integer& id);
 
       /**
        * Checks if the prefix points to an agent in the knowledge base. This
        * is a simple check that looks for prefix.location being set.
        **/
-      static bool is_agent (madara::knowledge::KnowledgeBase & knowledge,
+      static bool is_agent(madara::knowledge::KnowledgeBase & knowledge,
         const std::string prefix);
 
       /// the acceleration vector of the platform
@@ -138,10 +138,10 @@ namespace gams
       /// agent specific command 
       madara::knowledge::containers::String algorithm;
 
-      /// the algorithm id (useful if algorithm requests may need to be resent)
+      /// the algorithm id(useful if algorithm requests may need to be resent)
       madara::knowledge::containers::Integer algorithm_id;
 
-      /// number of algorithm rejections (bad name or id)
+      /// number of algorithm rejections(bad name or id)
       madara::knowledge::containers::Integer algorithm_rejects;
 
       /// number of algorithm accepts / changes
@@ -177,19 +177,19 @@ namespace gams
       /// the home location
       madara::knowledge::containers::NativeDoubleArray home;
 
-      /// the mobility indicator for this agent (true if mobile)
+      /// the mobility indicator for this agent(true if mobile)
       madara::knowledge::containers::Integer is_mobile;
 
       /// the location, usually encoded in GPS, for this agent
       madara::knowledge::containers::NativeDoubleArray location;
 
-      /// the angle for this device (roll, pitch, yaw)
+      /// the angle for this device(roll, pitch, yaw)
       madara::knowledge::containers::NativeDoubleArray orientation;
       
       /// the minimum altitude for this agent
       madara::knowledge::containers::Double min_alt;
       
-      /// indicator for next type of area coverage requested (queue like)
+      /// indicator for next type of area coverage requested(queue like)
       madara::knowledge::containers::String next_coverage_type;
 
       /// indicator for next assigned search area id
@@ -231,13 +231,13 @@ namespace gams
        * @param id  id of agent as string
        * @return agent variable name
        */
-      static std::string make_variable_name (
+      static std::string make_variable_name(
         const madara::knowledge::KnowledgeRecord::Integer& id);
 
       /**
        * Set variable settings
        */
-      void init_variable_settings ();
+      void init_variable_settings();
     };
 
     /**
@@ -256,7 +256,7 @@ namespace gams
       * @param   knowledge  the knowledge base that houses the variables
       * @param   processes  the number of processes in the agent swarm
       **/
-    GAMS_EXPORT void init_vars (Agents & variables,
+    GAMS_EXPORT void init_vars(Agents & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const madara::knowledge::KnowledgeRecord::Integer& processes);
 
@@ -266,7 +266,7 @@ namespace gams
     * @param   knowledge  the knowledge base that houses the variables
     * @param   group      a group containing all agents of interest
     **/
-    GAMS_EXPORT void init_vars (Agents & variables,
+    GAMS_EXPORT void init_vars(Agents & variables,
       madara::knowledge::KnowledgeBase & knowledge,
       const groups::GroupBase & group);
   }

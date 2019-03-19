@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,42 +65,42 @@ using std::string;
 
 #include "gams/variables/Sensor.h"
 
-const string gams::platforms::VREPAnt::DEFAULT_ANT_MODEL (
-  (getenv ("GAMS_ROOT") == 0) ? 
+const string gams::platforms::VREPAnt::DEFAULT_ANT_MODEL(
+ (getenv("GAMS_ROOT") == 0) ? 
   "" : // if GAMS_ROOT is not defined, then just leave this as empty string
-  (string (getenv ("GAMS_ROOT")) + "/resources/vrep/tracker_ant.ttm")
+ (string(getenv("GAMS_ROOT")) + "/resources/vrep/tracker_ant.ttm")
   );
 
 gams::platforms::BasePlatform *
-gams::platforms::VREPAntFactory::create (
+gams::platforms::VREPAntFactory::create(
 const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
         variables::Self * self)
 {
-  BasePlatform * result (0);
+  BasePlatform * result(0);
   
   if (knowledge && sensors && platforms && self)
   {
-    if (knowledge->get_num_transports () == 0)
+    if (knowledge->get_num_transports() == 0)
     {
       madara::transport::QoSTransportSettings settings;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::platforms::VREPAntFactory::create:" \
         " no transports found, attaching multicast\n");
 
       settings.type = madara::transport::MULTICAST;
-      settings.hosts.push_back ("239.255.0.1:4150");
+      settings.hosts.push_back("239.255.0.1:4150");
 
-      knowledge_->attach_transport ("", settings);
-      knowledge_->activate_transport ();
+      knowledge_->attach_transport("", settings);
+      knowledge_->activate_transport();
 
     }
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
        "gams::platforms::VREPAntFactory::create:" \
       " creating VREPAnt object\n");
@@ -109,9 +109,9 @@ const madara::knowledge::KnowledgeMap & args,
     simxUChar client_side;
 
     madara::knowledge::KnowledgeMap::const_iterator found =
-      args.find ("client_side");
+      args.find("client_side");
 
-    if (found != args.end () && found->second.to_integer () == 1)
+    if (found != args.end() && found->second.to_integer() == 1)
     {
       client_side = 1;
     }
@@ -121,12 +121,12 @@ const madara::knowledge::KnowledgeMap & args,
       client_side = 0;
     }
 
-    result = new VREPAnt (file, client_side, knowledge, sensors, platforms, 
+    result = new VREPAnt(file, client_side, knowledge, sensors, platforms, 
       self);
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
        "gams::platforms::VREPAntFactory::create:" \
       " invalid knowledge, sensors, platforms, or self\n");
@@ -134,7 +134,7 @@ const madara::knowledge::KnowledgeMap & args,
 
   if (result == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
        "gams::platforms::VREPAntFactory::create:" \
       " error creating VREPAnt object\n");
@@ -143,77 +143,77 @@ const madara::knowledge::KnowledgeMap & args,
   return result;
 }
 
-gams::platforms::VREPAnt::VREPAnt (
+gams::platforms::VREPAnt::VREPAnt(
   std::string model_file, 
   simxUChar is_client_side, 
   madara::knowledge::KnowledgeBase * knowledge,
   variables::Sensors * sensors,
   variables::Platforms * platforms,
   variables::Self * self)
-  : VREPBase (model_file, is_client_side, knowledge, sensors, self)
+  : VREPBase(model_file, is_client_side, knowledge, sensors, self)
 {
   if (platforms && knowledge)
   {
-    (*platforms)[get_id ()].init_vars (*knowledge, get_id ());
-    status_ = (*platforms)[get_id ()];
+   (*platforms)[get_id()].init_vars(*knowledge, get_id());
+    status_ =(*platforms)[get_id()];
   }
 
   self_->agent.desired_altitude = 0.05;
 }
 
 void
-gams::platforms::VREPAnt::add_model_to_environment (const std::string& file, 
+gams::platforms::VREPAnt::add_model_to_environment(const std::string& file, 
   const simxUChar client_side)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::platforms::VREPAnt::add_model_to_environment(" \
-    "%s, %d)\n", file.c_str (), (int)client_side);
+    "%s, %d)\n", file.c_str(),(int)client_side);
 
-  if (simxLoadModel (client_id_, file.c_str (), client_side, &node_id_,
+  if (simxLoadModel(client_id_, file.c_str(), client_side, &node_id_,
     simx_opmode_oneshot_wait) != simx_error_noerror)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
        "gams::platforms::VREPAnt::add_model_to_environment:" \
       " error loading model in vrep\n");
-    exit (-1);
+    exit(-1);
   }
 
   if (node_id_ < 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
        "gams::platforms::VREPAnt::add_model_to_environment:" \
       " invalid handle id\n");
-    exit (-1);
+    exit(-1);
   }
 }
 
 std::string
-gams::platforms::VREPAnt::get_id () const
+gams::platforms::VREPAnt::get_id() const
 {
   return "vrep_ant";
 }
 
 std::string
-gams::platforms::VREPAnt::get_name () const
+gams::platforms::VREPAnt::get_name() const
 {
   return "VREP Ant";
 }
 
 void
-gams::platforms::VREPAnt::get_target_handle ()
+gams::platforms::VREPAnt::get_target_handle()
 {
   simxGetObjectChild(client_id_, node_id_, 0, &node_target_, simx_opmode_oneshot_wait);
 
   if (node_target_ < 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
        "gams::platforms::VREPAnt::get_target_handle:" \
       " invalid target handle id\n");
-    exit (-1);
+    exit(-1);
   }
 }
 

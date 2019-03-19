@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -54,51 +54,51 @@
 #include "gams/auctions/AuctionMinimumBid.h"
 
 inline void
-gams::auctions::AuctionFactoryRepository::add (AuctionType type,
+gams::auctions::AuctionFactoryRepository::add(AuctionType type,
   AuctionFactory * factory)
 {
   if (factory)
   {
-    factory->set_knowledge (knowledge_);
+    factory->set_knowledge(knowledge_);
     factory_map_[type] = factory;
   }
 }
 
 inline gams::auctions::AuctionBase *
-gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
+gams::auctions::AuctionFactoryRepository::create(const std::string & prefix)
 {
-  AuctionBase * result (0);
+  AuctionBase * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::ElectionFactoryRepository::create" \
     " reading auction at prefix %s\n",
-    prefix.c_str ());
+    prefix.c_str());
 
   if (knowledge_)
   {
-    madara::knowledge::containers::Integer type (prefix + ".type", *knowledge_);
+    madara::knowledge::containers::Integer type(prefix + ".type", *knowledge_);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::auctions::ElectionFactoryRepository::create" \
       " group type is %d\n",
-      (int)*type);
+     (int)*type);
 
-    AuctionFactoryMap::iterator found = factory_map_.find (*type);
+    AuctionFactoryMap::iterator found = factory_map_.find(*type);
 
-    if (found != factory_map_.end ())
+    if (found != factory_map_.end())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::auctions::ElectionFactoryRepository::create" \
         " group type found. Populating member list and group.\n");
 
-      result = found->second->create (prefix, agent_prefix_, knowledge_);
+      result = found->second->create(prefix, agent_prefix_, knowledge_);
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::auctions::ElectionFactoryRepository::create" \
         " group type not found. Returning null.\n");
@@ -109,41 +109,41 @@ gams::auctions::AuctionFactoryRepository::create (const std::string & prefix)
 }
 
 inline gams::auctions::AuctionBase *
-gams::auctions::AuctionFactoryRepository::create (AuctionType type)
+gams::auctions::AuctionFactoryRepository::create(AuctionType type)
 {
-  AuctionBase * result (0);
-  AuctionFactoryMap::iterator found = factory_map_.find (type);
+  AuctionBase * result(0);
+  AuctionFactoryMap::iterator found = factory_map_.find(type);
 
-  if (found != factory_map_.end ())
+  if (found != factory_map_.end())
   {
-    result = found->second->create ("", agent_prefix_, knowledge_);
+    result = found->second->create("", agent_prefix_, knowledge_);
   }
 
   return result;
 }
 
 inline void
-gams::auctions::AuctionFactoryRepository::init (void)
+gams::auctions::AuctionFactoryRepository::init(void)
 {
   // create appropriate default factories
 
   // set the knowledge base for each factory
-  for (AuctionFactoryMap::iterator i = factory_map_.begin ();
-    i != factory_map_.end (); ++i)
+  for (AuctionFactoryMap::iterator i = factory_map_.begin();
+    i != factory_map_.end(); ++i)
   {
-    i->second->set_knowledge (knowledge_);
+    i->second->set_knowledge(knowledge_);
   }
 }
 
 inline void
-gams::auctions::AuctionFactoryRepository::set_knowledge (
+gams::auctions::AuctionFactoryRepository::set_knowledge(
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 inline void
-gams::auctions::AuctionFactoryRepository::set_agent_prefix (
+gams::auctions::AuctionFactoryRepository::set_agent_prefix(
   const std::string & prefix)
 {
   agent_prefix_ = prefix;

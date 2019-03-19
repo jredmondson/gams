@@ -78,9 +78,9 @@ namespace gams
       bool operator()(const std::string &lhs, const std::string &rhs) const
       {
         size_t lsz = lhs.size(), rsz = rhs.size();
-        if(lsz < rsz)
+        if (lsz < rsz)
           return true;
-        else if(rsz < lsz)
+        else if (rsz < lsz)
           return false;
         else
           return std::less<std::string>()(lhs, rhs);
@@ -102,10 +102,10 @@ namespace gams
       std::map<std::string, KnowledgeRecord,
                RadixLess> map(kmap.begin(), kmap.end());
       KnowledgeVector ret;
-      for(KnowledgeMap::const_iterator i = map.begin(); i != map.end(); ++i)
+      for (KnowledgeMap::const_iterator i = map.begin(); i != map.end(); ++i)
       {
         char c = i->first[0];
-        if(c >= '0' && c <= '9')
+        if (c >= '0' && c <= '9')
           ret.push_back(i->second);
       }
       return ret;
@@ -195,7 +195,7 @@ namespace gams
         bool operator==(const my_iterator &o) const
         {
           bool ae1 = at_end(), ae2 = o.at_end();
-          if(ae1 || ae2)
+          if (ae1 || ae2)
             return ae1 && ae2;
           else
             return parent_ == o.parent_ &&
@@ -229,24 +229,24 @@ namespace gams
         bool name_is_old_style() const
         {
           char c = it_k_->first[0];
-          if(c >= '0' && c <= '9')
+          if (c >= '0' && c <= '9')
             return true;
           return false;
         }
 
         void detect_old_style()
         {
-          if(at_end())
+          if (at_end())
             return;
-          if(!at_end() && name_is_old_style() && !is_old_style())
+          if (!at_end() && name_is_old_style() && !is_old_style())
             ++it_v_;
-          if(it_v_ == parent_->kmap_->end())
+          if (it_v_ == parent_->kmap_->end())
             it_k_ = it_v_;
         }
 
         void clear_cache()
         {
-          if(cache())
+          if (cache())
           {
             cache()->~value_type();
             cache_valid_ = false;
@@ -264,7 +264,7 @@ namespace gams
 
         const value_type &operator*() const
         {
-          if(cache())
+          if (cache())
             return *cache();
           value_type *ret = new((void*)&cache_) value_type(name(),value());
           cache_valid_ = true;

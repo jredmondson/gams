@@ -44,7 +44,7 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       device variables that describe self state
        **/
-      AirLibBase (
+      AirLibBase(
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Self * self);
@@ -53,19 +53,19 @@ namespace gams
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void) override;
+      virtual int sense(void) override;
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void) override;
+      virtual int analyze(void) override;
 
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void) override;
+      virtual int land(void) override;
 
       /**
        * Moves the platform to a position
@@ -73,8 +73,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      int move (const pose::Position & position,
-        const PositionBounds &bounds) override;
+      int move(const pose::Position & position,
+        const pose::PositionBounds &bounds) override;
 
       // inherit BasePlatform's move overloads
       using BasePlatform::move;
@@ -83,30 +83,30 @@ namespace gams
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed) override;
+      virtual void set_move_speed(const double& speed) override;
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void) override;
+      virtual int takeoff(void) override;
 
       /**
-       * Returns the reference frame for the platform (usually GPS)
+       * Returns the reference frame for the platform(usually GPS)
        * @return the platform's reference frame for positions
        **/
-      virtual const pose::ReferenceFrame & get_frame (void) const override;
+      virtual const pose::ReferenceFrame & get_frame(void) const override;
 
 
     protected:
-      /// the current frame (can theoretically be switched between options)
+      /// the current frame(can theoretically be switched between options)
       pose::ReferenceFrame * frame_;
 
       msr::airlib::MultirotorRpcLibClient client;
       /**
        * wait for go signal from controller
        */
-      void wait_for_go () const;
+      void wait_for_go() const;
 
       /// flag for simulated robot ready to receive instruction
       bool ready_;

@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -47,149 +47,149 @@
 #include "AuctionBase.h"
 #include <sstream>
 
-gams::auctions::AuctionBase::AuctionBase (const std::string & auction_prefix,
+gams::auctions::AuctionBase::AuctionBase(const std::string & auction_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : knowledge_ (knowledge),
-    auction_prefix_ (auction_prefix),
-    agent_prefix_ (agent_prefix),
-    round_ (0)
+  : knowledge_(knowledge),
+    auction_prefix_(auction_prefix),
+    agent_prefix_(agent_prefix),
+    round_(0)
 {
-  reset_bids_pointer ();
+  reset_bids_pointer();
 }
 
-gams::auctions::AuctionBase::~AuctionBase ()
+gams::auctions::AuctionBase::~AuctionBase()
 {
 }
 
 void
-gams::auctions::AuctionBase::add_group (groups::GroupBase * group)
+gams::auctions::AuctionBase::add_group(groups::GroupBase * group)
 {
   groups::AgentVector members;
-  group->get_members (members);
+  group->get_members(members);
 
-  group_.add_members (members);
+  group_.add_members(members);
 }
 
 void
-gams::auctions::AuctionBase::clear_group (void)
+gams::auctions::AuctionBase::clear_group(void)
 {
-  group_.clear_members ();
+  group_.clear_members();
 }
 
 bool
-gams::auctions::AuctionBase::is_member (const std::string & agent_prefix) const
+gams::auctions::AuctionBase::is_member(const std::string & agent_prefix) const
 {
-  return bids_.exists (agent_prefix);
+  return bids_.exists(agent_prefix);
 }
 
 madara::knowledge::KnowledgeRecord
-gams::auctions::AuctionBase::get_bid (
+gams::auctions::AuctionBase::get_bid(
   const std::string & id)
 {
   return bids_[id];
 }
 
 double
-gams::auctions::AuctionBase::get_participation (void) const
+gams::auctions::AuctionBase::get_participation(void) const
 {
   double result = 1.0;
   AuctionBids bids;
   groups::AgentVector members;
 
-  get_bids (bids);
-  group_.get_members (members);
+  get_bids(bids);
+  group_.get_members(members);
 
-  if (members.size () > 0)
+  if (members.size() > 0)
   {
-    result = (double)bids.size () / members.size ();
+    result =(double)bids.size() / members.size();
   }
 
   return result;
 }
 
 void
-gams::auctions::AuctionBase::set_auction_prefix (const std::string & prefix)
+gams::auctions::AuctionBase::set_auction_prefix(const std::string & prefix)
 {
   auction_prefix_ = prefix;
-  reset_bids_pointer ();
+  reset_bids_pointer();
 }
 
 void
-gams::auctions::AuctionBase::set_knowledge_base (
+gams::auctions::AuctionBase::set_knowledge_base(
   madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
-  reset_bids_pointer ();
+  reset_bids_pointer();
 }
 
 void
-gams::auctions::AuctionBase::sync (void)
+gams::auctions::AuctionBase::sync(void)
 {
-  bids_.sync_keys ();
+  bids_.sync_keys();
 }
 
 void
-gams::auctions::AuctionBase::bid (const std::string & agent,
+gams::auctions::AuctionBase::bid(const std::string & agent,
   const madara::knowledge::KnowledgeRecord & amount)
 {
-  bids_.set (agent, amount.to_double ());
+  bids_.set(agent, amount.to_double());
 }
 
-void gams::auctions::AuctionBase::advance_round (void)
+void gams::auctions::AuctionBase::advance_round(void)
 {
   ++round_;
-  reset_bids_pointer ();
+  reset_bids_pointer();
 }
 
-void gams::auctions::AuctionBase::reset_round (void)
+void gams::auctions::AuctionBase::reset_round(void)
 {
   round_ = 0;
-  reset_bids_pointer ();
+  reset_bids_pointer();
 }
 
-void gams::auctions::AuctionBase::set_round (int round)
+void gams::auctions::AuctionBase::set_round(int round)
 {
   round_ = round;
-  reset_bids_pointer ();
+  reset_bids_pointer();
 }
 
-void gams::auctions::AuctionBase::get_bids (
+void gams::auctions::AuctionBase::get_bids(
   AuctionBids & bids, bool strip_prefix, bool include_all_members) const
 {
   if (knowledge_)
   {
     // get all bids
     madara::knowledge::VariableReferences bid_refs;
-    knowledge_->get_matches (get_auction_round_prefix (), "", bid_refs);
+    knowledge_->get_matches(get_auction_round_prefix(), "", bid_refs);
 
     // the bids should be same size as bid references
-    bids.resize (bid_refs.size ());
+    bids.resize(bid_refs.size());
 
     // keep track of actual bids
     size_t actuals = 0;
 
-    for (size_t i = 0; i < bid_refs.size (); ++i)
+    for (size_t i = 0; i < bid_refs.size(); ++i)
     {
-      bids[actuals].amount = knowledge_->get (bid_refs[i]);
+      bids[actuals].amount = knowledge_->get(bid_refs[i]);
 
       // if we're including all member bids or if the bid is real
-      if (include_all_members || bids[actuals].amount.is_valid ())
+      if (include_all_members || bids[actuals].amount.is_valid())
       {
-        // set bidder to full name (includes round number)
-        bids[actuals].bidder = bid_refs[i].get_name ();
+        // set bidder to full name(includes round number)
+        bids[actuals].bidder = bid_refs[i].get_name();
         ++actuals;
       }
     } // end for loop over bid references
 
     // resize the bids to smaller if necessary
-    if (actuals != bids.size ())
-      bids.resize (actuals);
+    if (actuals != bids.size())
+      bids.resize(actuals);
 
     // strip the prefixes if necessary
     if (strip_prefix)
     {
-      strip_prefix_fast (get_auction_round_prefix () + ".", bids);
+      strip_prefix_fast(get_auction_round_prefix() + ".", bids);
     }
   } // end if knowledge base is valid
 }
