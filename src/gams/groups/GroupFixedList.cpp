@@ -106,6 +106,7 @@ gams::groups::GroupFixedList::add_members(const AgentVector & members)
   fast_members_.insert(
     fast_members_.end(), members.begin(), members.end());
 
+  if (knowledge_)
   {
     knowledge::ContextGuard guard(*knowledge_);
   
@@ -185,6 +186,7 @@ gams::groups::GroupFixedList::remove_members(const AgentVector & members)
     }
   }
 
+  if (knowledge_)
   {
     knowledge::ContextGuard guard(*knowledge_);
 

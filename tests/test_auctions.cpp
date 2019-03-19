@@ -244,7 +244,6 @@ void test_minimum_distance_auction(knowledge::KnowledgeBase & knowledge)
   loggers::global_logger->log(
     loggers::LOG_ALWAYS, "Testing AuctionMinimumDistance\n");
 
-//  knowledge::KnowledgeBase knowledge;
   knowledge.clear(true);
 
   gams::groups::GroupFixedList group;
@@ -255,6 +254,9 @@ void test_minimum_distance_auction(knowledge::KnowledgeBase & knowledge)
   gams::pose::Position target;
   gams::platforms::NullPlatform platform(&knowledge, 0, &platforms, 0);
 
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Adding members to the group\n");
+
   // add some members to the group
   members.push_back("agent.0");
   members.push_back("agent.1");
@@ -263,8 +265,14 @@ void test_minimum_distance_auction(knowledge::KnowledgeBase & knowledge)
   members.push_back("agent.4");
   group.add_members(members);
 
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Initializing group variables in KB\n");
+
   // initialize agent variables so we can manipulate them directly
   gams::variables::init_vars(agents, knowledge, group);
+
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Creating bids\n");
 
   // setup some handy references for referring to individual bids
   containers::Double agent0bid("auction.guard_duty.0.agent.0", knowledge);
@@ -272,6 +280,9 @@ void test_minimum_distance_auction(knowledge::KnowledgeBase & knowledge)
   containers::Double agent2bid("auction.guard_duty.0.agent.2", knowledge);
   containers::Double agent3bid("auction.guard_duty.0.agent.3", knowledge);
   containers::Double agent4bid("auction.guard_duty.0.agent.4", knowledge);
+
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Mimicking agent locations\n");
 
   // create some GPS locations
   position.latitude(42.0600);
@@ -294,15 +305,27 @@ void test_minimum_distance_auction(knowledge::KnowledgeBase & knowledge)
   position.longitude(-72.1000);
   position.to_container(agents[4].location);
 
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Initializing auction\n");
+
   auctions::AuctionMinimumDistance auction(
     "auction.guard_duty", "agent.0", &knowledge, &platform);
+
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Adding group\n");
 
   auction.add_group(&group);
 
   // set the target position
 
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Setting target and calculating bids\n");
+
   auction.set_target(position);
   auction.calculate_bids();
+
+  loggers::global_logger->log(
+    loggers::LOG_ALWAYS, "  Electing leader based on proximity\n");
 
   std::string closest = auction.get_leader();
 
