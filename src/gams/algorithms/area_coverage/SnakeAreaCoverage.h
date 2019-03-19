@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,7 +73,7 @@ namespace gams
     {
       /**
       * Implements a serpentine pattern-based area coverage that is
-      * minimum time but easy to predict (adversarially)
+      * minimum time but easy to predict(adversarially)
       **/
       class GAMS_EXPORT SnakeAreaCoverage : public BaseAreaCoverage
       {
@@ -88,7 +88,7 @@ namespace gams
          * @param  self       self-referencing variables
          * @param  agents    variables referencing agents
          **/
-        SnakeAreaCoverage (
+        SnakeAreaCoverage(
           const std::string& region_id,
           double e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -100,24 +100,24 @@ namespace gams
         /**
          * Destructor
          **/
-        ~SnakeAreaCoverage ();
+        ~SnakeAreaCoverage();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const SnakeAreaCoverage & rhs);
+        void operator=(const SnakeAreaCoverage & rhs);
         
       protected:
         /**
          * Generate new next position
          */
-        void generate_new_position (void);
+        void generate_new_position(void);
         
         /**
          * Compute waypoints
          */
-        void compute_waypoints (const std::string& region_id);
+        void compute_waypoints(const std::string& region_id);
   
         /// waypoints
         std::vector<utility::GPSPosition> waypoints_;
@@ -152,7 +152,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

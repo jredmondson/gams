@@ -51,18 +51,18 @@
 #include "gams/loggers/GlobalLogger.h"
 
 inline const std::string &
-gams::groups::GroupBase::get_prefix (void) const
+gams::groups::GroupBase::get_prefix(void) const
 {
   return prefix_;
 }
 
 
-inline int gams::groups::find_member_index (
+inline int gams::groups::find_member_index(
   const std::string & prefix, const AgentVector & members)
 {
   int index = -1;
 
-  for (size_t i = 0; i < members.size (); ++i)
+  for (size_t i = 0; i < members.size(); ++i)
   {
     if (prefix == members[i])
     {

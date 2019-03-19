@@ -53,18 +53,18 @@
 using std::cerr;
 using std::endl;
 
-gams::groups::GroupFactoryRepository::GroupFactoryRepository (
+gams::groups::GroupFactoryRepository::GroupFactoryRepository(
   madara::knowledge::KnowledgeBase * knowledge)
-: knowledge_ (knowledge)
+: knowledge_(knowledge)
 {
   init ();
 }
 
-gams::groups::GroupFactoryRepository::~GroupFactoryRepository ()
+gams::groups::GroupFactoryRepository::~GroupFactoryRepository()
 {
   // delete all factories
-  for (GroupFactoryMap::iterator i = factory_map_.begin ();
-    i != factory_map_.end (); ++i)
+  for (GroupFactoryMap::iterator i = factory_map_.begin();
+    i != factory_map_.end(); ++i)
   {
     delete i->second;
   }

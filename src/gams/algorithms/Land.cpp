@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@
 
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::LandFactory::create (
+gams::algorithms::LandFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -55,33 +55,33 @@ gams::algorithms::LandFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
   if (knowledge && sensors && platform && self)
   {
-    result = new Land (knowledge, platform, sensors, self_);
+    result = new Land(knowledge, platform, sensors, self_);
   }
 
   return result;
 }
 
-gams::algorithms::Land::Land (
+gams::algorithms::Land::Land(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self)
+  : BaseAlgorithm(knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "land", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "land", self->agent.prefix);
+  status_.init_variable_values();
 }
 
-gams::algorithms::Land::~Land ()
+gams::algorithms::Land::~Land()
 {
 }
 
 void
-gams::algorithms::Land::operator= (const Land & rhs)
+gams::algorithms::Land::operator=(const Land & rhs)
 {
   if (this != &rhs)
   {
@@ -94,16 +94,16 @@ gams::algorithms::Land::operator= (const Land & rhs)
 
 
 int
-gams::algorithms::Land::analyze (void)
+gams::algorithms::Land::analyze(void)
 {
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Land::analyze:" \
       " current pose is [%s, %s].\n",
-      self_->agent.location.to_record ().to_string ().c_str (),
-      self_->agent.orientation.to_record ().to_string ().c_str ());
+      self_->agent.location.to_record().to_string().c_str(),
+      self_->agent.orientation.to_record().to_string().c_str());
   }
 
   return OK;
@@ -111,32 +111,32 @@ gams::algorithms::Land::analyze (void)
       
 
 int
-gams::algorithms::Land::execute (void)
+gams::algorithms::Land::execute(void)
 {
   int result = 0;
 
   if (executions_ == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Land::execute:" \
-      " calling platform->land ().\n");
+      " calling platform->land().\n");
 
     if (platform_)
     {
-      platform_->land ();
+      platform_->land();
       executions_++;
       status_.finished = 1;
       result |= FINISHED;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "algorithms::Land::execute:" \
         " finished set to 1. Algorithm ready to move on.\n");
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "algorithms::Land::execute:" \
         " ERROR: no platform initialized. Cannot land.\n");
@@ -147,7 +147,7 @@ gams::algorithms::Land::execute (void)
 
 
 int
-gams::algorithms::Land::plan (void)
+gams::algorithms::Land::plan(void)
 {
   return 0;
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -58,30 +58,30 @@ using std::vector;
 
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
-gams::variables::Sensor::Sensor () :
-  knowledge_ (0), name_ ("")
+gams::variables::Sensor::Sensor() :
+  knowledge_(0), name_("")
 {
 }
 
-gams::variables::Sensor::Sensor (const string & name,
+gams::variables::Sensor::Sensor(const string & name,
   madara::knowledge::KnowledgeBase * knowledge,
   const double & range, const pose::Position & origin) :
-  knowledge_ (knowledge), name_ (name)
+  knowledge_(knowledge), name_(name)
 {
-  init_vars ();
+  init_vars();
 
   if (range_ == 0.0 && range != 0.0)
     range_ = range;
-  if (origin.latitude () != DBL_MAX)
-    origin.to_container (origin_);
+  if (origin.latitude() != DBL_MAX)
+    origin.to_container(origin_);
 }
 
-gams::variables::Sensor::~Sensor ()
+gams::variables::Sensor::~Sensor()
 {
 }
 
 void
-gams::variables::Sensor::operator= (const Sensor & rhs)
+gams::variables::Sensor::operator=(const Sensor & rhs)
 {
   if (this != &rhs)
   {
@@ -94,50 +94,50 @@ gams::variables::Sensor::operator= (const Sensor & rhs)
 }
 
 set<gams::pose::Position>
-gams::variables::Sensor::discretize (
+gams::variables::Sensor::discretize(
   const pose::Region & region)
 {
   set<pose::Position> ret_val;
 
   // find northern most point
   pose::Position northern = region.vertices[0];
-  for (size_t i = 1; i < region.vertices.size (); ++i)
-    if (northern.latitude () < region.vertices[i].latitude ())
+  for (size_t i = 1; i < region.vertices.size(); ++i)
+    if (northern.latitude() < region.vertices[i].latitude())
       northern = region.vertices[i];
-  const int max_x = (int)get_index_from_gps (northern).x();
+  const int max_x =(int)get_index_from_gps(northern).x();
 
   // find southern most point
   pose::Position southern = region.vertices[0];
-  for (size_t i = 1; i < region.vertices.size (); ++i)
-    if (southern.latitude () > region.vertices[i].latitude ())
+  for (size_t i = 1; i < region.vertices.size(); ++i)
+    if (southern.latitude() > region.vertices[i].latitude())
       southern = region.vertices[i];
-  const int min_x = (int)get_index_from_gps (southern).x();
+  const int min_x =(int)get_index_from_gps(southern).x();
 
   // find west most point 
   pose::Position start;
-  start.longitude (DBL_MAX);
-  for (size_t i = 0; i < region.vertices.size (); ++i)
-    if (start.longitude () > region.vertices[i].longitude ())
+  start.longitude(DBL_MAX);
+  for (size_t i = 0; i < region.vertices.size(); ++i)
+    if (start.longitude() > region.vertices[i].longitude())
       start = region.vertices[i];
 
   // find valid corresponding position
-  pose::Position start_index = get_index_from_gps (start);
-  if (!region.contains (get_gps_from_index (start_index)))
+  pose::Position start_index = get_index_from_gps(start);
+  if (!region.contains(get_gps_from_index(start_index)))
   {
     start_index.y(start_index.y() + 1); // go one east...
     pose::Position check = start_index;
-    while ((!region.contains (get_gps_from_index (check))) &&
+    while ((!region.contains(get_gps_from_index(check))) &&
       check.x() <= max_x)
     {
       check.x(check.x() + 1); // ... and start looking north for position in region
     }
 
     // if we still haven't found a good position...
-    if (!region.contains (get_gps_from_index (check)))
+    if (!region.contains(get_gps_from_index(check)))
     {
       // ...start looking south
       check = start_index;
-      while ((!region.contains (get_gps_from_index (check))) &&
+      while((!region.contains(get_gps_from_index(check))) &&
         check.x() >= min_x)
       {
         check.x(check.x() - 1);
@@ -150,23 +150,23 @@ gams::variables::Sensor::discretize (
 
   // find east most point
   pose::Position eastern = region.vertices[0];
-  for (size_t i = 1; i < region.vertices.size (); ++i)
-    if (eastern.longitude () < region.vertices[i].longitude ())
+  for (size_t i = 1; i < region.vertices.size(); ++i)
+    if (eastern.longitude() < region.vertices[i].longitude())
       eastern = region.vertices[i];
-  const int max_y = (int)get_index_from_gps (eastern).y();
+  const int max_y =(int)get_index_from_gps(eastern).y();
 
   // move east each iteration
   while (start_index.y() < max_y)
   {
     // check north
     for (pose::Position pos = start_index; pos.x() <= max_x; pos.x(pos.x() + 1))
-      if (region.contains (get_gps_from_index (pos)))
-        ret_val.insert (pos);
+      if (region.contains(get_gps_from_index(pos)))
+        ret_val.insert(pos);
   
     // check south
     for (pose::Position pos = start_index; pos.x() >= min_x; pos.x(pos.x() - 1))
-      if (region.contains (get_gps_from_index (pos)))
-        ret_val.insert (pos);
+      if (region.contains(get_gps_from_index(pos)))
+        ret_val.insert(pos);
 
     start_index.y(start_index.y() + 1);
   }
@@ -175,54 +175,54 @@ gams::variables::Sensor::discretize (
 }
 
 set<gams::pose::Position>
-gams::variables::Sensor::discretize (
+gams::variables::Sensor::discretize(
   const pose::SearchArea & search)
 {
   set<pose::Position> ret_val;
-  const vector<pose::PrioritizedRegion>& regions = search.get_regions ();
-  for (size_t i = 0; i < regions.size (); ++i)
+  const vector<pose::PrioritizedRegion>& regions = search.get_regions();
+  for (size_t i = 0; i < regions.size(); ++i)
   {
-    set<pose::Position> to_add = discretize (regions[i]);
-    ret_val.insert (to_add.begin (), to_add.end ());
+    set<pose::Position> to_add = discretize(regions[i]);
+    ret_val.insert(to_add.begin(), to_add.end());
   }
   return ret_val;
 }
 
 double
-gams::variables::Sensor::get_discretization () const
+gams::variables::Sensor::get_discretization() const
 {
-  return sqrt (2.0 * pow(get_range (), 2.0));
+  return sqrt(2.0 * pow(get_range(), 2.0));
 }
 
 void
-gams::variables::Sensor::regenerate_local_frame ()
+gams::variables::Sensor::regenerate_local_frame()
 {
   local_frame_ = pose::ReferenceFrame(pose::Cartesian, get_origin());
 }
 
 gams::pose::Position
-gams::variables::Sensor::get_gps_from_index (
+gams::variables::Sensor::get_gps_from_index(
   const pose::Position & idx)
 {
-  const double discretize = get_discretization ();
+  const double discretize = get_discretization();
 
   regenerate_local_frame();
 
-  pose::Position meters (local_frame_,
+  pose::Position meters(local_frame_,
     int(idx.x()) * discretize, int(idx.y()) * discretize, int(idx.z()));
   pose::Position ret = meters.transform_to(pose::gps_frame());
   return ret;
 }
 
 gams::pose::Position
-gams::variables::Sensor::get_index_from_gps (
+gams::variables::Sensor::get_index_from_gps(
   const pose::Position & pos)
 {
   regenerate_local_frame();
 
-  pose::Position idx = pos.transform_to (local_frame_);
+  pose::Position idx = pos.transform_to(local_frame_);
 
-  const double discretize = get_discretization ();
+  const double discretize = get_discretization();
   idx.x((int)((idx.x() + discretize / 2) / discretize));
   idx.y((int)((idx.y() + discretize / 2) / discretize));
 
@@ -230,78 +230,78 @@ gams::variables::Sensor::get_index_from_gps (
 }
 
 string
-gams::variables::Sensor::get_name () const
+gams::variables::Sensor::get_name() const
 {
   return name_;
 }
 
 gams::pose::Position
-gams::variables::Sensor::get_origin ()
+gams::variables::Sensor::get_origin()
 {
   pose::Position origin(pose::gps_frame());
-  origin.from_container (origin_);
+  origin.from_container(origin_);
   return origin;
 }
 
 double
-gams::variables::Sensor::get_range () const
+gams::variables::Sensor::get_range() const
 {
-  return range_.to_double ();
+  return range_.to_double();
 }
 
 double
-gams::variables::Sensor::get_value (const pose::Position & pos)
+gams::variables::Sensor::get_value(const pose::Position & pos)
 {
-  return value_[index_pos_to_index (get_index_from_gps (pos))].to_double ();
+  return value_[index_pos_to_index(get_index_from_gps(pos))].to_double();
 }
 
 void
-gams::variables::Sensor::set_origin (const pose::Position & origin)
+gams::variables::Sensor::set_origin(const pose::Position & origin)
 {
-  origin.to_container (origin_);
+  origin.to_container(origin_);
 }
 
 void
-gams::variables::Sensor::set_range (const double & range)
+gams::variables::Sensor::set_range(const double & range)
 {
   range_ = range;
 }
 
 void
-gams::variables::Sensor::set_value (const pose::Position & pos,
+gams::variables::Sensor::set_value(const pose::Position & pos,
   const double & val,
   const madara::knowledge::KnowledgeUpdateSettings & settings)
 {
-  string idx = index_pos_to_index (get_index_from_gps(pos));
-  value_.set (idx, val, settings);
+  string idx = index_pos_to_index(get_index_from_gps(pos));
+  value_.set(idx, val, settings);
 }
 
 string
-gams::variables::Sensor::index_pos_to_index (
+gams::variables::Sensor::index_pos_to_index(
   const pose::Position & pos) const
 {
   stringstream buffer;
-  buffer << (int)(pos.x()) << "x" << (int)(pos.y());
+  buffer <<(int)(pos.x()) << "x" <<(int)(pos.y());
 
-  return buffer.str ();
+  return buffer.str();
 }
 
 void
-gams::variables::Sensor::init_vars ()
+gams::variables::Sensor::init_vars()
 {
   // sensor information is prefixed by sensor.<name_>
-  std::string prefix ("sensor");
+  std::string prefix("sensor");
   prefix += ".";
   prefix += name_;
 
   // initialize the variable containers
-  range_.set_name (prefix + ".range", *knowledge_);
-  value_.set_name (prefix + ".covered", *knowledge_);
-  origin_.set_name (prefix + ".origin", *knowledge_);
+  range_.set_name(prefix + ".range", *knowledge_);
+  value_.set_name(prefix + ".covered", *knowledge_);
+  origin_.set_name(prefix + ".origin", *knowledge_);
 }
 
 void
-gams::variables::Sensor::init_vars (const string & name,
+gams::variables::Sensor::init_vars(const string & name,
   madara::knowledge::KnowledgeBase * knowledge,
   const double & range, const pose::Position & origin)
 {
@@ -324,9 +324,9 @@ gams::variables::Sensor::init_vars (const string & name,
    * system.
    **/
   pose::Position cur_origin(pose::gps_frame());
-  cur_origin.from_container (origin_);
-  if (cur_origin.latitude () != 0.0 && origin.latitude () != DBL_MAX)
-    origin.to_container (origin_);
+  cur_origin.from_container(origin_);
+  if (cur_origin.latitude() != 0.0 && origin.latitude() != DBL_MAX)
+    origin.to_container(origin_);
 
-  init_vars ();
+  init_vars();
 }

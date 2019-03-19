@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ namespace gams
        *                    within the knowledge base to use for printing,
        *                    after the .id identifier.
        **/
-      DebugAlgorithm (
+      DebugAlgorithm(
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
         variables::Sensors * sensors = 0,
@@ -97,37 +97,37 @@ namespace gams
       /**
        * Destructor
        **/
-      ~DebugAlgorithm ();
+      ~DebugAlgorithm();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const DebugAlgorithm & rhs);
+      void operator=(const DebugAlgorithm & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
 
     protected:
       /**
        * Used to keep track of algorithm executions in a way
        * that may be referenced from other platforms or algorithms
-       * within the knowledge base (k is for KnowledgeBase).
+       * within the knowledge base(k is for KnowledgeBase).
        * This is different from executions_, which can only be
        * seen by the derived classes of BaseAlgorithm.
        **/
@@ -157,7 +157,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

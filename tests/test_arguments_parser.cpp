@@ -8,19 +8,19 @@ using namespace gams::utility;
 
 int gams_fails = 0;
 
-void test_name_value (ArgumentParser::const_iterator & iter, 
+void test_name_value(ArgumentParser::const_iterator & iter, 
 const ArgumentParser::const_iterator & end, const std::string & var, 
 const std::string & value)
 {
   if (iter != end)
   {
-    if (iter.name () == var && iter.value () == value)
+    if (iter.name() == var && iter.value() == value)
     {
       std::cerr << "SUCCESS: " << var << " = " << value << "\n";
     }
     else
     {
-      std::cerr << "FAIL: " << iter.name () << " = " << iter.value () << " instead of"
+      std::cerr << "FAIL: " << iter.name() << " = " << iter.value() << " instead of"
         << var << " = " << value << "\n";
     }
     ++iter;
@@ -32,7 +32,7 @@ const std::string & value)
   }
 }
 
-void test_deref_iteration (ArgumentParser::const_iterator & iter, 
+void test_deref_iteration(ArgumentParser::const_iterator & iter, 
 const ArgumentParser::const_iterator & end, const std::string & var, 
 const std::string & value)
 {
@@ -60,7 +60,7 @@ int main(int, char *[])
 {
   knowledge::KnowledgeBase kbase;
   kbase.set("not_args.asdf", "shouldn't appear");
-  kbase.set("args.size", knowledge::KnowledgeRecord::Integer (2));
+  kbase.set("args.size", knowledge::KnowledgeRecord::Integer(2));
   kbase.set("args.0", "aname");
   kbase.set("args.1", "a val");
   kbase.set("args.2", "bname");
@@ -72,27 +72,27 @@ int main(int, char *[])
 
   ArgumentParser args(kmap);
 
-  ArgumentParser::const_iterator ci = args.begin ();
+  ArgumentParser::const_iterator ci = args.begin();
 
-  test_name_value (ci, args.end (), "aname", "a val");
-  test_name_value (ci, args.end (), "bname", "b val");
-  test_name_value (ci, args.end (), "cname", "c val");
-  test_name_value (ci, args.end (), "dname", "d val");
-  test_name_value (ci, args.end (), "size", "2");
+  test_name_value(ci, args.end(), "aname", "a val");
+  test_name_value(ci, args.end(), "bname", "b val");
+  test_name_value(ci, args.end(), "cname", "c val");
+  test_name_value(ci, args.end(), "dname", "d val");
+  test_name_value(ci, args.end(), "size", "2");
 
-  ci = args.begin ();
+  ci = args.begin();
 
-  test_deref_iteration (ci, args.end (), "aname", "a val");
-  test_deref_iteration (ci, args.end (), "bname", "b val");
-  test_deref_iteration (ci, args.end (), "cname", "c val");
-  test_deref_iteration (ci, args.end (), "dname", "d val");
-  test_deref_iteration (ci, args.end (), "size", "2");
+  test_deref_iteration(ci, args.end(), "aname", "a val");
+  test_deref_iteration(ci, args.end(), "bname", "b val");
+  test_deref_iteration(ci, args.end(), "cname", "c val");
+  test_deref_iteration(ci, args.end(), "dname", "d val");
+  test_deref_iteration(ci, args.end(), "size", "2");
 
 
 #ifdef CPP11
   std::cout << "With C++11 foreach:" << std::endl;
 
-  for(const auto &i : args)
+  for (const auto &i : args)
   {
     std::cout << i.first << " -> " << i.second << std::endl;
   }

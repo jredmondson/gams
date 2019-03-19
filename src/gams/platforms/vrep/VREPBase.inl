@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,7 @@
 #ifdef _GAMS_VREP_
 
 inline bool
-gams::platforms::VREPBase::sim_is_running (void)
+gams::platforms::VREPBase::sim_is_running(void)
 {
   if (!sim_is_running_)
   {
@@ -70,7 +70,7 @@ gams::platforms::VREPBase::sim_is_running (void)
 }
 
 inline bool
-gams::platforms::VREPBase::vrep_is_ready (void)
+gams::platforms::VREPBase::vrep_is_ready(void)
 {
   if (!vrep_is_ready_)
   {
@@ -81,7 +81,7 @@ gams::platforms::VREPBase::vrep_is_ready (void)
 }
 
 inline bool
-gams::platforms::VREPBase::agent_is_ready (void)
+gams::platforms::VREPBase::agent_is_ready(void)
 {
   if (!agent_is_ready_)
   {
@@ -92,22 +92,22 @@ gams::platforms::VREPBase::agent_is_ready (void)
 }
 
 inline bool
-gams::platforms::VREPBase::get_ready (void)
+gams::platforms::VREPBase::get_ready(void)
 {
-  bool result (sim_is_running ());
+  bool result(sim_is_running());
 
-  if (!result && this->vrep_is_ready ())
+  if (!result && this->vrep_is_ready())
   {
-    if (!agent_is_ready ())
+    if (!agent_is_ready())
     {
-      add_model_to_environment (model_file_, is_client_side_);
-      set_initial_position ();
-      get_target_handle ();
+      add_model_to_environment(model_file_, is_client_side_);
+      set_initial_position();
+      get_target_handle();
 
       agent_ready_ = 1;
     }
 
-    result = this->sim_is_running ();
+    result = this->sim_is_running();
   }
 
   if (result)

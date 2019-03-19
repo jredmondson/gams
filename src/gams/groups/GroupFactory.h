@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -74,20 +74,20 @@ namespace gams
       /**
       * Constructor
       **/
-      GroupFactory ();
+      GroupFactory();
 
       /**
       * Destructor
       **/
-      virtual ~GroupFactory ();
+      virtual ~GroupFactory();
 
       /**
       * Creates a group
-      * @param  prefix       the name of the group (e.g. group.protectors)
+      * @param  prefix       the name of the group(e.g. group.protectors)
       * @param  knowledge    the knowledge base of variables and values
       * @return  the new group
       **/
-      virtual GroupBase * create (
+      virtual GroupBase * create(
         const std::string & prefix,
         madara::knowledge::KnowledgeBase * knowledge) = 0;
 
@@ -95,7 +95,7 @@ namespace gams
       * Sets the knowledge base
       * @param  knowledge    the knowledge base to use
       **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
 
     protected:
 

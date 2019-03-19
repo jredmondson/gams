@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@
 #include "gams/algorithms/PerformanceProfiling.h"
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::PerformanceProfilingFactory::create (
+gams::algorithms::PerformanceProfilingFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -55,35 +55,35 @@ gams::algorithms::PerformanceProfilingFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
   if (knowledge && sensors && self)
   {
-    result = new PerformanceProfiling (knowledge, platform, sensors, self);
+    result = new PerformanceProfiling(knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::PerformanceProfiling::PerformanceProfiling (
+gams::algorithms::PerformanceProfiling::PerformanceProfiling(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::Base * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self)
+  : BaseAlgorithm(knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "performance_profiling", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "performance_profiling", self->agent.prefix);
+  status_.init_variable_values();
 }
 
-gams::algorithms::PerformanceProfiling::~PerformanceProfiling ()
+gams::algorithms::PerformanceProfiling::~PerformanceProfiling()
 {
   knowledge_->set(".performance_profiling.executions",
-    madara::knowledge::KnowledgeRecord::Integer (executions_));
+    madara::knowledge::KnowledgeRecord::Integer(executions_));
 }
 
 void
-gams::algorithms::PerformanceProfiling::operator= (
+gams::algorithms::PerformanceProfiling::operator=(
   const PerformanceProfiling & rhs)
 {
   if (this != &rhs)
@@ -96,13 +96,13 @@ gams::algorithms::PerformanceProfiling::operator= (
 }
 
 int
-gams::algorithms::PerformanceProfiling::analyze (void)
+gams::algorithms::PerformanceProfiling::analyze(void)
 {
   return OK;
 }
 
 int
-gams::algorithms::PerformanceProfiling::execute (void)
+gams::algorithms::PerformanceProfiling::execute(void)
 {
   ++executions_;
 
@@ -110,7 +110,7 @@ gams::algorithms::PerformanceProfiling::execute (void)
 }
 
 int
-gams::algorithms::PerformanceProfiling::plan (void)
+gams::algorithms::PerformanceProfiling::plan(void)
 {
   return OK;
 }

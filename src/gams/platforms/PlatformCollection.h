@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,7 @@ namespace gams
        * @param  platforms  map of platform names to platform information
        * @param  self       agent variables that describe self state
        **/
-      PlatformCollection (
+      PlatformCollection(
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Platforms * platforms,
@@ -89,52 +89,52 @@ namespace gams
       /**
        * Destructor
        **/
-      ~PlatformCollection ();
+      ~PlatformCollection();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const PlatformCollection & rhs);
+      void operator=(const PlatformCollection & rhs);
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
        
       /**
        * Get the location aproximation value of what is considered close enough
        * @return location approximation radius
        **/
-      virtual double get_accuracy () const;
+      virtual double get_accuracy() const;
       
       /**
        * Gets the unique identifier of the platform
        **/
-      virtual std::string get_id () const;
+      virtual std::string get_id() const;
 
       /**
        * Get move speed
        **/
-      virtual double get_move_speed () const;
+      virtual double get_move_speed() const;
       
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const;
+      virtual std::string get_name() const;
 
       /**
        * Instructs the agent to return home
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int home (void);
+      virtual int home(void);
       
       /**
        * Instructs the platform to land
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int land (void);
+      virtual int land(void);
       
       /**
        * Moves the platform to a position
@@ -142,8 +142,8 @@ namespace gams
        * @param   epsilon   approximation value
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int move (const pose::Position & target,
-        const PositionBounds &bounds);
+      virtual int move(const pose::Position & target,
+        const pose::PositionBounds &bounds);
 
       using BasePlatform::move;
       
@@ -151,25 +151,25 @@ namespace gams
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void);
+      virtual int sense(void);
       
       /**
        * Set move speed
        * @param speed new speed in meters/loop execution
        **/
-      virtual void set_move_speed (const double& speed);
+      virtual void set_move_speed(const double& speed);
 
       /**
        * Instructs the platform to take off
        * @return 1 if moving, 2 if arrived, 0 if error
        **/
-      virtual int takeoff (void);
+      virtual int takeoff(void);
 
     protected:
     };
 
     /**
-     * A factory class for creating null (no-op) platforms
+     * A factory class for creating null(no-op) platforms
      **/
     class GAMS_EXPORT PlatformCollectionFactory : public PlatformFactory
     {
@@ -187,7 +187,7 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
-      virtual BasePlatform * create (
+      virtual BasePlatform * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,

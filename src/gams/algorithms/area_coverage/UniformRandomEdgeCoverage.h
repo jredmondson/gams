@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,7 @@ namespace gams
       public:
         /**
          * Constructor
-         * @param  prefix       the search area prefix (e.g. search_area.0)
+         * @param  prefix       the search area prefix(e.g. search_area.0)
          * @param  e_time       execution time for algorithm
          * @param  knowledge    the context containing variables and values
          * @param  platform     the underlying platform the algorithm will use
@@ -88,7 +88,7 @@ namespace gams
          * @param  self         self-referencing variables
          * @param  agents      variables referencing agents
          **/
-        UniformRandomEdgeCoverage (
+        UniformRandomEdgeCoverage(
           const std::string& prefix,
           double e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -100,19 +100,19 @@ namespace gams
         /**
          * Destructor
          **/
-        ~UniformRandomEdgeCoverage ();
+        ~UniformRandomEdgeCoverage();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const UniformRandomEdgeCoverage & rhs);
+        void operator=(const UniformRandomEdgeCoverage & rhs);
         
       protected:
         /**
          * Generate new next position
          */
-        virtual void generate_new_position (void);
+        virtual void generate_new_position(void);
   
         /// convex hull of coverage region
         pose::Region region_;
@@ -141,7 +141,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

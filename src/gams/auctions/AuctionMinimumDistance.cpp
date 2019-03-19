@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -55,73 +55,73 @@
 namespace knowledge = madara::knowledge;
 namespace containers = knowledge::containers;
 
-gams::auctions::AuctionMinimumDistanceFactory::AuctionMinimumDistanceFactory ()
+gams::auctions::AuctionMinimumDistanceFactory::AuctionMinimumDistanceFactory()
 {
 }
 
-gams::auctions::AuctionMinimumDistanceFactory::~AuctionMinimumDistanceFactory ()
+gams::auctions::AuctionMinimumDistanceFactory::~AuctionMinimumDistanceFactory()
 {
 }
 
 gams::auctions::AuctionBase *
-gams::auctions::AuctionMinimumDistanceFactory::create (
+gams::auctions::AuctionMinimumDistanceFactory::create(
 const std::string & auction_prefix,
 const std::string & agent_prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumDistanceFactory::create:" \
-    " creating auction from %s\n", auction_prefix.c_str ());
+    " creating auction from %s\n", auction_prefix.c_str());
 
-  return new AuctionMinimumDistance (auction_prefix, agent_prefix, knowledge);
+  return new AuctionMinimumDistance(auction_prefix, agent_prefix, knowledge);
 }
 
-gams::auctions::AuctionMinimumDistance::AuctionMinimumDistance (
+gams::auctions::AuctionMinimumDistance::AuctionMinimumDistance(
   const std::string & auction_prefix,
   const std::string & agent_prefix,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform)
-  : AuctionBase (auction_prefix, agent_prefix, knowledge),
-    platform_ (platform)
+  : AuctionBase(auction_prefix, agent_prefix, knowledge),
+    platform_(platform)
 {
 }
 
-gams::auctions::AuctionMinimumDistance::~AuctionMinimumDistance ()
+gams::auctions::AuctionMinimumDistance::~AuctionMinimumDistance()
 {
 
 }
 
 std::string
-gams::auctions::AuctionMinimumDistance::get_leader (void)
+gams::auctions::AuctionMinimumDistance::get_leader(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumDistance::get_leader:" \
-    " getting leader from %s\n", auction_prefix_.c_str ());
+    " getting leader from %s\n", auction_prefix_.c_str());
 
   std::string leader;
 
   AuctionBids bids;
-  get_bids (bids);
-  sort_ascending (bids);
+  get_bids(bids);
+  sort_ascending(bids);
 
-  if (bids.size () > 0)
+  if (bids.size() > 0)
   {
     leader = bids[0].bidder;
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumDistance::get_leader:" \
-    " final leader is %s\n", leader.c_str ());
+    " final leader is %s\n", leader.c_str());
 
   return leader;
 }
 
-void gams::auctions::AuctionMinimumDistance::calculate_bids (void)
+void gams::auctions::AuctionMinimumDistance::calculate_bids(void)
 {
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::auctions::AuctionMinimumDistance::calculate_bids:" \
     " calculating distances as bids.\n");
@@ -130,31 +130,31 @@ void gams::auctions::AuctionMinimumDistance::calculate_bids (void)
   {
     // initialize the agent list within the group
     variables::Agents agents;
-    variables::init_vars (agents, *knowledge_, group_);
+    variables::init_vars(agents, *knowledge_, group_);
 
-    for (size_t i = 0; i < agents.size (); ++i)
+    for (size_t i = 0; i < agents.size(); ++i)
     {
       // import the agents's location into the GAMS Pose system
-      gams::pose::Position location (platform_->get_frame ());
-      location.from_container (agents[i].location);
+      gams::pose::Position location(platform_->get_frame());
+      location.from_container(agents[i].location);
 
-      double distance = location.distance_to (target_);
+      double distance = location.distance_to(target_);
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "gams::auctions::AuctionMinimumDistance::calculate_bids:" \
         " agent %s distance is %f. Bidding distance.\n",
-        agents[i].prefix.c_str (), distance);
+        agents[i].prefix.c_str(), distance);
 
       // bid for the agent using their distance to the target
-      bids_.set (agents[i].prefix, distance);
+      bids_.set(agents[i].prefix, distance);
     }
   }
   else
   {
     if (!knowledge_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::auctions::AuctionMinimumDistance::calculate_bids:" \
         " ERROR: invalid pointer: knowledge_ is a null pointer." \
@@ -162,7 +162,7 @@ void gams::auctions::AuctionMinimumDistance::calculate_bids (void)
     }
     if (!platform_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::auctions::AuctionMinimumDistance::calculate_bids:" \
         " ERROR: invalid pointer: platform_ is a null pointer." \
@@ -172,19 +172,19 @@ void gams::auctions::AuctionMinimumDistance::calculate_bids (void)
 }
 
 void
-gams::auctions::AuctionMinimumDistance::set_target (
+gams::auctions::AuctionMinimumDistance::set_target(
   utility::GPSPosition target)
 {
   if (platform_)
   {
-    target_ = pose::Position (
-      platform_->get_frame (),
-      target.longitude (), target.latitude (), target.altitude ());
+    target_ = pose::Position(
+      platform_->get_frame(),
+      target.longitude(), target.latitude(), target.altitude());
   }
 }
 
 void
-gams::auctions::AuctionMinimumDistance::set_target (
+gams::auctions::AuctionMinimumDistance::set_target(
 pose::Position target)
 {
   target_ = target;

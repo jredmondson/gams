@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,7 @@ typedef madara::knowledge::KnowledgeRecord::Integer  Integer;
 typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
+gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create(
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -88,21 +88,21 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
   variables::Self * self,
   variables::Agents * agents)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", args.size());
 
   if (knowledge && sensors && platform && self)
   {
     std::string search_area;
     double time = 360;
 
-    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-      if (i->first.size () <= 0)
+      if (i->first.size() <= 0)
         continue;
 
       switch (i->first[0])
@@ -110,33 +110,33 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
       case 'a':
         if (i->first == "area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 's':
         if (i->first == "search_area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 't':
         if (i->first == "time")
         {
-          time = i->second.to_double ();
+          time = i->second.to_double();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationSyncFactory:" \
             " setting time to %f\n", time);
@@ -145,11 +145,11 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
         goto unknown;
       unknown:
       default:
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationSyncFactory:" \
           " argument unknown: %s -> %s\n",
-          i->first.c_str (), i->second.to_string ().c_str ());
+          i->first.c_str(), i->second.to_string().c_str());
         break;
       }
     }
@@ -157,14 +157,14 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
     // if group has not been set, use the swarm
     if (search_area == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create:" \
         " No search area specified. Returning null.\n");
     }
     else
     {
-      result = new area_coverage::LocalPheremoneAreaCoverage (
+      result = new area_coverage::LocalPheremoneAreaCoverage(
         search_area, time,
         knowledge, platform, sensors, self, agents);
     }
@@ -174,23 +174,23 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverageFactory::create (
 }
 
 gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
-LocalPheremoneAreaCoverage (
+LocalPheremoneAreaCoverage(
   const std::string& search_id,
   double e_time,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
-  BaseAreaCoverage (knowledge, platform, sensors, self, agents, e_time),
-  pheremone_ (search_id + ".pheremone", knowledge)
+  BaseAreaCoverage(knowledge, platform, sensors, self, agents, e_time),
+  pheremone_(search_id + ".pheremone", knowledge)
 {
   self->agent.prefix;
   // init status vars
-  status_.init_vars (*knowledge, "lpac", self->agent.prefix);
-  status_.init_vars (*knowledge, "lpac", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "lpac", self->agent.prefix);
+  status_.init_vars(*knowledge, "lpac", self->agent.prefix);
+  status_.init_variable_values();
 
   // get search area
-  search_area_.from_container (*knowledge, search_id);
+  search_area_.from_container(*knowledge, search_id);
 
   // fill out pheremone sensor
   /**
@@ -198,46 +198,46 @@ LocalPheremoneAreaCoverage (
    */
   utility::GPSPosition origin;
   madara::knowledge::containers::NativeDoubleArray origin_container;
-  origin_container.set_name ("sensor.coverage.origin", *knowledge, 3);
-  origin.from_container (origin_container);
-  pheremone_.set_origin (origin);
-  pheremone_.set_range (5.0);
+  origin_container.set_name("sensor.coverage.origin", *knowledge, 3);
+  origin.from_container(origin_container);
+  pheremone_.set_origin(origin);
+  pheremone_.set_range(5.0);
   
   // generate first position to move
-  generate_new_position ();
+  generate_new_position();
 }
 
 void
-gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::operator= (
+gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::operator=(
   const LocalPheremoneAreaCoverage & rhs)
 {
   if (this != &rhs)
   {
     this->search_area_ = rhs.search_area_;
     this->pheremone_ = rhs.pheremone_;
-    this->BaseAreaCoverage::operator= (rhs);
+    this->BaseAreaCoverage::operator=(rhs);
   }
 }
 
 void
 gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
-  generate_new_position (void)
+  generate_new_position(void)
 {
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
     // get current location
     utility::GPSPosition cur_gps;
-    cur_gps.from_container (self_->agent.location);
+    cur_gps.from_container(self_->agent.location);
 
     // create possible next positions
     const int num_possible = 12;
     utility::Position possible[num_possible];
-    utility::Position cur = pheremone_.get_index_from_gps (cur_gps);
+    utility::Position cur = pheremone_.get_index_from_gps(cur_gps);
     vector<unsigned int> selection;
     for (unsigned int i = 0; i < num_possible; ++i)
     {
       possible[i] = cur;
-      selection.push_back (i);
+      selection.push_back(i);
     }
     ++possible[0].x; ++possible[0].y;
     ++possible[1].x;
@@ -264,13 +264,13 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
     utility::GPSPosition lowest = cur_gps;
     utility::Position s;
     double concentration = DBL_MAX;
-    std::random_shuffle (selection.begin (), selection.end ());
+    std::random_shuffle(selection.begin(), selection.end());
     for (unsigned int i = 0; i < num_possible; ++i)
     {
       const int index = selection[i]; // get randomized index
 
       // update executions value if necessary
-      const double my_concentration = pheremone_.get_value (possible[index]);
+      const double my_concentration = pheremone_.get_value(possible[index]);
       if (my_concentration > executions_)
         executions_ = my_concentration;
 
@@ -278,8 +278,8 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
       if (concentration > my_concentration)
       {
         utility::GPSPosition possible_gps =
-          pheremone_.get_gps_from_index (possible[index]);
-        if (search_area_.contains (possible_gps))
+          pheremone_.get_gps_from_index(possible[index]);
+        if (search_area_.contains(possible_gps))
         {
           {
             concentration = my_concentration;
@@ -291,11 +291,11 @@ gams::algorithms::area_coverage::LocalPheremoneAreaCoverage::
     }
 
     // update pheremone value
-    pheremone_.set_value (lowest, executions_ + 1);
+    pheremone_.set_value(lowest, executions_ + 1);
 
     // assign new next
     // TODO: fix with proper altitude
-    lowest.altitude (self_->agent.desired_altitude.to_double ());
+    lowest.altitude(self_->agent.desired_altitude.to_double());
     next_position_ = lowest;
 
     initialized_ = true;

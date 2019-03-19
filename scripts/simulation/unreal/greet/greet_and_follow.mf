@@ -1,0 +1,44 @@
+
+.id < .targets => (
+  !.origin => (.origin = [0, .id * 10, 2]);
+  !.initial_pose => (.initial_pose = .origin);
+
+  // targets run a line along [0, *, 5]
+  
+  {.prefix}.algorithm="waypoints";
+  {.prefix}.algorithm.args.locations.size=2;
+  {.prefix}.algorithm.args.locations.0=[0, swarm.size * 10 + .id * 10, 2];
+  {.prefix}.algorithm.args.locations.1=.origin;
+  {.prefix}.algorithm.args.repeat=5;
+);
+
+.id >= .targets => (
+  !.origin => (.origin = [10, .id * 10, 20]);
+  !.guard => (.guard = [0, .id * 10, 10]);
+  !.distance => (.distance = 30);
+  !.max_distance => (.max_distance = 40);
+  !.initial_pose => (.initial_pose = .origin);
+  !.targets => (.targets = 1);
+  !.followers => (.followers = 2);
+
+  .osc.loiter_timeout=-1;
+  .osc.respawn_timeout=-1;
+
+  // follow.max_agents
+  // follow
+  // follow.group
+  // guard.location
+  // guard.distance
+  // home.location
+  // target.group
+
+  group.targets.members.size=1;
+  group.targets.members.0='agent.0';
+
+  {.prefix}.algorithm="greet";
+  {.prefix}.algorithm.args.home.location=.origin;
+  {.prefix}.algorithm.args.guard.distance=.distance;
+  {.prefix}.algorithm.args.guard.location=.guard;
+  {.prefix}.algorithm.args.guard.max_follow_distance=.max_distance;
+  {.prefix}.algorithm.args.follow.max_agents=.followers;
+);

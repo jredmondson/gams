@@ -119,18 +119,18 @@ bool delete_existing = false;
 
 //Function definitions
 void delete_existing_file(std::string path, bool delete_existing);
-int save_checkpoint (knowledge::KnowledgeBase *knowledge,
+int save_checkpoint(knowledge::KnowledgeBase *knowledge,
   knowledge::CheckpointSettings *settings, std::string meta_prefix="meta");
-std::string get_agent_var_prefix (std::string ros_topic_name);
-std::string gams::utility::ros::ros_to_gams_name (std::string topic_name);
+std::string get_agent_var_prefix(std::string ros_topic_name);
+std::string gams::utility::ros::ros_to_gams_name(std::string topic_name);
 
 
 // handle command line arguments
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
 
     if (arg1 == "-r" || arg1 == "--rosbag")
     {
@@ -210,7 +210,7 @@ void handle_arguments (int argc, char ** argv)
     {
       if (i + 1 < argc)
       {
-        std::stringstream buffer (argv[i + 1]);
+        std::stringstream buffer(argv[i + 1]);
         buffer >> write_buffer_size;
       }
       ++i;
@@ -221,7 +221,7 @@ void handle_arguments (int argc, char ** argv)
       "Converts rosbag files to madara checkpoints.\n\noptions:\n" \
       "  [-r|--rosbag]                        Path to the rosbag file\n" \
       "  [-rp|--ros-robot-prefix prfx]        Topic prefix of each robot\n" \
-      "                                       (default: '/robot_')\n" \
+      "                                      (default: '/robot_')\n" \
       "  [-scp|--save-checkpoint-prefix prfx] filname prefix to save\n"\
       "                                       for checkpoint\n" \
       "  [-sb|--save-binary]                  save the resulting knowledge \n"\
@@ -235,7 +235,7 @@ void handle_arguments (int argc, char ** argv)
       "  [-meta]                              stores metadata in the checkpoints\n" \
       "  [-mp|--manifest-path file]           path to the manifest file\n" \
       "  [-y|--frequency hz]                  Checkpoint frequency\n" \
-      "                                       (default:checkpoint with each\n" \
+      "                                      (default:checkpoint with each\n" \
       "                                        message in the bagfile)\n" \
       "  [-d|--differential]                  differential checkpoints\n" \
       "                                       only for binary checkpoints\n" \
@@ -245,7 +245,7 @@ void handle_arguments (int argc, char ** argv)
       "  [-ss|--save-size bytes]              size of buffer needed for file saves\n" \
       "  [-stk|--stream file]                 stream checkpoints to file\n"\
       "  [-de|--delete-existing]              delete existing output files\n";
-      exit (0);
+      exit(0);
     }
   }
   if ( !save_as_binary && !save_as_json && !save_as_karl && !save_as_stream)
@@ -256,20 +256,20 @@ void handle_arguments (int argc, char ** argv)
 }
 
 #ifndef TEST_ROS2GAMS
-int main (int argc, char ** argv)
+int main(int argc, char ** argv)
 {
-  handle_arguments (argc, argv);
+  handle_arguments(argc, argv);
   knowledge::KnowledgeBase kb;
   knowledge::KnowledgeBase manifest;
 
   knowledge::CheckpointSettings settings;
 
   if (rosbag_path == "")
-    exit (0);
+    exit(0);
 
   // Read the bag
   rosbag::Bag bag;
-  bag.open (rosbag_path, rosbag::bagmode::Read);
+  bag.open(rosbag_path, rosbag::bagmode::Read);
   
   rosbag::View view;
   std::map<std::string,std::string> topic_map;
@@ -298,14 +298,14 @@ int main (int argc, char ** argv)
 
       base_frame = config["frames"]["base_frame"].as<std::string>();
       world_frame = config["frames"]["world_frame"].as<std::string>();
-      std::replace ( base_frame.begin (), base_frame.end (), '/', '_');
-      std::replace ( world_frame.begin (), world_frame.end (), '/', '_');
+      std::replace( base_frame.begin(), base_frame.end(), '/', '_');
+      std::replace( world_frame.begin(), world_frame.end(), '/', '_');
       std::cout << "Base frame: " << base_frame << std::endl;
       std::cout << "World frame: " << world_frame << std::endl;
     }
     if (config["topics"])
     {
-      for(YAML::const_iterator it=config["topics"].begin();
+      for (YAML::const_iterator it=config["topics"].begin();
           it!=config["topics"].end(); ++it)
       {
         
@@ -318,7 +318,7 @@ int main (int argc, char ** argv)
             it->second["circular_buffer_size"].as<int>();
         }
 
-        selected_topics.push_back (topic_name);
+        selected_topics.push_back(topic_name);
         topic_map[topic_name] = var_name;
       }
     }
@@ -336,7 +336,7 @@ int main (int argc, char ** argv)
     // capnproto schema mappings
     if (config["schema_map"])
     {
-      for(YAML::const_iterator it=config["schema_map"].begin();
+      for (YAML::const_iterator it=config["schema_map"].begin();
           it!=config["schema_map"].end(); ++it)
       {
         std::string ros_type = it->first.as<std::string>();
@@ -349,7 +349,7 @@ int main (int argc, char ** argv)
     // plugin map
     if (config["plugin_map"])
     {
-      for(YAML::const_iterator it=config["plugin_map"].begin();
+      for (YAML::const_iterator it=config["plugin_map"].begin();
           it!=config["plugin_map"].end(); ++it)
       {
         std::string ros_type = it->first.as<std::string>();
@@ -362,12 +362,12 @@ int main (int argc, char ** argv)
     // simple renameing of message members
     if (config["name_substitution"])
     {
-      for(YAML::const_iterator type_it=config["name_substitution"].begin();
+      for (YAML::const_iterator type_it=config["name_substitution"].begin();
           type_it!=config["name_substitution"].end(); ++type_it)
       {
         std::string ros_type = type_it->first.as<std::string>();
         std::map<std::string, std::string> subst;
-        for(YAML::const_iterator elem_it=type_it->second.begin();
+        for (YAML::const_iterator elem_it=type_it->second.begin();
                   elem_it!=type_it->second.end(); ++elem_it)
         {
           subst[elem_it->first.as<std::string>()] = elem_it->second.as<std::string>();
@@ -376,24 +376,24 @@ int main (int argc, char ** argv)
       }
     }
 
-    rosbag::TopicQuery topics (selected_topics);
-    view.addQuery (bag, topics);
+    rosbag::TopicQuery topics(selected_topics);
+    view.addQuery(bag, topics);
   }
   else
   {
-    view.addQuery (bag);
+    view.addQuery(bag);
   }
 
   // Query the bag's stats
-  std::cout   << "Size of the selected topics: " << view.size () << "\n";
+  std::cout   << "Size of the selected topics: " << view.size() << "\n";
   std::cout   << "Selected topics in the bagfile: \n";
-  int count = view.size ();
+  int count = view.size();
   int id_digit_count = 0;
   do {
     count /= 10;
     id_digit_count++;
   }
-  while (count != 0);
+  while(count != 0);
 
   // Log the queried topic names to the console and the manifest knowledge
   containers::StringVector ros_topic_names("ros_topic_names", manifest,
@@ -401,12 +401,12 @@ int main (int argc, char ** argv)
   containers::StringVector gams_names("gams_names", manifest,
     view.getConnections().size());
   int i = 0;
-  for (const rosbag::ConnectionInfo* c: view.getConnections ())
+  for (const rosbag::ConnectionInfo* c: view.getConnections())
   {
-    std::cout << "    " << c->topic << " (" << c->datatype << ")\n";
+    std::cout << "    " << c->topic << "(" << c->datatype << ")\n";
     ros_topic_names.set(i, c->topic);
-    std::map<std::string, std::string>::iterator it = topic_map.find (c->topic);
-    if (it != topic_map.end ())
+    std::map<std::string, std::string>::iterator it = topic_map.find(c->topic);
+    if (it != topic_map.end())
       gams_names.set(i, it->second);
     ++i;
   }
@@ -415,14 +415,14 @@ int main (int argc, char ** argv)
     schema_map, plugin_map, circular_variables);
 
   // Register ros message types to prepare the parser's introspection features
-  for (const rosbag::ConnectionInfo* connection: view.getConnections () )
+  for (const rosbag::ConnectionInfo* connection: view.getConnections() )
   {
     const std::string  topic_name =  connection->topic;
     const std::string  datatype   =  connection->datatype;
     const std::string  definition =  connection->msg_def;
     // register the type using the topic_name as identifier.
-    parser.registerMessageDefinition (topic_name,
-      RosIntrospection::ROSType (datatype), definition);
+    parser.registerMessageDefinition(topic_name,
+      RosIntrospection::ROSType(datatype), definition);
   }
 
   parser.register_rename_rules(name_substitution_map);
@@ -450,7 +450,7 @@ int main (int argc, char ** argv)
   {
     checkpoint_intervall = checkpoint_intervall / checkpoint_frequency;
     std::cout << "\nCreating a checkpoint each " <<
-      (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
+     (checkpoint_intervall / 1000 / 1000) << " milliseconds." << std::endl;
   }
 
   // Attach streaming
@@ -475,31 +475,31 @@ int main (int argc, char ** argv)
   int progress_bar_width = 70;
   for (const rosbag::MessageInstance m: view)
   {
-    std::string topic = m.getTopic ();
-    ros::Time time = m.getTime ();
-    std::string callerid = m.getCallerId ();
+    std::string topic = m.getTopic();
+    ros::Time time = m.getTime();
+    std::string callerid = m.getCallerId();
 
     //Check if topic is in the topic mapping
-    std::map<std::string, std::string>::iterator it = topic_map.find (topic);
+    std::map<std::string, std::string>::iterator it = topic_map.find(topic);
     std::string container_name;
 
-    if (it != topic_map.end ())
+    if (it != topic_map.end())
     {
       container_name = it->second;
     }
     else
     {
-      container_name = get_agent_var_prefix (topic) + "." +
-        gams::utility::ros::ros_to_gams_name (topic);
+      container_name = get_agent_var_prefix(topic) + "." +
+        gams::utility::ros::ros_to_gams_name(topic);
     }
-    parser.parse_message (m, container_name);
+    parser.parse_message(m, container_name);
 
 
-    //kb.print ();
+    //kb.print();
     std::stringstream id_ss;
-    id_ss << std::setw (id_digit_count) << std::setfill ('0') <<
+    id_ss << std::setw(id_digit_count) << std::setfill('0') <<
       checkpoint_id;
-    std::string id_str = id_ss.str ();
+    std::string id_str = id_ss.str();
     if (same_file)
     {
       settings.filename = checkpoint_prefix + "_continuous";
@@ -524,14 +524,14 @@ int main (int argc, char ** argv)
     if ( checkpoint_frequency == 0 )
     {
       // Save checkpoint with each message
-      ret = save_checkpoint (&kb, &settings);
+      ret = save_checkpoint(&kb, &settings);
       checkpoint_id++;
     }
     else if (last_checkpoint_timestamp + checkpoint_intervall < stamp ||
       last_checkpoint_timestamp == 0)
     {
       // Save checkpoint with a given frequency
-      ret = save_checkpoint (&kb, &settings);
+      ret = save_checkpoint(&kb, &settings);
       last_checkpoint_timestamp = stamp;
       checkpoint_id++;
     }
@@ -547,7 +547,7 @@ int main (int argc, char ** argv)
     // Printing the progress bar
     // See https://stackoverflow.com/questions/14539867/how-to-display-a-progress-indicator-in-pure-c-c-cout-printf
     message_index++;
-    progress = message_index / float(view.size ());
+    progress = message_index / float(view.size());
     std::cout << "[";
     int pos = progress_bar_width * progress;
     for (int i = 0; i < progress_bar_width; ++i) {
@@ -573,25 +573,25 @@ int main (int argc, char ** argv)
   if (manifest_file != "")
   {
     // Storing stats in the manifest knowledge
-    manifest.set ("last_timestamp", (Integer) settings.last_timestamp);
-    manifest.set ("initial_timestamp", (Integer) settings.initial_timestamp);
-    manifest.set ("last_lamport_clock", (Integer) settings.last_lamport_clock-1);
-    manifest.set ("initial_lamport_clock",
-      (Integer) settings.initial_lamport_clock);
-    manifest.set ("last_checkpoint_id", checkpoint_id-1);
+    manifest.set("last_timestamp",(Integer) settings.last_timestamp);
+    manifest.set("initial_timestamp",(Integer) settings.initial_timestamp);
+    manifest.set("last_lamport_clock",(Integer) settings.last_lamport_clock-1);
+    manifest.set("initial_lamport_clock",
+     (Integer) settings.initial_lamport_clock);
+    manifest.set("last_checkpoint_id", checkpoint_id-1);
 
     // ROSBAG infos
-    manifest.set ("name", bag.getFileName());
-    ros::Time begin_time = view.getBeginTime ();
-    ros::Time end_time = view.getEndTime ();
-    manifest.set ("date", begin_time.toNSec ());
-    manifest.set ("duration", (end_time - begin_time).toNSec ());
+    manifest.set("name", bag.getFileName());
+    ros::Time begin_time = view.getBeginTime();
+    ros::Time end_time = view.getEndTime();
+    manifest.set("date", begin_time.toNSec());
+    manifest.set("duration",(end_time - begin_time).toNSec());
     if (save_as_stream)
     {
-      manifest.set ("size", 
+      manifest.set("size", 
         boost::filesystem::file_size(stream_settings.filename));
     }
-    manifest.save_as_karl (manifest_file + ".mf");
+    manifest.save_as_karl(manifest_file + ".mf");
   }
 }
 #endif
@@ -602,19 +602,19 @@ int main (int argc, char ** argv)
 * The path ,the timestamps, and lamport_clocks habe to be set in advance.
 * The values are stored with a meta_prefix.
 **/
-int save_checkpoint (knowledge::KnowledgeBase * knowledge,
+int save_checkpoint(knowledge::KnowledgeBase * knowledge,
     knowledge::CheckpointSettings * settings, std::string meta_prefix)
 {
   if ( store_metadata )
   {
-    knowledge->set (meta_prefix + ".last_timestamp",
-      (Integer) settings->last_timestamp);
-    knowledge->set (meta_prefix + ".initial_timestamp",
-      (Integer) settings->initial_timestamp);
-    knowledge->set (meta_prefix + ".last_lamport_clock",
-      (Integer) settings->last_lamport_clock);
-    knowledge->set (meta_prefix + ".initial_lamport_clock",
-      (Integer) settings->initial_lamport_clock);
+    knowledge->set(meta_prefix + ".last_timestamp",
+     (Integer) settings->last_timestamp);
+    knowledge->set(meta_prefix + ".initial_timestamp",
+     (Integer) settings->initial_timestamp);
+    knowledge->set(meta_prefix + ".last_lamport_clock",
+     (Integer) settings->last_lamport_clock);
+    knowledge->set(meta_prefix + ".initial_lamport_clock",
+     (Integer) settings->initial_lamport_clock);
   }
 
   int ret = 0;
@@ -623,14 +623,14 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
   {
     settings->filename = filename + ".mf";
     delete_existing_file(settings->filename, delete_existing);
-    ret = knowledge->save_as_karl (*settings);
+    ret = knowledge->save_as_karl(*settings);
   }
   
   if ( save_as_json )
   {
     settings->filename = filename + ".json";
     delete_existing_file(settings->filename, delete_existing);
-    ret = knowledge->save_as_json (*settings);
+    ret = knowledge->save_as_json(*settings);
   }
   
   if ( save_as_binary )
@@ -640,11 +640,11 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
 
     if ( differential_checkpoints == true)
     {
-      ret = knowledge->save_checkpoint (*settings);
+      ret = knowledge->save_checkpoint(*settings);
     }
     else
     {
-      ret = knowledge->save_context (*settings);
+      ret = knowledge->save_context(*settings);
     }
   }
   return ret;
@@ -654,20 +654,20 @@ int save_checkpoint (knowledge::KnowledgeBase * knowledge,
 /**
 * Parses the agent id based on the rostopic name
 **/
-std::string get_agent_var_prefix (std::string ros_topic_name)
+std::string get_agent_var_prefix(std::string ros_topic_name)
 {
   // Convert ros_topic_name to lower case
-  std::transform (ros_topic_name.begin (),
-    ros_topic_name.end (), ros_topic_name.begin (), ::tolower);
-  std::string name = ros_topic_name.substr (1);
+  std::transform(ros_topic_name.begin(),
+    ros_topic_name.end(), ros_topic_name.begin(), ::tolower);
+  std::string name = ros_topic_name.substr(1);
   std::string rosbag_robot_prefix = "robot_";
    
-  if (name.find (rosbag_robot_prefix) == 0)
+  if (name.find(rosbag_robot_prefix) == 0)
   {
-    int namespace_end = name.find ("/");
+    int namespace_end = name.find("/");
     //cut the prefix
-    std::string prefix = name.substr (rosbag_robot_prefix.length (),
-      namespace_end-rosbag_robot_prefix.length ());
+    std::string prefix = name.substr(rosbag_robot_prefix.length(),
+      namespace_end-rosbag_robot_prefix.length());
     return "agent." + prefix;
   }
   else

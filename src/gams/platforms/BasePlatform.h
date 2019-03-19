@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,6 +63,7 @@
 #include "gams/pose/ReferenceFrame.h"
 #include "gams/pose/Position.h"
 #include "gams/pose/Pose.h"
+#include "gams/pose/Epsilon.h"
 #include "madara/knowledge/KnowledgeBase.h"
 
 namespace gams
@@ -76,7 +77,7 @@ namespace gams
   namespace platforms
   {
     /**
-     * Possible platform statuses, as returnable by analyze ()
+     * Possible platform statuses, as returnable by analyze()
      **/
     enum PlatformAnalyzeStatus
     {
@@ -105,85 +106,6 @@ namespace gams
       PLATFORM_ARRIVED = 2
     };
 
-    /// Interface for defining a bounds checker for Positions
-    class GAMS_EXPORT PositionBounds {
-    public:
-      /// Override to return whether the current position
-      /// is within the expected bounds of target
-      virtual bool check_position(
-          const pose::Position &current,
-          const pose::Position &target) const = 0;
-
-      virtual ~PositionBounds() = default;
-    };
-
-    /// Interface for defining a bounds checker for Orientations
-    class GAMS_EXPORT OrientationBounds {
-    public:
-      /// Override to return whether the current orientation
-      /// is within the expected bounds of target
-      virtual bool check_orientation(
-          const pose::Orientation &current,
-          const pose::Orientation &target) const = 0;
-
-      virtual ~OrientationBounds() = default;
-    };
-
-    /// Interface for defining a bounds checker for Poses,
-    /// a combination of position and orientation checking.
-    class GAMS_EXPORT PoseBounds :
-      public PositionBounds, public OrientationBounds {};
-
-    /// A simple bounds checker which tests whether the
-    /// current position is within the given number of
-    /// meters of the expected position, and whether the
-    /// difference in angles is within the given number
-    /// of radians.
-    class GAMS_EXPORT Epsilon : public PoseBounds {
-    private:
-      double dist_ = 0.1, radians_ = M_PI/16;
-    public:
-      /// Use default values for position and angle tolerance.
-      Epsilon() {}
-
-      /// Use default value for angle tolerance.
-      ///
-      /// @param dist the position tolerance (in meters)
-      Epsilon(double dist)
-        : dist_(dist) {}
-
-      /// Use specified tolerances
-      ///
-      /// @param dist the position tolerance (in meters)
-      /// @param radians the angle tolerance (in radians)
-      Epsilon(double dist, double radians)
-        : dist_(dist), radians_(radians) {}
-
-      /// Use specified tolerances, with custom angle units
-      ///
-      /// @param dist the position tolerance (in meters)
-      /// @param angle the angle tolerance (in units given)
-      /// @param u an angle units object (such as pose::radians,
-      ///      pose::degrees, or pose::revolutions)
-      //
-      /// @tparam AngleUnits the units type for angle (inferred from u)
-      template<typename AngleUnits>
-      Epsilon(double dist, double angle, AngleUnits u)
-        : dist_(dist), radians_(u.to_radians(angle)) {}
-
-      bool check_position(
-          const pose::Position &current,
-          const pose::Position &target) const override {
-        return current.distance_to(target) <= dist_;
-      }
-
-      bool check_orientation(
-          const pose::Orientation &current,
-          const pose::Orientation &target) const override {
-        return fabs(current.angle_to(target)) <= radians_;
-      }
-    };
-
     /**
     * The base platform for all platforms to use
     **/
@@ -200,7 +122,7 @@ namespace gams
        * @param  sensors  map of sensor names to sensor information
        * @param  self     self referencing variables for the agent
        **/
-      BasePlatform (
+      BasePlatform(
         madara::knowledge::KnowledgeBase * knowledge = 0,
         variables::Sensors * sensors = 0,
         variables::Self * self = 0);
@@ -208,105 +130,105 @@ namespace gams
       /**
        * Destructor
        **/
-      virtual ~BasePlatform ();
+      virtual ~BasePlatform();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const BasePlatform & rhs);
+      void operator=(const BasePlatform & rhs);
 
       /**
        * Analyzes platform information
        * @return bitmask status of the platform. @see PlatformAnalyzeStatus.
        **/
-      virtual int analyze (void) = 0;
+      virtual int analyze(void) = 0;
 
       /**
        * Gets the position accuracy in meters
        * @return position accuracy
        **/
-      virtual double get_accuracy (void) const;
+      virtual double get_accuracy(void) const;
 
       /**
        * Gets GPS position
        * @return GPS location of platform
        */
-      utility::Position * get_position ();
+      utility::Position * get_position();
 
       /**
        * Gets Location of platform, within its parent frame
        * @return Location of platform
        */
-      pose::Position get_location () const;
+      pose::Position get_location() const;
 
       /**
        * Gets Orientation of platform, within its parent frame
        * @return Location of platform
        */
-      pose::Orientation get_orientation () const;
+      pose::Orientation get_orientation() const;
 
       /**
        * Gets Pose of platform, within its parent frame
        * @return Location of platform
        */
-      pose::Pose get_pose () const;
+      pose::Pose get_pose() const;
 
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const = 0;
+      virtual std::string get_name() const = 0;
 
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. vrep_ant, autonomous_snake, etc.)
+       * variable(e.g. vrep_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const = 0;
+      virtual std::string get_id() const = 0;
 
       /**
        * Gets sensor radius
        * @return minimum radius of all available sensors for this platform
        */
-      virtual double get_min_sensor_range () const;
+      virtual double get_min_sensor_range() const;
 
       /**
        * Gets move speed
        **/
-      virtual double get_move_speed () const;
+      virtual double get_move_speed() const;
 
       /**
        * Gets a sensor
        * @param name  identifier of sensor to get
        * @return Sensor object
        */
-      virtual const variables::Sensor & get_sensor (const std::string& name) const;
+      virtual const variables::Sensor & get_sensor(const std::string& name) const;
 
       /**
        * Fills a list of sensor names with sensors available on the platform
        * @param  sensors   list of sensors to fill
        **/
-      virtual void get_sensor_names (variables::SensorNames & sensors) const;
+      virtual void get_sensor_names(variables::SensorNames & sensors) const;
 
       /**
        * Instructs the agent to return home
        * @return the status of the home operation, @see PlatformReturnValues
        **/
-      virtual int home (void);
+      virtual int home(void);
 
       /**
        * Instructs the agent to land
        * @return the status of the land operation, @see PlatformReturnValues
        **/
-      virtual int land (void);
+      virtual int land(void);
 
       /**
        * Moves the platform to a location
        * @param   location    the coordinates to move to
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const pose::Position & target) {
-        return move (target, Epsilon());
+      virtual int move(const pose::Position & target) {
+        return move(target, pose::Epsilon());
       }
 
       /**
@@ -315,8 +237,8 @@ namespace gams
        * @param   bounds      object to compute if platform has arrived
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      virtual int move (const pose::Position & target,
-        const PositionBounds &bounds);
+      virtual int move(const pose::Position & target,
+        const pose::PositionBounds &bounds);
 
       /**
        * Moves the platform to a location
@@ -324,8 +246,8 @@ namespace gams
        * @param   epsilon     approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      int move (const pose::Position & target, double epsilon) {
-        return move (target, Epsilon(epsilon));
+      int move(const pose::Position & target, double epsilon) {
+        return move(target, pose::Epsilon(epsilon));
       }
 
       /**
@@ -333,8 +255,8 @@ namespace gams
        * @param   target    the orientation to move to
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int orient (const pose::Orientation & target) {
-        return orient (target, Epsilon());
+      virtual int orient(const pose::Orientation & target) {
+        return orient(target, pose::Epsilon());
       }
 
       /**
@@ -343,8 +265,8 @@ namespace gams
        * @param   bounds      object to compute if platform has arrived
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      virtual int orient (const pose::Orientation & target,
-        const OrientationBounds &bounds);
+      virtual int orient(const pose::Orientation & target,
+        const pose::OrientationBounds &bounds);
 
       /**
        * Rotates the platform to match a given angle
@@ -352,38 +274,38 @@ namespace gams
        * @param   epsilon   approximation value
        * @return the status of the orient, @see PlatformReturnValues
        **/
-      int orient (const pose::Orientation & target, double epsilon) {
-        return orient(target, Epsilon (epsilon));
+      int orient(const pose::Orientation & target, double epsilon) {
+        return orient(target, pose::Epsilon(epsilon));
       }
 
       /**
-       * Moves the platform to a pose (location and orientation)
+       * Moves the platform to a pose(location and orientation)
        *
        * This default implementation calls move and orient with the
        * Location and Orientation portions of the target Pose. The return value
-       * is composed as follows: if either call returns ERROR (0), this call
-       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
-       * this call also returns ARRIVED (2). Otherwise, this call returns
-       * MOVING (1)
+       * is composed as follows: if either call returns ERROR(0), this call
+       * also returns ERROR(0). Otherwise, if BOTH calls return ARRIVED(2),
+       * this call also returns ARRIVED(2). Otherwise, this call returns
+       * MOVING(1)
        *
        * Overrides might function differently.
        *
        * @param   target        the coordinates to move to
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      virtual int pose (const pose::Pose & target) {
-        return pose (target, Epsilon());
+      virtual int pose(const pose::Pose & target) {
+        return pose(target, pose::Epsilon());
       }
 
       /**
-       * Moves the platform to a pose (location and orientation)
+       * Moves the platform to a pose(location and orientation)
        *
        * This default implementation calls move and orient with the
        * Location and Orientation portions of the target Pose. The return value
-       * is composed as follows: if either call returns ERROR (0), this call
-       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
-       * this call also returns ARRIVED (2). Otherwise, this call returns
-       * MOVING (1)
+       * is composed as follows: if either call returns ERROR(0), this call
+       * also returns ERROR(0). Otherwise, if BOTH calls return ARRIVED(2),
+       * this call also returns ARRIVED(2). Otherwise, this call returns
+       * MOVING(1)
        *
        * Overrides might function differently.
        *
@@ -391,17 +313,17 @@ namespace gams
        * @param   bounds      object to compute if platform has arrived
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      virtual int pose (const pose::Pose & target, const PoseBounds &bounds);
+      virtual int pose(const pose::Pose & target, const pose::PoseBounds &bounds);
 
       /**
-       * Moves the platform to a pose (location and orientation)
+       * Moves the platform to a pose(location and orientation)
        *
        * This default implementation calls move and orient with the
        * Location and Orientation portions of the target Pose. The return value
-       * is composed as follows: if either call returns ERROR (0), this call
-       * also returns ERROR (0). Otherwise, if BOTH calls return ARRIVED (2),
-       * this call also returns ARRIVED (2). Otherwise, this call returns
-       * MOVING (1)
+       * is composed as follows: if either call returns ERROR(0), this call
+       * also returns ERROR(0). Otherwise, if BOTH calls return ARRIVED(2),
+       * this call also returns ARRIVED(2). Otherwise, this call returns
+       * MOVING(1)
        *
        * Overrides might function differently.
        *
@@ -410,95 +332,95 @@ namespace gams
        * @param   rot_epsilon   approximation value for the orientation
        * @return the status of the operation, @see PlatformReturnValues
        **/
-      int pose (const pose::Pose & target,
+      int pose(const pose::Pose & target,
         double loc_epsilon, double rot_epsilon = M_PI/16) {
-        return pose(target, Epsilon(loc_epsilon, rot_epsilon));
+        return pose(target, pose::Epsilon(loc_epsilon, rot_epsilon));
       }
 
       /**
        * Pauses movement, keeps source and dest at current values
        **/
-      virtual void pause_move (void);
+      virtual void pause_move(void);
 
       /**
        * Polls the sensor environment for useful information
        * @return number of sensors updated/used
        **/
-      virtual int sense (void) = 0;
+      virtual int sense(void) = 0;
 
       /**
        * Sets the knowledge base to use for the platform
        * @param  rhs  the new knowledge base to use
        **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * rhs);
+      void set_knowledge(madara::knowledge::KnowledgeBase * rhs);
 
       /**
        * Set move speed
        * @param speed new speed in meters/second
        **/
-      virtual void set_move_speed (const double& speed);
+      virtual void set_move_speed(const double& speed);
 
       /**
        * Sets the map of sensor names to sensor information
        * @param  sensors      map of sensor names to sensor information
        **/
-      virtual void set_sensors (variables::Sensors * sensors);
+      virtual void set_sensors(variables::Sensors * sensors);
 
       /**
        * Stops movement, resetting source and dest to current location
        **/
-      virtual void stop_move (void);
+      virtual void stop_move(void);
 
       /**
       * Resumes movement status flags
       **/
-      virtual void resume_move (void);
+      virtual void resume_move(void);
 
       /**
       * Resumes orientation status flags
       **/
-      virtual void resume_orientation (void);
+      virtual void resume_orientation(void);
 
       /**
        * Stops orientation, resetting source and dest angles to current angle
        **/
-      virtual void stop_orientation (void);
+      virtual void stop_orientation(void);
 
       /**
        * Instructs the agent to take off
        * @return the status of the takeoff, @see PlatformReturnValues
        **/
-      virtual int takeoff (void);
+      virtual int takeoff(void);
 
       /**
        * Gets the knowledge base
        * @return the knowledge base referenced by the algorithm and platform
        **/
-      madara::knowledge::KnowledgeBase * get_knowledge_base (void) const;
+      madara::knowledge::KnowledgeBase * get_knowledge_base(void) const;
 
       /**
        * Gets self-referencing variables
        * @return self-referencing information like id and agent attributes
        **/
-      variables::Self * get_self (void) const;
+      variables::Self * get_self(void) const;
 
       /**
        * Gets the available sensor information
        * @return sensor information
        **/
-      variables::Sensors * get_sensors (void) const;
+      variables::Sensors * get_sensors(void) const;
 
       /**
        * Gets platform status information
        * @return platform status info
        **/
-      variables::PlatformStatus * get_platform_status (void);
+      variables::PlatformStatus * get_platform_status(void);
 
       /**
-       * Gets platform status information (const version)
+       * Gets platform status information(const version)
        * @return platform status info
        **/
-      const variables::PlatformStatus * get_platform_status (void) const;
+      const variables::PlatformStatus * get_platform_status(void) const;
 
       /**
        * Method for returning the platform's current frame
@@ -507,7 +429,7 @@ namespace gams
        *
        * @return frame that the platform's coordinate system is operating in
        **/
-      virtual const pose::ReferenceFrame & get_frame (void) const;
+      virtual const pose::ReferenceFrame & get_frame(void) const;
 
     protected:
       /// movement speed for platform in meters/second

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014-2018 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014-2018 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -71,34 +71,34 @@ namespace variables = gams::variables;
 int gams_fails = 0;
 
 void
-test_accent (void)
+test_accent(void)
 {
 
 }
 
 void
-test_agent (void)
+test_agent(void)
 {
   std::cout << "Testing Agent...\n";
 
   knowledge::KnowledgeBase context;
 
   variables::Agent agent;
-  agent.init_vars (context, "agent.tester");
+  agent.init_vars(context, "agent.tester");
 
   std::vector <double> position_vector = {42.214, -73.11142, 100.25};
   std::vector <double> angle_vector = {25.214, 73.829, 342.11};
 
   // set position-related containers
-  agent.dest.set (position_vector);
-  agent.home.set (position_vector);
-  agent.location.set (position_vector);
-  agent.source.set (position_vector); 
+  agent.dest.set(position_vector);
+  agent.home.set(position_vector);
+  agent.location.set(position_vector);
+  agent.source.set(position_vector); 
 
   // set angle-related containers
-  agent.dest_orientation.set (angle_vector);
-  agent.orientation.set (angle_vector);
-  agent.source_orientation.set (angle_vector);
+  agent.dest_orientation.set(angle_vector);
+  agent.orientation.set(angle_vector);
+  agent.source_orientation.set(angle_vector);
 
   // set string containers
   agent.algorithm = "search";
@@ -128,7 +128,7 @@ test_agent (void)
   // test the double vectors
 
   std::cout << "  Testing Agent.dest: ";
-  if (agent.dest.to_record ().to_doubles () == position_vector)
+  if (agent.dest.to_record().to_doubles() == position_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -139,7 +139,7 @@ test_agent (void)
   }
   
   std::cout << "  Testing Agent.home: ";
-  if (agent.home.to_record ().to_doubles () == position_vector)
+  if (agent.home.to_record().to_doubles() == position_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -150,7 +150,7 @@ test_agent (void)
   }
   
   std::cout << "  Testing Agent.location: ";
-  if (agent.location.to_record ().to_doubles () == position_vector)
+  if (agent.location.to_record().to_doubles() == position_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -161,7 +161,7 @@ test_agent (void)
   }
   
   std::cout << "  Testing Agent.source: ";
-  if (agent.source.to_record ().to_doubles () == position_vector)
+  if (agent.source.to_record().to_doubles() == position_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -172,7 +172,7 @@ test_agent (void)
   }
   
   std::cout << "  Testing Agent.dest_orientation: ";
-  if (agent.dest_orientation.to_record ().to_doubles () == angle_vector)
+  if (agent.dest_orientation.to_record().to_doubles() == angle_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -183,7 +183,7 @@ test_agent (void)
   }
   
   std::cout << "  Testing Agent.orientation: ";
-  if (agent.orientation.to_record ().to_doubles () == angle_vector)
+  if (agent.orientation.to_record().to_doubles() == angle_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -194,7 +194,7 @@ test_agent (void)
   }
   
   std::cout << "  Testing Agent.source_orientation: ";
-  if (agent.source_orientation.to_record ().to_doubles () == angle_vector)
+  if (agent.source_orientation.to_record().to_doubles() == angle_vector)
   {
     std::cout << "SUCCESS\n";
   }
@@ -432,20 +432,20 @@ test_agent (void)
 }
 
 void
-test_sensor (void)
+test_sensor(void)
 {
 
 }
 
 void
-test_swarm (void)
+test_swarm(void)
 {
   std::cout << "Testing Swarm...\n";
 
   knowledge::KnowledgeBase context;
 
   variables::Swarm swarm;
-  swarm.init_vars (context);
+  swarm.init_vars(context);
 
   swarm.algorithm = "null";
   swarm.algorithm_id = 6;
@@ -453,25 +453,25 @@ test_swarm (void)
   swarm.size = 5;
 
   std::cout << "  Testing Swarm.algorithm: " <<
-    (swarm.algorithm == "null" ? "SUCCESS\n" : "FAIL\n");
+   (swarm.algorithm == "null" ? "SUCCESS\n" : "FAIL\n");
 
   std::cout << "  Testing Swarm.algorithm_id: " <<
-    (swarm.algorithm_id == 6 ? "SUCCESS\n" : "FAIL\n");
+   (swarm.algorithm_id == 6 ? "SUCCESS\n" : "FAIL\n");
 
   std::cout << "  Testing Swarm.min_alt: " <<
-    (swarm.min_alt == 15.0 ? "SUCCESS\n" : "FAIL\n");
+   (swarm.min_alt == 15.0 ? "SUCCESS\n" : "FAIL\n");
 
   std::cout << "  Testing Swarm.size: " <<
-    (swarm.size == 5 ? "SUCCESS\n" : "FAIL\n");
+   (swarm.size == 5 ? "SUCCESS\n" : "FAIL\n");
 }
 
 int
-main (int /*argc*/, char ** /*argv*/)
+main(int /*argc*/, char ** /*argv*/)
 {
-  test_accent ();
-  test_agent ();
-  test_sensor ();
-  test_swarm ();
+  test_accent();
+  test_agent();
+  test_sensor();
+  test_swarm();
 
   if (gams_fails > 0)
   {

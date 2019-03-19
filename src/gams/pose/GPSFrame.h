@@ -106,7 +106,7 @@ namespace gams
      * Returns the canonical GPS frame representing Earth. In general, use
      * this function, instead of creating your own GPS typed ReferenceFrame.
      **/
-    GAMS_EXPORT const ReferenceFrame &gps_frame (void);
+    GAMS_EXPORT const ReferenceFrame &gps_frame(void);
   }
 }
 

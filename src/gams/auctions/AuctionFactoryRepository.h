@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -78,17 +78,17 @@ namespace gams
     public:
       /**
       * Constructor
-      * @param  agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param  agent_prefix   the name of this bidder(e.g. agent.0)
       * @param  knowledge      a knowledge base where auction info is
       **/
-      AuctionFactoryRepository (
+      AuctionFactoryRepository(
         const std::string & agent_prefix,
         madara::knowledge::KnowledgeBase * knowledge = 0);
 
       /**
       * Destructor
       **/
-      virtual ~AuctionFactoryRepository ();
+      virtual ~AuctionFactoryRepository();
 
       /**
       * Adds an algorithm factory
@@ -96,41 +96,41 @@ namespace gams
       * @param  factory   the factory for creating an algorithm
       * @return  the new algorithm
       **/
-      void add (AuctionType type,
+      void add(AuctionType type,
         AuctionFactory * factory);
 
       /**
       * Creates an auction based on type
-      * @param auction_prefix the name of the auction (e.g. auction.position)
+      * @param auction_prefix the name of the auction(e.g. auction.position)
       * @return  the new auction
       **/
-      AuctionBase * create (const std::string & auction_prefix);
+      AuctionBase * create(const std::string & auction_prefix);
 
       /**
       * Creates an auction based on type
-      * @param  type     the type of the auction (@see AuctionTypes)
+      * @param  type     the type of the auction(@see AuctionTypes)
       * @return  the new auction
       **/
-      AuctionBase * create (AuctionType type);
+      AuctionBase * create(AuctionType type);
 
       /**
       * Sets the knowledge base
       * @param  knowledge    the knowledge base to use
       **/
-      void set_knowledge (madara::knowledge::KnowledgeBase * knowledge);
+      void set_knowledge(madara::knowledge::KnowledgeBase * knowledge);
 
       /**
       * Sets the prefix for the current bidding agent
-      * @param prefix   the name of the agent (e.g. agent.0)
+      * @param prefix   the name of the agent(e.g. agent.0)
       **/
-      void set_agent_prefix (const std::string & prefix);
+      void set_agent_prefix(const std::string & prefix);
 
     protected:
 
       /**
       * Initializes factories for all supported GAMS auctions
       **/
-      void init (void);
+      void init(void);
 
       /// knowledge base containing variables
       madara::knowledge::KnowledgeBase * knowledge_;

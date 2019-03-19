@@ -26,12 +26,12 @@ namespace filters
      * @param averages  a moving average calculator to use with on messages
      * @param no_apply  if true, clear the records so they are not applied
      **/
-    RcvCount (utility::MovingAverage & latencies, bool no_apply = false);
+    RcvCount(utility::MovingAverage & latencies, bool no_apply = false);
 
     /**
      * Destructor
      **/
-    virtual ~RcvCount ();
+    virtual ~RcvCount();
 
     /**
      * The method that filters incoming or outgoing 
@@ -39,19 +39,19 @@ namespace filters
      * @param   transport_context context for querying transport state
      * @param   vars              context for querying current program state
      **/
-    virtual void filter (madara::knowledge::KnowledgeMap & records,
+    virtual void filter(madara::knowledge::KnowledgeMap & records,
       const madara::transport::TransportContext & transport_context,
       madara::knowledge::Variables & vars);
 
     /**
      * Retrieves the number of unique originators
      **/
-    size_t num_originators (void);
+    size_t num_originators(void);
 
     /**
     * Retrieves the number of unique originators
     **/
-    Originators originators (void);
+    Originators originators(void);
 
   protected:
     /**

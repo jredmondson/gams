@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,16 +47,16 @@
 
 #include <string>
 
-gams::variables::AccentStatus::AccentStatus ()
+gams::variables::AccentStatus::AccentStatus()
 {
 }
 
-gams::variables::AccentStatus::~AccentStatus ()
+gams::variables::AccentStatus::~AccentStatus()
 {
 }
 
 void
-gams::variables::AccentStatus::operator= (const AccentStatus & accent)
+gams::variables::AccentStatus::operator=(const AccentStatus & accent)
 {
   if (this != &accent)
   {
@@ -66,87 +66,87 @@ gams::variables::AccentStatus::operator= (const AccentStatus & accent)
 }
 
 void
-gams::variables::AccentStatus::init_vars (
+gams::variables::AccentStatus::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & prefix)
 {
-  std::string accent_name (prefix);
+  std::string accent_name(prefix);
   accent_name += ".accent";
 
   // initialize the variable containers
-  command.set_name (accent_name, knowledge);
-  command_args.set_name (accent_name, knowledge);
+  command.set_name(accent_name, knowledge);
+  command_args.set_name(accent_name, knowledge);
 
   // init settings
-  init_variable_settings ();
+  init_variable_settings();
 }
 
 void
-gams::variables::AccentStatus::init_vars (
+gams::variables::AccentStatus::init_vars(
   madara::knowledge::Variables & knowledge,
   const std::string & prefix)
 {
-  std::string accent_name (prefix);
+  std::string accent_name(prefix);
   accent_name += ".accent";
 
   // initialize the variable containers
-  command.set_name (accent_name, knowledge);
-  command_args.set_name (accent_name, knowledge);
+  command.set_name(accent_name, knowledge);
+  command_args.set_name(accent_name, knowledge);
 
   // init settings
-  init_variable_settings ();
+  init_variable_settings();
 }
 
-void gams::variables::init_vars (AccentStatuses & variables,
+void gams::variables::init_vars(AccentStatuses & variables,
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & prefix)
 {
-  std::string accent_name (prefix);
+  std::string accent_name(prefix);
   accent_name += ".accent";
 
   madara::knowledge::KnowledgeRecord::Integer size =
-    knowledge.get (accent_name + ".size").to_integer ();
+    knowledge.get(accent_name + ".size").to_integer();
   
   // iterate through all accents
   for (unsigned int i = 0; i < size; ++i)
   {
     // each accent is at prefix.{i}
-    std::stringstream buffer (accent_name);
+    std::stringstream buffer(accent_name);
     buffer << ".";
     buffer << i;
 
-    variables[i].init_vars (knowledge, buffer.str ());
+    variables[i].init_vars(knowledge, buffer.str());
   }
 }
 
-void gams::variables::init_vars (AccentStatuses & variables,
+void gams::variables::init_vars(AccentStatuses & variables,
   madara::knowledge::Variables & knowledge,
   const std::string & prefix)
 {
-  std::string accent_name (prefix);
+  std::string accent_name(prefix);
   accent_name += ".accent";
 
   madara::knowledge::KnowledgeRecord::Integer size =
-    knowledge.get (accent_name + ".size").to_integer ();
+    knowledge.get(accent_name + ".size").to_integer();
   
   // iterate through all accents
   for (unsigned int i = 0; i < size; ++i)
   {
     // each accent is at prefix.{i}
-    std::stringstream buffer (accent_name);
+    std::stringstream buffer(accent_name);
     buffer << ".";
     buffer << i;
 
-    variables[i].init_vars (knowledge, buffer.str ());
+    variables[i].init_vars(knowledge, buffer.str());
   }
 }
 
 
 void
-gams::variables::AccentStatus::init_variable_settings ()
+gams::variables::AccentStatus::init_variable_settings()
 {
   // keep certain varaible changes as local only
-  madara::knowledge::KnowledgeUpdateSettings keep_local (true);
-  command.set_settings (keep_local);
-  command_args.set_settings (keep_local);
+  madara::knowledge::KnowledgeUpdateSettings keep_local(true);
+  command.set_settings(keep_local);
+  command_args.set_settings(keep_local);
 }

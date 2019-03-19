@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,18 +51,18 @@ using std::string;
 
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
-gams::variables::PlatformStatus::PlatformStatus ()
+gams::variables::PlatformStatus::PlatformStatus()
 {
 }
 
-gams::variables::PlatformStatus::~PlatformStatus ()
+gams::variables::PlatformStatus::~PlatformStatus()
 {
 }
 
 void
-gams::variables::PlatformStatus::operator= (const PlatformStatus & rhs)
+gams::variables::PlatformStatus::operator=(const PlatformStatus & rhs)
 {
-  if (this != &rhs)
+  if(this != &rhs)
   {
     this->name = rhs.name;
     this->ok = rhs.ok;
@@ -80,75 +80,78 @@ gams::variables::PlatformStatus::operator= (const PlatformStatus & rhs)
 }
 
 void
-gams::variables::PlatformStatus::init_vars (
+gams::variables::PlatformStatus::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & new_name)
 {
   name = new_name;
-  string prefix (".platform");
+  string prefix(".platform");
 
   if (name != "")
-    prefix = make_variable_prefix ();
-
+  {
+    prefix = make_variable_prefix();
+  }
 
   // initialize the variable containers
-  this->ok.set_name (prefix + ".ok", knowledge);
-  this->waiting.set_name (prefix + ".waiting", knowledge);
-  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
-  this->failed.set_name (prefix + ".failed", knowledge);
-  this->moving.set_name (prefix + ".moving", knowledge);
-  this->reduced_sensing.set_name (prefix + ".reduced_sensing", knowledge);
-  this->reduced_movement.set_name (prefix + ".reduced_movement", knowledge);
-  this->communication_available.set_name (
+  this->ok.set_name(prefix + ".ok", knowledge);
+  this->waiting.set_name(prefix + ".waiting", knowledge);
+  this->deadlocked.set_name(prefix + ".deadlocked", knowledge);
+  this->failed.set_name(prefix + ".failed", knowledge);
+  this->moving.set_name(prefix + ".moving", knowledge);
+  this->reduced_sensing.set_name(prefix + ".reduced_sensing", knowledge);
+  this->reduced_movement.set_name(prefix + ".reduced_movement", knowledge);
+  this->communication_available.set_name(
     prefix + ".communication_available", knowledge);
-  this->sensors_available.set_name (prefix + ".sensors_available", knowledge);
-  this->movement_available.set_name (
+  this->sensors_available.set_name(prefix + ".sensors_available", knowledge);
+  this->movement_available.set_name(
     prefix + ".movement_available", knowledge);
-  this->gps_spoofed.set_name (prefix + ".gps_spoofed", knowledge);
+  this->gps_spoofed.set_name(prefix + ".gps_spoofed", knowledge);
 
-  init_variable_values ();
+  init_variable_values();
 }
 
 void
-gams::variables::PlatformStatus::init_vars (
+gams::variables::PlatformStatus::init_vars(
   madara::knowledge::Variables & knowledge,
   const std::string & new_name)
 {
   name = new_name;
-  string prefix (".platform");
+  string prefix(".platform");
   
   if (name != "")
-    prefix = make_variable_prefix ();
-  
-  // initialize the variable containers
-  this->ok.set_name (prefix + ".ok", knowledge);
-  this->waiting.set_name (prefix + ".waiting", knowledge);
-  this->deadlocked.set_name (prefix + ".deadlocked", knowledge);
-  this->failed.set_name (prefix + ".failed", knowledge);
-  this->moving.set_name (prefix + ".moving", knowledge);
-  this->reduced_sensing.set_name (prefix + ".reduced_sensing", knowledge);
-  this->reduced_movement.set_name (prefix + ".reduced_movement", knowledge);
-  this->communication_available.set_name (
-    prefix + ".communication_available", knowledge);
-  this->sensors_available.set_name (prefix + ".sensors_available", knowledge);
-  this->movement_available.set_name (
-    prefix + ".movement_available", knowledge);
-  this->gps_spoofed.set_name (prefix + ".gps_spoofed", knowledge);
+  {
+    prefix = make_variable_prefix();
+  }
 
-  init_variable_values ();
+  // initialize the variable containers
+  this->ok.set_name(prefix + ".ok", knowledge);
+  this->waiting.set_name(prefix + ".waiting", knowledge);
+  this->deadlocked.set_name(prefix + ".deadlocked", knowledge);
+  this->failed.set_name(prefix + ".failed", knowledge);
+  this->moving.set_name(prefix + ".moving", knowledge);
+  this->reduced_sensing.set_name(prefix + ".reduced_sensing", knowledge);
+  this->reduced_movement.set_name(prefix + ".reduced_movement", knowledge);
+  this->communication_available.set_name(
+    prefix + ".communication_available", knowledge);
+  this->sensors_available.set_name(prefix + ".sensors_available", knowledge);
+  this->movement_available.set_name(
+    prefix + ".movement_available", knowledge);
+  this->gps_spoofed.set_name(prefix + ".gps_spoofed", knowledge);
+
+  init_variable_values();
 }
 
 string
-gams::variables::PlatformStatus::make_variable_prefix () const
+gams::variables::PlatformStatus::make_variable_prefix() const
 {
   std::stringstream buffer;
   buffer << ".platform.";
   buffer << name;
-  return buffer.str ();
+  return buffer.str();
 }
 
 void
-gams::variables::PlatformStatus::init_variable_values ()
+gams::variables::PlatformStatus::init_variable_values()
 {
   ok = 1;
   waiting = 0;

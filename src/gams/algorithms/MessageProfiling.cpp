@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -60,7 +60,7 @@ using std::endl;
 const string gams::algorithms::MessageProfiling::key_prefix_ = "message_profiling";
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::MessageProfilingFactory::create (
+gams::algorithms::MessageProfilingFactory::create(
   const madara::knowledge::KnowledgeMap & map,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -68,10 +68,10 @@ gams::algorithms::MessageProfilingFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
   // set defaults
-  madara::knowledge::KnowledgeRecord send_size (madara::knowledge::KnowledgeRecord::Integer (100));
+  madara::knowledge::KnowledgeRecord send_size(madara::knowledge::KnowledgeRecord::Integer(100));
 
   if (knowledge && sensors && self)
   {
@@ -79,60 +79,60 @@ gams::algorithms::MessageProfilingFactory::create (
     using namespace madara::knowledge;
     KnowledgeVector args(utility::kmap2kvec(map));
 
-    if (args.size () >= 1)
+    if (args.size() >= 1)
       send_size = args[0];
 
-    //if (send_size.is_integer_type ())
-      result = new MessageProfiling (send_size, knowledge, platform, sensors, self);
+    //if (send_size.is_integer_type())
+      result = new MessageProfiling(send_size, knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::MessageProfiling::MessageProfiling (
+gams::algorithms::MessageProfiling::MessageProfiling(
   const madara::knowledge::KnowledgeRecord& send, 
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::Base * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self), 
-    send_size_ (20)
+  : BaseAlgorithm(knowledge, platform, sensors, self), 
+    send_size_(20)
 {
-  (void)send_size_; // silence a warning
-  status_.init_vars (*knowledge, "message_profiling", self->agent.prefix);
-  status_.init_variable_values ();
+ (void)send_size_; // silence a warning
+  status_.init_vars(*knowledge, "message_profiling", self->agent.prefix);
+  status_.init_variable_values();
 
   // attach filter
-  //knowledge->close_transport ();
+  //knowledge->close_transport();
 
   madara::transport::QoSTransportSettings settings;
 
-//  settings.hosts.push_back (send.to_string ());
+//  settings.hosts.push_back(send.to_string());
 //  settings.type = madara::transport::BROADCAST;
 
-//  const std::string default_broadcast ("128.237.127.255:15000");
-//  settings.hosts.push_back (default_broadcast);
+//  const std::string default_broadcast("128.237.127.255:15000");
+//  settings.hosts.push_back(default_broadcast);
 //  settings.type = madara::transport::BROADCAST;
 
-  const std::string default_multicast ("239.255.0.1:4150");
-  settings.hosts.push_back (default_multicast);
+  const std::string default_multicast("239.255.0.1:4150");
+  settings.hosts.push_back(default_multicast);
   settings.type = madara::transport::MULTICAST;
 
-  settings.add_receive_filter (&filter_);
+  settings.add_receive_filter(&filter_);
 
-  local_knowledge_ = new madara::knowledge::KnowledgeBase (
-    knowledge_->get_id (), settings);
+  local_knowledge_ = new madara::knowledge::KnowledgeBase(
+    knowledge_->get_id(), settings);
 
   // setup containers
-  const size_t size = send.to_integer ();
+  const size_t size = send.to_integer();
   const string key = key_prefix_ + "." +
-    knowledge_->get (".id").to_string ();
-  data_.set_name (key + ".data", *local_knowledge_);
-  data_ = string (size - 1, 'a'); // set value, will never change
-  //count_.set_name (key + ".count", *knowledge);
+    knowledge_->get(".id").to_string();
+  data_.set_name(key + ".data", *local_knowledge_);
+  data_ = string(size - 1, 'a'); // set value, will never change
+  //count_.set_name(key + ".count", *knowledge);
 }
 
-gams::algorithms::MessageProfiling::~MessageProfiling ()
+gams::algorithms::MessageProfiling::~MessageProfiling()
 {
   delete local_knowledge_;
   local_knowledge_ = 0;
@@ -149,29 +149,29 @@ gams::algorithms::MessageProfiling::~MessageProfiling ()
 //      if (map_item.second.present[i])
 //        ++found;
 //
-//    double percent_missing = (expected - found) / double(expected);
+//    double percent_missing =(expected - found) / double(expected);
 
     const string prefix = key_prefix_ + "." + map_item.first + ".";
     //knowledge_->set(prefix + "first", 
-    //  madara::knowledge::KnowledgeRecord::Integer (map_item.second.first));
+    //  madara::knowledge::KnowledgeRecord::Integer(map_item.second.first));
     //knowledge_->set(prefix + "last", 
-    //  madara::knowledge::KnowledgeRecord::Integer (map_item.second.last));
+    //  madara::knowledge::KnowledgeRecord::Integer(map_item.second.last));
     //knowledge_->set(prefix + "missing", percent_missing);
     knowledge_->set(prefix + "count", 
-      madara::knowledge::KnowledgeRecord::Integer (map_item.second));
+      madara::knowledge::KnowledgeRecord::Integer(map_item.second));
   }
 }
 
 void
-gams::algorithms::MessageProfiling::init_filtered_transport (
+gams::algorithms::MessageProfiling::init_filtered_transport(
   madara::transport::QoSTransportSettings settings)
 {
-  settings.add_receive_filter (&filter_);
-  local_knowledge_->attach_transport (knowledge_->get_id (), settings);
+  settings.add_receive_filter(&filter_);
+  local_knowledge_->attach_transport(knowledge_->get_id(), settings);
 }
 
 void
-gams::algorithms::MessageProfiling::operator= (
+gams::algorithms::MessageProfiling::operator=(
   const MessageProfiling & rhs)
 {
   if (this != &rhs)
@@ -184,48 +184,48 @@ gams::algorithms::MessageProfiling::operator= (
 }
 
 int
-gams::algorithms::MessageProfiling::analyze (void)
+gams::algorithms::MessageProfiling::analyze(void)
 {
   return OK;
 }
 
 int
-gams::algorithms::MessageProfiling::execute (void)
+gams::algorithms::MessageProfiling::execute(void)
 {
   ++executions_;
 
-  data_.modify ();
+  data_.modify();
   //count_ = executions_;
-  local_knowledge_->send_modifieds ();
+  local_knowledge_->send_modifieds();
 
   return 0;
 }
 
 
 int
-gams::algorithms::MessageProfiling::plan (void)
+gams::algorithms::MessageProfiling::plan(void)
 {
   return 0;
 }
 
-gams::algorithms::MessageProfiling::MessageFilter::~MessageFilter ()
+gams::algorithms::MessageProfiling::MessageFilter::~MessageFilter()
 {
 }
 
 void
-gams::algorithms::MessageProfiling::MessageFilter::filter (
+gams::algorithms::MessageProfiling::MessageFilter::filter(
   madara::knowledge::KnowledgeMap& /*records*/, 
   const madara::transport::TransportContext& transport_context, 
   madara::knowledge::Variables& /*var*/)
 {
-  const string origin = transport_context.get_originator ();
-  if (msg_map.find (origin) == msg_map.end ())
+  const string origin = transport_context.get_originator();
+  if (msg_map.find(origin) == msg_map.end())
     msg_map[origin] = 0;
   size_t& data = msg_map[origin];
   ++data;
 
 //  // get data struct
-//  const string origin = transport_context.get_originator ();
+//  const string origin = transport_context.get_originator();
 //  MessageData& data = msg_map[origin];
 //
 //  // loop through each update
@@ -235,12 +235,12 @@ gams::algorithms::MessageProfiling::MessageFilter::filter (
 //    madara::knowledge::KnowledgeMap::const_reference update = *iter;
 //
 //    // we only care about specific messages
-//    if (update.second.is_integer_type () && 
-//        update.first.find (key_prefix_) == 0 && 
-//        update.first.find ("count") != std::string::npos)
+//    if (update.second.is_integer_type() && 
+//        update.first.find(key_prefix_) == 0 && 
+//        update.first.find("count") != std::string::npos)
 //    {
 //      // get msg number
-//      size_t msg_num = update.second.to_integer ();
+//      size_t msg_num = update.second.to_integer();
 //
 //      // is this the first?
 //      if (data.first == -1)
@@ -261,14 +261,14 @@ gams::algorithms::MessageProfiling::MessageFilter::filter (
 //      }
 //
 //      if (data.present.size() <= msg_num)
-//        data.present.reserve (msg_num * 2);
+//        data.present.reserve(msg_num * 2);
 //      data.present [msg_num] = true;
 //    }
 //  }
 }
 
 string
-gams::algorithms::MessageProfiling::MessageFilter::missing_messages_string ()
+gams::algorithms::MessageProfiling::MessageFilter::missing_messages_string()
   const
 {
 //  stringstream ret_val;
@@ -279,7 +279,7 @@ gams::algorithms::MessageProfiling::MessageFilter::missing_messages_string ()
 //    ret_val << ref.first << ": ";
 //    for (size_t i = ref.second.first + 1; i < ref.second.last; ++i)
 //    {
-//      if(!ref.second.present[i])
+//      if (!ref.second.present[i])
 //        ret_val << i << ",";
 //    }
 //    ret_val << endl;

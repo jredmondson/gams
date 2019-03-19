@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -87,7 +87,7 @@ namespace gams
          * @param  agents      variables referencing agents
          * @param  algo_name    algorithm name
          **/
-        PrioritizedMinTimeAreaCoverage (
+        PrioritizedMinTimeAreaCoverage(
           const std::string& search_id, 
           double e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -101,11 +101,11 @@ namespace gams
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const PrioritizedMinTimeAreaCoverage & rhs);
+        void operator=(const PrioritizedMinTimeAreaCoverage & rhs);
   
       protected:
         /// get utility of moving from one index position to another
-        virtual double get_utility (const utility::Position& start,
+        virtual double get_utility(const utility::Position& start,
           const utility::Position& end, std::set<utility::Position>& online);
       }; // class PrioritizedMinTimeAreaCoverage
 
@@ -132,7 +132,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

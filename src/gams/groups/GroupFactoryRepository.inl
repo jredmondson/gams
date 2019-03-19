@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -54,51 +54,51 @@
 #include "gams/groups/GroupTransient.h"
 
 inline void
-gams::groups::GroupFactoryRepository::add (GroupType type,
+gams::groups::GroupFactoryRepository::add(GroupType type,
   GroupFactory * factory)
 {
   if (factory)
   {
-    factory->set_knowledge (knowledge_);
+    factory->set_knowledge(knowledge_);
     factory_map_[type] = factory;
   }
 }
 
 inline gams::groups::GroupBase *
-gams::groups::GroupFactoryRepository::create (const std::string & prefix)
+gams::groups::GroupFactoryRepository::create(const std::string & prefix)
 {
-  gams::groups::GroupBase * result (0);
+  gams::groups::GroupBase * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "GroupFactoryRepository::create" \
     " reading group at prefix %s\n",
-    prefix.c_str ());
+    prefix.c_str());
 
   if (knowledge_ && prefix != "")
   {
-    madara::knowledge::containers::Integer type (prefix + ".type", *knowledge_);
+    madara::knowledge::containers::Integer type(prefix + ".type", *knowledge_);
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "GroupFactoryRepository::create" \
       " group type is %d\n",
-      (int)*type);
+     (int)*type);
 
-    GroupFactoryMap::iterator found = factory_map_.find (*type);
+    GroupFactoryMap::iterator found = factory_map_.find(*type);
 
-    if (found != factory_map_.end ())
+    if (found != factory_map_.end())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "GroupFactoryRepository::create" \
         " group type found. Populating member list and group.\n");
 
-      result = found->second->create (prefix, knowledge_);
+      result = found->second->create(prefix, knowledge_);
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "GroupFactoryRepository::create" \
         " group type not found. Returning null.\n");
@@ -109,36 +109,36 @@ gams::groups::GroupFactoryRepository::create (const std::string & prefix)
 }
 
 inline gams::groups::GroupBase *
-gams::groups::GroupFactoryRepository::create (GroupType type)
+gams::groups::GroupFactoryRepository::create(GroupType type)
 {
-  gams::groups::GroupBase * result (0);
-  GroupFactoryMap::iterator found = factory_map_.find (type);
+  gams::groups::GroupBase * result(0);
+  GroupFactoryMap::iterator found = factory_map_.find(type);
 
-  if (found != factory_map_.end ())
+  if (found != factory_map_.end())
   {
-    result = found->second->create ("", knowledge_);
+    result = found->second->create("", knowledge_);
   }
 
   return result;
 }
 
 inline void
-gams::groups::GroupFactoryRepository::init (void)
+gams::groups::GroupFactoryRepository::init(void)
 {
   // create appropriate default factories
-  factory_map_[GROUP_FIXED_LIST] = new GroupFixedListFactory ();
-  factory_map_[GROUP_TRANSIENT] = new GroupTransientFactory ();
+  factory_map_[GROUP_FIXED_LIST] = new GroupFixedListFactory();
+  factory_map_[GROUP_TRANSIENT] = new GroupTransientFactory();
 
   // set the knowledge base for each factory
-  for (GroupFactoryMap::iterator i = factory_map_.begin ();
-    i != factory_map_.end (); ++i)
+  for(GroupFactoryMap::iterator i = factory_map_.begin();
+    i != factory_map_.end(); ++i)
   {
-    i->second->set_knowledge (knowledge_);
+    i->second->set_knowledge(knowledge_);
   }
 }
 
 inline void
-gams::groups::GroupFactoryRepository::set_knowledge (
+gams::groups::GroupFactoryRepository::set_knowledge(
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;

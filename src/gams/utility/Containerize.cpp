@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -55,37 +55,37 @@
 
 #include "gams/loggers/GlobalLogger.h"
 
-const std::string gams::utility::Containerize::object_type_suffix_ (
+const std::string gams::utility::Containerize::object_type_suffix_(
   ".object_type");
 
-gams::utility::Containerize::Containerize (const std::string& n) :
-  name_ (n), prev_kb_ (0)
+gams::utility::Containerize::Containerize(const std::string& n) :
+  name_(n), prev_kb_(0)
 {
 }
 
-gams::utility::Containerize::~Containerize ()
+gams::utility::Containerize::~Containerize()
 {
 }
 
 std::string
-gams::utility::Containerize::get_name () const
+gams::utility::Containerize::get_name() const
 {
   return name_;
 }
 
 void
-gams::utility::Containerize::set_name (const std::string& n)
+gams::utility::Containerize::set_name(const std::string& n)
 {
   name_ = n;
 }
 
 void
-gams::utility::Containerize::set_knowledge_base (
+gams::utility::Containerize::set_knowledge_base(
   madara::knowledge::KnowledgeBase* kb)
 {
   if (kb == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::set_knowledge_base:" \
       " attempted to set knowledge_base to 0\n");
@@ -97,20 +97,20 @@ gams::utility::Containerize::set_knowledge_base (
 }
 
 void
-gams::utility::Containerize::modify ()
+gams::utility::Containerize::modify()
 {
   bool error = false;
   if (prev_kb_ == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::modify:" \
       " invalid prev_kb_ to execute modify\n");
     error = true;
   }
-  if (name_.empty ())
+  if (name_.empty())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::modify:" \
       " modify cannot be called until name_ is set\n");
@@ -119,50 +119,50 @@ gams::utility::Containerize::modify ()
   
   if (!error)
   {
-    to_container (*prev_kb_, name_);
+    to_container(*prev_kb_, name_);
   }
 } 
 
 void
-gams::utility::Containerize::to_container (const std::string& name)
+gams::utility::Containerize::to_container(const std::string& name)
 {
   if (prev_kb_ == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::to_container:" \
       " invalid prev_kb_ to execute to_container\n");
   }
   else
   {
-    if (name.empty ())
+    if (name.empty())
     {
-      if (name_.empty ())
+      if (name_.empty())
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::utility::Containerize::to_container:" \
           " no valid name available\n");
       }
       else
       {
-        to_container (*prev_kb_, name_);
+        to_container(*prev_kb_, name_);
       }
     }
     else
     {
-      to_container (*prev_kb_, name);
+      to_container(*prev_kb_, name);
     }
   }
 }
 
 void
-gams::utility::Containerize::to_container (
+gams::utility::Containerize::to_container(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  if (name.empty () && name_.empty ())
+  if (name.empty() && name_.empty())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::to_container:" \
       " no valid name available\n");
@@ -170,36 +170,36 @@ gams::utility::Containerize::to_container (
   else
   {
     prev_kb_ = &kb;
-    to_container_impl (*prev_kb_, (name.empty ()) ? name_ : name);
+    to_container_impl(*prev_kb_,(name.empty()) ? name_ : name);
   }
 }
 
 bool
-gams::utility::Containerize::from_container (const std::string& name)
+gams::utility::Containerize::from_container(const std::string& name)
 {
-  bool ret_val (false);
+  bool ret_val(false);
   if (prev_kb_ == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::from_container:" \
       " invalid prev_kb_\n");
   }
   else
   {
-    if (!name.empty ())
+    if (!name.empty())
       name_ = name;
 
-    if (name_.empty ())
+    if (name_.empty())
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::utility::Containerize::from_container:" \
         " no valid name available\n");
     }
     else
     {
-      ret_val = from_container (*prev_kb_, name_);
+      ret_val = from_container(*prev_kb_, name_);
     }
   }
 
@@ -207,40 +207,40 @@ gams::utility::Containerize::from_container (const std::string& name)
 }
 
 bool
-gams::utility::Containerize::from_container (
+gams::utility::Containerize::from_container(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  bool ret_val (false);
-  if (name.empty () && name_.empty ())
+  bool ret_val(false);
+  if (name.empty() && name_.empty())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::utility::Containerize::from_container:" \
       " no valid name available\n");
   }
   else
   {
-    ret_val = from_container_impl (kb, (name.empty ()) ? name_ : name);
+    ret_val = from_container_impl(kb,(name.empty()) ? name_ : name);
   }
   return ret_val;
 }
 
 bool
-gams::utility::Containerize::is_valid_type (
+gams::utility::Containerize::is_valid_type(
   madara::knowledge::KnowledgeBase& kb, const std::string& name, 
   const Class_ID& valid) const
 {
-  madara::knowledge::KnowledgeRecord record = kb.get (name + object_type_suffix_);
-  if (record.exists ())
-    return (record.to_integer () & valid);
+  madara::knowledge::KnowledgeRecord record = kb.get(name + object_type_suffix_);
+  if (record.exists())
+    return(record.to_integer() & valid);
   return false;
 }
 
 gams::utility::Containerize::Class_ID
-gams::utility::Containerize::get_type (
+gams::utility::Containerize::get_type(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  switch (kb.get (name + object_type_suffix_).to_integer ())
+  switch (kb.get(name + object_type_suffix_).to_integer())
   {
     case REGION_TYPE_ID:
       return REGION_TYPE_ID;

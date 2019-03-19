@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -86,7 +86,7 @@ namespace gams
        * @param  self       agent variables that describe self state
        * @param  agents    list of participating agents
        **/
-      JavaAlgorithm (
+      JavaAlgorithm(
         jobject obj,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0,
@@ -97,49 +97,49 @@ namespace gams
       /**
        * Destructor
        **/
-      ~JavaAlgorithm ();
+      ~JavaAlgorithm();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const JavaAlgorithm & rhs);
+      void operator=(const JavaAlgorithm & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
       
       /**
        * Gets the unique identifier of the algorithm. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. rac, follow_leader, etc.)
+       * variable(e.g. rac, follow_leader, etc.)
        **/
-      virtual std::string get_id () const;
+      virtual std::string get_id() const;
 
       /**
        * Gets the name of the algorithm
        **/
-      virtual std::string get_name () const;
+      virtual std::string get_name() const;
       
       /**
        * Returns the Java instance that derives from
        * BaseAlgorithm.
        **/
-      jobject get_java_instance (void);
+      jobject get_java_instance(void);
 
     protected:
       /// the Java object with callable methods
@@ -161,12 +161,12 @@ namespace gams
        * Constructor
        * @param obj  the Java object that implements AlgorithmFactory
        **/
-      JavaAlgorithmFactory (jobject obj);
+      JavaAlgorithmFactory(jobject obj);
 
       /**
        * Destructor
        **/
-      virtual ~JavaAlgorithmFactory ();
+      virtual ~JavaAlgorithmFactory();
 
       /**
       * Creates a Java Algorithm.
@@ -184,7 +184,7 @@ namespace gams
       *                    init_vars when a number of processes is set. This
       *                    will be set by the controller in init_vars
       **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,
@@ -196,7 +196,7 @@ namespace gams
       * Returns the Java instance that implements from
       * AlgorithmFactory.
       **/
-      jobject get_java_instance (void);
+      jobject get_java_instance(void);
 
       protected:
         /// the Java object with callable methods

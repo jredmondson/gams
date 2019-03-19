@@ -176,7 +176,7 @@ namespace gams
 
     const ReferenceFrameType *GPS = &gps::GPSImpl;
 
-    const ReferenceFrame &gps_frame (void) {
+    const ReferenceFrame &gps_frame(void) {
       static ReferenceFrame frame{GPS, "gps_frame", Pose(ReferenceFrame(), 0, 0)};
       return frame;
     }

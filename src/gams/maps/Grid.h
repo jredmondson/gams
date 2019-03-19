@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -70,30 +70,30 @@ namespace gams
       /**
        * Constructor
        **/
-      Grid ();
+      Grid();
 
       /**
        * Destructor
        **/
-      ~Grid ();
+      ~Grid();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const Grid & rhs);
+      void operator=(const Grid & rhs);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        **/
-      void init_vars (madara::knowledge::KnowledgeBase & knowledge);
+      void init_vars(madara::knowledge::KnowledgeBase & knowledge);
 
       /**
        * Initializes variable containers
        * @param   knowledge  the variable context
        **/
-      void init_vars (madara::knowledge::Variables & knowledge);
+      void init_vars(madara::knowledge::Variables & knowledge);
     };
   }
 }

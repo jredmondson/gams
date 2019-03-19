@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,42 +51,42 @@
 using std::cerr;
 using std::endl;
 
-gams::algorithms::AlgorithmFactory::AlgorithmFactory ()
-  : knowledge_ (0), agents_ (0), platform_ (0), self_ (0), sensors_ (0)
+gams::algorithms::AlgorithmFactory::AlgorithmFactory()
+  : knowledge_(0), agents_(0), platform_(0), self_(0), sensors_(0)
 {
 }
 
-gams::algorithms::AlgorithmFactory::~AlgorithmFactory ()
+gams::algorithms::AlgorithmFactory::~AlgorithmFactory()
 {
 }
 
 void
-gams::algorithms::AlgorithmFactory::set_agents (variables::Agents * agents)
+gams::algorithms::AlgorithmFactory::set_agents(variables::Agents * agents)
 {
   agents_ = agents;
 }
 
 void
-gams::algorithms::AlgorithmFactory::set_knowledge (
+gams::algorithms::AlgorithmFactory::set_knowledge(
   madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-gams::algorithms::AlgorithmFactory::set_platform (platforms::BasePlatform * platform)
+gams::algorithms::AlgorithmFactory::set_platform(platforms::BasePlatform * platform)
 {
   platform_ = platform;
 }
 
 void
-gams::algorithms::AlgorithmFactory::set_self (variables::Self * self)
+gams::algorithms::AlgorithmFactory::set_self(variables::Self * self)
 {
   self_ = self;
 }
 
 void
-gams::algorithms::AlgorithmFactory::set_sensors (variables::Sensors * sensors)
+gams::algorithms::AlgorithmFactory::set_sensors(variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }

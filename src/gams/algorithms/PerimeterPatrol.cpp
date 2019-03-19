@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,7 +61,7 @@ typedef KnowledgeRecord::Integer   Integer;
 typedef knowledge::KnowledgeMap    KnowledgeMap;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::PerimeterPatrolFactory::create (
+gams::algorithms::PerimeterPatrolFactory::create(
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -69,12 +69,12 @@ gams::algorithms::PerimeterPatrolFactory::create (
   variables::Self * self,
   variables::Agents * agents)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::PerimeterPatrolFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", args.size());
 
   if (knowledge && sensors && platform && self)
   {
@@ -82,9 +82,9 @@ gams::algorithms::PerimeterPatrolFactory::create (
     double max_time = -1;
     bool counter = false;
 
-    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-      if (i->first.size () <= 0)
+      if (i->first.size() <= 0)
         continue;
 
       switch (i->first[0])
@@ -92,12 +92,12 @@ gams::algorithms::PerimeterPatrolFactory::create (
       case 'a':
         if (i->first == "area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::PerimeterPatrolFactory:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
@@ -106,7 +106,7 @@ gams::algorithms::PerimeterPatrolFactory::create (
         {
           counter = true;
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::PerimeterPatrolFactory:" \
             " enabling counter-clockwise patrol\n");
@@ -116,9 +116,9 @@ gams::algorithms::PerimeterPatrolFactory::create (
       case 'm':
         if (i->first == "max_time")
         {
-          max_time = i->second.to_double ();
+          max_time = i->second.to_double();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::PerimeterPatrolFactory:" \
             " setting max time to %f\n", max_time);
@@ -128,21 +128,21 @@ gams::algorithms::PerimeterPatrolFactory::create (
       case 's':
         if (i->first == "search_area")
         {
-          search_area = i->second.to_string ();
+          search_area = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::PerimeterPatrolFactory:" \
-            " setting search_area to %s\n", search_area.c_str ());
+            " setting search_area to %s\n", search_area.c_str());
           break;
         }
         goto unknown;
       case 't':
         if (i->first == "time")
         {
-          max_time = i->second.to_double ();
+          max_time = i->second.to_double();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::PerimeterPatrolFactory:" \
             " setting max time to %f\n", max_time);
@@ -151,11 +151,11 @@ gams::algorithms::PerimeterPatrolFactory::create (
         goto unknown;
       unknown:
       default:
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::PerimeterPatrolFactory:" \
           " argument unknown: %s -> %s\n",
-          i->first.c_str (), i->second.to_string ().c_str ());
+          i->first.c_str(), i->second.to_string().c_str());
         break;
       }
     }
@@ -163,14 +163,14 @@ gams::algorithms::PerimeterPatrolFactory::create (
     // if group has not been set, use the swarm
     if (search_area == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::algorithms::PerimeterPatrolFactory::create:" \
         " No search area specified. Returning null.\n");
     }
     else
     {
-      result = new PerimeterPatrol (
+      result = new PerimeterPatrol(
         search_area, max_time, counter,
         knowledge, platform, sensors, self, agents);
     }
@@ -179,27 +179,27 @@ gams::algorithms::PerimeterPatrolFactory::create (
   return result;
 }
 
-gams::algorithms::PerimeterPatrol::PerimeterPatrol (
+gams::algorithms::PerimeterPatrol::PerimeterPatrol(
   const std::string & area,
   double max_time,
   bool counter,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self, variables::Agents * agents) :
-  BaseAlgorithm (knowledge, platform, sensors, self, agents),
-  area_ (area), max_time_ (max_time), counter_ (counter), move_index_ (0),
-  initialized_ (false), enforcer_ (max_time, max_time)
+  BaseAlgorithm(knowledge, platform, sensors, self, agents),
+  area_(area), max_time_(max_time), counter_(counter), move_index_(0),
+  initialized_(false), enforcer_(max_time, max_time)
 {
-  status_.init_vars (*knowledge, "patrol", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "patrol", self->agent.prefix);
+  status_.init_variable_values();
 }
 
-gams::algorithms::PerimeterPatrol::~PerimeterPatrol ()
+gams::algorithms::PerimeterPatrol::~PerimeterPatrol()
 {
 }
 
 void
-gams::algorithms::PerimeterPatrol::operator= (const PerimeterPatrol & rhs)
+gams::algorithms::PerimeterPatrol::operator=(const PerimeterPatrol & rhs)
 {
   if (this != &rhs)
   {
@@ -215,43 +215,43 @@ gams::algorithms::PerimeterPatrol::operator= (const PerimeterPatrol & rhs)
 }
 
 int
-gams::algorithms::PerimeterPatrol::analyze (void)
+gams::algorithms::PerimeterPatrol::analyze(void)
 {
-  int result (OK);
+  int result(OK);
 
-  if (initialized_ && max_time_ > 0 && enforcer_.is_done ())
+  if (initialized_ && max_time_ > 0 && enforcer_.is_done())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "PerimeterPatrol::analyze:" \
       " patrol has timed out. Setting finished to true.\n");
 
     status_.finished = 1;
   }
-  else if (initialized_ && status_.finished.is_false ())
+  else if (initialized_ && status_.finished.is_false())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "PerimeterPatrol::analyze:" \
       " currently moving to location %d -> [%s].\n",
-      (int)move_index_,
-      locations_[move_index_].to_string ().c_str ());
+     (int)move_index_,
+      locations_[move_index_].to_string().c_str());
 
     // check our distance to the next location
-    pose::Position loc = platform_->get_location ();
+    pose::Position loc = platform_->get_location();
     pose::Position next_loc = locations_[move_index_];
 
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "PerimeterPatrol::analyze:" \
-      " distance between points is %f (need %f accuracy)\n",
-      loc.distance_to (next_loc), platform_->get_accuracy ());
+      " distance between points is %f(need %f accuracy)\n",
+      loc.distance_to(next_loc), platform_->get_accuracy());
 
-    if (loc.approximately_equal (next_loc, platform_->get_accuracy ()))
+    if (loc.approximately_equal(next_loc, platform_->get_accuracy()))
     {
       if (!counter_)
       {
-        if (move_index_ == locations_.size () - 1)
+        if (move_index_ == locations_.size() - 1)
         {
           move_index_ = 0;
         }
@@ -264,7 +264,7 @@ gams::algorithms::PerimeterPatrol::analyze (void)
       {
         if (move_index_ == 0)
         {
-          move_index_ = locations_.size () - 1;
+          move_index_ = locations_.size() - 1;
         }
         else
         {
@@ -272,17 +272,17 @@ gams::algorithms::PerimeterPatrol::analyze (void)
         }
       }
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MINOR,
         "PerimeterPatrol::analyze:" \
         " reached target location. Moving to location %d -> %s\n",
-        (int)move_index_,
-        locations_[move_index_].to_string ().c_str ());
+       (int)move_index_,
+        locations_[move_index_].to_string().c_str());
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "PerimeterPatrol:analyze:" \
       " locations list is not yet initialized. Nothing to do.\n");
@@ -297,23 +297,23 @@ gams::algorithms::PerimeterPatrol::analyze (void)
 }
 
 int
-gams::algorithms::PerimeterPatrol::execute (void)
+gams::algorithms::PerimeterPatrol::execute(void)
 {
-  int result (OK);
+  int result(OK);
 
   bool is_finished = status_.finished == 1;
 
   if (initialized_ && !is_finished)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "PerimeterPatrol::execute:" \
       " calling platform->move(\"%s\")\n",
-      locations_[move_index_].to_string ().c_str ());
+      locations_[move_index_].to_string().c_str());
 
     pose::Position next = locations_[move_index_];
 
-    platform_->move (next);
+    platform_->move(next);
   }
   else if (is_finished)
   {
@@ -324,16 +324,16 @@ gams::algorithms::PerimeterPatrol::execute (void)
 }
 
 int
-gams::algorithms::PerimeterPatrol::plan (void)
+gams::algorithms::PerimeterPatrol::plan(void)
 {
-  int result (OK);
+  int result(OK);
 
   if (!initialized_)
   {
-    generate_locations ();
+    generate_locations();
   }
 
-  if (status_.finished.is_true ())
+  if (status_.finished.is_true())
   {
     result |= FINISHED;
   }
@@ -342,23 +342,23 @@ gams::algorithms::PerimeterPatrol::plan (void)
 }
 
 void
-gams::algorithms::PerimeterPatrol::generate_locations (void)
+gams::algorithms::PerimeterPatrol::generate_locations(void)
 {
   // if we need to generate locations from region, do so
-  if (locations_.size () == 0)
+  if (locations_.size() == 0)
   {
     // get the area from the knowledge base
     pose::SearchArea sa;
-    sa.from_container (*knowledge_, area_);
+    sa.from_container(*knowledge_, area_);
 
     // get a bounding box around the regions
-    pose::Region hull = sa.get_convex_hull ();
+    pose::Region hull = sa.get_convex_hull();
 
     locations_ = hull.vertices;
 
     for (pose::Position v : locations_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "PerimeterPatrol::generate_locations:" \
         " hull point: %s\n",
@@ -366,21 +366,21 @@ gams::algorithms::PerimeterPatrol::generate_locations (void)
     }
   }
 
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
     // find closest location
     move_index_ = 0;
 
-    pose::Position agent_location (platform_->get_frame());
-    agent_location.from_container (self_->agent.location);
+    pose::Position agent_location(platform_->get_frame());
+    agent_location.from_container(self_->agent.location);
 
     // find distance to default position
-    double min_dist = agent_location.distance_to (locations_[move_index_]);
+    double min_dist = agent_location.distance_to(locations_[move_index_]);
 
     // find minimum distance available to a patrol location
-    for (size_t i = 1; i < locations_.size (); ++i)
+    for (size_t i = 1; i < locations_.size(); ++i)
     {
-      double cur_dist = agent_location.distance_to (locations_[i]);
+      double cur_dist = agent_location.distance_to(locations_[i]);
       if (min_dist > cur_dist)
       {
         cur_dist = min_dist;
@@ -390,14 +390,14 @@ gams::algorithms::PerimeterPatrol::generate_locations (void)
 
     if (max_time_ > 0)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "PerimeterPatrol::generate_locations:" \
         " max_time has been set to %f. Setting timer.\n",
         max_time_);
 
-      enforcer_.start ();
-      enforcer_.set_duration (max_time_);
+      enforcer_.start();
+      enforcer_.set_duration(max_time_);
     }
 
     initialized_ = true;

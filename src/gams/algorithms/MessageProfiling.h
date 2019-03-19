@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2015 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -89,7 +89,7 @@ namespace gams
        * @param  sensors      map of sensor names to sensor information
        * @param  self         self-referencing variables
        **/
-      MessageProfiling (
+      MessageProfiling(
         const madara::knowledge::KnowledgeRecord& send,
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::Base * platform = 0,
@@ -99,37 +99,37 @@ namespace gams
       /**
        * Destructor
        **/
-      ~MessageProfiling ();
+      ~MessageProfiling();
 
       /**
        * Initialize the transport with the filter
        */
-      void init_filtered_transport (madara::transport::QoSTransportSettings 
+      void init_filtered_transport(madara::transport::QoSTransportSettings 
         settings);
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (const MessageProfiling & rhs);
+      void operator=(const MessageProfiling & rhs);
       
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
       
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution of the algorithm
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
 
     private:
       /**
@@ -160,13 +160,13 @@ namespace gams
         /**
          * virtual destructor
          */
-        virtual ~MessageFilter ();
+        virtual ~MessageFilter();
 
-        void filter (madara::knowledge::KnowledgeMap& records, 
+        void filter(madara::knowledge::KnowledgeMap& records, 
           const madara::transport::TransportContext& transport_context,
           madara::knowledge::Variables& var);
 
-        std::string missing_messages_string () const;
+        std::string missing_messages_string() const;
 
         /**
          * MessageData struct
@@ -217,7 +217,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

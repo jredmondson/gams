@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,18 +49,18 @@
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 
-gams::variables::Self::Self ()
+gams::variables::Self::Self()
 {
 }
 
-gams::variables::Self::~Self ()
+gams::variables::Self::~Self()
 {
 }
 
 void
-gams::variables::Self::operator= (const Self & rhs)
+gams::variables::Self::operator=(const Self & rhs)
 {
-  if (this != &rhs)
+  if(this != &rhs)
   {
     this->id = rhs.id;
     this->agent = rhs.agent;
@@ -69,54 +69,54 @@ gams::variables::Self::operator= (const Self & rhs)
 
 
 void
-gams::variables::Self::init_vars (
+gams::variables::Self::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & self_prefix)
 {
-  this->id.set_name (".id", knowledge);
+  this->id.set_name(".id", knowledge);
   this->id = -1;
-  this->prefix.set_name (".prefix", knowledge);
+  this->prefix.set_name(".prefix", knowledge);
   this->prefix = self_prefix;
-  this->agent.init_vars (knowledge, self_prefix);
+  this->agent.init_vars(knowledge, self_prefix);
 }
 
 void
-gams::variables::Self::init_vars (
+gams::variables::Self::init_vars(
   madara::knowledge::KnowledgeBase & knowledge,
   const Integer & id)
 {
   // initialize the variable containers
-  this->id.set_name (".id", knowledge);
+  this->id.set_name(".id", knowledge);
   this->id = id;
-  this->prefix.set_name (".prefix", knowledge);
-  this->prefix = "agent." + this->id.to_string ();
-  this->agent.init_vars (knowledge, id);
+  this->prefix.set_name(".prefix", knowledge);
+  this->prefix = "agent." + this->id.to_string();
+  this->agent.init_vars(knowledge, id);
 }
 
 void
-gams::variables::Self::init_vars (
+gams::variables::Self::init_vars(
   madara::knowledge::Variables & knowledge,
   const Integer & id)
 {
   // initialize the variable containers
-  this->id.set_name (".id", knowledge);
+  this->id.set_name(".id", knowledge);
   this->id = id;
-  this->prefix.set_name (".prefix", knowledge);
-  this->prefix = "agent." + this->id.to_string ();
-  this->agent.init_vars (knowledge, id);
+  this->prefix.set_name(".prefix", knowledge);
+  this->prefix = "agent." + this->id.to_string();
+  this->agent.init_vars(knowledge, id);
 }
 
-void gams::variables::init_vars (Self & container,
+void gams::variables::init_vars(Self & container,
   madara::knowledge::KnowledgeBase & knowledge,
   const Integer & id)
 {
-  container.init_vars (knowledge, id);
+  container.init_vars(knowledge, id);
 }
 
 
-void gams::variables::init_vars (Self & container,
+void gams::variables::init_vars(Self & container,
   madara::knowledge::KnowledgeBase & knowledge,
   const std::string & self_prefix)
 {
-  container.init_vars (knowledge, self_prefix);
+  container.init_vars(knowledge, self_prefix);
 }

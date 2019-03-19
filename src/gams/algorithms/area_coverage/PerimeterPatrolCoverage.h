@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -88,7 +88,7 @@ namespace gams
          * @param  self       self-referencing variables
          * @param  agents    a list of agents
          **/
-        PerimeterPatrolCoverage (
+        PerimeterPatrolCoverage(
           const std::string& region_id,
           double e_time,
           madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -100,22 +100,22 @@ namespace gams
         /**
          * Destructor
          **/
-        ~PerimeterPatrolCoverage ();
+        ~PerimeterPatrolCoverage();
   
         /**
          * Assignment operator
          * @param  rhs   values to copy
          **/
-        void operator= (const PerimeterPatrolCoverage & rhs);
+        void operator=(const PerimeterPatrolCoverage & rhs);
         
       protected:
         /**
          * Generate new next position
          */
-        virtual void generate_new_position (void);
+        virtual void generate_new_position(void);
         
         /// generates all positions to patrol
-        void generate_positions (void);
+        void generate_positions(void);
 
         /// waypoints
         std::vector<utility::GPSPosition> waypoints_;
@@ -149,7 +149,7 @@ namespace gams
          *                    init_vars when a number of processes is set. This
          *                    will be set by the controller in init_vars
          **/
-        virtual BaseAlgorithm * create (
+        virtual BaseAlgorithm * create(
           const madara::knowledge::KnowledgeMap & args,
           madara::knowledge::KnowledgeBase * knowledge,
           platforms::BasePlatform * platform,

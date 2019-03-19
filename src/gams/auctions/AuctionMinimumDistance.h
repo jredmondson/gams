@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -79,12 +79,12 @@ namespace gams
     public:
       /**
       * Constructor.
-      * @param auction_prefix the name of the auction (e.g. auction.position)
-      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param auction_prefix the name of the auction(e.g. auction.position)
+      * @param agent_prefix   the name of this bidder(e.g. agent.0)
       * @param knowledge      the knowledge base to use for syncing
       * @param platform       the platform that contains a frame of reference
       **/
-      AuctionMinimumDistance (const std::string & auction_prefix = "",
+      AuctionMinimumDistance(const std::string & auction_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0,
         platforms::BasePlatform * platform = 0);
@@ -92,36 +92,36 @@ namespace gams
       /**
       * Constructor
       **/
-      virtual ~AuctionMinimumDistance ();
+      virtual ~AuctionMinimumDistance();
 
       /**
       * Returns the leader of the bidding process
       * @return the agent prefix of the leader of the auction
       **/
-      virtual std::string get_leader (void);
+      virtual std::string get_leader(void);
 
       /**
        * Sets the target of the distance calculations
        * @param target  the location that distance references are made to
        **/
-      void set_target (pose::Position target);
+      void set_target(pose::Position target);
 
       /**
       * Sets the target of the distance calculations
       * @param target  the GPSPosition that distance references are made to
       **/
-      void set_target (utility::GPSPosition target);
+      void set_target(utility::GPSPosition target);
 
       /**
       * Sets the platform whose frame we are referencing
       * @param platform  the hardware platform with the positioning frame
       **/
-      void set_platform (platforms::BasePlatform * platform);
+      void set_platform(platforms::BasePlatform * platform);
 
       /**
        * Calculate bids using current agent locations
        **/
-      void calculate_bids (void);
+      void calculate_bids(void);
 
     protected:
 
@@ -131,7 +131,7 @@ namespace gams
       pose::Position target_;
 
       /**
-       * The platform is necessary to construct poses (we need frame)
+       * The platform is necessary to construct poses(we need frame)
        **/
       platforms::BasePlatform * platform_;
     };
@@ -146,21 +146,21 @@ namespace gams
       /**
       * Constructor
       **/
-      AuctionMinimumDistanceFactory ();
+      AuctionMinimumDistanceFactory();
 
       /**
       * Destructor
       **/
-      virtual ~AuctionMinimumDistanceFactory ();
+      virtual ~AuctionMinimumDistanceFactory();
 
       /**
       * Creates a minimum-bid auction
-      * @param auction_prefix the name of the auction (e.g. auction.position)
-      * @param agent_prefix   the name of this bidder (e.g. agent.0)
+      * @param auction_prefix the name of the auction(e.g. auction.position)
+      * @param agent_prefix   the name of this bidder(e.g. agent.0)
       * @param knowledge      the knowledge base to use for syncing
       * @return  the new group
       **/
-      virtual AuctionBase * create (const std::string & auction_prefix = "",
+      virtual AuctionBase * create(const std::string & auction_prefix = "",
         const std::string & agent_prefix = "",
         madara::knowledge::KnowledgeBase * knowledge = 0);
     };

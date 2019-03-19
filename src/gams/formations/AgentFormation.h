@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -76,18 +76,18 @@ namespace gams
       /**
        * Constructor
        **/
-      AgentFormation ();
+      AgentFormation();
 
       /**
       * Constructor
       **/
-      virtual ~AgentFormation ();
+      virtual ~AgentFormation();
 
       /**
        * Configures the formation from arguments
        * @param  args   arguments to check through
        **/
-      virtual void from_args (madara::knowledge::FunctionArguments & args) = 0;
+      virtual void from_args(madara::knowledge::FunctionArguments & args) = 0;
 
       /**
       * Checks the goodness of an agent in the current formation.
@@ -95,30 +95,30 @@ namespace gams
       * @param  buffer  maximum allowed offset from correct location in meters
       * @return  the goodness of the formation, where 0 is bad and 1 is good
       **/
-      virtual double goodness (
+      virtual double goodness(
         const std::string & id = "", double buffer = 3.0) const = 0;
 
       /**
-       * Sets the id of the current agent (e.g. "agent.0" or "agent.leader")
+       * Sets the id of the current agent(e.g. "agent.0" or "agent.leader")
        * @param id    the current agent id
        **/
-      void set_id (const std::string & id);
+      void set_id(const std::string & id);
 
       /**
       * Checks if the agent is a member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
+      * @param  id     the agent id(e.g. agent.0 or agent.leader). If null,
       *                uses the current agent's id
       * @return  true if the agent is in the formation
       **/
-      virtual bool is_member (const std::string & id = "") const = 0;
+      virtual bool is_member(const std::string & id = "") const = 0;
 
       /**
       * Checks if the agent is an extra member of the formation
-      * @param  id     the agent id (e.g. agent.0 or agent.leader). If null,
+      * @param  id     the agent id(e.g. agent.0 or agent.leader). If null,
       *                uses the current agent's id
       * @return  true if the agent is an extra member in the formation
       **/
-      virtual bool is_extra (const std::string & id = "") const = 0;
+      virtual bool is_extra(const std::string & id = "") const = 0;
 
     protected:
 

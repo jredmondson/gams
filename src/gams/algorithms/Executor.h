@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -106,7 +106,7 @@ namespace gams
        * @param  self         self-referencing variables
        * @param  agents       variables referencing agents
        **/
-      Executor (
+      Executor(
         AlgorithmMetaDatas algorithms,
         int repeat,
         madara::knowledge::KnowledgeBase * knowledge = 0,
@@ -118,31 +118,31 @@ namespace gams
       /**
        * Destructor
        **/
-      ~Executor ();
+      ~Executor();
 
       /**
        * Assignment operator
        * @param  rhs   values to copy
        **/
-      void operator= (Executor & rhs);
+      void operator=(Executor & rhs);
 
       /**
        * Analyzes environment, platform, or other information
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int analyze (void);
+      virtual int analyze(void);
 
       /**
        * Executes the next step
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int execute (void);
+      virtual int execute(void);
 
       /**
        * Plans the next execution
        * @return bitmask status of the platform. @see Status.
        **/
-      virtual int plan (void);
+      virtual int plan(void);
 
     protected:
 
@@ -188,7 +188,7 @@ namespace gams
        *                    init_vars when a number of processes is set. This
        *                    will be set by the controller in init_vars
        **/
-      virtual BaseAlgorithm * create (
+      virtual BaseAlgorithm * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         platforms::BasePlatform * platform,

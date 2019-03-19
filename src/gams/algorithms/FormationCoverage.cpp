@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names Carnegie Mellon University, "SEI and/or Software
+ * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -78,7 +78,7 @@ typedef madara::knowledge::KnowledgeMap    KnowledgeMap;
 typedef groups::AgentVector  AgentVector;
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::FormationCoverageFactory::create (
+gams::algorithms::FormationCoverageFactory::create(
   const madara::knowledge::KnowledgeMap & args,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -86,12 +86,12 @@ gams::algorithms::FormationCoverageFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::area_coverage::FormationCoverageFactory:" \
-    " entered create with %u args\n", args.size ());
+    " entered create with %u args\n", args.size());
 
   if (knowledge && sensors && platform && self)
   {
@@ -99,44 +99,44 @@ gams::algorithms::FormationCoverageFactory::create (
     std::vector <double> offset;
     std::vector <double> destination;
     std::string group;
-    std::string modifier ("default");
+    std::string modifier("default");
     std::string coverage;
     KnowledgeMap coverage_args;
 
-    for (KnowledgeMap::const_iterator i = args.begin (); i != args.end (); ++i)
+    for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
-      if (i->first.size () <= 0)
+      if (i->first.size() <= 0)
         continue;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverage:" \
         " check arg %s\n",
-        i->first.c_str ());
+        i->first.c_str());
 
-      switch (i->first[0])
+      switch(i->first[0])
       {
       case 'c':
         if (i->first == "coverage")
         {
-          coverage = i->second.to_string ();
+          coverage = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " setting coverage to %s\n", coverage.c_str ());
+            " setting coverage to %s\n", coverage.c_str());
         }
-        else if (madara::utility::begins_with (i->first, "coverage.args.") &&
-                 i->first.size () >= 15)
+        else if (madara::utility::begins_with(i->first, "coverage.args.") &&
+                 i->first.size() >= 15)
         {
-          std::string arg = i->first.substr (14);
+          std::string arg = i->first.substr(14);
           coverage_args[arg] = i->second;
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " adding coverage_arg %s = %s\n", arg.c_str (),
-            i->second.to_string ().c_str ());
+            " adding coverage_arg %s = %s\n", arg.c_str(),
+            i->second.to_string().c_str());
 
           break;
         }
@@ -144,102 +144,102 @@ gams::algorithms::FormationCoverageFactory::create (
       case 'd':
         if (i->first == "destination")
         {
-          destination = i->second.to_doubles ();
+          destination = i->second.to_doubles();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " %d size destination set\n", (int)destination.size ());
+            " %d size destination set\n",(int)destination.size());
           break;
         }
         goto unknown;
       case 'g':
         if (i->first == "group")
         {
-          group = i->second.to_string ();
+          group = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " setting group to %s\n", group.c_str ());
+            " setting group to %s\n", group.c_str());
           break;
         }
         goto unknown;
       case 'h':
         if (i->first == "head")
         {
-          head = i->second.to_string ();
+          head = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " setting formation head to %s\n", head.c_str ());
+            " setting formation head to %s\n", head.c_str());
           break;
         }
         goto unknown;
       case 'm':
         if (i->first == "modifier")
         {
-          modifier = i->second.to_string ();
+          modifier = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " setting modifier to %s\n", modifier.c_str ());
+            " setting modifier to %s\n", modifier.c_str());
           break;
         }
         goto unknown;
       case 'o':
         if (i->first == "offset")
         {
-          offset = i->second.to_doubles ();
+          offset = i->second.to_doubles();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " %d size offset set\n", (int)offset.size ());
+            " %d size offset set\n",(int)offset.size());
           break;
         }
         goto unknown;
       case 't':
         if (i->first == "target")
         {
-          head = i->second.to_string ();
+          head = i->second.to_string();
 
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::algorithms::FormationCoverage:" \
-            " setting formation head/target to %s\n", head.c_str ());
+            " setting formation head/target to %s\n", head.c_str());
           break;
         }
         goto unknown;
       unknown:
       default:
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MAJOR,
           "gams::algorithms::FormationCoverage:" \
           " argument unknown: %s -> %s\n",
-          i->first.c_str (), i->second.to_string ().c_str ());
+          i->first.c_str(), i->second.to_string().c_str());
 
         break;
       }
     }
 
     // if group has not been set, use the swarm
-    if (head == "" || offset.size () == 0 || destination.size () == 0 ||
+    if (head == "" || offset.size() == 0 || destination.size() == 0 ||
         group == "" || coverage == "")
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::algorithms::FormationCoverage::create:" \
         " Invalid args. head = %s, group = %s, coverage = %s, " \
         " offset.size = %d, destination.size = %d. Returning null.\n",
-        head.c_str (), group.c_str (), coverage.c_str (),
-        (int)offset.size (), (int)destination.size ());
+        head.c_str(), group.c_str(), coverage.c_str(),
+       (int)offset.size(),(int)destination.size());
     }
     else
     {
-      result = new FormationCoverage (
+      result = new FormationCoverage(
         head, offset, destination, group, modifier, coverage, coverage_args,
         knowledge, platform, sensors, self);
     }
@@ -248,7 +248,7 @@ gams::algorithms::FormationCoverageFactory::create (
   return result;
 }
 
-gams::algorithms::FormationCoverage::FormationCoverage (
+gams::algorithms::FormationCoverage::FormationCoverage(
   const std::string & head_id,
   const std::vector<double> & offset,
   const std::vector<double> & /*destination*/,
@@ -260,73 +260,73 @@ gams::algorithms::FormationCoverage::FormationCoverage (
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self) : 
-  BaseAlgorithm (knowledge, platform, sensors, self),
-  head_algo_ (0),
+  BaseAlgorithm(knowledge, platform, sensors, self),
+  head_algo_(0),
   is_covering_(false),
-  my_formation_ (0)
+  my_formation_(0)
 {
-  status_.init_vars (*knowledge, "formation_coverage", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "formation_coverage", self->agent.prefix);
+  status_.init_variable_values();
 
   // setup formation flying with null destination
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::algorithms::FormationCoverage::constructor:" \
     " creating formation algorithm\n");
 
-  std::vector<double> dest (3, 0.0);
-  my_formation_ = new FormationFlying (head_id, offset, dest, group_name, 
+  std::vector<double> dest(3, 0.0);
+  my_formation_ = new FormationFlying(head_id, offset, dest, group_name, 
     modifier, knowledge, platform, sensors, self);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::algorithms::FormationCoverage::constructor:" \
     " successfully created formation algorithm\n");
 
-  if (my_formation_->is_head ())
+  if (my_formation_->is_head())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationCoverage::constructor:" \
       " entering leader agent specific code\n");
 
     BaseAlgorithm * base_algo =
-      global_algorithm_factory()->create (coverage, cover_args);
+      global_algorithm_factory()->create(coverage, cover_args);
     head_algo_ = dynamic_cast<area_coverage::BaseAreaCoverage*>(base_algo);
 
     if (head_algo_ == 0)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::algorithms::FormationCoverage::constructor:" \
         " unable to create area_coverage algorithm \"%s\"\n",
-        coverage.c_str ());
+        coverage.c_str());
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "gams::algorithms::FormationCoverage::constructor:" \
         " created area_coverage algorithm \"%s\"\n",
-        coverage.c_str ());
+        coverage.c_str());
 
       // TODO: works for now, but change this to use self_.agents.dest
       stringstream head_destination_str;
       head_destination_str << head_id << ".destination";
-      string dest_str = head_destination_str.str ();
+      string dest_str = head_destination_str.str();
       head_destination_.set_name(dest_str, *knowledge, 3);
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationCoverage::constructor:" \
       " not leader agent\n");
   }
 }
 
-gams::algorithms::FormationCoverage::~FormationCoverage ()
+gams::algorithms::FormationCoverage::~FormationCoverage()
 {
   delete my_formation_;
   my_formation_ = 0;
@@ -335,7 +335,7 @@ gams::algorithms::FormationCoverage::~FormationCoverage ()
 }
 
 void
-gams::algorithms::FormationCoverage::operator= (const FormationCoverage & rhs)
+gams::algorithms::FormationCoverage::operator=(const FormationCoverage & rhs)
 {
   if (this != &rhs)
   {
@@ -343,61 +343,61 @@ gams::algorithms::FormationCoverage::operator= (const FormationCoverage & rhs)
     //bool is_covering_;
     //FormationFlying* my_formation_;
     //madara::knowledge::containers::NativeDoubleArray head_destination_;
-    this->BaseAlgorithm::operator= (rhs);
+    this->BaseAlgorithm::operator=(rhs);
   }
 }
 
 int
-gams::algorithms::FormationCoverage::analyze (void)
+gams::algorithms::FormationCoverage::analyze(void)
 {
-  if (my_formation_->is_head ())
+  if (my_formation_->is_head())
   {
     if (is_covering_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverage::analyze:" \
         " head coverage analyze\n");
-      head_algo_->analyze ();
+      head_algo_->analyze();
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverage::analyze:" \
         " head formation analyze\n");
-      my_formation_->analyze ();
-      is_covering_ = my_formation_->is_ready ();
+      my_formation_->analyze();
+      is_covering_ = my_formation_->is_ready();
     }
   }
   else // follower
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationCoverage::analyze:" \
       " follower analyze\n");
-    my_formation_->analyze ();
+    my_formation_->analyze();
   }
 
   return OK;
 }
       
 int
-gams::algorithms::FormationCoverage::execute (void)
+gams::algorithms::FormationCoverage::execute(void)
 {
-  if (my_formation_->is_head ())
+  if (my_formation_->is_head())
   {
     if (is_covering_)
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverage::execute:" \
         " head formation execute\n");
-      head_algo_->execute ();
+      head_algo_->execute();
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverage::execute:" \
         " head does nothing\n");
@@ -405,7 +405,7 @@ gams::algorithms::FormationCoverage::execute (void)
   }
   else // follower
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationCoverage::execute:" \
       " follower formation execute\n");
@@ -416,34 +416,34 @@ gams::algorithms::FormationCoverage::execute (void)
 }
 
 int
-gams::algorithms::FormationCoverage::plan (void)
+gams::algorithms::FormationCoverage::plan(void)
 {
-  if (platform_ && *platform_->get_platform_status ()->movement_available)
+  if (platform_ && *platform_->get_platform_status()->movement_available)
   {
-    if (my_formation_->is_head ())
+    if (my_formation_->is_head())
     {
       if (is_covering_)
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_DETAILED,
           "gams::algorithms::FormationCoverage::plan:" \
           " head coverage plan\n");
-        head_algo_->plan ();
+        head_algo_->plan();
       }
-      head_algo_->get_next_position ().to_container (head_destination_);
+      head_algo_->get_next_position().to_container(head_destination_);
     }
     else // follower
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::algorithms::FormationCoverage::plan:" \
         " follower formation plan\n");
-      my_formation_->plan ();
+      my_formation_->plan();
     }
   }
   else
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "FormationCoverage:plan" \
       " platform has not set movement_available to 1.\n");

@@ -925,7 +925,7 @@ if [ $UNREAL_GAMS -eq 1 ] ; then
   ./build.sh
 
 else
-  echo "NOT CHECKING EIGEN"
+  echo "NOT CHECKING UNREAL GAMS"
 fi
 
 if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then

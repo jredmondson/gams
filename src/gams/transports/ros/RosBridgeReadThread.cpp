@@ -5,7 +5,7 @@
 namespace knowledge = madara::knowledge;
 
 
-void gams::transports::RosBridgeReadThread::messageCallback (
+void gams::transports::RosBridgeReadThread::messageCallback(
   const topic_tools::ShapeShifter::ConstPtr& msg,
   const std::string &topic_name )
 {
@@ -13,23 +13,23 @@ void gams::transports::RosBridgeReadThread::messageCallback (
   message_count_++;
   //std::string container = gams::utility::ros::ros_to_gams_name(topic_name);
   //Check if topic is in the topic mapping
-  std::map<std::string, std::string>::iterator it = topic_map_.find (topic_name);
+  std::map<std::string, std::string>::iterator it = topic_map_.find(topic_name);
   std::string container;
 
-  if (it != topic_map_.end ())
+  if (it != topic_map_.end())
   {
     container = it->second;
   }
   else
   {
-    container = gams::utility::ros::ros_to_gams_name (topic_name);
+    container = gams::utility::ros::ros_to_gams_name(topic_name);
   }
 
   parser_->parse_message(msg, container);
 }
 
 // constructor
-gams::transports::RosBridgeReadThread::RosBridgeReadThread (
+gams::transports::RosBridgeReadThread::RosBridgeReadThread(
   const std::string &,
   const madara::transport::TransportSettings &,
   madara::transport::BandwidthMonitor & send_monitor,
@@ -37,17 +37,17 @@ gams::transports::RosBridgeReadThread::RosBridgeReadThread (
   madara::transport::PacketScheduler & packet_scheduler,
   std::vector<std::string> topics,
   std::map<std::string,std::string> topic_map)
-: send_monitor_ (send_monitor),
-  receive_monitor_ (receive_monitor),
-  packet_scheduler_ (packet_scheduler),
-  topics_ (topics),
-  topic_map_ (topic_map),
-  message_count_ (0)
+: send_monitor_(send_monitor),
+  receive_monitor_(receive_monitor),
+  packet_scheduler_(packet_scheduler),
+  topics_(topics),
+  topic_map_(topic_map),
+  message_count_(0)
 {
 }
 
 // destructor
-gams::transports::RosBridgeReadThread::~RosBridgeReadThread ()
+gams::transports::RosBridgeReadThread::~RosBridgeReadThread()
 {
   delete[] parser_;
 }
@@ -56,13 +56,13 @@ gams::transports::RosBridgeReadThread::~RosBridgeReadThread ()
  * Initialization to a knowledge base.
  **/
 void
-gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledge)
+gams::transports::RosBridgeReadThread::init(knowledge::KnowledgeBase & knowledge)
 {
   std::cout << "Initializing RosBridgeReadThread\n" << std::endl;
 
 
   // grab the context so we have access to update_from_external  
-  context_ = &(knowledge.get_context ());
+  context_ = &(knowledge.get_context());
   
   // setup the receive buffer
   if (settings_.queue_length > 0)
@@ -71,12 +71,12 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
   ros::NodeHandle node;
 
   std::map<std::string, std::string>::iterator frame_prefix =
-    topic_map_.find ("/tf");
+    topic_map_.find("/tf");
   std::map<std::string, std::string> capnp_types;
   std::map<std::string, std::pair<std::string, std::string>> plugin_types;
   std::map<std::string, int> circular_prefs;
   knowledge::EvalSettings eval_settings(true, true, false, false, false);
-  if (frame_prefix != topic_map_.end ())
+  if (frame_prefix != topic_map_.end())
   {
     parser_ = new gams::utility::ros::RosParser(&knowledge, "world", "frame1",
       capnp_types, plugin_types, circular_prefs, eval_settings,
@@ -90,11 +90,11 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
 
   for (const std::string topic_name: topics_ )
   {
-    boost::function<void (const topic_tools::ShapeShifter::ConstPtr&)> callback;
-    callback = boost::bind (
+    boost::function<void(const topic_tools::ShapeShifter::ConstPtr&)> callback;
+    callback = boost::bind(
       &gams::transports::RosBridgeReadThread::messageCallback, this,
       _1, topic_name );
-    subscribers_.push_back (node.subscribe( topic_name, 10, callback));
+    subscribers_.push_back(node.subscribe( topic_name, 10, callback));
   }
 
 }
@@ -103,7 +103,7 @@ gams::transports::RosBridgeReadThread::init (knowledge::KnowledgeBase & knowledg
  * Executes the actual thread logic.
  **/
 void
-gams::transports::RosBridgeReadThread::run (void)
+gams::transports::RosBridgeReadThread::run(void)
 {
   ros::spinOnce();
 }

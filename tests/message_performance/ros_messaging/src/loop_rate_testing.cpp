@@ -23,12 +23,12 @@ double num_sec = 10;
 std::string node_name("");
 size_t queue = 1000;
 
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   bool node_is_named = false;
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
     bool error = true;
 
     if (arg1 == "-t" || arg1 == "--transport")
@@ -39,7 +39,7 @@ void handle_arguments (int argc, char ** argv)
         std::stringstream ss;
         ss << argv[i + 1];
         ss >> u;
-        use_udp = (u == 1);
+        use_udp =(u == 1);
         error = false;
       }
 
@@ -83,24 +83,24 @@ void handle_arguments (int argc, char ** argv)
       ++i;
     }
 
-    if(error)
+    if (error)
     {
       cerr << "Test ROS subscriber: " << argv[0] << endl;
       cerr << "  Required:" << endl;
       cerr << "    [-n | --name <node_name>]      name for node, must be unique in ROS network" << endl;
       cerr << endl;
       cerr << "  Optional:" << endl;
-      cerr << "    [-t | --transport <type>]      0 for tcp, 1 for udp (default: 0)" << endl;
-      cerr << "    [-d | --duration <duration>]   number of seconds to run test (default: 10)" << endl;
-      cerr << "    [-q | --queue <size>]          size of queue for message processing (default: 1000)" << endl;
-      exit (0);
+      cerr << "    [-t | --transport <type>]      0 for tcp, 1 for udp(default: 0)" << endl;
+      cerr << "    [-d | --duration <duration>]   number of seconds to run test(default: 10)" << endl;
+      cerr << "    [-q | --queue <size>]          size of queue for message processing(default: 1000)" << endl;
+      exit(0);
     }
   }
 
-  if(!node_is_named)
+  if (!node_is_named)
   {
     cerr << "Need node name: -n | --name" << endl;
-    exit (0);
+    exit(0);
   }
 }
 
@@ -127,7 +127,7 @@ int main(int argc, char** argv)
 
   // subscribe to topic
   ros::Subscriber sub;
-  if(use_udp)
+  if (use_udp)
   {
     // subscribe to "chatter" topic, a queue of 100k messages, callback is the function named callback, use UDP, if publisher
     //    doesn't support UDP for some reason, it will fallback to TCP

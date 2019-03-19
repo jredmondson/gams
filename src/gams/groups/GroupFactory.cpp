@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -50,17 +50,17 @@
 
 #include <iostream>
 
-gams::groups::GroupFactory::GroupFactory ()
-  : knowledge_ (0)
+gams::groups::GroupFactory::GroupFactory()
+  : knowledge_(0)
 {
 }
 
-gams::groups::GroupFactory::~GroupFactory ()
+gams::groups::GroupFactory::~GroupFactory()
 {
 }
 
 void
-gams::groups::GroupFactory::set_knowledge (
+gams::groups::GroupFactory::set_knowledge(
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;

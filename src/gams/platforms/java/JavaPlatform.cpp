@@ -474,7 +474,7 @@ gams::platforms::JavaPlatform::land (void)
 
 int
 gams::platforms::JavaPlatform::move (const pose::Position & position,
-        const PositionBounds &)
+        const pose::PositionBounds &)
 {
   gams::utility::java::Acquire_VM jvm;
   jint result (0);
@@ -543,7 +543,7 @@ gams::platforms::JavaPlatform::move (const pose::Position & position,
 
 int
 gams::platforms::JavaPlatform::orient (const pose::Orientation & axes,
-    const OrientationBounds &)
+    const pose::OrientationBounds &)
 {
   gams::utility::java::Acquire_VM jvm;
   jint result (0);

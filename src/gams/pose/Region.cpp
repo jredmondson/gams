@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -69,49 +69,49 @@ using std::vector;
 
 typedef  madara::knowledge::KnowledgeRecord::Integer Integer;
 
-gams::pose::Region::Region (
+gams::pose::Region::Region(
   const std::vector <Position> & init_vertices, unsigned int type, 
   const std::string& name) :
-  Containerize (name), vertices (init_vertices), type_ (type)
+  Containerize(name), vertices(init_vertices), type_(type)
 {
-  set_name (name);
-  calculate_bounding_box ();
+  set_name(name);
+  calculate_bounding_box();
   for (Position& pos : vertices)
   {
     pos.transform_this_to(pose::gps_frame());
   }
 }
 
-gams::pose::Region::~Region ()
+gams::pose::Region::~Region()
 {
 }
 
 void
-gams::pose::Region::operator= (const Region& rhs)
+gams::pose::Region::operator=(const Region& rhs)
 {
   if (this != &rhs)
   {
     this->vertices = rhs.vertices;
     this->name_ = rhs.name_;
     this->type_ = rhs.type_;
-    calculate_bounding_box ();
+    calculate_bounding_box();
   }
 }
 
 bool
-gams::pose::Region::operator== (const Region& rhs) const
+gams::pose::Region::operator==(const Region& rhs) const
 {
   if (this == &rhs)
     return true;
 
-  if (vertices.size () != rhs.vertices.size ())
+  if (vertices.size() != rhs.vertices.size())
     return false;
 
   // ensure all contents are the same
-  for (size_t i = 0; i < vertices.size (); ++i)
+  for (size_t i = 0; i < vertices.size(); ++i)
   {
     size_t j;
-    for (j = 0; j < vertices.size (); ++j)
+    for (j = 0; j < vertices.size(); ++j)
       if (vertices[i] == rhs.vertices[j])
         break;
     if (j == vertices.size())
@@ -122,27 +122,27 @@ gams::pose::Region::operator== (const Region& rhs) const
 }
 
 bool
-gams::pose::Region::operator!= (const Region& rhs) const
+gams::pose::Region::operator!=(const Region& rhs) const
 {
   return !(*this == rhs);
 }
 
 std::string
-gams::pose::Region::get_name () const
+gams::pose::Region::get_name() const
 {
   return name_;
 }
 
 void
-gams::pose::Region::set_name (const std::string& n)
+gams::pose::Region::set_name(const std::string& n)
 {
   name_ = n;
 }
 
 bool
-gams::pose::Region::contains (const Position & pos) const
+gams::pose::Region::contains(const Position & pos) const
 {
-  if(vertices.size() < 1)
+  if (vertices.size() < 1)
   {
     return false;
   }
@@ -150,8 +150,8 @@ gams::pose::Region::contains (const Position & pos) const
   Position p(pose::gps_frame(), pos);
 
   // check if in bounding box
-  if (p.latitude () < min_lat_ || p.latitude () > max_lat_ ||
-      p.longitude () < min_lon_ || p.longitude () > max_lon_)
+  if (p.latitude() < min_lat_ || p.latitude() > max_lat_ ||
+      p.longitude() < min_lon_ || p.longitude() > max_lon_)
   {
     return false;
   }
@@ -162,12 +162,12 @@ gams::pose::Region::contains (const Position & pos) const
   bool ret = false;
   for (i = 0, j = vertices.size() - 1; i < vertices.size(); j = i++)
   {
-    if ( (vertices[i].longitude () > p.longitude ()) !=
-        (vertices[j].longitude () > p.longitude ()))
+    if ((vertices[i].longitude() > p.longitude()) !=
+       (vertices[j].longitude() > p.longitude()))
     {
-      if (p.latitude () < (vertices[j].latitude () - vertices[i].latitude ()) * (p.longitude () - vertices[i].longitude ()) / 
-                (vertices[j].longitude () - vertices[i].longitude ()) + 
-                 vertices[i].latitude ())
+      if (p.latitude() <(vertices[j].latitude() - vertices[i].latitude()) *(p.longitude() - vertices[i].longitude()) / 
+               (vertices[j].longitude() - vertices[i].longitude()) + 
+                 vertices[i].latitude())
       {
         ret = !ret;
       }
@@ -178,7 +178,7 @@ gams::pose::Region::contains (const Position & pos) const
   if (!ret)
   {
     for (unsigned int i = 0; i < vertices.size() && !ret; ++i)
-      ret = (vertices[i] == p);
+      ret =(vertices[i] == p);
   }
 
   // TODO: add check for border point
@@ -187,36 +187,36 @@ gams::pose::Region::contains (const Position & pos) const
 }
 
 double
-gams::pose::Region::distance (const Position& p) const
+gams::pose::Region::distance(const Position& p) const
 {
   if (vertices.size() < 1)
     return DBL_MAX;
   // if point is in region, then the distance is 0
-  if (contains (p))
+  if (contains(p))
     return 0;
 
   // convert to cartesian coords with equirectangular projection
-  const Position sw (pose::gps_frame(), min_lon_, min_lat_);
+  const Position sw(pose::gps_frame(), min_lon_, min_lat_);
   ReferenceFrame local_frame(sw);
 
   vector<Position> local_vertices;
-  for (size_t i = 0; i < vertices.size (); ++i)
+  for (size_t i = 0; i < vertices.size(); ++i)
   {
-    local_vertices.push_back (vertices[i].transform_to (local_frame));
+    local_vertices.push_back(vertices[i].transform_to(local_frame));
     local_vertices.back().z(0);
   }
-  Position local_p = p.transform_to (local_frame);
+  Position local_p = p.transform_to(local_frame);
   local_p.z(0);
 
   // else we check for distance from each edge
   double min_dist = DBL_MAX;
-  for (size_t i = 0; i < local_vertices.size (); ++i)
+  for (size_t i = 0; i < local_vertices.size(); ++i)
   {
-    //const size_t i_1 = (i + 1) % local_vertices.size();
-    //double dist = local_vertices[i].distance_to (local_vertices[i_1], local_p);
+    //const size_t i_1 =(i + 1) % local_vertices.size();
+    //double dist = local_vertices[i].distance_to(local_vertices[i_1], local_p);
 
     // TODO: Calculate distance to edge instead of to vertex
-    double dist = local_vertices[i].distance_to (local_p);
+    double dist = local_vertices[i].distance_to(local_p);
     if (dist < min_dist)
       min_dist = dist;
   }
@@ -225,31 +225,31 @@ gams::pose::Region::distance (const Position& p) const
 }
 
 gams::pose::Region
-gams::pose::Region::get_bounding_box () const
+gams::pose::Region::get_bounding_box() const
 {
   Region ret;
 
   Position p;
 
-  p.latitude (min_lat_);
-  p.longitude (min_lon_);
-  p.altitude (0);
-  ret.vertices.push_back (p);
+  p.latitude(min_lat_);
+  p.longitude(min_lon_);
+  p.altitude(0);
+  ret.vertices.push_back(p);
 
-  p.latitude (min_lat_);
-  p.longitude (max_lon_);
-  p.altitude (0);
-  ret.vertices.push_back (p);
+  p.latitude(min_lat_);
+  p.longitude(max_lon_);
+  p.altitude(0);
+  ret.vertices.push_back(p);
 
-  p.latitude (max_lat_);
-  p.longitude (max_lon_);
-  p.altitude (0);
-  ret.vertices.push_back (p);
+  p.latitude(max_lat_);
+  p.longitude(max_lon_);
+  p.altitude(0);
+  ret.vertices.push_back(p);
 
-  p.latitude (max_lat_);
-  p.longitude (min_lon_);
-  p.altitude (0);
-  ret.vertices.push_back (p);
+  p.latitude(max_lat_);
+  p.longitude(min_lon_);
+  p.altitude(0);
+  ret.vertices.push_back(p);
 
   ret.min_lat_ = this->min_lat_;
   ret.max_lat_ = this->max_lat_;
@@ -262,54 +262,54 @@ gams::pose::Region::get_bounding_box () const
 }
 
 double
-gams::pose::Region::get_area () const
+gams::pose::Region::get_area() const
 {
   if (vertices.size() < 3)
     return 0; // degenerate polygon
 
   // convert to cartesian coords with equirectangular projection
-  const Position sw (pose::gps_frame(), min_lon_, min_lat_);
+  const Position sw(pose::gps_frame(), min_lon_, min_lat_);
   ReferenceFrame local_frame(sw);
   vector<Position> cart_vertices;
   for (unsigned int i = 0; i < vertices.size(); ++i)
   {
-    Position p = vertices[i].transform_to (local_frame);
-    cart_vertices.push_back (p);
+    Position p = vertices[i].transform_to(local_frame);
+    cart_vertices.push_back(p);
   }
 
   // perform calculations with cartesian vertices
   double area = 0.0;
   size_t i, j, k;
-  size_t num_vertices = cart_vertices.size ();
+  size_t num_vertices = cart_vertices.size();
   for (i = 1, j = 2, k = 0; i < num_vertices; ++i, ++j, ++k)
   {
     area += cart_vertices[i].x() *
-      (cart_vertices[j % num_vertices].y() - cart_vertices[k].y());
+     (cart_vertices[j % num_vertices].y() - cart_vertices[k].y());
   }
-  area += cart_vertices[0].x() * (cart_vertices[1].y() - cart_vertices[num_vertices - 1].y());
+  area += cart_vertices[0].x() *(cart_vertices[1].y() - cart_vertices[num_vertices - 1].y());
   return fabs(area / 2);
 }
 
 string
-gams::pose::Region::to_string (const string & delimiter) const
+gams::pose::Region::to_string(const string & delimiter) const
 {
   stringstream buffer;
 
-  if (vertices.size () > 0)
+  if (vertices.size() > 0)
   {
-    buffer << vertices[0].to_string ();
-    for (unsigned int i = 1; i < vertices.size (); ++i)
+    buffer << vertices[0].to_string();
+    for (unsigned int i = 1; i < vertices.size(); ++i)
     {
       buffer << delimiter;
-      buffer << vertices[i].to_string ();
+      buffer << vertices[i].to_string();
     }
   }
 
-  return buffer.str ();
+  return buffer.str();
 }
 
 void
-gams::pose::Region::calculate_bounding_box ()
+gams::pose::Region::calculate_bounding_box()
 {
   min_lat_ = DBL_MAX;
   min_lon_ = DBL_MAX;
@@ -319,179 +319,179 @@ gams::pose::Region::calculate_bounding_box ()
   max_alt_ = -DBL_MAX;
   for (unsigned int i = 0; i < vertices.size(); ++i)
   {
-    min_lat_ = (min_lat_ > vertices[i].latitude ()) ?
-      vertices[i].latitude () : min_lat_;
-    min_lon_ = (min_lon_ > vertices[i].longitude ()) ?
-      vertices[i].longitude () : min_lon_;
-    min_alt_ = (min_alt_ > vertices[i].altitude ()) ?
-      vertices[i].altitude () : min_alt_;
+    min_lat_ =(min_lat_ > vertices[i].latitude()) ?
+      vertices[i].latitude() : min_lat_;
+    min_lon_ =(min_lon_ > vertices[i].longitude()) ?
+      vertices[i].longitude() : min_lon_;
+    min_alt_ =(min_alt_ > vertices[i].altitude()) ?
+      vertices[i].altitude() : min_alt_;
 
-    max_lat_ = (max_lat_ < vertices[i].latitude ()) ?
-      vertices[i].latitude () : max_lat_;
-    max_lon_ = (max_lon_ < vertices[i].longitude ()) ?
-      vertices[i].longitude () : max_lon_;
-    max_alt_ = (max_alt_ < vertices[i].altitude ()) ?
-      vertices[i].altitude () : max_alt_;
+    max_lat_ =(max_lat_ < vertices[i].latitude()) ?
+      vertices[i].latitude() : max_lat_;
+    max_lon_ =(max_lon_ < vertices[i].longitude()) ?
+      vertices[i].longitude() : max_lon_;
+    max_alt_ =(max_alt_ < vertices[i].altitude()) ?
+      vertices[i].altitude() : max_alt_;
   }
 }
 
 bool
-gams::pose::Region::check_valid_type (
+gams::pose::Region::check_valid_type(
   madara::knowledge::KnowledgeBase& kb, const std::string& name) const
 {
   const static Class_ID valid = 
-    (Class_ID) (REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
-  return Containerize::is_valid_type (kb, name, valid);
+   (Class_ID)(REGION_TYPE_ID | PRIORITIZED_REGION_TYPE_ID);
+  return Containerize::is_valid_type(kb, name, valid);
 }
 
 void
-gams::pose::Region::to_container_impl (
+gams::pose::Region::to_container_impl(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
   // set object type
-  madara::knowledge::containers::Integer obj_type (
+  madara::knowledge::containers::Integer obj_type(
     name + object_type_suffix_, kb);
   obj_type = REGION_TYPE_ID;
   
   // set type of region
-  madara::knowledge::containers::Integer type (name + ".type", kb);
+  madara::knowledge::containers::Integer type(name + ".type", kb);
   type = type_;
 
-  switch (type.to_integer ())
+  switch(type.to_integer())
   {
     case 0: // arbitrary convex polygon
     {
       // set size
-      madara::knowledge::containers::Integer size (name + ".size", kb);
+      madara::knowledge::containers::Integer size(name + ".size", kb);
       size = vertices.size();
     
       // set vertices
       madara::knowledge::containers::NativeDoubleVector target;
-      for (unsigned int i = 0; i < vertices.size (); ++i)
+      for (unsigned int i = 0; i < vertices.size(); ++i)
       {
         std::stringstream vert_name;
         vert_name << name << "." << i;
-        target.set_name (vert_name.str (), kb);
-        target.set (2, vertices[i].z());
-        target.set (0, vertices[i].lat());
-        target.set (1, vertices[i].lng());
+        target.set_name(vert_name.str(), kb);
+        target.set(2, vertices[i].z());
+        target.set(0, vertices[i].lat());
+        target.set(1, vertices[i].lng());
       }
 
       break;
     }
     default:
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
          "gams::pose::Region::to_container:" \
-        " ERROR: invalid region type %" PRId64 ".\n", type.to_integer ());
+        " ERROR: invalid region type %" PRId64 ".\n", type.to_integer());
   }
 }
 
 bool
-gams::pose::Region::from_container_impl (
+gams::pose::Region::from_container_impl(
   madara::knowledge::KnowledgeBase& kb, const std::string& name)
 {
-  if (!check_valid_type (kb, name))
+  if (!check_valid_type(kb, name))
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::pose::Region::from_container:" \
-      " \"%s\" is not a valid Region\n", name.c_str ());
+      " \"%s\" is not a valid Region\n", name.c_str());
     return false;
   }
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_DETAILED,
     "gams::pose::Region::from_container:" \
-    " name = %s\n", name.c_str ());
+    " name = %s\n", name.c_str());
 
   // get type
-  madara::knowledge::KnowledgeRecord type = kb.get (name + ".type");
-  if (!type.exists ())
+  madara::knowledge::KnowledgeRecord type = kb.get(name + ".type");
+  if (!type.exists())
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_ERROR,
       "gams::pose::Region::from_container:" \
-      " \"%s.type\" does not exist in knowledge base\n", name.c_str ());
+      " \"%s.type\" does not exist in knowledge base\n", name.c_str());
     return false;
   }
-  type_ = (unsigned int)type.to_integer ();
+  type_ =(unsigned int)type.to_integer();
 
   // set name if necessary
   if (name_ == "")
     name_ = name;
 
   // get vertices
-  switch (type_)
+  switch(type_)
   {
     case 0: // arbitrary convex polygon
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
          "gams::pose::Region::from_container:" \
          " type is arbitrary convex polygon\n");
 
       // get size
-      madara::knowledge::KnowledgeRecord num_verts = kb.get (name + ".size");
-      if (!num_verts.exists ())
+      madara::knowledge::KnowledgeRecord num_verts = kb.get(name + ".size");
+      if (!num_verts.exists())
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_ERROR,
           "gams::pose::Region::from_container:" \
-          " \"%s.size\" does not exist in knowledge base\n", name.c_str ());
+          " \"%s.size\" does not exist in knowledge base\n", name.c_str());
         return false;
       }
-      Integer num = num_verts.to_integer ();
-      vertices.resize (num);
+      Integer num = num_verts.to_integer();
+      vertices.resize(num);
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_DETAILED,
         "gams::pose::Region::from_container:" \
         " size is %u\n", num);
 
       // get each of the vertices
       madara::knowledge::containers::Vector vertices_knowledge;
-      vertices_knowledge.set_name (name, kb);
+      vertices_knowledge.set_name(name, kb);
       vertices_knowledge.resize();
       for (Integer i = 0; i < num; ++i)
       {
-        std::vector<double> coords (vertices_knowledge[i].to_doubles ());
+        std::vector<double> coords(vertices_knowledge[i].to_doubles());
 
-        if (coords.size () == 2)
+        if (coords.size() == 2)
         {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::pose::Region::from_container:" \
-            " Adding coordinate (%f lat, %f lng)\n",
+            " Adding coordinate(%f lat, %f lng)\n",
             coords[0], coords[1]);
           vertices[i] = Position(pose::gps_frame(), coords[1], coords[0]);
         }
-        else if (coords.size () == 3)
+        else if (coords.size() == 3)
         {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
             "gams::pose::Region::from_container:" \
-            " Adding coordinate (%f lat, %f lng, %f alt)\n",
+            " Adding coordinate(%f lat, %f lng, %f alt)\n",
             coords[0], coords[1], coords[2]);
           vertices[i] = Position(pose::gps_frame(), coords[1], coords[0], coords[2]);
         }
         else
         {
-          madara_logger_ptr_log (gams::loggers::global_logger.get (),
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_ERROR,
             "gams::pose::Region::from_container:" \
-            " ERROR: invalid coordinate type at %s.%u\n", name.c_str (), i);
+            " ERROR: invalid coordinate type at %s.%u\n", name.c_str(), i);
           return false;
         }
       }
 
-      calculate_bounding_box ();
+      calculate_bounding_box();
 
       break;
     }
     default:
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "gams::pose::Region::from_container:" \
         " ERROR: invalid region type %" PRId64 ".\n", type_);

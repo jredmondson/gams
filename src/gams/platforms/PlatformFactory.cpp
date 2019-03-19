@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,36 +54,36 @@
 
 #include <string>
 
-gams::platforms::PlatformFactory::PlatformFactory ()
-  : knowledge_ (0), platforms_ (0), self_ (0), sensors_ (0)
+gams::platforms::PlatformFactory::PlatformFactory()
+  : knowledge_(0), platforms_(0), self_(0), sensors_(0)
 {
 }
 
-gams::platforms::PlatformFactory::~PlatformFactory ()
+gams::platforms::PlatformFactory::~PlatformFactory()
 {
 }
 
 void
-gams::platforms::PlatformFactory::set_knowledge (
+gams::platforms::PlatformFactory::set_knowledge(
   madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;
 }
 
 void
-gams::platforms::PlatformFactory::set_platforms (variables::Platforms * platforms)
+gams::platforms::PlatformFactory::set_platforms(variables::Platforms * platforms)
 {
   platforms_ = platforms;
 }
 
 void
-gams::platforms::PlatformFactory::set_self (variables::Self * self)
+gams::platforms::PlatformFactory::set_self(variables::Self * self)
 {
   self_ = self;
 }
 
 void
-gams::platforms::PlatformFactory::set_sensors (variables::Sensors * sensors)
+gams::platforms::PlatformFactory::set_sensors(variables::Sensors * sensors)
 {
   sensors_ = sensors;
 }

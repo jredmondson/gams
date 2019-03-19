@@ -19,11 +19,11 @@ size_t buffer = 1000;
 double num_sec = 15;
 size_t sleep_time = 0;
 
-void handle_arguments (int argc, char ** argv)
+void handle_arguments(int argc, char ** argv)
 {
   for (int i = 1; i < argc; ++i)
   {
-    std::string arg1 (argv[i]);
+    std::string arg1(argv[i]);
     bool error = true;
 
     if (arg1 == "-b" || arg1 == "--buffer")
@@ -63,13 +63,13 @@ void handle_arguments (int argc, char ** argv)
       ++i;
     }
 
-    if(error)
+    if (error)
     {
       cerr << "Test ROS publisher: " << argv[0] << endl;
-      cerr << "  [-b | --buffer size]     size of the send buffer (default, 1000)" << endl;
-      cerr << "  [-t | --time duration]   test duration (default, 15)" << endl;
-      cerr << "  [-s | --sleep duration]  time to sleep in usec (default, 0)" << endl;
-      exit (0);
+      cerr << "  [-b | --buffer size]     size of the send buffer(default, 1000)" << endl;
+      cerr << "  [-t | --time duration]   test duration(default, 15)" << endl;
+      cerr << "  [-s | --sleep duration]  time to sleep in usec(default, 0)" << endl;
+      exit(0);
     }
   }
 }
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
   size_t counter = 0;
 
   // publish loop
-  while(end - start < num_sec)
+  while (end - start < num_sec)
   {
     // create message
     std_msgs::String msg;

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@
 #include <iostream>
 
 gams::algorithms::BaseAlgorithm *
-gams::algorithms::TakeoffFactory::create (
+gams::algorithms::TakeoffFactory::create(
   const madara::knowledge::KnowledgeMap & /*args*/,
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
@@ -64,33 +64,33 @@ gams::algorithms::TakeoffFactory::create (
   variables::Self * self,
   variables::Agents * /*agents*/)
 {
-  BaseAlgorithm * result (0);
+  BaseAlgorithm * result(0);
   
   if (knowledge && sensors && platform && self)
   {
-    result = new Takeoff (knowledge, platform, sensors, self);
+    result = new Takeoff(knowledge, platform, sensors, self);
   }
 
   return result;
 }
 
-gams::algorithms::Takeoff::Takeoff (
+gams::algorithms::Takeoff::Takeoff(
   madara::knowledge::KnowledgeBase * knowledge,
   platforms::BasePlatform * platform,
   variables::Sensors * sensors,
   variables::Self * self)
-  : BaseAlgorithm (knowledge, platform, sensors, self)
+  : BaseAlgorithm(knowledge, platform, sensors, self)
 {
-  status_.init_vars (*knowledge, "takeoff", self->agent.prefix);
-  status_.init_variable_values ();
+  status_.init_vars(*knowledge, "takeoff", self->agent.prefix);
+  status_.init_variable_values();
 }
 
-gams::algorithms::Takeoff::~Takeoff ()
+gams::algorithms::Takeoff::~Takeoff()
 {
 }
 
 void
-gams::algorithms::Takeoff::operator= (const Takeoff & rhs)
+gams::algorithms::Takeoff::operator=(const Takeoff & rhs)
 {
   if (this != &rhs)
   {
@@ -103,16 +103,16 @@ gams::algorithms::Takeoff::operator= (const Takeoff & rhs)
 
 
 int
-gams::algorithms::Takeoff::analyze (void)
+gams::algorithms::Takeoff::analyze(void)
 {
   if (self_)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MINOR,
       "gams::algorithms::Takeoff::analyze:" \
       " current pose is [%s, %s].\n",
-      self_->agent.location.to_record ().to_string ().c_str (),
-      self_->agent.orientation.to_record ().to_string ().c_str ());
+      self_->agent.location.to_record().to_string().c_str(),
+      self_->agent.orientation.to_record().to_string().c_str());
   }
 
   return OK;
@@ -120,32 +120,32 @@ gams::algorithms::Takeoff::analyze (void)
       
 
 int
-gams::algorithms::Takeoff::execute (void)
+gams::algorithms::Takeoff::execute(void)
 {
   int result = 0;
 
   if (executions_ == 0)
   {
-    madara_logger_ptr_log (gams::loggers::global_logger.get (),
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
       "gams::algorithms::Takeoff::execute:" \
-      " calling platform->takeoff ().\n");
+      " calling platform->takeoff().\n");
 
     if (platform_)
     {
-      platform_->takeoff ();
+      platform_->takeoff();
       executions_++;
       status_.finished = 1;
       result |= FINISHED;
 
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_MAJOR,
         "algorithms::Takeoff::execute:" \
         " finished set to 1. Algorithm ready to move on.\n");
     }
     else
     {
-      madara_logger_ptr_log (gams::loggers::global_logger.get (),
+      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ERROR,
         "algorithms::Land::execute:" \
         " ERROR: no platform initialized. Cannot takeoff.\n");
@@ -157,7 +157,7 @@ gams::algorithms::Takeoff::execute (void)
 
 
 int
-gams::algorithms::Takeoff::plan (void)
+gams::algorithms::Takeoff::plan(void)
 {
   return 0;
 }

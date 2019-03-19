@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -46,18 +46,18 @@
 
 #include "GroupBase.h"
 
-gams::groups::GroupBase::GroupBase (const std::string & prefix,
+gams::groups::GroupBase::GroupBase(const std::string & prefix,
   madara::knowledge::KnowledgeBase * knowledge)
-  : knowledge_ (knowledge), prefix_ (prefix)
+  : knowledge_(knowledge), prefix_(prefix)
 {
 }
 
-gams::groups::GroupBase::~GroupBase ()
+gams::groups::GroupBase::~GroupBase()
 {
 }
 
 void
-gams::groups::GroupBase::set_prefix (const std::string & prefix,
+gams::groups::GroupBase::set_prefix(const std::string & prefix,
 madara::knowledge::KnowledgeBase * knowledge)
 {
   knowledge_ = knowledge;

@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2016 Carnegie Mellon University. All Rights Reserved.
+* Copyright(c) 2016 Carnegie Mellon University. All Rights Reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -46,19 +46,19 @@
 
 #include "StructuralFormation.h"
 
-gams::formations::StructuralFormation::StructuralFormation ()
+gams::formations::StructuralFormation::StructuralFormation()
 {
 
 }
 
 
-gams::formations::StructuralFormation::~StructuralFormation ()
+gams::formations::StructuralFormation::~StructuralFormation()
 {
 
 }
 
 void
-gams::formations::StructuralFormation::from_args (
+gams::formations::StructuralFormation::from_args(
   madara::knowledge::FunctionArguments & /*args*/)
 {
 
@@ -66,20 +66,20 @@ gams::formations::StructuralFormation::from_args (
 
 
 double
-gams::formations::StructuralFormation::goodness (
+gams::formations::StructuralFormation::goodness(
   const std::string & /*id*/, double /*buffer*/) const
 {
   return 0.0;
 }
 
 bool
-gams::formations::StructuralFormation::is_member (
+gams::formations::StructuralFormation::is_member(
   const std::string & /*id*/) const
 {
   return false;
 }
 
-bool gams::formations::StructuralFormation::is_extra (
+bool gams::formations::StructuralFormation::is_extra(
   const std::string & /*id*/) const
 {
   return false;

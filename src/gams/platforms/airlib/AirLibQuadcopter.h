@@ -42,7 +42,7 @@ namespace gams
        * @param  platforms    map of platform names to platform information
        * @param  self         agent variables that describe self state
        **/
-      AirLibQuadcopter (
+      AirLibQuadcopter(
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
         variables::Self * self
@@ -51,33 +51,33 @@ namespace gams
       /**
        * Destructor
        */
-      virtual ~AirLibQuadcopter ();
+      virtual ~AirLibQuadcopter();
       
       /**
        * Gets the unique identifier of the platform. This should be an
        * alphanumeric identifier that can be used as part of a MADARA
-       * variable (e.g. AIRLIB_ant, autonomous_snake, etc.)
+       * variable(e.g. AIRLIB_ant, autonomous_snake, etc.)
        **/
-      virtual std::string get_id () const override;
+      virtual std::string get_id() const override;
 
       /**
        * Gets the name of the platform
        **/
-      virtual std::string get_name () const override;
+      virtual std::string get_name() const override;
 
-      virtual int sense () override;
+      virtual int sense() override;
 
-      virtual int home () override;
+      virtual int home() override;
 
-      virtual int takeoff () override;
+      virtual int takeoff() override;
 
-      virtual int land () override;
+      virtual int land() override;
 
-      virtual int move (const gams::pose::Position & location, const gams::platforms::PositionBounds & bounds) override;
+      virtual int move(const gams::pose::Position & location, const gams::platforms::PositionBounds & bounds) override;
 
-      virtual const gams::pose::ReferenceFrame& get_frame () const override;
+      virtual const gams::pose::ReferenceFrame& get_frame() const override;
 
-      int rotate (const gams::pose::Orientation &target, double epsilon);
+      int rotate(const gams::pose::Orientation &target, double epsilon);
 
     private:
 
@@ -106,9 +106,9 @@ namespace gams
        * @param   self      self-referencing variables. This will be
        *                    set by the controller in init_vars
        **/
-      virtual ~AirLibQuadcopterFactory (){};
+      virtual ~AirLibQuadcopterFactory(){};
 
-      virtual BasePlatform * create (
+      virtual BasePlatform * create(
         const madara::knowledge::KnowledgeMap & args,
         madara::knowledge::KnowledgeBase * knowledge,
         variables::Sensors * sensors,
