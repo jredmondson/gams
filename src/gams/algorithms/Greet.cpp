@@ -145,7 +145,7 @@ gams::algorithms::GreetFactory::create(
           madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_MAJOR,
             "gams::algorithms::GreetFactory:" \
-            " guard group set to %s\n", guard_group);
+            " guard group set to %s\n", guard_group.c_str());
 
           break;
         }
