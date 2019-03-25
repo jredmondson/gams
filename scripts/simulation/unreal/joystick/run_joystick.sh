@@ -8,7 +8,7 @@ SCRIPTS_DIR=`dirname $0`
 
 if [ $# -ge 1 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ]; then
-    echo "$0 [scriptfile] [agent id] [num agent controllers]"
+    echo "$0 [scriptfile=init.mf] [agent id=0] [num agent controllers=1]"
     exit 0
   fi
 

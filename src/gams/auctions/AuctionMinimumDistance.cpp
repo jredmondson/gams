@@ -47,6 +47,7 @@
 #include <algorithm>
 
 #include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 #include "AuctionMinimumDistance.h"
 #include "gams/loggers/GlobalLogger.h"
@@ -129,25 +130,29 @@ void gams::auctions::AuctionMinimumDistance::calculate_bids(void)
   if (knowledge_ && platform_)
   {
     // initialize the agent list within the group
-    variables::Agents agents;
-    variables::init_vars(agents, *knowledge_, group_);
+    // variables::Agents agents;
+    // variables::init_vars(agents, *knowledge_, group_);
+    std::vector<std::string> agents;
+    group_.get_members(agents);
 
     for (size_t i = 0; i < agents.size(); ++i)
     {
       // import the agents's location into the GAMS Pose system
+      containers::NativeDoubleVector agent_location(
+        agents[i] + ".location", *knowledge_);
       gams::pose::Position location(platform_->get_frame());
-      location.from_container(agents[i].location);
+      location.from_container(agent_location);
 
       double distance = location.distance_to(target_);
 
       madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MINOR,
+        gams::loggers::LOG_DETAILED,
         "gams::auctions::AuctionMinimumDistance::calculate_bids:" \
         " agent %s distance is %f. Bidding distance.\n",
-        agents[i].prefix.c_str(), distance);
+        agents[i].c_str(), distance);
 
       // bid for the agent using their distance to the target
-      bids_.set(agents[i].prefix, distance);
+      bids_.set(agents[i], distance);
     }
   }
   else
@@ -189,3 +194,11 @@ pose::Position target)
 {
   target_ = target;
 }
+
+void
+gams::auctions::AuctionMinimumDistance::set_platform(
+platforms::BasePlatform * platform)
+{
+  platform_ = platform;
+}
+

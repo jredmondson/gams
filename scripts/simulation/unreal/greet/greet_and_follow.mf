@@ -32,8 +32,17 @@
   // home.location
   // target.group
 
-  group.targets.members.size=1;
-  group.targets.members.0='agent.0';
+  group.targets.members.size=.targets;
+
+  .i[0 -> group.targets.members.size)(
+    group.targets.members.{.i} = "agent." + .i;
+  );
+
+  .group.guards.members.size=swarm.size-.targets;
+
+  .i[0 -> .group.guards.members.size)(
+    .group.guards.members.{.i} = "agent." + (.i + .targets);
+  );
 
   {.prefix}.algorithm="greet";
   {.prefix}.algorithm.args.home.location=.origin;

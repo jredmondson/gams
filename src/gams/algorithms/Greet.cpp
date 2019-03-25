@@ -30,7 +30,9 @@
 #include <math.h>
 #include <memory>
 
+#include "madara/utility/Timer.h"
 #include "gams/utility/ArgumentParser.h"
+#include "gams/auctions/AuctionMinimumDistance.h"
 
 using std::stringstream;
 
@@ -39,6 +41,7 @@ namespace containers = knowledge::containers;
 typedef knowledge::KnowledgeRecord  KnowledgeRecord;
 typedef KnowledgeRecord::Integer   Integer;
 typedef knowledge::KnowledgeMap    KnowledgeMap;
+typedef madara::utility::Timer<madara::utility::Clock> Timer;
 
 gams::algorithms::BaseAlgorithm *
 gams::algorithms::GreetFactory::create(
@@ -54,6 +57,7 @@ gams::algorithms::GreetFactory::create(
   // set defaults
   std::string target;
   std::string target_group = "group.targets";
+  std::string guard_group = ".group.guards";
   double guard_distance = 20.0;
   std::vector <double> guard_location;
   double guard_max_follow_distance = -1;
@@ -134,6 +138,17 @@ gams::algorithms::GreetFactory::create(
 
           break;
         }
+        else if (i->first == "guard.group")
+        {
+          guard_group = i->second.to_string();
+
+          madara_logger_ptr_log(gams::loggers::global_logger.get(),
+            gams::loggers::LOG_MAJOR,
+            "gams::algorithms::GreetFactory:" \
+            " guard group set to %s\n", guard_group);
+
+          break;
+        }
         else if (i->first == "guard.max_follow_distance")
         {
           guard_max_follow_distance = i->second.to_double();
@@ -198,7 +213,7 @@ gams::algorithms::GreetFactory::create(
     {
       result = new Greet(
         target, target_group,
-        guard_distance, guard_location, guard_max_follow_distance,
+        guard_distance, guard_group, guard_location, guard_max_follow_distance,
         home_location,
         follow, follow_group, follow_max_agents,
         knowledge, platform, sensors, self);
@@ -211,6 +226,7 @@ gams::algorithms::GreetFactory::create(
 gams::algorithms::Greet::Greet(
   const std::string & target, const std::string & target_group,
   double guard_distance,
+  const std::string & guard_group,
   const std::vector<double> & guard_location,
   double guard_max_follow_distance,
   const std::vector<double> & home_location,
@@ -234,6 +250,12 @@ gams::algorithms::Greet::Greet(
     {
       // initialize leader's variables
       target_.init_vars(*knowledge, target);
+    }
+
+    if (guard_group != "")
+    {
+      guard_group_.reset(
+        group_factory_.create(guard_group));
     }
 
     if (target_group != "")
@@ -386,6 +408,59 @@ gams::algorithms::Greet::analyze(void)
       pose::Position xy_guard_location (guard_location_);
       xy_location.z(0);
       xy_guard_location.z(0);
+
+      std::vector<auctions::AuctionMinimumDistance> distance_auctions(
+        targets.size());
+      std::vector<auctions::AuctionBids> distance_bids(
+        targets.size());
+
+      if (follow_)
+      {
+        Timer overall_timer;
+        overall_timer.start();
+
+        // determine distances to targets
+        std::string auction_prefix = "auction.";
+        for (size_t i = 0; i < targets.size(); ++i)
+        {
+          containers::NativeDoubleVector target_container(
+            targets[i] + ".location", *knowledge_);
+          target_location.from_container(target_container);
+          target_location.z(0);
+
+          distance_auctions[i].add_group(guard_group_.get());
+          distance_auctions[i].set_knowledge_base(knowledge_);
+          distance_auctions[i].set_platform(platform_);
+
+          distance_auctions[i].set_auction_prefix(auction_prefix + targets[i]);
+          distance_auctions[i].set_agent_prefix(self_->agent.prefix);
+          distance_auctions[i].set_target(target_location);
+
+          // under the hood, we're using containers::Map and variables::Agents
+          // for the entire group. There are a couple of things to learn here.
+          // calculate_bids(), even though it is semantically accurate, will
+          // cause unnecessary computation since the other agents are modifying
+          // the value with their own loops. Best solution here is to just bid
+          // but we can optimize this way more. We're spending a lot of time in
+          // the KB in the current implementation
+          //   action          50       100       150       200       250
+          //   bid         0.0012s   0.0022s   0.0032s   0.0049s   0.0063s
+          //   calc_bids   0.0022s   0.0054s   0.0072s   0.0099s   0.0143s
+          distance_auctions[i].bid(KnowledgeRecord(
+             xy_location.distance_to(target_location)));
+          // distance_auctions[i].calculate_bids();
+          distance_auctions[i].get_bids(distance_bids[i]);
+          auctions::sort_ascending(distance_bids[i]);
+        }
+
+        overall_timer.stop();
+
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
+          gams::loggers::LOG_MINOR,
+          "gams::algorithms::Greet::analyze:" \
+          " Time taken for all target calculate_bids and sorting = %f s.\n",
+          overall_timer.duration_ds());
+      } 
 
       if (is_following_)
       {

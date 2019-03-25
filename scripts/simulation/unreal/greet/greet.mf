@@ -30,8 +30,11 @@
   // home.location
   // target.group
 
-  group.targets.members.size=1;
-  group.targets.members.0='agent.0';
+  group.targets.members.size=.targets;
+
+  .i[0 -> group.targets.members.size)(
+    group.targets.members.{.i} = "agent." + .i;
+  );
 
   {.prefix}.algorithm="greet";
   {.prefix}.algorithm.args.home.location=.origin;

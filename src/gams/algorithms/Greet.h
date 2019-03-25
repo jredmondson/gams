@@ -83,6 +83,7 @@ namespace gams
       Greet(
         const std::string & target, const std::string & target_group,
         double guard_distance,
+        const std::string & guard_group,
         const std::vector<double> & guard_location,
         double guard_max_follow_distance,
         const std::vector<double> & home_location,
@@ -156,6 +157,9 @@ namespace gams
 
       /// the distance from guard location (max of dimensions)
       pose::Epsilon guard_epsilon_;
+
+      /// a group of agents guarding
+      std::unique_ptr<groups::GroupBase> guard_group_ = 0;
 
       /// the location for the agent to guard
       pose::Position guard_location_;
