@@ -147,6 +147,8 @@ CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
 AIRSIM_BUILD_RESULT=0
+UNREAL_GAMS_REPO_RESULT=0
+UNREAL_GAMS_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -923,6 +925,7 @@ if [ $UNREAL_GAMS -eq 1 ] ; then
 
   ./generate.sh
   ./build.sh
+  UNREAL_GAMS_BUILD_RESULT=$?
 
 else
   echo "NOT CHECKING UNREAL GAMS"
@@ -1578,6 +1581,22 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   if [ $GAMS_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+fi
+
+if [ $UNREAL_GAMS -eq 1 ] ; then
+  echo "  UNREAL GAMS"
+  if [ $UNREAL_GAMS_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+  if [ $UNREAL_GAMS_BUILD_RESULT -eq 0 ]; then
     echo -e "    BUILD=\e[92mPASS\e[39m"
   else
     echo -e "    BUILD=\e[91mFAIL\e[39m"
