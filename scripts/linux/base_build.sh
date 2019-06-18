@@ -978,7 +978,7 @@ if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     )
   fi
   if [ ! -d $CAPNP_ROOT ] ; then
-    git clone --single-branch --branch release-0.6.1 --depth 1 https://github.com/capnproto/capnproto.git $CAPNP_ROOT
+    git clone --single-branch --branch release-0.7.0 --depth 1 https://github.com/capnproto/capnproto.git $CAPNP_ROOT
     CAPNP_REPO_RESULT=$?
   else
     cd $CAPNP_ROOT
