@@ -215,7 +215,7 @@ gams::algorithms::GreetFactory::create(
         target, target_group,
         guard_distance, guard_group, guard_location, guard_max_follow_distance,
         home_location,
-        follow, follow_group, follow_max_agents,
+        follow, follow_group, (int)follow_max_agents,
         knowledge, platform, sensors, self);
     }
   }

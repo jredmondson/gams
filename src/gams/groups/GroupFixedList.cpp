@@ -192,7 +192,7 @@ gams::groups::GroupFixedList::remove_members(const AgentVector & members)
 
     if (fast_members_.size() != members_.size())
     {
-      members_.resize(fast_members_.size());
+      members_.resize((int)fast_members_.size());
 
       // add the members to the underlying knowledge base
       for (size_t i = earliest; i < fast_members_.size(); ++i)

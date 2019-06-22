@@ -442,8 +442,8 @@ gams::algorithms::FormationSync::generate_plan(int formation)
        * the square
        **/
 
-      int square_size =(int)2 * group_members_.size();
-      int num_rows =(size_t)std::sqrt((double)square_size);
+      int square_size = 2 * (int)group_members_.size();
+      int num_rows = (int)std::sqrt((double)square_size);
       int num_cols = num_rows;
       int base = 0;
       int row = 0;

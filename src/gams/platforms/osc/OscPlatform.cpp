@@ -117,7 +117,7 @@ gams::platforms::OscPlatform::OscPlatform(
     }
 
 
-    settings_.type =
+    settings_.type = (uint32_t)
       knowledge->get(".osc.transport.type").to_integer();
     if (settings_.type == 0)
     {

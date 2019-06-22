@@ -8,6 +8,7 @@ SET VREP=0
 SET VREP_CONFIG=0
 SET JAVA=0
 SET ACE=0
+SET CAPNP=0
 SET CLEAN=1
 SET GAMS=0
 SET MADARA=0
@@ -27,8 +28,10 @@ SET FORCE_OSC=0
 ECHO Parsing arguments
 
 FOR %%x in (%*) do (
-   
-   IF "%%x" == "docs" (
+
+    IF "%%x" == "capnp" (
+     SET CAPNP=1
+   ) ELSE IF "%%x" == "docs" (
      echo Build will enable doxygen documentation
      SET DOCS=1
    ) ELSE IF "%%x" == "forceboost" (
@@ -85,7 +88,11 @@ FOR %%x in (%*) do (
    ) ELSE (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of 
+     echo     capnp       Enable capnp custom type support
      echo     docs        Enable doxygen documentation generation
+	 echo     forceboost  Force boost installation
+     echo     forcecapnp  Force capnp installation
+     echo     forceosc    Force open stage control installation
      echo     gams        Build GAMS
      echo     java        Enable Java support
      echo     madara      Build MADARA
@@ -179,6 +186,9 @@ IF %PREREQS% EQU 1 (
   
   IF %FORCE_CAPNP% EQU 1 (
     cd "%CAPNP_ROOT%\c++"
+  
+    echo if cmake fails, make sure you have a development branch version
+	echo from https://cmake.org/files/dev/
   
     echo cmake -G "Visual Studio 15 2017 Win64"
     cmake -G "Visual Studio 15 2017 Win64"
@@ -311,7 +321,7 @@ IF %MADARA% EQU 1 (
   echo.
   echo Generating MADARA project with docs=%DOCS%, java=%JAVA%, tests=%TESTS% and tutorials=%TUTORIALS%
   cd "%MADARA_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,tests=%TESTS%,tutorials=%TUTORIALS%,java=%JAVA%,docs=%DOCS% MADARA.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,tests=%TESTS%,tutorials=%TUTORIALS%,java=%JAVA%,docs=%DOCS%,capnp=%CAPNP% MADARA.mwc
   echo Building MADARA library for Debug target with tests=%TESTS%
   msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:Madara
   echo Building MADARA for Release target with tests=%TESTS%
@@ -322,7 +332,7 @@ IF %GAMS% EQU 1 (
   echo.
   echo Generating GAMS project with docs=%DOCS%, java=%JAVA%, tests=%TESTS% and vrep=%VREP%
   cd "%GAMS_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,docs=%DOCS%,vrep=%VREP%,tests=%TESTS%,java=%JAVA% gams.mwc
+  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,docs=%DOCS%,vrep=%VREP%,tests=%TESTS%,java=%JAVA%,capnp=%CAPNP% gams.mwc
   echo Building GAMS library for Debug target with tests=%TESTS% and vrep=%VREP%
   msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:gams
   echo Building GAMS for Release target with tests=%TESTS% and vrep=%VREP%

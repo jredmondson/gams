@@ -159,7 +159,7 @@ class Joystick
 
   inline bool is_init(const JoystickEvent & event) const
   {
-    return event.type & 0x80 != 0;
+    return (event.type & 0x80) != 0;
   }
 
   inline double to_double(const JoystickEvent & event) const

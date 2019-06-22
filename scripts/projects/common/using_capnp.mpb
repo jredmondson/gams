@@ -1,23 +1,42 @@
 project {
-  includes += $(CAPNP_ROOT)/c++/src
-  libpaths += $(CAPNP_ROOT)/c++/.libs
 
-  libs += capnp
-  libs += capnp-json
-  libs += kj
+  macros += _USE_CAPNP_
 
   Define_Custom (CAPN) {
-    command = bash -c "capnp compile -I \$$CAPNP_ROOT/c++/src -oc++ \$$0;\
-capnp compile -I \$$CAPNP_ROOT/c++/src -o/bin/cat \$$0 > \$$0.bin"
-    inputext = .capn
-    source_outputext = .capn.c++
-    header_outputext = .capn.h
-    generic_outputext = .capn.bin
-    automatic_out = 1
+    command = capnp
+    commandflags = compile -I $(CAPNP_ROOT)/c++/src -oc++
+    inputext = .capnp
+    source_outputext = .capnp.cpp
+    header_outputext = .capnp.h
+    generic_outputext = .capnp.bin
+    postcommand      = <%mv> <%quote><%output_noext%>.capnp.c++<%quote%> <%quote><%output_noext%>.capnp.cpp<%quote%>
+    keyword capnp_flags = commandflags
   }
 
+  requires += capnp
+
+  includes += $(CAPNP_ROOT)/c++/src
+
   specific(prop:microsoft) {
-    DisableSpecificWarnings += 4005 4251 4275 4244
+    DisableSpecificWarnings += 4005 4251 4275 4244 4267
     macros += _CRT_SECURE_NO_WARNINGS
+	
+    Debug::libpaths += $(CAPNP_ROOT)/c++/src/capnp/Debug $(CAPNP_ROOT)/c++/src/kj/Debug
+    Release::libpaths += $(CAPNP_ROOT)/c++/src/capnp/Release $(CAPNP_ROOT)/c++/src/kj/Release
+    
+    lit_libs += capnp
+    lit_libs += capnp-json
+    lit_libs += kj
+  } else {
+    libpaths += $(CAPNP_ROOT)/c++/.libs
+
+    libs += capnp
+    libs += capnp-json
+    libs += kj
+  }
+
+  verbatim(make, top) {
+    # Suppress implicit make rules
+    .SUFFIXES:
   }
 }
