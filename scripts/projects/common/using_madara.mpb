@@ -10,7 +10,7 @@ project : using_boost, using_capnp {
   }
 
   verbatim (make, local, true) {
-    CPPFLAGS := -std=c++11 -Wall -Wextra -Wnon-virtual-dtor \
+    CPPFLAGS := -std=c++14 -Wall -Wextra -Wnon-virtual-dtor \
       -Woverloaded-virtual -O3 $(CPPFLAGS)
     LDLIBS := $(LDLIBS) -lMADARA
   }
