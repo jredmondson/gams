@@ -85,8 +85,8 @@ namespace impl
 }
 
 template<typename T>
-inline auto transform_to_origin(T &in) ->
-  typename std::enable_if<T::positional()>::type
+inline auto transform_to_origin(T& in) ->
+  typename std::enable_if<is_positional<T>::value>::type
 {
   impl::to_origin(in, [](
           const ReferenceFrameType *s,
@@ -102,8 +102,8 @@ inline auto transform_to_origin(T &in) ->
 }
 
 template<typename T>
-inline auto transform_to_origin(T &in) ->
-  typename std::enable_if<T::rotational()>::type
+inline auto transform_to_origin(T& in) ->
+  typename std::enable_if<is_rotational<T>::value>::type
 {
   impl::to_origin(in, [](
           const ReferenceFrameType *s,
@@ -196,7 +196,7 @@ namespace impl
 
 template<typename T>
 inline auto transform_from_origin(T &in, const ReferenceFrame &to_frame) ->
-  typename std::enable_if<T::positional()>::type
+  typename std::enable_if<is_positional<T>::value>::type
 {
   impl::from_origin(in, to_frame, [](
           const ReferenceFrameType *t,
@@ -214,7 +214,7 @@ inline auto transform_from_origin(T &in, const ReferenceFrame &to_frame) ->
 
 template<typename T>
 inline auto transform_from_origin(T &in, const ReferenceFrame &to_frame) ->
-  typename std::enable_if<T::rotational()>::type
+  typename std::enable_if<is_rotational<T>::value>::type
 {
   impl::from_origin(in, to_frame, [](
           const ReferenceFrameType *t,

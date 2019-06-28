@@ -100,7 +100,7 @@ namespace gams
      * default Cartesian; however, you should generally not create new
      * GPS frames. Instead, use gps_frame().
      **/
-    extern const ReferenceFrameType *GPS;
+    extern GAMS_EXPORT const ReferenceFrameType *GPS;
 
     /**
      * Returns the canonical GPS frame representing Earth. In general, use

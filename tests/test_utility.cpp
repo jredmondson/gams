@@ -97,7 +97,7 @@ test_OscUdp ()
 
   size_t buf_size = 1000;
   size_t read_size = 0;
-  char buffer[buf_size];
+  char buffer[1000];
 
   madara::transport::QoSTransportSettings settings;
   settings.hosts.push_back("127.0.0.1:8000");

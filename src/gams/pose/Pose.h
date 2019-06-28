@@ -138,6 +138,12 @@ public:
    **/
   BasicPose();
 
+  /// Is this coordinate a positional one?
+  static constexpr bool positional() { return true; }
+
+  /// Is this coordinate a rotational one?
+  static constexpr bool rotational() { return true; }
+
   Derived &self() { return static_cast<Derived&>(*this); }
   const Derived &self() const { return static_cast<const Derived&>(*this); }
 

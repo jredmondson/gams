@@ -226,6 +226,7 @@ struct default_rotational_unit_traits : default_unit_traits
 template<typename Derived>
 struct basic_positional_mixin
 {
+  using derived_type = Derived;
   Derived &self() { return static_cast<Derived&>(*this); }
   const Derived &self() const { return static_cast<const Derived&>(*this); }
 
@@ -512,6 +513,12 @@ struct unit_traits<units::angular_acceleration>
     const Eigen::Vector3d &ang_acc_vec() const { return self().vec(); }
   };
 };
+
+template<typename T>
+struct is_positional : std::integral_constant<bool, T::positional()> {};
+
+template<typename T>
+struct is_rotational : std::integral_constant<bool, T::rotational()> {};
 
 /// For internal use. The underlying template for all coordinate types.
 template<typename Derived, typename Units>

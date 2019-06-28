@@ -98,13 +98,13 @@ inline auto try_get_time(const T&, Args&&... args) ->
 
 /// Internal class implementing coordinates stamped with timestamp.
 /// Do not use directly.
-template<typename Base>
-class Stamped : public Base
+template<typename Impl>
+class Stamped : public Impl
 {
 public:
-  using Base::self;
+  using Impl::self;
 
-  using derived_type = typename Base::derived_type;
+  using derived_type = typename Impl::derived_type;
 
   /**
    * Default Constructor. Initializes timestamp to zero
@@ -129,14 +129,14 @@ public:
     typename std::enable_if<!std::is_same<typename std::decay<Arg>::type,
       TimeValue>::value && sizeof...(Args) >= 1, void*>::type = nullptr>
   Stamped(Arg&& arg, Args&&... args)
-    : Base((Arg &)arg, ((Args &)args)...),
+    : Impl((Arg &)arg, ((Args &)args)...),
       time_(try_get_time((Arg &)arg, ((Args &)args)...)) {}
 
   template<typename Arg,
     typename std::enable_if<!std::is_same<typename std::decay<Arg>::type,
       TimeValue>::value, void*>::type = nullptr>
   explicit Stamped(Arg&& arg)
-    : Base((Arg &)arg), time_(try_get_time((Arg &)arg)) {}
+    : Impl((Arg &)arg), time_(try_get_time((Arg &)arg)) {}
 #endif
 
   /**
@@ -145,7 +145,7 @@ public:
    * @param time the time to stamp with
    **/
   explicit Stamped(TimeValue time)
-    : Base(), time_(time) {}
+    : Impl(), time_(time) {}
 
 #ifdef DOXYGEN
   /**
@@ -160,7 +160,7 @@ public:
   template<typename... Args,
     typename std::enable_if<(sizeof...(Args) >= 1), void*>::type = nullptr>
   Stamped(TimeValue time, Args&&... args)
-    : Base(std::forward<Args>(args)...), time_(time) {}
+    : Impl(std::forward<Args>(args)...), time_(time) {}
 #endif
 
   /// Get time as std::chrono based TimeValue

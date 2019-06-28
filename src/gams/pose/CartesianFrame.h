@@ -52,6 +52,7 @@
  **/
 
 #include "ReferenceFrame.h"
+#include "gams/GamsExport.h"
 
 #ifndef _GAMS_POSE_CARTESIAN_FRAME_H_
 #define _GAMS_POSE_CARTESIAN_FRAME_H_
@@ -81,7 +82,7 @@ namespace gams
      * ReferenceFrameType struct for Cartesian frames. Used by default by
      * ReferenceFrame objects, or can be passed as first parameter.
      **/
-    extern const ReferenceFrameType *Cartesian;
+    extern GAMS_EXPORT const ReferenceFrameType *Cartesian;
   }
 }
 

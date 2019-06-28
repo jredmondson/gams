@@ -23,7 +23,7 @@ project {
   	
   expand(BOOST_VERSION) {
     $BOOST_VERSION
-    1_67
+    1_70
   }
   	
   expand(BOOST_SYSTEM_DEBUG) {

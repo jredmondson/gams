@@ -664,7 +664,7 @@ public:
       ReferenceFrame parent, uint64_t time) const;
 
   friend class ReferenceFrameVersion;
-  friend const ReferenceFrame *find_common_frame(
+  friend GAMS_EXPORT const ReferenceFrame *find_common_frame(
     const ReferenceFrame *from, const ReferenceFrame *to,
     std::vector<const ReferenceFrame *> *to_stack);
 };
