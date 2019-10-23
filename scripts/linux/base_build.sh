@@ -1200,8 +1200,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS MADARA.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc
 
   if [ $JAVA -eq 1 ]; then
     echo "DELETING MADARA JAVA CLASSES"
@@ -1211,10 +1211,10 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING MADARA"
-  echo "make depend no_karl=$NOKARL android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
   MADARA_BUILD_RESULT=$?
   if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
     MADARA_BUILD_RESULT=1
@@ -1320,8 +1320,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1335,10 +1335,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL airlib=$AIRLIB java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
