@@ -1,4 +1,4 @@
-project {
+feature(capnp) {
 
   macros += _USE_CAPNP_
 
