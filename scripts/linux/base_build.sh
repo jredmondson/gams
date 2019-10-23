@@ -1162,11 +1162,6 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   echo "LD_LIBRARY_PATH for MADARA compile is $LD_LIBRARY_PATH"
 
-  if ! ls $CAPNP_ROOT/c++/.libs/libcapnp-json* > /dev/null 2>&1; then 
-    echo "Cap'Nproto is not built properly or not installed. Please run base_build with 'prereqs' option or check out troubleshooting steps in GAMS Installation Wiki."; 
-    exit 1;
-  fi
-  
   if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
      echo "Set JAVA_HOME or use prereqs to download Oracle Java automatically"
      exit 1;

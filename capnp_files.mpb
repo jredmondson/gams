@@ -1,0 +1,12 @@
+project {
+  Define_Custom (CAPN) {
+    command = capnp
+    commandflags = compile -I $(CAPNP_ROOT)/c++/src -oc++
+    inputext = .capnp
+    source_outputext = .capnp.cpp
+    header_outputext = .capnp.h
+    generic_outputext = .capnp.bin
+    postcommand      = <%mv> <%quote><%output_noext%>.capnp.c++<%quote%> <%quote><%output_noext%>.capnp.cpp<%quote%>
+    keyword capnp_flags = commandflags
+  }
+}

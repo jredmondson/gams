@@ -245,7 +245,7 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_capnp, using_sim
   }
 }
 
-project (types) : using_madara, using_capnp {
+project (types) : using_madara, using_capnp, capnp_files {
   requires += types
 
   libout = lib

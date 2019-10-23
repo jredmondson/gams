@@ -2376,7 +2376,7 @@ containers::${new_container}::modify (void)
       close project_file;
     }
   
-    if (not -f "$path/using_boost.mpb" or not -f "$path/using_capnp.mpb")
+    if (not -f "$path/using_boost.mpb")
     {
       my $gamsroot = $ENV{GAMS_ROOT};
       
@@ -2387,6 +2387,18 @@ containers::${new_container}::modify (void)
       
       copy "$script_dir/common/using_vrep.mpb", "$path/";
       copy "$script_dir/common/using_boost.mpb", "$path/";
+    }
+  
+    if (not -f "$path/using_capnp.mpb" or not -f "$path/capnp_files.mpb")
+    {
+      my $gamsroot = $ENV{GAMS_ROOT};
+      
+      if ($verbose)
+      {
+        print ("  Copying capnp base projects from $gamsroot to $path...\n");
+      }
+      
+      copy "$script_dir/common/capnp_files.mpb", "$path/";
       copy "$script_dir/common/using_capnp.mpb", "$path/";
     }
   

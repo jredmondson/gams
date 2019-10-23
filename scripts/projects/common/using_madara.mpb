@@ -1,4 +1,4 @@
-project : using_boost, using_capnp {
+project : using_boost, using_capnp, capnp_files {
   includes += $(MADARA_ROOT)/include
   libpaths += $(MADARA_ROOT)/lib
 
