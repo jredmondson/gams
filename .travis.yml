@@ -34,6 +34,8 @@ matrix:
     - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
     - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
     - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS=""
+    - env: NAME="Ubuntu 16.04 capnp" CAPNP="capnp"
+    - env: NAME="Ubuntu 16.04 clang capnp" CAPNP="capnp" CLANG="clang"
 
   include:
       ################MAC#####################
@@ -152,8 +154,10 @@ script:
   - echo "TRAVIS_BUILD_DIR=$TRAVIS_BUILD_DIR"
   - echo ls $TRAVIS_BUILD_DIR
   - ls $TRAVIS_BUILD_DIR
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
+  # need to remove this later. This is just for CI to approve the fix, since it requires capnp to be featured out
+  - git clone --single-branch --branch windows_fixes https://github.com/jredmondson/madara.git
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID $CAPNP
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS types $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID $CAPNP
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_arguments_parser; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_auctions; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_controller_run; fi
