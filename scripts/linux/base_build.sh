@@ -78,6 +78,7 @@ ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 NOCOLOR='\033[0m' 
 
+CAPNP=0
 DEBUG=0
 TESTS=0
 TUTORIALS=0
@@ -193,6 +194,10 @@ do
     ANDROID_TESTS=1
     ANDROID=1
     JAVA=1
+  elif [ "$var" = "capnp" ]; then
+    CAPNP=1
+  elif [ "$var" = "nocapnp" ]; then
+    CAPNP=0
   elif [ "$var" = "capnp-java" ]; then
     CAPNP_JAVA=1
   elif [ "$var" = "clang" ]; then
@@ -275,10 +280,13 @@ do
   elif [ "$var" = "zmq" ]; then
     ZMQ=1
   else
-    echo "Invalid argument: $var"
-    echo "  args can be zero or more of the following, space delimited"
-    echo "  airlib|airsim   builds gams with the airlib dependency allowing gams controllers to interface with the Microsoft AirSim plugin"
+#    echo "Invalid argument: $var"
+    echo ""
+    echo "Args can be zero or more of the following, space delimited"
+    echo ""
+    echo "  airlib|airsim   build with Microsoft AirSim support"
     echo "  android         build android libs, turns on java"
+    echo "  capnp           enable capnproto support"
     echo "  clang           build using clang++-5.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
     echo "  debug           create a debug build, with minimal optimizations"
@@ -292,6 +300,7 @@ do
     echo "  lz4             build with LZ4 compression"
     echo "  madara          build MADARA"
     echo "  mpc             download MPC if prereqs is enabled"
+    echo "  nocapnp         disable capnproto support"
     echo "  noclean         do not run 'make clean' before builds."
     echo "                  This is an option that supercharges the build"
     echo "                  process and can reduce build times to seconds."
@@ -323,21 +332,26 @@ do
     echo "  zmq             build with ZeroMQ support"
     echo ""
     echo "The following environment variables are used"
+    echo ""
+    echo "  AIRSIM_ROOT         - location of AirSim repository"
     echo "  CAPNP_ROOT          - location of Cap'n Proto"
     echo "  CORES               - number of build jobs to launch with make, optional"
-    echo "  MPC_ROOT            - location of MakefileProjectCreator"
-    echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
-    echo "                        git://git.code.sf.net/p/madara/code"
-    echo "  GAMS_ROOT           - location of this GAMS git repository"
-    echo "  VREP_ROOT           - location of VREP installation"
+    echo "  DMPL_ROOT           - location of DART DMPL directory"
+    echo "  GAMS_ROOT           - location of this GAMS repository"
     echo "  JAVA_HOME           - location of JDK"
     echo "  LZ4_ROOT            - location of LZ4"
-    echo "  ZMQ_ROOT            - location of ZeroMQ"
-    echo "  SSL_ROOT            - location of OpenSSL"
+    echo "  MPC_ROOT            - location of MakefileProjectCreator"
+    echo "  MADARA_ROOT         - location of local copy of MADARA repository"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
-    echo "  DMPL_ROOT           - location of DART DMPL directory"
+    echo "  SSL_ROOT            - location of OpenSSL"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
-    echo "  AIRSIM_ROOT         - location of AirSim repository"
+    echo "  VREP_ROOT           - location of VREP installation"
+    echo "  ZMQ_ROOT            - location of ZeroMQ"
+    echo ""
+    echo "Previous build (can repeat by calling this script with no args):"
+    echo ""
+    echo "  $(cat $GAMS_ROOT/last_build.lst)"
+    echo ""
     exit
   fi
 done
@@ -885,7 +899,7 @@ fi
 #none of these appeared to work for me in 18.04 /bin/bash
 #if { [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; } && [ $PREREQS -eq 1 ]; then
 #if [[ ($MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1) && $PREREQS -eq 1 ]]; then
-if [ $PREREQS -eq 1 ]; then
+if [ $PREREQS -eq 1 ] && [ $CAPNP -eq 1 ]; then
   if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     CAPNP_AS_A_PREREQ=1
   fi
@@ -961,7 +975,7 @@ else
   echo "NOT CHECKING EIGEN"
 fi
 
-if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
+if [ $CAPNP -eq 1 ] && [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
 
   cd $INSTALL_DIR
 
@@ -1505,7 +1519,7 @@ if [ $VREP -eq 1 ]; then
 fi
 
 if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
-  if [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
+  if [ $CAPNP -eq 1 ]; then
     echo "  CAPNPROTO"
     if [ $CAPNP_REPO_RESULT -eq 0 ]; then
       echo -e "    REPO=\e[92mPASS\e[39m"

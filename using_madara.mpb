@@ -11,7 +11,7 @@ project : debug_build, using_clang, using_android, using_boost, using_nothreadlo
   }
 
   verbatim (make, local, true) {
-    CPPFLAGS := -std=c++11 -O3 $(CPPFLAGS)
+    CPPFLAGS := -std=c++14 -O3 $(CPPFLAGS)
     LDLIBS := $(LDLIBS) -lMADARA
   }
 }
