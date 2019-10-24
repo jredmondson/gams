@@ -32,8 +32,8 @@ matrix:
 
   allow_failures:
     - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
-    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
-    - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS=""
+    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" CAPNP="capnp" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
+    - env: NAME="Ubuntu 16.04 android" ANDROID="android" CAPNP="capnp" SSL="ssl" TESTS="" CLANG="" GAMS=""
     - env: NAME="Ubuntu 16.04 capnp" CAPNP="capnp" TYPES="types"
     - env: NAME="Ubuntu 16.04 clang capnp" CAPNP="capnp" CLANG="clang" TYPES="types"
 
@@ -121,12 +121,12 @@ matrix:
   # g++, linux, android, zmq
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
+      env: NAME="Ubuntu 16.04 android zmq capnp" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS="" CAPNP="capnp" 
 
     # g++, linux, android, ssl
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS="" CAPNP="capnp"
+      env: NAME="Ubuntu 16.04 android capnp" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS="" CAPNP="capnp"
 
 addons:
   apt:
