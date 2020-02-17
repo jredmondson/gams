@@ -287,7 +287,7 @@ do
     echo "  airlib|airsim   build with Microsoft AirSim support"
     echo "  android         build android libs, turns on java"
     echo "  capnp           enable capnproto support"
-    echo "  clang           build using clang++-5.0 and libc++"
+    echo "  clang           build using clang++-6.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
@@ -629,7 +629,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   sudo apt-get install -y -f autoconf automake libtool
 
   if [ $CLANG -eq 1 ]; then
-    sudo apt-get install -y -f clang-5.0 libc++-dev libc++abi-dev
+    sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev
   fi
 
   if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
@@ -962,8 +962,8 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
     )
   fi
   if [ ! -d $EIGEN_ROOT ] ; then
-    echo "git clone --single-branch --branch 3.3.4 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT"
-    git clone --single-branch --branch 3.3.4 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
+    echo "git clone --single-branch --branch 3.3.7 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT"
+    git clone --single-branch --branch 3.3.7 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
   else
     echo "UPDATING Eigen"
@@ -1026,8 +1026,8 @@ if [ $CAPNP -eq 1 ] && [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     export PATH="$CAPNP_ROOT/c++:$PATH"
     export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
     if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
-      export CC=clang-5.0
-      export CXX=clang++-5.0
+      export CC=clang-6.0
+      export CXX=clang++-6.0
       export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
     fi
 
@@ -1067,7 +1067,7 @@ if [ $PREREQS -eq 1 ]; then
       export CXX=clang++
     fi
   elif [ $CLANG -eq 1 ]; then
-    export CXX=clang++-5.0
+    export CXX=clang++-6.0
   fi 
 
   if [ ! -z "$CXX" ]; then
