@@ -93,7 +93,8 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
 
       bundle
           << osc::BeginMessage(i.first.c_str())
-          << osc::Blob(value.c_str(), value.size())
+          << osc::Blob(value.c_str(),
+             (osc::osc_bundle_element_size_t)value.size())
           << osc::EndMessage;
     }
   }

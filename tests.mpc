@@ -26,6 +26,25 @@ project (gams_throughput) : using_gams, using_madara {
   }
 }
 
+project (test_multicontroller) : using_gams, using_madara {
+  exeout = $(GAMS_ROOT)/bin
+  exename = test_multicontroller
+  
+  macros +=  _USE_MATH_DEFINES
+
+  requires += tests
+
+  Documentation_Files {
+  }
+
+  Header_Files {
+  }
+
+  Source_Files {
+    tests/test_multicontroller.cpp
+  }
+}
+
 
 project (test_controller) : using_gams, using_madara {
   exeout = $(GAMS_ROOT)/bin

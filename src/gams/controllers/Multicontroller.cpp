@@ -453,7 +453,10 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
     {
       for (auto transport : transports_)
       {
-        transport->set(kbs_);
+        if (transport != 0)
+        {
+          transport->set(kbs_);
+        }
       }
       
       transports_.resize(num_controllers);
@@ -462,6 +465,13 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
     // if we're growing the num controllers, resize now
     if (old_size < num_controllers)
     {
+      // handle case where resize is called after a default constructor
+      if (old_size == 1 && settings_.shared_memory_transport)
+      {
+        delete controllers_[0];
+        old_size = 0;
+      }
+
       madara::transport::QoSTransportSettings transport_settings;
       for (size_t i = old_size; i < num_controllers; ++i)
       {
