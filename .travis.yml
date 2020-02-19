@@ -31,42 +31,42 @@ env:
 matrix:
 
   allow_failures:
-    - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
+    - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq" CC=clang-5.0 CXX=clang-5.0++
     - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" CAPNP="capnp" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
     - env: NAME="Ubuntu 16.04 android" ANDROID="android" CAPNP="capnp" SSL="ssl" TESTS="" CLANG="" GAMS=""
     - env: NAME="Ubuntu 16.04 capnp" CAPNP="capnp" TYPES="types"
-    - env: NAME="Ubuntu 16.04 clang capnp" CAPNP="capnp" CLANG="clang" TYPES="types"
+    - env: NAME="Ubuntu 16.04 clang capnp" CAPNP="capnp" CLANG="clang" TYPES="types" CC=clang-5.0 CXX=clang-5.0++
 
   include:
       ################MAC#####################
 
       # clang, osx, no ssl
     - compiler: clang
-      env: NAME="OSX 10.13 clang" CLANG="clang"
+      env: NAME="OSX 10.13 clang" CLANG="clang" CC=clang-5.0 CXX=clang-5.0++
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, ssl
     - compiler: clang
-      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl" SSL_ROOT=/usr/local/opt/openssl
+      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl" SSL_ROOT=/usr/local/opt/openssl CC=clang-5.0 CXX=clang-5.0++
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, java
     - compiler: clang
-      env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java" CAPNP="capnp"
+      env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java" CAPNP="capnp" CC=clang-5.0 CXX=clang-5.0++
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, zeromq
     - compiler: clang
-      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
+      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq" CC=clang-5.0 CXX=clang-5.0++
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, simtime
     - compiler: clang
-      env: NAME="OSX 10.13 clang simtime" CLANG="clang" SIMTIME="simtime"
+      env: NAME="OSX 10.13 clang simtime" CLANG="clang" SIMTIME="simtime" CC=clang-5.0 CXX=clang-5.0++
       os: osx
       osx_image: xcode9.3
 
@@ -74,7 +74,7 @@ matrix:
 
       # clang, linux, no ssl
     - compiler: clang
-      env: NAME="Ubuntu 16.04 clang" CLANG="clang"
+      env: NAME="Ubuntu 16.04 clang" CLANG="clang" CC=clang-5.0 CXX=clang-5.0++
       addons:
         apt:
           sources:
