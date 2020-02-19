@@ -475,7 +475,8 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
       madara::transport::QoSTransportSettings transport_settings;
       for (size_t i = old_size; i < num_controllers; ++i)
       {
-        controllers_[i] = new BaseController (kbs_[i], settings_);
+        controllers_[i] = new BaseController(kbs_[i], settings_);
+        controllers_[i]->init_vars ((Integer)i, (Integer)num_controllers);
 
         // only add shared memory transport if more than 1 controller
         if (settings_.shared_memory_transport && num_controllers > 1)
