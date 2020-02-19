@@ -146,6 +146,8 @@ ZMQ_BUILD_RESULT=0
 LZ4_REPO_RESULT=0
 CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
+CAPNPJAVA_REPO_RESULT=0
+CAPNPJAVA_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
 AIRSIM_BUILD_RESULT=0
 UNREAL_GAMS_REPO_RESULT=0
@@ -428,6 +430,10 @@ if [ -z $CAPNP_ROOT ] ; then
   export CAPNP_ROOT=$INSTALL_DIR/capnproto
 fi
 
+if [ -z $CAPNPJAVA_ROOT ] ; then
+  export CAPNPJAVA_ROOT=$INSTALL_DIR/capnproto-java
+fi
+
 if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
 fi
@@ -468,6 +474,7 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
+echo "CAPNPJAVA_ROOT is set to $CAPNPJAVA_ROOT"
 echo "OSC_ROOT is set to $OSC_ROOT"
 echo "UNREAL_ROOT is set to $UNREAL_ROOT"
 echo "AIRSIM_ROOT is set to $AIRSIM_ROOT"
@@ -1035,14 +1042,42 @@ if [ $CAPNP -eq 1 ] && [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
 
   fi
 
-   make -j$CORES capnp capnpc-c++ libcapnp-json.la 
-   CAPNP_BUILD_RESULT=$?
+  make -j$CORES capnp capnpc-c++ libcapnp-json.la 
+  CAPNP_BUILD_RESULT=$?
 
-   if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
-       echo "CapNProto is not built properly."
-       exit 1;
-   fi
- #Prereq if ends
+  if [ $JAVA -eq 1 ]; then
+    if [ ! -d $CAPNPJAVA_ROOT ] ; then
+      git clone https://github.com/capnproto/capnproto-java.git $CAPNPJAVA_ROOT
+
+      CAPNPJAVA_REPO_RESULT=$?
+      cd $CAPNPJAVA_ROOT
+    else
+      cd $CAPNPJAVA_ROOT
+      git stash
+      git pull
+      CAPNPJAVA_REPO_RESULT=$?
+    fi
+
+    # the capnproto-java maintainer uses CAPNP_PREFIX within his Makefile
+    if [ -z $CAPNP_PREFIX ] ; then
+      export CAPNP_PREFIX=$CAPNP_ROOT
+    fi
+
+    if [[ ! $PATH =~ "$CAPNPJAVA_ROOT" ]]; then
+      export PATH=$PATH:$CAPNPJAVA_ROOT
+    fi
+
+    patch -b -d $CAPNPJAVA_ROOT -p1 -i $GAMS_ROOT/scripts/linux/patches/capnpc-java.Makefile.patch
+    make
+    CAPNPJAVA_BUILD_RESULT=$?
+
+  fi
+
+  if [ ! -d $CAPNP_ROOT/c++/.libs ]; then
+    echo "CapNProto is not built properly."
+    exit 1;
+  fi
+  #Prereq if ends
 else
   echo "NOT CHECKING CAPNPROTO"
 fi
@@ -1528,6 +1563,22 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
       echo -e "    BUILD=\e[91mFAIL\e[39m"
       (( BUILD_ERRORS++ ))
     fi
+
+    if [ $JAVA -eq 1 ]; then
+      echo "  CAPNPROTO-JAVA"
+      if [ $CAPNPJAVA_REPO_RESULT -eq 0 ]; then
+        echo -e "    REPO=\e[92mPASS\e[39m"
+      else
+        echo -e "    REPO=\e[91mFAIL\e[39m"
+        (( BUILD_ERRORS++ ))
+      fi
+      if [ $CAPNPJAVA_BUILD_RESULT -eq 0 ]; then
+        echo -e "    BUILD=\e[92mPASS\e[39m"
+      else
+        echo -e "    BUILD=\e[91mFAIL\e[39m"
+        (( BUILD_ERRORS++ ))
+      fi
+    fi
   fi
 
 
@@ -1700,6 +1751,12 @@ else
   echo "export PYTHONPATH=\$PYTHONPATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib" >> $HOME/.gams/env.sh
 fi
 
+if grep -q "export CAPNP_PREFIX" $HOME/.gams/env.sh ; then
+  sed -i 's@export CAPNP_PREFIX=.*@export CAPNP_PREFIX='"$CAPNP_PREFIX"'@' $HOME/.gams/env.sh
+else
+  echo "export CAPNP_PREFIX=$CAPNP_PREFIX" >> $HOME/.gams/env.sh
+fi
+
 
 if [ $ANDROID -eq 1 ]; then
   if grep -q NDK_ROOT $HOME/.gams/env.sh ; then
@@ -1721,7 +1778,7 @@ fi
 if [ $MAC -eq 0 ]; then
 
   if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
   else
     echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
   fi
@@ -1738,9 +1795,9 @@ fi
 
 
 if grep -q "export PATH" $HOME/.gams/env.sh ; then
-  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"'@' $HOME/.gams/env.sh
+  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
 else
-  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep" >> $HOME/.gams/env.sh
+  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
 fi
 
 
