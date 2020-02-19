@@ -460,6 +460,16 @@ if [ -z $UNREAL_GAMS_ROOT ] ; then
   export UE4_GAMS=$INSTALL_DIR/UnrealGAMS
 fi
 
+if [ ! -z $CC ] ; then
+  export FORCE_CC=$CC
+  echo "Forcing CC=$CC"
+fi
+
+if [ ! -z $CXX ] ; then
+  export FORCE_CXX=$CXX
+  echo "Forcing CXX=$CXX"
+fi
+
 # echo build information
 echo "INSTALL_DIR will be $INSTALL_DIR"
 echo "Using $CORES build jobs"
@@ -893,6 +903,16 @@ if [ $LZ4 -eq 1 ] ; then
   fi
 fi
 
+if [ ! -z $FORCE_CC ] ; then
+  export CC=$FORCE_CC
+  echo "Forcing CC=$CC"
+fi
+
+if [ ! -z $FORCE_CXX ] ; then
+  export CXX=$FORCE_CXX
+  echo "Forcing CXX=$CXX"
+fi
+
 # check if MPC is a prereq for later packages
 
 if [ $DMPL -eq 1 ] || [ $GAMS -eq 1 ] || [ $MADARA -eq 1 ]; then
@@ -1033,8 +1053,20 @@ if [ $CAPNP -eq 1 ] && [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
     export PATH="$CAPNP_ROOT/c++:$PATH"
     export LD_LIBRARY_PATH="$CAPNP_ROOT/c++/.libs:$LD_LIBRARY_PATH"
     if [ $CLANG -ne 0 ] && [ $MAC -eq 0 ]; then
-      export CC=clang-6.0
-      export CXX=clang++-6.0
+      if [ ! -z $FORCE_CC ] ; then
+        export CC=$FORCE_CC
+        echo "Forcing CC=$CC"
+      else
+        export CC=clang-6.0
+      fi
+
+      if [ ! -z $FORCE_CXX ] ; then
+        export CXX=$FORCE_CXX
+        echo "Forcing CXX=$CXX"
+      else
+        export CXX=clang++-6.0
+      fi
+
       export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
     fi
 
@@ -1102,7 +1134,21 @@ if [ $PREREQS -eq 1 ]; then
       export CXX=clang++
     fi
   elif [ $CLANG -eq 1 ]; then
-    export CXX=clang++-6.0
+  
+    if [ ! -z $FORCE_CC ] ; then
+      export CC=$FORCE_CC
+      echo "Forcing CC=$CC"
+    else
+      export CC=clang-6.0
+    fi
+
+    if [ ! -z $FORCE_CXX ] ; then
+      export CXX=$FORCE_CXX
+      echo "Forcing CXX=$CXX"
+    else
+      export CXX=clang++-6.0
+    fi
+
   fi 
 
   if [ ! -z "$CXX" ]; then
