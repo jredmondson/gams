@@ -1797,10 +1797,10 @@ else
   echo "export PYTHONPATH=\$PYTHONPATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib" >> $HOME/.gams/env.sh
 fi
 
-if grep -q "export CAPNP_PREFIX" $HOME/.gams/env.sh ; then
-  sed -i 's@export CAPNP_PREFIX=.*@export CAPNP_PREFIX='"$CAPNP_PREFIX"'@' $HOME/.gams/env.sh
+if grep -q "export CAPNPJAVA_ROOT" $HOME/.gams/env.sh ; then
+  sed -i 's@export CAPNPJAVA_ROOT=.*@export CAPNPJAVA_ROOT='"$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
 else
-  echo "export CAPNP_PREFIX=$CAPNP_PREFIX" >> $HOME/.gams/env.sh
+  echo "export CAPNPJAVA_ROOT=$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
 fi
 
 
@@ -1824,7 +1824,7 @@ fi
 if [ $MAC -eq 0 ]; then
 
   if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
+    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
   else
     echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
   fi

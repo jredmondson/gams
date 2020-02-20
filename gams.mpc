@@ -245,16 +245,12 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_capnp, using_sim
   }
 }
 
-project (types) : using_madara, using_capnp, capnp_files {
+project (types) : using_madara, using_capnp, capnp_types {
   requires += types
 
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = TYPES
-
-  CAPN_Files {
-    src/gams/types
-  }
 
   Header_Files {
     src/gams/types

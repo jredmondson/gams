@@ -19,6 +19,7 @@ lib*
 *.vcxproj.filters
 .vscode
 capnproto/
+*.capnp.cpp
 
 gams.VC.db
 gams.sdf
