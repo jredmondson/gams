@@ -646,7 +646,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   sudo apt-get install -y -f autoconf automake libtool
 
   if [ $CLANG -eq 1 ]; then
-    sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev
+    sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev clang-5.0
   fi
 
   if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then

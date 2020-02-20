@@ -42,31 +42,31 @@ matrix:
 
       # clang, osx, no ssl
     - compiler: clang
-      env: NAME="OSX 10.13 clang" CLANG="clang" CC=clang-5.0 CXX=clang++-5.0
+      env: NAME="OSX 10.13 clang" CLANG="clang"
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, ssl
     - compiler: clang
-      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl" SSL_ROOT=/usr/local/opt/openssl CC=clang-5.0 CXX=clang++-5.0
+      env: NAME="OSX 10.13 clang ssl" CLANG="clang" SSL="ssl" SSL_ROOT=/usr/local/opt/openssl
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, java
     - compiler: clang
-      env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java" CAPNP="capnp" CC=clang-5.0 CXX=clang++-5.0
+      env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java" CAPNP="capnp"
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, zeromq
     - compiler: clang
-      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq" CC=clang-5.0 CXX=clang++-5.0
+      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
       os: osx
       osx_image: xcode9.3
 
       # clang, osx, simtime
     - compiler: clang
-      env: NAME="OSX 10.13 clang simtime" CLANG="clang" SIMTIME="simtime" CC=clang-5.0 CXX=clang++-5.0
+      env: NAME="OSX 10.13 clang simtime" CLANG="clang" SIMTIME="simtime"
       os: osx
       osx_image: xcode9.3
 
