@@ -205,18 +205,30 @@ do
   elif [ "$var" = "clang" ]; then
     CLANG=1
     CLANG_DEFINED=1
+  elif [ "$var" = "clang5" ] ||  [ "$var" = "clang-5" ]; then
+    CLANG=1
+    CLANG_DEFINED=1
+    CLANG_SUFFIX=-5.0
+    FORCE_CC=clang-5.0
+    FORCE_CXX=clang++-5.0
   elif [ "$var" = "clang6" ] ||  [ "$var" = "clang-6" ]; then
     CLANG=1
     CLANG_DEFINED=1
     CLANG_SUFFIX=-6.0
+    FORCE_CC=clang-6.0
+    FORCE_CXX=clang++-6.0
   elif [ "$var" = "clang8" ] ||  [ "$var" = "clang-8" ]; then
     CLANG=1
     CLANG_DEFINED=1
-    CLANG_SUFFIX=-8.0
+    CLANG_SUFFIX=-8
+    FORCE_CC=clang-8
+    FORCE_CXX=clang++-8
   elif [ "$var" = "clang9" ] ||  [ "$var" = "clang-9" ]; then
     CLANG=1
     CLANG_DEFINED=1
-    CLANG_SUFFIX=-9.0
+    CLANG_SUFFIX=-9
+    FORCE_CC=clang-9
+    FORCE_CXX=clang++-9
   elif [ "$var" = "clean" ]; then
     CLEAN=1
   elif [ "$var" = "dart" ]; then
