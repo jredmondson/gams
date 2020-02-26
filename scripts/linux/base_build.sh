@@ -208,15 +208,15 @@ do
   elif [ "$var" = "clang6" ] ||  [ "$var" = "clang-6" ]; then
     CLANG=1
     CLANG_DEFINED=1
-    CLANG_SUFFIX=6.0
+    CLANG_SUFFIX=-6.0
   elif [ "$var" = "clang8" ] ||  [ "$var" = "clang-8" ]; then
     CLANG=1
     CLANG_DEFINED=1
-    CLANG_SUFFIX=8.0
+    CLANG_SUFFIX=-8.0
   elif [ "$var" = "clang9" ] ||  [ "$var" = "clang-9" ]; then
     CLANG=1
     CLANG_DEFINED=1
-    CLANG_SUFFIX=9.0
+    CLANG_SUFFIX=-9.0
   elif [ "$var" = "clean" ]; then
     CLEAN=1
   elif [ "$var" = "dart" ]; then
@@ -664,9 +664,9 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   if [ $CLANG -eq 1 ]; then
     sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev clang-5.0
 
-    if [ $CLANG_SUFFIX = "8.0" ]; then
+    if [ $CLANG_SUFFIX = "-8.0" ]; then
       sudo apt-get install -y -f clang-8
-    elif [ $CLANG_SUFFIX = "9.0" ]; then
+    elif [ $CLANG_SUFFIX = "-9.0" ]; then
       sudo apt-get install -y -f clang-9
     fi
   fi
