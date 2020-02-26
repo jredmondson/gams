@@ -85,6 +85,9 @@ FOR %%x in (%*) do (
    ) ELSE IF "%%x" == "vs2017" (
      echo Build will enable vrep
      SET VS_VERSION="vs2017"
+   ) ELSE IF "%%x" == "vs2019" (
+     echo Build will enable vrep
+     SET VS_VERSION="vs2019"
    ) ELSE (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of 
@@ -190,8 +193,8 @@ IF %PREREQS% EQU 1 (
     echo if cmake fails, make sure you have a development branch version
 	echo from https://cmake.org/files/dev/
   
-    echo cmake -G "Visual Studio 15 2017 Win64"
-    cmake -G "Visual Studio 15 2017 Win64"
+    echo cmake -G "Visual Studio 15 2017" -A "x64"
+    cmake -G "Visual Studio 15 2017" -A "x64"
   
     echo cmake --build . --config Debug
     cmake --build . --config Debug
@@ -258,8 +261,8 @@ IF %PREREQS% EQU 1 (
   
     cd "%OSC_ROOT%"
   
-    echo cmake -G "Visual Studio 15 2017 Win64"
-    cmake -G "Visual Studio 15 2017 Win64"
+    echo cmake -G "Visual Studio 15 2017" -A "x64"
+    cmake -G "Visual Studio 15 2017" -A "x64"
   
     echo cmake --build . --config Debug
     cmake --build . --config Debug
@@ -321,22 +324,22 @@ IF %MADARA% EQU 1 (
   echo.
   echo Generating MADARA project with docs=%DOCS%, java=%JAVA%, tests=%TESTS% and tutorials=%TUTORIALS%
   cd "%MADARA_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,tests=%TESTS%,tutorials=%TUTORIALS%,java=%JAVA%,docs=%DOCS%,capnp=%CAPNP% MADARA.mwc
-  echo Building MADARA library for Debug target with tests=%TESTS%
-  msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:Madara
-  echo Building MADARA for Release target with tests=%TESTS%
-  msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
+  perl "%MPC_ROOT%/mwc.pl" -type "%vs_version%" -features "nothreadlocal=1,tests=%TESTS%,tutorials=%TUTORIALS%,java=%JAVA%,docs=%DOCS%,capnp=%CAPNP%" MADARA.mwc
+  :: echo Building MADARA library for Debug target with tests=%TESTS%
+  :: msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:Madara
+  :: echo Building MADARA for Release target with tests=%TESTS%
+  :: msbuild "%MADARA_ROOT%\MADARA.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
 )
 
 IF %GAMS% EQU 1 (
   echo.
   echo Generating GAMS project with docs=%DOCS%, java=%JAVA%, tests=%TESTS% and vrep=%VREP%
   cd "%GAMS_ROOT%"
-  "%ACE_ROOT%\bin\mwc.pl" -type %vs_version% -features nothreadlocal=1,docs=%DOCS%,vrep=%VREP%,tests=%TESTS%,java=%JAVA%,capnp=%CAPNP% gams.mwc
-  echo Building GAMS library for Debug target with tests=%TESTS% and vrep=%VREP%
-  msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:gams
-  echo Building GAMS for Release target with tests=%TESTS% and vrep=%VREP%
-  msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
+  perl "%MPC_ROOT/mwc.pl" -type %vs_version% -features nothreadlocal=1,docs=%DOCS%,vrep=%VREP%,tests=%TESTS%,java=%JAVA%,capnp=%CAPNP% gams.mwc
+  :: echo Building GAMS library for Debug target with tests=%TESTS% and vrep=%VREP%
+  :: msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Debug;Platform=X64 /target:gams
+  :: echo Building GAMS for Release target with tests=%TESTS% and vrep=%VREP%
+  :: msbuild "gams.sln" /maxcpucount /t:Rebuild /clp:NoSummary;NoItemAndPropertyList;ErrorsOnly /verbosity:quiet /nologo /p:Configuration=Release;Platform=X64
 )
 
 if %VREP_CONFIG% EQU 1 (
