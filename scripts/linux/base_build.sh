@@ -205,6 +205,18 @@ do
   elif [ "$var" = "clang" ]; then
     CLANG=1
     CLANG_DEFINED=1
+  elif [ "$var" = "clang6" ] ||  [ "$var" = "clang-6" ]; then
+    CLANG=1
+    CLANG_DEFINED=1
+    CLANG_SUFFIX=6.0
+  elif [ "$var" = "clang8" ] ||  [ "$var" = "clang-8" ]; then
+    CLANG=1
+    CLANG_DEFINED=1
+    CLANG_SUFFIX=8.0
+  elif [ "$var" = "clang9" ] ||  [ "$var" = "clang-9" ]; then
+    CLANG=1
+    CLANG_DEFINED=1
+    CLANG_SUFFIX=9.0
   elif [ "$var" = "clean" ]; then
     CLEAN=1
   elif [ "$var" = "dart" ]; then
@@ -289,7 +301,11 @@ do
     echo "  airlib|airsim   build with Microsoft AirSim support"
     echo "  android         build android libs, turns on java"
     echo "  capnp           enable capnproto support"
-    echo "  clang           build using clang++-6.0 and libc++"
+    echo "  clang           build using clang++\$CLANG_SUFFIX and libc++"
+    echo "  clang-5         build using clang++-5.0 and libc++"
+    echo "  clang-6         build using clang++-6.0 and libc++"
+    echo "  clang-8         build using clang++-8.0 and libc++"
+    echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
@@ -647,6 +663,12 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
   if [ $CLANG -eq 1 ]; then
     sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev clang-5.0
+
+    if [ $CLANG_SUFFIX = "8.0" ]; then
+      sudo apt-get install -y -f clang-8
+    elif [ $CLANG_SUFFIX = "9.0" ]; then
+      sudo apt-get install -y -f clang-9
+    fi
   fi
 
   if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
@@ -1279,6 +1301,17 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     echo "REMOVING KARL EXPRESSION EVALUATION FROM MADARA BUILD"
   fi
 
+  if [ ! -z $FORCE_CC ] ; then
+    export CC=$FORCE_CC
+    echo "Forcing CC=$CC"
+  fi
+
+  if [ ! -z $FORCE_CXX ] ; then
+    export CXX=$FORCE_CXX
+    echo "Forcing CXX=$CXX"
+  fi
+
+
   cd $MADARA_ROOT
   echo "GENERATING MADARA PROJECT"
   echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
@@ -1396,6 +1429,16 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   if [ $NOKARL -eq 1 ] ; then
     echo "REMOVING KARL EXPRESSION EVALUATION FROM GAMS BUILD"
+  fi
+
+  if [ ! -z $FORCE_CC ] ; then
+    export CC=$FORCE_CC
+    echo "Forcing CC=$CC"
+  fi
+
+  if [ ! -z $FORCE_CXX ] ; then
+    export CXX=$FORCE_CXX
+    echo "Forcing CXX=$CXX"
   fi
 
   cd $GAMS_ROOT
