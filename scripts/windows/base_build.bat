@@ -354,17 +354,17 @@ IF NOT EXIST "%HOMEDRIVE%%HOMEPATH%"\.gams (
   mkdir "%HOMEDRIVE%%HOMEPATH%"\.gams
 )
 
-echo BOOST_ROOT=%BOOST_ROOT% > "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo CAPNP_ROOT=%CAPNP_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo EIGEN_ROOT=%EIGEN_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo GAMS_ROOT=%GAMS_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo LZ4_ROOT=%LZ4_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo MADARA_ROOT=%MADARA_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo MPC_ROOT=%MPC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo OSC_ROOT=%OSC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo VREP_ROOT=%VREP_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo PATH=%%PATH%%:%%MPC_ROOT%%:%%CAPNP_ROOT%%\c++\src\capnp\Release:%%MADARA_ROOT%%\lib:%%MADARA_ROOT%%\bin:%%GAMS_ROOT%%\lib >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET BOOST_ROOT=%BOOST_ROOT% > "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET CAPNP_ROOT=%CAPNP_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET EIGEN_ROOT=%EIGEN_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET GAMS_ROOT=%GAMS_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET LZ4_ROOT=%LZ4_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET MADARA_ROOT=%MADARA_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET MPC_ROOT=%MPC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET OSC_ROOT=%OSC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET VREP_ROOT=%VREP_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET PATH=%%PATH%%:%%MPC_ROOT%%:%%CAPNP_ROOT%%\c++\src\capnp\Release:%%MADARA_ROOT%%\lib:%%MADARA_ROOT%%\bin:%%GAMS_ROOT%%\lib >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
 
 echo
 echo Environment saved to "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
