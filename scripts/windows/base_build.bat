@@ -17,6 +17,7 @@ SET TUTORIALS=0
 SET DOCS=0
 SET VS_VERSION="vs2017"
 SET PREREQS=0
+SET SETENV=0
 
 SET CAPNP_REPO_RESULT=0
 SET CAPNP_BUILD_RESULT=0
@@ -88,6 +89,9 @@ FOR %%x in (%*) do (
    ) ELSE IF "%%x" == "vs2019" (
      echo Build will enable vrep
      SET VS_VERSION="vs2019"
+   ) ELSE IF "%%x" == "setenv" (
+     echo Build will set environment variables for you
+     SET SETENV=1
    ) ELSE (
      echo ERROR: Bad argument "%%x"
      echo   Appropriate arguments are any combination of 
@@ -164,7 +168,6 @@ echo   MPC_ROOT=%MPC_ROOT%
 echo   OSC_ROOT=%OSC_ROOT%
 echo   UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT%
 echo   VREP_ROOT=%VREP_ROOT%
-
 
 IF %PREREQS% EQU 1 (
   echo.
@@ -364,7 +367,37 @@ echo SET MPC_ROOT=%MPC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
 echo SET OSC_ROOT=%OSC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
 echo SET UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
 echo SET VREP_ROOT=%VREP_ROOT% >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
-echo SET PATH=%%PATH%%:%%MPC_ROOT%%:%%CAPNP_ROOT%%\c++\src\capnp\Release:%%MADARA_ROOT%%\lib:%%MADARA_ROOT%%\bin:%%GAMS_ROOT%%\lib >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+echo SET PATH=%%PATH%%;%%MPC_ROOT%%;%%CAPNP_ROOT%%\c++\src\capnp\Release;%%MADARA_ROOT%%\lib;%%MADARA_ROOT%%\bin;%%GAMS_ROOT%%\lib >> "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
+
+if %SETENV% EQU 1 (
+  echo Setting local environment variables in your terminal
+  SET BOOST_ROOT=%BOOST_ROOT%
+  SET CAPNP_ROOT=%CAPNP_ROOT%
+  SET EIGEN_ROOT=%EIGEN_ROOT%
+  SET GAMS_ROOT=%GAMS_ROOT%
+  SET LZ4_ROOT=%LZ4_ROOT%
+  SET MADARA_ROOT=%MADARA_ROOT%
+  SET MPC_ROOT=%MPC_ROOT%
+  SET OSC_ROOT=%OSC_ROOT%
+  SET UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT%
+  SET VREP_ROOT=%VREP_ROOT%
+  
+  echo Setting environment variables in your permanent environment
+  SETX BOOST_ROOT %BOOST_ROOT%
+  SETX CAPNP_ROOT %CAPNP_ROOT%
+  SETX EIGEN_ROOT %EIGEN_ROOT%
+  SETX GAMS_ROOT %GAMS_ROOT%
+  SETX LZ4_ROOT %LZ4_ROOT%
+  SETX MADARA_ROOT %MADARA_ROOT%
+  SETX MPC_ROOT %MPC_ROOT%
+  SETX OSC_ROOT %OSC_ROOT%
+  SETX UNREAL_GAMS_ROOT %UNREAL_GAMS_ROOT%
+  SETX VREP_ROOT %VREP_ROOT%
+  ::SETX PATH "%MPC_ROOT%;%CAPNP_ROOT%\c++\src\capnp\Release;%MADARA_ROOT%\lib;%MADARA_ROOT%\bin;%GAMS_ROOT%\lib"
+  
+  echo All variables but %%PATH%% are set permanently. Please update PATH
+  echo manually by going to Start and searching for Edit Environment Variables
+)
 
 echo
 echo Environment saved to "%HOMEDRIVE%%HOMEPATH%"\.gams\env.bat
