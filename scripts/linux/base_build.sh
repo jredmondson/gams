@@ -83,6 +83,7 @@ DEBUG=0
 TESTS=0
 TUTORIALS=0
 VREP=0
+SCRIMMAGE_GAMS=0
 JAVA=0
 ROS=0
 CLANG=0
@@ -127,6 +128,7 @@ MADARA_DEPENDENCY_ENABLED=0
 MPC_AS_A_PREREQ=0
 MADARA_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
+SCRIMMAGE_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
 CAPNP_AS_A_PREREQ=0
@@ -141,6 +143,7 @@ MADARA_REPO_RESULT=0
 MADARA_BUILD_RESULT=0
 MPC_REPO_RESULT=0
 VREP_REPO_RESULT=0
+SCRIMMAGE_REPO_RESULT=0
 ZMQ_REPO_RESULT=0
 ZMQ_BUILD_RESULT=0
 LZ4_REPO_RESULT=0
@@ -297,6 +300,8 @@ do
     CLANG=1
   elif [ "$var" = "unreal-gams" ]; then
     UNREAL_GAMS=1
+  elif [ "$var" = "scrimmage-gams" ]; then
+    SCRIMMAGE_GAMS=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
   elif [ "$var" = "vrep-config" ]; then
@@ -357,6 +362,7 @@ do
     echo "  unreal-dev      builds Unreal Dev and UnrealGAMS"
     echo "  unreal-gams     builds UnrealGAMS"
     echo "  vrep            build with vrep support"
+    echo "  scrimmage-gams  build with scrimmage support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  warnings        build with compile warnings enabled in GAMS/MADARA"
     echo "  zmq             build with ZeroMQ support"
@@ -367,7 +373,12 @@ do
     echo "  CAPNP_ROOT          - location of Cap'n Proto"
     echo "  CORES               - number of build jobs to launch with make, optional"
     echo "  DMPL_ROOT           - location of DART DMPL directory"
-    echo "  GAMS_ROOT           - location of this GAMS repository"
+    echo "  MPC_ROOT            - location of MakefileProjectCreator"
+    echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
+    echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  GAMS_ROOT           - location of this GAMS git repository"
+    echo "  VREP_ROOT           - location of VREP installation"
+    echo "  SCRIMMAGE_ROOT      - the location of the SCRIMMAGE installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
@@ -474,6 +485,10 @@ if [ -z $VREP_ROOT ] ; then
   export VREP_ROOT=$INSTALL_DIR/vrep
 fi
 
+if [ -z $SCRIMMAGE_ROOT ] ; then
+  export SCRIMMAGE_ROOT=$INSTALL_DIR/scrimmage
+fi
+
 if [ -z $UNREAL_ROOT ] ; then
   export UNREAL_ROOT=$INSTALL_DIR/UnrealEngine
   export UE4_ROOT=$INSTALL_DIR/UnrealEngine
@@ -543,6 +558,11 @@ fi
 echo "VREP has been set to $VREP"
 if [ $VREP -eq 1 ]; then
   echo "VREP_ROOT is referencing $VREP_ROOT"
+fi
+
+echo "SCRIMMAGE has been set to $SCRIMMAGE_GAMS"
+if [ $SCRIMMAGE_GAMS -eq 1 ]; then
+  echo "SCRIMMAGE_ROOT is referencing $SCRIMMAGE_ROOT"
 fi
 
 echo "ANDROID has been set to $ANDROID"
@@ -890,6 +910,13 @@ else
   echo "export VREP_ROOT=$VREP_ROOT" >> $HOME/.gams/env.sh
 fi
 
+# Update GAMS environment script with SCRIMMAGE_ROOT
+if grep -q SCRIMMAGE_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@SCRIMMAGE_ROOT=.*@SCRIMMAGE_ROOT='"$SCRIMMAGE_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT" >> $HOME/.gams/env.sh
+fi
+
 if [ $LZ4 -eq 1 ] ; then
   export LZ4=1
   if [ ! -d $LZ4_ROOT  ]; then
@@ -920,7 +947,7 @@ if [ $LZ4 -eq 1 ] ; then
 
   LZ4_REPO_RESULT=$?
 
-  # Update GAMS environment script with VREP_ROOT
+  # Update GAMS environment script with LZ4_ROOT
   if grep -q LZ4_ROOT $HOME/.gams/env.sh ; then
     sed -i 's@LZ4_ROOT=.*@LZ4_ROOT='"$LZ4_ROOT"'@' $HOME/.gams/env.sh
   else
@@ -1191,6 +1218,20 @@ if [ $PREREQS -eq 1 ]; then
     sudo make COPTS='-Wall -Wextra -fPIC' install
   fi
 
+  if [ ! -d $SCRIMMAGE_ROOT ]; then
+      echo "Installing SCRIMMAGE Dependencies"
+      cd $INSTALL_DIR
+      git clone https://github.com/gtri/scrimmage
+      SCRIMMAGE_REPO_RESULT=$?
+      cd scrimmage
+      sudo ./setup/install-binaries.sh -e 0 -p 3
+      sudo add-apt-repository ppa:kevin-demarco/scrimmage
+      sudo apt-get update
+      sudo apt-get install scrimmage-dependencies
+      source /opt/scrimmage/*/setup.sh
+      echo "SCRIMMAGE Dependencies Installed"
+  fi
+
 fi
   
 if [ $ZMQ -eq 1 ]; then
@@ -1358,6 +1399,28 @@ fi
 
 if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
   VREP_AS_A_PREREQ=1
+fi
+
+if [ $SCRIMMAGE_GAMS -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
+  if [ ! $SCRIMMAGE_ROOT ] ; then
+      export SCRIMMAGE_ROOT=$INSTALL_DIR/scrimmage
+      echo "SETTING SCRIMMAGE_ROOT to $SCRIMMAGE_ROOT"
+  fi
+
+  if [ -d $SCRIMMAGE_ROOT ]; then
+      cd $INSTALL_DIR/scrimmage
+      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
+
+      mkdir build && cd build
+      cmake ..
+      make
+      source ~/.scrimmage/setup.bash
+      echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
+
+      echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+  else
+      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
+  fi
 fi
 
 if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
