@@ -78,13 +78,10 @@ ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 NOCOLOR='\033[0m' 
 
-<<<<<<< a9c8479449ace2143a517c1960b307d5d6ed16eb
 CAPNP=0
-=======
 # Hard setting this because of SCRIMMAGE debian bug
 SCRIMMAGE_ROOT="/opt/scrimmage/x86_64-linux-gnu/" 
 
->>>>>>> Numerous changes and SCRIMMAGE_ROOT fixes
 DEBUG=0
 TESTS=0
 TUTORIALS=0
@@ -389,6 +386,7 @@ do
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
     echo "  SCRIMMAGE_GIT_ROOT  - the location of the SCRIMMAGE Github installation"
+    echo "  SCRIMMAGE_ROOT      - the location of the SCRIMMAGE installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
@@ -954,6 +952,8 @@ fi
 
 # Update GAMS environment script with SCRIMMAGE_ROOT
 # Only have to do this because SCRIMMAGE doesnt' set it in their own files.
+
+# Update GAMS environment script with SCRIMMAGE_ROOT
 if grep -q SCRIMMAGE_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@SCRIMMAGE_ROOT=.*@SCRIMMAGE_ROOT='"$SCRIMMAGE_ROOT"'@' $HOME/.gams/env.sh
 else
@@ -1446,6 +1446,28 @@ fi
 
 if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
   VREP_AS_A_PREREQ=1
+fi
+
+if [ $SCRIMMAGE_GAMS -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
+  if [ ! $SCRIMMAGE_ROOT ] ; then
+      export SCRIMMAGE_ROOT=$INSTALL_DIR/scrimmage
+      echo "SETTING SCRIMMAGE_ROOT to $SCRIMMAGE_ROOT"
+  fi
+
+  if [ -d $SCRIMMAGE_ROOT ]; then
+      cd $INSTALL_DIR/scrimmage
+      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
+
+      mkdir build && cd build
+      cmake ..
+      make
+      source ~/.scrimmage/setup.bash
+      echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
+
+      echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+  else
+      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
+  fi
 fi
 
 if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
