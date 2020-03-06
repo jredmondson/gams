@@ -83,7 +83,7 @@ DEBUG=0
 TESTS=0
 TUTORIALS=0
 VREP=0
-SCRIMMAGE_GAMS=0
+SCRIMMAGE=0
 JAVA=0
 ROS=0
 CLANG=0
@@ -106,6 +106,7 @@ NOKARL=0
 PYTHON=0
 WARNINGS=0
 CLEAN=1
+CLEAN_ENV=0
 MADARAPULL=1
 GAMSPULL=1
 MAC=${MAC:-0}
@@ -234,6 +235,8 @@ do
     export FORCE_CXX=clang++-9
   elif [ "$var" = "clean" ]; then
     CLEAN=1
+  elif [ "$var" = "cleanenv" ]; then
+    CLEAN_ENV=1
   elif [ "$var" = "dart" ]; then
     DMPL=1
   elif [ "$var" = "debug" ]; then
@@ -300,8 +303,8 @@ do
     CLANG=1
   elif [ "$var" = "unreal-gams" ]; then
     UNREAL_GAMS=1
-  elif [ "$var" = "scrimmage-gams" ]; then
-    SCRIMMAGE_GAMS=1
+  elif [ "$var" = "scrimmage" ]; then
+    SCRIMMAGE=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
   elif [ "$var" = "vrep-config" ]; then
@@ -324,6 +327,7 @@ do
     echo "  clang-8         build using clang++-8.0 and libc++"
     echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
+    echo "  clean-env       Unsets all related environment variables before building."
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
@@ -401,6 +405,9 @@ done
 if [ ! -d $HOME/.gams ]; then
   mkdir $HOME/.gams
   touch $HOME/.gams/env.sh
+elif [ $CLEAN_ENV -eq 1 ]; then
+  rm $HOME/.gams/env.sh
+  touch $HOME/.gams/env.sh
 fi
 
 if [ $CLANG -eq 1 ] && [ $CLANG_DEFINED -eq 0 ] ; then
@@ -451,6 +458,28 @@ if [ $CORES -eq 1 ] ; then
     echo "The system has ${CORE_COUNT} cores. How many should be used for installation?"
     read CORES
     echo -e "${ORANGE} Now using $CORES CPU cores for installation. To permanently set this, add the line 'export CORES=$CORES to your ~/.bashrc file and open a new terminal. ${NOCOLOR}"
+fi
+
+if [ $CLEAN_ENV -eq 1 ]; then
+    echo -e "${ORANGE} Resetting all environment variables to blank. ${NOCOLOR}"
+    export UNREAL_ROOT=""
+    export UNREAL_GAMS_ROOT=""
+    export UE4_ROOT=""
+    export UE4_GAMS=""
+    export AIRSIM_ROOT=""
+    export OSC_ROOT=""
+    export VREP_ROOT=""
+    export MPC_ROOT=""
+    export EIGEN_ROOT=""
+    export CAPNP_ROOT=""
+    export MADARA_ROOT=""
+    export GAMS_ROOT=""
+    export DMPL_ROOT=""
+    export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs
+    export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
+    export SCRIMMAGE_ROOT=""
+    export SCRIMMAGE_GIT_ROOT=""
 fi
 
 if [ -z $DMPL_ROOT ] ; then
@@ -560,8 +589,8 @@ if [ $VREP -eq 1 ]; then
   echo "VREP_ROOT is referencing $VREP_ROOT"
 fi
 
-echo "SCRIMMAGE has been set to $SCRIMMAGE_GAMS"
-if [ $SCRIMMAGE_GAMS -eq 1 ]; then
+echo "SCRIMMAGE has been set to $SCRIMMAGE"
+if [ $SCRIMMAGE -eq 1 ]; then
   echo "SCRIMMAGE_GIT_ROOT is referencing $SCRIMMAGE_GIT_ROOT"
 fi
 
@@ -1401,7 +1430,7 @@ if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
   VREP_AS_A_PREREQ=1
 fi
 
-if [ $SCRIMMAGE_GAMS -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
+if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
   if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
       export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
       echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
@@ -1519,8 +1548,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP, scrimmage=$SCRIMMAGE, tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP, scrimmage=$SCRIMMAGE, tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
   if [ $TYPES -eq 1 ]; then
     # Strip the unnecessary NOTPARALLEL: directives
@@ -1534,10 +1563,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   fi
 
   echo "BUILDING GAMS"
-  echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+  echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+  make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
   GAMS_BUILD_RESULT=$?
   
   if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
@@ -1831,25 +1860,25 @@ fi
 echo -e ""
 echo -e "Saving environment variables into \$HOME/.gams/env.sh"
 
-if grep -q MPC_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export MPC_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@MPC_ROOT=.*@MPC_ROOT='"$MPC_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export MPC_ROOT=$MPC_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q EIGEN_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export EIGEN_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@EIGEN_ROOT=.*@EIGEN_ROOT='"$EIGEN_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export EIGEN_ROOT=$EIGEN_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q CAPNP_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export CAPNP_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@CAPNP_ROOT=.*@CAPNP_ROOT='"$CAPNP_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export CAPNP_ROOT=$CAPNP_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q MADARA_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export MADARA_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@MADARA_ROOT=.*@MADARA_ROOT='"$MADARA_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export MADARA_ROOT=$MADARA_ROOT" >> $HOME/.gams/env.sh
