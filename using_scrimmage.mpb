@@ -1,21 +1,13 @@
-feature (vrep) {
-  requires += vrep
+feature (scrimmage) {
+  requires += scrimmage
 
-  macros += _GAMS_VREP_
-  macros += MAX_EXT_API_CONNECTIONS=255
-  macros += NON_MATLAB_PARSING
-  macros += DO_NOT_USE_SHARED_MEMORY
+  macros += _SCRIMMAGE_
 
-  includes += $(VREP_ROOT)/programming/remoteApi
-  includes += $(VREP_ROOT)/programming/include
+  includes += $(SCRIMMAGE_GIT_ROOT)/include/scrimmage
+  includes += $(SCRIMMAGE_ROOT)/include
 
-  Header_Files {
-    $(VREP_ROOT)/programming/remoteApi/extApi.h
-    $(VREP_ROOT)/programming/remoteApi/extApiPlatform.h
-  }
+  libpaths += $(SCRIMMAGE_GIT_ROOT)/build/lib
+  libpaths += $(SCRIMMAGE_ROOT)/lib
 
-  Source_Files {
-    $(VREP_ROOT)/programming/remoteApi/extApi.c
-    $(VREP_ROOT)/programming/remoteApi/extApiPlatform.c
-  }
+  libs += scrimmage-core scrimmage-viewer scrimmage-protos scrimmage-msgs
 }
