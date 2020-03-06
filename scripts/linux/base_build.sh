@@ -1513,6 +1513,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     else 
         export GAMS_ROOT=$INSTALL_DIR
         echo "SETTING GAMS_ROOT to $GAMS_ROOT"
+    fi
   fi
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
