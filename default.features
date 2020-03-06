@@ -37,6 +37,9 @@ debug                   = 0
 /// @feature docs
 /// Enable this feature if you want to generate documentation
 docs                    = 0
+/// @feature scrimmage
+/// Enable this feature if you want to support the SCRIMMAGE simulator
+scrimmage                 = 0
 
 /// @feature java
 /// Enable this feature if you want to support Java
