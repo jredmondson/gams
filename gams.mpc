@@ -62,7 +62,6 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
-      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -122,7 +121,6 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
-      src/gams/platforms/scrimmage
     }
 
     Pose {
