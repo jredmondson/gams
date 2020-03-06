@@ -327,7 +327,7 @@ do
     echo "  clang-8         build using clang++-8.0 and libc++"
     echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
-    echo "  clean-env       Unsets all related environment variables before building."
+    echo "  cleanenv       Unsets all related environment variables before building."
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
