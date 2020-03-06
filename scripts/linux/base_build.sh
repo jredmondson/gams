@@ -957,7 +957,7 @@ fi
 if grep -q SCRIMMAGE_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@SCRIMMAGE_ROOT=.*@SCRIMMAGE_ROOT='"$SCRIMMAGE_ROOT"'@' $HOME/.gams/env.sh
 else
-  echo "export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT" >> $HOME/.gams/env.sh
+  echo "export SCRIMMAGE_GIT_ROOT=$SCRIMMAGE_GIT_ROOT" >> $HOME/.gams/env.sh
 fi
 
 if [ $LZ4 -eq 1 ] ; then
@@ -1449,12 +1449,12 @@ if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
 fi
 
 if [ $SCRIMMAGE_GAMS -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
-  if [ ! $SCRIMMAGE_ROOT ] ; then
-      export SCRIMMAGE_ROOT=$INSTALL_DIR/scrimmage
-      echo "SETTING SCRIMMAGE_ROOT to $SCRIMMAGE_ROOT"
+  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
+      export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
+      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
   fi
 
-  if [ -d $SCRIMMAGE_ROOT ]; then
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
       cd $INSTALL_DIR/scrimmage
       echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
 
