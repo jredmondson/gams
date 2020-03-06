@@ -378,7 +378,7 @@ do
     echo "                        git://git.code.sf.net/p/madara/code"
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
-    echo "  SCRIMMAGE_ROOT      - the location of the SCRIMMAGE installation"
+    echo "  SCRIMMAGE_GIT_ROOT- the location of the SCRIMMAGE Github installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
@@ -485,8 +485,8 @@ if [ -z $VREP_ROOT ] ; then
   export VREP_ROOT=$INSTALL_DIR/vrep
 fi
 
-if [ -z $SCRIMMAGE_ROOT ] ; then
-  export SCRIMMAGE_ROOT=$INSTALL_DIR/scrimmage
+if [ -z $SCRIMMAGE_GIT_ROOT ] ; then
+  export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
 fi
 
 if [ -z $UNREAL_ROOT ] ; then
@@ -562,7 +562,7 @@ fi
 
 echo "SCRIMMAGE has been set to $SCRIMMAGE_GAMS"
 if [ $SCRIMMAGE_GAMS -eq 1 ]; then
-  echo "SCRIMMAGE_ROOT is referencing $SCRIMMAGE_ROOT"
+  echo "SCRIMMAGE_GIT_ROOT is referencing $SCRIMMAGE_GIT_ROOT"
 fi
 
 echo "ANDROID has been set to $ANDROID"
@@ -910,11 +910,11 @@ else
   echo "export VREP_ROOT=$VREP_ROOT" >> $HOME/.gams/env.sh
 fi
 
-# Update GAMS environment script with SCRIMMAGE_ROOT
-if grep -q SCRIMMAGE_ROOT $HOME/.gams/env.sh ; then
-  sed -i 's@SCRIMMAGE_ROOT=.*@SCRIMMAGE_ROOT='"$SCRIMMAGE_ROOT"'@' $HOME/.gams/env.sh
+# Update GAMS environment script with SCRIMMAGE_GIT_ROOT
+if grep -q SCRIMMAGE_GIT_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@SCRIMMAGE_GIT_ROOT=.*@SCRIMMAGE_GIT_ROOT='"$SCRIMMAGE_GIT_ROOT"'@' $HOME/.gams/env.sh
 else
-  echo "export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT" >> $HOME/.gams/env.sh
+  echo "export SCRIMMAGE_GIT_ROOT=$SCRIMMAGE_GIT_ROOT" >> $HOME/.gams/env.sh
 fi
 
 if [ $LZ4 -eq 1 ] ; then
@@ -1218,7 +1218,7 @@ if [ $PREREQS -eq 1 ]; then
     sudo make COPTS='-Wall -Wextra -fPIC' install
   fi
 
-  if [ ! -d $SCRIMMAGE_ROOT ]; then
+  if [ ! -d $SCRIMMAGE_GIT_ROOT ]; then
       echo "Installing SCRIMMAGE Dependencies"
       cd $INSTALL_DIR
       git clone https://github.com/gtri/scrimmage
@@ -1402,12 +1402,12 @@ if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
 fi
 
 if [ $SCRIMMAGE_GAMS -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
-  if [ ! $SCRIMMAGE_ROOT ] ; then
-      export SCRIMMAGE_ROOT=$INSTALL_DIR/scrimmage
-      echo "SETTING SCRIMMAGE_ROOT to $SCRIMMAGE_ROOT"
+  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
+      export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
+      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
   fi
 
-  if [ -d $SCRIMMAGE_ROOT ]; then
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
       cd $INSTALL_DIR/scrimmage
       echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
 
