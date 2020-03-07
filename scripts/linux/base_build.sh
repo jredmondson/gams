@@ -1430,30 +1430,6 @@ if [ $DMPL -eq 1 ] && [ ! -d $VREP_ROOT ]; then
   VREP_AS_A_PREREQ=1
 fi
 
-if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
-  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
-      export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
-      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
-  fi
-
-  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
-      cd $INSTALL_DIR/scrimmage
-      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
-
-      mkdir build && cd build
-      cmake ..
-      make
-      source ~/.scrimmage/setup.bash
-      echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
-      export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins
-      echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
-
-      echo "SCRIMMAGE BUILT! Ready to use with GAMS."
-  else
-      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
-  fi
-fi
-
 if [ $VREP -eq 1 ] || [ $VREP_AS_A_PREREQ -eq 1 ]; then
   if [ ! $VREP_ROOT ] ; then
     export VREP_ROOT=$INSTALL_DIR/vrep
@@ -1597,6 +1573,31 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 #   fi
 else
   echo "NOT BUILDING GAMS"
+fi
+
+# Install SCRIMMAGE after GAMS because GAMS_ROOT needs to be set for the plugin path 
+if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
+  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
+      export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
+      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
+  fi
+
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
+      cd $INSTALL_DIR/scrimmage
+      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
+
+      mkdir build && cd build
+      cmake ..
+      make
+      source ~/.scrimmage/setup.bash
+      echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
+      export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins
+      echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
+
+      echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+  else
+      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
+  fi
 fi
  
 # check if GAMS_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
