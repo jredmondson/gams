@@ -3,8 +3,11 @@ feature (scrimmage) {
 
   macros += _SCRIMMAGE_
 
-  includes += $(SCRIMMAGE_GIT_ROOT)/include/scrimmage
+  includes += $(SCRIMMAGE_GIT_ROOT)/include
   includes += $(SCRIMMAGE_ROOT)/include
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/src/proto
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/src/viewer
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/src/plugins
 
   libpaths += $(SCRIMMAGE_GIT_ROOT)/build/lib
   libpaths += $(SCRIMMAGE_ROOT)/lib

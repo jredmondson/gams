@@ -1996,7 +1996,6 @@ else
 
 fi
 
-
 if grep -q "export PATH" $HOME/.gams/env.sh ; then
   sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
 else
@@ -2013,6 +2012,9 @@ else
   echo "If environment has changed, close terminals or reload .bashrc"
   echo ""
 fi
+
+echo "Sourcing final GAMS environment"
+source $HOME/.gams/env.sh
 
 echo "BUILD_ERRORS=$BUILD_ERRORS"
 exit $BUILD_ERRORS
