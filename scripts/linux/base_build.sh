@@ -382,7 +382,7 @@ do
     echo "                        git://git.code.sf.net/p/madara/code"
     echo "  GAMS_ROOT           - location of this GAMS git repository"
     echo "  VREP_ROOT           - location of VREP installation"
-    echo "  SCRIMMAGE_GIT_ROOT- the location of the SCRIMMAGE Github installation"
+    echo "  SCRIMMAGE_GIT_ROOT  - the location of the SCRIMMAGE Github installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
@@ -475,7 +475,7 @@ if [ $CLEAN_ENV -eq 1 ]; then
     export MADARA_ROOT=""
     export GAMS_ROOT=""
     export DMPL_ROOT=""
-    export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins
+    export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH$GAMS_ROOT/lib/scrimmage_plugins
     export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs
     export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
@@ -515,7 +515,7 @@ if [ -z $VREP_ROOT ] ; then
 fi
 
 if [ -z $SCRIMMAGE_GIT_ROOT ] ; then
-  export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
+  export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
 fi
 
 if [ -z $UNREAL_ROOT ] ; then
@@ -1247,19 +1247,23 @@ if [ $PREREQS -eq 1 ]; then
     sudo make COPTS='-Wall -Wextra -fPIC' install
   fi
 
-  if [ ! -d $SCRIMMAGE_GIT_ROOT ]; then
-      echo "Installing SCRIMMAGE Dependencies"
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
       cd $INSTALL_DIR
-      git clone https://github.com/gtri/scrimmage
-      SCRIMMAGE_REPO_RESULT=$?
-      cd scrimmage
-      sudo ./setup/install-binaries.sh -e 0 -p 3
-      sudo add-apt-repository ppa:kevin-demarco/scrimmage
-      sudo apt-get update
-      sudo apt-get install scrimmage-dependencies
-      source /opt/scrimmage/*/setup.sh
-      echo "SCRIMMAGE Dependencies Installed"
+      rm -rf scrimmage
   fi
+  
+  echo "Installing SCRIMMAGE Dependencies"
+  cd $INSTALL_DIR
+  git clone https://github.com/gtri/scrimmage
+  SCRIMMAGE_REPO_RESULT=$?
+  
+  cd scrimmage
+  sudo ./setup/install-binaries.sh -e 0 -p 3
+  sudo add-apt-repository ppa:kevin-demarco/scrimmage
+  sudo apt-get update
+  sudo apt-get install scrimmage-dependencies
+  source /opt/scrimmage/*/setup.sh
+  echo "SCRIMMAGE Dependencies Installed"
 
 fi
   
@@ -1585,16 +1589,25 @@ if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
   if [ -d $SCRIMMAGE_GIT_ROOT ]; then
       cd $INSTALL_DIR/scrimmage
       echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
+      
+      if [ ! -d "$SCRIMMAGE_GIT_ROOT/build" ]; then
+        mkdir build 
+      fi
+       
+        cd build
+        cmake ..
+        make
+        source ~/.scrimmage/setup.bash
+        echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
+        export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins
 
-      mkdir build && cd build
-      cmake ..
-      make
-      source ~/.scrimmage/setup.bash
-      echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
-      export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins
-      echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
+        # Order is important actually, if scrimmage setup.bash is AFTER gams/env.sh, then the SCRIMMAGE_PLUGIN_PATH and SCRIMMAGE_MISSION_PATH will be incorrectly set because scrimmage/setup.bash sets it wrong.
+        if ! grep -q ".scrimmage/setup.bash" $HOME/.bashrc ; then
+        echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
+        fi
 
-      echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+        echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+        
   else
       echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
   fi
