@@ -475,7 +475,7 @@ if [ $CLEAN_ENV -eq 1 ]; then
     export MADARA_ROOT=""
     export GAMS_ROOT=""
     export DMPL_ROOT=""
-    export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH$GAMS_ROOT/lib/scrimmage_plugins
+    #export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH$GAMS_ROOT/lib/scrimmage_plugins - No point, .scrimmage/setup.bash script will clear and reset it no matter what, and it's required for installation/building. Don't want to dive deep into that rabbit hole.
     export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs
     export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
@@ -1480,6 +1480,39 @@ fi
 
 echo "LD_LIBRARY_PATH for GAMS compile is $LD_LIBRARY_PATH"
 
+
+# Install SCRIMMAGE after GAMS because GAMS_ROOT needs to be set for the plugin path. Except, SCRIMMAGE has to be built before GAMS otherwise GAMS can't find some headers brought in by SCRIMMAGE setup files.
+if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
+  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
+      export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
+      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
+  fi
+
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
+      cd $INSTALL_DIR/scrimmage
+      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
+      
+      if [ ! -d "$SCRIMMAGE_GIT_ROOT/build" ]; then
+        mkdir build 
+      fi
+       
+        cd build
+        cmake ..
+        make
+        source ~/.scrimmage/setup.bash
+
+        # Order is important actually, if scrimmage setup.bash is AFTER gams/env.sh, then the SCRIMMAGE_PLUGIN_PATH and SCRIMMAGE_MISSION_PATH will be incorrectly set because scrimmage/setup.bash sets it wrong.
+        if ! grep -q ".scrimmage/setup.bash" $HOME/.bashrc ; then
+        echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
+        fi
+
+        echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+        
+  else
+      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
+  fi
+fi
+
 # if gams has been specified, or if dmpl is specified and GAMS_ROOT doesn't exist
 if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
@@ -1577,40 +1610,6 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 #   fi
 else
   echo "NOT BUILDING GAMS"
-fi
-
-# Install SCRIMMAGE after GAMS because GAMS_ROOT needs to be set for the plugin path 
-if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
-  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
-      export SCRIMMAGE_GIT_ROOT=$INSTALL_DIR/scrimmage
-      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
-  fi
-
-  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
-      cd $INSTALL_DIR/scrimmage
-      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
-      
-      if [ ! -d "$SCRIMMAGE_GIT_ROOT/build" ]; then
-        mkdir build 
-      fi
-       
-        cd build
-        cmake ..
-        make
-        source ~/.scrimmage/setup.bash
-        echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
-        export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins
-
-        # Order is important actually, if scrimmage setup.bash is AFTER gams/env.sh, then the SCRIMMAGE_PLUGIN_PATH and SCRIMMAGE_MISSION_PATH will be incorrectly set because scrimmage/setup.bash sets it wrong.
-        if ! grep -q ".scrimmage/setup.bash" $HOME/.bashrc ; then
-        echo "source ~/.scrimmage/setup.bash" >> ~/.bashrc
-        fi
-
-        echo "SCRIMMAGE BUILT! Ready to use with GAMS."
-        
-  else
-      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
-  fi
 fi
  
 # check if GAMS_ROOT/lib is in LD_LIBRARY_PATH and modify if needed
@@ -2015,6 +2014,10 @@ else
   echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
 fi
 
+
+# No check if it's unset. the source .scrimmage/setup.bash script always clears the plugin path var and sets it to the base one. We just have to append to it. Other option is make user do it manually. I don't think this is harmful.
+echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
+echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
   echo "Updating bashrc to load environment. Close terminals to reload."
