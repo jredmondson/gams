@@ -19,3 +19,5 @@ class GAMSAutonomy : public scrimmage::Autonomy {
 }; // end class GAMSAutonomy
 }  // ns scrimmage
 }  // ns autonomy
+
+#endif
