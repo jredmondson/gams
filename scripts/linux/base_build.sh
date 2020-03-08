@@ -952,12 +952,10 @@ fi
 
 # Update GAMS environment script with SCRIMMAGE_ROOT
 # Only have to do this because SCRIMMAGE doesnt' set it in their own files.
-
-# Update GAMS environment script with SCRIMMAGE_ROOT
 if grep -q SCRIMMAGE_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@SCRIMMAGE_ROOT=.*@SCRIMMAGE_ROOT='"$SCRIMMAGE_ROOT"'@' $HOME/.gams/env.sh
 else
-  echo "export SCRIMMAGE_GIT_ROOT=$SCRIMMAGE_GIT_ROOT" >> $HOME/.gams/env.sh
+  echo "export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT" >> $HOME/.gams/env.sh
 fi
 
 if [ $LZ4 -eq 1 ] ; then
@@ -1501,11 +1499,7 @@ if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
       export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
       echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
   fi
-<<<<<<< 5cc41a522b5a10b1762a3c0413999a4f99504333
-  
-=======
 
->>>>>>> Fix ordering in base build
   if [ -d $SCRIMMAGE_GIT_ROOT ]; then
       cd $INSTALL_DIR/scrimmage
       echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
@@ -1517,7 +1511,7 @@ if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
         cd build
         cmake ..
         make
-        
+
         source $HOME/.scrimmage/setup.bash
         export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT
         export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
@@ -1591,6 +1585,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
   cd $GAMS_ROOT
 
   echo "GENERATING GAMS PROJECT"
+  echo "$SCRIMMAGE_ROOT being used for SCRIMMAGE_ROOT"
   echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,capnp=$CAPNP,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
   perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,capnp=$CAPNP,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
@@ -2034,10 +2029,6 @@ if grep -q "export PATH" $HOME/.gams/env.sh ; then
 else
   echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
 fi
-
-# No check if it's unset. the source .scrimmage/setup.bash script always clears the plugin path var and sets it to the base one. We just have to append to it. Other option is make user do it manually. I don't think this is harmful.
-echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
-echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
 
 # No check if it's unset. the source .scrimmage/setup.bash script always clears the plugin path var and sets it to the base one. We just have to append to it. Other option is make user do it manually. I don't think this is harmful.
 echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
