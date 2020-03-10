@@ -1,4 +1,3 @@
-sudo: required
 dist: xenial
 group: travis_latest
 language: cpp
@@ -6,7 +5,7 @@ os:
   - linux
 
 branches:
-  excludes:
+  exclude:
     - gh-pages
     - tutorials
     - installers
@@ -16,7 +15,7 @@ compiler:
   - gcc
 
 env:
-  matrix:
+  jobs:
   global:
     - MADARA_ROOT=$TRAVIS_BUILD_DIR/madara
     - GAMS_ROOT=$TRAVIS_BUILD_DIR
@@ -27,14 +26,12 @@ env:
     - TESTS="tests"
     - GAMS="gams"
 
-matrix:
+jobs:
 
   allow_failures:
-    - env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq" CC=clang-5.0 CXX=clang++-5.0
-    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS=""
-    - env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS=""
-    - env: NAME="Ubuntu 16.04" TYPES="types"
-    - env: NAME="Ubuntu 16.04 clang" CLANG="clang" TYPES="types" CC=clang-5.0 CXX=clang++-5.0
+    - env: NAME="OSX 10.13 clang-5 zmq" CLANG="clang-5" ZMQ="zmq"
+    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq"
+    - env: NAME="Ubuntu 16.04 android ssl" ANDROID="android" SSL="ssl"
 
   include:
       ################MAC#####################
@@ -59,7 +56,7 @@ matrix:
 
       # clang, osx, zeromq
     - compiler: clang
-      env: NAME="OSX 10.13 clang zmq" CLANG="clang" ZMQ="zmq"
+      env: NAME="OSX 10.13 clang-5 zmq" CLANG="clang-5" ZMQ="zmq"
       os: osx
       osx_image: xcode9.3
 
@@ -73,7 +70,7 @@ matrix:
 
       # clang, linux, no ssl
     - compiler: clang
-      env: NAME="Ubuntu 16.04 clang" CLANG="clang" CC=clang-5.0 CXX=clang++-5.0
+      env: NAME="Ubuntu 16.04 clang-5" CLANG="clang-5"
       addons:
         apt:
           sources:
@@ -85,7 +82,7 @@ matrix:
       # g++, linux, no ssl
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 g++" CLANG=""
+      env: NAME="Ubuntu 16.04 g++"
 
       # g++, linux, ssl
     - compiler: gcc
@@ -96,7 +93,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - libssl-dev
-      env: NAME="Ubuntu 16.04 g++ ssl" CLANG="" SSL="ssl"
+      env: NAME="Ubuntu 16.04 g++ ssl" SSL="ssl"
 
       # g++, linux, java
     - compiler: gcc
@@ -120,12 +117,12 @@ matrix:
   # g++, linux, android, zmq
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq" TESTS="" CLANG="" GAMS="" 
+      env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq"
 
     # g++, linux, android, ssl
     - compiler: gcc
       os: linux
-      env: NAME="Ubuntu 16.04 android" ANDROID="android" SSL="ssl" TESTS="" CLANG="" GAMS=""
+      env: NAME="Ubuntu 16.04 android ssl" ANDROID="android" SSL="ssl"
 
 addons:
   apt:
