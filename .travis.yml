@@ -70,7 +70,7 @@ jobs:
 
       # clang, linux, no ssl
     - compiler: clang
-      env: NAME="Ubuntu 16.04 clang" CLANG="clang"
+      env: NAME="Ubuntu 16.04 clang" CLANG="clang" CC=clang-5.0 CXX=clang++-5.0
       addons:
         apt:
           sources:
