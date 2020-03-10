@@ -245,7 +245,7 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_simtime, using_b
   }
 }
 
-project (gams_autonomy) : using_madara, using_gams, using_scrimmage, using_boost, using_filesystem {
+project (gams_autonomy) : using_madara, using_gams, using_scrimmage {
   requires += scrimmage
   
   libout = $(GAMS_ROOT)/lib/scrimmage_plugins
