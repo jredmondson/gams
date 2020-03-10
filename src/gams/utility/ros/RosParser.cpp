@@ -4,6 +4,8 @@
  *
  * This file contains parsing functionality for ROS topics
  **/
+
+#ifdef_USE_CAPNP_
 #include "RosParser.h"
 #include <cmath>
 #include <dlfcn.h>
@@ -1291,5 +1293,5 @@ std::string gams::utility::ros::RosParser::substitute_name(std::string type,
 }
 
 
-
+#endif // _USE_CAPNP_
 

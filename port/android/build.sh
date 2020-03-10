@@ -105,17 +105,6 @@ if [ $ZMQ -eq 1 ]; then
   cp $ZMQ_ROOT/lib/libzmq.so $JNI_LIBS_DIR_ARCH
 fi
 
-#Copy CAPNPRO files
-
-if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json-*.so ]; then
-    echo "CAPNP libraries not found in path. Check if the library for Android is built properly"
-    exit 1;
-  fi
-
-
-cp $CAPNP_ROOT/c++/.libs/libcapnp-*.so $JNI_LIBS_DIR_ARCH
-cp $CAPNP_ROOT/c++/.libs/libkj-*.so $JNI_LIBS_DIR_ARCH
-
 case $ANDROID_ARCH in
     arm32|arm|armeabi|armeabi-v7a)
       cp $NDK_TOOLS/arm-linux-androideabi/lib/libc++_shared.so $JNI_LIBS_DIR_ARCH

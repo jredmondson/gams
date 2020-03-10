@@ -217,7 +217,7 @@ project (gams_controller) : using_gams, using_madara {
   }
 }
 
-project (ros2gams) : using_madara, using_ros, using_gams, using_capnp, using_simtime, using_boost, using_filesystem {
+project (ros2gams) : using_madara, using_ros, using_gams, using_simtime, using_boost, using_filesystem {
   exeout = $(GAMS_ROOT)/bin
   exename = ros2gams
   libpaths += $(ROS_ROOT)/../../lib
@@ -245,7 +245,7 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_capnp, using_sim
   }
 }
 
-project (types) : using_madara, using_capnp, capnp_types {
+project (types) : using_madara {
   requires += types
 
   libout = lib
@@ -261,7 +261,7 @@ project (types) : using_madara, using_capnp, capnp_types {
   }
 }
 
-project (ros2gams_pcl_plugin) : using_madara, using_ros, using_gams, using_capnp, using_simtime, using_boost, using_filesystem, using_types {
+project (ros2gams_pcl_plugin) : using_madara, using_ros, using_gams, using_simtime, using_boost, using_filesystem, using_types {
   requires = types
 
 

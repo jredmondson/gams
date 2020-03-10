@@ -38,7 +38,6 @@ class Plotter:
 
 
     self.has_frames_key = False
-    self.is_capnp_type = None
     self.plot_to_3d = plot_to_3d
     if key.startswith(data_reader_interface.frames_prefix):
       self.has_frames_key = True
@@ -116,10 +115,6 @@ class Plotter:
     if (value == None) or not has_next:
       return
 
-    if self.is_capnp_type == None:
-      self.is_capnp_type = isinstance(value, dict)
-
-
     if self.has_frames_key:
       new_values = [float(i) for i in value.to_string().split(',')]
       value = new_values
@@ -138,13 +133,6 @@ class Plotter:
   def visualize_subkey(self, value, index):
     subkey = self.subkeys[index]
     # plot all of values inside subkey
-
-    if self.is_capnp_type:
-      # capnp values have a bit different presentation so they are handled seperately
-      self.visualize_capnp_value(value, subkey, index)
-      return
-
-
 
     #  parse as 3d if possible
     plot_to_3d = self.plot_to_3d and (len(subkey) == 3)
@@ -201,58 +189,6 @@ class Plotter:
         plt.plot(self.values[index][0], self.values[index][1])
 
 
-
-  # visualizing capnp is a bit different, parsing keys and setting into the
-  def visualize_capnp_value(self, value, subkey, index):
-    # the second one is always a valid value
-    if not isinstance(subkey, list):
-      subvalue = self.get_value_for_key(subkey, value)
-      # in this case we expect only one subkey, so we visualize that
-      self.visualize_key(subvalue, subkey[0])
-      return
-
-    # parse as 3d if possible
-    plot_to_3d = self.plot_to_3d and (len(subkey) == 3)
-    if plot_to_3d:
-      plt.subplot(self.number_of_rows, self.number_of_columns, index + 1, xlabel=subkey[0][1],
-                  ylabel=subkey[1][1], zlabel=subkey[2][1], projection='3d')
-      if not (self.values.has_key(index)):
-        self.values[index] = ([], [], [])
-    else:
-      plt.subplot(self.number_of_rows, self.number_of_columns, index + 1, xlabel=subkey[0][1],
-                  ylabel=subkey[1][1])
-      if not (self.values.has_key(index)):
-        self.values[index] = ([], [])
-
-    current_time = int(
-      (datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * data_reader_interface.nano_size)
-    for i in range(0, len(subkey)):
-      item = subkey[i]
-
-      if subkey[i][0] == -1:
-        current_time = int(
-          (datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * data_reader_interface.nano_size)
-        self.values[index][i].append(current_time)
-      else:
-        subvalue = self.get_value_for_key(item[0], value)
-        self.values[index][i].append(subvalue)
-
-    # if list is longer than the nuber of points we want to have on the plot, just pop the oldest ones
-    if self.number_of_points_per_plot > 0 and len(self.values[index][0]) > self.number_of_points_per_plot:
-      self.values[index][0].pop(0)
-      self.values[index][1].pop(0)
-      if plot_to_3d:
-        # in 3d we have 3rd index as well to be popped
-        self.values[index][2].pop(0)
-
-    if plot_to_3d:
-      plt.plot(self.values[index][0], self.values[index][1], self.values[index][2])
-    else:
-      plt.plot(self.values[index][0], self.values[index][1])
-
-
-
-
   # visualizes a single key (or a subkey) with no list of subkeys provided
   # this is a general way to plot values being called from most of places
   # handles several cases
@@ -266,9 +202,6 @@ class Plotter:
 
     current_time = int(
       (datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * data_reader_interface.nano_size)
-    # if dictionary (can happen for capnp types)
-
-
 
     # the case when value is a dictionary
     if isinstance(value, dict):

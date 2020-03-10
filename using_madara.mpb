@@ -1,4 +1,4 @@
-project : debug_build, using_clang, using_android, using_boost, using_capnp, using_simtime, using_nothreadlocal, port/python/using_python, using_warnings, no_warnings {
+project : debug_build, using_clang, using_android, using_boost, using_simtime, using_nothreadlocal, port/python/using_python, using_warnings, no_warnings {
   includes += $(MADARA_ROOT)/include
   libpaths += $(MADARA_ROOT)/lib
 

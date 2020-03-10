@@ -8,6 +8,8 @@
 #ifndef   _GAMS_UTILITY_ROS_ROS_PARSER_
 #define   _GAMS_UTILITY_ROS_ROS_PARSER_
 
+#ifdef _USE_CAPNP_
+
 #include "madara/knowledge/KnowledgeBase.h"
 #include "madara/knowledge/containers/NativeDoubleVector.h"
 #include "madara/knowledge/containers/NativeIntegerVector.h"
@@ -334,5 +336,6 @@ namespace gams
   }
 }
 
+#endif // _USE_CAPNP_
 
 #endif // _GAMS_ROS_TOPIC_PARSER_

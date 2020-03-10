@@ -119,18 +119,6 @@ if [ ! -z $LZ4 ] && [ $LZ4 -eq 1 ]; then
   cp $LZ4_ROOT/lib/liblz4.so $JNI_LIBS_DIR_ARCH
 fi
 
-#Copy CAPNPRO files
-
-if [ ! -f $CAPNP_ROOT/c++/.libs/libcapnp-json-*.so ]; then
-    echo "CAPNP libraries not found in path. Check if the library for Android is built properly"
-    exit 1;
-  fi
-
-
-cp $CAPNP_ROOT/c++/.libs/libcapnp*.so $JNI_LIBS_DIR_ARCH
-cp $CAPNP_ROOT/c++/.libs/libkj-*.so $JNI_LIBS_DIR_ARCH
-
-
 #Copy jars.
 mkdir -p $JAR_LIBS_DIR
 cp $MADARA_ROOT/lib/madara.jar $JAR_LIBS_DIR

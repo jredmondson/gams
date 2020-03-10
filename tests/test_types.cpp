@@ -1,5 +1,7 @@
 #define TEST_TYPES
 
+#ifdef _USE_CAPNP_
+
 // GAMS
 #include <gams/types/Datatypes.h>
 
@@ -244,15 +246,20 @@ void test_all_schemas()
     }
 }
 
+#endif _USE_CAPNP_
+
 int main (int, char **)
 {
 	std::cout << "Testing types" << std::endl;
+#ifdef _USE_CAPNP_
+
 	test_registry();
 
 	test_scan();
    test_imu();
    test_laser_schema();
    test_all_schemas();
+#endif // _USE_CAPNP_
 
    if (gams_fails > 0)
    {

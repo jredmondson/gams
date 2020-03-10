@@ -4,12 +4,8 @@ import madara.transport as transport
 from madara.knowledge import Any
 import gams.pose as gp
 import os
-import capnp
 
 from datetime import datetime
-
-
-#key_to_capnpfile = {key: value.to_any().tag() for key, value in reader if value.is_any_type()}
 
 from time import sleep
 
@@ -28,10 +24,6 @@ nano_size = 1000000000
 
 
 class DataReaderInterface:
-  capnp_registered_schemas = set()
-
-  def __init__(self, capnp_folder):
-    self.capnp_folder = capnp_folder
 
   # get all keys in a list
   def get_keys(self):
@@ -44,26 +36,12 @@ class DataReaderInterface:
   # sometimes it might be obvious that no value with that key can be retrieved.
   # It is obvious for stk values
 
-  def get_current_value(self, key, frames_of_choice=['geo', 'p1_base_stabilized']):
-    pass 
-
-  def capnp_crunch(self, key, value):
-    schema = value.to_any().tag()
-    if not (key in DataReaderInterface.capnp_registered_schemas):
-      schema_file = capnp.load(self.capnp_folder + '/' + schema + '.capnp',
-                               imports=[os.environ['CAPNP_ROOT'] + '/c++/src'])
-      Any.register_class(schema, getattr(schema_file, schema))
-      DataReaderInterface.capnp_registered_schemas.add(key)
-
-    new_value = value.to_any().reader()
-    return new_value
-
 # this is an interface for simulating stk file as a knowledge base
 class DataReaderFromFile(DataReaderInterface):
 
-  # point out the stk file name and capnp schemas location
-  def __init__(self, capnp_schemas_folder, file_name):
-    DataReaderInterface.__init__(self, capnp_schemas_folder)
+  # point out the stk file name
+  def __init__(self, file_name):
+    DataReaderInterface.__init__(self,)
 
 
     self.settings = engine.CheckpointSettings()
@@ -71,7 +49,6 @@ class DataReaderFromFile(DataReaderInterface):
       print "DataReaderFromFile: cannot init data reader, file name is not valid"
 
     self.settings.filename = (file_name)
-    self.capnp_folder = capnp_schemas_folder
     self.knowledge_base = engine.KnowledgeBase()
 
     #retrieve all (key, value)s that can be plotted
@@ -166,18 +143,13 @@ class DataReaderFromFile(DataReaderInterface):
     # in case it has reached to the end, just return last value as current
     if current_index == last_index:
       value = values_list[last_index]
-      if value.is_any_type():
-        return self.get_capnp_value(key, values_list[last_index]), False
-      else:
-        return value, False
+      return value, False
 
     # last argument is the relative current time
     index, value  = self.find_next_value(values_list, current_index, last_index, relative_current_time)
 
     self.current_indexes[key] = index
     if value.is_any_type():
-      return self.get_capnp_value(key, value), True
-    else:
       return value, True
   #end of def get_current_value
 
@@ -246,14 +218,6 @@ class DataReaderFromFile(DataReaderInterface):
       return None, True
   #end of def get_gams_frame
 
-  # retrieve the dictionary for the capnp from appropriate schema
-  # we have to handle capnp types
-  def get_capnp_value(self, key, value):
-    return self.capnp_crunch(key, value).to_dict()
-
-  # end of def get_capnp_value
-
-
 
   # return true when type is something that can be plot
   # for now we consider that integer, double, and their arrays, as well as any times containig such values can be plot
@@ -266,10 +230,6 @@ class DataReaderFromFile(DataReaderInterface):
     if key.startswith(frames_prefix) or value.is_integer_type() or value.is_double_type():
       return True
 
-    elif value.is_any_type() and value.to_any().tag():
-      # if capnp file then can have keys to be plotted
-      return True
-
     return False
 
   # end of def check_type_for_plotting
@@ -280,14 +240,13 @@ class DataReaderFromFile(DataReaderInterface):
 # interface to retrieve data from kb
 class DataReaderFromKB(DataReaderInterface):
 
-  # constructor takes capnp schemas location and knowledge_base
-  def __init__(self, capnp_schemas_folder, knowledge_base):
-    DataReaderInterface.__init__(self, capnp_schemas_folder)
+  # constructor takes knowledge_base
+  def __init__(self, knowledge_base):
+    DataReaderInterface.__init__(self)
 
     if not knowledge_base:
       print "DataReaderFromKB: cannot init data reader, kb is not valid"
     self.knowledge_base = knowledge_base
-    self.capnp_folder = capnp_schemas_folder
   # end of constructor
 
   def get_keys(self):
@@ -319,18 +278,6 @@ class DataReaderFromKB(DataReaderInterface):
       # none but may appear later
       return None, True
 
-
-
-
-
-    if value.is_any_type():
-      if value.to_any().tag():
-        return self.get_capnp_value(key, value), True
-      else:
-        # might have value later
-        return None, True
-    return value, True
-
   # gams frames need a bit different handling, this returns gams frames coords
   def get_frame(self, frames_of_choice):
     try:
@@ -345,11 +292,6 @@ class DataReaderFromKB(DataReaderInterface):
       # if exception, return None
       return None, True
   #end of def get_gams_frame
-
-  # capnp values are handled seperately, they need to be extracted
-  def get_capnp_value(self, key, value):
-    return self.capnp_crunch(key, value).to_dict()
-  # end of get_capnp_value
 # end of data reader interface from KB
 
 
