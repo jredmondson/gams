@@ -30,7 +30,6 @@ jobs:
 
   allow_failures:
     - env: NAME="OSX 10.13 clang-5 zmq" CLANG="clang-5" ZMQ="zmq"
-    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq"
     - env: NAME="Ubuntu 16.04 android ssl" ANDROID="android" SSL="ssl"
 
   include:
@@ -51,12 +50,6 @@ jobs:
       # clang, osx, java
     - compiler: clang
       env: NAME="OSX 10.13 clang java" CLANG="clang" JAVA="java"
-      os: osx
-      osx_image: xcode9.3
-
-      # clang, osx, zeromq
-    - compiler: clang
-      env: NAME="OSX 10.13 clang-5 zmq" CLANG="clang-5" ZMQ="zmq"
       os: osx
       osx_image: xcode9.3
 
