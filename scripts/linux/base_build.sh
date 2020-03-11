@@ -1543,6 +1543,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
         echo "SETTING GAMS_ROOT to $GAMS_ROOT"
     fi
   fi
+  
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
     echo "git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT"
@@ -2031,7 +2032,7 @@ else
 fi
 
 # No check if it's unset. the source .scrimmage/setup.bash script always clears the plugin path var and sets it to the base one. We just have to append to it. Other option is make user do it manually. I don't think this is harmful.
-echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins" >> $HOME/.gams/env.sh
+echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins:$GAMS_ROOT/src/gams/platforms/scrimmage" >> $HOME/.gams/env.sh
 echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
