@@ -249,7 +249,7 @@ project (gams_autonomy) : using_madara, using_gams, using_scrimmage {
   requires += scrimmage
   
   libout = $(GAMS_ROOT)/lib/scrimmage_plugins
-  sharedname = GAMSAutonomy
+  sharedname = GAMSAutonomy_plugin
   
   Header_Files {
      src/gams/platforms/scrimmage

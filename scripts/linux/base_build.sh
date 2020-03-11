@@ -2045,8 +2045,5 @@ else
   echo ""
 fi
 
-echo "Sourcing final GAMS environment"
-source $HOME/.gams/env.sh
-
 echo "BUILD_ERRORS=$BUILD_ERRORS"
 exit $BUILD_ERRORS
