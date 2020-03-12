@@ -827,19 +827,44 @@ if [ $MAC -eq 1 ]; then
   if [ $PREREQS -eq 1 ]; then
     brew install boost@1.59
     brew install autoconf automake libtool
-	# Using Mac
-    brew install llvm@6 llvm@5
+	brew install llvm
 
     if [ $CLANG_SUFFIX = "-8" ]; then
       brew install llvm@8
     elif [ $CLANG_SUFFIX = "-9" ]; then
       brew install llvm@9
+    elif [ $CLANG_SUFFIX = "-6" ]; then
+      brew install llvm@6
+    elif [ $CLANG_SUFFIX = "-5" ]; then
+      brew install llvm@5
     fi
 	
     if [ $JAVA -eq 1 ]; then
       brew install maven
     fi
   fi
+  
+  #setup C and C++ compilers and force
+  if [ -z $CLANG_SUFFIX ]; then
+	export CC=(brew --prefix llvm)/bin/clang
+	export CXX=(brew --prefix llvm)/bin/clang++
+  elif [ $CLANG_SUFFIX = "-9" ]; then
+	export CC=(brew --prefix llvm@9)/bin/clang
+	export CXX=(brew --prefix llvm@9)/bin/clang++
+  elif [ $CLANG_SUFFIX = "-8" ]; then
+	export CC=(brew --prefix llvm@8)/bin/clang
+	export CXX=(brew --prefix llvm@8)/bin/clang++
+  elif [ $CLANG_SUFFIX = "-6" ]; then
+	export CC=(brew --prefix llvm@6)/bin/clang
+	export CXX=(brew --prefix llvm@6)/bin/clang++
+  elif [ $CLANG_SUFFIX = "-5" ]; then
+	export CC=(brew --prefix llvm@5)/bin/clang
+	export CXX=(brew --prefix llvm@5)/bin/clang++
+  fi
+  
+  export FORCE_CC=$CC
+  export FORCE_CXX=$CXX
+  
   export BOOST_ROOT=/usr/local/opt/boost@1.59/include
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
 fi
@@ -1172,12 +1197,8 @@ if [ $PREREQS -eq 1 ]; then
   cd $OSC_ROOT
   echo "Cleaning oscpack"
   make clean
-  echo "Building oscpack"
-  if [ $MAC -eq 1 ]; then
-    if [ $CLANG -eq 1 ]; then
-      export CXX=clang++
-    fi
-  elif [ $CLANG -eq 1 ]; then
+  echo "Building oscpack"0
+  if [ $MAC -eq 0 ] && [ $CLANG -eq 1 ]; then
   
     if [ ! -z $FORCE_CC ] ; then
       export CC=$FORCE_CC
