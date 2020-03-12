@@ -133,6 +133,7 @@ variables::Agents * /*agents*/)
           {
             end.lat(coords[0]);
             end.lng(coords[1]);
+            end.alt(-coords[2]);
           }
 
           madara_logger_ptr_log(gams::loggers::global_logger.get(),
@@ -237,6 +238,7 @@ variables::Agents * /*agents*/)
           {
             start.lat(coords[0]);
             start.lng(coords[1]);
+            start.alt(-coords[2]);
           }
 
           madara_logger_ptr_log(gams::loggers::global_logger.get(),
@@ -400,26 +402,28 @@ gams::algorithms::FormationSync::generate_plan(int formation)
      * the number of moves is sum of the the horizontal and
      * vertical distances divided by the buffer
      **/
-    int x_moves =(int)(std::abs(distances.x() / buffer_)) + 1;
-    int y_moves =(int)(std::abs(distances.y() / buffer_)) + 1;
-    int total_moves = x_moves + y_moves;
+    int x_moves = (int)(std::abs(distances.x() / buffer_)) + 1;
+    int y_moves = (int)(std::abs(distances.y() / buffer_)) + 1;
+    int z_moves = (int)(std::abs(distances.z() / buffer_));
+    int total_moves = x_moves + y_moves + z_moves;
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationSync::constructor:" \
-      " Formation will move %.3f m lat, %.3f m long in %d moves\n",
-      distances.x(), distances.y(), total_moves);
+      " Formation will move %.3f m lat, %.3f m long, %.3f m alt in %d moves\n",
+      distances.x(), distances.y(), distances.z(), total_moves);
 
     // the type of movement will be based on sign of distance
     double latitude_move = distances.x() < 0 ? -buffer_ : buffer_;
     double longitude_move = distances.y() < 0 ? -buffer_ : buffer_;
+    double altitude_move = distances.z() < 0 ? -buffer_ : buffer_;
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_DETAILED,
       "gams::algorithms::FormationSync::constructor:" \
-      " Will execute %.3f m in %d latitude moves and then" \
-      " %.3f m in %d longitude moves\n",
-      latitude_move, x_moves, longitude_move, y_moves);
+      " Will execute %.3f m in %d latitude moves, then" \
+      " %.3f m in %d longitude moves, and %.3f m in %d altitude moves\n",
+      latitude_move, x_moves, longitude_move, y_moves, altitude_move, z_moves);
 
     // a cartesian movement offset
     utility::Position movement;
@@ -689,6 +693,7 @@ gams::algorithms::FormationSync::generate_plan(int formation)
       movement.x = position_ * latitude_move * 2;
       movement.y = 0;
     }
+    movement.z = 0;
 
     // the initial position for this specific agent
     pose::Position move_start = movement.to_pos(start_frame);
@@ -713,6 +718,7 @@ gams::algorithms::FormationSync::generate_plan(int formation)
 
     movement.x = latitude_move;
     movement.y = 0;
+    movement.z = 0;
 
     // move latitude until done
     for (int i = 0; i < x_moves; ++i)
@@ -733,9 +739,27 @@ gams::algorithms::FormationSync::generate_plan(int formation)
     // adjust longitudinally
     movement.x = 0;
     movement.y = longitude_move;
+    movement.z = 0;
 
-    // move latitude until done
+    // move longitude until done
     for (int i = 0; i < y_moves; ++i)
+    {
+      pose::ReferenceFrame last_frame(last);
+      pose::Position move_last = movement.to_pos(last_frame);
+      last = move_last.transform_to(platform_->get_frame());
+      plan_.push_back(last);
+    }
+    
+    // keep track of the pivot point
+    move_pivot_ = x_moves + 2;
+
+    // adjust altitude
+    movement.x = 0;
+    movement.y = 0;
+    movement.z = altitude_move;
+
+    // move altitude until done
+    for (int i = 0; i < z_moves; ++i)
     {
       pose::ReferenceFrame last_frame(last);
       pose::Position move_last = movement.to_pos(last_frame);
