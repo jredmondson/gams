@@ -87,8 +87,8 @@ variables::Agents * /*agents*/)
 
   if (knowledge && sensors && platform && self)
   {
-    pose::Position start(platform->get_frame());
-    pose::Position end(platform->get_frame());
+    pose::Pose start(platform->get_frame());
+    pose::Pose end(platform->get_frame());
 
     int formation_type = FormationSync::LINE;
     double buffer = 5.0;
@@ -127,14 +127,7 @@ variables::Agents * /*agents*/)
       case 'e':
         if (i->first == "end")
         {
-          std::vector <double> coords(i->second.to_doubles());
-
-          if (coords.size() >= 2)
-          {
-            end.lat(coords[0]);
-            end.lng(coords[1]);
-            end.alt(-coords[2]);
-          }
+          end.from_container(i->second.to_doubles());
 
           madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
@@ -232,14 +225,7 @@ variables::Agents * /*agents*/)
       case 's':
         if (i->first == "start")
         {
-          std::vector <double> coords(i->second.to_doubles());
-
-          if (coords.size() >= 2)
-          {
-            start.lat(coords[0]);
-            start.lng(coords[1]);
-            start.alt(-coords[2]);
-          }
+          start.from_container(i->second.to_doubles());
 
           madara_logger_ptr_log(gams::loggers::global_logger.get(),
             gams::loggers::LOG_DETAILED,
@@ -277,8 +263,8 @@ variables::Agents * /*agents*/)
 }
 
 gams::algorithms::FormationSync::FormationSync(
-  pose::Position & start,
-  pose::Position & end,
+  pose::Pose & start,
+  pose::Pose & end,
   const std::string & group,
   double buffer,
   int formation,
@@ -427,6 +413,9 @@ gams::algorithms::FormationSync::generate_plan(int formation)
 
     // a cartesian movement offset
     utility::Position movement;
+
+    // default shapes have no height component
+    movement.z = 0;
 
     // the initial position for this specific agent
     pose::Position init(platform_->get_frame());
@@ -693,7 +682,6 @@ gams::algorithms::FormationSync::generate_plan(int formation)
       movement.x = position_ * latitude_move * 2;
       movement.y = 0;
     }
-    movement.z = 0;
 
     // the initial position for this specific agent
     pose::Position move_start = movement.to_pos(start_frame);
