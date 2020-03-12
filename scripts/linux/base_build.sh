@@ -674,25 +674,14 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   sudo apt-get install -y -f autoconf automake libtool
 
   if [ $CLANG -eq 1 ]; then
-    if [ $MAC -eq 0 ]; then
-	  # Not using Mac
-      sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev clang-5.0
+	# Not using Mac
+    sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev clang-5.0
 
-      if [ $CLANG_SUFFIX = "-8" ]; then
-        sudo apt-get install -y -f clang-8
-      elif [ $CLANG_SUFFIX = "-9" ]; then
-        sudo apt-get install -y -f clang-9
-      fi
-	else
-	  # Using Mac
-      brew install llvm@6 llvm@5
-
-      if [ $CLANG_SUFFIX = "-8" ]; then
-        brew install llvm@8
-      elif [ $CLANG_SUFFIX = "-9" ]; then
-        brew install llvm@9
-      fi
-	fi
+    if [ $CLANG_SUFFIX = "-8" ]; then
+      sudo apt-get install -y -f clang-8
+    elif [ $CLANG_SUFFIX = "-9" ]; then
+      sudo apt-get install -y -f clang-9
+    fi
   fi
 
   if [ $JAVA -eq 1 ] && [ -z $JAVA_HOME ]; then
@@ -838,6 +827,15 @@ if [ $MAC -eq 1 ]; then
   if [ $PREREQS -eq 1 ]; then
     brew install boost@1.59
     brew install autoconf automake libtool
+	# Using Mac
+    brew install llvm@6 llvm@5
+
+    if [ $CLANG_SUFFIX = "-8" ]; then
+      brew install llvm@8
+    elif [ $CLANG_SUFFIX = "-9" ]; then
+      brew install llvm@9
+    fi
+	
     if [ $JAVA -eq 1 ]; then
       brew install maven
     fi
