@@ -446,6 +446,10 @@ if [ -z $DMPL_ROOT ] ; then
   export DMPL_ROOT=$INSTALL_DIR/dmplc
 fi
 
+if [ -z $GAMS_ROOT ] ; then
+  export GAMS_ROOT=$INSTALL_DIR/gams
+fi
+
 if [ -z $MPC_ROOT ] ; then
   export MPC_ROOT=$INSTALL_DIR/MPC
 fi
@@ -785,8 +789,8 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
     if [ ! -d "$UNREAL_ROOT" ]; then
       echo "Installing UnrealEngine"
-      echo "git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
-      git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+      echo "git clone -b 4.24 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
+      git clone -b 4.24 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
       FORCE_UNREAL=1 
     fi
 
@@ -830,12 +834,16 @@ if [ $MAC -eq 1 ]; then
 	brew install llvm
 
     if [ $CLANG_SUFFIX = "-8" ]; then
+      echo "Installing llvm@8 for clang/clang++"
       brew install llvm@8
     elif [ $CLANG_SUFFIX = "-9" ]; then
+      echo "Installing llvm@8 for clang/clang++"
       brew install llvm@9
     elif [ $CLANG_SUFFIX = "-6" ]; then
+      echo "Installing llvm@8 for clang/clang++"
       brew install llvm@6
     elif [ $CLANG_SUFFIX = "-5" ]; then
+      echo "Installing llvm@8 for clang/clang++"
       brew install llvm@5
     fi
 	
@@ -846,24 +854,33 @@ if [ $MAC -eq 1 ]; then
   
   #setup C and C++ compilers and force
   if [ -z $CLANG_SUFFIX ]; then
-	export CC=(brew --prefix llvm)/bin/clang
-	export CXX=(brew --prefix llvm)/bin/clang++
+    echo "setting CC and CXX for llvm"
+    export CC=`brew --prefix llvm`/bin/clang
+    export CXX=`brew --prefix llvm`/bin/clang++
   elif [ $CLANG_SUFFIX = "-9" ]; then
-	export CC=(brew --prefix llvm@9)/bin/clang
-	export CXX=(brew --prefix llvm@9)/bin/clang++
+    echo "setting CC and CXX for llvm9"
+    export CC=`brew --prefix llvm@9`/bin/clang
+    export CXX=`brew --prefix llvm@9`/bin/clang++
   elif [ $CLANG_SUFFIX = "-8" ]; then
-	export CC=(brew --prefix llvm@8)/bin/clang
-	export CXX=(brew --prefix llvm@8)/bin/clang++
+    echo "setting CC and CXX for llvm8"
+    export CC=`brew --prefix llvm@8`/bin/clang
+    export CXX=`brew --prefix llvm@8`/bin/clang++
   elif [ $CLANG_SUFFIX = "-6" ]; then
-	export CC=(brew --prefix llvm@6)/bin/clang
-	export CXX=(brew --prefix llvm@6)/bin/clang++
+    echo "setting CC and CXX for llvm6"
+    export CC=`brew --prefix llvm@6`/bin/clang
+    export CXX=`brew --prefix llvm@6`/bin/clang++
   elif [ $CLANG_SUFFIX = "-5" ]; then
-	export CC=(brew --prefix llvm@5)/bin/clang
-	export CXX=(brew --prefix llvm@5)/bin/clang++
+    echo "setting CC and CXX for llvm5"
+    export CC=`brew --prefix llvm@5`/bin/clang
+    export CXX=`brew --prefix llvm@5`/bin/clang++
   fi
   
+  echo "setting FORCE_CC=$CC"
   export FORCE_CC=$CC
+  echo "setting FORCE_CXX=$CXX"
   export FORCE_CXX=$CXX
+  echo "Resetting CLANG_SUFFIX to empty"
+  export CLANG_SUFFIX=
   
   export BOOST_ROOT=/usr/local/opt/boost@1.59/include
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
@@ -1126,14 +1143,14 @@ if [ $CAPNP -eq 1 ] && [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
         export CC=$FORCE_CC
         echo "Forcing CC=$CC"
       else
-        export CC=clang-6.0
+        export CC=clang
       fi
 
       if [ ! -z $FORCE_CXX ] ; then
         export CXX=$FORCE_CXX
         echo "Forcing CXX=$CXX"
       else
-        export CXX=clang++-6.0
+        export CXX=clang++
       fi
 
       export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
@@ -1204,14 +1221,14 @@ if [ $PREREQS -eq 1 ]; then
       export CC=$FORCE_CC
       echo "Forcing CC=$CC"
     else
-      export CC=clang-6.0
+      export CC=clang
     fi
 
     if [ ! -z $FORCE_CXX ] ; then
       export CXX=$FORCE_CXX
       echo "Forcing CXX=$CXX"
     else
-      export CXX=clang++-6.0
+      export CXX=clang++
     fi
 
   fi 
