@@ -71,6 +71,10 @@
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Vector.h"
 
+#ifdef _GAMS_SCRIMMAGE_
+#include <scrimmage/simcontrol/SimControl.h>
+#endif
+
 #ifdef _GAMS_JAVA_
 #include <jni.h>
 #endif
@@ -395,6 +399,9 @@ namespace gams
 
       /// Settings for controller management and qos
       ControllerSettings settings_;
+      
+      // If using SCRIMMAGE
+      scrimmage::SimControl sim_control_;
     };
   }
 }

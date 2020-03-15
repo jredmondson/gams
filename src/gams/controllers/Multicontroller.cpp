@@ -55,6 +55,11 @@
 #include "gams/loggers/GlobalLogger.h"
 #include "madara/utility/EpochEnforcer.h"
 
+// Required for cheat mode SCRIMMAGE
+#ifdef _GAMS_SCRIMMAGE_
+#include <scrimmage/simcontrol/SimControl.h>
+#endif
+
 // Java-specific header includes
 #ifdef _GAMS_JAVA_
 #include "gams/algorithms/java/JavaAlgorithm.h"
@@ -74,6 +79,13 @@ gams::controllers::Multicontroller::Multicontroller(
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Multicontroller::constructor:" \
     " creating %d controllers.\n");
+    
+  if (settings_.simulation_engine == 1)
+  {
+      // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened
+      this->sim_control_.init("gams_cars.xml");
+      this->sim_control_.run_threaded();
+  }
 
   resize(num_controllers);
 }
@@ -88,6 +100,14 @@ gams::controllers::Multicontroller::~Multicontroller()
   for (size_t i = 0; i < controllers_.size(); ++i)
   {
     delete controllers_[i];
+  }
+  
+  // Shuts down scrimmage
+  if (settings_.simulation_engine == 1)
+  {
+     this->sim_control_.force_exit();
+     this->sim_control_.join();
+     this->sim_control_.shutdown();
   }
 }
 

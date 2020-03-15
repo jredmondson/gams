@@ -43,7 +43,7 @@
   <entity>
     <team_id>1</team_id> 
     <color>77 77 255</color>
-    <count>10</count>
+    <count>5</count>
     <health>1</health>
 
     <variance_x>20</variance_x>
@@ -65,7 +65,7 @@
   <entity>
     <team_id>2</team_id> 
     <color>255 0 0</color>
-    <count>20</count>
+    <count>10</count>
     <health>1</health>
 
     <variance_x>50</variance_x>

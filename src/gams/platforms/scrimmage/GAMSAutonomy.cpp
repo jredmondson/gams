@@ -7,6 +7,9 @@
 // GAMS INCLUDES
 #include <gams/platforms/scrimmage/GAMSAutonomy.h>
 
+// MADARA INCLUDES
+#include <madara/knowledge/KnowledgeBase.h>
+
 // CAR CONTROLLER PLUGIN INCLUDES
 #include <scrimmage/common/VariableIO.h>
 
@@ -35,8 +38,8 @@ void GAMSAutonomy::init(std::map<std::string, std::string> &params) {
    @effect Changes the entities current state and desired state
 */
 bool GAMSAutonomy::step_autonomy(double t, double dt) {
-   vars_.output(desired_heading_idx_, value_to_output);
-   vars_.output(desired_speed_idx_, value_to_output);
+   vars_.output(desired_heading_idx_, 1.0);
+   vars_.output(desired_speed_idx_, 1.0);
 
 
    return true;

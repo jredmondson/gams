@@ -1,4 +1,4 @@
-project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal, using_osc, using_warnings, no_warnings {
+project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal, using_osc, using_warnings, no_warnings, using_scrimmage {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -200,7 +200,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
 
 }
 
-project (gams_controller) : using_gams, using_madara {
+project (gams_controller) : using_gams, using_madara, using_scrimmage {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
 
