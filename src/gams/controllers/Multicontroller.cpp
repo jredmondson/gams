@@ -151,6 +151,14 @@ gams::controllers::Multicontroller::add_transports (
   }
 }
 
+void gams::controllers::Multicontroller::clear_knowledge(void)
+{
+  for (auto kb : kbs_)
+  {
+    kb.clear();
+  }
+}
+
 void
 gams::controllers::Multicontroller::clear_accents(size_t controller_index)
 {
@@ -385,6 +393,24 @@ const Integer & processes)
   }
 }
 
+void gams::controllers::Multicontroller::refresh_vars(
+  bool init_non_self_vars)
+{
+  for (size_t i = 0; i < controllers_.size(); ++i)
+  {
+    if (init_non_self_vars)
+    {
+      controllers_[i]->init_vars((Integer)i, (Integer)controllers_.size());
+    }
+    else
+    {
+      // create the agent variables and set swarm size only
+      controllers_[i]->init_vars((Integer)i);
+      kbs_[i].set("swarm.size", (Integer)controllers_.size());
+    }
+  }
+}
+
 gams::algorithms::BaseAlgorithm *
 gams::controllers::Multicontroller::get_algorithm(size_t controller_index)
 {
@@ -430,7 +456,8 @@ gams::controllers::Multicontroller::get_num_controllers (void)
   return controllers_.size();
 }
 
-void gams::controllers::Multicontroller::resize (size_t num_controllers)
+void gams::controllers::Multicontroller::resize (size_t num_controllers,
+  bool init_non_self_vars)
 {
   size_t old_size = controllers_.size();
 
@@ -476,7 +503,18 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
       for (size_t i = old_size; i < num_controllers; ++i)
       {
         controllers_[i] = new BaseController(kbs_[i], settings_);
-        controllers_[i]->init_vars ((Integer)i, (Integer)num_controllers);
+
+        if (init_non_self_vars)
+        {
+          // create the swarm variables with all agents populated
+          controllers_[i]->init_vars((Integer)i, (Integer)num_controllers);
+        }
+        else
+        {
+          // create the agent variables and set swarm size only
+          controllers_[i]->init_vars((Integer)i);
+          kbs_[i].set("swarm.size", (Integer)num_controllers);
+        }
 
         // only add shared memory transport if more than 1 controller
         if (settings_.shared_memory_transport && num_controllers > 1)

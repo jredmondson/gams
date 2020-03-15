@@ -86,3 +86,4 @@ scripts/simulation/unreal/spell/config.yaml
 .vs/
 Release/
 Debug/
+*.vcxproj.*

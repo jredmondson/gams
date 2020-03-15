@@ -119,8 +119,11 @@ void gams::variables::Swarm::init_vars (
   algorithm_args.set_settings (keep_local);
   size.set_settings (keep_local);
 
-  // update swarm size
-  size = swarm_size;
+  if (swarm_size >= 0)
+  {
+    // update swarm size
+    size = swarm_size;
+  }
 
   // use default settings
   size.set_settings (defaults);
