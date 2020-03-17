@@ -26,14 +26,11 @@ namespace gams
 {
   namespace platforms 
   {
-     class SCRIMMAGEBasePlatform : BasePlatform
+     class SCRIMMAGEBasePlatform : public BasePlatform
      {
      public:
        SCRIMMAGEBasePlatform(
-        scrimmage::SimControl& simcontrol,
-        madara::knowledge::KnowledgeBase * knowledge,
-        variables::Sensors * sensors,
-        variables::Self * self
+        scrimmage::SimControl& simcontrol
        );
      
        virtual ~SCRIMMAGEBasePlatform();
@@ -55,9 +52,8 @@ namespace gams
        virtual int move(const pose::Position & target, const pose::PositionBounds &bounds) override;
        virtual const gams::pose::ReferenceFrame & get_frame(void) const override;
        
-       private:
+       scrimmage::SimControl simcontrol;
        
-         scrimmage::SimControl simcontrol;
      };
      
      

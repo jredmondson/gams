@@ -55,6 +55,8 @@
 #include "gams/loggers/GlobalLogger.h"
 #include "madara/utility/EpochEnforcer.h"
 
+#include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
+
 // Required for cheat mode SCRIMMAGE
 #ifdef _GAMS_SCRIMMAGE_
 #include <scrimmage/simcontrol/SimControl.h>
@@ -84,7 +86,10 @@ gams::controllers::Multicontroller::Multicontroller(
   {
       // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened
       sim_control_.init("gams_cars.xml");
-      sim_control_.run_threaded();
+      sim_control_.start();
+      sim_control_.send_terrain();
+      
+      // TODO Set up the simulation world, it spawns paused.
   }
 
   resize(num_controllers);
@@ -105,8 +110,6 @@ gams::controllers::Multicontroller::~Multicontroller()
   // Shuts down scrimmage
   if (settings_.simulation_engine == 1)
   {
-     this->sim_control_.force_exit();
-     this->sim_control_.join();
      this->sim_control_.shutdown();
   }
 }
@@ -301,9 +304,19 @@ gams::controllers::Multicontroller::init_platform(
     "gams::controllers::Multicontroller::init_platform:" \
     " initializing all controllers with platform %s\n", platform.c_str());
 
-  for (size_t i = 0; i < controllers_.size(); ++i)
+  if (platform == "scrimmage")
   {
-    controllers_[i]->init_platform(platform, args);
+     for (size_t i = 0; i < controllers_.size(); ++i)
+     {
+       controllers_[i]->init_platform(new gams::platforms::SCRIMMAGEBasePlatform(sim_control_));
+     }
+     
+  } else
+  {
+    for (size_t i = 0; i < controllers_.size(); ++i)
+    {
+      controllers_[i]->init_platform(platform, args);
+    }
   }
 }
 
@@ -599,6 +612,14 @@ gams::controllers::Multicontroller::run(double loop_period,
 int
 gams::controllers::Multicontroller::run_once(void)
 {
+  if (settings_.simulation_engine == 1)
+  {
+     madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Stepping the SCRIMMAGE Simulator: %i", sim_step_);
+     sim_control_.run_single_step(sim_step_++);
+  }
+
   // return value
   int return_value = 0;
 

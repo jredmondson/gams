@@ -386,6 +386,9 @@ namespace gams
         return run(loop_rate, max_runtime, send_rate);
       }
 
+      // If using SCRIMMAGE
+      scrimmage::SimControl sim_control_;
+
     protected:
 
       /// Controllers that need to be instrumented
@@ -400,8 +403,8 @@ namespace gams
       /// Settings for controller management and qos
       ControllerSettings settings_;
       
-      // If using SCRIMMAGE
-      scrimmage::SimControl sim_control_;
+      int sim_step_ = 0;
+      
     };
   }
 }
