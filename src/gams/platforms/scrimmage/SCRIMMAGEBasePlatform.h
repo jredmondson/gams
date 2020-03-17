@@ -62,29 +62,21 @@ namespace gams
      
      
   /**
-   * A factory class for creating OscJoystickPlatform platforms
+   * A factory class for creating SCRIMMAGEBasePlatform platforms
    **/
   class GAMS_EXPORT SCRIMMAGEBasePlatformFactory : public PlatformFactory
   {
   public:
-
-    /**
-     * Constructor
-     * @param type   the type of robotics system to simulate(quadcopter,
-     *               satellite)
-     **/
-    SCRIMMAGEBasePlatformFactory(const std::string & type = "car");
-
-    /**
-     * Destructor. Shouldn't be necessary but trying to find vtable issue
-     **/
+  
+    SCRIMMAGEBasePlatformFactory();
+  
     virtual ~SCRIMMAGEBasePlatformFactory();
 
     /**
-     * Creates a OscJoystickPlatform platform.
+     * Creates a SCRIMMAGEBasePlatform platform.
      * @param   args      no arguments are necessary for this platform
      * @param   knowledge the knowledge base. This will be set by the
-     *                    controller in init_vars.
+     *                    controller in init_vars.s
      * @param   sensors   the sensor info. This will be set by the
      *                    controller in init_vars.
      * @param   platforms status inform for all known agents. This

@@ -205,14 +205,14 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
   add(aliases, new RosP3DxFactory());
 #endif
 
-//#ifdef _GAMS_SCRIMMAGE_
-//  aliases.resize(2);
-//  aliases[0] = "scrimmage";
-//  aliases[1] = "scrimmage-gams";
-//  aliases[2] = "gams-scrimmage";
-//  
-//  add(aliases, new SCRIMMAGEBasePlatformFactory());
-//#endif
+#ifdef _GAMS_SCRIMMAGE_
+  aliases.resize(2);
+  aliases[0] = "scrimmage";
+  aliases[1] = "scrimmage-gams";
+  aliases[2] = "gams-scrimmage";
+  
+  add(aliases, new SCRIMMAGEBasePlatformFactory());
+#endif
 
 #ifdef _GAMS_AIRLIB_
   aliases.resize(2);

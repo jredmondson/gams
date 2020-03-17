@@ -62,6 +62,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
+      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -121,6 +122,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
+      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -180,6 +182,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
+      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -252,11 +255,11 @@ project (gams_autonomy) : using_madara, using_gams, using_scrimmage {
   sharedname = GAMSAutonomy_plugin
   
   Header_Files {
-     src/gams/platforms/scrimmage
+     src/gams/plugins/
   }
   
   Source_Files {
-     src/gams/platforms/scrimmage
+     src/gams/plugins/
   }
 }
 

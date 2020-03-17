@@ -73,12 +73,12 @@ const gams::pose::ReferenceFrame & gams::platforms::SCRIMMAGEBasePlatform::get_f
   return r;
 }
 
-gams::platforms::SCRIMMAGEBasePlatformFactory::SCRIMMAGEBasePlatformFactory(const std::string & type)
+gams::platforms::SCRIMMAGEBasePlatformFactory::~SCRIMMAGEBasePlatformFactory()
 {
 
 }
 
-gams::platforms::SCRIMMAGEBasePlatformFactory::~SCRIMMAGEBasePlatformFactory()
+gams::platforms::SCRIMMAGEBasePlatformFactory::SCRIMMAGEBasePlatformFactory()
 {
 
 }

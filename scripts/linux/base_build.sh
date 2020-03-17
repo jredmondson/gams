@@ -481,7 +481,7 @@ if [ $CLEAN_ENV -eq 1 ]; then
     export DMPL_ROOT=""
     #export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH$GAMS_ROOT/lib/scrimmage_plugins - No point, .scrimmage/setup.bash script will clear and reset it no matter what, and it's required for installation/building. Don't want to dive deep into that rabbit hole.
     export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs/$SCRIMMAGE_GIT_ROOT/build/lib/
     export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
     export SCRIMMAGE_GIT_ROOT=""
 fi
@@ -1515,6 +1515,10 @@ if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
         source $HOME/.scrimmage/setup.bash
         export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT
         export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
+        
+        if [[ ! ":$LD_LIBRARY_PATH:" == *":$SCRIMMAGE_GIT_ROOT/build/lib/:"* ]]; then
+           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SCRIMMAGE_GIT_ROOT/build/lib/
+        fi
 
         # Order is important actually, if scrimmage setup.bash is AFTER gams/env.sh, then the SCRIMMAGE_PLUGIN_PATH and SCRIMMAGE_MISSION_PATH will be incorrectly set because scrimmage/setup.bash sets it wrong.
         if ! grep -q "$HOME/.scrimmage/setup.bash" $HOME/.bashrc ; then
@@ -2032,7 +2036,8 @@ else
 fi
 
 # No check if it's unset. the source .scrimmage/setup.bash script always clears the plugin path var and sets it to the base one. We just have to append to it. Other option is make user do it manually. I don't think this is harmful.
-echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins:$GAMS_ROOT/src/gams/platforms/scrimmage" >> $HOME/.gams/env.sh
+
+echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins:$GAMS_ROOT/src/gams/plugins" >> $HOME/.gams/env.sh
 echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
