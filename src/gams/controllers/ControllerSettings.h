@@ -88,7 +88,7 @@ enum SchedulingStrategies
 
 enum SimulationEngine
 {
-  SCRIMMAGE_ENGINE = 0
+  SCRIMMAGE_ENGINE = 1
 };
 
 /**
@@ -147,7 +147,7 @@ public:
   bool shared_memory_transport = true;
   
   /// Decide on which simulation engine to run. Used if the simulator can be controlled via direct code. Defaults to -1 e.g not set.
-  int simulation_engine = -1;
+  int simulation_engine = 0;
 };
 
 } }

@@ -83,8 +83,8 @@ gams::controllers::Multicontroller::Multicontroller(
   if (settings_.simulation_engine == 1)
   {
       // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened
-      this->sim_control_.init("gams_cars.xml");
-      this->sim_control_.run_threaded();
+      sim_control_.init("gams_cars.xml");
+      sim_control_.run_threaded();
   }
 
   resize(num_controllers);

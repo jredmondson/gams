@@ -197,7 +197,7 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
   // ROS Platforms
 #ifdef _GAMS_ROS_
   // the ROS P3DX platform
-  aliases.resize(2);
+  aliases.resize(3);
   aliases[0] = "RosP3Dx";
   aliases[1] = "ros-p3dx";
   aliases[2] = "ROS_P3DX";
@@ -206,7 +206,7 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 #endif
 
 #ifdef _GAMS_SCRIMMAGE_
-  aliases.resize(2);
+  aliases.resize(3);
   aliases[0] = "scrimmage";
   aliases[1] = "scrimmage-gams";
   aliases[2] = "gams-scrimmage";

@@ -690,10 +690,10 @@ int main(int argc, char ** argv)
     controller_settings.gams_log_level = gams_debug_level;
   }
   
-  if (platform == "scrimmage")
-  {
-     controller_settings.simulation_engine = 1;
-  } 
+//  if (platform == "scrimmage")
+//  {
+//     controller_settings.simulation_engine = 1;
+//  } 
 
   controller_settings.eval_settings = madara::knowledge::EvalSettings::SEND;
   
