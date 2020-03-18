@@ -481,7 +481,7 @@ if [ $CLEAN_ENV -eq 1 ]; then
     export DMPL_ROOT=""
     #export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH$GAMS_ROOT/lib/scrimmage_plugins - No point, .scrimmage/setup.bash script will clear and reset it no matter what, and it's required for installation/building. Don't want to dive deep into that rabbit hole.
     export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs/$SCRIMMAGE_GIT_ROOT/build/lib/
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs/$SCRIMMAGE_GIT_ROOT/build/lib/:$SCRIMMAGE_GIT_ROOT/build/plugin_libs
     export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
     export SCRIMMAGE_GIT_ROOT=""
 fi
@@ -2016,7 +2016,7 @@ if [ $MAC -eq 0 ]; then
   if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
     sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
   else
-    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib" >> $HOME/.gams/env.sh
   fi
 
 else
