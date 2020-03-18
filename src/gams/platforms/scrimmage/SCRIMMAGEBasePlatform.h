@@ -30,7 +30,10 @@ namespace gams
      {
      public:
        SCRIMMAGEBasePlatform(
-        scrimmage::SimControl& simcontrol
+        scrimmage::SimControl& simcontrol,
+        madara::knowledge::KnowledgeBase * kb_,
+        gams::variables::Sensors * sensors_,
+        gams::variables::Self * self_
        );
      
        virtual ~SCRIMMAGEBasePlatform();

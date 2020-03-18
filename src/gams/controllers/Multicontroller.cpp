@@ -85,7 +85,7 @@ gams::controllers::Multicontroller::Multicontroller(
   if (settings_.simulation_engine == 1)
   {
       // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened
-      sim_control_.init("gams_cars.xml");
+      sim_control_.init("default_world.xml");
       sim_control_.start();
       sim_control_.send_terrain();
       
@@ -308,7 +308,18 @@ gams::controllers::Multicontroller::init_platform(
   {
      for (size_t i = 0; i < controllers_.size(); ++i)
      {
-       controllers_[i]->init_platform(new gams::platforms::SCRIMMAGEBasePlatform(sim_control_));
+       auto kb      = controllers_[i]->get_kb();
+       auto sensors = controllers_[i]->get_sensors();
+       auto self    = controllers_[i]->get_self();
+       
+       controllers_[i]->init_platform(
+           new gams::platforms::SCRIMMAGEBasePlatform(
+               sim_control_,
+               kb,
+               sensors,
+               self
+           )
+       );
      }
      
   } else

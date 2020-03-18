@@ -2,39 +2,111 @@
 #include "scrimmage/entity/Entity.h"
 #include <iostream>
 #include <iterator>
+#include <map>
 
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
-  scrimmage::SimControl& simcontrol) 
+  scrimmage::SimControl& simcontrol,
+  madara::knowledge::KnowledgeBase * kb_,
+  gams::variables::Sensors * sensors_,
+  gams::variables::Self * self_
+  ) 
 {
+
+  this->knowledge_ = kb_;
+  this->self_      = self_;
+  this->sensors_   = sensors_;
+
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
         " has been initialized. Hijacking SimControl.\n");
         
-  // TODO spawn and setup entity in simulator
-  // There should be N multicontrollers, 1 for each agent.
-  std::list<scrimmage::EntityPtr> entities = simcontrol.ents();
   
-  simcontrol.generate_entity(2);
+  // Retrieve # agents spawned from kb, if none yet set to 1      
+  auto num_agents_kr = knowledge_->get("agent_number").to_integer();
   
-  if (entities.size() <= 0)
+  if (num_agents_kr == 0 || num_agents_kr == NULL)
   {
-        madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
-        "No entities found in simulator");
-  } else 
+      num_agents_kr = 1;
+  } 
+  else
   {
-           for (auto const& it : entities) 
-          {
-              madara_logger_ptr_log(gams::loggers::global_logger.get(),
-                gams::loggers::LOG_ALWAYS,
-                "Entity ID: %i",
-                it->id());
-          }
+      num_agents_kr++;
   }
   
+  madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Spawning entity #%i in SCRIMMAGE..", num_agents_kr
+           );      
+           
+  knowledge_->set("agent_number", num_agents_kr);
+  
+  // TODO spawn and setup entity in simulator
+  // There should be N multicontrollers, 1 for each agent.
+  auto entities = simcontrol.ents();
+  
+  // Generate a plane entity as default. Subclass could implement something diff/we could parametrize this later.
+  auto ent_params = std::map<std::string, std::string>();
+  
+  ent_params["team_id"]      = "1";
+  ent_params["color"]        = "77 77 225";
+  ent_params["count"]        = "1";
+  ent_params["health"]       = "1";
+  ent_params["radius"]       = "1";
+  ent_params["heading"]      = "0";
+  ent_params["motion_model"] = "SimpleAircraft";
+  ent_params["controller0"]   = "SimpleAircraftControllerPID"; // requires a 0 after the specifier if calling this by code (probably bug in scrimmage's Entity.cpp?
+  ent_params["visual_model"] = "zephyr-blue";
+  ent_params["autonomy0"]     = "WaypointDispatcher";
+  ent_params["autonomy1"]     = "MotorSchemas";
+  ent_params["use_variance_all_ents"] = "true";
+  ent_params["waypointlist_network"] = "GlobalNetwork";
+  ent_params["waypoint_network"]     = "LocalNetwork";
+  ent_params["show_shapes"]          = "false";
+  ent_params["max_speed"]            = "25";
+  ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
+  ent_params["autonomy"] = "MotorSchemas";
+  
+  // Position offset by number of agents
+  auto x_offset = 10 * num_agents_kr;
+  auto y_offset = 0  * num_agents_kr;
+  auto z_offset = 0  * num_agents_kr;
+  
+  // Create KRs for 2 reasons: uploading them to KB and utility conversion function of .to_string()
+  madara::knowledge::KnowledgeRecord x_offset_kr(x_offset);
+  madara::knowledge::KnowledgeRecord y_offset_kr(y_offset);
+  madara::knowledge::KnowledgeRecord z_offset_kr(z_offset);
+  
+  ent_params["x"] = x_offset_kr.to_string();
+  ent_params["y"] = y_offset_kr.to_string();
+  ent_params["z"] = z_offset_kr.to_string();
+  
+  // Upload relevant agent info to KB
+  knowledge_->set("agent{agent_number}.x_spawn_loc", x_offset_kr);
+  knowledge_->set("agent{agent_number}.y_spawn_loc", y_offset_kr);
+  knowledge_->set("agent{agent_number}.z_spawn_loc", z_offset_kr);
+  
+  madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
+           x_offset_kr.to_integer(), y_offset_kr.to_integer(), z_offset_kr.to_integer()
+           );
+  
+  // takes as parameter desc_id, params, hard code to 1 for now
+  // generate entity 
+  simcontrol.generate_entity(1, ent_params);
+  
+  madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Created Entity ID #: %i\n",
+           num_agents_kr
+           );
          
 }
+
 
 gams::platforms::SCRIMMAGEBasePlatform::~SCRIMMAGEBasePlatform()
 {

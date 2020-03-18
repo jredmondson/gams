@@ -1455,3 +1455,15 @@ gams::controllers::BaseController::get_sensors(void)
 {
   return &sensors_;
 }
+
+madara::knowledge::KnowledgeBase *
+gams::controllers::BaseController::get_kb(void)
+{
+  return &knowledge_;
+}
+
+gams::variables::Self *
+gams::controllers::BaseController::get_self(void)
+{
+  return &self_;
+}

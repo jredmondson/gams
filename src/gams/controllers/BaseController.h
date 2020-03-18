@@ -338,9 +338,21 @@ namespace gams
 
       /**
       * Gets the sensors map
-      * @return the platform
+      * @return the sensors
       **/
       variables::Sensors * get_sensors(void);
+      
+      /**
+      * Gets the KB
+      * @return the KB
+      **/
+      madara::knowledge::KnowledgeBase * get_kb(void);
+      
+      /**
+      * Gets the Self
+      * @return the Self
+      **/
+      variables::Self * get_self(void);
 
       /**
        * Saves a checkpoint according to the configured settings
