@@ -56,6 +56,7 @@ namespace gams
        virtual const gams::pose::ReferenceFrame & get_frame(void) const override;
        
        scrimmage::SimControl simcontrol;
+       static int num_agents;
        
      };
      

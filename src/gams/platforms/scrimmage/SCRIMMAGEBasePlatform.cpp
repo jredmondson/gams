@@ -4,6 +4,11 @@
 #include <iterator>
 #include <map>
 
+namespace gp = gams::platforms;
+
+// Static var. 
+int gp::SCRIMMAGEBasePlatform::num_agents = 0;
+
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   scrimmage::SimControl& simcontrol,
   madara::knowledge::KnowledgeBase * kb_,
@@ -21,26 +26,22 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
         "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
         " has been initialized. Hijacking SimControl.\n");
         
-  
-  // Retrieve # agents spawned from kb, if none yet set to 1      
-  auto num_agents_kr = knowledge_->get("agent_number").to_integer();
-  
-  if (num_agents_kr == 0 || num_agents_kr == NULL)
+  if (SCRIMMAGEBasePlatform::num_agents == 0)
   {
-      num_agents_kr = 1;
+      SCRIMMAGEBasePlatform::num_agents = 1;
   } 
   else
   {
-      num_agents_kr++;
+      SCRIMMAGEBasePlatform::num_agents++;
   }
   
   madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
-           "Spawning entity #%i in SCRIMMAGE..", num_agents_kr
+           "Spawning entity #%i in SCRIMMAGE..", SCRIMMAGEBasePlatform::num_agents
            );      
            
-  knowledge_->set("agent_number", num_agents_kr);
+  knowledge_->set("agent_number", SCRIMMAGEBasePlatform::num_agents);
   
   // TODO spawn and setup entity in simulator
   // There should be N multicontrollers, 1 for each agent.
@@ -69,9 +70,9 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   ent_params["autonomy"] = "MotorSchemas";
   
   // Position offset by number of agents
-  auto x_offset = 10 * num_agents_kr;
-  auto y_offset = 0  * num_agents_kr;
-  auto z_offset = 0  * num_agents_kr;
+  auto x_offset = 10 * SCRIMMAGEBasePlatform::num_agents;
+  auto y_offset = 0  * SCRIMMAGEBasePlatform::num_agents;
+  auto z_offset = 0  * SCRIMMAGEBasePlatform::num_agents;
   
   // Create KRs for 2 reasons: uploading them to KB and utility conversion function of .to_string()
   madara::knowledge::KnowledgeRecord x_offset_kr(x_offset);
@@ -102,7 +103,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
            "Created Entity ID #: %i\n",
-           num_agents_kr
+           SCRIMMAGEBasePlatform::num_agents
            );
          
 }
