@@ -56,18 +56,18 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   ent_params["health"]       = "1";
   ent_params["radius"]       = "1";
   ent_params["heading"]      = "0";
-  ent_params["motion_model"] = "SimpleAircraft";
-  ent_params["controller0"]   = "SimpleAircraftControllerPID"; // requires a 0 after the specifier if calling this by code (probably bug in scrimmage's Entity.cpp?
-  ent_params["visual_model"] = "zephyr-blue";
-  ent_params["autonomy0"]     = "WaypointDispatcher";
-  ent_params["autonomy1"]     = "MotorSchemas";
+  ent_params["motion_model"] = "SimpleQuadrotor";
+  ent_params["controller0"]   = "SimpleQuadrotorControllerLQR"; // requires a 0 after the specifier if calling this by code (probably bug in scrimmage's Entity.cpp?
+  ent_params["visual_model"] = "iris";
+  //ent_params["autonomy0"]     = "WaypointDispatcher";
+  //ent_params["autonomy1"]     = "MotorSchemas";
   ent_params["use_variance_all_ents"] = "true";
   ent_params["waypointlist_network"] = "GlobalNetwork";
   ent_params["waypoint_network"]     = "LocalNetwork";
   ent_params["show_shapes"]          = "false";
   ent_params["max_speed"]            = "25";
   ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
-  ent_params["autonomy"] = "MotorSchemas";
+  //ent_params["autonomy"] = "MotorSchemas";
   
   // Position offset by number of agents
   auto x_offset = 10 * SCRIMMAGEBasePlatform::num_agents;
@@ -97,7 +97,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   
   // takes as parameter desc_id, params, hard code to 1 for now
   // generate entity 
-  simcontrol.generate_entity(1, ent_params);
+  simcontrol.generate_entity(0, ent_params);
   
   madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
