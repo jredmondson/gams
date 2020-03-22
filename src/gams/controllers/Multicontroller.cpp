@@ -314,7 +314,7 @@ gams::controllers::Multicontroller::init_platform(
        
        controllers_[i]->init_platform(
            new gams::platforms::SCRIMMAGEBasePlatform(
-               sim_control_,
+               &sim_control_,
                kb,
                sensors,
                self
@@ -623,6 +623,8 @@ gams::controllers::Multicontroller::run(double loop_period,
 int
 gams::controllers::Multicontroller::run_once(void)
 {
+  // Runs the simulator step before running the first MAPE loop as the MAPE loop
+  // depends on entities being inside the simulator
   if (settings_.simulation_engine == 1)
   {
      madara_logger_ptr_log(gams::loggers::global_logger.get(),

@@ -1,5 +1,8 @@
 #include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
 #include "scrimmage/entity/Entity.h"
+#include "scrimmage/math/State.h"
+#include "scrimmage/parse/MissionParse.h"
+#include "Eigen/Dense"
 #include <iostream>
 #include <iterator>
 #include <map>
@@ -7,53 +10,52 @@
 namespace gp = gams::platforms;
 
 // Static var. 
-int gp::SCRIMMAGEBasePlatform::num_agents = 0;
+int gp::SCRIMMAGEBasePlatform::num_agents = 1;
 
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
-  scrimmage::SimControl& simcontrol,
+  scrimmage::SimControl & simcontrol_,
   madara::knowledge::KnowledgeBase * kb_,
   gams::variables::Sensors * sensors_,
   gams::variables::Self * self_
-  ) 
+  ) : self_id(0)
 {
-
   this->knowledge_ = kb_;
   this->self_      = self_;
   this->sensors_   = sensors_;
+  this->simcontrol = simcontrol_;
 
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
         " has been initialized. Hijacking SimControl.\n");
         
-  if (SCRIMMAGEBasePlatform::num_agents == 0)
-  {
-      SCRIMMAGEBasePlatform::num_agents = 1;
-  } 
-  else
-  {
-      SCRIMMAGEBasePlatform::num_agents++;
-  }
+  // Simulator will always spawn with 1 agent from default_world.xml
+  this->self_id = gp::SCRIMMAGEBasePlatform::num_agents;
+  gp::SCRIMMAGEBasePlatform::num_agents = gp::SCRIMMAGEBasePlatform::num_agents + 1;
   
   madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
-           "Spawning entity #%i in SCRIMMAGE..", SCRIMMAGEBasePlatform::num_agents
+           "Spawning entity #%i in SCRIMMAGE..\n", this->self_id
            );      
            
-  knowledge_->set("agent_number", SCRIMMAGEBasePlatform::num_agents);
+  knowledge_->set("agent_number", this->self_id);
   
   // TODO spawn and setup entity in simulator
   // There should be N multicontrollers, 1 for each agent.
-  auto entities = simcontrol.ents();
   
   // Generate a plane entity as default. Subclass could implement something diff/we could parametrize this later.
   auto ent_params = std::map<std::string, std::string>();
   
+  tag = "gams_platform" + std::to_string(this->self_id);
+  
+  // ID is used to access it from the ent map, different from ent_desc_id apparently
+  //ent_params["tag"]          = tag;
+  ent_params["id"]           = std::to_string(this->self_id);
   ent_params["team_id"]      = "1";
   ent_params["color"]        = "77 77 225";
   ent_params["count"]        = "1";
-  ent_params["health"]       = "1";
+  ent_params["health"]       = "1000";
   ent_params["radius"]       = "1";
   ent_params["heading"]      = "0";
   ent_params["motion_model"] = "SimpleQuadrotor";
@@ -61,51 +63,121 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   ent_params["visual_model"] = "iris";
   //ent_params["autonomy0"]     = "WaypointDispatcher";
   //ent_params["autonomy1"]     = "MotorSchemas";
+  //ent_params["autonomy0"]       = "Control3D";
   ent_params["use_variance_all_ents"] = "true";
-  ent_params["waypointlist_network"] = "GlobalNetwork";
-  ent_params["waypoint_network"]     = "LocalNetwork";
+//  ent_params["waypointlist_network"] = "GlobalNetwork";
+//  ent_params["waypoint_network"]     = "LocalNetwork";
   ent_params["show_shapes"]          = "false";
   ent_params["max_speed"]            = "25";
-  ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
+  ent_params["max_vel"]              = "3";
+  ent_params["max_pitch"]            = "0.3";
+//  ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
   //ent_params["autonomy"] = "MotorSchemas";
   
   // Position offset by number of agents
-  auto x_offset = 10 * SCRIMMAGEBasePlatform::num_agents;
-  auto y_offset = 0  * SCRIMMAGEBasePlatform::num_agents;
-  auto z_offset = 0  * SCRIMMAGEBasePlatform::num_agents;
+  auto x_offset = 10 * this->self_id;
+  auto y_offset = 10  * this->self_id;
+  auto z_offset = 10  * this->self_id;
   
-  // Create KRs for 2 reasons: uploading them to KB and utility conversion function of .to_string()
-  madara::knowledge::KnowledgeRecord x_offset_kr(x_offset);
-  madara::knowledge::KnowledgeRecord y_offset_kr(y_offset);
-  madara::knowledge::KnowledgeRecord z_offset_kr(z_offset);
-  
-  ent_params["x"] = x_offset_kr.to_string();
-  ent_params["y"] = y_offset_kr.to_string();
-  ent_params["z"] = z_offset_kr.to_string();
-  
-  // Upload relevant agent info to KB
-  knowledge_->set("agent{agent_number}.x_spawn_loc", x_offset_kr);
-  knowledge_->set("agent{agent_number}.y_spawn_loc", y_offset_kr);
-  knowledge_->set("agent{agent_number}.z_spawn_loc", z_offset_kr);
+  ent_params["x0"] = std::to_string(x_offset);
+  ent_params["y0"] = std::to_string(y_offset);
+  ent_params["z0"] = std::to_string(z_offset);
   
   madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
-           x_offset_kr.to_integer(), y_offset_kr.to_integer(), z_offset_kr.to_integer()
-           );
-  
+  gams::loggers::global_logger.get(),
+  gams::loggers::LOG_ALWAYS,
+  "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
+  x_offset, y_offset, z_offset
+  );
+
   // takes as parameter desc_id, params, hard code to 1 for now
   // generate entity 
-  simcontrol.generate_entity(0, ent_params);
   
-  madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "Created Entity ID #: %i\n",
-           SCRIMMAGEBasePlatform::num_agents
-           );
+  if (true)
+  {
+      madara_logger_ptr_log(
+      gams::loggers::global_logger.get(),
+      gams::loggers::LOG_ALWAYS,
+      "Existing entity list size #: %i\n",
+      simcontrol.ents().size()
+      );
+          
+//     madara_logger_ptr_log(
+//     gams::loggers::global_logger.get(),
+//     gams::loggers::LOG_ALWAYS,
+//     "Manually enterintg tag to id map\n");
+     
+     // Manually enter the tag to id ratio required by MissionParser so gen_ent_cb works
+     //simcontrol.mp()->entity_tag_to_id()[tag] = this->self_id;
+     
+//     madara_logger_ptr_log(
+//     gams::loggers::global_logger.get(),
+//     gams::loggers::LOG_ALWAYS,
+//     "Manually enterintg id to params map\n");
+     
+     // Manually enter the ID tag to params mapping
+     //simcontrol.mp()->entity_descriptions()[this->self_id] = ent_params;
+     
+//     madara_logger_ptr_log(
+//     gams::loggers::global_logger.get(),
+//     gams::loggers::LOG_ALWAYS,
+//     "Generating our own entities from code\n"
+//     );
+//     
+//     if (simcontrol.generate_entity(1, ent_params))
+//     {
+//          madara_logger_ptr_log(
+//          gams::loggers::global_logger.get(),
+//          gams::loggers::LOG_ALWAYS,
+//          "Generated Entity\n"
+//          );
+//     } else
+//     {
+//          madara_logger_ptr_log(
+//          gams::loggers::global_logger.get(),
+//          gams::loggers::LOG_ALWAYS,
+//          "Failed to generate entity\n"
+//          );
+//     }
+//     
+//      Obtain the entity we just generated
+//    this_ent_ = get_entity();
+//     
+//    madara_logger_ptr_log(
+//    gams::loggers::global_logger.get(),
+//    gams::loggers::LOG_ALWAYS,
+//    "Created Entity ID #: %i\n",
+//    this->self_id
+//    );
+  }
          
+}
+
+scrimmage::EntityPtr
+gams::platforms::SCRIMMAGEBasePlatform::get_entity()
+{
+   for (auto ent : simcontrol.ents())
+   {
+       if (ent->id().id() == this->self_id)
+       {
+          madara_logger_ptr_log(
+          gams::loggers::global_logger.get(),
+          gams::loggers::LOG_ALWAYS,
+          "Entity found #: %i\n",
+          this->self_id
+          );
+          
+          return ent;
+       }
+   }
+   
+   madara_logger_ptr_log(
+   gams::loggers::global_logger.get(),
+   gams::loggers::LOG_ALWAYS,
+   "Entity not found in simulation scene yet.\n"
+   );
+
+   return NULL;
 }
 
 
@@ -126,7 +198,163 @@ gams::platforms::SCRIMMAGEBasePlatform::operator=(const SCRIMMAGEBasePlatform & 
 int
 gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 {
-   // Read state
+   // See if I can get access to the entity through a list
+   for (scrimmage::EntityPtr ent : simcontrol.ents())
+   {
+      if (ent)
+      {
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "ENTITY NOT NULL\n"
+           );
+      } 
+      else
+      {
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "ENTITY NULL\n"
+           );
+      }
+      
+      std::cout << " ENT INSIDE SENSE () " << ent->id().id() << std::endl;
+   }
+   
+   std::cout << "SIZE OF ENT LIST " << simcontrol.ents().size() << std::endl;
+   
+   // Read state. This appears never to work. The EntityPtr in the map is ALWAYS null ??
+   std::shared_ptr<std::unordered_map<int, scrimmage::EntityPtr>> ent_map;
+   ent_map = simcontrol.id_to_entity_map();
+   
+   madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Sensing vars for #: %i\n",
+           this->self_id
+           );
+   
+   if (ent_map)
+   {
+      // Accessing an entity in simulation by ID
+      
+      madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Obtained State Information\n"
+           );
+           
+              madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "ENTITY MAP: %i\n", (*ent_map).size()
+           );
+      
+      if ((*ent_map).size() > 0)
+      {
+      
+         madara_logger_ptr_log(
+         gams::loggers::global_logger.get(),
+         gams::loggers::LOG_ALWAYS,
+         "zz1"
+         );
+           
+         for (auto ent : (*ent_map))
+         {
+         
+            if (ent.second) 
+            {
+                madara_logger_ptr_log(
+                gams::loggers::global_logger.get(),
+                gams::loggers::LOG_ALWAYS,
+                "zz2"
+                );
+            }
+            else
+            {
+                madara_logger_ptr_log(
+                gams::loggers::global_logger.get(),
+                gams::loggers::LOG_ALWAYS,
+                "zz3"
+                );
+            }
+            
+            madara_logger_ptr_log(
+            gams::loggers::global_logger.get(),
+            gams::loggers::LOG_ALWAYS,
+            "index: %i", ent.first
+            );
+         }
+      }
+      
+      // this isnt able to find the ID of the agent in sim.  
+      scrimmage::EntityPtr this_ent     = (*ent_map)[1];
+      
+      
+      if (this_ent)
+      {
+            madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Entity available in simulation\n"
+           );
+           
+           scrimmage::StatePtr this_state    = (*this_ent).state();
+           // Read current entity state
+           Eigen::Vector3d this_pos          = (*this_state).pos();
+           Eigen::Vector3d this_vel          = (*this_state).vel();
+           Eigen::Vector3d this_ang_vel      = (*this_state).ang_vel();
+           scrimmage::Quaternion this_orient = (*this_state).quat(); 
+           
+           // Location inside Self/Agent/.location. Store there.
+           this->self_->agent.location.set(0, this_pos.x());
+           this->self_->agent.location.set(1, this_pos.y());
+           this->self_->agent.location.set(2, this_pos.z());
+
+           madara_logger_ptr_log(
+              gams::loggers::global_logger.get(),
+              gams::loggers::LOG_ALWAYS,
+              "Set position"
+              );
+
+           // Store angular velocity
+           this->self_->agent.velocity.set(0, this_vel.x());
+           this->self_->agent.velocity.set(0, this_vel.y());
+           this->self_->agent.velocity.set(0, this_vel.z());
+
+           madara_logger_ptr_log(
+              gams::loggers::global_logger.get(),
+              gams::loggers::LOG_ALWAYS,
+              "Set Angular Velocity"
+              );
+
+           // Store orientation
+           // r = 0 p = 1 y = 2
+           this->self_->agent.orientation.set(0, this_orient.roll());
+           this->self_->agent.orientation.set(1, this_orient.pitch());
+           this->self_->agent.orientation.set(2, this_orient.yaw());
+
+           madara_logger_ptr_log(
+              gams::loggers::global_logger.get(),
+              gams::loggers::LOG_ALWAYS,
+              "Set Orientation"
+              );
+         
+      } else
+      {
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Entity not created in simulation yet.\n"
+           );
+
+      }
+      
+      // No option to set angular velocity in GAMS? Not sure TODO
+      
+      // What else do the base algorithms in GAMS need? What do the SimpleControllers need? Looks like it requires only desired state, and state as set by autonomy to operate on.
+      
+   }
 
    return 1;
 }
@@ -134,22 +362,19 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 int
 gams::platforms::SCRIMMAGEBasePlatform::analyze(void)
 {
-
    return 0;
 }
 
 std::string
 gams::platforms::SCRIMMAGEBasePlatform::get_name(void) const
 {
-
-   return std::string("get_name");
+   return std::string("SCRIMMAGEBasePlatform") + std::to_string(this->self_id);
 }
 
 std::string
 gams::platforms::SCRIMMAGEBasePlatform::get_id(void) const 
 {
-
-  return std::string("get_id");
+   return std::to_string(this->self_id);
 }
 
 double
