@@ -30,7 +30,7 @@ namespace gams
      {
      public:
        SCRIMMAGEBasePlatform(
-        scrimmage::SimControl & simcontrol,
+        scrimmage::SimControl * simcontrol,
         madara::knowledge::KnowledgeBase * kb_,
         gams::variables::Sensors * sensors_,
         gams::variables::Self * self_
@@ -47,6 +47,8 @@ namespace gams
        virtual int analyze(void) override;
        virtual std::string get_name() const override;
        virtual std::string get_id() const override;
+       
+       gams::variables::PlatformStatus * get_platform_status(void);
 
        /*
           Platform actions required for Spell, Zone Coverage, Move.
@@ -62,7 +64,7 @@ namespace gams
        scrimmage::EntityPtr get_entity();
        scrimmage::EntityPtr this_ent_;
        
-       scrimmage::SimControl simcontrol;
+       scrimmage::SimControl * simcontrol;
        static int num_agents;
        int self_id;
        std::string tag;

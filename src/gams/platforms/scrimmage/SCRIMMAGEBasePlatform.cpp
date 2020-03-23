@@ -2,6 +2,7 @@
 #include "scrimmage/entity/Entity.h"
 #include "scrimmage/math/State.h"
 #include "scrimmage/parse/MissionParse.h"
+#include "scrimmage/motion/Controller.h"
 #include "Eigen/Dense"
 #include <iostream>
 #include <iterator>
@@ -13,7 +14,7 @@ namespace gp = gams::platforms;
 int gp::SCRIMMAGEBasePlatform::num_agents = 1;
 
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
-  scrimmage::SimControl & simcontrol_,
+  scrimmage::SimControl * simcontrol_,
   madara::knowledge::KnowledgeBase * kb_,
   gams::variables::Sensors * sensors_,
   gams::variables::Self * self_
@@ -23,7 +24,9 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   this->self_      = self_;
   this->sensors_   = sensors_;
   this->simcontrol = simcontrol_;
-
+  this->status_.init_vars(*this->knowledge_);
+  this->knowledge_->set(".platform.movement_available", 1);
+  
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
@@ -89,74 +92,13 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
   x_offset, y_offset, z_offset
   );
-
-  // takes as parameter desc_id, params, hard code to 1 for now
-  // generate entity 
-  
-  if (true)
-  {
-      madara_logger_ptr_log(
-      gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ALWAYS,
-      "Existing entity list size #: %i\n",
-      simcontrol.ents().size()
-      );
-          
-//     madara_logger_ptr_log(
-//     gams::loggers::global_logger.get(),
-//     gams::loggers::LOG_ALWAYS,
-//     "Manually enterintg tag to id map\n");
-     
-     // Manually enter the tag to id ratio required by MissionParser so gen_ent_cb works
-     //simcontrol.mp()->entity_tag_to_id()[tag] = this->self_id;
-     
-//     madara_logger_ptr_log(
-//     gams::loggers::global_logger.get(),
-//     gams::loggers::LOG_ALWAYS,
-//     "Manually enterintg id to params map\n");
-     
-     // Manually enter the ID tag to params mapping
-     //simcontrol.mp()->entity_descriptions()[this->self_id] = ent_params;
-     
-//     madara_logger_ptr_log(
-//     gams::loggers::global_logger.get(),
-//     gams::loggers::LOG_ALWAYS,
-//     "Generating our own entities from code\n"
-//     );
-//     
-//     if (simcontrol.generate_entity(1, ent_params))
-//     {
-//          madara_logger_ptr_log(
-//          gams::loggers::global_logger.get(),
-//          gams::loggers::LOG_ALWAYS,
-//          "Generated Entity\n"
-//          );
-//     } else
-//     {
-//          madara_logger_ptr_log(
-//          gams::loggers::global_logger.get(),
-//          gams::loggers::LOG_ALWAYS,
-//          "Failed to generate entity\n"
-//          );
-//     }
-//     
-//      Obtain the entity we just generated
-//    this_ent_ = get_entity();
-//     
-//    madara_logger_ptr_log(
-//    gams::loggers::global_logger.get(),
-//    gams::loggers::LOG_ALWAYS,
-//    "Created Entity ID #: %i\n",
-//    this->self_id
-//    );
-  }
          
 }
 
 scrimmage::EntityPtr
 gams::platforms::SCRIMMAGEBasePlatform::get_entity()
 {
-   for (auto ent : simcontrol.ents())
+   for (auto ent : simcontrol->ents())
    {
        if (ent->id().id() == this->self_id)
        {
@@ -199,7 +141,7 @@ int
 gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 {
    // See if I can get access to the entity through a list
-   for (scrimmage::EntityPtr ent : simcontrol.ents())
+   for (scrimmage::EntityPtr ent : simcontrol->ents())
    {
       if (ent)
       {
@@ -221,11 +163,11 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
       std::cout << " ENT INSIDE SENSE () " << ent->id().id() << std::endl;
    }
    
-   std::cout << "SIZE OF ENT LIST " << simcontrol.ents().size() << std::endl;
+   std::cout << "SIZE OF ENT LIST " << simcontrol->ents().size() << std::endl;
    
    // Read state. This appears never to work. The EntityPtr in the map is ALWAYS null ??
    std::shared_ptr<std::unordered_map<int, scrimmage::EntityPtr>> ent_map;
-   ent_map = simcontrol.id_to_entity_map();
+   ent_map = simcontrol->id_to_entity_map();
    
    madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
@@ -293,7 +235,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
       
       if (this_ent)
       {
-            madara_logger_ptr_log(
+           madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
            "Entity available in simulation\n"
@@ -312,10 +254,10 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            this->self_->agent.location.set(2, this_pos.z());
 
            madara_logger_ptr_log(
-              gams::loggers::global_logger.get(),
-              gams::loggers::LOG_ALWAYS,
-              "Set position"
-              );
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Set position\n"
+           );
 
            // Store angular velocity
            this->self_->agent.velocity.set(0, this_vel.x());
@@ -323,10 +265,10 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            this->self_->agent.velocity.set(0, this_vel.z());
 
            madara_logger_ptr_log(
-              gams::loggers::global_logger.get(),
-              gams::loggers::LOG_ALWAYS,
-              "Set Angular Velocity"
-              );
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Set Angular Velocity\n"
+           );
 
            // Store orientation
            // r = 0 p = 1 y = 2
@@ -335,10 +277,10 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            this->self_->agent.orientation.set(2, this_orient.yaw());
 
            madara_logger_ptr_log(
-              gams::loggers::global_logger.get(),
-              gams::loggers::LOG_ALWAYS,
-              "Set Orientation"
-              );
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Set Orientation\n"
+           );
          
       } else
       {
@@ -380,14 +322,53 @@ gams::platforms::SCRIMMAGEBasePlatform::get_id(void) const
 double
 gams::platforms::SCRIMMAGEBasePlatform::get_accuracy(void) const 
 {
-
   return 1.0;
 }
 
 int
 gams::platforms::SCRIMMAGEBasePlatform::move(const pose::Position & target, const pose::PositionBounds &bounds)
 {
+   madara_logger_ptr_log(
+   gams::loggers::global_logger.get(),
+   gams::loggers::LOG_ALWAYS,
+   "Moving robot...\n"
+   );
 
+  // Get entity
+  scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->self_id];
+  
+  if (ent)
+  {
+       // Set the entities desired state and its state
+       // Can I access the desired state from here?
+       scrimmage::StatePtr des_state = std::make_shared<scrimmage::State>();
+       Eigen::Vector3d xyz(0, 0, 0);
+       
+       // Hard code test for now to see if it moves.
+       des_state->set_pos(xyz);
+       
+       //ent->set_desired_state(target);
+       
+       for (auto controller : ent->controllers())
+       {
+            controller->set_desired_state(des_state);
+       }
+       
+       madara_logger_ptr_log(
+       gams::loggers::global_logger.get(),
+       gams::loggers::LOG_ALWAYS,
+       "Set Desired State at 0,0,0 for testing purposes\n"
+       );
+       
+  } else
+  {
+       madara_logger_ptr_log(
+       gams::loggers::global_logger.get(),
+       gams::loggers::LOG_ALWAYS,
+       "Entity null.\n"
+       );
+  } 
+  
   return 1;
 }
 
@@ -397,6 +378,13 @@ const gams::pose::ReferenceFrame & gams::platforms::SCRIMMAGEBasePlatform::get_f
   gams::pose::ReferenceFrame r;
   return r;
 }
+
+gams::variables::PlatformStatus *
+gams::platforms::SCRIMMAGEBasePlatform::get_platform_status(void)
+{
+    return &this->status_;
+}
+
 
 gams::platforms::SCRIMMAGEBasePlatformFactory::~SCRIMMAGEBasePlatformFactory()
 {

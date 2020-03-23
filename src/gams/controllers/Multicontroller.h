@@ -387,7 +387,7 @@ namespace gams
       }
 
       // If using SCRIMMAGE
-      scrimmage::SimControl sim_control_;
+      scrimmage::SimControl * sim_control_;
 
     protected:
 

@@ -85,9 +85,10 @@ gams::controllers::Multicontroller::Multicontroller(
   if (settings_.simulation_engine == 1)
   {
       // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened
-      sim_control_.init("default_world.xml");
-      sim_control_.start();
-      sim_control_.send_terrain();
+      sim_control_ = new scrimmage::SimControl();
+      sim_control_->init("default_world.xml");
+      sim_control_->start();
+      sim_control_->send_terrain();
       
       // TODO Set up the simulation world, it spawns paused.
   }
@@ -110,7 +111,8 @@ gams::controllers::Multicontroller::~Multicontroller()
   // Shuts down scrimmage
   if (settings_.simulation_engine == 1)
   {
-     this->sim_control_.shutdown();
+     this->sim_control_->shutdown();
+     delete sim_control_;
   }
 }
 
@@ -314,7 +316,7 @@ gams::controllers::Multicontroller::init_platform(
        
        controllers_[i]->init_platform(
            new gams::platforms::SCRIMMAGEBasePlatform(
-               &sim_control_,
+               sim_control_,
                kb,
                sensors,
                self
@@ -630,7 +632,7 @@ gams::controllers::Multicontroller::run_once(void)
      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "Stepping the SCRIMMAGE Simulator: %i", sim_step_);
-     sim_control_.run_single_step(sim_step_++);
+     sim_control_->run_single_step(sim_step_++);
   }
 
   // return value

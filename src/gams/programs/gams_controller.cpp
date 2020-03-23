@@ -693,7 +693,6 @@ int main(int argc, char ** argv)
   if (platform == "scrimmage")
   {
      controller_settings.simulation_engine = 1;
-     
   } 
 
   controller_settings.eval_settings = madara::knowledge::EvalSettings::SEND;
