@@ -26,6 +26,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   this->simcontrol = simcontrol_;
   this->status_.init_vars(*this->knowledge_);
   this->knowledge_->set(".platform.movement_available", 1);
+  this->knowledge_->print();
   
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,

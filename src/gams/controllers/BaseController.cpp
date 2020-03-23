@@ -963,6 +963,7 @@ gams::controllers::BaseController::init_algorithm(
       "  random area coverage\n" \
       "  priotized area coverage\n"
       );
+      
   }
   else
   {

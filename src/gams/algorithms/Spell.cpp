@@ -92,8 +92,8 @@ variables::Agents * /*agents*/)
 
   if (knowledge && sensors && platform && self)
   {
-    std::string group = "one";
-    std::string text = "ioi";
+    std::string group = "";
+    std::string text = "";
     pose::Pose origin(INVAL_COORD, INVAL_COORD);
     double height = 10;
     double width = 8;
