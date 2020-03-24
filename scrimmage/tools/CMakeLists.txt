@@ -1,0 +1,5 @@
+add_subdirectory(aggregate-runs)
+add_subdirectory(scrimmage-plugin)
+if (${VTK_FOUND})
+  add_subdirectory(filter-runs)
+endif()

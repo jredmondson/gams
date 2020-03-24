@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://gtri.gatech.edu"?>
+<params>
+  <library>LOSSensor_plugin</library>
+
+  <!-- The sensor ID - should be unique for all LOS sensors and non-negative -->
+  <sensor_id>0</sensor_id>
+  <!-- Standard deviation at minimum range -->
+  <range_sd_min>0.001</range_sd_min>
+  <!-- Standard deviation per unit of range -->
+  <range_sd_per_unit>0.01</range_sd_per_unit>
+  <!-- Standard deviation returned when out of range -->
+  <range_sd_oor>10.0</range_sd_oor>
+  <!-- Return value when out of range (should be greater than the max sensor range) -->
+  <oor_return>150.0</oor_return>
+
+  <!-- Error characteristics -->
+  <!-- Probability that the result will have a bad measurement -->
+  <probability_of_error>0.05</probability_of_error>
+  <!-- The additional measurement SD when there is an error -->
+  <error_sd>0.5</error_sd>
+  <!-- The probability that a in-range measurement will return oor or vice-versa -->
+  <probability_oor_error>0.015</probability_oor_error>
+
+  <!-- Set to true to run simple tests with a flat earth (no terrain or collisions) -->
+  <use_flat_earth_>true</use_flat_earth_>
+
+  <!-- Override the defaults in RayTrace such that there is only one ray for the LOS sensor -->
+  <angle_res_vert>0</angle_res_vert> <!-- degrees -->
+  <num_rays_vert>1</num_rays_vert>
+  <angle_res_horiz>0</angle_res_horiz>  <!-- degrees -->
+  <num_rays_horiz>1</num_rays_horiz>
+</params>
