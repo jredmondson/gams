@@ -2,6 +2,5 @@
 <?xml-stylesheet type="text/xsl" href="https://github.com/jredmondson/gams"?>
 <params>
   <library>GAMSAutonomy_plugin</library>
-  <plugin_type>Autonomy</plugin_type>
 </params>
 

@@ -92,8 +92,9 @@
         <z>10</z>
         <heading>0</heading>
         
-        <controller>SimpleQuadrotorControllerLQR</controller>
-        <motion_model>SimpleQuadrotor</motion_model>
+        <motion_model>SingleIntegrator</motion_model>
+        <controller>SingleIntegratorControllerWaypoint</controller>
+        <autonomy>GAMSAutonomy</autonomy>
         <visual_model>iris</visual_model>
     </entity> 
     

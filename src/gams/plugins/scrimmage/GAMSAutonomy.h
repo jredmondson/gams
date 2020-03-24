@@ -1,7 +1,8 @@
-#ifndef INCLUDE_SCRIMMAGE_PLUGINS_GAMS_AUTONOMY_H_
-#define INCLUDE_SCRIMMAGE_PLUGINS_GAMS_AUTONOMY_H_
+#ifndef INCLUDE_SCRIMMAGE_PLUGINS_AUTONOMY_GAMSAUTONOMY_H_
+#define INCLUDE_SCRIMMAGE_PLUGINS_AUTONOMY_GAMSAUTONOMY_H_
 
 #include <scrimmage/autonomy/Autonomy.h>
+#include <scrimmage/math/State.h>
 #include <string>
 #include <map>
 
@@ -15,10 +16,19 @@ class GAMSAutonomy : public scrimmage::Autonomy {
     void init(std::map<std::string, std::string> &params) override;
     bool step_autonomy(double t, double dt) override;
     
+    /*
+       GAMS Algorithms move() will call this to set the state, 
+       the autonomy function step() will read it and propogate
+       through SCRIMMAGE
+    */
+    void set_desired_state(StatePtr& des_state);
+    
   protected:
-    int desired_alt_idx_ = 0;
-    int desired_speed_idx_ = 0;
-    int desired_heading_idx_ = 0;
+    StatePtr desired_state;
+  
+    uint8_t position_x_idx_ = 0;
+    uint8_t position_y_idx_ = 0;
+    uint8_t position_z_idx_ = 0;
 
 }; // end class GAMSAutonomy
 }  // ns scrimmage

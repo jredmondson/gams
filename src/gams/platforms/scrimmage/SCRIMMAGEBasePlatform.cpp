@@ -3,6 +3,7 @@
 #include "scrimmage/math/State.h"
 #include "scrimmage/parse/MissionParse.h"
 #include "scrimmage/motion/Controller.h"
+
 #include "Eigen/Dense"
 #include <iostream>
 #include <iterator>
@@ -186,31 +187,6 @@ gams::platforms::SCRIMMAGEBasePlatform::operator=(const SCRIMMAGEBasePlatform & 
 int
 gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 {
-   // See if I can get access to the entity through a list
-   for (scrimmage::EntityPtr ent : simcontrol->ents())
-   {
-      if (ent)
-      {
-           madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "ENTITY NOT NULL\n"
-           );
-      } 
-      else
-      {
-           madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "ENTITY NULL\n"
-           );
-      }
-      
-      std::cout << " ENT INSIDE SENSE () " << ent->id().id() << std::endl;
-   }
-   
-   std::cout << "SIZE OF ENT LIST " << simcontrol->ents().size() << std::endl;
-   
    // Read state. This appears never to work. The EntityPtr in the map is ALWAYS null ??
    std::shared_ptr<std::unordered_map<int, scrimmage::EntityPtr>> ent_map;
    ent_map = simcontrol->id_to_entity_map();
@@ -226,58 +202,57 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
    {
       // Accessing an entity in simulation by ID
       
-      madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "Obtained State Information\n"
-           );
-           
-              madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "ENTITY MAP: %i\n", (*ent_map).size()
-           );
-      
-      if ((*ent_map).size() > 0)
-      {
-      
-         madara_logger_ptr_log(
-         gams::loggers::global_logger.get(),
-         gams::loggers::LOG_ALWAYS,
-         "zz1"
-         );
-           
-         for (auto ent : (*ent_map))
-         {
-         
-            if (ent.second) 
-            {
-                madara_logger_ptr_log(
-                gams::loggers::global_logger.get(),
-                gams::loggers::LOG_ALWAYS,
-                "zz2"
-                );
-            }
-            else
-            {
-                madara_logger_ptr_log(
-                gams::loggers::global_logger.get(),
-                gams::loggers::LOG_ALWAYS,
-                "zz3"
-                );
-            }
-            
-            madara_logger_ptr_log(
-            gams::loggers::global_logger.get(),
-            gams::loggers::LOG_ALWAYS,
-            "index: %i", ent.first
-            );
-         }
-      }
+//      madara_logger_ptr_log(
+//           gams::loggers::global_logger.get(),
+//           gams::loggers::LOG_ALWAYS,
+//           "Obtained State Information\n"
+//           );
+//           
+//              madara_logger_ptr_log(
+//           gams::loggers::global_logger.get(),
+//           gams::loggers::LOG_ALWAYS,
+//           "ENTITY MAP: %i\n", (*ent_map).size()
+//           );
+//      
+//      if ((*ent_map).size() > 0)
+//      {
+//      
+//         madara_logger_ptr_log(
+//         gams::loggers::global_logger.get(),
+//         gams::loggers::LOG_ALWAYS,
+//         "zz1"
+//         );
+//           
+//         for (auto ent : (*ent_map))
+//         {
+//         
+//            if (ent.second) 
+//            {
+//                madara_logger_ptr_log(
+//                gams::loggers::global_logger.get(),
+//                gams::loggers::LOG_ALWAYS,
+//                "zz2"
+//                );
+//            }
+//            else
+//            {
+//                madara_logger_ptr_log(
+//                gams::loggers::global_logger.get(),
+//                gams::loggers::LOG_ALWAYS,
+//                "zz3"
+//                );
+//            }
+//            
+//            madara_logger_ptr_log(
+//            gams::loggers::global_logger.get(),
+//            gams::loggers::LOG_ALWAYS,
+//            "index: %i", ent.first
+//            );
+//         }
+//      }
       
       // this isnt able to find the ID of the agent in sim.  
-      scrimmage::EntityPtr this_ent     = (*ent_map)[1];
-      
+      scrimmage::EntityPtr this_ent     = (*ent_map)[this->self_id];
       
       if (this_ent)
       {
@@ -307,8 +282,8 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 
            // Store angular velocity
            this->self_->agent.velocity.set(0, this_vel.x());
-           this->self_->agent.velocity.set(0, this_vel.y());
-           this->self_->agent.velocity.set(0, this_vel.z());
+           this->self_->agent.velocity.set(1, this_vel.y());
+           this->self_->agent.velocity.set(2, this_vel.z());
 
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
@@ -321,6 +296,11 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            this->self_->agent.orientation.set(0, this_orient.roll());
            this->self_->agent.orientation.set(1, this_orient.pitch());
            this->self_->agent.orientation.set(2, this_orient.yaw());
+           
+//           for (auto controller : this_ent->controllers())
+//           {
+//                controller->set_state(this_state);
+//           }
 
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
@@ -356,54 +336,80 @@ gams::platforms::SCRIMMAGEBasePlatform::analyze(void)
 std::string
 gams::platforms::SCRIMMAGEBasePlatform::get_name(void) const
 {
-   return std::string("scrimmage");
+   return "SCRIMMAGEBasePlatform";
 }
 
 std::string
 gams::platforms::SCRIMMAGEBasePlatform::get_id(void) const 
 {
-   return this->get_name() + std::to_string(this->self_id);
+   return "SCRIMMAGEBasePlatform";
 }
 
 double
 gams::platforms::SCRIMMAGEBasePlatform::get_accuracy(void) const 
 {
-  return 1.0;
+  return 0.2;
 }
 
 int
-gams::platforms::SCRIMMAGEBasePlatform::move(const pose::Position & target, const pose::PositionBounds &bounds)
+gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target, const pose::PositionBounds &bounds)
 {
    madara_logger_ptr_log(
    gams::loggers::global_logger.get(),
    gams::loggers::LOG_ALWAYS,
    "Moving robot...\n"
    );
+   
+  int result = gams::platforms::PLATFORM_MOVING;
 
   // Get entity
   scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->self_id];
   
   if (ent)
   {
+        madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Moving robot to %s\n", target.to_string().c_str()
+        );
+        
+        gams::pose::Pose p(target);
+        
+               madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Moving robot to x: %f y: %f: z: %f\n", p.x(), p.y(), p.z()
+        );
+  
        // Set the entities desired state and its state
        // Can I access the desired state from here?
        scrimmage::StatePtr des_state = std::make_shared<scrimmage::State>();
-       Eigen::Vector3d xyz(0, 0, 0);
        
-       // Hard code test for now to see if it moves.
+       double x_ = p.x();
+       double y_ = p.y();
+       double z_ = p.z();
+       double rx_ = p.rx();
+       double ry_ = p.ry();
+       double rz_ = p.rz();
+       
+       double w_ = 0;
+       
+       Eigen::Vector3d xyz(x_,y_,z_);
+       scrimmage::Quaternion rpyz(w_, rx_, ry_, rz_);
+       
        des_state->set_pos(xyz);
+       des_state->set_quat(rpyz);
        
-       //ent->set_desired_state(target);
-       
-       for (auto controller : ent->controllers())
-       {
-            controller->set_desired_state(des_state);
-       }
+//       for (auto controller : ent->controllers())
+//       {
+//            controller->set_desired_state(des_state);
+//       }
        
        madara_logger_ptr_log(
        gams::loggers::global_logger.get(),
        gams::loggers::LOG_ALWAYS,
-       "Set Desired State at 0,0,0 for testing purposes\n"
+       "Set Desired State to x: %f y: %f z: %f \n",
+       p.x(), p.y(), p.z()
        );
        
   } else
@@ -415,7 +421,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const pose::Position & target, cons
        );
   } 
   
-  return 1;
+  return result;
 }
 
 const gams::pose::ReferenceFrame & gams::platforms::SCRIMMAGEBasePlatform::get_frame(void) const

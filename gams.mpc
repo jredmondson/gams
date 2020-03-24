@@ -203,7 +203,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
 
 }
 
-project (gams_controller) : using_gams, using_madara, using_scrimmage {
+project (gams_controller) : using_gams, using_madara, using_scrimmage, using_gs_plugin {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
 
@@ -248,18 +248,18 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_simtime, using_b
   }
 }
 
-project (gams_autonomy) : using_madara, using_gams, using_scrimmage {
+project (gams_autonomy) : using_gams, using_scrimmage {
   requires += scrimmage
   
   libout = $(GAMS_ROOT)/lib/scrimmage_plugins
   sharedname = GAMSAutonomy_plugin
   
   Header_Files {
-     src/gams/plugins/
+     src/gams/plugins/scrimmage
   }
   
   Source_Files {
-     src/gams/plugins/
+     src/gams/plugins/scrimmage
   }
 }
 

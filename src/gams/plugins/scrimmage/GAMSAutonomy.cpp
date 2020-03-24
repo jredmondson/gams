@@ -5,7 +5,7 @@
 #include <scrimmage/plugin_manager/RegisterPlugin.h>
 
 // GAMS INCLUDES
-#include <gams/platforms/scrimmage/GAMSAutonomy.h>
+#include <gams/plugins/scrimmage/GAMSAutonomy.h>
 
 // MADARA INCLUDES
 #include <madara/knowledge/KnowledgeBase.h>
@@ -13,7 +13,11 @@
 // CAR CONTROLLER PLUGIN INCLUDES
 #include <scrimmage/common/VariableIO.h>
 
-REGISTER_PLUGIN(scrimmage::Autonomy, scrimmage::autonomy::GAMSAutonomy, GAMSAutonomy_plugin)
+#include <iostream>
+
+REGISTER_PLUGIN(scrimmage::Autonomy,
+                scrimmage::autonomy::GAMSAutonomy,
+                GAMSAutonomy_plugin)
 
 namespace scrimmage {
 namespace autonomy {
@@ -26,10 +30,9 @@ GAMSAutonomy::GAMSAutonomy() {
 
 */
 void GAMSAutonomy::init(std::map<std::string, std::string> &params) {
-    desired_heading_idx_ = vars_.declare("desired_heading", scrimmage::VariableIO::Direction::Out);
-    desired_speed_idx_ = vars_.declare("desired_speed", scrimmage::VariableIO::Direction::Out);
-
-
+    position_x_idx_ = vars_.declare("position_x", scrimmage::VariableIO::Direction::Out);
+    position_y_idx_ = vars_.declare("position_y", scrimmage::VariableIO::Direction::Out);
+    position_z_idx_ = vars_.declare("position_z", scrimmage::VariableIO::Direction::Out);
 }
 
 /*
@@ -38,11 +41,28 @@ void GAMSAutonomy::init(std::map<std::string, std::string> &params) {
    @effect Changes the entities current state and desired state
 */
 bool GAMSAutonomy::step_autonomy(double t, double dt) {
-   vars_.output(desired_heading_idx_, 1.0);
-   vars_.output(desired_speed_idx_, 1.0);
 
+    // Take desired state and set to outputs
+    if (desired_state)
+    {
+        vars_.output(position_x_idx_, this->desired_state->pos()[0]);
+        vars_.output(position_y_idx_, this->desired_state->pos()[1]);
+        vars_.output(position_z_idx_, this->desired_state->pos()[2]);
+        
+    } else 
+    {
+       std::cout << "WARNING: Desired state not set yet by GAMS Algorithms" << std::endl;
+    }
 
    return true;
+}
+
+/*
+   Used for setting the state from some external class
+*/
+void GAMSAutonomy::set_desired_state(StatePtr & des_state)
+{
+   this->desired_state = des_state;
 }
 
 } // ns scrimmage

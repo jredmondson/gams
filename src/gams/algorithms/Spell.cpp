@@ -99,7 +99,7 @@ variables::Agents * /*agents*/)
     double width = 8;
     double buffer = 2;
     std::string barrier_name = "barrier.spell";
-
+    
     for (KnowledgeMap::const_iterator i = args.begin(); i != args.end(); ++i)
     {
       if (i->first.size() <= 0)

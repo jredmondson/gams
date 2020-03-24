@@ -52,7 +52,7 @@ namespace gams
           Platform actions required for Spell, Zone Coverage, Move.
        */
        virtual double get_accuracy() const override;
-       virtual int move(const pose::Position & target, const pose::PositionBounds &bounds) override;
+       virtual int move(const gams::pose::Position & target, const pose::PositionBounds &bounds) override;
        virtual const gams::pose::ReferenceFrame & get_frame(void) const override;
        
        /*
@@ -68,7 +68,6 @@ namespace gams
        std::string tag;
        
        madara::threads::Threader threader_;  
-       
        
      };
      
