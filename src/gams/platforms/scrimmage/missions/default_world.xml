@@ -93,7 +93,7 @@
         <heading>0</heading>
         <gain>1</gain>
         
-        <motion_model>SingleIntegrator</motion_model>
+       <motion_model>SingleIntegrator</motion_model>
         <controller>SingleIntegratorControllerWaypoint</controller>
         <autonomy>GAMSAutonomy</autonomy>
         <visual_model>iris</visual_model>
