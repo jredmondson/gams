@@ -18,82 +18,126 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   madara::knowledge::KnowledgeBase * kb_,
   gams::variables::Sensors * sensors_,
   gams::variables::Self * self_
-  ) : self_id(0)
+  ) : self_id(0), gams::platforms::BasePlatform(kb_, sensors_, self_)
 {
+
   this->knowledge_ = kb_;
   this->self_      = self_;
   this->sensors_   = sensors_;
   this->simcontrol = simcontrol_;
-  this->status_.init_vars(*this->knowledge_);
-  this->knowledge_->set(".platform.movement_available", 1);
+  
   this->knowledge_->print();
+
+  if (this->knowledge_ && this->sensors_)
+  {
+      threader_.set_data_plane(*kb_);
+      
+      gams::variables::Sensors::iterator it = sensors_->find("coverage");
+      if (it == sensors_->end ()) // create coverage sensor
+      {
+        // get origin
+        gams::pose::Position origin (gams::pose::gps_frame());
+        madara::knowledge::containers::NativeDoubleArray origin_container;
+        origin_container.set_name ("sensor.coverage.origin", *knowledge_, 3);
+        origin.from_container (origin_container);
+
+        // establish sensor
+        gams::variables::Sensor* coverage_sensor =
+          new gams::variables::Sensor ("coverage", knowledge_, 2.5, origin);
+        (*sensors_)["coverage"] = coverage_sensor;
+      }
+      
+    (*sensors_)["coverage"] = (*sensors_)["coverage"];
+    status_.init_vars (*knowledge_, get_id ());
+    
+    /**
+    * the following should be set when movement is available in your
+    * platform. If on construction, movement should be possible, then
+    * feel free to keep this uncommented. Otherwise, set it somewhere else
+    * in analyze or somewhere else when appropriate to enable movement.
+    * If you never enable movement_available, movement based algorithms are
+    * unlikely to ever move with your platform.
+    **/
+    status_.movement_available = 1;
   
-  madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
-        "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
-        " has been initialized. Hijacking SimControl.\n");
-        
-  // Simulator will always spawn with 1 agent from default_world.xml
-  this->self_id = gp::SCRIMMAGEBasePlatform::num_agents;
-  gp::SCRIMMAGEBasePlatform::num_agents = gp::SCRIMMAGEBasePlatform::num_agents + 1;
-  
-  madara_logger_ptr_log(
-           gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
-           "Spawning entity #%i in SCRIMMAGE..\n", this->self_id
-           );      
-           
-  knowledge_->set("agent_number", this->self_id);
-  
-  // TODO spawn and setup entity in simulator
-  // There should be N multicontrollers, 1 for each agent.
-  
-  // Generate a plane entity as default. Subclass could implement something diff/we could parametrize this later.
-  auto ent_params = std::map<std::string, std::string>();
-  
-  tag = "gams_platform" + std::to_string(this->self_id);
-  
-  // ID is used to access it from the ent map, different from ent_desc_id apparently
-  //ent_params["tag"]          = tag;
-  ent_params["id"]           = std::to_string(this->self_id);
-  ent_params["team_id"]      = "1";
-  ent_params["color"]        = "77 77 225";
-  ent_params["count"]        = "1";
-  ent_params["health"]       = "1000";
-  ent_params["radius"]       = "1";
-  ent_params["heading"]      = "0";
-  ent_params["motion_model"] = "SimpleQuadrotor";
-  ent_params["controller0"]   = "SimpleQuadrotorControllerLQR"; // requires a 0 after the specifier if calling this by code (probably bug in scrimmage's Entity.cpp?
-  ent_params["visual_model"] = "iris";
-  //ent_params["autonomy0"]     = "WaypointDispatcher";
-  //ent_params["autonomy1"]     = "MotorSchemas";
-  //ent_params["autonomy0"]       = "Control3D";
-  ent_params["use_variance_all_ents"] = "true";
-//  ent_params["waypointlist_network"] = "GlobalNetwork";
-//  ent_params["waypoint_network"]     = "LocalNetwork";
-  ent_params["show_shapes"]          = "false";
-  ent_params["max_speed"]            = "25";
-  ent_params["max_vel"]              = "3";
-  ent_params["max_pitch"]            = "0.3";
-//  ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
-  //ent_params["autonomy"] = "MotorSchemas";
-  
-  // Position offset by number of agents
-  auto x_offset = 10 * this->self_id;
-  auto y_offset = 10  * this->self_id;
-  auto z_offset = 10  * this->self_id;
-  
-  ent_params["x0"] = std::to_string(x_offset);
-  ent_params["y0"] = std::to_string(y_offset);
-  ent_params["z0"] = std::to_string(z_offset);
-  
-  madara_logger_ptr_log(
-  gams::loggers::global_logger.get(),
-  gams::loggers::LOG_ALWAYS,
-  "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
-  x_offset, y_offset, z_offset
-  );
-         
+  }
+
+  this->spawn_entity();         
+}
+
+/*
+  TODO Complete it
+*/
+void
+gams::platforms::SCRIMMAGEBasePlatform::spawn_entity(void)
+{
+    madara_logger_ptr_log(
+    gams::loggers::global_logger.get(),
+    gams::loggers::LOG_ALWAYS,
+    "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
+    " has been initialized. Hijacking SimControl.\n"
+    );
+          
+    // Simulator will always spawn with 1 agent from default_world.xml
+    this->self_id = gp::SCRIMMAGEBasePlatform::num_agents;
+    gp::SCRIMMAGEBasePlatform::num_agents = gp::SCRIMMAGEBasePlatform::num_agents + 1;
+    
+    madara_logger_ptr_log(
+    gams::loggers::global_logger.get(),
+    gams::loggers::LOG_ALWAYS,
+    "Spawning entity #%i in SCRIMMAGE..\n", this->self_id
+    );      
+             
+    knowledge_->set("agent_number", this->self_id);
+    
+    // TODO spawn and setup entity in simulator
+    // There should be N multicontrollers, 1 for each agent.
+    
+    // Generate a plane entity as default. Subclass could implement something diff/we could parametrize this later.
+    auto ent_params = std::map<std::string, std::string>();
+    
+    tag = "gams_platform" + std::to_string(this->self_id);
+    
+    // ID is used to access it from the ent map, different from ent_desc_id apparently
+    //ent_params["tag"]          = tag;
+    ent_params["id"]           = std::to_string(this->self_id);
+    ent_params["team_id"]      = "1";
+    ent_params["color"]        = "77 77 225";
+    ent_params["count"]        = "1";
+    ent_params["health"]       = "1000";
+    ent_params["radius"]       = "1";
+    ent_params["heading"]      = "0";
+    ent_params["motion_model"] = "SimpleQuadrotor";
+    ent_params["controller0"]   = "SimpleQuadrotorControllerLQR"; // requires a 0 after the specifier if calling this by code (probably bug in scrimmage's Entity.cpp?
+    ent_params["visual_model"] = "iris";
+    //ent_params["autonomy0"]     = "WaypointDispatcher";
+    //ent_params["autonomy1"]     = "MotorSchemas";
+    //ent_params["autonomy0"]       = "Control3D";
+    ent_params["use_variance_all_ents"] = "true";
+  //  ent_params["waypointlist_network"] = "GlobalNetwork";
+  //  ent_params["waypoint_network"]     = "LocalNetwork";
+    ent_params["show_shapes"]          = "false";
+    ent_params["max_speed"]            = "25";
+    ent_params["max_vel"]              = "3";
+    ent_params["max_pitch"]            = "0.3";
+  //  ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
+    //ent_params["autonomy"] = "MotorSchemas";
+    
+    // Position offset by number of agents
+    auto x_offset = 10 * this->self_id;
+    auto y_offset = 10  * this->self_id;
+    auto z_offset = 10  * this->self_id;
+    
+    ent_params["x0"] = std::to_string(x_offset);
+    ent_params["y0"] = std::to_string(y_offset);
+    ent_params["z0"] = std::to_string(z_offset);
+    
+    madara_logger_ptr_log(
+    gams::loggers::global_logger.get(),
+    gams::loggers::LOG_ALWAYS,
+    "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
+    x_offset, y_offset, z_offset
+    );
 }
 
 scrimmage::EntityPtr
@@ -126,7 +170,8 @@ gams::platforms::SCRIMMAGEBasePlatform::get_entity()
 
 gams::platforms::SCRIMMAGEBasePlatform::~SCRIMMAGEBasePlatform()
 {
-
+    threader_.terminate();
+    threader_.wait();
 }
 
 void
@@ -299,25 +344,25 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
       
    }
 
-   return 1;
+   return gams::platforms::PLATFORM_OK;
 }
 
 int
 gams::platforms::SCRIMMAGEBasePlatform::analyze(void)
 {
-   return 0;
+   return gams::platforms::PLATFORM_OK;
 }
 
 std::string
 gams::platforms::SCRIMMAGEBasePlatform::get_name(void) const
 {
-   return std::string("SCRIMMAGEBasePlatform") + std::to_string(this->self_id);
+   return std::string("scrimmage");
 }
 
 std::string
 gams::platforms::SCRIMMAGEBasePlatform::get_id(void) const 
 {
-   return std::to_string(this->self_id);
+   return this->get_name() + std::to_string(this->self_id);
 }
 
 double
@@ -375,16 +420,14 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const pose::Position & target, cons
 
 const gams::pose::ReferenceFrame & gams::platforms::SCRIMMAGEBasePlatform::get_frame(void) const
 {
-
-  gams::pose::ReferenceFrame r;
-  return r;
+  return gams::pose::default_frame();
 }
 
-gams::variables::PlatformStatus *
-gams::platforms::SCRIMMAGEBasePlatform::get_platform_status(void)
-{
-    return &this->status_;
-}
+//gams::variables::PlatformStatus *
+//gams::platforms::SCRIMMAGEBasePlatform::get_platform_status(void)
+//{
+//    return &this->status_;
+//}
 
 
 gams::platforms::SCRIMMAGEBasePlatformFactory::~SCRIMMAGEBasePlatformFactory()
@@ -406,87 +449,5 @@ gams::platforms::SCRIMMAGEBasePlatformFactory::create(
       variables::Self * self
 )
 {
-   madara_logger_ptr_log(gams::loggers::global_logger.get(),
-    gams::loggers::LOG_MINOR,
-    "entering gams::platforms::SCRIMMAGEBasePlatformFactory::create\n");
-
-  BasePlatform * result(0);
-
-  if (knowledge && sensors && platforms && self)
-  {
-    if (knowledge->get_num_transports() == 0)
-    {
-      madara::transport::QoSTransportSettings settings;
-
-      settings.type = madara::transport::MULTICAST;
-      settings.hosts.push_back("239.255.0.1:4150");
-
-      knowledge_->attach_transport("", settings);
-      knowledge_->activate_transport();
-
-      madara_logger_ptr_log(gams::loggers::global_logger.get(),
-        gams::loggers::LOG_MINOR,
-         "gams::platforms::SCRIMMAGEBasePlatformFactory::create:" \
-        " no transports found, attaching multicast\n");
-    }
-
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_MAJOR,
-       "gams::platforms::SCRIMMAGEBasePlatformFactory::create:" \
-      " creating SCRIMMAGEBasePlatform object\n");
-
-    // specify the model file
-    //string model_file;
-    //simxUChar is_client_side; // file is on server
-
-//    madara::knowledge::KnowledgeMap::const_iterator client_side_found =
-//      args.find("client_side");
-//    madara::knowledge::KnowledgeMap::const_iterator model_file_found =
-//      args.find("model_file");
-//    madara::knowledge::KnowledgeMap::const_iterator resource_dir_found =
-//      args.find("resource_dir");
-
-//    if (client_side_found != args.end() &&
-//        client_side_found->second.to_integer() == 1)
-//    {
-//      is_client_side = 1;
-//    }
-//    else
-//    {
-//      is_client_side = 0;
-//    }
-
-//    if (model_file_found != args.end())
-//    {
-//      model_file = model_file_found->second.to_string();
-//    }
-//    else if (resource_dir_found != args.end())
-//    {
-//      model_file = get_default_model(resource_dir_found->second.to_string());
-//    }
-//    else
-//    {
-//      model_file = get_default_model();
-//    }
-
-//    result = create_quad(model_file, is_client_side, knowledge, sensors, 
-//      platforms, self);
-  }
-  else
-  {
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ERROR,
-       "gams::platforms::VREPQuadFactory::create:" \
-      " invalid knowledge, sensors, platforms, or self\n");
-  }
-
-  if (result == 0)
-  {
-    madara_logger_ptr_log(gams::loggers::global_logger.get(),
-      gams::loggers::LOG_MAJOR,
-       "gams::platforms::VREPQuadFactory::create:" \
-      " error creating VREPQuad object\n");
-  }
-
-  return result;
+  return new SCRIMMAGEBasePlatform(new scrimmage::SimControl(), knowledge, sensors, self);
 }

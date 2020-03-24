@@ -16,8 +16,6 @@
 #include "madara/LockType.h"
 #include "madara/knowledge/containers/Integer.h"
 
-
-
 #include "gams/loggers/GlobalLogger.h"
 
 #include <scrimmage/simcontrol/SimControl.h>
@@ -48,7 +46,7 @@ namespace gams
        virtual std::string get_name() const override;
        virtual std::string get_id() const override;
        
-       gams::variables::PlatformStatus * get_platform_status(void);
+       void spawn_entity(void);
 
        /*
           Platform actions required for Spell, Zone Coverage, Move.
@@ -68,6 +66,8 @@ namespace gams
        static int num_agents;
        int self_id;
        std::string tag;
+       
+       madara::threads::Threader threader_;  
        
        
      };
