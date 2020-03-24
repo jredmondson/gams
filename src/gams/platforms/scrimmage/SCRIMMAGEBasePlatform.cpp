@@ -368,6 +368,12 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
   
   if (ent)
   {
+        scrimmage::StatePtr current_state = ent->state();
+        
+        gams::pose::Pose now(current_state->pos()[0],
+                             current_state->pos()[1],
+                             current_state->pos()[2]);
+  
         madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
@@ -376,43 +382,74 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         
         gams::pose::Pose p(target);
         
-               madara_logger_ptr_log(
-        gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
-        "Moving robot to x: %f y: %f: z: %f\n", p.x(), p.y(), p.z()
-        );
-  
-       // Set the entities desired state and its state
-       // Can I access the desired state from here?
-       scrimmage::StatePtr des_state = std::make_shared<scrimmage::State>();
+        double accuracy = now.distance_to(p);
+        
+        if (accuracy <= this->get_accuracy())
+        {
+            result = gams::platforms::PLATFORM_ARRIVED;
+            madara_logger_ptr_log(
+            gams::loggers::global_logger.get(),
+            gams::loggers::LOG_ALWAYS,
+            "Platform arrived to goal"
+            );
+            
+            // Set desired state to current state as we have satisfied conditions
+            
+            for (auto autonomy : ent->autonomies())
+            {
+               autonomy->set_desired_state(current_state);
+            }
+            
+        } else
+        {
+        
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Distance from goal: %f\n", accuracy
+           );
        
-       double x_ = p.x();
-       double y_ = p.y();
-       double z_ = p.z();
-       double rx_ = p.rx();
-       double ry_ = p.ry();
-       double rz_ = p.rz();
-       
-       double w_ = 0;
-       
-       Eigen::Vector3d xyz(x_,y_,z_);
-       scrimmage::Quaternion rpyz(w_, rx_, ry_, rz_);
-       
-       des_state->set_pos(xyz);
-       des_state->set_quat(rpyz);
-       
-       for (auto autonomy : ent->autonomies())
-       {
-           autonomy->set_desired_state(des_state);
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Moving robot to x: %f y: %f: z: %f\n", p.x(), p.y(), p.z()
+           );
+           
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Orienting robot to r: %f p: %f: y: %f\n", p.rx(), p.ry(), p.rz()
+           );
+      
+           // Set the entities desired state and its state
+           // Can I access the desired state from here?
+           scrimmage::StatePtr des_state = std::make_shared<scrimmage::State>();
+           
+           double x_ = p.x();
+           double y_ = p.y();
+           double z_ = p.z();
+           
+           double w_ = 0;
+           
+           Eigen::Vector3d xyz(x_,y_,z_);
+           
+           des_state->set_pos(xyz);
+           
+           // Until we get an autonomy that generates this for us
+           des_state->set_quat(current_state->quat());
+           
+           for (auto autonomy : ent->autonomies())
+           {
+               autonomy->set_desired_state(des_state);
+           }
+           
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Set Desired State to x: %f y: %f z: %f \n",
+           p.x(), p.y(), p.z()
+           );
        }
-       
-       madara_logger_ptr_log(
-       gams::loggers::global_logger.get(),
-       gams::loggers::LOG_ALWAYS,
-       "Set Desired State to x: %f y: %f z: %f \n",
-       p.x(), p.y(), p.z()
-       );
-       
   } else
   {
        madara_logger_ptr_log(
