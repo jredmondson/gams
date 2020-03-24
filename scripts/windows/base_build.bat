@@ -10,13 +10,15 @@ SET JAVA=0
 SET ACE=0
 SET CAPNP=0
 SET CLEAN=1
+SET CUDA=0
 SET GAMS=0
 SET MADARA=0
 SET TESTS=0
 SET TUTORIALS=0
+SET OPENCV=0
 SET DOCS=0
 SET VS_VERSION="vs2017"
-SET CMAKE_GEN="Visual Studio 15 2017"
+SET CMAKE_GEN=Visual Studio 15 2017
 SET PREREQS=0
 SET SETENV=0
 SET SETPATH=0
@@ -30,6 +32,7 @@ SET CAPNP_BUILD_RESULT=0
 
 SET FORCE_BOOST=0
 SET FORCE_CAPNP=0
+SET FORCE_OPENCV=0
 SET FORCE_OSC=0
 
 ECHO Parsing arguments
@@ -38,6 +41,9 @@ FOR %%x in (%*) do (
 
     IF "%%x" == "capnp" (
      SET CAPNP=1
+   ) ELSE IF "%%x" == "cuda" (
+     echo When appropriate, build CUDA GPU-enhancement support
+     SET CUDA=1
    ) ELSE IF "%%x" == "docs" (
      echo Build will enable doxygen documentation
      SET DOCS=1
@@ -46,11 +52,15 @@ FOR %%x in (%*) do (
      SET FORCE_BOOST=1
      SET PREREQS=1
    ) ELSE IF "%%x" == "forcecapnp" (
-     echo Prereqs will force Capnp
+     echo Prereqs will force capnp build
      SET FORCE_CAPNP=1
      SET PREREQS=1
+   ) ELSE IF "%%x" == "forceopencv" (
+     echo Prereqs will force opencv build
+     SET FORCE_OPENCV=1
+     SET OPENCV=1
    ) ELSE IF "%%x" == "forceosc" (
-     echo Prereqs will force OSC
+     echo Prereqs will force OSC build
      SET FORCE_OSC=1
      SET PREREQS=1
    ) ELSE IF "%%x" == "gams" (
@@ -65,6 +75,9 @@ FOR %%x in (%*) do (
    ) ELSE IF "%%x" == "noclean" (
      echo Build will try to minimize rebuilds 
      SET CLEAN=0
+   ) ELSE IF "%%x" == "opencv" (
+     echo Build will include opencv
+     SET OPENCV=1
    ) ELSE IF "%%x" == "prereqs" (
      echo Build will enable prerequisites
      SET PREREQS=1
@@ -115,6 +128,7 @@ FOR %%x in (%*) do (
      echo     gams        Build GAMS
      echo     java        Enable Java support
      echo     madara      Build MADARA
+     echo     opencv      Build opencv and opencv_contrib
      echo     prereqs     Build prereqs
      echo     setenv      set environment variables excluding path
      echo     setpath     set environment variables including path
@@ -131,9 +145,11 @@ FOR %%x in (%*) do (
 )
 
 echo Building options are:
+echo   cuda=%CUDA%
 echo   docs=%DOCS%
 echo   gams=%GAMS%
 echo   madara=%MADARA%
+echo   opencv=%OPENCV%
 echo   prereqs=%PREREQS%
 echo   setenv=%SETENV%
 echo   setpath=%SETPATH%
@@ -180,6 +196,12 @@ if ["%MADARA_ROOT%"] == [""] (
 if ["%MPC_ROOT%"] == [""] (
   SET MPC_ROOT=%RUN_LOCATION%\mpc
 )
+if ["%OPENCV_ROOT%"] == [""] (
+  SET OPENCV_ROOT=%RUN_LOCATION%\opencv
+)
+if ["%OPENCV_CONTRIB_ROOT%"] == [""] (
+  SET OPENCV_CONTRIB_ROOT=%RUN_LOCATION%\opencv_contrib
+)
 if ["%OSC_ROOT%"] == [""] (
   SET OSC_ROOT=%RUN_LOCATION%\oscpack
 )
@@ -211,6 +233,7 @@ echo   GAMS_ROOT=%GAMS_ROOT%
 echo   LZ4_ROOT=%LZ4_ROOT%
 echo   MADARA_ROOT=%MADARA_ROOT%
 echo   MPC_ROOT=%MPC_ROOT%
+echo   OPENCV_ROOT=%OPENCV_ROOT%
 echo   OSC_ROOT=%OSC_ROOT%
 echo   UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT%
 echo   VREP_ROOT=%VREP_ROOT%
@@ -296,8 +319,6 @@ IF %PREREQS% EQU 1 (
 	
   )
   
-  echo UPDATING OSCPACK
-  
   IF NOT EXIST %OSC_ROOT% (
   
     echo OSC does not exist. Cloning from github.
@@ -377,6 +398,80 @@ IF %PREREQS% EQU 1 (
   echo   OSC_BUILD_RESULT=%OSC_BUILD_RESULT%
   echo   MPC_REPO_RESULT=%MPC_REPO_RESULT%
 
+)
+
+
+IF %OPENCV% EQU 1 (
+  echo UPDATING OPENCV
+  
+  IF NOT EXIST "%OPENCV_ROOT%" (
+  
+    echo OPENCV does not exist. Cloning from github.
+    echo git clone https://github.com/opencv/opencv.git %OPENCV_ROOT%
+    git clone https://github.com/opencv/opencv.git %OPENCV_ROOT%
+    SET OPENCV_REPO_RESULT=%ERRORLEVEL%
+	
+	SET FORCE_OPENCV=1
+	
+  ) ELSE (
+  
+    echo OPENCV exists. Pulling latest version
+    cd %OPENCV_ROOT%
+    echo git pull
+    git pull
+    SET OPENCV_REPO_RESULT=%ERRORLEVEL%
+	
+  )
+  
+  IF NOT EXIST "%OPENCV_CONTRIB_ROOT%" (
+  
+    echo OPENCV does not exist. Cloning from github.
+    echo git clone https://github.com/opencv/opencv_contrib %OPENCV_CONTRIB_ROOT%
+    git clone https://github.com/opencv/opencv_contrib %OPENCV_CONTRIB_ROOT%
+    SET OPENCV_CONTRIB_REPO_RESULT=%ERRORLEVEL%
+	
+	SET FORCE_OPENCV=1
+	
+  ) ELSE (
+  
+    echo OPENCV exists. Pulling latest version
+    cd %OPENCV_CONTRIB_ROOT%
+    echo git pull
+    git pull
+    SET OPENCV_CONTRIB_REPO_RESULT=%ERRORLEVEL%
+	
+  )
+  
+  IF %FORCE_OPENCV% EQU 1 (
+    echo BUILDING OPENCV
+    IF NOT EXIST "%OPENCV_ROOT%\build" (
+      echo .. ensuring build and install dirs exist in OPENCV_ROOT
+      mkdir "%OPENCV_ROOT%\build"
+      mkdir "%OPENCV_ROOT%\install"
+    )
+  
+    cd "%OPENCV_ROOT%\build"
+  
+    IF %CUDA% EQU 0 (
+      echo ... disabling CUDA
+      SET CMAKE_OPTIONS="-DBUILD_PERF_TESTS:BOOL=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_DOCS:BOOL=OFF  -DWITH_CUDA:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF -DINSTALL_CREATE_DISTRIB=ON"
+    ) ELSE (
+      echo ... enabling CUDA
+      SET CMAKE_OPTIONS="-DBUILD_PERF_TESTS:BOOL=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_DOCS:BOOL=OFF  -DWITH_CUDA:BOOL=ON -DBUILD_EXAMPLES:BOOL=OFF -DINSTALL_CREATE_DISTRIB=ON"
+    )
+
+    echo ... generating makefiles for %CMAKE_GEN%
+    echo cmake -G "%CMAKE_GEN%" -A "x64" %CMAKE_OPTIONS% -DOPENCV_EXTRA_MODULES_PATH="%OPENCV_CONTRIB_ROOT%/modules" -DCMAKE_INSTALL_PREFIX="%OPENCV_ROOT%\install" "%OPENCV_ROOT%"
+    cmake -G "%CMAKE_GEN%" -A "x64" %CMAKE_OPTIONS% -DOPENCV_EXTRA_MODULES_PATH="%OPENCV_CONTRIB_ROOT%/modules" -DCMAKE_INSTALL_PREFIX="%OPENCV_ROOT%\install" "%OPENCV_ROOT%"
+
+    echo ... build debug libs with %CMAKE_GEN%
+    cmake --build .  --config debug
+	
+    echo ... build release libs with %CMAKE_GEN%
+    cmake --build .  --config release
+    cmake --build .  --target install --config release
+    cmake --build .  --target install --config debug
+  )
 )
 
 echo Check for installing MADARA
@@ -482,6 +577,7 @@ echo SET LZ4_ROOT=%LZ4_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
 echo SET MADARA_ROOT=%MADARA_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
 echo SET MPC_ROOT=%MPC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
 echo SET OSC_ROOT=%OSC_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
+echo SET OPENCV_ROOT=%OPENCV_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
 echo SET UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
 echo SET VREP_ROOT=%VREP_ROOT% >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
 echo SET PATH=%%PATH%%;%%MPC_ROOT%%;%%CAPNP_ROOT%%\c++\src\capnp\Release;%%MADARA_ROOT%%\lib;%%MADARA_ROOT%%\bin;%%GAMS_ROOT%%\lib >> "%HOMEDRIVE%%HOMEPATH%\.gams\env.bat"
@@ -499,6 +595,8 @@ IF %SETENV% EQU 1 (
   SET LZ4_ROOT=%LZ4_ROOT%
   SET MADARA_ROOT=%MADARA_ROOT%
   SET MPC_ROOT=%MPC_ROOT%
+  SET OPENCV_ROOT=%OPENCV_ROOT%
+  SET OPENCV_CONTRIB_ROOT=%OPENCV_CONTRIB_ROOT%
   SET OSC_ROOT=%OSC_ROOT%
   SET UNREAL_GAMS_ROOT=%UNREAL_GAMS_ROOT%
   SET VREP_ROOT=%VREP_ROOT%
@@ -514,6 +612,8 @@ IF %SETENV% EQU 1 (
   SETX LZ4_ROOT %LZ4_ROOT%
   SETX MADARA_ROOT %MADARA_ROOT%
   SETX MPC_ROOT %MPC_ROOT%
+  SETX OPENCV_ROOT %OPENCV_ROOT%
+  SETX OPENCV_CONTRIB_ROOT %OPENCV_CONTRIB_ROOT%
   SETX OSC_ROOT %OSC_ROOT%
   SETX UNREAL_GAMS_ROOT %UNREAL_GAMS_ROOT%
   SETX VREP_ROOT %VREP_ROOT%
