@@ -43,11 +43,12 @@ void GAMSAutonomy::init(std::map<std::string, std::string> &params) {
 bool GAMSAutonomy::step_autonomy(double t, double dt) {
 
     // Take desired state and set to outputs
-    if (desired_state)
+    if (this->desired_state_)
     {
-        vars_.output(position_x_idx_, this->desired_state->pos()[0]);
-        vars_.output(position_y_idx_, this->desired_state->pos()[1]);
-        vars_.output(position_z_idx_, this->desired_state->pos()[2]);
+        vars_.output(position_x_idx_, this->desired_state_->pos()[0]);
+        vars_.output(position_y_idx_, this->desired_state_->pos()[1]);
+        vars_.output(position_z_idx_, this->desired_state_->pos()[2]);
+        std::cout << "Moving towards objective" << std::endl;
         
     } else 
     {
@@ -55,14 +56,6 @@ bool GAMSAutonomy::step_autonomy(double t, double dt) {
     }
 
    return true;
-}
-
-/*
-   Used for setting the state from some external class
-*/
-void GAMSAutonomy::set_desired_state(StatePtr & des_state)
-{
-   this->desired_state = des_state;
 }
 
 } // ns scrimmage

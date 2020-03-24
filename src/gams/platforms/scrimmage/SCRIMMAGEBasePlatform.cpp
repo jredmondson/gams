@@ -3,6 +3,7 @@
 #include "scrimmage/math/State.h"
 #include "scrimmage/parse/MissionParse.h"
 #include "scrimmage/motion/Controller.h"
+#include "scrimmage/autonomy/Autonomy.h"
 
 #include "Eigen/Dense"
 #include <iostream>
@@ -400,10 +401,10 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
        des_state->set_pos(xyz);
        des_state->set_quat(rpyz);
        
-//       for (auto controller : ent->controllers())
-//       {
-//            controller->set_desired_state(des_state);
-//       }
+       for (auto autonomy : ent->autonomies())
+       {
+           autonomy->set_desired_state(des_state);
+       }
        
        madara_logger_ptr_log(
        gams::loggers::global_logger.get(),

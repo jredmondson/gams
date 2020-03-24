@@ -91,6 +91,7 @@
         <y>10</y>
         <z>10</z>
         <heading>0</heading>
+        <gain>1</gain>
         
         <motion_model>SingleIntegrator</motion_model>
         <controller>SingleIntegratorControllerWaypoint</controller>

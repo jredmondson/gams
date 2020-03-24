@@ -21,11 +21,8 @@ class GAMSAutonomy : public scrimmage::Autonomy {
        the autonomy function step() will read it and propogate
        through SCRIMMAGE
     */
-    void set_desired_state(StatePtr& des_state);
     
   protected:
-    StatePtr desired_state;
-  
     uint8_t position_x_idx_ = 0;
     uint8_t position_y_idx_ = 0;
     uint8_t position_z_idx_ = 0;
