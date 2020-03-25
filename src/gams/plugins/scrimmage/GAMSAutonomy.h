@@ -3,6 +3,10 @@
 
 #include <scrimmage/autonomy/Autonomy.h>
 #include <scrimmage/math/State.h>
+#include <scrimmage/pubsub/Publisher.h>
+#include <scrimmage/proto/State.pb.h>
+#include <scrimmage/msgs/Event.pb.h>
+#include <scrimmage/proto/ProtoConversions.h>
 #include <string>
 #include <map>
 
@@ -16,6 +20,7 @@ class GAMSAutonomy : public scrimmage::Autonomy {
     void init(std::map<std::string, std::string> &params) override;
     bool step_autonomy(double t, double dt) override;
     
+    void spawn_entity(State & origin);
     /*
        GAMS Algorithms move() will call this to set the state, 
        the autonomy function step() will read it and propogate
@@ -26,6 +31,8 @@ class GAMSAutonomy : public scrimmage::Autonomy {
     uint8_t position_x_idx_ = 0;
     uint8_t position_y_idx_ = 0;
     uint8_t position_z_idx_ = 0;
+    
+    scrimmage::PublisherPtr pub_gen_ents_;
 
 }; // end class GAMSAutonomy
 }  // ns scrimmage

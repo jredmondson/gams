@@ -99,7 +99,7 @@
         <visual_model>iris</visual_model>
     </entity>  -->
     
-   <entity>
+   <entity tag="gen_straight">
         <team_id>1</team_id>
         <color>77 77 255</color>
         <count>1</count>
