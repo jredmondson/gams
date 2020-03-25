@@ -19,8 +19,6 @@ class GAMSAutonomy : public scrimmage::Autonomy {
     GAMSAutonomy();
     void init(std::map<std::string, std::string> &params) override;
     bool step_autonomy(double t, double dt) override;
-    
-    void spawn_entity(State & origin);
     /*
        GAMS Algorithms move() will call this to set the state, 
        the autonomy function step() will read it and propogate

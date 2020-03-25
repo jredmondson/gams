@@ -89,6 +89,7 @@ gams::controllers::Multicontroller::Multicontroller(
       sim_control_->init("default_world.xml");
       sim_control_->start();
       sim_control_->send_terrain();
+      //sim_control_->run_single_step(sim_step_++);
       
       // TODO Set up the simulation world, it spawns paused.
   }

@@ -76,7 +76,9 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
 }
 
 /*
-  TODO Complete it
+  TODO Spawns an entity in the simulator with configurable parameters
+  
+  Note. This requires that MAX_NUM_ENTITIES in MissionParse.cpp is > than the number of    agents allowed to spawn. There is a bug where if <count>0</count> in the XML file, it will segfault. I will open a pull request with the SCRIMMAGE maintainers. Using their API other than this will cause a segfault. The SCRIMMAGE SimControl API is MOSTLY unusable other than this method used in this function to spawn agents.
 */
 void
 gams::platforms::SCRIMMAGEBasePlatform::spawn_entity(void)
@@ -93,121 +95,12 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity(void)
      s.quat() = scrimmage::Quaternion(0, 0, 0);
      // Get the GAMSAutonomy plugin handle and call spawn_entity() on it w/ this origin.
      
-     for (auto ent: this->simcontrol->ents())
-     {
-         if (ent)
-         {
-            std::cout << "Ents exist" << std::endl;
-            for (auto autonomies : ent->autonomies())
-            {
-               std::cout << "Spawning agent through autonomy plugin" << std::endl;
-               //scrimmage::Autonomy gams = *autonomies;
-               scrimmage::autonomy::GAMSAutonomy * gams_aut = dynamic_cast<scrimmage::autonomy::GAMSAutonomy*>(autonomies.get());
-               
-               if (gams_aut)
-               {
-                  std::cout << "We good" << std::endl;
-                  gams_aut->spawn_entity(s);
-               }
-            }
-            
-         } else
-         {
-            std::cout << "Ents nulled" << std::endl;
-         }
-     }
-//     std::cout << "Here1" << std::endl;
-//     scrimmage::autonomy::GAMSAutonomy gams;
-//     std::cout << "Here2" << std::endl;
-//     gams.spawn_entity(s);
-//     std::cout << "Here3" << std::endl;
-//     
-     // Find the entity that matches the parameters passed into the base platform
-     // E.g pass in platform type and origin
-
-//    if (this->simcontrol->generate_entity(0))
-//    {
-//       madara_logger_ptr_log(
-//       gams::loggers::global_logger.get(),
-//       gams::loggers::LOG_ALWAYS,
-//       "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
-//       " Spawned an agent in the SCRIMMAGE simulator successfully\n"
-//       );
-//    }
-//    else
-//    {
-//       madara_logger_ptr_log(
-//       gams::loggers::global_logger.get(),
-//       gams::loggers::LOG_ALWAYS,
-//       "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
-//       " Failed to spawn an agent in the SCRIMMAGE simulator\n"
-//       );
-//    }
-//    madara_logger_ptr_log(
-//    gams::loggers::global_logger.get(),
-//    gams::loggers::LOG_ALWAYS,
-//    "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform:" \
-//    " has been initialized. Hijacking SimControl.\n"
-//    );
-//          
-//    // Simulator will always spawn with 1 agent from default_world.xml
-//    this->self_id = gp::SCRIMMAGEBasePlatform::num_agents;
-//    gp::SCRIMMAGEBasePlatform::num_agents = gp::SCRIMMAGEBasePlatform::num_agents + 1;
-//    
-//    madara_logger_ptr_log(
-//    gams::loggers::global_logger.get(),
-//    gams::loggers::LOG_ALWAYS,
-//    "Spawning entity #%i in SCRIMMAGE..\n", this->self_id
-//    );      
-//             
-//    // TODO spawn and setup entity in simulator
-//    // There should be N multicontrollers, 1 for each agent.
-//    
-//    // Generate a plane entity as default. Subclass could implement something diff/we could parametrize this later.
-//    auto ent_params = std::map<std::string, std::string>();
-//    
-//    tag = "gams_platform" + std::to_string(this->self_id);
-//    
-//    // ID is used to access it from the ent map, different from ent_desc_id apparently
-//    //ent_params["tag"]          = tag;
-//    ent_params["id"]           = std::to_string(this->self_id);
-//    ent_params["team_id"]      = "1";
-//    ent_params["color"]        = "77 77 225";
-//    ent_params["count"]        = "1";
-//    ent_params["health"]       = "1000";
-//    ent_params["radius"]       = "1";
-//    ent_params["heading"]      = "0";
-//    ent_params["motion_model"] = "SimpleQuadrotor";
-//    ent_params["controller0"]   = "SimpleQuadrotorControllerLQR"; // requires a 0 after the specifier if calling this by code (probably bug in scrimmage's Entity.cpp?
-//    ent_params["visual_model"] = "iris";
-//    //ent_params["autonomy0"]     = "WaypointDispatcher";
-//    //ent_params["autonomy1"]     = "MotorSchemas";
-//    //ent_params["autonomy0"]       = "Control3D";
-//    ent_params["use_variance_all_ents"] = "true";
-//  //  ent_params["waypointlist_network"] = "GlobalNetwork";
-//  //  ent_params["waypoint_network"]     = "LocalNetwork";
-//    ent_params["show_shapes"]          = "false";
-//    ent_params["max_speed"]            = "25";
-//    ent_params["max_vel"]              = "3";
-//    ent_params["max_pitch"]            = "0.3";
-//  //  ent_params["behaviors"]            = "[ AvoidEntityMS gain='1.0' sphere_of_influence='10' minimum_range='2' ] [ MoveToGoalMS gain='1.0' use_initial_heading='true' goal='-1300,0,100']";
-//    //ent_params["autonomy"] = "MotorSchemas";
-//    
-//    // Position offset by number of agents
-//    auto x_offset = 10 * this->self_id;
-//    auto y_offset = 10  * this->self_id;
-//    auto z_offset = 10  * this->self_id;
-//    
-//    ent_params["x0"] = std::to_string(x_offset);
-//    ent_params["y0"] = std::to_string(y_offset);
-//    ent_params["z0"] = std::to_string(z_offset);
-//    
-//    madara_logger_ptr_log(
-//    gams::loggers::global_logger.get(),
-//    gams::loggers::LOG_ALWAYS,
-//    "Set Entity <x y z> spawn location to ID #: x: %i y: %i z: %i\n",
-//    x_offset, y_offset, z_offset
-//    );
+     scrimmage::PublisherPtr p = this->simcontrol->plugin()->advertise("GlobalNetwork", "GenerateEntity");
+     auto msg = std::make_shared<scrimmage::Message<scrimmage_msgs::GenerateEntity>>();
+     scrimmage::set(msg->data.mutable_state(), s);
+     msg->data.set_entity_tag("gen_straight");
+     
+     p->publish(msg);
 }
 
 scrimmage::EntityPtr
