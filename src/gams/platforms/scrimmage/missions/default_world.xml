@@ -99,25 +99,6 @@
         <visual_model>iris</visual_model>
     </entity>  -->
     
-<!--   <entity>-->
-<!--        <team_id>1</team_id>-->
-<!--        <color>77 77 255</color>-->
-<!--        <count>1</count>-->
-<!--        <health>10</health>-->
-<!--        <radius>1</radius>-->
-<!--        <x>10</x>-->
-<!--        <y>10</y>-->
-<!--        <z>10</z>-->
-<!--        <heading>0</heading>-->
-<!--        <gain>1</gain>-->
-<!--        <max_vel>3.0</max_vel>-->
-<!--        -->
-<!--        <motion_model>SingleIntegrator</motion_model>-->
-<!--        <controller>SingleIntegratorControllerWaypoint</controller>-->
-<!--        <autonomy>GAMSAutonomy</autonomy>-->
-<!--        <visual_model>iris</visual_model>-->
-<!--    </entity>-->
-
    <entity>
         <team_id>1</team_id>
         <color>77 77 255</color>
@@ -127,19 +108,38 @@
         <x>10</x>
         <y>10</y>
         <z>10</z>
-        <heading>1</heading>
-        <gain>10</gain>
-        <max_vel>30.0</max_vel>
-        <max_pitch>10.0</max_pitch>
-        <max_roll>10.0</max_roll>
-        <alt_pid>true</alt_pid>
-        <vel_pid>true</vel_pid>
-        <heading_pid>true</heading_pid>
+        <heading>0</heading>
+        <gain>1</gain>
+        <max_vel>3.0</max_vel>
         
+        <motion_model>SingleIntegrator</motion_model>
+        <controller>SingleIntegratorControllerWaypoint</controller>
         <autonomy>GAMSAutonomy</autonomy>
-        <controller>RigidBody6DOFControllerPID</controller>
-        <motion_model>RigidBody6DOF</motion_model>
         <visual_model>iris</visual_model>
     </entity>
+
+<!--   <entity>-->
+<!--        <team_id>1</team_id>-->
+<!--        <color>77 77 255</color>-->
+<!--        <count>1</count>-->
+<!--        <health>10</health>-->
+<!--        <radius>1</radius>-->
+<!--        <x>10</x>-->
+<!--        <y>10</y>-->
+<!--        <z>10</z>-->
+<!--        <heading>1</heading>-->
+<!--        <gain>10</gain>-->
+<!--        <max_vel>30.0</max_vel>-->
+<!--        <max_pitch>10.0</max_pitch>-->
+<!--        <max_roll>10.0</max_roll>-->
+<!--        <alt_pid>true</alt_pid>-->
+<!--        <vel_pid>true</vel_pid>-->
+<!--        <heading_pid>true</heading_pid>-->
+<!--        -->
+<!--        <autonomy>GAMSAutonomy</autonomy>-->
+<!--        <controller>RigidBody6DOFControllerPID</controller>-->
+<!--        <motion_model>RigidBody6DOF</motion_model>-->
+<!--        <visual_model>iris</visual_model>-->
+<!--    </entity>-->
     
 </runscript>
