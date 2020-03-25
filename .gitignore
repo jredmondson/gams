@@ -48,6 +48,9 @@ test_formation_sync
 test_location
 test_euler
 test_utm
+scrimmage
+
+core
 
 bin/*
 ACE_TAO/*

@@ -18,6 +18,8 @@ feature (scrimmage) {
   libpaths += $(SCRIMMAGE_GIT_ROOT)/build/lib
   libpaths += $(SCRIMMAGE_ROOT)/bin
   libpaths += $(SCRIMMAGE_ROOT)/lib
+  
+  libpaths += $(GAMS_ROOT)/lib/scrimmage_plugins/
 
   libs += scrimmage-core scrimmage-protos scrimmage-msgs
 }
