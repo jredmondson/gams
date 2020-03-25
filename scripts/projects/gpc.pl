@@ -4382,6 +4382,11 @@ filters::${filter}::filter (
     copy "$script_dir/common/doxygen_help_gen.mpb", "$path/";
   }
 
+  if (not -f "$path/debug_build.mpb")
+  {
+    copy "$script_dir/common/debug_build.mpb", "$path/";
+  }
+
   if (not -f "$path/using_boost.mpb")
   {
     copy "$script_dir/common/using_madara.mpb", "$path/";
@@ -4418,6 +4423,26 @@ filters::${filter}::filter (
   if (not -f "$path/using_madara.mpb")
   {
     copy "$script_dir/common/using_madara.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_nothreadlocal.mpb")
+  {
+    copy "$script_dir/common/using_nothreadlocal.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_simtime.mpb")
+  {
+    copy "$script_dir/common/using_simtime.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_warnings.mpb")
+  {
+    copy "$script_dir/common/using_warnings.mpb", "$path/";
+  }
+
+  if (not -f "$path/no_warnings.mpb")
+  {
+    copy "$script_dir/common/no_warnings.mpb", "$path/";
   }
 
   if (not -f "$path/project.mpc")
