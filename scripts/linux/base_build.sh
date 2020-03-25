@@ -87,11 +87,13 @@ JAVA=0
 ROS=0
 CLANG=0
 ANDROID=0
+CUDA=0
 STRIP=0
 ODROID=0
 MPC=0
 MADARA=0
 GAMS=0
+OPENCV=0
 PREREQS=0
 DOCS=0
 VREP_CONFIG=0
@@ -231,6 +233,8 @@ do
     export FORCE_CXX=clang++-9
   elif [ "$var" = "clean" ]; then
     CLEAN=1
+  elif [ "$var" = "cuda" ]; then
+    CUDA=1
   elif [ "$var" = "dart" ]; then
     DMPL=1
   elif [ "$var" = "debug" ]; then
@@ -271,6 +275,8 @@ do
   elif [ "$var" = "odroid" ]; then
     ODROID=1
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
+  elif [ "$var" = "opencv" ]; then
+    OPENCV=1
   elif [ "$var" = "prereqs" ]; then
     PREREQS=1
   elif [ "$var" = "python" ]; then
@@ -319,6 +325,7 @@ do
     echo "  clang-8         build using clang++-8.0 and libc++"
     echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
+    echo "  cuda            build relevant libs with CUDA support"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
@@ -343,6 +350,7 @@ do
     echo "  nomadarapull    when building MADARA, don't do a git pull"
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
+    echo "  opencv          build opencv"
     echo "  python          build with Python 2.7 support"
     echo "  prereqs         use apt-get to install prereqs. This usually only"
     echo "                  has to be used on the first usage of a feature"
@@ -372,6 +380,8 @@ do
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  MADARA_ROOT         - location of local copy of MADARA repository"
+    echo "  OPENCV_ROOT         - location of opencv to install to"
+    echo "  OPENCV_CONTRIB_ROOT - location of opencv_contrib to install to"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
@@ -470,6 +480,14 @@ if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
 fi
 
+if [ -z $OPENCV_ROOT ] ; then
+  export OPENCV_ROOT=$INSTALL_DIR/opencv
+fi
+
+if [ -z $OPENCV_CONTRIB_ROOT ] ; then
+  export OPENCV_CONTRIB_ROOT=$INSTALL_DIR/opencv_contrib
+fi
+
 if [ -z $OSC_ROOT ] ; then
   export OSC_ROOT=$INSTALL_DIR/oscpack
 fi
@@ -517,6 +535,7 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
 echo "CAPNPJAVA_ROOT is set to $CAPNPJAVA_ROOT"
+echo "CUDA is set to $CUDA"
 echo "OSC_ROOT is set to $OSC_ROOT"
 echo "UNREAL_ROOT is set to $UNREAL_ROOT"
 echo "AIRSIM_ROOT is set to $AIRSIM_ROOT"
@@ -531,6 +550,7 @@ fi
 echo "GAMS_ROOT is set to $GAMS_ROOT"
 
 echo "ODROID has been set to $ODROID"
+echo "OPENCV has been set to $OPENCV"
 echo "TESTS has been set to $TESTS"
 echo "ROS has been set to $ROS"
 echo "STRIP has been set to $STRIP"
@@ -914,6 +934,20 @@ else
   echo "export UE4_ROOT=$UE4_ROOT" >> $HOME/.gams/env.sh
 fi
 
+# Update OPENCV_ROOT in the GAMS environment file
+if grep -q OPENCV_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@OPENCV_ROOT=.*@OPENCV_ROOT='"$OPENCV_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export OPENCV_ROOT=$OPENCV_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update OPENCV_CONTRIB_ROOT in the GAMS environment file
+if grep -q OPENCV_CONTRIB_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@OPENCV_CONTRIB_ROOT=.*@OPENCV_CONTRIB_ROOT='"$OPENCV_CONTRIB_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export OPENCV_CONTRIB_ROOT=$OPENCV_CONTRIB_ROOT" >> $HOME/.gams/env.sh
+fi
+
 # Update UE4_GAMS in the GAMS environment file
 if grep -q UE4_GAMS $HOME/.gams/env.sh ; then
   sed -i 's@UE4_GAMS=.*@UE4_GAMS='"$UE4_GAMS"'@' $HOME/.gams/env.sh
@@ -1075,8 +1109,8 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
     )
   fi
   if [ ! -d $EIGEN_ROOT ] ; then
-    echo "git clone --single-branch --branch 3.3.7 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT"
-    git clone --single-branch --branch 3.3.7 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
+    echo "git clone https://gitlab.com/libeigen/eigen.git $EIGEN_ROOT"
+    git clone https://gitlab.com/libeigen/eigen.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
   else
     echo "UPDATING Eigen"
@@ -1240,7 +1274,75 @@ if [ $PREREQS -eq 1 ]; then
   fi
 
 fi
+
+if [ $OPENCV -eq 1 ]; then
+  echo UPDATING OPENCV
   
+  echo "OPENCV_ROOT has been set to $OPENCV_ROOT"
+
+  if [ ! -d $OPENCV_ROOT ]; then 
+  
+    echo OPENCV does not exist. Cloning from github.
+    echo git clone https://github.com/opencv/opencv.git $OPENCV_ROOT
+    git clone https://github.com/opencv/opencv.git $OPENCV_ROOT
+    OPENCV_REPO_RESULT=$?
+	
+  else
+  
+    echo OPENCV exists. Pulling latest version
+    cd %OPENCV_ROOT%
+    echo git pull
+    git pull
+    OPENCV_REPO_RESULT=$?
+	
+  fi
+  
+  echo "OPENCV_CONTRIB_ROOT has been set to $OPENCV_CONTRIB_ROOT"
+
+  if [ ! -d $OPENCV_CONTRIB_ROOT ]; then 
+  
+    echo OPENCV does not exist. Cloning from github.
+    echo git clone https://github.com/opencv/opencv_contrib $OPENCV_CONTRIB_ROOT
+    git clone https://github.com/opencv/opencv_contrib $OPENCV_CONTRIB_ROOT
+    OPENCV_CONTRIB_REPO_RESULT=$?
+	
+  else
+  
+    echo OPENCV exists. Pulling latest version
+    cd %OPENCV_CONTRIB_ROOT%
+    echo git pull
+    git pull
+    OPENCV_CONTRIB_REPO_RESULT=$?
+	
+  fi
+  
+  echo BUILDING OPENCV
+  if [ ! -d "$OPENCV_ROOT/build" ]; then 
+    echo "  ensuring build and install dirs exist in OPENCV_ROOT"
+    mkdir "$OPENCV_ROOT/build"
+    mkdir "$OPENCV_ROOT/install"
+  fi
+
+  cd "$OPENCV_ROOT/build"
+
+  if [ $CUDA -eq 1 ]; then
+    echo "  disabling CUDA"
+    CMAKE_OPTIONS="-DBUILD_PERF_TESTS:BOOL=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_DOCS:BOOL=OFF  -DWITH_CUDA:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF -DINSTALL_CREATE_DISTRIB=ON"
+  else
+    echo "  enabling CUDA"
+    CMAKE_OPTIONS="-DBUILD_PERF_TESTS:BOOL=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_DOCS:BOOL=OFF  -DWITH_CUDA:BOOL=ON -DBUILD_EXAMPLES:BOOL=OFF -DINSTALL_CREATE_DISTRIB=ON"
+  fi
+
+  echo "  generating makefiles"
+  echo cmake $CMAKE_OPTIONS -DOPENCV_EXTRA_MODULES_PATH="$OPENCV_CONTRIB_ROOT/modules" -DCMAKE_INSTALL_PREFIX="$OPENCV_ROOT/install" "$OPENCV_ROOT"
+  cmake $CMAKE_OPTIONS -DOPENCV_EXTRA_MODULES_PATH="$OPENCV_CONTRIB_ROOT/modules" -DCMAKE_INSTALL_PREFIX="$OPENCV_ROOT/install" "$OPENCV_ROOT"
+
+  echo ... build release libs
+  cmake --build .  --config release
+  cmake --build .  --target install --config release
+  OPENCV_BUILD_RESULT=$? 
+fi
+
 if [ $ZMQ -eq 1 ]; then
   export ZMQ=1
   cd $INSTALL_DIR
@@ -1693,6 +1795,22 @@ if [ $VREP -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+fi
+
+if [ $OPENCV -eq 1 ]; then
+  echo "  OPENCV"
+  if [ $OPENCV_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+  if [ $OPENCV_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
     (( BUILD_ERRORS++ ))
   fi
 fi
