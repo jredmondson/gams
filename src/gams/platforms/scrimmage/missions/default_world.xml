@@ -9,7 +9,7 @@
        network_gui="true"
        start_paused="true"/>
 
-  <multi_threaded num_threads="8">false</multi_threaded>
+  <multi_threaded num_threads="8">true</multi_threaded>
   <stream_port>50051</stream_port>
   <stream_ip>localhost</stream_ip>
 
@@ -22,7 +22,7 @@
   <background_color>191 191 191</background_color> <!-- Red Green Blue -->
   <gui_update_period>10</gui_update_period> <!-- milliseconds -->
 
-  <plot_tracks>false</plot_tracks>
+  <plot_tracks>true</plot_tracks>
   <output_type>all</output_type>
   <show_plugins>true</show_plugins>
 
@@ -37,13 +37,13 @@
   <show_origin>true</show_origin>
   <origin_length>10</origin_length>
   
-  <entity_interaction type="cuboid"
-                      lengths="2000, 2000, 1000"
-                      center="0, 0, 500"
-                      rpy="0, 0, 0"
-                      >Boundary</entity_interaction>
-  <entity_interaction>SimpleCollision</entity_interaction>
-  <entity_interaction>GroundCollision</entity_interaction>
+<!--  <entity_interaction type="cuboid"-->
+<!--                      lengths="2000, 2000, 1000"-->
+<!--                      center="0, 0, 500"-->
+<!--                      rpy="0, 0, 0"-->
+<!--                      >Boundary</entity_interaction>-->
+<!--  <entity_interaction>SimpleCollision</entity_interaction>-->
+<!--  <entity_interaction>GroundCollision</entity_interaction>-->
 
   <!-- <entity_interaction>SimpleCollision</entity_interaction> -->
   <!--<entity_interaction>GroundCollision</entity_interaction>-->
@@ -110,7 +110,7 @@
         <z>10</z>
         <heading>0</heading>
         <gain>1</gain>
-        <max_vel>3.0</max_vel>
+        <max_vel>30</max_vel>
         
         <motion_model>SingleIntegrator</motion_model>
         <controller>SingleIntegratorControllerWaypoint</controller>

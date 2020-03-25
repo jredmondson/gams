@@ -15,6 +15,7 @@
 #include "madara/threads/BaseThread.h"
 #include "madara/LockType.h"
 #include "madara/knowledge/containers/Integer.h"
+#include "madara/knowledge/containers/NativeDoubleVector.h"
 
 #include "gams/loggers/GlobalLogger.h"
 
@@ -64,7 +65,9 @@ namespace gams
        
        scrimmage::SimControl * simcontrol;
        static int num_agents;
-       int self_id;
+       
+       madara::knowledge::KnowledgeRecord self_id;
+       
        std::string tag;
        
        madara::threads::Threader threader_;  
