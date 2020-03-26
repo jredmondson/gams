@@ -55,6 +55,8 @@ MPC/*
 madara/
 eigen/
 oscpack/
+install
+build
 
 #Ignore maven project files
 target/
