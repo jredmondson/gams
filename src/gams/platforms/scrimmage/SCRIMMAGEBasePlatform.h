@@ -53,7 +53,8 @@ namespace gams
           Platform actions required for Spell, Zone Coverage, Move.
        */
        virtual double get_accuracy() const override;
-       virtual int move(const gams::pose::Position & target, const pose::PositionBounds &bounds) override;
+       virtual int move(const gams::pose::Position & target, const gams::pose::PositionBounds &bounds) override;
+       virtual int orient(const gams::pose::Orientation & target, const gams::pose::OrientationBounds &bounds) override;
        virtual const gams::pose::ReferenceFrame & get_frame(void) const override;
        
        /*

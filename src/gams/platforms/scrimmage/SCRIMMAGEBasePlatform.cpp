@@ -297,6 +297,116 @@ gams::platforms::SCRIMMAGEBasePlatform::get_accuracy(void) const
   return 0.2;
 }
 
+int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation & target, const gams::pose::OrientationBounds &bounds)
+{
+  int result = gams::platforms::PLATFORM_MOVING;
+  
+  // Get entity
+  // Scrimmage starts its ID at 1
+  scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->scrimmage_access_id];
+  
+  if (ent)
+  {
+        //scrimmage::StatePtr current_state = ent->state();
+        
+        scrimmage::StatePtr current_state = std::make_shared<scrimmage::State>();
+        current_state->pos()[0] = this->self_->agent.location[0];
+        current_state->pos()[1] = this->self_->agent.location[1];
+        current_state->pos()[2] = this->self_->agent.location[2];
+        current_state->quat() = scrimmage::Quaternion(
+                             this->self_->agent.orientation[0], 
+                             this->self_->agent.orientation[1], 
+                             this->self_->agent.orientation[2]);
+                             
+        madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Current location for agent %i is: x: %f y: %f z: %f\n",
+        this->self_->id.to_integer(),
+        this->self_->agent.location[0],
+        this->self_->agent.location[1],
+        this->self_->agent.location[2]
+        
+        );                     
+                             
+        gams::pose::Orientation now(this->get_frame());
+        now.from_container(this->self_->agent.orientation);
+  
+        madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Moving robot to %s\n", target.to_string().c_str()
+        );
+        
+        gams::pose::Orientation new_orient(this->get_frame(), target);
+        
+        bool close_enough = now.approximately_equal(new_orient, this->get_accuracy());
+        
+        if (close_enough)
+        {
+            result = gams::platforms::PLATFORM_ARRIVED;
+            
+            madara_logger_ptr_log(
+            gams::loggers::global_logger.get(),
+            gams::loggers::LOG_ALWAYS,
+            "Platform arrived to goal\n"
+            );
+            
+            // Set desired state to current state as we have satisfied conditions
+//            for (auto autonomy : ent->autonomies())
+//            {
+//               autonomy->set_desired_state(current_state);
+//            }
+
+        } else
+        {
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Distance from goal: %f\n", new_orient.angle_to(now)
+           );
+       
+           // Set the entities desired state and its state
+           // Can I access the desired state from here?
+           scrimmage::StatePtr des_state = std::make_shared<scrimmage::State>();
+           
+           // Pass through as we just update orientation in this method
+           Eigen::Vector3d xyz(
+           this->self_->agent.location[0],
+           this->self_->agent.location[1],
+           this->self_->agent.location[2]
+           );
+           
+           scrimmage::Quaternion quat(target.rx(), target.ry(), target.rz());
+
+           des_state->set_pos(xyz);
+           des_state->set_quat(quat);
+           
+           for (auto autonomy : ent->autonomies())
+           {
+               autonomy->set_desired_state(des_state);
+           }
+           
+           madara_logger_ptr_log(
+           gams::loggers::global_logger.get(),
+           gams::loggers::LOG_ALWAYS,
+           "Set Desired Quaternion to r: %f p: %f y: %f \n",
+           quat.roll(), quat.pitch(), quat.yaw()
+           );
+       }
+  } else
+  {
+       madara_logger_ptr_log(
+       gams::loggers::global_logger.get(),
+       gams::loggers::LOG_ALWAYS,
+       "Entity null.\n"
+       );
+  } 
+  
+  
+  return result;
+}
+
 int
 gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target, const pose::PositionBounds &bounds)
 {
