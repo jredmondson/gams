@@ -35,14 +35,21 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   this->sensors_   = sensors_;
   this->simcontrol = simcontrol_;
   
-  this->knowledge_->print();
   
   this->self_id = this->knowledge_->get(".id");
+  this->scrimmage_access_id = this->self_id.to_integer() + 1;
+  
+  madara_logger_ptr_log(
+  gams::loggers::global_logger.get(),
+  gams::loggers::LOG_ALWAYS,
+  "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
+  " GAMS agent.%i has scrimmage_access_id of %i\n",
+  this->self_id.to_integer(),
+  this->scrimmage_access_id
+  );
   
   // SCRIMMAGE will start its IDs at 1, so we adjust based on that (inc all ID by 1)
-  int temp = this->self_id.to_integer();
-  temp = temp + 1;
-  this->self_id.set_value(temp);
+  this->knowledge_->print();
 
   if (this->knowledge_ && this->sensors_)
   {
@@ -52,7 +59,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
       if (it == sensors_->end ()) // create coverage sensor
       {
         // get origin
-        gams::pose::Position origin (gams::pose::gps_frame());
+        gams::pose::Position origin (this->get_frame());
         madara::knowledge::containers::NativeDoubleArray origin_container;
         origin_container.set_name ("sensor.coverage.origin", *knowledge_, 3);
         origin.from_container (origin_container);
@@ -109,10 +116,11 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      auto msg = std::make_shared<scrimmage::Message<scrimmage_msgs::GenerateEntity>>();
      
      auto kv_id = msg->data.add_entity_param();
-     std::string id = this->self_id.to_string();
+
+     // Set ID for this
      kv_id->set_key("id");
-     kv_id->set_value(id);
-     
+     kv_id->set_value(std::to_string(this->scrimmage_access_id));
+
      scrimmage::set(msg->data.mutable_state(), s);
      msg->data.set_entity_tag("gen_straight");
      
@@ -120,8 +128,8 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      gams::loggers::global_logger.get(),
      gams::loggers::LOG_ALWAYS,
      "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
-     " Spawning agent %d at origin(x: %f, y: %f, z: %f)\n",
-     this->self_id,
+     " Spawning GAMS agent %i at origin(x: %f, y: %f, z: %f)\n",
+     this->self_id.to_integer(),
      s.pos()[0], 
      s.pos()[1], 
      s.pos()[2]
@@ -191,7 +199,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
    {
 
       // this isnt able to find the ID of the agent in sim.  
-      scrimmage::EntityPtr this_ent     = (*ent_map)[this->self_id.to_integer()];
+      scrimmage::EntityPtr this_ent     = (*ent_map)[this->scrimmage_access_id];
       
       if (this_ent)
       {
@@ -206,6 +214,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            Eigen::Vector3d this_pos          = (*this_state).pos();
            Eigen::Vector3d this_vel          = (*this_state).vel();
            Eigen::Vector3d this_ang_vel      = (*this_state).ang_vel();
+           
            scrimmage::Quaternion this_orient = (*this_state).quat(); 
            
            // Location inside Self/Agent/.location. Store there.
@@ -216,7 +225,11 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
-           "Set position\n"
+           "Read position from scrimmage for agent %i as position x: %f y: %f z: %f\n",
+           this->self_->id.to_integer(),
+           this_pos.x(),
+           this_pos.y(),
+           this_pos.z()
            );
 
            // Store angular velocity
@@ -290,23 +303,43 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
    madara_logger_ptr_log(
    gams::loggers::global_logger.get(),
    gams::loggers::LOG_ALWAYS,
-   "Moving robot %i\n",
-   this->self_id.to_integer()
+   "Moving robot (gams: %i scrimmage: %i)\n",
+   this->self_id.to_integer(),
+   this->scrimmage_access_id
    );
    
   int result = gams::platforms::PLATFORM_MOVING;
 
   // Get entity
   // Scrimmage starts its ID at 1
-  scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->self_id.to_integer()];
+  scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->scrimmage_access_id];
   
   if (ent)
   {
-        scrimmage::StatePtr current_state = ent->state();
+        //scrimmage::StatePtr current_state = ent->state();
         
-        gams::pose::Pose now(current_state->pos()[0],
-                             current_state->pos()[1],
-                             current_state->pos()[2]);
+        scrimmage::StatePtr current_state = std::make_shared<scrimmage::State>();
+        current_state->pos()[0] = this->self_->agent.location[0];
+        current_state->pos()[1] = this->self_->agent.location[1];
+        current_state->pos()[2] = this->self_->agent.location[2];
+        current_state->quat() = scrimmage::Quaternion(
+                             this->self_->agent.orientation[0], 
+                             this->self_->agent.orientation[1], 
+                             this->self_->agent.orientation[2]);
+                             
+        madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Current location for agent %i is: x: %f y: %f z: %f\n",
+        this->self_->id.to_integer(),
+        this->self_->agent.location[0],
+        this->self_->agent.location[1],
+        this->self_->agent.location[2]
+        
+        );                     
+                             
+        gams::pose::Position now(get_frame());
+        now.from_container(this->self_->agent.location);
   
         madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
@@ -314,33 +347,34 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         "Moving robot to %s\n", target.to_string().c_str()
         );
         
-        gams::pose::Pose p(target);
+        gams::pose::Position p(get_frame(), target);
         
-        double accuracy = now.distance_to(p);
+        bool close_enough = now.approximately_equal(p, this->get_accuracy());
         
-        if (accuracy <= this->get_accuracy())
+        if (close_enough)
         {
             result = gams::platforms::PLATFORM_ARRIVED;
+            
             madara_logger_ptr_log(
             gams::loggers::global_logger.get(),
             gams::loggers::LOG_ALWAYS,
-            "Platform arrived to goal"
+            "Platform arrived to goal\n"
             );
             
             // Set desired state to current state as we have satisfied conditions
-            
-            for (auto autonomy : ent->autonomies())
-            {
-               autonomy->set_desired_state(current_state);
-            }
-            
+//            for (auto autonomy : ent->autonomies())
+//            {
+//               autonomy->set_desired_state(current_state);
+//            }
+
         } else
         {
+        
         
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
-           "Distance from goal: %f\n", accuracy
+           "Distance from goal: %f\n", p.distance_to(now)
            );
        
            madara_logger_ptr_log(
@@ -349,10 +383,11 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
            "Moving robot to x: %f y: %f: z: %f\n", p.x(), p.y(), p.z()
            );
            
+           // orientations will always be 0 with gams since no algorithm sets it
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
-           "Orienting robot to r: %f p: %f: y: %f\n", p.rx(), p.ry(), p.rz()
+           "Orienting robot to r: %f p: %f: y: %f\n", 0, 0, 0
            );
       
            // Set the entities desired state and its state

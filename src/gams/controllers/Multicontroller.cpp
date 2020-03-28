@@ -89,7 +89,6 @@ gams::controllers::Multicontroller::Multicontroller(
       sim_control_->init("default_world.xml");
       sim_control_->start();
       sim_control_->send_terrain();
-      //sim_control_->run_single_step(sim_step_++);
       
       // TODO Set up the simulation world, it spawns paused.
   }
@@ -632,7 +631,7 @@ gams::controllers::Multicontroller::run_once(void)
   {
      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
-        "Stepping the SCRIMMAGE Simulator: %i", sim_step_);
+        "Stepping the SCRIMMAGE Simulator: %i\n", sim_step_);
      sim_control_->run_single_step(sim_step_++);
   }
 

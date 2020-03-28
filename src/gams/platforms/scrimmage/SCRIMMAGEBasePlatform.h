@@ -67,6 +67,7 @@ namespace gams
        static int num_agents;
        
        madara::knowledge::KnowledgeRecord self_id;
+       int scrimmage_access_id;
        
        std::string tag;
        
