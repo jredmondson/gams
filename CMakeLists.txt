@@ -113,11 +113,11 @@ add_subdirectory(src)
 add_subdirectory(src/gams/programs)
 
 # Build tests
-if(TESTS)
+if(gams_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(DOCS)
+if(gams_DOCS)
   add_subdirectory(docs)
 endif()
 

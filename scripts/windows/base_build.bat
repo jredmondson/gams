@@ -140,8 +140,7 @@ FOR %%x in (%*) do (
      echo     opencv      Build opencv and opencv_contrib
      echo     osc         Build osc
      echo     prereqs     Build prereqs
-     echo     setenv      set environment variables excluding path
-     echo     setpath     set environment variables including path
+     echo     setenv      set environment variables
      echo     tests       Build tests
      echo     tutorials   Build tutorials
      echo     vrep        Enable VREP support
@@ -349,12 +348,12 @@ IF %PREREQS% EQU 1 (
 
     echo cd %BOOST_ROOT%
     cd %BOOST_ROOT%
-    echo .\bootstrap.bat --with-library=system,python,filesystem
-    .\bootstrap.bat --with-library=system,python,filesystem
+    echo .\bootstrap.bat --with-library=system,python
+    .\bootstrap.bat --with-library=system,python
     echo cd %BOOST_ROOT%
     cd %BOOST_ROOT%
-    echo b2.exe --with-system --with-python --with-filesystem
-    .\b2.exe --with-system --with-python --with-filesystem
+    echo b2.exe --with-system --with-python
+    .\b2.exe --with-system --with-python
     SET BOOST_BUILD_RESULT=%ERRORLEVEL%
   )
   
@@ -517,7 +516,7 @@ IF %MADARA% EQU 1 (
   
   cd build
   
-  cmake -G "%CMAKE_GEN%" -A "x64" -DCMAKE_INSTALL_PREFIX=..\install ..
+  cmake -G "%CMAKE_GEN%" -A "x64" -Dmadara_TESTS=%TESTS% -DCMAKE_INSTALL_PREFIX=..\install ..
   echo ... build debug libs with %CMAKE_GEN%
   cmake --build .  --config debug
 	
@@ -560,7 +559,7 @@ IF %GAMS% EQU 1 (
   mkdir install
   
   cd build
-  cmake -G "%CMAKE_GEN%" -A "x64" -DCMAKE_INSTALL_PREFIX="..\install" -DCMAKE_PREFIX_PATH=%MADARA_ROOT%\install ..
+  cmake -G "%CMAKE_GEN%" -A "x64" -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=%TESTS% -DCMAKE_PREFIX_PATH=%MADARA_ROOT%\install ..
   echo ... build debug libs with %CMAKE_GEN%
   cmake --build .  --config debug
 	
@@ -647,25 +646,28 @@ IF %SETENV% EQU 1 (
   SETX UNREAL_GAMS_ROOT %UNREAL_GAMS_ROOT%
   SETX VREP_ROOT %VREP_ROOT%
   
-  IF %SETPATH% EQU 1 (
+  IF NOT "%PATHED_ROOT%" == "" (
   
-    echo Setting PATH. Appending old path to %HOMEDRIVE%%HOMEPATH%\.gams\oldpath.bat
-    SETX PATH "%MPC_ROOT%;%CAPNP_ROOT%\c++\src\capnp\Release;%MADARA_ROOT%\lib;%MADARA_ROOT%\bin;%GAMS_ROOT%\lib"
+    SETX PATHED_ROOT %PATHED_ROOT%
+    
+    echo Setting PATH. Please allow Admin access.
+    
+    %GAMS_ROOT%\scripts\windows\admin.bat %GAMS_ROOT%\scripts\windows\set_path.bat
+    
   ) ELSE (
   
     echo All variables but %%PATH%% are set permanently. To update PATH,
     echo go to Start->Edit Environment Variables and set your PATH to include
     echo the following
     echo
-    echo   %%MPC_ROOT%%
-    echo   %%CAPNP_ROOT%%\c++\src\capnp\Release
-    echo   %%MADARA_ROOT%%\lib
-    echo   %%MADARA_ROOT%%\bin
-    echo   %%GAMS_ROOT%%\lib
+    echo   %%MADARA_ROOT%%\install\lib
+    echo   %%MADARA_ROOT%%\install\bin
+    echo   %%GAMS_ROOT%%\install\lib
+    echo   %%GAMS_ROOT%%\install\bin
 	echo
   )
   
-  echo Environment variables will be set in new terminals. Close this terminal
+  echo Environment variables have been set. Feel free to close this terminal.
   
 ) ELSE (
   echo Not permanently setting environment

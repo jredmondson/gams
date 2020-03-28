@@ -163,7 +163,7 @@ if(madara_FOUND)
     COMPATIBILITY AnyNewerVersion)
 		
   set_property(TARGET gams PROPERTY VERSION "${GAMS_VERSION}")
-  set_property(TARGET gams PROPERTY SOVERSION "${GAMS_VERSION}")
+  set_property(TARGET gams PROPERTY SOVERSION "${GAMS_MAJOR_VERSION}.${GAMS_MINOR_VERSION}")
 
   install(TARGETS gams DESTINATION lib)
   install(DIRECTORY "${PROJECT_SOURCE_DIR}/src/gams" DESTINATION include)
