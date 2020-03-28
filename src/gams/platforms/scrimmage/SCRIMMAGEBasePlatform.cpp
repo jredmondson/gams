@@ -96,6 +96,17 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
 void
 gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
 {
+     // wait for simtime, only ready flag we have access to from api
+     while (this->simcontrol->t() <= 0)
+     {
+         madara_logger_ptr_log(
+         gams::loggers::global_logger.get(),
+         gams::loggers::LOG_ALWAYS,
+         "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
+         " Waiting for SimControl to be ready before spawning agents\n"
+         ); 
+     }
+
      madara_logger_ptr_log(
      gams::loggers::global_logger.get(),
      gams::loggers::LOG_ALWAYS,
