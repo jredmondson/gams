@@ -7,6 +7,8 @@ list(GET VERSION_LIST 0 GAMS_MAJOR_VERSION)
 list(GET VERSION_LIST 1 GAMS_MINOR_VERSION)
 list(GET VERSION_LIST 2 GAMS_PATCH_VERSION)
 
+set(MIN_MADARA_VERSION  3.3.0)
+
 # Get helper cmake macros
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(gams_macros)
@@ -23,8 +25,6 @@ set(GAMS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include CACHE PATH "Location of GAMS 
 set(GAMS_BIN_DIR ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Location of GAMS scripts and binaries")
 set(GAMS_LIB_DIR ${PROJECT_SOURCE_DIR}/lib CACHE PATH "Location of GAMS libraries")
 
-set(CMAKE_DEBUG_POSTFIX d)
-
 ########################################
 # Package Creation: 
 include (${GAMS_CMAKE_DIR}/gams_cpack.cmake)
@@ -40,10 +40,6 @@ if (CPACK_GENERATOR)
   set(CPACK_PROJECT_CONFIG_FILE ${GAMS_CPACK_CFG_FILE})
   include (CPack)
 endif()
-
-
-# Use GNUInstallDirst to get canonical paths
-include(GNUInstallDirs)
 
 set (CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
 
@@ -62,18 +58,6 @@ set (LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
 set (BIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
     
 
-# Options
-option(ANDROID "Build with Android support" OFF)
-option(DOCS "Run doxygen or javadocs on code" OFF)
-option(KARL "Build with KaRL scripting language support (eval/wait)" ON)
-option(OSC "Build with OSC support" ON)
-option(PYTHON "Build with python support (via Boost.Python)" OFF)
-option(ROS "Build with ROS support" OFF)
-option(SIMTIME "Build with support for simulation/virtual time" OFF)
-option(TESTS "Build tests" OFF)
-option(THREADLOCAL "Build with support for threadlocal variables" OFF)
-option(XML "Build with XML library support" OFF)
-
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -83,41 +67,18 @@ add_custom_command(
   COMMAND ${GAMS_BIN_DIR}/generate_version_include.pl
 )
 
-if(ANDROID)
-  add_definitions(-D_GAMS_ANDROID_ -D__STDC_FORMAT_MACROS)
-endif()
-
-if(JAVA)
-  add_definitions(-D_GAMS_JAVA_)
-endif()
-
-if(NOT KARL)
-  add_definitions(-D_MADARA_NO_KARL_)
-endif()
-
-if(OSC)
-endif()
-
-if(PYTHON)
-  add_definitions(-D_MADARA_PYTHON_CALLBACKS_)
-endif()
-
-if(ROS)
-  add_definitions(-D_GAMS_ROS_)
-endif()
-
-if(SIMTIME)
-  add_definitions(-DMADARA_FEATURE_SIMTIME)
-endif()
-
-if(THREADLOCAL)
-  add_definitions(-DMADARA_THREAD_LOCAL)
-else()
-  add_definitions(-DMADARA_NO_THREAD_LOCAL)
-endif()
-
 # disable certain warnings that will occur in VS
 if(MSVC)
+
+  set(GAMS_INC_INSTALL_DIR "include/gams")
+  set(GAMS_RUNTIME_INSTALL_DIR   "bin")
+  set(GAMS_LIBRARY_INSTALL_DIR   "bin")
+  set(GAMS_ARCHIVE_INSTALL_DIR   "lib")
+  set(GAMS_FRAMEWORK_INSTALL_DIR "bin")
+
+  set(GAMS_CMAKE_CONFIG_INSTALL_DIR "share/gams/cmake")
+  set(GAMS_ADDITIONAL_FILES_INSTALL_DIR "share/gams")
+
   add_compile_options(/wd4005)
   add_compile_options(/wd4251)
   add_compile_options(/wd4275)
@@ -126,12 +87,27 @@ if(MSVC)
   add_compile_options(/wd4996)
   add_compile_options(/MP)
   
-  
 # make linux/mac compilation stricter
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+elseif(UNIX)
+  include(GNUInstallDirs)
+
+  set(GAMS_INC_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/madara")
+  set(GAMS_RUNTIME_INSTALL_DIR "${CMAKE_INSTALL_BINDIR}")
+  set(GAMS_LIBRARY_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
+  set(GAMS_ARCHIVE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
+  set(GAMS_FRAMEWORK_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
+
+  set(GAMS_CMAKE_CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/gams/cmake")
+  set(GAMS_ADDITIONAL_FILES_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/gams")
+
+  set(GAMS_RUNTIME_INSTALL_DIR "bin")
+  set(GAMS_INC_INSTALL_DIR "include/gams") # header filestree
+
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 endif()
 	
+include(cmake/configuration.cmake)
+
 # Build the main library
 add_subdirectory(src)
 add_subdirectory(src/gams/programs)
@@ -148,7 +124,12 @@ endif()
 
 set(PKG_NAME ${PROJECT_NAME_UPPER})
 set(PKG_LIBRARIES gams)
-set(PKG_DEPENDS madara)
+set(PKG_DEPENDS madara Boost::boost)
 
-install(FILES "${PROJECT_SOURCE_DIR}/VERSION.txt" DESTINATION .)
-install(FILES "${PROJECT_SOURCE_DIR}/LICENSE.txt" DESTINATION .)
+# install readme and license
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt" "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt" "${CMAKE_CURRENT_SOURCE_DIR}/README.md" DESTINATION ${GAMS_ADDITIONAL_FILES_INSTALL_DIR})
+
+install(EXPORT gamsTargets NAMESPACE gams:: 
+  DESTINATION ${GAMS_CMAKE_CONFIG_INSTALL_DIR}
+  FILE gams-config.cmake)
+  

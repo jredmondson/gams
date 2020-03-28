@@ -7,6 +7,8 @@ cmake_minimum_required(VERSION 3.12)
 # Optionally glob, but only for CMake 3.12 or later:
 # file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${ModernCMakeExample_SOURCE_DIR}/include/modern/*.hpp")
 
+set(header_path ${GAMS_SOURCE_DIR}/src/gams)
+
 file(GLOB_RECURSE GAMS_SRC_FILES CONFIGURE_DEPENDS
     ${PROJECT_SOURCE_DIR}/src/gams/*.c
     ${PROJECT_SOURCE_DIR}/src/gams/*.cpp 
@@ -34,7 +36,7 @@ foreach(TMP_PATH ${GAMS_SRC_FILES})
   endif()
 endforeach(TMP_PATH)
 
-# remove all files in the splice tree if it isn't feature-enabled
+# remove all files in the java tree if it isn't feature-enabled
 if(NOT JAVA)
   set(EXCLUDE_DIR "/java/")
   foreach(TMP_PATH ${GAMS_SRC_FILES})
@@ -52,7 +54,7 @@ if(NOT JAVA)
   endforeach(TMP_PATH)
 endif()
 
-# remove all files in the splice tree if it isn't feature-enabled
+# remove all files in the ros tree if it isn't feature-enabled
 if(NOT ROS)
   set(EXCLUDE_DIR "/ros/")
   foreach(TMP_PATH ${GAMS_SRC_FILES})
@@ -70,61 +72,104 @@ if(NOT ROS)
   endforeach(TMP_PATH)
 endif()
 
-
-# Make an automatic library - will be static or dynamic based on user setting
-
 set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
 set(Boost_USE_DEBUG_LIBS         ON) # ignore debug libs and
 set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME     ON)
-find_package(Boost 1.73.0) # REQUIRED COMPONENTS filesystem) 
 
+find_package(Boost 1.60.0 REQUIRED)
+
+# try to match up any GAMS features requested
+set(madara_KARL               ${gams_KARL})
+set(madara_PYTHON             ${gams_PYTHON})
+set(madara_SIMTIME            ${gams_SIMTIME})
+set(madara_THREADLOCAL        ${gams_THREADLOCAL})
+set(madara_THREADLOCAL        ${gams_THREADLOCAL})
 
 # We need this directory, and users of our library will need it too
-find_library(MADARA_LIB madara)
+find_package(madara 3.3.0 REQUIRED)
 
-if(MADARA_LIB AND Boost_FOUND)
+if(madara_FOUND)
   
   add_library(gams SHARED
     ${GAMS_HEADER_FILES}
-	${GAMS_SRC_FILES}) 
-	
-  #target_include_directories(gams PUBLIC ${Boost_INCLUDE_DIRS})
+	  ${GAMS_SRC_FILES}) 
+
   target_include_directories(gams PUBLIC "$ENV{EIGEN_ROOT}")
   target_include_directories(gams PUBLIC "$ENV{OSC_ROOT}")
-  target_include_directories(gams PUBLIC "$ENV{MADARA_ROOT}/include")
-  target_include_directories(gams PUBLIC ${Boost_INCLUDE_DIRS})
-  target_include_directories(gams PUBLIC ${PROJECT_SOURCE_DIR}/src)
-  target_compile_definitions(gams PRIVATE -DGAMS_BUILD_DLL)
-  target_compile_definitions(gams PUBLIC -D_WINSOCK_DEPRECATED_NO_WARNINGS -DBOOST_ALL_NO_LIB -D_USE_MATH_DEFINES)
+  
+  set_target_properties(gams PROPERTIES 
+    DEBUG_POSTFIX d)
 
-  # All users of this library will need at least C++11
+  target_include_directories(gams
+    PUBLIC $<BUILD_INTERFACE:${GAMS_SOURCE_DIR}/src/>
+         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+         $<INSTALL_INTERFACE:${GAMS_INC_INSTALL_DIR}>
+    PRIVATE ${header_path})
+  
+  target_compile_definitions(gams PRIVATE -DGAMS_BUILD_DLL)
+  target_compile_definitions(gams PUBLIC -D_USE_MATH_DEFINES)
+
+  if(gams_ANDROID)
+    target_compile_definitions(gams PUBLIC -D_GAMS_ANDROID_)
+  endif()
+
+  if(gams_JAVA)
+    target_compile_definitions(gams PUBLIC -D_GAMS_JAVA_)
+  endif()
+
+  if(gams_OSC)
+  endif()
+
+  if(gams_ROS)
+    target_compile_definitions(gams PUBLIC -D_GAMS_ROS_)
+  endif()
+
+  # All users of this library will need at least C++14
   target_compile_features(gams PUBLIC cxx_std_14)
   
   if(MSVC)
     target_compile_options(gams PRIVATE /MP)
 	
-	if(OSC)
-	  if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-        target_link_libraries(gams PRIVATE "$ENV{OSC_ROOT}/Debug/oscpack.lib")
-	  else()
-        target_link_libraries(gams PRIVATE "$ENV{OSC_ROOT}/Release/oscpack.lib")
-	  endif()
+	if(gams_OSC)
+	  
+	  target_link_libraries(gams PRIVATE
+	    $<$<CONFIG:Debug>:$ENV{OSC_ROOT}/Debug/oscpack.lib>
+	    $<$<CONFIG:Release>:$ENV{OSC_ROOT}/Release/oscpack.lib>
+	  )
 	endif()
   endif()
   
-  target_link_libraries(gams PUBLIC "${MADARA_LIB}")
+  target_link_libraries(gams PUBLIC madara::madara)
   
+#  target_link_libraries(gams PUBLIC Boost::boost)
+  
+  set_target_properties(gams PROPERTIES
+    OUTPUT_NAME "gams-${GAMS_VERSION}"
+    POSITION_INDEPENDENT_CODE ON)
+									   
+  install(TARGETS gams EXPORT gamsTargets
+    RUNTIME       DESTINATION ${GAMS_RUNTIME_INSTALL_DIR}
+    LIBRARY       DESTINATION ${GAMS_LIBRARY_INSTALL_DIR}
+    ARCHIVE       DESTINATION ${GAMS_ARCHIVE_INSTALL_DIR}
+    FRAMEWORK     DESTINATION ${GAMS_FRAMEWORK_INSTALL_DIR})
+
+  # Write/install version file
+  include(CMakePackageConfigHelpers)
+  set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/gams-config-version.cmake")
+  write_basic_package_version_file(${version_file}
+    VERSION ${GAMS_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+		
+  set_property(TARGET gams PROPERTY VERSION "${GAMS_VERSION}")
+  set_property(TARGET gams PROPERTY SOVERSION "${GAMS_VERSION}")
+
+  install(TARGETS gams DESTINATION lib)
+  install(DIRECTORY "${PROJECT_SOURCE_DIR}/src/gams" DESTINATION include)
+  install(FILES ${version_file} DESTINATION ${GAMS_CMAKE_CONFIG_INSTALL_DIR})	 
+else()
+  print_all_variables()
+  message(ERROR "trouble finding MADARA")
+
 endif()
-
-# IDEs should put the headers in a nice place
-#source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${GAMS_HEADER_FILES})
-
-set_property(TARGET gams PROPERTY VERSION "${GAMS_VERSION}")
-set_property(TARGET gams PROPERTY SOVERSION "${GAMS_VERSION}")
-
-install(TARGETS gams DESTINATION lib)
-INSTALL( DIRECTORY "${PROJECT_SOURCE_DIR}/src/gams" DESTINATION include )
-
-#install(FILES ${GAMS_HEADER_FILES} DESTINATION include)
