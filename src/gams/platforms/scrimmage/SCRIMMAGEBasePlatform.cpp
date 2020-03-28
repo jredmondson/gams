@@ -290,14 +290,15 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
    madara_logger_ptr_log(
    gams::loggers::global_logger.get(),
    gams::loggers::LOG_ALWAYS,
-   "Moving robot...\n"
+   "Moving robot %i\n",
+   this->self_id.to_integer()
    );
    
   int result = gams::platforms::PLATFORM_MOVING;
 
   // Get entity
   // Scrimmage starts its ID at 1
-  scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->self_id.to_integer()+1];
+  scrimmage::EntityPtr ent = (*this->simcontrol->id_to_entity_map())[this->self_id.to_integer()];
   
   if (ent)
   {
