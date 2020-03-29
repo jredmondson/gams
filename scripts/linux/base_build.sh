@@ -107,6 +107,7 @@ NOKARL=0
 NOTHREADLOCAL=0
 ODROID=0
 OPENCV=0
+OSC=0
 PREREQS=0
 PYTHON=0
 ROS=0
@@ -280,6 +281,8 @@ do
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
   elif [ "$var" = "opencv" ]; then
     OPENCV=1
+  elif [ "$var" = "osc" ]; then
+    OSC=1
   elif [ "$var" = "prereqs" ]; then
     PREREQS=1
   elif [ "$var" = "python" ]; then
@@ -354,6 +357,7 @@ do
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
     echo "  opencv          build opencv"
+    echo "  osc             build with open stage control support"
     echo "  python          build with Python 2.7 support"
     echo "  prereqs         use apt-get to install prereqs. This usually only"
     echo "                  has to be used on the first usage of a feature"
@@ -385,6 +389,7 @@ do
     echo "  MADARA_ROOT         - location of local copy of MADARA repository"
     echo "  OPENCV_ROOT         - location of opencv to install to"
     echo "  OPENCV_CONTRIB_ROOT - location of opencv_contrib to install to"
+    echo "  OSC_ROOT            - location of open stage control (oscpack)"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
