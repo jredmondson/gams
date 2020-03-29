@@ -107,8 +107,8 @@ namespace gams
        * @param  self         self-referencing variables
        **/
       FormationSync(
-        pose::Position & start,
-        pose::Position & end,
+        pose::Pose & start,
+        pose::Pose & end,
         const std::string & group,
         double buffer,
         int formation,
@@ -165,10 +165,10 @@ namespace gams
         double angle, double distance);
 
       /// center of formation start
-      pose::Position start_;
+      pose::Pose start_;
 
       /// center of formation end
-      pose::Position end_;
+      pose::Pose end_;
 
       /// factory for interacting with user-defined groups
       groups::GroupFactoryRepository group_factory_;

@@ -58,6 +58,8 @@ MPC/*
 madara/
 eigen/
 oscpack/
+install
+build
 
 #Ignore maven project files
 target/
@@ -89,3 +91,6 @@ scripts/simulation/unreal/spell/config.yaml
 .vs/
 Release/
 Debug/
+*.vcxproj.*
+
+cmake/cpack_options.cmake

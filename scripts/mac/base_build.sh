@@ -76,4 +76,8 @@
 
 MAC=1
 
-source $GAMS_ROOT/scripts/linux/base_build.sh
+SCRIPTS_DIR=`dirname $0`
+
+LINUX_SCRIPTS=$SCRIPTS_DIR/../linux
+
+source $LINUX_SCRIPTS/base_build.sh

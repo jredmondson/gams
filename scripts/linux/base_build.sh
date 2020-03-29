@@ -81,7 +81,7 @@ NOCOLOR='\033[0m'
 CAPNP=0
 # Hard setting this because of SCRIMMAGE debian bug
 SCRIMMAGE_ROOT="/opt/scrimmage/x86_64-linux-gnu/" 
-
+CMAKE=0
 DEBUG=0
 TESTS=0
 TUTORIALS=0
@@ -91,11 +91,13 @@ JAVA=0
 ROS=0
 CLANG=0
 ANDROID=0
+CUDA=0
 STRIP=0
 ODROID=0
 MPC=0
 MADARA=0
 GAMS=0
+OPENCV=0
 PREREQS=0
 DOCS=0
 VREP_CONFIG=0
@@ -205,6 +207,8 @@ do
     JAVA=1
   elif [ "$var" = "capnp" ]; then
     CAPNP=1
+  elif [ "$var" = "cmake" ]; then
+    CMAKE=1
   elif [ "$var" = "nocapnp" ]; then
     CAPNP=0
   elif [ "$var" = "capnp-java" ]; then
@@ -240,6 +244,8 @@ do
     CLEAN=1
   elif [ "$var" = "cleanenv" ]; then
     CLEAN_ENV=1
+  elif [ "$var" = "cuda" ]; then
+    CUDA=1
   elif [ "$var" = "dart" ]; then
     DMPL=1
   elif [ "$var" = "debug" ]; then
@@ -280,6 +286,8 @@ do
   elif [ "$var" = "odroid" ]; then
     ODROID=1
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
+  elif [ "$var" = "opencv" ]; then
+    OPENCV=1
   elif [ "$var" = "prereqs" ]; then
     PREREQS=1
   elif [ "$var" = "python" ]; then
@@ -331,6 +339,7 @@ do
     echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
     echo "  cleanenv       Unsets all related environment variables before building."
+    echo "  cuda            build relevant libs with CUDA support"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
     echo "  docs            generate API documentation"
@@ -355,6 +364,7 @@ do
     echo "  nomadarapull    when building MADARA, don't do a git pull"
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
+    echo "  opencv          build opencv"
     echo "  python          build with Python 2.7 support"
     echo "  prereqs         use apt-get to install prereqs. This usually only"
     echo "                  has to be used on the first usage of a feature"
@@ -391,6 +401,8 @@ do
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
     echo "  MADARA_ROOT         - location of local copy of MADARA repository"
+    echo "  OPENCV_ROOT         - location of opencv to install to"
+    echo "  OPENCV_CONTRIB_ROOT - location of opencv_contrib to install to"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
@@ -490,6 +502,10 @@ if [ -z $DMPL_ROOT ] ; then
   export DMPL_ROOT=$INSTALL_DIR/dmplc
 fi
 
+if [ -z $GAMS_ROOT ] ; then
+  export GAMS_ROOT=$INSTALL_DIR/gams
+fi
+
 if [ -z $MPC_ROOT ] ; then
   export MPC_ROOT=$INSTALL_DIR/MPC
 fi
@@ -508,6 +524,14 @@ fi
 
 if [ -z $LZ4_ROOT ] ; then
   export LZ4_ROOT=$INSTALL_DIR/lz4
+fi
+
+if [ -z $OPENCV_ROOT ] ; then
+  export OPENCV_ROOT=$INSTALL_DIR/opencv
+fi
+
+if [ -z $OPENCV_CONTRIB_ROOT ] ; then
+  export OPENCV_CONTRIB_ROOT=$INSTALL_DIR/opencv_contrib
 fi
 
 if [ -z $OSC_ROOT ] ; then
@@ -561,6 +585,7 @@ echo "MPC_ROOT is set to $MPC_ROOT"
 echo "EIGEN_ROOT is set to $EIGEN_ROOT"
 echo "CAPNP_ROOT is set to $CAPNP_ROOT"
 echo "CAPNPJAVA_ROOT is set to $CAPNPJAVA_ROOT"
+echo "CUDA is set to $CUDA"
 echo "OSC_ROOT is set to $OSC_ROOT"
 echo "UNREAL_ROOT is set to $UNREAL_ROOT"
 echo "AIRSIM_ROOT is set to $AIRSIM_ROOT"
@@ -575,6 +600,7 @@ fi
 echo "GAMS_ROOT is set to $GAMS_ROOT"
 
 echo "ODROID has been set to $ODROID"
+echo "OPENCV has been set to $OPENCV"
 echo "TESTS has been set to $TESTS"
 echo "ROS has been set to $ROS"
 echo "STRIP has been set to $STRIP"
@@ -727,6 +753,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   sudo apt-get install -y -f autoconf automake libtool
 
   if [ $CLANG -eq 1 ]; then
+	# Not using Mac
     sudo apt-get install -y -f clang-6.0 libc++-dev libc++abi-dev clang-5.0
 
     if [ $CLANG_SUFFIX = "-8" ]; then
@@ -837,8 +864,8 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
     if [ ! -d "$UNREAL_ROOT" ]; then
       echo "Installing UnrealEngine"
-      echo "git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
-      git clone -b 4.21 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
+      echo "git clone -b 4.24 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT"
+      git clone -b 4.24 git@github.com:EpicGames/UnrealEngine.git $UNREAL_ROOT
       FORCE_UNREAL=1 
     fi
 
@@ -879,10 +906,57 @@ if [ $MAC -eq 1 ]; then
   if [ $PREREQS -eq 1 ]; then
     brew install boost@1.59
     brew install autoconf automake libtool
+	brew install llvm
+
+    if [ $CLANG_SUFFIX = "-8" ]; then
+      echo "Installing llvm@8 for clang/clang++"
+      brew install llvm@8
+    elif [ $CLANG_SUFFIX = "-9" ]; then
+      echo "Installing llvm@8 for clang/clang++"
+      brew install llvm@9
+    elif [ $CLANG_SUFFIX = "-6" ]; then
+      echo "Installing llvm@8 for clang/clang++"
+      brew install llvm@6
+    elif [ $CLANG_SUFFIX = "-5" ]; then
+      echo "Installing llvm@8 for clang/clang++"
+      brew install llvm@5
+    fi
+	
     if [ $JAVA -eq 1 ]; then
       brew install maven
     fi
   fi
+  
+  #setup C and C++ compilers and force
+  if [ -z $CLANG_SUFFIX ]; then
+    echo "setting CC and CXX for llvm"
+    export CC=`brew --prefix llvm`/bin/clang
+    export CXX=`brew --prefix llvm`/bin/clang++
+  elif [ $CLANG_SUFFIX = "-9" ]; then
+    echo "setting CC and CXX for llvm9"
+    export CC=`brew --prefix llvm@9`/bin/clang
+    export CXX=`brew --prefix llvm@9`/bin/clang++
+  elif [ $CLANG_SUFFIX = "-8" ]; then
+    echo "setting CC and CXX for llvm8"
+    export CC=`brew --prefix llvm@8`/bin/clang
+    export CXX=`brew --prefix llvm@8`/bin/clang++
+  elif [ $CLANG_SUFFIX = "-6" ]; then
+    echo "setting CC and CXX for llvm6"
+    export CC=`brew --prefix llvm@6`/bin/clang
+    export CXX=`brew --prefix llvm@6`/bin/clang++
+  elif [ $CLANG_SUFFIX = "-5" ]; then
+    echo "setting CC and CXX for llvm5"
+    export CC=`brew --prefix llvm@5`/bin/clang
+    export CXX=`brew --prefix llvm@5`/bin/clang++
+  fi
+  
+  echo "setting FORCE_CC=$CC"
+  export FORCE_CC=$CC
+  echo "setting FORCE_CXX=$CXX"
+  export FORCE_CXX=$CXX
+  echo "Resetting CLANG_SUFFIX to empty"
+  export CLANG_SUFFIX=
+  
   export BOOST_ROOT=/usr/local/opt/boost@1.59/include
   export BOOST_ROOT_LIB=/usr/local/opt/boost@1.59/lib
 fi
@@ -913,6 +987,20 @@ if grep -q UE4_ROOT $HOME/.gams/env.sh ; then
   sed -i 's@UE4_ROOT=.*@UE4_ROOT='"$UE4_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export UE4_ROOT=$UE4_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update OPENCV_ROOT in the GAMS environment file
+if grep -q OPENCV_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@OPENCV_ROOT=.*@OPENCV_ROOT='"$OPENCV_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export OPENCV_ROOT=$OPENCV_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update OPENCV_CONTRIB_ROOT in the GAMS environment file
+if grep -q OPENCV_CONTRIB_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@OPENCV_CONTRIB_ROOT=.*@OPENCV_CONTRIB_ROOT='"$OPENCV_CONTRIB_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export OPENCV_CONTRIB_ROOT=$OPENCV_CONTRIB_ROOT" >> $HOME/.gams/env.sh
 fi
 
 # Update UE4_GAMS in the GAMS environment file
@@ -1091,8 +1179,8 @@ if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
     )
   fi
   if [ ! -d $EIGEN_ROOT ] ; then
-    echo "git clone --single-branch --branch 3.3.7 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT"
-    git clone --single-branch --branch 3.3.7 --depth 1 https://github.com/eigenteam/eigen-git-mirror.git $EIGEN_ROOT
+    echo "git clone https://gitlab.com/libeigen/eigen.git $EIGEN_ROOT"
+    git clone https://gitlab.com/libeigen/eigen.git $EIGEN_ROOT
     EIGEN_REPO_RESULT=$?
   else
     echo "UPDATING Eigen"
@@ -1159,14 +1247,14 @@ if [ $CAPNP -eq 1 ] && [ $CAPNP_AS_A_PREREQ -eq 1 ]; then
         export CC=$FORCE_CC
         echo "Forcing CC=$CC"
       else
-        export CC=clang-6.0
+        export CC=clang
       fi
 
       if [ ! -z $FORCE_CXX ] ; then
         export CXX=$FORCE_CXX
         echo "Forcing CXX=$CXX"
       else
-        export CXX=clang++-6.0
+        export CXX=clang++
       fi
 
       export CXXFLAGS="-stdlib=libc++ -I/usr/include/libcxxabi"
@@ -1230,25 +1318,21 @@ if [ $PREREQS -eq 1 ]; then
   cd $OSC_ROOT
   echo "Cleaning oscpack"
   make clean
-  echo "Building oscpack"
-  if [ $MAC -eq 1 ]; then
-    if [ $CLANG -eq 1 ]; then
-      export CXX=clang++
-    fi
-  elif [ $CLANG -eq 1 ]; then
+  echo "Building oscpack"0
+  if [ $MAC -eq 0 ] && [ $CLANG -eq 1 ]; then
   
     if [ ! -z $FORCE_CC ] ; then
       export CC=$FORCE_CC
       echo "Forcing CC=$CC"
     else
-      export CC=clang-6.0
+      export CC=clang
     fi
 
     if [ ! -z $FORCE_CXX ] ; then
       export CXX=$FORCE_CXX
       echo "Forcing CXX=$CXX"
     else
-      export CXX=clang++-6.0
+      export CXX=clang++
     fi
 
   fi 
@@ -1278,7 +1362,75 @@ if [ $PREREQS -eq 1 ]; then
   echo "SCRIMMAGE Dependencies Installed"
 
 fi
+
+if [ $OPENCV -eq 1 ]; then
+  echo UPDATING OPENCV
   
+  echo "OPENCV_ROOT has been set to $OPENCV_ROOT"
+
+  if [ ! -d $OPENCV_ROOT ]; then 
+  
+    echo OPENCV does not exist. Cloning from github.
+    echo git clone https://github.com/opencv/opencv.git $OPENCV_ROOT
+    git clone https://github.com/opencv/opencv.git $OPENCV_ROOT
+    OPENCV_REPO_RESULT=$?
+	
+  else
+  
+    echo OPENCV exists. Pulling latest version
+    cd %OPENCV_ROOT%
+    echo git pull
+    git pull
+    OPENCV_REPO_RESULT=$?
+	
+  fi
+  
+  echo "OPENCV_CONTRIB_ROOT has been set to $OPENCV_CONTRIB_ROOT"
+
+  if [ ! -d $OPENCV_CONTRIB_ROOT ]; then 
+  
+    echo OPENCV does not exist. Cloning from github.
+    echo git clone https://github.com/opencv/opencv_contrib $OPENCV_CONTRIB_ROOT
+    git clone https://github.com/opencv/opencv_contrib $OPENCV_CONTRIB_ROOT
+    OPENCV_CONTRIB_REPO_RESULT=$?
+	
+  else
+  
+    echo OPENCV exists. Pulling latest version
+    cd %OPENCV_CONTRIB_ROOT%
+    echo git pull
+    git pull
+    OPENCV_CONTRIB_REPO_RESULT=$?
+	
+  fi
+  
+  echo BUILDING OPENCV
+  if [ ! -d "$OPENCV_ROOT/build" ]; then 
+    echo "  ensuring build and install dirs exist in OPENCV_ROOT"
+    mkdir "$OPENCV_ROOT/build"
+    mkdir "$OPENCV_ROOT/install"
+  fi
+
+  cd "$OPENCV_ROOT/build"
+
+  if [ $CUDA -eq 1 ]; then
+    echo "  disabling CUDA"
+    CMAKE_OPTIONS="-DBUILD_PERF_TESTS:BOOL=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_DOCS:BOOL=OFF  -DWITH_CUDA:BOOL=OFF -DBUILD_EXAMPLES:BOOL=OFF -DINSTALL_CREATE_DISTRIB=ON"
+  else
+    echo "  enabling CUDA"
+    CMAKE_OPTIONS="-DBUILD_PERF_TESTS:BOOL=OFF -DBUILD_TESTS:BOOL=OFF -DBUILD_DOCS:BOOL=OFF  -DWITH_CUDA:BOOL=ON -DBUILD_EXAMPLES:BOOL=OFF -DINSTALL_CREATE_DISTRIB=ON"
+  fi
+
+  echo "  generating makefiles"
+  echo cmake $CMAKE_OPTIONS -DOPENCV_EXTRA_MODULES_PATH="$OPENCV_CONTRIB_ROOT/modules" -DCMAKE_INSTALL_PREFIX="$OPENCV_ROOT/install" "$OPENCV_ROOT"
+  cmake $CMAKE_OPTIONS -DOPENCV_EXTRA_MODULES_PATH="$OPENCV_CONTRIB_ROOT/modules" -DCMAKE_INSTALL_PREFIX="$OPENCV_ROOT/install" "$OPENCV_ROOT"
+
+  echo ... build release libs
+  cmake --build .  --config release
+  cmake --build .  --target install --config release
+  OPENCV_BUILD_RESULT=$? 
+fi
+
 if [ $ZMQ -eq 1 ]; then
   export ZMQ=1
   cd $INSTALL_DIR
@@ -1411,32 +1563,56 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
 
   cd $MADARA_ROOT
-  echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc
 
-  if [ $JAVA -eq 1 ]; then
-    echo "DELETING MADARA JAVA CLASSES"
-    # sometimes the jar'ing will occur before all classes are actually built when performing
-    # multi-job builds, fix by deleting class files and recompiling with single build job
-    find . -name "*.class" -delete
-  fi
+  if [ $CMAKE -eq 1 ] ; then
+    
+    echo "GENERATING MADARA PROJECT"
+    
+    mkdir build
+    mkdir install
+    
+    cd build
+    
+    echo "cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install .."
+    cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install ..
+    echo "... build debug libs"
+    cmake --build .  --config debug
+    
+    echo "... build release libs"
+    cmake --build .  --config release
+    echo "... installing to $MADARA_ROOT/install"
+    cmake --build .  --target install --config release
+    cmake --build .  --target install --config debug
+    MADARA_BUILD_RESULT=$?
+    
+  else
+    echo "GENERATING MADARA PROJECT"
+    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
+    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc
 
-  echo "BUILDING MADARA"
-  echo "make depend no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  MADARA_BUILD_RESULT=$?
-  if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
-    MADARA_BUILD_RESULT=1
-    echo -e "\e[91m MADARA library did not build properly. \e[39m"
-    exit 1;
-  fi
+    if [ $JAVA -eq 1 ]; then
+      echo "DELETING MADARA JAVA CLASSES"
+      # sometimes the jar'ing will occur before all classes are actually built when performing
+      # multi-job builds, fix by deleting class files and recompiling with single build job
+      find . -name "*.class" -delete
+    fi
 
-  if [ $STRIP -eq 1 ]; then
-    echo "STRIPPING MADARA"
-    $STRIP_EXE libMADARA.so*
+    echo "BUILDING MADARA"
+    echo "make depend no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+    make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+    echo "make no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+    make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+    MADARA_BUILD_RESULT=$?
+    if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
+      MADARA_BUILD_RESULT=1
+      echo -e "\e[91m MADARA library did not build properly. \e[39m"
+      exit 1;
+    fi
+
+    if [ $STRIP -eq 1 ]; then
+      echo "STRIPPING MADARA"
+      $STRIP_EXE libMADARA.so*
+    fi
   fi
 else
   echo "NOT BUILDING MADARA"
@@ -1589,38 +1765,58 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   cd $GAMS_ROOT
 
-  echo "GENERATING GAMS PROJECT"
-  echo "$SCRIMMAGE_ROOT being used for SCRIMMAGE_ROOT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,capnp=$CAPNP,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,capnp=$CAPNP,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+  if [ $CMAKE -eq 1 ] ; then
+    
+    echo "GENERATING MADARA PROJECT"
+    
+    mkdir build
+    mkdir install
+    
+    cd build
+    
+    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install -DCMAKE_INSTALL_PREFIX=../install ..
+    echo "... build debug libs"
+    cmake --build .  --config debug
+    
+    echo "... build release libs"
+    cmake --build .  --config release
+    echo "... installing to $GAMS_ROOT/install"
+    cmake --build .  --target install --config release
+    cmake --build .  --target install --config debug
+    GAMS_BUILD_RESULT=$?
+  else
+    echo "GENERATING GAMS PROJECT"
+    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
-  if [ $TYPES -eq 1 ]; then
-    # Strip the unnecessary NOTPARALLEL: directives
-    sed -i '/\.NOTPARALLEL:/d' Makefile.types
-  fi
+    if [ $TYPES -eq 1 ]; then
+      # Strip the unnecessary NOTPARALLEL: directives
+      sed -i '/\.NOTPARALLEL:/d' Makefile.types
+    fi
 
-  if [ $JAVA -eq 1 ]; then
-    # sometimes the jar'ing will occur before all classes are actually built when performing
-    # multi-job builds, fix by deleting class files and recompiling with single build job
-    find . -name "*.class" -delete
-  fi
+    if [ $JAVA -eq 1 ]; then
+      # sometimes the jar'ing will occur before all classes are actually built when performing
+      # multi-job builds, fix by deleting class files and recompiling with single build job
+      find . -name "*.class" -delete
+    fi
 
-  echo "BUILDING GAMS"
-  echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  GAMS_BUILD_RESULT=$?
-  
-  if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
-    GAMS_BUILD_RESULT=1
-    echo -e "\e[91mGAMS library did not build properly\e[39m";
-    exit 1;
-  fi
+    echo "BUILDING GAMS"
+    echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    GAMS_BUILD_RESULT=$?
+    
+    if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
+      GAMS_BUILD_RESULT=1
+      echo -e "\e[91mGAMS library did not build properly\e[39m";
+      exit 1;
+    fi
 
-  if [ $STRIP -eq 1 ]; then
-    echo "STRIPPING GAMS"
-    $STRIP_EXE libGAMS.so*
+    if [ $STRIP -eq 1 ]; then
+      echo "STRIPPING GAMS"
+      $STRIP_EXE libGAMS.so*
+    fi
   fi
 #  if [ $ANDROID -eq 1 ]; then
 #     echo "Building Demo Android app"
@@ -1780,6 +1976,22 @@ if [ $VREP -eq 1 ]; then
     echo -e "    REPO=\e[92mPASS\e[39m"
   else
     echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+fi
+
+if [ $OPENCV -eq 1 ]; then
+  echo "  OPENCV"
+  if [ $OPENCV_REPO_RESULT -eq 0 ]; then
+    echo -e "    REPO=\e[92mPASS\e[39m"
+  else
+    echo -e "    REPO=\e[91mFAIL\e[39m"
+    (( BUILD_ERRORS++ ))
+  fi
+  if [ $OPENCV_BUILD_RESULT -eq 0 ]; then
+    echo -e "    BUILD=\e[92mPASS\e[39m"
+  else
+    echo -e "    BUILD=\e[91mFAIL\e[39m"
     (( BUILD_ERRORS++ ))
   fi
 fi
@@ -2011,34 +2223,55 @@ if [ $ANDROID -eq 1 ]; then
 
 fi
 
-if [ $MAC -eq 0 ]; then
+if [ $CMAKE -eq 1 ]; then
+  
+  if [ $MAC -eq 0 ]; then
 
-  if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/install/lib"':'"\$GAMS_ROOT/install/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/install/lib:\$GAMS_ROOT/install/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
+
   else
-    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib" >> $HOME/.gams/env.sh
+
+    if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/install/lib"':'"\$GAMS_ROOT/install/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/install/lib:\$GAMS_ROOT/install/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
   fi
 
-else
-
-  if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-    sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+  if grep -q "export PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/install/bin"':'"\$GAMS_ROOT/install/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
   else
-    echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/install/bin:\$GAMS_ROOT/install/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
+  fi
+else # not CMAKE
+  if [ $MAC -eq 0 ]; then
+
+    if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib"'@' $HOME/.gams/env.sh
+    else
+      echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib" >> $HOME/.gams/env.sh
+    fi
+  else
+    if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
   fi
 
+  if grep -q "export PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
+  fi
+  
+  echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins:  $GAMS_ROOT/src/gams/plugins" >> $HOME/.gams/env.sh
+  echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/  scrimmage/missions/" >> $HOME/.gams/env.sh
 fi
-
-if grep -q "export PATH" $HOME/.gams/env.sh ; then
-  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
-else
-  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
-fi
-
-# No check if it's unset. the source .scrimmage/setup.bash script always clears the plugin path var and sets it to the base one. We just have to append to it. Other option is make user do it manually. I don't think this is harmful.
-
-echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins:$GAMS_ROOT/src/gams/plugins" >> $HOME/.gams/env.sh
-echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
   echo "Updating bashrc to load environment. Close terminals to reload."

@@ -30,8 +30,8 @@ jobs:
 
   allow_failures:
     - env: NAME="OSX 10.13 clang-5 zmq" CLANG="clang-5" ZMQ="zmq"
-    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq"
     - env: NAME="Ubuntu 16.04 android ssl" ANDROID="android" SSL="ssl"
+    - env: NAME="Ubuntu 16.04 android zmq" ANDROID="android" ZMQ="zmq"
 
   include:
       ################MAC#####################
@@ -54,12 +54,6 @@ jobs:
       os: osx
       osx_image: xcode9.3
 
-      # clang, osx, zeromq
-    - compiler: clang
-      env: NAME="OSX 10.13 clang-5 zmq" CLANG="clang-5" ZMQ="zmq"
-      os: osx
-      osx_image: xcode9.3
-
       # clang, osx, simtime
     - compiler: clang
       env: NAME="OSX 10.13 clang simtime" CLANG="clang" SIMTIME="simtime"
@@ -70,7 +64,7 @@ jobs:
 
       # clang, linux, no ssl
     - compiler: clang
-      env: NAME="Ubuntu 16.04 clang-5" CLANG="clang-5"
+      env: NAME="Ubuntu 16.04 clang" CLANG="clang" CC=clang-5.0 CXX=clang++-5.0
       addons:
         apt:
           sources:
@@ -114,6 +108,7 @@ jobs:
     - compiler: gcc
       os: linux
       env: NAME="Ubuntu 16.04 g++ simtime" SIMTIME="simtime"
+      
   # g++, linux, android, zmq
     - compiler: gcc
       os: linux

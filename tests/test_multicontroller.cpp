@@ -76,6 +76,8 @@ double max_wait = 50.0;
 
 int gams_fails = 0;
 
+size_t num_controllers = 100;
+
 // handle command line arguments
 void handle_arguments(int argc, char ** argv)
 {
@@ -217,6 +219,16 @@ void handle_arguments(int argc, char ** argv)
 
       ++i;
     }
+    else if (arg1 == "-n" || arg1 == "--num-controllers")
+    {
+      if (i + 1 < argc)
+      {
+        std::stringstream buffer(argv[i + 1]);
+        buffer >> num_controllers;
+      }
+
+      ++i;
+    }
     else if (arg1 == "-st" || arg1 == "--slack-time")
     {
       if (i + 1 < argc)
@@ -252,6 +264,7 @@ void handle_arguments(int argc, char ** argv)
 " [-i|--id id]             the id of this agent(should be non-negative)\n" \
 " [-l|--level level]       the logger level(0+, higher is higher detail)\n" \
 " [-m|--multicast ip:port] the multicast ip to send and listen to\n" \
+" [-n|--num-controllers n] the number of controllers to spawn\n" \
 " [-o|--host hostname]     the hostname of this process(def:localhost)\n" \
 " [-p|--platform type]     platform for loop(vrep, dronerk)\n" \
 " [-q|--queue-length length] length of transport queue in bytes\n" \
@@ -277,7 +290,7 @@ int main(int argc, char ** argv)
   controllers::Multicontroller loop;
 
   // initialize variables and function stubs
-  loop.resize(100);
+  loop.resize(num_controllers);
 
   // initialize the platform and algorithm
   loop.init_algorithm(algorithm);

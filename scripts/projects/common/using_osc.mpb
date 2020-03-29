@@ -1,8 +1,6 @@
 project {
   includes += $(OSC_ROOT)
 
-  libs += oscpack
-  
   specific(prop:microsoft) {
     Debug::libpaths += $(OSC_ROOT)/Debug
     Release::libpaths += $(OSC_ROOT)/Release
