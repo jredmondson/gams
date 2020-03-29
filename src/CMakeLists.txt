@@ -155,7 +155,7 @@ if(madara_FOUND)
   target_link_libraries(gams PUBLIC Boost::boost Boost::system)
   
   set_target_properties(gams PROPERTIES
-    OUTPUT_NAME "gams-${GAMS_VERSION}"
+    OUTPUT_NAME "gams"
     POSITION_INDEPENDENT_CODE ON)
 									   
   install(TARGETS gams EXPORT gamsTargets
