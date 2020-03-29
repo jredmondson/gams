@@ -491,7 +491,6 @@ if [ $CLEAN_ENV -eq 1 ]; then
     export MADARA_ROOT=""
     export GAMS_ROOT=""
     export DMPL_ROOT=""
-    #export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH$GAMS_ROOT/lib/scrimmage_plugins - No point, .scrimmage/setup.bash script will clear and reset it no matter what, and it's required for installation/building. Don't want to dive deep into that rabbit hole.
     export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs/$SCRIMMAGE_GIT_ROOT/build/lib/:$SCRIMMAGE_GIT_ROOT/build/plugin_libs
     export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
@@ -503,7 +502,7 @@ if [ -z $DMPL_ROOT ] ; then
 fi
 
 if [ -z $GAMS_ROOT ] ; then
-  export GAMS_ROOT=$INSTALL_DIR/gams
+  export GAMS_ROOT=$INSTALL_DIR
 fi
 
 if [ -z $MPC_ROOT ] ; then
