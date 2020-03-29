@@ -2269,8 +2269,17 @@ else # not CMAKE
     echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
   fi
   
-  echo "export SCRIMMAGE_PLUGIN_PATH=$SCRIMMAGE_PLUGIN_PATH:$GAMS_ROOT/lib/scrimmage_plugins:  $GAMS_ROOT/src/gams/plugins" >> $HOME/.gams/env.sh
-  echo "export SCRIMMAGE_MISSION_PATH=$SCRIMMAGE_MISSION_PATH:$GAMS_ROOT/src/gams/platforms/  scrimmage/missions/" >> $HOME/.gams/env.sh
+  if grep -q "export SCRIMMAGE_PLUGIN_PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export SCRIMMAGE_PLUGIN_PATH=.*@export SCRIMMAGE_PLUGIN_PATH:'"\$SCRIMMAGE_PLUGIN_PATH"':'"\$GAMS_ROOT"'/lib/scrimmage_plugins:'"\$GAMS_ROOT/src/gams/plugins/scrimmage"'@' $HOME/.gams/env.sh
+  else
+    echo "export SCRIMMAGE_PLUGIN_PATH=\$SCRIMMAGE_PLUGIN_PATH:\$GAMS_ROOT/lib/scrimmage_plugins:\$GAMS_ROOT/src/gams/plugins/scrimmage" >> $HOME/.gams/env.sh
+  fi
+  
+  if grep -q "export SCRIMMAGE_MISSION_PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export SCRIMMAGE_MISSION_PATH=.*@export SCRIMMAGE_MISSION_PATH:'"\$SCRIMMAGE_MISSION_PATH"':'"\$GAMS_ROOT/src/gams/platformsscrimmage/missions/"'@' $HOME/.gams/env.sh
+  else
+    echo "export SCRIMMAGE_MISSION_PATH=\$SCRIMMAGE_MISSION_PATH:\$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
+  fi
 fi
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
