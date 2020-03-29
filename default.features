@@ -51,6 +51,10 @@ no_karl                 = 0
 /// (Run-Time Type Information, i.e., typeid and dynamic_cast)
 nortti                  = 0
 
+/// @feature osc
+/// Enable this feature if you want to compile with Open Stage Control support
+osc                     = 0
+
 /// @feature openjdk
 /// Enable this feature if you want to compile with OpenJDK (requires java=1)
 openjdk                 = 0
