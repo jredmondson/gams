@@ -78,83 +78,83 @@ ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 NOCOLOR='\033[0m' 
 
-CAPNP=0
-CMAKE=0
-DEBUG=0
-TESTS=0
-TUTORIALS=0
-VREP=0
-JAVA=0
-ROS=0
-CLANG=0
-ANDROID=0
-CUDA=0
-STRIP=0
-ODROID=0
-MPC=0
-MADARA=0
-GAMS=0
-OPENCV=0
-PREREQS=0
-DOCS=0
-VREP_CONFIG=0
-ZMQ=0
-SIMTIME=0
-NOTHREADLOCAL=0
-SSL=0
-DMPL=0
-LZ4=0
-NOKARL=0
-PYTHON=0
-WARNINGS=0
-CLEAN=1
-MADARAPULL=1
-GAMSPULL=1
-MAC=${MAC:-0}
-BUILD_ERRORS=0
-TYPES=0
-ANDROID_TESTS=0
-CAPNP_JAVA=0
-UNREAL=0
 AIRLIB=0
-FORCE_UNREAL=0
-FORCE_AIRSIM=0
-UNREAL_DEV=0
-UNREAL_GAMS=0
+ANDROID=0
+ANDROID_TESTS=0
+BUILD_ERRORS=0
+CAPNP=0
+CAPNP_JAVA=0
+CLANG=0
 CLANG_DEFINED=0
 CLANG_IN_LAST=0
+CLEAN=1
+CMAKE=0
+CUDA=0
+DEBUG=0
+DMPL=0
+DOCS=0
+FORCE_AIRSIM=0
+FORCE_UNREAL=0
+GAMS=0
+GAMSPULL=1
+JAVA=0
+LZ4=0
+MAC=${MAC:-0}
+MADARA=0
+MADARAPULL=1
+MPC=0
+NOKARL=0
+NOTHREADLOCAL=0
+ODROID=0
+OPENCV=0
+PREREQS=0
+PYTHON=0
+ROS=0
+SIMTIME=0
+SSL=0
+STRIP=0
+TESTS=0
+TUTORIALS=0
+TYPES=0
+UNREAL=0
+UNREAL_DEV=0
+UNREAL_GAMS=0
+VREP=0
+VREP_CONFIG=0
+WARNINGS=0
+ZMQ=0
 
-
+CAPNP_AS_A_PREREQ=0
+EIGEN_AS_A_PREREQ=0
+GAMS_AS_A_PREREQ=0
+MADARA_AS_A_PREREQ=0
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
 MPC_AS_A_PREREQ=0
-MADARA_AS_A_PREREQ=0
-VREP_AS_A_PREREQ=0
-GAMS_AS_A_PREREQ=0
-EIGEN_AS_A_PREREQ=0
-CAPNP_AS_A_PREREQ=0
 UNREAL_AS_A_PREREQ=0
+VREP_AS_A_PREREQ=0
 
-MPC_REPO_RESULT=0
-DART_REPO_RESULT=0
-DART_BUILD_RESULT=0
-GAMS_REPO_RESULT=0
-GAMS_BUILD_RESULT=0
-MADARA_REPO_RESULT=0
-MADARA_BUILD_RESULT=0
-MPC_REPO_RESULT=0
-VREP_REPO_RESULT=0
-ZMQ_REPO_RESULT=0
-ZMQ_BUILD_RESULT=0
-LZ4_REPO_RESULT=0
+AIRSIM_BUILD_RESULT=0
 CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
 CAPNPJAVA_REPO_RESULT=0
 CAPNPJAVA_BUILD_RESULT=0
+DART_REPO_RESULT=0
+DART_BUILD_RESULT=0
+GAMS_REPO_RESULT=0
+GAMS_BUILD_RESULT=0
+LZ4_REPO_RESULT=0
+MADARA_REPO_RESULT=0
+MADARA_BUILD_RESULT=0
+MPC_REPO_RESULT=0
+OSC_REPO_RESULT=0
+OSC_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
-AIRSIM_BUILD_RESULT=0
 UNREAL_GAMS_REPO_RESULT=0
 UNREAL_GAMS_BUILD_RESULT=0
+VREP_REPO_RESULT=0
+ZMQ_REPO_RESULT=0
+ZMQ_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -1239,44 +1239,46 @@ fi
 
 # this is common to Mac and Linux, so it needs to be outside of the above
 if [ $PREREQS -eq 1 ]; then 
-  if [ ! -d $OSC_ROOT ]; then 
-    echo "Downloading oscpack"
-    git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
-  else
-    echo "Updating oscpack"
+
+  if [ $OSC -eq 1 ]; then
+    if [ ! -d $OSC_ROOT ]; then 
+      echo "Downloading oscpack"
+      git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
+    else
+      echo "Updating oscpack"
+      cd $OSC_ROOT
+      git pull
+    fi
+
     cd $OSC_ROOT
-    git pull
-  fi
+    echo "Cleaning oscpack"
+    make clean
+    echo "Building oscpack"0
+    if [ $MAC -eq 0 ] && [ $CLANG -eq 1 ]; then
+    
+      if [ ! -z $FORCE_CC ] ; then
+        export CC=$FORCE_CC
+        echo "Forcing CC=$CC"
+      else
+        export CC=clang
+      fi
 
-  cd $OSC_ROOT
-  echo "Cleaning oscpack"
-  make clean
-  echo "Building oscpack"0
-  if [ $MAC -eq 0 ] && [ $CLANG -eq 1 ]; then
-  
-    if [ ! -z $FORCE_CC ] ; then
-      export CC=$FORCE_CC
-      echo "Forcing CC=$CC"
+      if [ ! -z $FORCE_CXX ] ; then
+        export CXX=$FORCE_CXX
+        echo "Forcing CXX=$CXX"
+      else
+        export CXX=clang++
+      fi
+
+    fi 
+
+    if [ ! -z "$CXX" ]; then
+      sudo make CXX=$CXX COPTS='-Wall -Wextra -fPIC' install
     else
-      export CC=clang
+      sudo make COPTS='-Wall -Wextra -fPIC' install
     fi
-
-    if [ ! -z $FORCE_CXX ] ; then
-      export CXX=$FORCE_CXX
-      echo "Forcing CXX=$CXX"
-    else
-      export CXX=clang++
-    fi
-
-  fi 
-
-  if [ ! -z "$CXX" ]; then
-    sudo make CXX=$CXX COPTS='-Wall -Wextra -fPIC' install
-  else
-    sudo make COPTS='-Wall -Wextra -fPIC' install
-  fi
-
-fi
+  fi # end OSC -eq 1
+fi # end PREREQS -eq 1
 
 if [ $OPENCV -eq 1 ]; then
   echo UPDATING OPENCV
@@ -1499,7 +1501,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     cmake --build .  --target install --config release
     cmake --build .  --target install --config debug
     MADARA_BUILD_RESULT=$?
-    
+
   else
     echo "GENERATING MADARA PROJECT"
     echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
@@ -1641,7 +1643,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     
     cd build
     
-    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install -DCMAKE_INSTALL_PREFIX=../install ..
+    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install ..
     echo "... build debug libs"
     cmake --build .  --config debug
     
@@ -1654,8 +1656,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   else
     echo "GENERATING GAMS PROJECT"
-    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,osc=$OSC,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,osc=$OSC,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
     if [ $TYPES -eq 1 ]; then
       # Strip the unnecessary NOTPARALLEL: directives
@@ -1669,10 +1671,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     fi
 
     echo "BUILDING GAMS"
-    echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-    make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-    echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-    make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
     GAMS_BUILD_RESULT=$?
     
     if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
