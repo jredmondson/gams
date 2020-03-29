@@ -1,3 +1,5 @@
+ #ifdef _GAMS_OSC_
+
 #include <algorithm>
 #include <math.h>
 #include <sstream>
@@ -931,3 +933,5 @@ gams::platforms::OscJoystickPlatform::get_frame(void) const
   // For cartesian, replace with gams::pose::default_frame()
   return gams::pose::default_frame();
 }
+
+#endif //  #ifdef _GAMS_OSC_

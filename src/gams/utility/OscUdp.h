@@ -15,6 +15,8 @@
 #ifndef _GAMS_UTILITY_OSC_HELPER_H_
 #define _GAMS_UTILITY_OSC_HELPER_H_
 
+#ifdef _GAMS_OSC_
+
 #include <memory>
 #include <map>
 #include <vector>
@@ -122,4 +124,5 @@ namespace gams
   }
 }
 
+#endif //  #ifdef _GAMS_OSC_
 #endif // _GAMS_UTILITY_OSC_HELPER_H_

@@ -146,6 +146,7 @@ if(madara_FOUND)
   endif()
 
   if(gams_OSC)
+    target_compile_definitions(gams PUBLIC -D_GAMS_OSC_)
   endif()
 
   if(gams_ROS)
@@ -167,7 +168,9 @@ if(madara_FOUND)
 	  endif()
     target_link_libraries(gams PUBLIC Boost::boost)
   else()
-	  target_link_libraries(gams PRIVATE oscpack)
+	  if(gams_OSC)
+	    target_link_libraries(gams PRIVATE oscpack)
+    endif()
     target_link_libraries(gams PUBLIC Boost::boost Boost::system)
   endif()
   

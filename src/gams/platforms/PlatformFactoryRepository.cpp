@@ -67,8 +67,11 @@
 #include "gams/platforms/airlib/AirLibQuadcopter.h"
 #endif
 
+#ifdef _GAMS_OSC_
 #include "gams/platforms/osc/OscPlatform.h"
 #include "gams/platforms/osc/OscJoystickPlatform.h"
+#endif
+
 #include "gams/loggers/GlobalLogger.h"
 
 #include <string>
@@ -116,6 +119,8 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 
   add(aliases, new NullPlatformFactory());
   
+  // OSC-based platforms for UnrealGAMS control
+#ifdef _GAMS_OSC_
   aliases.resize(5);
   aliases[0] = "osc-quadcopter";
   aliases[1] = "osc";
@@ -139,6 +144,8 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
   aliases[2] = "joystick";
 
   add(aliases, new OscJoystickPlatformFactory());
+
+#endif //  #ifdef _GAMS_OSC_
 
   // VREP Platforms
 #ifdef _GAMS_VREP_
