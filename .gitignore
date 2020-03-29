@@ -89,3 +89,5 @@ scripts/simulation/unreal/spell/config.yaml
 Release/
 Debug/
 *.vcxproj.*
+
+cmake/cpack_options.cmake

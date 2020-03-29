@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.12)
+
+cmake_minimum_required(VERSION 3.10)
 
 # Read VERSION.txt and set GAMS_VERSION variables
 file(STRINGS "VERSION.txt" GAMS_VERSION)

@@ -17,7 +17,7 @@
 #define OUTPUT_BUFFER_SIZE 1024
 
 size_t
-gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
+gams::utility::OscUdp::pack(void *buffer, size_t , const OscMap &map)
 {
   size_t result = 0;
 

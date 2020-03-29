@@ -235,10 +235,10 @@ gams::algorithms::Greet::Greet(
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm(knowledge, platform, sensors, self),
-  group_factory_ (knowledge),
+  guard_max_follow_distance_ (guard_max_follow_distance),
   guard_epsilon_(guard_distance),
   guard_location_(platform->get_frame()),
-  guard_max_follow_distance_ (guard_max_follow_distance),
+  group_factory_ (knowledge),
   home_location_(platform->get_frame())
 {
   if (knowledge && platform && sensors && self)

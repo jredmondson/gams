@@ -79,6 +79,7 @@ BLUE='\033[0;34m'
 NOCOLOR='\033[0m' 
 
 CAPNP=0
+CMAKE=0
 DEBUG=0
 TESTS=0
 TUTORIALS=0
@@ -200,6 +201,8 @@ do
     JAVA=1
   elif [ "$var" = "capnp" ]; then
     CAPNP=1
+  elif [ "$var" = "cmake" ]; then
+    CMAKE=1
   elif [ "$var" = "nocapnp" ]; then
     CAPNP=0
   elif [ "$var" = "capnp-java" ]; then
@@ -1475,32 +1478,56 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
 
   cd $MADARA_ROOT
-  echo "GENERATING MADARA PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc
 
-  if [ $JAVA -eq 1 ]; then
-    echo "DELETING MADARA JAVA CLASSES"
-    # sometimes the jar'ing will occur before all classes are actually built when performing
-    # multi-job builds, fix by deleting class files and recompiling with single build job
-    find . -name "*.class" -delete
-  fi
+  if [ $CMAKE -eq 1 ] ; then
+    
+    echo "GENERATING MADARA PROJECT"
+    
+    mkdir build
+    mkdir install
+    
+    cd build
+    
+    echo "cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install .."
+    cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install ..
+    echo "... build debug libs"
+    cmake --build .  --config debug
+    
+    echo "... build release libs"
+    cmake --build .  --config release
+    echo "... installing to $MADARA_ROOT/install"
+    cmake --build .  --target install --config release
+    cmake --build .  --target install --config debug
+    MADARA_BUILD_RESULT=$?
+    
+  else
+    echo "GENERATING MADARA PROJECT"
+    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
+    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc
 
-  echo "BUILDING MADARA"
-  echo "make depend no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
-  MADARA_BUILD_RESULT=$?
-  if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
-    MADARA_BUILD_RESULT=1
-    echo -e "\e[91m MADARA library did not build properly. \e[39m"
-    exit 1;
-  fi
+    if [ $JAVA -eq 1 ]; then
+      echo "DELETING MADARA JAVA CLASSES"
+      # sometimes the jar'ing will occur before all classes are actually built when performing
+      # multi-job builds, fix by deleting class files and recompiling with single build job
+      find . -name "*.class" -delete
+    fi
 
-  if [ $STRIP -eq 1 ]; then
-    echo "STRIPPING MADARA"
-    $STRIP_EXE libMADARA.so*
+    echo "BUILDING MADARA"
+    echo "make depend no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+    make depend no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+    echo "make no_karl=$NOKARL android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES"
+    make no_karl=$NOKARL lz4=$LZ4 android=$ANDROID capnp=$CAPNP java=$JAVA tests=$TESTS tutorials=$TUTORIALS docs=$DOCS ssl=$SSL zmq=$ZMQ simtime=$SIMTIME python=$PYTHON warnings=$WARNINGS -j $CORES
+    MADARA_BUILD_RESULT=$?
+    if [ ! -f $MADARA_ROOT/lib/libMADARA.so ]; then
+      MADARA_BUILD_RESULT=1
+      echo -e "\e[91m MADARA library did not build properly. \e[39m"
+      exit 1;
+    fi
+
+    if [ $STRIP -eq 1 ]; then
+      echo "STRIPPING MADARA"
+      $STRIP_EXE libMADARA.so*
+    fi
   fi
 else
   echo "NOT BUILDING MADARA"
@@ -1605,37 +1632,59 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   cd $GAMS_ROOT
 
-  echo "GENERATING GAMS PROJECT"
-  echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-  perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+  if [ $CMAKE -eq 1 ] ; then
+    
+    echo "GENERATING MADARA PROJECT"
+    
+    mkdir build
+    mkdir install
+    
+    cd build
+    
+    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install -DCMAKE_INSTALL_PREFIX=../install ..
+    echo "... build debug libs"
+    cmake --build .  --config debug
+    
+    echo "... build release libs"
+    cmake --build .  --config release
+    echo "... installing to $GAMS_ROOT/install"
+    cmake --build .  --target install --config release
+    cmake --build .  --target install --config debug
+    GAMS_BUILD_RESULT=$?
 
-  if [ $TYPES -eq 1 ]; then
-    # Strip the unnecessary NOTPARALLEL: directives
-    sed -i '/\.NOTPARALLEL:/d' Makefile.types
-  fi
+  else
+    echo "GENERATING GAMS PROJECT"
+    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
-  if [ $JAVA -eq 1 ]; then
-    # sometimes the jar'ing will occur before all classes are actually built when performing
-    # multi-job builds, fix by deleting class files and recompiling with single build job
-    find . -name "*.class" -delete
-  fi
+    if [ $TYPES -eq 1 ]; then
+      # Strip the unnecessary NOTPARALLEL: directives
+      sed -i '/\.NOTPARALLEL:/d' Makefile.types
+    fi
 
-  echo "BUILDING GAMS"
-  echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-  make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-  GAMS_BUILD_RESULT=$?
-  
-  if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
-    GAMS_BUILD_RESULT=1
-    echo -e "\e[91mGAMS library did not build properly\e[39m";
-    exit 1;
-  fi
+    if [ $JAVA -eq 1 ]; then
+      # sometimes the jar'ing will occur before all classes are actually built when performing
+      # multi-job builds, fix by deleting class files and recompiling with single build job
+      find . -name "*.class" -delete
+    fi
 
-  if [ $STRIP -eq 1 ]; then
-    echo "STRIPPING GAMS"
-    $STRIP_EXE libGAMS.so*
+    echo "BUILDING GAMS"
+    echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    GAMS_BUILD_RESULT=$?
+    
+    if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
+      GAMS_BUILD_RESULT=1
+      echo -e "\e[91mGAMS library did not build properly\e[39m";
+      exit 1;
+    fi
+
+    if [ $STRIP -eq 1 ]; then
+      echo "STRIPPING GAMS"
+      $STRIP_EXE libGAMS.so*
+    fi
   fi
 #  if [ $ANDROID -eq 1 ]; then
 #     echo "Building Demo Android app"
@@ -2042,31 +2091,58 @@ if [ $ANDROID -eq 1 ]; then
 
 fi
 
-if [ $MAC -eq 0 ]; then
+if [ $CMAKE -eq 1 ]; then
+  
+  if [ $MAC -eq 0 ]; then
 
-  if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-    sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/install/lib"':'"\$GAMS_ROOT/install/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/install/lib:\$GAMS_ROOT/install/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
+
   else
-    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+
+    if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/install/lib"':'"\$GAMS_ROOT/install/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/install/lib:\$GAMS_ROOT/install/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
+
   fi
 
-else
 
-  if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-    sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+  if grep -q "export PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/install/bin"':'"\$GAMS_ROOT/install/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
   else
-    echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/install/bin:\$GAMS_ROOT/install/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
+  fi
+else # not CMAKE
+  if [ $MAC -eq 0 ]; then
+
+    if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
+
+  else
+
+    if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
+      sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+    else
+      echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+    fi
+
   fi
 
+
+  if grep -q "export PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
+  else
+    echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
+  fi
 fi
-
-
-if grep -q "export PATH" $HOME/.gams/env.sh ; then
-  sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
-else
-  echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
-fi
-
 
 if ! grep -q ".gams/env.sh" $HOME/.bashrc ; then
   echo "Updating bashrc to load environment. Close terminals to reload."

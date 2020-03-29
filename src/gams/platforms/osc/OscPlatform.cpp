@@ -294,7 +294,7 @@ gams::platforms::OscPlatform::calculate_thrust(
       difference[i] *= 0.25;
       finished ? finished = false : 0;
     }
-    else if (difference[i] <= 1.5 && difference[i] >= -1,5)
+    else if (difference[i] <= 1.5 && difference[i] >= -1.5)
     {
       difference[i] /= fabs(difference[i]);
       difference[i] *= 0.5;

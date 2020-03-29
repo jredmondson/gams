@@ -441,7 +441,7 @@ gams::algorithms::FormationSync::generate_plan(int formation)
       int base = 0;
       int row = 0;
       int col = 0;
-      bool is_set = false;
+      //bool is_set = false;
 
       // 10 elements = 20 square size
       // num_rows = 4 = sqrt(20)

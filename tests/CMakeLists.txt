@@ -42,4 +42,4 @@ add_executable(gams_throughput
 target_link_libraries(gams_throughput PRIVATE gams)
     
 install(TARGETS gams_throughput EXPORT gamsTargets
-           RUNTIME DESTINATION ${MADARA_RUNTIME_INSTALL_DIR})
+           RUNTIME DESTINATION ${GAMS_RUNTIME_INSTALL_DIR})

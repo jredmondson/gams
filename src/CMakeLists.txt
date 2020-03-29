@@ -2,7 +2,7 @@
 # Note that headers are optional, and do not affect add_library, but they will not
 # show up in IDEs unless they are listed in add_library.
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 # Optionally glob, but only for CMake 3.12 or later:
 # file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${ModernCMakeExample_SOURCE_DIR}/include/modern/*.hpp")
@@ -72,13 +72,21 @@ if(NOT ROS)
   endforeach(TMP_PATH)
 endif()
 
-set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
-set(Boost_USE_DEBUG_LIBS         ON) # ignore debug libs and
-set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME     ON)
+if(MSVC)
+  set(Boost_USE_STATIC_LIBS        ON)  # only find static libs
+  set(Boost_USE_DEBUG_LIBS         ON) # ignore debug libs and
+  set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+  set(Boost_USE_MULTITHREADED      ON)
+  set(Boost_USE_STATIC_RUNTIME     ON)
+else()
+  set(Boost_USE_STATIC_LIBS        OFF)  # only find static libs
+  set(Boost_USE_DEBUG_LIBS         OFF) # ignore debug libs and
+  set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+  set(Boost_USE_MULTITHREADED      ON)
+  set(Boost_USE_STATIC_RUNTIME     OFF)
+endif()
 
-find_package(Boost 1.60.0 REQUIRED)
+find_package(Boost 1.60.0 REQUIRED COMPONENTS system)
 
 # try to match up any GAMS features requested
 set(madara_KARL               ${gams_KARL})
@@ -132,18 +140,19 @@ if(madara_FOUND)
   if(MSVC)
     target_compile_options(gams PRIVATE /MP)
 	
-	if(gams_OSC)
+	  if(gams_OSC)
 	  
-	  target_link_libraries(gams PRIVATE
-	    $<$<CONFIG:Debug>:$ENV{OSC_ROOT}/Debug/oscpack.lib>
-	    $<$<CONFIG:Release>:$ENV{OSC_ROOT}/Release/oscpack.lib>
-	  )
-	endif()
+	    target_link_libraries(gams PRIVATE
+	      $<$<CONFIG:Debug>:$ENV{OSC_ROOT}/Debug/oscpack.lib>
+	      $<$<CONFIG:Release>:$ENV{OSC_ROOT}/Release/oscpack.lib>
+	    )
+	  endif()
+  else()
+	  target_link_libraries(gams PRIVATE oscpack)
   endif()
   
   target_link_libraries(gams PUBLIC madara::madara)
-  
-#  target_link_libraries(gams PUBLIC Boost::boost)
+  target_link_libraries(gams PUBLIC Boost::boost Boost::system)
   
   set_target_properties(gams PROPERTIES
     OUTPUT_NAME "gams-${GAMS_VERSION}"
@@ -162,7 +171,7 @@ if(madara_FOUND)
     VERSION ${GAMS_VERSION}
     COMPATIBILITY AnyNewerVersion)
 		
-  set_property(TARGET gams PROPERTY VERSION "${GAMS_VERSION}")
+  #set_property(TARGET gams PROPERTY VERSION "${GAMS_VERSION}")
   set_property(TARGET gams PROPERTY SOVERSION "${GAMS_MAJOR_VERSION}.${GAMS_MINOR_VERSION}")
 
   install(TARGETS gams DESTINATION lib)
