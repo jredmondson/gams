@@ -22,7 +22,7 @@ string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 
 set(GAMS_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake CACHE PATH "Location of CMake scripts")
-set(GAMS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include CACHE PATH "Location of GAMS source")
+set(GAMS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src CACHE PATH "Location of GAMS source")
 set(GAMS_BIN_DIR ${PROJECT_SOURCE_DIR}/bin CACHE PATH "Location of GAMS scripts and binaries")
 set(GAMS_LIB_DIR ${PROJECT_SOURCE_DIR}/lib CACHE PATH "Location of GAMS libraries")
 
@@ -62,11 +62,6 @@ set (BIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-add_custom_command(
-  OUTPUT ${GAMS_INCLUDE_DIR}/Version.h
-  COMMAND ${GAMS_BIN_DIR}/generate_version_include.pl
-)
 
 # disable certain warnings that will occur in VS
 if(MSVC)

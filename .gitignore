@@ -91,3 +91,4 @@ Debug/
 *.vcxproj.*
 
 cmake/cpack_options.cmake
+src/gams/utility/Version.h
