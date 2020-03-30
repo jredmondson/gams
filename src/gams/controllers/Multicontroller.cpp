@@ -80,7 +80,7 @@ gams::controllers::Multicontroller::Multicontroller(
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Multicontroller::constructor:" \
-    " creating %d controllers.\n");
+    " creating %d controllers.\n", num_controllers);
     
   if (settings_.simulation_engine == 1)
   {

@@ -17,6 +17,9 @@
 #include <iterator>
 #include <map>
 
+#include <thread>
+#include <chrono>
+
 namespace gp = gams::platforms;
 
 // Static var. 
@@ -99,13 +102,14 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      // wait for simtime, only ready flag we have access to from api
      while (this->simcontrol->t() <= 0)
      {
-         madara_logger_ptr_log(
+     }
+     
+              madara_logger_ptr_log(
          gams::loggers::global_logger.get(),
          gams::loggers::LOG_ALWAYS,
          "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
-         " Waiting for SimControl to be ready before spawning agents\n"
+         " Spawned agent. \n"
          ); 
-     }
 
      madara_logger_ptr_log(
      gams::loggers::global_logger.get(),
@@ -209,7 +213,6 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
    if (ent_map)
    {
 
-      // this isnt able to find the ID of the agent in sim.  
       scrimmage::EntityPtr this_ent     = (*ent_map)[this->scrimmage_access_id];
       
       if (this_ent)
