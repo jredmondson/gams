@@ -64,11 +64,15 @@ namespace gams
        { 
           return simcontrol;
        }
+       
+       static bool simcontrol_threaded()
+       {
+          return running_threaded;
+       }
 
        scrimmage::EntityPtr get_entity();
        scrimmage::EntityPtr this_ent_;
        
-       static int num_agents;
        
        madara::knowledge::KnowledgeRecord self_id;
        int scrimmage_access_id;
@@ -77,10 +81,11 @@ namespace gams
        
        madara::threads::Threader threader_;  
        
-       bool run_threaded;
        
        //scrimmage::SimControl * simcontrol;
+       static int num_agents;
        static scrimmage::SimControl * simcontrol;
+       static bool running_threaded;
        
      };
      

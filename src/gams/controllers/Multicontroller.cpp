@@ -686,9 +686,15 @@ gams::controllers::Multicontroller::run_once(void)
      scrimmage::SimControl * ptr = 
      gams::platforms::SCRIMMAGEBasePlatform::get_simcontrol_instance();
      
-     if (ptr != NULL)
+     
+     // If it's running threaded, control the steps through this function. Otherwise
+     // SimControl will control its own steps by the user interacting with GUI window.
+     if (!gams::platforms::SCRIMMAGEBasePlatform::simcontrol_threaded())
      {
-         ptr->run_single_step(sim_step_++);
+       if (ptr != NULL)
+       {
+           ptr->run_single_step(sim_step_++);
+       }
      }
   }
 #endif

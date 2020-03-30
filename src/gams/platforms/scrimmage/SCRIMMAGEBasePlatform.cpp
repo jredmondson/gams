@@ -24,9 +24,11 @@ namespace gp = gams::platforms;
 
 // Static var. 
 int gp::SCRIMMAGEBasePlatform::num_agents = 1;
+bool gp::SCRIMMAGEBasePlatform::running_threaded = 0;
 
 // Singleton simcontrol over static var
 scrimmage::SimControl * gp::SCRIMMAGEBasePlatform::simcontrol = NULL;
+
 
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   madara::knowledge::KnowledgeBase * kb_,
@@ -36,7 +38,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
 {
 
   // Check if we should run sim_control threaded or not
-  this->run_threaded = this->knowledge_->get("run_simcontrol_threaded").to_integer();
+  gp::SCRIMMAGEBasePlatform::running_threaded = this->knowledge_->get("run_simcontrol_threaded").to_integer();
 
   // Only initializes once
   if (gp::SCRIMMAGEBasePlatform::get_simcontrol_instance() == NULL)
@@ -51,7 +53,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
       gp::SCRIMMAGEBasePlatform::simcontrol = new scrimmage::SimControl();
       gp::SCRIMMAGEBasePlatform::simcontrol->init("default_world.xml");
       
-      if (this->run_threaded)
+      if (gp::SCRIMMAGEBasePlatform::simcontrol_threaded())
       {
          madara_logger_ptr_log(
          gams::loggers::global_logger.get(),
@@ -142,7 +144,7 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
 {
 
      // Requires waiting until simcontrol is ready, this problem isn't emergent in single threaded nature
-     if (this->run_threaded)
+     if (gp::SCRIMMAGEBasePlatform::simcontrol_threaded())
      {
         while (this->simcontrol->t() <= 0)
         {
