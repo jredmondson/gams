@@ -2275,7 +2275,7 @@ else # not CMAKE
   fi
   
   if grep -q "export SCRIMMAGE_MISSION_PATH" $HOME/.gams/env.sh ; then
-    sed -i 's@export SCRIMMAGE_MISSION_PATH=.*@export SCRIMMAGE_MISSION_PATH:'"\$SCRIMMAGE_MISSION_PATH"':'"\$GAMS_ROOT/src/gams/platformsscrimmage/missions/"'@' $HOME/.gams/env.sh
+    sed -i 's@export SCRIMMAGE_MISSION_PATH=.*@export SCRIMMAGE_MISSION_PATH:'"\$SCRIMMAGE_MISSION_PATH"':'"\$GAMS_ROOT/src/gams/platforms/scrimmage/missions/"'@' $HOME/.gams/env.sh
   else
     echo "export SCRIMMAGE_MISSION_PATH=\$SCRIMMAGE_MISSION_PATH:\$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
   fi
