@@ -25,20 +25,61 @@ namespace gp = gams::platforms;
 // Static var. 
 int gp::SCRIMMAGEBasePlatform::num_agents = 1;
 
+// Singleton simcontrol over static var
+scrimmage::SimControl * gp::SCRIMMAGEBasePlatform::simcontrol = NULL;
+
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
-  scrimmage::SimControl * simcontrol_,
   madara::knowledge::KnowledgeBase * kb_,
   gams::variables::Sensors * sensors_,
   gams::variables::Self * self_
   ) : self_id(0), gams::platforms::BasePlatform(kb_, sensors_, self_)
 {
 
+  // Check if we should run sim_control threaded or not
+  this->run_threaded = this->knowledge_->get("run_simcontrol_threaded").to_integer();
+
+  // Only initializes once
+  if (gp::SCRIMMAGEBasePlatform::get_simcontrol_instance() == NULL)
+  {
+      madara_logger_ptr_log(
+      gams::loggers::global_logger.get(),
+      gams::loggers::LOG_ALWAYS,
+      "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
+      " SimControl has not been created yet. Creating. \n"
+      );
+  
+      gp::SCRIMMAGEBasePlatform::simcontrol = new scrimmage::SimControl();
+      gp::SCRIMMAGEBasePlatform::simcontrol->init("default_world.xml");
+      
+      if (this->run_threaded)
+      {
+         madara_logger_ptr_log(
+         gams::loggers::global_logger.get(),
+         gams::loggers::LOG_ALWAYS,
+         "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
+         " Initializing SimControl with threading enabled. \n"
+         );
+         
+         gp::SCRIMMAGEBasePlatform::simcontrol->run_threaded();
+      }
+      else
+      {
+         madara_logger_ptr_log(
+         gams::loggers::global_logger.get(),
+         gams::loggers::LOG_ALWAYS,
+         "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
+         " Initializing SimControl without threading enabled. \n"
+         );
+         
+         gp::SCRIMMAGEBasePlatform::simcontrol->start();
+         gp::SCRIMMAGEBasePlatform::simcontrol->send_terrain();
+      }
+  }
+      
   this->knowledge_ = kb_;
   this->self_      = self_;
   this->sensors_   = sensors_;
-  this->simcontrol = simcontrol_;
-  
-  
+  this->simcontrol = gp::SCRIMMAGEBasePlatform::get_simcontrol_instance();
   this->self_id = this->knowledge_->get(".id");
   this->scrimmage_access_id = this->self_id.to_integer() + 1;
   
@@ -62,7 +103,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
       if (it == sensors_->end ()) // create coverage sensor
       {
         // get origin
-        gams::pose::Position origin (this->get_frame());
+        gams::pose::Position origin (gams::pose::gps_frame());
         madara::knowledge::containers::NativeDoubleArray origin_container;
         origin_container.set_name ("sensor.coverage.origin", *knowledge_, 3);
         origin.from_container (origin_container);
@@ -99,17 +140,24 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
 void
 gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
 {
-     // wait for simtime, only ready flag we have access to from api
-     while (this->simcontrol->t() <= 0)
+
+     // Requires waiting until simcontrol is ready, this problem isn't emergent in single threaded nature
+     if (this->run_threaded)
      {
+        while (this->simcontrol->t() <= 0)
+        {
+        
+        }
      }
+
+     // wait for simtime, only ready flag we have access to from api
      
-              madara_logger_ptr_log(
-         gams::loggers::global_logger.get(),
-         gams::loggers::LOG_ALWAYS,
-         "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
-         " Spawned agent. \n"
-         ); 
+     madara_logger_ptr_log(
+     gams::loggers::global_logger.get(),
+     gams::loggers::LOG_ALWAYS,
+     "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
+     " Spawned agent. \n"
+     ); 
 
      madara_logger_ptr_log(
      gams::loggers::global_logger.get(),
@@ -149,6 +197,10 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      s.pos()[1], 
      s.pos()[2]
      );
+     
+     this->self_->agent.location.set(0, s.pos()[0]);
+     this->self_->agent.location.set(1, s.pos()[1]);
+     this->self_->agent.location.set(2, s.pos()[2]);
      
      p->publish(msg);
 }
@@ -493,8 +545,6 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
 
         } else
         {
-        
-        
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
            gams::loggers::LOG_ALWAYS,
@@ -589,5 +639,5 @@ gams::platforms::SCRIMMAGEBasePlatformFactory::create(
       variables::Self * self
 )
 {
-  return new SCRIMMAGEBasePlatform(new scrimmage::SimControl(), knowledge, sensors, self);
+  return new SCRIMMAGEBasePlatform(knowledge, sensors, self);
 }

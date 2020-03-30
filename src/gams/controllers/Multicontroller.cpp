@@ -55,10 +55,10 @@
 #include "gams/loggers/GlobalLogger.h"
 #include "madara/utility/EpochEnforcer.h"
 
-#include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
 
 // Required for cheat mode SCRIMMAGE
 #ifdef _GAMS_SCRIMMAGE_
+#include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
 #include <scrimmage/simcontrol/SimControl.h>
 #endif
 
@@ -82,17 +82,21 @@ gams::controllers::Multicontroller::Multicontroller(
     "gams::controllers::Multicontroller::constructor:" \
     " creating %d controllers.\n", num_controllers);
     
-  if (settings_.simulation_engine == 1)
-  {
-      // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened
-      sim_control_ = new scrimmage::SimControl();
-      sim_control_->init("default_world.xml");
-      // this is important
-      sim_control_->run_threaded();
-      sim_control_->send_terrain();
-      
-      // TODO Set up the simulation world, it spawns paused.
-  }
+//#ifdef _GAMS_SCRIMMAGE_
+//  if (settings_.simulation_engine == 1)
+//  {
+//      // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened. Probably need to see this as a Singleton down the line.
+//      
+//      sim_control_ = new scrimmage::SimControl();
+//      sim_control_->init("default_world.xml");
+//      // this is important
+//      //sim_control_->run_threaded();
+//      sim_control_->start();
+//      sim_control_->send_terrain();
+//      
+//      // TODO Set up the simulation world, it spawns paused.
+//  }
+//#endif
 
   resize(num_controllers);
 }
@@ -317,6 +321,7 @@ gams::controllers::Multicontroller::init_platform(
     "gams::controllers::Multicontroller::init_platform:" \
     " initializing all controllers with platform %s\n", platform.c_str());
 
+#ifdef _GAMS_SCRIMMAGE_
   if (platform == "scrimmage")
   {
      for (size_t i = 0; i < controllers_.size(); ++i)
@@ -327,7 +332,6 @@ gams::controllers::Multicontroller::init_platform(
        
        controllers_[i]->init_platform(
            new gams::platforms::SCRIMMAGEBasePlatform(
-               sim_control_,
                kb,
                sensors,
                self
@@ -335,13 +339,15 @@ gams::controllers::Multicontroller::init_platform(
        );
      }
      
-  } else
-  {
-    for (size_t i = 0; i < controllers_.size(); ++i)
-    {
-      controllers_[i]->init_platform(platform, args);
-    }
   }
+#else
+
+  for (size_t i = 0; i < controllers_.size(); ++i)
+  {
+    controllers_[i]->init_platform(platform, args);
+  }
+  
+#endif
 }
 
 void
@@ -668,13 +674,24 @@ gams::controllers::Multicontroller::run_once(void)
 {
   // Runs the simulator step before running the first MAPE loop as the MAPE loop
   // depends on entities being inside the simulator
+  
+#ifdef _GAMS_SCRIMMAGE_
   if (settings_.simulation_engine == 1)
   {
      madara_logger_ptr_log(gams::loggers::global_logger.get(),
         gams::loggers::LOG_ALWAYS,
         "Stepping the SCRIMMAGE Simulator: %i\n", sim_step_);
      //sim_control_->run_single_step(sim_step_++);
+     
+     scrimmage::SimControl * ptr = 
+     gams::platforms::SCRIMMAGEBasePlatform::get_simcontrol_instance();
+     
+     if (ptr != NULL)
+     {
+         ptr->run_single_step(sim_step_++);
+     }
   }
+#endif
 
   // return value
   int return_value = 0;

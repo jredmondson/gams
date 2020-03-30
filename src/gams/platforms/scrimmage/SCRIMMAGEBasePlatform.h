@@ -29,7 +29,6 @@ namespace gams
      {
      public:
        SCRIMMAGEBasePlatform(
-        scrimmage::SimControl * simcontrol,
         madara::knowledge::KnowledgeBase * kb_,
         gams::variables::Sensors * sensors_,
         gams::variables::Self * self_
@@ -61,10 +60,14 @@ namespace gams
           Scrimmage specific functions
        */
        
+       static scrimmage::SimControl * get_simcontrol_instance()
+       { 
+          return simcontrol;
+       }
+
        scrimmage::EntityPtr get_entity();
        scrimmage::EntityPtr this_ent_;
        
-       scrimmage::SimControl * simcontrol;
        static int num_agents;
        
        madara::knowledge::KnowledgeRecord self_id;
@@ -73,6 +76,11 @@ namespace gams
        std::string tag;
        
        madara::threads::Threader threader_;  
+       
+       bool run_threaded;
+       
+       //scrimmage::SimControl * simcontrol;
+       static scrimmage::SimControl * simcontrol;
        
      };
      
