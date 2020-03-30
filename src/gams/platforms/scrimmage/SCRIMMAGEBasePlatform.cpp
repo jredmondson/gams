@@ -513,7 +513,6 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         this->self_->agent.location[0],
         this->self_->agent.location[1],
         this->self_->agent.location[2]
-        
         );                     
                              
         gams::pose::Position now(get_frame());
@@ -527,10 +526,28 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         
         gams::pose::Position p(get_frame(), target);
         
+                madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Moving robot to %s\n", target.to_string().c_str()
+        );
+        
         bool close_enough = now.approximately_equal(p, this->get_accuracy());
+        
+                madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Moving robot to %s\n", target.to_string().c_str()
+        );
         
         if (close_enough)
         {
+        
+                madara_logger_ptr_log(
+        gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Moving robot to %s\n", target.to_string().c_str()
+        );
             result = gams::platforms::PLATFORM_ARRIVED;
             
             madara_logger_ptr_log(
