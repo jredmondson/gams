@@ -22,8 +22,6 @@
 
 namespace gp = gams::platforms;
 
-// Static var. 
-int gp::SCRIMMAGEBasePlatform::num_agents = 1;
 bool gp::SCRIMMAGEBasePlatform::running_threaded = 0;
 
 // Singleton simcontrol over static var
@@ -209,34 +207,6 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      
      p->publish(msg);
 }
-
-scrimmage::EntityPtr
-gams::platforms::SCRIMMAGEBasePlatform::get_entity()
-{
-   for (auto ent : simcontrol->ents())
-   {
-       if (ent->id().id() == this->self_id.to_integer())
-       {
-          madara_logger_ptr_log(
-          gams::loggers::global_logger.get(),
-          gams::loggers::LOG_ALWAYS,
-          "Entity found #: %i\n",
-          this->self_id.to_integer()
-          );
-          
-          return ent;
-       }
-   }
-   
-   madara_logger_ptr_log(
-   gams::loggers::global_logger.get(),
-   gams::loggers::LOG_ALWAYS,
-   "Entity not found in simulation scene yet.\n"
-   );
-
-   return NULL;
-}
-
 
 gams::platforms::SCRIMMAGEBasePlatform::~SCRIMMAGEBasePlatform()
 {

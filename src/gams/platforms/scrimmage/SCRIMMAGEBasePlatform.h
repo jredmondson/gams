@@ -41,51 +41,85 @@ namespace gams
        /*
           Required implementations
        */
+       
+       /*
+          Reads the state from the agent that this platform is controlling
+       */
        virtual int sense(void) override;
        virtual int analyze(void) override;
        virtual std::string get_name() const override;
-       virtual std::string get_id() const override;
        
-       void spawn_entity(void);
+       /*
+          Returns the ID of the GAMS agent (SCRIMMAGEBasePlatform) used by controllers/algorithms
+       */
+       virtual std::string get_id() const override;
 
        /*
           Platform actions required for Spell, Zone Coverage, Move.
        */
+       
+       /*
+          \@desc Spawns an entity in the SCRIMMAGE simulator via a protobuf msg on the GenerateEntity topic presented by SimControl.cpp. At present, this spawns a copy of the entity at position 0 in the <entity> list provided by the default world. 
+       */
+       void spawn_entity(void);
+
+       /*
+          \@desc Used in determining how close to a waypoint/goal the robot needs to be before moving to the next point
+       */
        virtual double get_accuracy() const override;
+       
+       /*
+          \@desc 
+       */
        virtual int move(const gams::pose::Position & target, const gams::pose::PositionBounds &bounds) override;
+       
+       /*
+          \@desc 
+       */
        virtual int orient(const gams::pose::Orientation & target, const gams::pose::OrientationBounds &bounds) override;
        virtual const gams::pose::ReferenceFrame & get_frame(void) const override;
        
        /*
-          Scrimmage specific functions
+          \@desc Returns the pointer to the SimControl object. One SimControl instance for all of the SCRIMMAGEBasePlatforms (singleton pattern)
        */
-       
        static scrimmage::SimControl * get_simcontrol_instance()
        { 
           return simcontrol;
        }
        
+       /*
+          \@desc Returns whether simcontrol was started with the run_threaded() option 
+       */
        static bool simcontrol_threaded()
        {
           return running_threaded;
        }
 
-       scrimmage::EntityPtr get_entity();
-       scrimmage::EntityPtr this_ent_;
-       
-       
+       /*
+          \@desc Stored access of this agents ID, which is different from the ID used to access the SCRIMMAGE agent associated with this specific instance. SCRIMMAGE starts its non-spawned entity (the one specified in the world XML file) at 0, and all other spawned copies then start at 1 moving forward. To access the SCRIMMAGE agent, it will be self_id + 1 indexing, or, just use scrimmage_access_id below
+       */
        madara::knowledge::KnowledgeRecord self_id;
-       int scrimmage_access_id;
        
-       std::string tag;
+       /*
+          \@desc The ID to access a SCRIMMAGE agent 
+       */
+       int scrimmage_access_id;
        
        madara::threads::Threader threader_;  
        
-       
-       //scrimmage::SimControl * simcontrol;
-       static int num_agents;
+       /*
+          \@desc Static pointer to the SimControl object needed to interface with agents in the SCRIMMAGE simulator
+       */
        static scrimmage::SimControl * simcontrol;
+       
+       /*
+          \@desc Specifies whether or not SimControl is running threaded
+       */
        static bool running_threaded;
+       
+       /*
+          \@desc XML file the SimControl object loads from. Loaded into the KB at "worldfile"
+       */
        static std::string world_file;
        
      };
