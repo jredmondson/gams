@@ -78,32 +78,46 @@ ORANGE='\033[0;33m'
 BLUE='\033[0;34m'
 NOCOLOR='\033[0m' 
 
+AIRLIB=0
+ANDROID=0
+ANDROID_TESTS=0
+BUILD_ERRORS=0
 CAPNP=0
 # Hard setting this because of SCRIMMAGE debian bug
 SCRIMMAGE_ROOT="/opt/scrimmage/x86_64-linux-gnu/" 
+CAPNP_JAVA=0
+CLANG=0
+CLANG_DEFINED=0
+CLANG_IN_LAST=0
+CLEAN=1
 CMAKE=0
+CUDA=0
 DEBUG=0
 TESTS=0
 TUTORIALS=0
 VREP=0
 SCRIMMAGE=0
-JAVA=0
-ROS=0
-CLANG=0
-ANDROID=0
-CUDA=0
-STRIP=0
-ODROID=0
-MPC=0
-MADARA=0
-GAMS=0
-OPENCV=0
-PREREQS=0
+DMPL=0
 DOCS=0
-VREP_CONFIG=0
-ZMQ=0
-SIMTIME=0
+FORCE_AIRSIM=0
+FORCE_UNREAL=0
+GAMS=0
+GAMSPULL=1
+JAVA=0
+LZ4=0
+MAC=${MAC:-0}
+MADARA=0
+MADARAPULL=1
+MPC=0
+NOKARL=0
 NOTHREADLOCAL=0
+ODROID=0
+OPENCV=0
+OSC=0
+PREREQS=0
+PYTHON=0
+ROS=0
+SIMTIME=0
 SSL=0
 DMPL=0
 LZ4=0
@@ -116,19 +130,22 @@ MADARAPULL=1
 GAMSPULL=1
 MAC=${MAC:-0}
 BUILD_ERRORS=0
+STRIP=0
+TESTS=0
+TUTORIALS=0
 TYPES=0
-ANDROID_TESTS=0
-CAPNP_JAVA=0
 UNREAL=0
-AIRLIB=0
-FORCE_UNREAL=0
-FORCE_AIRSIM=0
 UNREAL_DEV=0
 UNREAL_GAMS=0
-CLANG_DEFINED=0
-CLANG_IN_LAST=0
+VREP=0
+VREP_CONFIG=0
+WARNINGS=0
+ZMQ=0
 
-
+CAPNP_AS_A_PREREQ=0
+EIGEN_AS_A_PREREQ=0
+GAMS_AS_A_PREREQ=0
+MADARA_AS_A_PREREQ=0
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
 MPC_AS_A_PREREQ=0
@@ -139,12 +156,18 @@ GAMS_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
 CAPNP_AS_A_PREREQ=0
 UNREAL_AS_A_PREREQ=0
+VREP_AS_A_PREREQ=0
 
-MPC_REPO_RESULT=0
+AIRSIM_BUILD_RESULT=0
+CAPNP_REPO_RESULT=0
+CAPNP_BUILD_RESULT=0
+CAPNPJAVA_REPO_RESULT=0
+CAPNPJAVA_BUILD_RESULT=0
 DART_REPO_RESULT=0
 DART_BUILD_RESULT=0
 GAMS_REPO_RESULT=0
 GAMS_BUILD_RESULT=0
+LZ4_REPO_RESULT=0
 MADARA_REPO_RESULT=0
 MADARA_BUILD_RESULT=0
 MPC_REPO_RESULT=0
@@ -157,10 +180,14 @@ CAPNP_REPO_RESULT=0
 CAPNP_BUILD_RESULT=0
 CAPNPJAVA_REPO_RESULT=0
 CAPNPJAVA_BUILD_RESULT=0
+OSC_REPO_RESULT=0
+OSC_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
-AIRSIM_BUILD_RESULT=0
 UNREAL_GAMS_REPO_RESULT=0
 UNREAL_GAMS_BUILD_RESULT=0
+VREP_REPO_RESULT=0
+ZMQ_REPO_RESULT=0
+ZMQ_BUILD_RESULT=0
 
 STRIP_EXE=strip
 VREP_INSTALLER="V-REP_PRO_EDU_V3_4_0_Linux.tar.gz"
@@ -288,6 +315,8 @@ do
     STRIP_EXE=${LOCAL_CROSS_PREFIX}strip
   elif [ "$var" = "opencv" ]; then
     OPENCV=1
+  elif [ "$var" = "osc" ]; then
+    OSC=1
   elif [ "$var" = "prereqs" ]; then
     PREREQS=1
   elif [ "$var" = "python" ]; then
@@ -365,6 +394,7 @@ do
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
     echo "  opencv          build opencv"
+    echo "  osc             build with open stage control support"
     echo "  python          build with Python 2.7 support"
     echo "  prereqs         use apt-get to install prereqs. This usually only"
     echo "                  has to be used on the first usage of a feature"
@@ -403,6 +433,7 @@ do
     echo "  MADARA_ROOT         - location of local copy of MADARA repository"
     echo "  OPENCV_ROOT         - location of opencv to install to"
     echo "  OPENCV_CONTRIB_ROOT - location of opencv_contrib to install to"
+    echo "  OSC_ROOT            - location of open stage control (oscpack)"
     echo "  ROS_ROOT            - location of ROS (usually set by ROS installer)"
     echo "  SSL_ROOT            - location of OpenSSL"
     echo "  UNREAL_ROOT         - location of UnrealEngine repository"
@@ -1307,42 +1338,6 @@ fi
 
 # this is common to Mac and Linux, so it needs to be outside of the above
 if [ $PREREQS -eq 1 ]; then 
-  if [ ! -d $OSC_ROOT ]; then 
-    echo "Downloading oscpack"
-    git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
-  else
-    echo "Updating oscpack"
-    cd $OSC_ROOT
-    git pull
-  fi
-
-  cd $OSC_ROOT
-  echo "Cleaning oscpack"
-  make clean
-  echo "Building oscpack"0
-  if [ $MAC -eq 0 ] && [ $CLANG -eq 1 ]; then
-  
-    if [ ! -z $FORCE_CC ] ; then
-      export CC=$FORCE_CC
-      echo "Forcing CC=$CC"
-    else
-      export CC=clang
-    fi
-
-    if [ ! -z $FORCE_CXX ] ; then
-      export CXX=$FORCE_CXX
-      echo "Forcing CXX=$CXX"
-    else
-      export CXX=clang++
-    fi
-
-  fi 
-
-  if [ ! -z "$CXX" ]; then
-    sudo make CXX=$CXX COPTS='-Wall -Wextra -fPIC' install
-  else
-    sudo make COPTS='-Wall -Wextra -fPIC' install
-  fi
 
   if [ -d $SCRIMMAGE_GIT_ROOT ]; then
       cd $INSTALL_DIR
@@ -1362,7 +1357,45 @@ if [ $PREREQS -eq 1 ]; then
   source /opt/scrimmage/*/setup.sh
   echo "SCRIMMAGE Dependencies Installed"
 
-fi
+  if [ $OSC -eq 1 ]; then
+    if [ ! -d $OSC_ROOT ]; then 
+      echo "Downloading oscpack"
+      git clone https://github.com/jredmondson/oscpack.git $OSC_ROOT
+    else
+      echo "Updating oscpack"
+      cd $OSC_ROOT
+      git pull
+    fi
+
+    cd $OSC_ROOT
+    echo "Cleaning oscpack"
+    make clean
+    echo "Building oscpack"0
+    if [ $MAC -eq 0 ] && [ $CLANG -eq 1 ]; then
+    
+      if [ ! -z $FORCE_CC ] ; then
+        export CC=$FORCE_CC
+        echo "Forcing CC=$CC"
+      else
+        export CC=clang
+      fi
+
+      if [ ! -z $FORCE_CXX ] ; then
+        export CXX=$FORCE_CXX
+        echo "Forcing CXX=$CXX"
+      else
+        export CXX=clang++
+      fi
+
+    fi 
+
+    if [ ! -z "$CXX" ]; then
+      sudo make CXX=$CXX COPTS='-Wall -Wextra -fPIC' install
+    else
+      sudo make COPTS='-Wall -Wextra -fPIC' install
+    fi
+  fi # end OSC -eq 1
+fi # end PREREQS -eq 1
 
 if [ $OPENCV -eq 1 ]; then
   echo UPDATING OPENCV
@@ -1585,7 +1618,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     cmake --build .  --target install --config release
     cmake --build .  --target install --config debug
     MADARA_BUILD_RESULT=$?
-    
+
   else
     echo "GENERATING MADARA PROJECT"
     echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
@@ -1775,7 +1808,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     
     cd build
     
-    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install -DCMAKE_INSTALL_PREFIX=../install ..
+    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install ..
     echo "... build debug libs"
     cmake --build .  --config debug
     

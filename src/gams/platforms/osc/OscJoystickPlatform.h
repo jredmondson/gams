@@ -2,6 +2,8 @@
 #ifndef   _GAMS_PLATFORM_OSC_JOYSTICK_PLATFORM_H_
 #define   _GAMS_PLATFORM_OSC_JOYSTICK_PLATFORM_H_
 
+#ifdef _GAMS_OSC_
+
 #include <vector>
 
 #include "madara/knowledge/KnowledgeBase.h"
@@ -289,5 +291,8 @@ namespace gams { namespace platforms
     
 } // end platforms namespace
 } // end gams namespace
+
+#endif //  #ifdef _GAMS_OSC_
+
 
 #endif // _GAMS_PLATFORM_OSC_JOYSTICK_PLATFORM_H_

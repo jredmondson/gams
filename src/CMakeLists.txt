@@ -4,6 +4,10 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+if(CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 # Optionally glob, but only for CMake 3.12 or later:
 # file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${ModernCMakeExample_SOURCE_DIR}/include/modern/*.hpp")
 
@@ -78,15 +82,15 @@ if(MSVC)
   set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     ON)
+  find_package(Boost 1.60.0 REQUIRED)
 else()
   set(Boost_USE_STATIC_LIBS        OFF)  # only find static libs
   set(Boost_USE_DEBUG_LIBS         OFF) # ignore debug libs and
   set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     OFF)
+  find_package(Boost 1.60.0 REQUIRED COMPONENTS system)
 endif()
-
-find_package(Boost 1.60.0 REQUIRED COMPONENTS system)
 
 # try to match up any GAMS features requested
 set(madara_KARL               ${gams_KARL})
@@ -98,12 +102,26 @@ set(madara_THREADLOCAL        ${gams_THREADLOCAL})
 # We need this directory, and users of our library will need it too
 find_package(madara 3.3.0 REQUIRED)
 
+add_custom_command(
+  OUTPUT ${header_path}/Version.h
+  COMMAND perl
+  ARGS ${GAMS_BIN_DIR}/generate_version_include.pl
+  DEPENDS ${GAMS_SOURCE_DIR}/VERSION.txt
+)
+
+add_custom_target(
+  gams_lib_version
+  DEPENDS ${header_path}/Version.h
+)
+
 if(madara_FOUND)
   
   add_library(gams SHARED
     ${GAMS_HEADER_FILES}
 	  ${GAMS_SRC_FILES}) 
 
+  add_dependencies(gams gams_lib_version)
+	
   target_include_directories(gams PUBLIC "$ENV{EIGEN_ROOT}")
   target_include_directories(gams PUBLIC "$ENV{OSC_ROOT}")
   
@@ -128,6 +146,7 @@ if(madara_FOUND)
   endif()
 
   if(gams_OSC)
+    target_compile_definitions(gams PUBLIC -D_GAMS_OSC_)
   endif()
 
   if(gams_ROS)
@@ -147,12 +166,15 @@ if(madara_FOUND)
 	      $<$<CONFIG:Release>:$ENV{OSC_ROOT}/Release/oscpack.lib>
 	    )
 	  endif()
+    target_link_libraries(gams PUBLIC Boost::boost)
   else()
-	  target_link_libraries(gams PRIVATE oscpack)
+	  if(gams_OSC)
+	    target_link_libraries(gams PRIVATE oscpack)
+    endif()
+    target_link_libraries(gams PUBLIC Boost::boost Boost::system)
   endif()
   
   target_link_libraries(gams PUBLIC madara::madara)
-  target_link_libraries(gams PUBLIC Boost::boost Boost::system)
   
   set_target_properties(gams PROPERTIES
     OUTPUT_NAME "gams"

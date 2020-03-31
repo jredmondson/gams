@@ -11,6 +11,8 @@
  * Stage Control messages
  **/
 
+#ifdef _GAMS_OSC_
+
 #include "OscUdp.h"
 #include "osc/OscOutboundPacketStream.h"
 
@@ -282,3 +284,5 @@ int gams::utility::OscUdp::send(const OscMap &values)
 
   return result;
 }
+
+#endif //  #ifdef _GAMS_OSC_
