@@ -99,6 +99,8 @@
         <visual_model>iris</visual_model>
     </entity>  -->
     
+    
+   <!-- Entity tag is hard coded to look for gen_straight right now, do not change unless code is changed -->
    <entity tag="gen_straight">
         <team_id>1</team_id>
         <color>77 77 255</color>
@@ -107,15 +109,15 @@
         <radius>1</radius>
         <x>10</x>
         <y>10</y>
-        <z>10</z>
+        <z>0</z>
         <heading>0</heading>
         <gain>1</gain>
         <max_vel>30</max_vel>
         
-        <motion_model>SingleIntegrator</motion_model>
-        <controller>SingleIntegratorControllerWaypoint</controller>
-        <autonomy>GAMSAutonomy</autonomy>
-        <visual_model>iris</visual_model>
+        <motion_model>DoubleIntegrator</motion_model>
+        <controller>DoubleIntegratorControllerWaypoint</controller>
+        <autonomy>APITester</autonomy>
+        <visual_model>zephyr-blue</visual_model>
     </entity>
 
 <!--   <entity>-->
