@@ -46,7 +46,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   {
       madara_logger_ptr_log(
       gams::loggers::global_logger.get(),
-      gams::loggers::LOG_ALWAYS,
+      gams::loggers::LOG_DETAILED,
       "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
       " SimControl has not been created yet. Creating. \n"
       );
@@ -58,7 +58,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
       {
          madara_logger_ptr_log(
          gams::loggers::global_logger.get(),
-         gams::loggers::LOG_ALWAYS,
+         gams::loggers::LOG_DETAILED,
          "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
          " Initializing SimControl with threading enabled. \n"
          );
@@ -69,7 +69,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
       {
          madara_logger_ptr_log(
          gams::loggers::global_logger.get(),
-         gams::loggers::LOG_ALWAYS,
+         gams::loggers::LOG_DETAILED,
          "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
          " Initializing SimControl without threading enabled. \n"
          );
@@ -88,7 +88,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   
   madara_logger_ptr_log(
   gams::loggers::global_logger.get(),
-  gams::loggers::LOG_ALWAYS,
+  gams::loggers::LOG_DETAILED,
   "gams::controllers::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform" \
   " GAMS agent.%i has scrimmage_access_id of %i\n",
   this->self_id.to_integer(),
@@ -157,14 +157,14 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      
      madara_logger_ptr_log(
      gams::loggers::global_logger.get(),
-     gams::loggers::LOG_ALWAYS,
+     gams::loggers::LOG_DETAILED,
      "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
      " Spawned agent. \n"
      ); 
 
      madara_logger_ptr_log(
      gams::loggers::global_logger.get(),
-     gams::loggers::LOG_ALWAYS,
+     gams::loggers::LOG_DETAILED,
      "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
      " Attempting to generate entity in SCRIMMAGE\n"
      );
@@ -192,7 +192,7 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      
      madara_logger_ptr_log(
      gams::loggers::global_logger.get(),
-     gams::loggers::LOG_ALWAYS,
+     gams::loggers::LOG_DETAILED,
      "gams::controllers::SCRIMMAGEBasePlatform::spawn_entity()" \
      " Spawning GAMS agent %i at origin(x: %f, y: %f, z: %f)\n",
      this->self_id.to_integer(),
@@ -232,7 +232,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
    
    madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Sensing vars for #: %i\n",
            this->self_id.to_integer()
            );
@@ -246,7 +246,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
       {
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Entity available in simulation\n"
            );
            
@@ -265,7 +265,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Read position from scrimmage for agent %i as position x: %f y: %f z: %f\n",
            this->self_->id.to_integer(),
            this_pos.x(),
@@ -280,7 +280,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
 
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Set Angular Velocity\n"
            );
 
@@ -292,7 +292,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
            
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Set Orientation\n"
            );
          
@@ -300,7 +300,7 @@ gams::platforms::SCRIMMAGEBasePlatform::sense(void)
       {
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Entity not created in simulation yet.\n"
            );
       }
@@ -361,7 +361,7 @@ int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation
 //                             
 //        madara_logger_ptr_log(
 //        gams::loggers::global_logger.get(),
-//        gams::loggers::LOG_ALWAYS,
+//        gams::loggers::LOG_DETAILED,
 //        "Current location for agent %i is: x: %f y: %f z: %f\n",
 //        this->self_->id.to_integer(),
 //        this->self_->agent.location[0],
@@ -375,7 +375,7 @@ int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation
 //  
 //        madara_logger_ptr_log(
 //        gams::loggers::global_logger.get(),
-//        gams::loggers::LOG_ALWAYS,
+//        gams::loggers::LOG_DETAILED,
 //        "Orienting robot to %s\n", target.to_string().c_str()
 //        );
 //        
@@ -389,7 +389,7 @@ int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation
 //            
 //            madara_logger_ptr_log(
 //            gams::loggers::global_logger.get(),
-//            gams::loggers::LOG_ALWAYS,
+//            gams::loggers::LOG_DETAILED,
 //            "Platform arrived to goal orientation\n"
 //            );
 //            
@@ -403,7 +403,7 @@ int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation
 //        {
 //           madara_logger_ptr_log(
 //           gams::loggers::global_logger.get(),
-//           gams::loggers::LOG_ALWAYS,
+//           gams::loggers::LOG_DETAILED,
 //           "Angle from goal orientation: %f\n", new_orient.angle_to(now)
 //           );
 //       
@@ -430,7 +430,7 @@ int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation
 //           
 //           madara_logger_ptr_log(
 //           gams::loggers::global_logger.get(),
-//           gams::loggers::LOG_ALWAYS,
+//           gams::loggers::LOG_DETAILED,
 //           "Set Desired Quaternion to r: %f p: %f y: %f \n",
 //           quat.roll(), quat.pitch(), quat.yaw()
 //           );
@@ -439,7 +439,7 @@ int gams::platforms::SCRIMMAGEBasePlatform::orient(const gams::pose::Orientation
 //  {
 //       madara_logger_ptr_log(
 //       gams::loggers::global_logger.get(),
-//       gams::loggers::LOG_ALWAYS,
+//       gams::loggers::LOG_DETAILED,
 //       "Entity null.\n"
 //       );
 //  } 
@@ -453,7 +453,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
 {
    madara_logger_ptr_log(
    gams::loggers::global_logger.get(),
-   gams::loggers::LOG_ALWAYS,
+   gams::loggers::LOG_DETAILED,
    "Moving robot (gams: %i scrimmage: %i)\n",
    this->self_id.to_integer(),
    this->scrimmage_access_id
@@ -480,7 +480,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
                              
         madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_DETAILED,
         "Current location for agent %i is: x: %f y: %f z: %f\n",
         this->self_->id.to_integer(),
         this->self_->agent.location[0],
@@ -493,7 +493,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
   
         madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_DETAILED,
         "Moving robot to %s\n", target.to_string().c_str()
         );
         
@@ -501,7 +501,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         
                 madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_DETAILED,
         "Moving robot to %s\n", target.to_string().c_str()
         );
         
@@ -509,7 +509,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         
                 madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_DETAILED,
         "Moving robot to %s\n", target.to_string().c_str()
         );
         
@@ -518,14 +518,14 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         
                 madara_logger_ptr_log(
         gams::loggers::global_logger.get(),
-        gams::loggers::LOG_ALWAYS,
+        gams::loggers::LOG_DETAILED,
         "Moving robot to %s\n", target.to_string().c_str()
         );
             result = gams::platforms::PLATFORM_ARRIVED;
             
             madara_logger_ptr_log(
             gams::loggers::global_logger.get(),
-            gams::loggers::LOG_ALWAYS,
+            gams::loggers::LOG_DETAILED,
             "Platform arrived to goal\n"
             );
             
@@ -539,20 +539,20 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
         {
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Distance from goal: %f\n", p.distance_to(now)
            );
        
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Moving robot to x: %f y: %f: z: %f\n", p.x(), p.y(), p.z()
            );
            
            // orientations will always be 0 with gams since no algorithm sets it
 //           madara_logger_ptr_log(
 //           gams::loggers::global_logger.get(),
-//           gams::loggers::LOG_ALWAYS,
+//           gams::loggers::LOG_DETAILED,
 //           "Orienting robot to r: %f p: %f: y: %f\n", 0, 0, 0
 //           );
       
@@ -583,7 +583,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
            
            madara_logger_ptr_log(
            gams::loggers::global_logger.get(),
-           gams::loggers::LOG_ALWAYS,
+           gams::loggers::LOG_DETAILED,
            "Set Desired State to x: %f y: %f z: %f \n",
            p.x(), p.y(), p.z()
            );
@@ -592,7 +592,7 @@ gams::platforms::SCRIMMAGEBasePlatform::move(const gams::pose::Position & target
   {
        madara_logger_ptr_log(
        gams::loggers::global_logger.get(),
-       gams::loggers::LOG_ALWAYS,
+       gams::loggers::LOG_DETAILED,
        "Entity null.\n"
        );
   } 
