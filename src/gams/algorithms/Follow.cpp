@@ -209,16 +209,13 @@ gams::algorithms::Follow::analyze(void)
 
   if (platform_ && *platform_->get_platform_status()->movement_available)
   {
-    const pose::ReferenceFrame * platform_frame =
-      &(platform_->get_location().frame());
-
     // initialize location and orientation frames
-    last_location_.frame(*platform_frame);
-    target_last_location_.frame(*platform_frame);
-    target_destination_.frame(*platform_frame);
-    last_target_destination_.frame(*platform_frame);
-    target_location_.frame(*platform_frame);
-    target_orientation_.frame(*platform_frame);
+    last_location_.frame(platform_->get_location().frame());
+    target_last_location_.frame(platform_->get_location().frame());
+    target_destination_.frame(platform_->get_location().frame());
+    last_target_destination_.frame(platform_->get_location().frame());
+    target_location_.frame(platform_->get_location().frame());
+    target_orientation_.frame(platform_->get_location().frame());
 
     madara_logger_ptr_log(gams::loggers::global_logger.get(),
       gams::loggers::LOG_MAJOR,
