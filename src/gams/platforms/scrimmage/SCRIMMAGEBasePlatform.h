@@ -86,6 +86,7 @@ namespace gams
        static int num_agents;
        static scrimmage::SimControl * simcontrol;
        static bool running_threaded;
+       static std::string world_file;
        
      };
      

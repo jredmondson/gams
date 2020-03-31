@@ -29,6 +29,8 @@ bool gp::SCRIMMAGEBasePlatform::running_threaded = 0;
 // Singleton simcontrol over static var
 scrimmage::SimControl * gp::SCRIMMAGEBasePlatform::simcontrol = NULL;
 
+std::string gp::SCRIMMAGEBasePlatform::world_file = std::string();
+
 
 gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
   madara::knowledge::KnowledgeBase * kb_,
@@ -39,6 +41,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
 
   // Check if we should run sim_control threaded or not
   gp::SCRIMMAGEBasePlatform::running_threaded = this->knowledge_->get("run_simcontrol_threaded").to_integer();
+  gp::SCRIMMAGEBasePlatform::world_file       = this->knowledge_->get("worldfile").to_string();
 
   // Only initializes once
   if (gp::SCRIMMAGEBasePlatform::get_simcontrol_instance() == NULL)
@@ -51,7 +54,7 @@ gams::platforms::SCRIMMAGEBasePlatform::SCRIMMAGEBasePlatform(
       );
   
       gp::SCRIMMAGEBasePlatform::simcontrol = new scrimmage::SimControl();
-      gp::SCRIMMAGEBasePlatform::simcontrol->init("default_world.xml");
+      gp::SCRIMMAGEBasePlatform::simcontrol->init(world_file);
       
       if (gp::SCRIMMAGEBasePlatform::simcontrol_threaded())
       {
