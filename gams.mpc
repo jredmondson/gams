@@ -1,4 +1,23 @@
-project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal, using_osc, using_warnings, no_warnings, using_scrimmage {
+project (gams_autonomy) : using_scrimmage {
+  requires += scrimmage
+  
+  includes += $(GAMS_ROOT)/src
+  
+  libout = $(GAMS_ROOT)/lib/scrimmage_plugins
+  sharedname = GAMSAutonomy_plugin
+  
+  includes += $(EIGEN_ROOT)
+  
+  Header_Files {
+     src/gams/plugins/scrimmage/GAMSAutonomy.h
+  }
+  
+  Source_Files {
+     src/gams/plugins/scrimmage/GAMSAutonomy.cpp
+  }
+}
+
+project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal, using_osc, using_warnings, no_warnings, using_scrimmage, using_gs_plugin {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -245,21 +264,6 @@ project (ros2gams) : using_madara, using_ros, using_gams, using_simtime, using_b
 
   Source_Files {
     src/gams/programs/ros2gams.cpp
-  }
-}
-
-project (gams_autonomy) : using_gams, using_scrimmage {
-  requires += scrimmage
-  
-  libout = $(GAMS_ROOT)/lib/scrimmage_plugins
-  sharedname = GAMSAutonomy_plugin
-  
-  Header_Files {
-     src/gams/plugins/scrimmage
-  }
-  
-  Source_Files {
-     src/gams/plugins/scrimmage
   }
 }
 

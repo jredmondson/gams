@@ -6,12 +6,13 @@ feature (scrimmage) {
   verbatim (make, local, true) {
     CPPFLAGS := -std=c++14 -O3 $(CPPFLAGS)
   }
-
+  
   includes += $(SCRIMMAGE_GIT_ROOT)/include
   includes += $(SCRIMMAGE_ROOT)/include
   includes += $(SCRIMMAGE_GIT_ROOT)/build/src/proto
   includes += $(SCRIMMAGE_GIT_ROOT)/build/src/viewer
   includes += $(SCRIMMAGE_GIT_ROOT)/build/src/plugins
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/msgs/
   
   includes += $(SCRIMMAGE_GIT_ROOT)/src/proto
 
