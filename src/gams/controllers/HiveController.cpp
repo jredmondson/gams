@@ -427,12 +427,13 @@ void gams::controllers::HiveController::refresh_vars(
     {
       if (init_non_self_vars)
       {
-        controllers_[i]->init_vars((Integer)i, (Integer)controllers_.size());
+        controllers_[i]->init_vars(
+          (Integer)(i + offset_), (Integer)controllers_.size());
       }
       else
       {
         // create the agent variables and set swarm size only
-        controllers_[i]->init_vars((Integer)i);
+        controllers_[i]->init_vars((Integer)(i + offset_));
         kbs[i].set("swarm.size", (Integer)controllers_.size());
       }
     }
@@ -472,9 +473,9 @@ gams::controllers::HiveController::get_kb (size_t controller_index)
   {
     std::vector<knowledge::KnowledgeBase>& kbs = hive_->get_kbs();
 
-    if (controller_index < controllers_.size())
+    if (controller_index + offset_ < controllers_.size())
     {
-      return kbs[controller_index];
+      return kbs[controller_index + offset_];
     }
   }
 

@@ -152,6 +152,35 @@ void test_hivecontroller(void)
     gams_fails++;
   }
 
+  hive.clear();
+
+  knowledge::KnowledgeBase kb = controller1.get_kb(0);
+
+  if (kb.get(".prefix").is_string_type())
+  {
+    std::cerr << "ERROR: controller1 still has value after clear.\n";
+    gams_fails++;
+  }
+
+  controller1.refresh_vars();
+  
+  if (kb.get(".prefix") != "agent.0")
+  {
+    std::cerr << "ERROR: controller1 value is wrong. value=" <<
+      kb.get(".prefix") << " and should be agent.0\n";
+    gams_fails++;
+  }
+  
+  kb = controller9.get_kb(0);
+  controller9.refresh_vars();
+  
+  if (kb.get(".prefix") != "agent.975")
+  {
+    std::cerr << "ERROR: controller1 value is wrong. value=" <<
+      kb.get(".prefix") << " and should be agent.975\n";
+    gams_fails++;
+  }
+  
 }
 
 // perform main logic of program
