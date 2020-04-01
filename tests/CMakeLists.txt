@@ -9,6 +9,7 @@ gams_test(test_elections         test_elections.cpp)
 gams_test(test_euler             test_euler.cpp)
 gams_test(test_formation_sync    test_formation_sync.cpp)
 gams_test(test_groups            test_groups.cpp)
+gams_test(test_hivecontroller    test_hivecontroller.cpp)
 gams_test(test_joystick          test_joystick.cpp)
 gams_test(test_location          test_location.cpp)
 gams_test(test_multicontroller   test_multicontroller.cpp)
@@ -41,5 +42,8 @@ add_executable(gams_throughput
   throughput/utility/MovingAverage.cpp)
 target_link_libraries(gams_throughput PRIVATE gams)
     
+install(TARGETS test_controller_run EXPORT gamsTargets
+           RUNTIME DESTINATION ${GAMS_RUNTIME_INSTALL_DIR})
+
 install(TARGETS gams_throughput EXPORT gamsTargets
            RUNTIME DESTINATION ${GAMS_RUNTIME_INSTALL_DIR})

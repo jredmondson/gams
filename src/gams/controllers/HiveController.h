@@ -1,5 +1,5 @@
 /**
- * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2020 Galois. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 
- * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
+ * 3. The names "Galois," "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
@@ -85,6 +85,11 @@ namespace gams
     class GAMS_EXPORT HiveController
     {
     public:
+      /**
+       * Default constructor
+       **/
+      HiveController();
+
       /**
        * Constructor
        * @param  hive             linked knowledge bases to control

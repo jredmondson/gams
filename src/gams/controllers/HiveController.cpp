@@ -1,28 +1,28 @@
 /**
- * Copyright(c) 2014 Carnegie Mellon University. All Rights Reserved.
+ * Copyright(c) 2020 Galois. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * 
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following acknowledgments and disclaimers.
- *
+ * 
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- *
- * 3. The names "Carnegie Mellon University," "SEI" and/or "Software
+ * 
+ * 3. The names "Galois," "Carnegie Mellon University," "SEI" and/or "Software
  *    Engineering Institute" shall not be used to endorse or promote products
  *    derived from this software without prior written permission. For written
  *    permission, please contact permission@sei.cmu.edu.
- *
+ * 
  * 4. Products derived from this software may not be called "SEI" nor may "SEI"
  *    appear in their names without prior written permission of
  *    permission@sei.cmu.edu.
- *
+ * 
  * 5. Redistributions of any form whatsoever must retain the following
  *    acknowledgment:
- *
+ * 
  *      This material is based upon work funded and supported by the Department
  *      of Defense under Contract No. FA8721-05-C-0003 with Carnegie Mellon
  *      University for the operation of the Software Engineering Institute, a
@@ -30,7 +30,7 @@
  *      findings and conclusions or recommendations expressed in this material
  *      are those of the author(s) and do not necessarily reflect the views of
  *      the United States Department of Defense.
- *
+ * 
  *      NO WARRANTY. THIS CARNEGIE MELLON UNIVERSITY AND SOFTWARE ENGINEERING
  *      INSTITUTE MATERIAL IS FURNISHED ON AN "AS-IS" BASIS. CARNEGIE MELLON
  *      UNIVERSITY MAKES NO WARRANTIES OF ANY KIND, EITHER EXPRESSED OR
@@ -39,7 +39,7 @@
  *      OBTAINED FROM USE OF THE MATERIAL. CARNEGIE MELLON UNIVERSITY DOES
  *      NOT MAKE ANY WARRANTY OF ANY KIND WITH RESPECT TO FREEDOM FROM PATENT,
  *      TRADEMARK, OR COPYRIGHT INFRINGEMENT.
- *
+ * 
  *      This material has been approved for public release and unlimited
  *      distribution.
  **/
@@ -68,6 +68,15 @@ namespace transport = madara::transport;
 typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 
 typedef  madara::utility::EpochEnforcer<std::chrono::steady_clock> EpochEnforcer;
+
+gams::controllers::HiveController::HiveController()
+  : offset_(0), hive_(0), settings_ ()
+{
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
+    gams::loggers::LOG_MAJOR,
+    "gams::controllers::HiveController::constructor:" \
+    " default constructor.\n");
+}
 
 gams::controllers::HiveController::HiveController(
    madara::knowledge::Hive & hive,
@@ -482,35 +491,40 @@ void gams::controllers::HiveController::resize (
   size_t init_id, size_t num_controllers,
   bool init_non_self_vars)
 {
-  offset_ = init_id;
-  size_t old_size = controllers_.size();
-
-  if (num_controllers != old_size)
+  if (hive_ != 0)
   {
-    // if we're shrinking the num controllers, resize later
-    if (old_size > num_controllers)
+    offset_ = init_id;
+    size_t old_size = controllers_.size();
+
+    if (offset_ + num_controllers > hive_->get_size())
     {
-      for (size_t i = num_controllers; i < old_size; ++i)
-      {
-        delete controllers_[i];
-      }
+      num_controllers = hive_->get_size() - offset_;
     }
 
-    // both conditions result in needing resizing here
-    controllers_.resize(num_controllers);
-
-    // if we're growing the num controllers, resize now
-    if (old_size < num_controllers)
+    if (num_controllers != old_size)
     {
-      // handle case where resize is called after a default constructor
-      if (old_size == 1 && settings_.shared_memory_transport)
+      // if we're shrinking the num controllers, resize later
+      if (old_size > num_controllers)
       {
-        delete controllers_[0];
-        old_size = 0;
+        for (size_t i = num_controllers; i < old_size; ++i)
+        {
+          delete controllers_[i];
+        }
       }
 
-      if (hive_ != 0)
+      // both conditions result in needing resizing here
+      controllers_.resize(num_controllers);
+
+      // if we're growing the num controllers, resize now
+      if (old_size < num_controllers)
       {
+        // handle case where resize is called after a default constructor
+        if (old_size == 1 && settings_.shared_memory_transport)
+        {
+          delete controllers_[0];
+          old_size = 0;
+        }
+
         std::vector<knowledge::KnowledgeBase>& kbs = hive_->get_kbs();
 
         madara::transport::QoSTransportSettings transport_settings;
@@ -530,9 +544,8 @@ void gams::controllers::HiveController::resize (
             kbs[i + offset_].set("swarm.size", (Integer)num_controllers);
           }
         } // for old_size < num_controllers
-      } // hive_ is valid
+      }
     }
-
   }
 }
 
