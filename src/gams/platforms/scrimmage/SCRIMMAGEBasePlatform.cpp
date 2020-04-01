@@ -1,3 +1,6 @@
+
+#ifdef _GAMS_SCRIMMAGE_
+
 #include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
 #include "scrimmage/entity/Entity.h"
 #include "scrimmage/math/State.h"
@@ -633,3 +636,5 @@ gams::platforms::SCRIMMAGEBasePlatformFactory::create(
 {
   return new SCRIMMAGEBasePlatform(knowledge, sensors, self);
 }
+
+#endif // _GAMS_SCRIMMAGE_
