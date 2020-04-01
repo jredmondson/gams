@@ -1,5 +1,4 @@
-#ifndef _GAMS_PLATFORM_SCRIMMAGE_BASEPLATFORM_H_
-#define _GAMS_PLATFORM_SCRIMMAGE_BASEPLATFORM_H_
+#ifdef _GAMS_SCRIMMAGE_
 
 #include "gams/variables/Self.h"
 #include "gams/variables/Sensor.h"
@@ -166,4 +165,4 @@ namespace gams
   } // ns platforms end
 } // ns gams end
 
-#endif
+#endif // _GAMS_SCRIMMAGE_
