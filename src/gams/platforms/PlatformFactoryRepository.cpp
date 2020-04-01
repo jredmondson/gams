@@ -100,6 +100,12 @@ platforms::PlatformFactoryRepository::~PlatformFactoryRepository()
 {
 }
 
+bool
+platforms::PlatformFactoryRepository::exists(const std::string & prefix) const
+{
+  return factory_map_.find(prefix) != factory_map_.end();
+}
+
 void
 platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 {

@@ -54,6 +54,7 @@
 #include "madara/knowledge/Hive.h"
 #include "gams/controllers/HiveController.h"
 #include "madara/logger/GlobalLogger.h"
+#include "gams/platforms/PlatformFactoryRepository.h"
 
 // create shortcuts to MADARA classes and namespaces
 namespace knowledge                = madara::knowledge;
@@ -164,20 +165,48 @@ void test_hivecontroller(void)
 
   controller1.refresh_vars();
   
-  if (kb.get(".prefix") != "agent.0")
+  if (kb.get(".prefix") != "agent.0" || kb.get("swarm.size") != 1000)
   {
     std::cerr << "ERROR: controller1 value is wrong. value=" <<
       kb.get(".prefix") << " and should be agent.0\n";
+    std::cerr << "swarm.size=" <<
+      kb.get("swarm.size") << " and should be 1000\n";
     gams_fails++;
   }
   
   kb = controller9.get_kb(0);
   controller9.refresh_vars();
   
-  if (kb.get(".prefix") != "agent.975")
+  if (kb.get(".prefix") != "agent.975" || kb.get("swarm.size") != 1000)
   {
-    std::cerr << "ERROR: controller1 value is wrong. value=" <<
+    std::cerr << "ERROR: controller9 value is wrong. value=" <<
       kb.get(".prefix") << " and should be agent.975\n";
+    std::cerr << "swarm.size=" <<
+      kb.get("swarm.size") << " and should be 1000\n";
+
+    kb.print();
+
+    gams_fails++;
+  }
+  
+  controller9.init_platform("null");
+  
+  if (controller9.get_platform(0) == 0)
+  {
+    std::cerr << "ERROR: controller9.get_platform couldn't init\n";
+
+    kb.print();
+
+    gams_fails++;
+  }
+  
+}
+
+void test_platform_factory(void)
+{
+  if (!gams::platforms::global_platform_factory()->exists("null"))
+  {
+    std::cerr << "ERROR: no null factory exists";
     gams_fails++;
   }
   
@@ -186,7 +215,8 @@ void test_hivecontroller(void)
 // perform main logic of program
 int main(int argc, char ** argv)
 {
-  
+  test_hivecontroller();
+  test_platform_factory();
   
   if (gams_fails > 0)
   {

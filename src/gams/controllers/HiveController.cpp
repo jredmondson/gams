@@ -162,16 +162,24 @@ gams::controllers::HiveController::add_transports (
     } // if settings are reasonable
 
     // need to update this for unicast host:port splitting
-    for (size_t i = 0; i < kbs.size(); ++i)
+    for (size_t i = 0; i < controllers_.size(); ++i)
     {
-      kbs[i].attach_transport(kbs[i].get(".prefix").to_string(), settings);
+      kbs[i + offset_].attach_transport(
+        kbs[i + offset_].get(".prefix").to_string(), settings);
     } // for i < kbs.size()
   } // if hive is valid
 }
 
 void gams::controllers::HiveController::clear_knowledge(void)
 {
-  hive_->clear();
+  if (hive_ != 0)
+  {
+    std::vector<knowledge::KnowledgeBase> kbs = hive_->get_kbs();
+    for (size_t i = 0; i < controllers_.size(); ++i)
+    {
+      kbs[i + offset_].clear();
+    }
+  }
 }
 
 void
@@ -205,7 +213,7 @@ gams::controllers::HiveController::evaluate(const std::string & logic,
 
     for (size_t i = 0; i < controllers_.size(); ++i)
     {
-      kbs[i].evaluate(logic, settings);
+      kbs[i + offset_].evaluate(logic, settings);
     }
   }
 #endif
@@ -229,7 +237,7 @@ gams::controllers::HiveController::evaluate(size_t controller_index,
 
     if (controller_index < controllers_.size())
     {
-      kbs[controller_index].evaluate(logic, settings);
+      kbs[controller_index + offset_].evaluate(logic, settings);
     }
   }
 #endif
@@ -409,6 +417,8 @@ const Integer & processes)
     "gams::controllers::HiveController::init_vars:" \
     " %" PRId64 " id, %" PRId64 " processes\n", id, processes);
 
+  offset_ = (size_t)id;
+
   // initialize the agents, swarm, and self variables
   for (size_t i = 0; i < controllers_.size(); ++i)
   {
@@ -428,13 +438,13 @@ void gams::controllers::HiveController::refresh_vars(
       if (init_non_self_vars)
       {
         controllers_[i]->init_vars(
-          (Integer)(i + offset_), (Integer)controllers_.size());
+          (Integer)(i + offset_), (Integer)kbs.size());
       }
       else
       {
         // create the agent variables and set swarm size only
         controllers_[i]->init_vars((Integer)(i + offset_));
-        kbs[i].set("swarm.size", (Integer)controllers_.size());
+        kbs[i + offset_].set("swarm.size", (Integer)kbs.size());
       }
     }
   }
@@ -473,7 +483,7 @@ gams::controllers::HiveController::get_kb (size_t controller_index)
   {
     std::vector<knowledge::KnowledgeBase>& kbs = hive_->get_kbs();
 
-    if (controller_index + offset_ < controllers_.size())
+    if (controller_index + offset_ < kbs.size())
     {
       return kbs[controller_index + offset_];
     }
@@ -536,13 +546,13 @@ void gams::controllers::HiveController::resize (
           if (init_non_self_vars)
           {
             // create the swarm variables with all agents populated
-            controllers_[i]->init_vars((Integer)i, (Integer)num_controllers);
+            controllers_[i]->init_vars((Integer)(i + offset_), (Integer)kbs.size());
           }
           else
           {
             // create the agent variables and set swarm size only
-            controllers_[i]->init_vars((Integer)i);
-            kbs[i + offset_].set("swarm.size", (Integer)num_controllers);
+            controllers_[i]->init_vars((Integer)(i + offset_));
+            kbs[i + offset_].set("swarm.size", (Integer)kbs.size());
           }
         } // for old_size < num_controllers
       }
