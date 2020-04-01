@@ -329,8 +329,6 @@ do
     SSL=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
-  elif [ "$var" = "scrimmage" ]; then
-    SCRIMMAGE=1
   elif [ "$var" = "tests" ]; then
     TESTS=1
   elif [ "$var" = "tutorials" ]; then
