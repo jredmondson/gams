@@ -112,15 +112,7 @@ gams::controllers::Multicontroller::~Multicontroller()
   {
     delete controllers_[i];
   }
-  
-  // Shuts down scrimmage
-  if (settings_.simulation_engine == 1)
-  {
-     this->sim_control_->force_exit();
-     this->sim_control_->join();
-     this->sim_control_->shutdown();
-     delete sim_control_;
-  }
+ 
 }
 
 void gams::controllers::Multicontroller::add_platform_factory(
