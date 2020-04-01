@@ -329,6 +329,8 @@ do
     SSL=1
   elif [ "$var" = "strip" ]; then
     STRIP=1
+  elif [ "$var" = "scrimmage" ]; then
+    SCRIMMAGE=1
   elif [ "$var" = "tests" ]; then
     TESTS=1
   elif [ "$var" = "tutorials" ]; then
@@ -401,6 +403,7 @@ do
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
     echo "  simtime         build with simtime support in Madara"
+    echo "  scrimmage       build with SCRIMMAGE support"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
     echo "  tutorials       build MADARA tutorials"
