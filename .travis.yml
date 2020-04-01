@@ -147,8 +147,8 @@ script:
   - ls $TRAVIS_BUILD_DIR
   # need to remove this later. This is just for CI to approve the fix, since it requires to be featured out
   - git clone --single-branch --branch windows_fixes https://github.com/jredmondson/madara.git
-  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS $TYPES $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
-  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS $TYPES $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID
+  - echo $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS $TYPES $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID $SCRIMMAGE
+  - $GAMS_ROOT/scripts/$OS/base_build.sh prereqs $CLANG madara $GAMS $TESTS $TYPES $SSL $JAVA $ZMQ $PYTHON $ROS $SIMTIME $ANDROID $SCRIMMAGE
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_arguments_parser; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_auctions; fi
   - if [ ! -z $TESTS ]; then $GAMS_ROOT/bin/test_controller_run; fi
