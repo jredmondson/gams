@@ -1352,7 +1352,7 @@ if [ $PREREQS -eq 1 ]; then
   
   cd scrimmage
   sudo ./setup/install-binaries.sh -e 0 -p 3
-  sudo add-apt-repository ppa:kevin-demarco/scrimmage
+  sudo add-apt-repository -y ppa:kevin-demarco/scrimmage
   sudo apt-get update
   sudo apt-get install scrimmage-dependencies
   source /opt/scrimmage/*/setup.sh
