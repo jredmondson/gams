@@ -81,22 +81,6 @@ gams::controllers::Multicontroller::Multicontroller(
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Multicontroller::constructor:" \
     " creating %d controllers.\n", num_controllers);
-    
-//#ifdef _GAMS_SCRIMMAGE_
-//  if (settings_.simulation_engine == 1)
-//  {
-//      // Hard code for now, just to see it bring up the cars.xml file and test if all the screws are tightened. Probably need to see this as a Singleton down the line.
-//      
-//      sim_control_ = new scrimmage::SimControl();
-//      sim_control_->init("default_world.xml");
-//      // this is important
-//      //sim_control_->run_threaded();
-//      sim_control_->start();
-//      sim_control_->send_terrain();
-//      
-//      // TODO Set up the simulation world, it spawns paused.
-//  }
-//#endif
 
   resize(num_controllers);
 }

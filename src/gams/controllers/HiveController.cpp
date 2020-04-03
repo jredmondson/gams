@@ -70,7 +70,7 @@ typedef  madara::knowledge::KnowledgeRecord::Integer  Integer;
 typedef  madara::utility::EpochEnforcer<std::chrono::steady_clock> EpochEnforcer;
 
 gams::controllers::HiveController::HiveController()
-  : offset_(0), hive_(0), settings_ ()
+  : offset_(0), hive_(0), settings_()
 {
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
@@ -81,7 +81,7 @@ gams::controllers::HiveController::HiveController()
 gams::controllers::HiveController::HiveController(
    madara::knowledge::Hive & hive,
    size_t init_id, size_t num_controllers, const ControllerSettings & settings)
-  : offset_(init_id), hive_(&hive), settings_ (settings)
+  : offset_(init_id), hive_(&hive), settings_(settings)
 {
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
@@ -119,7 +119,7 @@ void gams::controllers::HiveController::add_algorithm_factory(
 }
 
 void
-gams::controllers::HiveController::add_transports (
+gams::controllers::HiveController::add_transports(
   const madara::transport::QoSTransportSettings & source_settings)
 {
   if (hive_ != 0)
@@ -130,7 +130,7 @@ gams::controllers::HiveController::add_transports (
       return;
     }
 
-    madara::transport::QoSTransportSettings settings (source_settings);
+    madara::transport::QoSTransportSettings settings(source_settings);
 
     std::vector<knowledge::KnowledgeBase>& kbs = hive_->get_kbs();
 
@@ -168,6 +168,13 @@ gams::controllers::HiveController::add_transports (
         kbs[i + offset_].get(".prefix").to_string(), settings);
     } // for i < kbs.size()
   } // if hive is valid
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::add_transports:" \
+      " no hive has been set. Operation is a no-op.\n");
+  }
 }
 
 void gams::controllers::HiveController::clear_knowledge(void)
@@ -179,6 +186,13 @@ void gams::controllers::HiveController::clear_knowledge(void)
     {
       kbs[i + offset_].clear();
     }
+  }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::clear_knowledge:" \
+      " no hive has been set. Operation is a no-op.\n");
   }
 }
 
@@ -216,6 +230,13 @@ gams::controllers::HiveController::evaluate(const std::string & logic,
       kbs[i + offset_].evaluate(logic, settings);
     }
   }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::evaluate:" \
+      " no hive has been set. Operation is a no-op.\n");
+  }
 #endif
 }
 
@@ -239,6 +260,13 @@ gams::controllers::HiveController::evaluate(size_t controller_index,
     {
       kbs[controller_index + offset_].evaluate(logic, settings);
     }
+  }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::evaluate:" \
+      " no hive has been set. Operation is a no-op.\n");
   }
 #endif
 }
@@ -448,6 +476,13 @@ void gams::controllers::HiveController::refresh_vars(
       }
     }
   }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::refresh_vars:" \
+      " no hive has been set. Operation is a no-op.\n");
+  }
 }
 
 gams::algorithms::BaseAlgorithm *
@@ -477,7 +512,7 @@ gams::controllers::HiveController::get_platform(size_t controller_index)
 }
 
 madara::knowledge::KnowledgeBase
-gams::controllers::HiveController::get_kb (size_t controller_index)
+gams::controllers::HiveController::get_kb(size_t controller_index)
 {
   if (hive_ != 0)
   {
@@ -488,17 +523,24 @@ gams::controllers::HiveController::get_kb (size_t controller_index)
       return kbs[controller_index + offset_];
     }
   }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::get_kb:" \
+      " no hive has been set. Operation is a no-op.\n");
+  }
 
   return madara::knowledge::KnowledgeBase();
 }
 
 size_t
-gams::controllers::HiveController::get_num_controllers (void)
+gams::controllers::HiveController::get_num_controllers(void)
 {
   return controllers_.size();
 }
 
-void gams::controllers::HiveController::resize (
+void gams::controllers::HiveController::resize(
   size_t init_id, size_t num_controllers,
   bool init_non_self_vars)
 {
@@ -558,22 +600,29 @@ void gams::controllers::HiveController::resize (
       }
     }
   }
+  else
+  {
+    madara_logger_ptr_log(gams::loggers::global_logger.get(),
+      gams::loggers::LOG_WARNING,
+      "gams::controllers::HiveController::resize:" \
+      " no hive has been set. Operation is a no-op.\n");
+  }
 }
 
 int
-gams::controllers::HiveController::run (void)
+gams::controllers::HiveController::run(void)
 {
   // check the debug levels and set accordingly
   if (settings_.madara_log_level >= 0)
   {
-    madara::logger::global_logger->set_level (settings_.madara_log_level);
+    madara::logger::global_logger->set_level(settings_.madara_log_level);
   }
   if (settings_.gams_log_level >= 0)
   {
-    gams::loggers::global_logger->set_level (settings_.gams_log_level);
+    gams::loggers::global_logger->set_level(settings_.gams_log_level);
   }
 
-  return run_hz (settings_.loop_hertz,
+  return run_hz(settings_.loop_hertz,
     settings_.run_time, settings_.send_hertz);
 }
 
@@ -582,8 +631,8 @@ gams::controllers::HiveController::run(double loop_period,
   double max_runtime, double send_period)
 {
   // return value
-  int return_value (0);
-  bool first_execute (true);
+  int return_value(0);
+  bool first_execute(true);
 
   // if user specified non-positive, then we are to use loop_period
   if (send_period <= 0)
@@ -591,14 +640,14 @@ gams::controllers::HiveController::run(double loop_period,
     send_period = loop_period;
   }
 
-  madara::utility::TimeValue current = madara::utility::Clock::now ();
+  madara::utility::TimeValue current = madara::utility::Clock::now();
   madara::utility::Duration loop_window =
-    madara::utility::seconds_to_duration (loop_period);
+    madara::utility::seconds_to_duration(loop_period);
   madara::utility::TimeValue next_loop = current + loop_window;
   madara::utility::TimeValue end_time = current +
-    madara::utility::seconds_to_duration (max_runtime);
+    madara::utility::seconds_to_duration(max_runtime);
 
-  madara_logger_ptr_log (gams::loggers::global_logger.get (),
+  madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::BaseController::run:" \
     " loop_period: %fs, max_runtime: %fs, send_period: %fs\n",
@@ -610,21 +659,21 @@ gams::controllers::HiveController::run(double loop_period,
     while (first_execute || max_runtime < 0 || current < end_time)
     {
       // return value should be last return value of mape loop
-      return_value = run_once ();
+      return_value = run_once();
 
-      current = madara::utility::Clock::now ();
+      current = madara::utility::Clock::now();
 
       // check to see if we need to sleep for next loop epoch
       if (loop_period > 0.0 && (max_runtime < 0 || current < end_time))
       {
-        madara_logger_ptr_log (gams::loggers::global_logger.get (),
+        madara_logger_ptr_log(gams::loggers::global_logger.get(),
           gams::loggers::LOG_MINOR,
           "gams::controllers::BaseController::run:" \
           " sleeping until next epoch\n");
 
-        std::this_thread::sleep_until (next_loop);
+        std::this_thread::sleep_until(next_loop);
 
-        current = madara::utility::Clock::now ();
+        current = madara::utility::Clock::now();
         while (next_loop <= current)
         {
           next_loop += loop_window;
@@ -635,7 +684,7 @@ gams::controllers::HiveController::run(double loop_period,
       if (first_execute)
         first_execute = false;
 
-      current = madara::utility::Clock::now ();
+      current = madara::utility::Clock::now();
     }
   }
 

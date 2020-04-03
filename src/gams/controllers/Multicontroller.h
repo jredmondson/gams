@@ -415,6 +415,7 @@ namespace gams
       /// Settings for controller management and qos
       ControllerSettings settings_;
       
+      /// used explicitly by the scrimmage platform. Will be moved
       int sim_step_ = 0;
       
     };

@@ -150,6 +150,7 @@ gams::platforms::SCRIMMAGEBasePlatform::spawn_entity()
      // Requires waiting until simcontrol is ready, this problem isn't emergent in single threaded nature
      if (gp::SCRIMMAGEBasePlatform::simcontrol_threaded())
      {
+       // this seems infinite loop dangerous with high rate of spin
         while (this->simcontrol->t() <= 0)
         {
         

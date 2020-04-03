@@ -1,6 +1,8 @@
 #ifndef INCLUDE_SCRIMMAGE_PLUGINS_AUTONOMY_GAMSAUTONOMY_H_
 #define INCLUDE_SCRIMMAGE_PLUGINS_AUTONOMY_GAMSAUTONOMY_H_
 
+#ifdef _GAMS_SCRIMMAGE_
+
 #include <scrimmage/autonomy/Autonomy.h>
 #include <scrimmage/math/State.h>
 #include <scrimmage/pubsub/Publisher.h>
@@ -35,5 +37,7 @@ class GAMSAutonomy : public scrimmage::Autonomy {
 }; // end class GAMSAutonomy
 }  // ns scrimmage
 }  // ns autonomy
+
+#endif // #ifdef _GAMS_SCRIMMAGE_
 
 #endif
