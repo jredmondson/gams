@@ -1,0 +1,26 @@
+feature (scrimmage) {
+  requires += scrimmage
+
+  macros += _GAMS_SCRIMMAGE_
+  
+  verbatim (make, local, true) {
+    CPPFLAGS := -std=c++14 -O3 $(CPPFLAGS)
+  }
+  
+  includes += $(SCRIMMAGE_GIT_ROOT)/include
+  includes += $(SCRIMMAGE_ROOT)/include
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/src/proto
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/src/viewer
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/src/plugins
+  includes += $(SCRIMMAGE_GIT_ROOT)/build/msgs/
+  
+  includes += $(SCRIMMAGE_GIT_ROOT)/src/proto
+
+  libpaths += $(SCRIMMAGE_GIT_ROOT)/build/lib
+  libpaths += $(SCRIMMAGE_ROOT)/bin
+  libpaths += $(SCRIMMAGE_ROOT)/lib
+  
+  libpaths += $(GAMS_ROOT)/lib/scrimmage_plugins/
+
+  libs += scrimmage-core scrimmage-protos scrimmage-msgs
+}

@@ -83,6 +83,8 @@ ANDROID=0
 ANDROID_TESTS=0
 BUILD_ERRORS=0
 CAPNP=0
+# Hard setting this because of SCRIMMAGE debian bug
+SCRIMMAGE_ROOT="/opt/scrimmage/x86_64-linux-gnu/" 
 CAPNP_JAVA=0
 CLANG=0
 CLANG_DEFINED=0
@@ -91,6 +93,10 @@ CLEAN=1
 CMAKE=0
 CUDA=0
 DEBUG=0
+TESTS=0
+TUTORIALS=0
+VREP=0
+SCRIMMAGE=0
 DMPL=0
 DOCS=0
 FORCE_AIRSIM=0
@@ -113,6 +119,17 @@ PYTHON=0
 ROS=0
 SIMTIME=0
 SSL=0
+DMPL=0
+LZ4=0
+NOKARL=0
+PYTHON=0
+WARNINGS=0
+CLEAN=1
+CLEAN_ENV=0
+MADARAPULL=1
+GAMSPULL=1
+MAC=${MAC:-0}
+BUILD_ERRORS=0
 STRIP=0
 TESTS=0
 TUTORIALS=0
@@ -132,6 +149,12 @@ MADARA_AS_A_PREREQ=0
 MPC_DEPENDENCY_ENABLED=0
 MADARA_DEPENDENCY_ENABLED=0
 MPC_AS_A_PREREQ=0
+MADARA_AS_A_PREREQ=0
+VREP_AS_A_PREREQ=0
+SCRIMMAGE_AS_A_PREREQ=0
+GAMS_AS_A_PREREQ=0
+EIGEN_AS_A_PREREQ=0
+CAPNP_AS_A_PREREQ=0
 UNREAL_AS_A_PREREQ=0
 VREP_AS_A_PREREQ=0
 
@@ -148,6 +171,15 @@ LZ4_REPO_RESULT=0
 MADARA_REPO_RESULT=0
 MADARA_BUILD_RESULT=0
 MPC_REPO_RESULT=0
+VREP_REPO_RESULT=0
+SCRIMMAGE_REPO_RESULT=0
+ZMQ_REPO_RESULT=0
+ZMQ_BUILD_RESULT=0
+LZ4_REPO_RESULT=0
+CAPNP_REPO_RESULT=0
+CAPNP_BUILD_RESULT=0
+CAPNPJAVA_REPO_RESULT=0
+CAPNPJAVA_BUILD_RESULT=0
 OSC_REPO_RESULT=0
 OSC_BUILD_RESULT=0
 UNREAL_BUILD_RESULT=0
@@ -237,6 +269,8 @@ do
     export FORCE_CXX=clang++-9
   elif [ "$var" = "clean" ]; then
     CLEAN=1
+  elif [ "$var" = "cleanenv" ]; then
+    CLEAN_ENV=1
   elif [ "$var" = "cuda" ]; then
     CUDA=1
   elif [ "$var" = "dart" ]; then
@@ -309,6 +343,8 @@ do
     CLANG=1
   elif [ "$var" = "unreal-gams" ]; then
     UNREAL_GAMS=1
+  elif [ "$var" = "scrimmage" ]; then
+    SCRIMMAGE=1
   elif [ "$var" = "vrep" ]; then
     VREP=1
   elif [ "$var" = "vrep-config" ]; then
@@ -331,6 +367,7 @@ do
     echo "  clang-8         build using clang++-8.0 and libc++"
     echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
+    echo "  cleanenv       Unsets all related environment variables before building."
     echo "  cuda            build relevant libs with CUDA support"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
@@ -364,6 +401,7 @@ do
     echo "  ros             build ROS platform classes"
     echo "  ssl             build with OpenSSL support"
     echo "  simtime         build with simtime support in Madara"
+    echo "  scrimmage       build with SCRIMMAGE support"
     echo "  strip           strip symbols from the libraries"
     echo "  tests           build test executables"
     echo "  tutorials       build MADARA tutorials"
@@ -372,6 +410,7 @@ do
     echo "  unreal-dev      builds Unreal Dev and UnrealGAMS"
     echo "  unreal-gams     builds UnrealGAMS"
     echo "  vrep            build with vrep support"
+    echo "  scrimmage-gams  build with scrimmage support"
     echo "  vrep-config     configure vrep to support up to 20 agents"
     echo "  warnings        build with compile warnings enabled in GAMS/MADARA"
     echo "  zmq             build with ZeroMQ support"
@@ -382,7 +421,13 @@ do
     echo "  CAPNP_ROOT          - location of Cap'n Proto"
     echo "  CORES               - number of build jobs to launch with make, optional"
     echo "  DMPL_ROOT           - location of DART DMPL directory"
-    echo "  GAMS_ROOT           - location of this GAMS repository"
+    echo "  MPC_ROOT            - location of MakefileProjectCreator"
+    echo "  MADARA_ROOT         - location of local copy of MADARA git repository from"
+    echo "                        git://git.code.sf.net/p/madara/code"
+    echo "  GAMS_ROOT           - location of this GAMS git repository"
+    echo "  VREP_ROOT           - location of VREP installation"
+    echo "  SCRIMMAGE_GIT_ROOT  - the location of the SCRIMMAGE Github installation"
+    echo "  SCRIMMAGE_ROOT      - the location of the SCRIMMAGE installation"
     echo "  JAVA_HOME           - location of JDK"
     echo "  LZ4_ROOT            - location of LZ4"
     echo "  MPC_ROOT            - location of MakefileProjectCreator"
@@ -407,6 +452,9 @@ done
 # make the .gams directory if it doesn't exist
 if [ ! -d $HOME/.gams ]; then
   mkdir $HOME/.gams
+  touch $HOME/.gams/env.sh
+elif [ $CLEAN_ENV -eq 1 ]; then
+  rm $HOME/.gams/env.sh
   touch $HOME/.gams/env.sh
 fi
 
@@ -460,12 +508,35 @@ if [ $CORES -eq 1 ] ; then
     echo -e "${ORANGE} Now using $CORES CPU cores for installation. To permanently set this, add the line 'export CORES=$CORES to your ~/.bashrc file and open a new terminal. ${NOCOLOR}"
 fi
 
+if [ $CLEAN_ENV -eq 1 ]; then
+    echo -e "${ORANGE} Resetting all environment variables to blank. ${NOCOLOR}"
+    export UNREAL_ROOT=""
+    export UNREAL_GAMS_ROOT=""
+    export UE4_ROOT=""
+    export UE4_GAMS=""
+    export AIRSIM_ROOT=""
+    export OSC_ROOT=""
+    export VREP_ROOT=""
+    export MPC_ROOT=""
+    export EIGEN_ROOT=""
+    export CAPNP_ROOT=""
+    export MADARA_ROOT=""
+    export GAMS_ROOT=""
+    export DMPL_ROOT=""
+    export PYTHONPATH=$PYTHONPATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MADARA_ROOT/lib:$GAMS_ROOT/lib:$VREP_ROOT:$CAPNP_ROOT/c++/.libs/$SCRIMMAGE_GIT_ROOT/build/lib/:$SCRIMMAGE_GIT_ROOT/build/plugin_libs
+    export PATH=$PATH:$MPC_ROOT:$VREP_ROOT:$CAPNP_ROOT/c++:$MADARA_ROOT/bin:$GAMS_ROOT/bin:$DMPL_ROOT/src/DMPL:$DMPL_ROOT/src/vrep
+    export SCRIMMAGE_GIT_ROOT=""
+    export SCRIMMAGE_PLUGIN_PATH=""
+    export SCRIMMAGE_MISSION_PATH=""
+fi
+
 if [ -z $DMPL_ROOT ] ; then
   export DMPL_ROOT=$INSTALL_DIR/dmplc
 fi
 
 if [ -z $GAMS_ROOT ] ; then
-  export GAMS_ROOT=$INSTALL_DIR/gams
+  export GAMS_ROOT=$INSTALL_DIR
 fi
 
 if [ -z $MPC_ROOT ] ; then
@@ -502,6 +573,10 @@ fi
 
 if [ -z $VREP_ROOT ] ; then
   export VREP_ROOT=$INSTALL_DIR/vrep
+fi
+
+if [ -z $SCRIMMAGE_GIT_ROOT ] ; then
+  export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
 fi
 
 if [ -z $UNREAL_ROOT ] ; then
@@ -575,6 +650,11 @@ fi
 echo "VREP has been set to $VREP"
 if [ $VREP -eq 1 ]; then
   echo "VREP_ROOT is referencing $VREP_ROOT"
+fi
+
+echo "SCRIMMAGE has been set to $SCRIMMAGE"
+if [ $SCRIMMAGE -eq 1 ]; then
+  echo "SCRIMMAGE_GIT_ROOT is referencing $SCRIMMAGE_GIT_ROOT"
 fi
 
 echo "ANDROID has been set to $ANDROID"
@@ -984,6 +1064,21 @@ else
   echo "export VREP_ROOT=$VREP_ROOT" >> $HOME/.gams/env.sh
 fi
 
+# Update GAMS environment script with SCRIMMAGE_GIT_ROOT
+if grep -q SCRIMMAGE_GIT_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@SCRIMMAGE_GIT_ROOT=.*@SCRIMMAGE_GIT_ROOT='"$SCRIMMAGE_GIT_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export SCRIMMAGE_GIT_ROOT=$SCRIMMAGE_GIT_ROOT" >> $HOME/.gams/env.sh
+fi
+
+# Update GAMS environment script with SCRIMMAGE_ROOT
+# Only have to do this because SCRIMMAGE doesnt' set it in their own files.
+if grep -q SCRIMMAGE_ROOT $HOME/.gams/env.sh ; then
+  sed -i 's@SCRIMMAGE_ROOT=.*@SCRIMMAGE_ROOT='"$SCRIMMAGE_ROOT"'@' $HOME/.gams/env.sh
+else
+  echo "export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT" >> $HOME/.gams/env.sh
+fi
+
 if [ $LZ4 -eq 1 ] ; then
   export LZ4=1
   if [ ! -d $LZ4_ROOT  ]; then
@@ -1014,7 +1109,7 @@ if [ $LZ4 -eq 1 ] ; then
 
   LZ4_REPO_RESULT=$?
 
-  # Update GAMS environment script with VREP_ROOT
+  # Update GAMS environment script with LZ4_ROOT
   if grep -q LZ4_ROOT $HOME/.gams/env.sh ; then
     sed -i 's@LZ4_ROOT=.*@LZ4_ROOT='"$LZ4_ROOT"'@' $HOME/.gams/env.sh
   else
@@ -1244,6 +1339,24 @@ fi
 
 # this is common to Mac and Linux, so it needs to be outside of the above
 if [ $PREREQS -eq 1 ]; then 
+
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
+      cd $INSTALL_DIR
+      rm -rf scrimmage
+  fi
+  
+  echo "Installing SCRIMMAGE Dependencies"
+  cd $INSTALL_DIR
+  git clone https://github.com/gtri/scrimmage
+  SCRIMMAGE_REPO_RESULT=$?
+  
+  cd scrimmage
+  sudo ./setup/install-binaries.sh -e 0 -p 3
+  sudo add-apt-repository -y ppa:kevin-demarco/scrimmage
+  sudo apt-get update
+  sudo apt-get install scrimmage-dependencies
+  source /opt/scrimmage/*/setup.sh
+  echo "SCRIMMAGE Dependencies Installed"
 
   if [ $OSC -eq 1 ]; then
     if [ ! -d $OSC_ROOT ]; then 
@@ -1590,14 +1703,62 @@ fi
 
 echo "LD_LIBRARY_PATH for GAMS compile is $LD_LIBRARY_PATH"
 
+
+# Install SCRIMMAGE after GAMS because GAMS_ROOT needs to be set for the plugin path. Except, SCRIMMAGE has to be built before GAMS otherwise GAMS can't find some headers brought in by SCRIMMAGE setup files.
+if [ $SCRIMMAGE -eq 1 ] || [ $SCRIMMAGE_AS_A_PREREQ -eq 1 ]; then
+  if [ ! $SCRIMMAGE_GIT_ROOT ] ; then
+      export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
+      echo "SETTING SCRIMMAGE_GIT_ROOT to $SCRIMMAGE_GIT_ROOT"
+  fi
+
+  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
+      cd $INSTALL_DIR/scrimmage
+      echo "BUILDING SCRIMMAGE. It SHOULD BE cloned already from the PREREQS section."
+      
+      if [ ! -d "$SCRIMMAGE_GIT_ROOT/build" ]; then
+        mkdir build 
+      fi
+       
+        cd build
+        cmake ..
+        make
+
+        source $HOME/.scrimmage/setup.bash
+        export SCRIMMAGE_ROOT=$SCRIMMAGE_ROOT
+        export SCRIMMAGE_GIT_ROOT="$INSTALL_DIR/scrimmage"
+        
+        if [[ ! ":$LD_LIBRARY_PATH:" == *":$SCRIMMAGE_GIT_ROOT/build/lib/:"* ]]; then
+           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SCRIMMAGE_GIT_ROOT/build/lib/
+        fi
+
+        # Order is important actually, if scrimmage setup.bash is AFTER gams/env.sh, then the SCRIMMAGE_PLUGIN_PATH and SCRIMMAGE_MISSION_PATH will be incorrectly set because scrimmage/setup.bash sets it wrong.
+        if ! grep -q "$HOME/.scrimmage/setup.bash" $HOME/.bashrc ; then
+            echo "source $HOME/.scrimmage/setup.bash" >> ~/.bashrc
+        fi
+
+        echo "SCRIMMAGE BUILT! Ready to use with GAMS."
+        
+  else
+      echo -e "\e[91Something happened between setting up the PREREQS for SCRIMMAGE and now. Please remove any scrimmage directories and re-install the prereqs then re-run with the scrimmage-gams parameter [39m" 
+  fi
+fi
+
 # if gams has been specified, or if dmpl is specified and GAMS_ROOT doesn't exist
 if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   # build GAMS
   if [ -z $GAMS_ROOT ] ; then
-    export GAMS_ROOT=$INSTALL_DIR/gams
-    echo "SETTING GAMS_ROOT to $GAMS_ROOT"
+    # Update Mar 6 2020: If the current directory is named gams, then it will not reinstall a new GAMS as it currently does. That caused problems when developing from any other repo than https://github.com/jredmondson/gams
+    CUR_DUR_NAME=${PWD##*/}
+    if [ ! "gams" -eq $CUR_DUR_NAME ]; then
+        export GAMS_ROOT=$INSTALL_DIR/gams
+        echo "SETTING GAMS_ROOT to $GAMS_ROOT"
+    else 
+        export GAMS_ROOT=$INSTALL_DIR
+        echo "SETTING GAMS_ROOT to $GAMS_ROOT"
+    fi
   fi
+  
   if [ ! -d $GAMS_ROOT ] ; then
     echo "DOWNLOADING GAMS"
     echo "git clone -b master --depth 1 --single-branch https://github.com/jredmondson/gams.git $GAMS_ROOT"
@@ -1658,11 +1819,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     cmake --build .  --target install --config release
     cmake --build .  --target install --config debug
     GAMS_BUILD_RESULT=$?
-
   else
     echo "GENERATING GAMS PROJECT"
-    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,osc=$OSC,ros=$ROS,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
-    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,osc=$OSC,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
+    echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
+    perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc
 
     if [ $TYPES -eq 1 ]; then
       # Strip the unnecessary NOTPARALLEL: directives
@@ -1676,10 +1836,10 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     fi
 
     echo "BUILDING GAMS"
-    echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-    make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
-    echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
-    make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA osc=$OSC ros=$ROS types=$TYPES vrep=$VREP python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    echo "make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make depend no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
+    echo "make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES"
+    make no_karl=$NOKARL airlib=$AIRLIB capnp=$CAPNP java=$JAVA ros=$ROS types=$TYPES vrep=$VREP scrimmage=$SCRIMMAGE python=$PYTHON tests=$TESTS android=$ANDROID simtime=$SIMTIME docs=$DOCS warnings=$WARNINGS -j $CORES
     GAMS_BUILD_RESULT=$?
     
     if [ ! -f $GAMS_ROOT/lib/libGAMS.so ]; then
@@ -1990,25 +2150,25 @@ fi
 echo -e ""
 echo -e "Saving environment variables into \$HOME/.gams/env.sh"
 
-if grep -q MPC_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export MPC_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@MPC_ROOT=.*@MPC_ROOT='"$MPC_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export MPC_ROOT=$MPC_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q EIGEN_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export EIGEN_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@EIGEN_ROOT=.*@EIGEN_ROOT='"$EIGEN_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export EIGEN_ROOT=$EIGEN_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q CAPNP_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export CAPNP_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@CAPNP_ROOT=.*@CAPNP_ROOT='"$CAPNP_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export CAPNP_ROOT=$CAPNP_ROOT" >> $HOME/.gams/env.sh
 fi
 
-if grep -q MADARA_ROOT $HOME/.gams/env.sh ; then
+if grep -q "export MADARA_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@MADARA_ROOT=.*@MADARA_ROOT='"$MADARA_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export MADARA_ROOT=$MADARA_ROOT" >> $HOME/.gams/env.sh
@@ -2115,9 +2275,7 @@ if [ $CMAKE -eq 1 ]; then
     else
       echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/install/lib:\$GAMS_ROOT/install/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
     fi
-
   fi
-
 
   if grep -q "export PATH" $HOME/.gams/env.sh ; then
     sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/install/bin"':'"\$GAMS_ROOT/install/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
@@ -2128,26 +2286,34 @@ else # not CMAKE
   if [ $MAC -eq 0 ]; then
 
     if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
-      sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
+      sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib"'@' $HOME/.gams/env.sh
     else
-      echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
+      echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib" >> $HOME/.gams/env.sh
     fi
-
   else
-
     if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
       sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
     else
       echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs" >> $HOME/.gams/env.sh
     fi
-
   fi
-
 
   if grep -q "export PATH" $HOME/.gams/env.sh ; then
     sed -i 's@export PATH=.*@export PATH='"\$PATH"':'"\$MPC_ROOT"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++"':'"\$MADARA_ROOT/bin"':'"\$GAMS_ROOT/bin"':'"\$DMPL_ROOT/src/DMPL"':'"\$DMPL_ROOT/src/vrep"':'"\$CAPNPJAVA_ROOT"'@' $HOME/.gams/env.sh
   else
     echo "export PATH=\$PATH:\$MPC_ROOT:\$VREP_ROOT:\$CAPNP_ROOT/c++:\$MADARA_ROOT/bin:\$GAMS_ROOT/bin:\$DMPL_ROOT/src/DMPL:\$DMPL_ROOT/src/vrep:\$CAPNPJAVA_ROOT" >> $HOME/.gams/env.sh
+  fi
+  
+  if grep -q "export SCRIMMAGE_PLUGIN_PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export SCRIMMAGE_PLUGIN_PATH=.*@export SCRIMMAGE_PLUGIN_PATH='"\$SCRIMMAGE_PLUGIN_PATH"':'"\$GAMS_ROOT"'/lib/scrimmage_plugins:'"\$GAMS_ROOT/src/gams/plugins/scrimmage"'@' $HOME/.gams/env.sh
+  else
+    echo "export SCRIMMAGE_PLUGIN_PATH=\$SCRIMMAGE_PLUGIN_PATH:\$GAMS_ROOT/lib/scrimmage_plugins:\$GAMS_ROOT/src/gams/plugins/scrimmage" >> $HOME/.gams/env.sh
+  fi
+  
+  if grep -q "export SCRIMMAGE_MISSION_PATH" $HOME/.gams/env.sh ; then
+    sed -i 's@export SCRIMMAGE_MISSION_PATH=.*@export SCRIMMAGE_MISSION_PATH='"\$SCRIMMAGE_MISSION_PATH"':'"\$GAMS_ROOT/src/gams/platforms/scrimmage/missions/"'@' $HOME/.gams/env.sh
+  else
+    echo "export SCRIMMAGE_MISSION_PATH=\$SCRIMMAGE_MISSION_PATH:\$GAMS_ROOT/src/gams/platforms/scrimmage/missions/" >> $HOME/.gams/env.sh
   fi
 fi
 

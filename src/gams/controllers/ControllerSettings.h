@@ -86,6 +86,11 @@ enum SchedulingStrategies
   SCHEDULE_FAIR_RANDOM = 2
 };
 
+enum SimulationEngine
+{
+  SCRIMMAGE_ENGINE = 1
+};
+
 /**
  * Settings used for initializing GAMS controllers
  **/
@@ -140,6 +145,9 @@ public:
 
   /// include a shared memory transport when managing multiple controllers
   bool shared_memory_transport = true;
+  
+  /// Decide on which simulation engine to run. Used if the simulator can be controlled via direct code. Defaults to -1 e.g not set.
+  int simulation_engine = 0;
 };
 
 } }

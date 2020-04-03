@@ -67,6 +67,10 @@
 #include "gams/platforms/airlib/AirLibQuadcopter.h"
 #endif
 
+#ifdef _GAMS_SCRIMMAGE_
+#include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
+#endif
+
 #ifdef _GAMS_OSC_
 #include "gams/platforms/osc/OscPlatform.h"
 #include "gams/platforms/osc/OscJoystickPlatform.h"
@@ -206,12 +210,21 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
   // ROS Platforms
 #ifdef _GAMS_ROS_
   // the ROS P3DX platform
-  aliases.resize(2);
+  aliases.resize(3);
   aliases[0] = "RosP3Dx";
   aliases[1] = "ros-p3dx";
   aliases[2] = "ROS_P3DX";
 
   add(aliases, new RosP3DxFactory());
+#endif
+
+#ifdef _GAMS_SCRIMMAGE_
+  aliases.resize(3);
+  aliases[0] = "scrimmage";
+  aliases[1] = "scrimmage-gams";
+  aliases[2] = "gams-scrimmage";
+  
+  add(aliases, new SCRIMMAGEBasePlatformFactory());
 #endif
 
 #ifdef _GAMS_AIRLIB_
