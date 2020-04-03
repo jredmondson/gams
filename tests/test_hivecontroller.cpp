@@ -213,7 +213,7 @@ void test_platform_factory(void)
 }
 
 // perform main logic of program
-int main(int argc, char ** argv)
+int main(int, char **)
 {
   test_hivecontroller();
   test_platform_factory();
