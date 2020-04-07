@@ -1,3 +1,15 @@
-project {
+feature (osc) {
   includes += $(OSC_ROOT)
+
+  macros += _GAMS_OSC_
+
+  specific(prop:microsoft) {
+    Debug::libpaths += $(OSC_ROOT)/Debug
+    Release::libpaths += $(OSC_ROOT)/Release
+    
+    lit_libs += oscpack
+  } else {
+    libs += oscpack
+  }
+
 }

@@ -1,4 +1,23 @@
-project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal, using_osc, using_warnings, no_warnings {
+project (gams_autonomy) : using_scrimmage {
+  requires += scrimmage
+  
+  includes += $(GAMS_ROOT)/src
+  
+  libout = $(GAMS_ROOT)/lib/scrimmage_plugins
+  sharedname = GAMSAutonomy_plugin
+  
+  includes += $(EIGEN_ROOT)
+  
+  Header_Files {
+     src/gams/plugins/scrimmage/GAMSAutonomy.h
+  }
+  
+  Source_Files {
+     src/gams/plugins/scrimmage/GAMSAutonomy.cpp
+  }
+}
+
+project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm, using_ros, using_simtime, using_vrep, vrep_lib, ros_lib, port/java/using_android, port/java/using_java, port/java/using_openjdk, using_boost, using_nortti, using_nothreadlocal, using_osc, using_warnings, no_warnings, using_scrimmage, using_gs_plugin {
   libout = lib
   libout = $(GAMS_ROOT)/lib
   sharedname = GAMS
@@ -62,6 +81,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
+      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -121,6 +141,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
+      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -180,6 +201,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
     Platforms {
       src/gams/platforms
       src/gams/platforms/osc
+      src/gams/platforms/scrimmage
     }
 
     Pose {
@@ -200,7 +222,7 @@ project (gams) : build_files, using_airlib, airlib_lib, using_madara, using_utm,
 
 }
 
-project (gams_controller) : using_gams, using_madara {
+project (gams_controller) : using_gams, using_madara, using_scrimmage, using_gs_plugin {
   exeout = $(GAMS_ROOT)/bin
   exename = gams_controller
 
@@ -217,7 +239,7 @@ project (gams_controller) : using_gams, using_madara {
   }
 }
 
-project (ros2gams) : using_madara, using_ros, using_gams, using_capnp, using_simtime, using_boost, using_filesystem {
+project (ros2gams) : using_madara, using_ros, using_gams, using_simtime, using_boost, using_filesystem {
   exeout = $(GAMS_ROOT)/bin
   exename = ros2gams
   libpaths += $(ROS_ROOT)/../../lib
@@ -252,10 +274,6 @@ project (types) : using_madara, using_capnp {
   libout = $(GAMS_ROOT)/lib
   sharedname = TYPES
 
-  CAPN_Files {
-    src/gams/types
-  }
-
   Header_Files {
     src/gams/types
   }
@@ -265,7 +283,7 @@ project (types) : using_madara, using_capnp {
   }
 }
 
-project (ros2gams_pcl_plugin) : using_madara, using_ros, using_gams, using_capnp, using_simtime, using_boost, using_filesystem, using_types {
+project (ros2gams_pcl_plugin) : using_madara, using_ros, using_gams, using_simtime, using_boost, using_filesystem, using_types {
   requires = types
 
 

@@ -13,7 +13,7 @@ project {
 
   expand(BOOST_TOOLSET) {
     $BOOST_TOOLSET
-    vc141
+    vc142
   }
   	
   expand(BOOST_ARCH) {
@@ -23,7 +23,7 @@ project {
   	
   expand(BOOST_VERSION) {
     $BOOST_VERSION
-    1_67
+    1_73
   }
   	
   expand(BOOST_SYSTEM_DEBUG) {

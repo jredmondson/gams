@@ -1,0 +1,6 @@
+feature(capnp,types) : capnp_files {
+  CAPNP_Files {
+    src/gams/types
+  }
+}
+

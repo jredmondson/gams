@@ -150,7 +150,7 @@ void print_usage(const char * prog_name, const char * arg = "")
 " [-n |--num_agents <number>]   the number of agents in the swarm\n" 
 " [-nt |--no-transport]         do not configure an external transport\n" 
 " [-o |--host hostname]         the hostname of this process(def:localhost)\n" 
-" [-p |--platform type]         platform for loop(vrep, dronerk)\n" 
+" [-p |--platform type]         platform for loop(vrep, dronerk, scrimmage)\n" 
 " [-P |--period period]         time, in seconds, between control loop executions\n" 
 " [-q |--queue-length length]   length of transport queue in bytes\n" 
 " [-r |--reduced]               use the reduced message header\n" 
@@ -689,8 +689,14 @@ int main(int argc, char ** argv)
     gams::loggers::global_logger->set_level(gams_debug_level);
     controller_settings.gams_log_level = gams_debug_level;
   }
+  
+  if (platform == "scrimmage")
+  {
+     controller_settings.simulation_engine = 1;
+  } 
 
   controller_settings.eval_settings = madara::knowledge::EvalSettings::SEND;
+  
   controllers::Multicontroller controller(num_controllers, controller_settings);
 
   // create knowledge base and a control loop
@@ -712,7 +718,7 @@ int main(int argc, char ** argv)
   madara::threads::Threader threader(kb);
 
   // initialize variables and function stubs
-  controller.init_vars(settings.id, num_agents);
+  controller.init_vars(settings.id);
   
   std::vector <std::string> aliases;
   
@@ -726,7 +732,7 @@ int main(int argc, char ** argv)
   if (madara_commands != "")
   {
 #ifndef _MADARA_NO_KARL_
-    controller.evaluate(madara_commands,
+      controller.evaluate(madara_commands,
       madara::knowledge::EvalSettings(false, true));
 #endif
   }

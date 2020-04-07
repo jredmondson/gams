@@ -599,10 +599,10 @@ int main(int, char *[])
     StampedPose stamped_pose(stamped_position, ori);
 
     TEST_EQ(stamped_position.time().time_since_epoch().count(), 1234);
-    TEST_EQ(stamped_position.frame() == default_frame(), 1);
+    TEST_EQ(stamped_position.frame() == default_frame(), true);
     TEST_EQ(stamped_pose.time().time_since_epoch().count(), 1234);
-    TEST_EQ(stamped_pose.frame() == default_frame(), 1);
-    TEST_EQ(stamped_pose.frame() == gps_frame(), 0);
+    TEST_EQ(stamped_pose.frame() == default_frame(), true);
+    TEST_EQ(stamped_pose.frame() == gps_frame(), false);
   }
 
   // TODO find out why this crashes in CI

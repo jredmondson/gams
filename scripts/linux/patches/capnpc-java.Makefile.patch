@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 1c3ef13..63c0491 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,7 +4,7 @@ ifeq ($(CAPNP_CXX_FLAGS),)
+ $(warning "Warning: pkg-config failed to find compilation configuration for capnp.")
+ $(warning "Falling back to a guess based on the location of the capnp executable.")
+ CAPNP_PREFIX=$(shell dirname $(shell which capnp))/..
+-CAPNP_CXX_FLAGS=-I $(CAPNP_PREFIX)/include -L $(CAPNP_PREFIX)/lib -lkj -lcapnp
++CAPNP_CXX_FLAGS=-I$(CAPNP_PREFIX)/c++/src -L$(CAPNP_PREFIX)/c++/.libs -lkj -lcapnp
+ endif
+ 
+ CXX=g++

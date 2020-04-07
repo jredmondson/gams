@@ -87,6 +87,7 @@ testing_output (const string& str, const unsigned int& tabs = 0)
   cout << "testing " << str << "..." << endl;
 }
 
+#ifdef _GAMS_OSC_
 void
 test_OscUdp ()
 {
@@ -97,7 +98,7 @@ test_OscUdp ()
 
   size_t buf_size = 1000;
   size_t read_size = 0;
-  char buffer[buf_size];
+  char buffer[1000];
 
   madara::transport::QoSTransportSettings settings;
   settings.hosts.push_back("127.0.0.1:8000");
@@ -208,6 +209,7 @@ test_OscUdp ()
     dest_map["/agent/0/pos"].size() == 3);
 
 }
+#endif // #ifdef _GAMS_OSC_
 
 // TODO: fill out remaining Position function tests
 void
@@ -436,13 +438,8 @@ test_SearchArea ()
   p.latitude (40.443337);
   p.longitude (-79.940298);
   points.push_back (p);
-  PrioritizedRegion pr2 (points, 5);
-  search.add_prioritized_region (pr2);
-  assert (search.get_convex_hull () == convex1);
-
-  // test to/from container
-  madara::knowledge::KnowledgeBase kb;
-  pr.to_container (kb, "test");
+#endif // #ifdef _GAMS_OSC_
+;
   PrioritizedRegion from;
   from.from_container (kb, "test");
   assert (from == pr);
@@ -477,7 +474,11 @@ main (int /*argc*/, char ** /*argv*/)
   gams::loggers::global_logger->set_level (-1);
   test_Position ();
   test_GPSPosition ();
-  // test_OscUdp();
+
+  #ifdef _GAMS_OSC_
+  test_OscUdp();
+  #endif // #ifdef _GAMS_OSC_
+
   //test_Region ();
   //test_SearchArea ();
   return 0;

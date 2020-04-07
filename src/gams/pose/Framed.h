@@ -103,12 +103,12 @@ inline auto try_get_frame(const T&, Args&&... args) ->
 
 /// Internal class implementing coordinates bound to reference frame.
 /// Do not use directly.
-template<typename Base>
-class Framed : public Base
+template<typename Impl>
+class Framed : public Impl
 {
 public:
-  using Base::self;
-  using derived_type = typename Base::derived_type;
+  using Impl::self;
+  using derived_type = typename Impl::derived_type;
 
   /**
    * Default Constructor. Initializes frame as empty
@@ -133,7 +133,7 @@ public:
     typename std::enable_if<!std::is_same<typename std::decay<Arg>::type,
       ReferenceFrame>::value && sizeof...(Args) >= 1, void*>::type = nullptr>
   Framed(Arg&& arg, Args&&... args)
-    : Base((Arg &)arg, ((Args &)args)...),
+    : Impl((Arg &)arg, ((Args &)args)...),
       frame_(try_get_frame((Arg &)arg, ((Args &)args)...)) {}
 
   template<typename Arg,
@@ -141,7 +141,7 @@ public:
       !std::is_same<typename std::decay<Arg>::type,
         ReferenceFrame>::value, void*>::type = nullptr>
   explicit Framed(Arg&& arg)
-    : Base((Arg &)arg), frame_(try_get_frame(arg)) {}
+    : Impl((Arg &)arg), frame_(try_get_frame(arg)) {}
 #endif
 
   /**
@@ -150,7 +150,7 @@ public:
    * @param frame the ReferenceFrame this Coordinate will belong to
    **/
   explicit Framed(ReferenceFrame frame)
-    : Base(), frame_(frame) {}
+    : Impl(), frame_(frame) {}
 
 #ifdef DOXYGEN
   /**
@@ -167,7 +167,7 @@ public:
   template<typename... Args,
     typename std::enable_if<(sizeof...(Args) >= 1), void*>::type = nullptr>
   Framed(ReferenceFrame frame, Args&&... args)
-    : Base(try_transform_to(std::forward<Args>(args), frame)...),
+    : Impl(try_transform_to(std::forward<Args>(args), frame)...),
            frame_(frame) {}
 #endif
 

@@ -1,17 +1,18 @@
-project : debug_build, using_clang, using_android, using_boost, using_nothreadlocal, no_karl {
+project : debug_build, using_clang, using_android, using_boost, using_simtime, using_nothreadlocal, port/python/using_python, using_warnings, no_warnings {
   includes += $(MADARA_ROOT)/include
-  includes += $(CAPNP_ROOT)/c++/src
   libpaths += $(MADARA_ROOT)/lib
+
+  after += Madara
 
   libs += MADARA
 
   specific(prop:microsoft) {
-    DisableSpecificWarnings += 4005 4251 4275
-	macros += _CRT_SECURE_NO_WARNINGS
+    DisableSpecificWarnings += 4005 4251 4275 4244
+    macros += _CRT_SECURE_NO_WARNINGS
   }
 
   verbatim (make, local, true) {
-    CPPFLAGS := -std=c++11 -O3 $(CPPFLAGS)
+    CPPFLAGS := -std=c++14 -O3 $(CPPFLAGS)
     LDLIBS := $(LDLIBS) -lMADARA
   }
 }

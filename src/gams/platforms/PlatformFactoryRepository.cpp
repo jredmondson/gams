@@ -67,8 +67,15 @@
 #include "gams/platforms/airlib/AirLibQuadcopter.h"
 #endif
 
+#ifdef _GAMS_SCRIMMAGE_
+#include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
+#endif
+
+#ifdef _GAMS_OSC_
 #include "gams/platforms/osc/OscPlatform.h"
 #include "gams/platforms/osc/OscJoystickPlatform.h"
+#endif
+
 #include "gams/loggers/GlobalLogger.h"
 
 #include <string>
@@ -97,6 +104,12 @@ platforms::PlatformFactoryRepository::~PlatformFactoryRepository()
 {
 }
 
+bool
+platforms::PlatformFactoryRepository::exists(const std::string & prefix) const
+{
+  return factory_map_.find(prefix) != factory_map_.end();
+}
+
 void
 platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 {
@@ -116,6 +129,8 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
 
   add(aliases, new NullPlatformFactory());
   
+  // OSC-based platforms for UnrealGAMS control
+#ifdef _GAMS_OSC_
   aliases.resize(5);
   aliases[0] = "osc-quadcopter";
   aliases[1] = "osc";
@@ -139,6 +154,8 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
   aliases[2] = "joystick";
 
   add(aliases, new OscJoystickPlatformFactory());
+
+#endif //  #ifdef _GAMS_OSC_
 
   // VREP Platforms
 #ifdef _GAMS_VREP_
@@ -193,12 +210,21 @@ platforms::PlatformFactoryRepository::initialize_default_mappings(void)
   // ROS Platforms
 #ifdef _GAMS_ROS_
   // the ROS P3DX platform
-  aliases.resize(2);
+  aliases.resize(3);
   aliases[0] = "RosP3Dx";
   aliases[1] = "ros-p3dx";
   aliases[2] = "ROS_P3DX";
 
   add(aliases, new RosP3DxFactory());
+#endif
+
+#ifdef _GAMS_SCRIMMAGE_
+  aliases.resize(3);
+  aliases[0] = "scrimmage";
+  aliases[1] = "scrimmage-gams";
+  aliases[2] = "gams-scrimmage";
+  
+  add(aliases, new SCRIMMAGEBasePlatformFactory());
 #endif
 
 #ifdef _GAMS_AIRLIB_

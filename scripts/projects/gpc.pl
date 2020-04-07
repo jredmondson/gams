@@ -2376,7 +2376,7 @@ containers::${new_container}::modify (void)
       close project_file;
     }
   
-    if (not -f "$path/using_boost.mpb" or not -f "$path/using_capnp.mpb")
+    if (not -f "$path/using_boost.mpb")
     {
       my $gamsroot = $ENV{GAMS_ROOT};
       
@@ -2387,6 +2387,18 @@ containers::${new_container}::modify (void)
       
       copy "$script_dir/common/using_vrep.mpb", "$path/";
       copy "$script_dir/common/using_boost.mpb", "$path/";
+    }
+  
+    if (not -f "$path/using_capnp.mpb" or not -f "$path/capnp_files.mpb")
+    {
+      my $gamsroot = $ENV{GAMS_ROOT};
+      
+      if ($verbose)
+      {
+        print ("  Copying capnp base projects from $gamsroot to $path...\n");
+      }
+      
+      copy "$script_dir/common/capnp_files.mpb", "$path/";
       copy "$script_dir/common/using_capnp.mpb", "$path/";
     }
   
@@ -4370,6 +4382,11 @@ filters::${filter}::filter (
     copy "$script_dir/common/doxygen_help_gen.mpb", "$path/";
   }
 
+  if (not -f "$path/debug_build.mpb")
+  {
+    copy "$script_dir/common/debug_build.mpb", "$path/";
+  }
+
   if (not -f "$path/using_boost.mpb")
   {
     copy "$script_dir/common/using_madara.mpb", "$path/";
@@ -4406,6 +4423,26 @@ filters::${filter}::filter (
   if (not -f "$path/using_madara.mpb")
   {
     copy "$script_dir/common/using_madara.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_nothreadlocal.mpb")
+  {
+    copy "$script_dir/common/using_nothreadlocal.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_simtime.mpb")
+  {
+    copy "$script_dir/common/using_simtime.mpb", "$path/";
+  }
+
+  if (not -f "$path/using_warnings.mpb")
+  {
+    copy "$script_dir/common/using_warnings.mpb", "$path/";
+  }
+
+  if (not -f "$path/no_warnings.mpb")
+  {
+    copy "$script_dir/common/no_warnings.mpb", "$path/";
   }
 
   if (not -f "$path/project.mpc")

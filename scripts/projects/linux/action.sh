@@ -159,7 +159,7 @@ if [ $COMPILE -eq 1 ]; then
   fi
 
   cd $SCRIPTS_DIR
-  $MPC_ROOT/mwc.pl -type make -features clang=$CLANG,vrep=$COMPILE_VREP,tests=0,docs=1 workspace.mwc
+  $MPC_ROOT/mwc.pl -type make -features clang=$CLANG,vrep=$COMPILE_VREP,tests=0,docs=1,simtime=0,nothreadlocal=0 workspace.mwc
   
   
   if [ $CLEAN -eq 1 ]; then

@@ -113,10 +113,10 @@ Epsilon(double dist)
 
 /// Use specified tolerances
 ///
-/// @param dist the position tolerance (in meters)
-/// @param radians the angle tolerance (in radians)
-Epsilon(double dist, double radians)
-: dist_(dist), radians_(radians) {}
+/// @param dist_tol the position tolerance (in meters)
+/// @param radians_tol the angle tolerance (in radians)
+Epsilon(double dist_tol, double radians_tol)
+: dist_(dist_tol), radians_(radians_tol) {}
 
 /// Use specified tolerances, with custom angle units
 ///

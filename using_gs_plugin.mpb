@@ -1,0 +1,13 @@
+feature (scrimmage) {
+  requires += scrimmage
+
+  macros += _GAMS_SCRIMMAGE_
+  
+  includes += $(GAMS_ROOT)/src/gams/plugins/scrimmage/
+  
+  verbatim (make, local, true) {
+    CPPFLAGS := -std=c++14 -O3 $(CPPFLAGS)
+  }
+
+  libs += GAMSAutonomy_plugin
+}

@@ -55,6 +55,13 @@
 #include "gams/loggers/GlobalLogger.h"
 #include "madara/utility/EpochEnforcer.h"
 
+
+// Required for cheat mode SCRIMMAGE
+#ifdef _GAMS_SCRIMMAGE_
+#include "gams/platforms/scrimmage/SCRIMMAGEBasePlatform.h"
+#include <scrimmage/simcontrol/SimControl.h>
+#endif
+
 // Java-specific header includes
 #ifdef _GAMS_JAVA_
 #include "gams/algorithms/java/JavaAlgorithm.h"
@@ -73,7 +80,7 @@ gams::controllers::Multicontroller::Multicontroller(
   madara_logger_ptr_log(gams::loggers::global_logger.get(),
     gams::loggers::LOG_MAJOR,
     "gams::controllers::Multicontroller::constructor:" \
-    " creating %d controllers.\n");
+    " creating %d controllers.\n", num_controllers);
 
   resize(num_controllers);
 }
@@ -89,6 +96,7 @@ gams::controllers::Multicontroller::~Multicontroller()
   {
     delete controllers_[i];
   }
+ 
 }
 
 void gams::controllers::Multicontroller::add_platform_factory(
@@ -148,6 +156,14 @@ gams::controllers::Multicontroller::add_transports (
   for (size_t i = 0; i < kbs_.size(); ++i)
   {
     kbs_[i].attach_transport(kbs_[i].get(".prefix").to_string(), settings);
+  }
+}
+
+void gams::controllers::Multicontroller::clear_knowledge(void)
+{
+  for (auto kb : kbs_)
+  {
+    kb.clear();
   }
 }
 
@@ -281,10 +297,33 @@ gams::controllers::Multicontroller::init_platform(
     "gams::controllers::Multicontroller::init_platform:" \
     " initializing all controllers with platform %s\n", platform.c_str());
 
+#ifdef _GAMS_SCRIMMAGE_
+  if (platform == "scrimmage")
+  {
+     for (size_t i = 0; i < controllers_.size(); ++i)
+     {
+       auto kb      = controllers_[i]->get_kb();
+       auto sensors = controllers_[i]->get_sensors();
+       auto self    = controllers_[i]->get_self();
+       
+       controllers_[i]->init_platform(
+           new gams::platforms::SCRIMMAGEBasePlatform(
+               kb,
+               sensors,
+               self
+           )
+       );
+     }
+     
+  }
+#else
+
   for (size_t i = 0; i < controllers_.size(); ++i)
   {
     controllers_[i]->init_platform(platform, args);
   }
+  
+#endif
 }
 
 void
@@ -385,6 +424,24 @@ const Integer & processes)
   }
 }
 
+void gams::controllers::Multicontroller::refresh_vars(
+  bool init_non_self_vars)
+{
+  for (size_t i = 0; i < controllers_.size(); ++i)
+  {
+    if (init_non_self_vars)
+    {
+      controllers_[i]->init_vars((Integer)i, (Integer)controllers_.size());
+    }
+    else
+    {
+      // create the agent variables and set swarm size only
+      controllers_[i]->init_vars((Integer)i);
+      kbs_[i].set("swarm.size", (Integer)controllers_.size());
+    }
+  }
+}
+
 gams::algorithms::BaseAlgorithm *
 gams::controllers::Multicontroller::get_algorithm(size_t controller_index)
 {
@@ -430,7 +487,8 @@ gams::controllers::Multicontroller::get_num_controllers (void)
   return controllers_.size();
 }
 
-void gams::controllers::Multicontroller::resize (size_t num_controllers)
+void gams::controllers::Multicontroller::resize (size_t num_controllers,
+  bool init_non_self_vars)
 {
   size_t old_size = controllers_.size();
 
@@ -453,7 +511,10 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
     {
       for (auto transport : transports_)
       {
-        transport->set(kbs_);
+        if (transport != 0)
+        {
+          transport->set(kbs_);
+        }
       }
       
       transports_.resize(num_controllers);
@@ -462,10 +523,29 @@ void gams::controllers::Multicontroller::resize (size_t num_controllers)
     // if we're growing the num controllers, resize now
     if (old_size < num_controllers)
     {
+      // handle case where resize is called after a default constructor
+      if (old_size == 1 && settings_.shared_memory_transport)
+      {
+        delete controllers_[0];
+        old_size = 0;
+      }
+
       madara::transport::QoSTransportSettings transport_settings;
       for (size_t i = old_size; i < num_controllers; ++i)
       {
-        controllers_[i] = new BaseController (kbs_[i], settings_);
+        controllers_[i] = new BaseController(kbs_[i], settings_);
+
+        if (init_non_self_vars)
+        {
+          // create the swarm variables with all agents populated
+          controllers_[i]->init_vars((Integer)i, (Integer)num_controllers);
+        }
+        else
+        {
+          // create the agent variables and set swarm size only
+          controllers_[i]->init_vars((Integer)i);
+          kbs_[i].set("swarm.size", (Integer)num_controllers);
+        }
 
         // only add shared memory transport if more than 1 controller
         if (settings_.shared_memory_transport && num_controllers > 1)
@@ -568,6 +648,33 @@ gams::controllers::Multicontroller::run(double loop_period,
 int
 gams::controllers::Multicontroller::run_once(void)
 {
+  // Runs the simulator step before running the first MAPE loop as the MAPE loop
+  // depends on entities being inside the simulator
+  
+#ifdef _GAMS_SCRIMMAGE_
+  if (settings_.simulation_engine == 1)
+  {
+     madara_logger_ptr_log(gams::loggers::global_logger.get(),
+        gams::loggers::LOG_ALWAYS,
+        "Stepping the SCRIMMAGE Simulator: %i\n", sim_step_);
+     //sim_control_->run_single_step(sim_step_++);
+     
+     scrimmage::SimControl * ptr = 
+     gams::platforms::SCRIMMAGEBasePlatform::get_simcontrol_instance();
+     
+     
+     // If it's running threaded, control the steps through this function. Otherwise
+     // SimControl will control its own steps by the user interacting with GUI window.
+     if (!gams::platforms::SCRIMMAGEBasePlatform::simcontrol_threaded())
+     {
+       if (ptr != NULL)
+       {
+           ptr->run_single_step(sim_step_++);
+       }
+     }
+  }
+#endif
+
   // return value
   int return_value = 0;
 

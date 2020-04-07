@@ -1,14 +1,5 @@
-project {
-
-  Define_Custom (CAPN) {
-    command = bash -c "capnp compile -I \$$CAPNP_ROOT/c++/src -oc++ \"\$$0\";\
-mv \"\$$0.c++\" \"\$$0.cpp\";\
-capnp compile -I \$$CAPNP_ROOT/c++/src -o/bin/cat \"\$$0\" > \$$0.bin"
-    inputext = .capnp
-    source_outputext = .capnp.cpp
-    header_outputext = .capnp.h
-    generic_outputext = .capnp.bin
-  }
+feature(capnp) {
+  macros += _USE_CAPNP_
 
   includes += $(CAPNP_ROOT)/c++/src
 

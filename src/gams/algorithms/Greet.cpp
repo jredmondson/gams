@@ -215,7 +215,7 @@ gams::algorithms::GreetFactory::create(
         target, target_group,
         guard_distance, guard_group, guard_location, guard_max_follow_distance,
         home_location,
-        follow, follow_group, follow_max_agents,
+        follow, follow_group, (int)follow_max_agents,
         knowledge, platform, sensors, self);
     }
   }
@@ -235,10 +235,10 @@ gams::algorithms::Greet::Greet(
   platforms::BasePlatform * platform, variables::Sensors * sensors,
   variables::Self * self) :
   BaseAlgorithm(knowledge, platform, sensors, self),
-  group_factory_ (knowledge),
+  guard_max_follow_distance_ (guard_max_follow_distance),
   guard_epsilon_(guard_distance),
   guard_location_(platform->get_frame()),
-  guard_max_follow_distance_ (guard_max_follow_distance),
+  group_factory_ (knowledge),
   home_location_(platform->get_frame())
 {
   if (knowledge && platform && sensors && self)

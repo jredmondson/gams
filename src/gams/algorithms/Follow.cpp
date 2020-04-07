@@ -209,8 +209,8 @@ gams::algorithms::Follow::analyze(void)
 
   if (platform_ && *platform_->get_platform_status()->movement_available)
   {
-    const pose::ReferenceFrame * platform_frame =
-      &(platform_->get_location().frame());
+    //const pose::ReferenceFrame * platform_frame =
+    //  &(platform_->get_location().frame());
 
     // initialize location and orientation frames
     last_location_.frame(platform_->get_location().frame());

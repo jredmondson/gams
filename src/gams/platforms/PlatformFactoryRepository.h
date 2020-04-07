@@ -140,6 +140,13 @@ namespace gams
        * Initializes factories for all supported GAMS algorithms
        **/
       void initialize_default_mappings(void);
+      
+      /**
+      * Checks if a platform type exists in the repository
+      * @param  type   type of platform
+      * @return  true, if the platform has a factory associated with it
+      **/
+      bool exists(const std::string & prefix) const;
 
     private:
 

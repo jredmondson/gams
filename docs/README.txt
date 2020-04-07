@@ -28,6 +28,15 @@ GAMS HELP DOCUMENTATION INFORMATION
        Click on downloads and navigate to your operating system. Without this
        package, you will not be able to generate helpful documentation.
 
+       NOTE FOR WINDOWS USERS:
+
+       The installer no longer appears to update your path, which is needed
+       so "dot" can be found. Edit your environment variables by going to
+       Start->Edit Environment Variables and then add 
+       "C:\Program Files (x86)\Graphviz2.38\bin" to your PATH variables. If
+       you do not have a multiline list version, then just add a semicolon
+       ";" between other PATH variable items and the Graphviz bin directory.
+
   Project: Java SDK including Javadocs (free)
   URL: Operating system dependent but generally you'll want the Sun JVM SDK
        

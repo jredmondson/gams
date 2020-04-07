@@ -11,13 +11,15 @@
  * Stage Control messages
  **/
 
+#ifdef _GAMS_OSC_
+
 #include "OscUdp.h"
 #include "osc/OscOutboundPacketStream.h"
 
 #define OUTPUT_BUFFER_SIZE 1024
 
 size_t
-gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
+gams::utility::OscUdp::pack(void *buffer, size_t , const OscMap &map)
 {
   size_t result = 0;
 
@@ -93,7 +95,8 @@ gams::utility::OscUdp::pack(void *buffer, size_t size, const OscMap &map)
 
       bundle
           << osc::BeginMessage(i.first.c_str())
-          << osc::Blob(value.c_str(), value.size())
+          << osc::Blob(value.c_str(),
+             (osc::osc_bundle_element_size_t)value.size())
           << osc::EndMessage;
     }
   }
@@ -281,3 +284,5 @@ int gams::utility::OscUdp::send(const OscMap &values)
 
   return result;
 }
+
+#endif //  #ifdef _GAMS_OSC_

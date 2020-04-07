@@ -324,40 +324,40 @@ int main(int argc, char ** argv)
     }
 
     // the schema files
-    if (config["capnp_schemas"])
-    {
-      for (YAML::const_iterator it=config["capnp_schemas"].begin();
-           it!=config["capnp_schemas"].end();++it)
-      {
-        schema_files.push_back(it->as<std::string>());
-      }
-    }
+    // if (config["capnp_schemas"])
+    // {
+    //   for (YAML::const_iterator it=config["capnp_schemas"].begin();
+    //        it!=config["capnp_schemas"].end();++it)
+    //   {
+    //     schema_files.push_back(it->as<std::string>());
+    //   }
+    // }
 
     // capnproto schema mappings
-    if (config["schema_map"])
-    {
-      for (YAML::const_iterator it=config["schema_map"].begin();
-          it!=config["schema_map"].end(); ++it)
-      {
-        std::string ros_type = it->first.as<std::string>();
-        std::string schema_name = 
-          gams::utility::ros::cleanCapnpSchemaName(it->second.as<std::string>());
-        schema_map[ros_type] = schema_name;
-      }
-    }
+    // if (config["schema_map"])
+    // {
+    //   for (YAML::const_iterator it=config["schema_map"].begin();
+    //       it!=config["schema_map"].end(); ++it)
+    //   {
+    //     std::string ros_type = it->first.as<std::string>();
+    //     std::string schema_name = 
+    //       gams::utility::ros::cleanCapnpSchemaName(it->second.as<std::string>());
+    //     schema_map[ros_type] = schema_name;
+    //   }
+    // }
 
     // plugin map
-    if (config["plugin_map"])
-    {
-      for (YAML::const_iterator it=config["plugin_map"].begin();
-          it!=config["plugin_map"].end(); ++it)
-      {
-        std::string ros_type = it->first.as<std::string>();
-        std::string lib = it->second["lib"].as<std::string>();
-        std::string func = it->second["func"].as<std::string>();
-        plugin_map[ros_type] = std::pair<std::string, std::string>(lib, func);
-      }
-    }
+    // if (config["plugin_map"])
+    // {
+    //   for (YAML::const_iterator it=config["plugin_map"].begin();
+    //       it!=config["plugin_map"].end(); ++it)
+    //   {
+    //     std::string ros_type = it->first.as<std::string>();
+    //     std::string lib = it->second["lib"].as<std::string>();
+    //     std::string func = it->second["func"].as<std::string>();
+    //     plugin_map[ros_type] = std::pair<std::string, std::string>(lib, func);
+    //   }
+    // }
 
     // simple renameing of message members
     if (config["name_substitution"])

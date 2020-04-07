@@ -1,0 +1,34 @@
+// if no one has set origin, then set it to [5 * agent id, 5 * agent id, 0] as origin
+
+// Specify which entity type and world setup is wanted. Must be on SCRIMMAGE_MISSION_PATH.
+
+worldfile="default_quadcopters.xml";
+//worldfile="default_cars.xml";
+
+.prefix == "agent.0" =>
+(
+  !.origin => (.origin = [0, 0, 2]);
+  !.initial_pose => (.initial_pose = .origin);
+
+  {.prefix}.algorithm="waypoints";
+  {.prefix}.algorithm.args.locations.size=4;
+  {.prefix}.algorithm.args.locations.0=[.origin[0] + 10,.origin[1] + 10,.origin[2] + 5];
+  {.prefix}.algorithm.args.locations.1=[.origin[0] - 10,.origin[1] + 10,.origin[2] + 7];
+  {.prefix}.algorithm.args.locations.2=[.origin[0] - 10,.origin[1] - 10,.origin[2] + 9];
+  {.prefix}.algorithm.args.locations.3=[.origin[0] + 10,.origin[1] - 10,.origin[2] + 11];
+  {.prefix}.algorithm.args.repeat=5;
+//  {.prefix}.gams_debug_level=4;
+);
+
+.prefix != "agent.0" =>
+(
+  !.origin => (.origin = [.id % 5 - 2.5, .id / 5, 1 + .id % 3]);
+  !.initial_pose => (.initial_pose = .origin);
+
+  // we're basically trying to 
+  {.prefix}.algorithm="follow";
+  {.prefix}.algorithm.args.target="agent.0";
+  {.prefix}.algorithm.args.offset=[(.id % 5 - 2.5) * 2, (.id / 5) * 2, (-1 + .id % 3) * 2];
+//  {.prefix}.gams_debug_level=4;
+);
+

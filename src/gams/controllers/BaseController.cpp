@@ -963,6 +963,7 @@ gams::controllers::BaseController::init_algorithm(
       "  random area coverage\n" \
       "  priotized area coverage\n"
       );
+      
   }
   else
   {
@@ -1454,4 +1455,16 @@ gams::variables::Sensors *
 gams::controllers::BaseController::get_sensors(void)
 {
   return &sensors_;
+}
+
+madara::knowledge::KnowledgeBase *
+gams::controllers::BaseController::get_kb(void)
+{
+  return &knowledge_;
+}
+
+gams::variables::Self *
+gams::controllers::BaseController::get_self(void)
+{
+  return &self_;
 }

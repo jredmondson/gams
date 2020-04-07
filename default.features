@@ -8,49 +8,59 @@
 ///
 ///============================================================================
 
+/// @feature android
+/// Enable this feature if you want to support Android (requires java=1)
+android                      = 0
+
+/// @feature airlib
+/// This is required to build GAMS with AirLib. AirLib is a requirement to
+/// interface the GAMS algorithms with the Unreal engine and to see things
+/// working in an Unreal simulation. 'prereqs unreal' is used to actually
+/// pull in and download Unreal. The airlib command is used to build the
+/// GAMS library with an airlib integration, which is actually separate.
+airlib                  = 0
+
 boost = 1
 
-/// @feature debug
-/// Enable this feature if you want to generate debug build
-debug                   = 0
-
+/// @feature nocapnp
+/// Enable this feature if you want capnp support for custom types for variables
+capnp                     = 0
 
 /// @feature clang
 /// Enable this feature if you want to compile with clang++ and libc++
 clang                   = 0
 
-/// @feature tests
-/// Enable this feature if you want to generate test applications
-tests                   = 1
+/// @feature debug
+/// Enable this feature if you want to generate debug build
+debug                   = 0
 
-
-/// @feature vrep
-/// Enable this feature if you want to support the VREP simulator
-vrep                      = 0
-
-/// @feature utm
-/// Enable this feature if you want to support the UTM coordinate system using GeographicLib
-utm                       = 0
+/// @feature docs
+/// Enable this feature if you want to generate documentation
+docs                    = 0
+/// @feature scrimmage
+/// Enable this feature if you want to support the SCRIMMAGE simulator
+scrimmage                 = 0
 
 /// @feature java
 /// Enable this feature if you want to support Java
 java                      = 0
 
-/// @feature android
-/// Enable this feature if you want to support Android (requires java=1)
-android                      = 0
-
-/// @feature openjdk
-/// Enable this feature if you want to compile with OpenJDK (requires java=1)
-openjdk                 = 0
-
 /// @feature no_karl
 /// Enable this feature if you do not need to evaluate KaRL scripts
 no_karl                 = 0
 
-/// @feature docs
-/// Enable this feature if you want to generate documentation
-docs                    = 0
+/// @feature nortti
+/// Enable this feature if you don't want GAMS to use RTTI
+/// (Run-Time Type Information, i.e., typeid and dynamic_cast)
+nortti                  = 0
+
+/// @feature osc
+/// Enable this feature if you want to compile with Open Stage Control support
+osc                     = 0
+
+/// @feature openjdk
+/// Enable this feature if you want to compile with OpenJDK (requires java=1)
+openjdk                 = 0
 
 /// @feature python
 /// Enable this to support python
@@ -61,25 +71,26 @@ python                     = 0
 /// Enable this to support ROS platforms
 ros                     = 0
 
-/// @feature types
-/// Enables this to build libTYPES.so
-types                   = 0
-
-
-/// @feature nortti
-/// Enable this feature if you don't want GAMS to use RTTI
-/// (Run-Time Type Information, i.e., typeid and dynamic_cast)
-nortti                  = 0
-
 /// @feature simtime
 /// Because simtime feature is now a core part the project settings,
 /// we need to set this to 0
 simtime                 = 0
 
+/// @feature tests
+/// Enable this feature if you want to generate test applications
+tests                   = 1
 
-/// @feature airlib
-/// This is required to build GAMS with AirLib. AirLib is a requirement to interface the GAMS algorithms with the Unreal engine and to see things working in an Unreal simulation. 'prereqs unreal' is used to actually pull in and download Unreal. The airlib command is used to build the GAMS library with an airlib integration, which is actually separate.
-airlib                  = 0
+/// @feature types
+/// Enables this to build libTYPES.so
+types                   = 0
+
+/// @feature utm
+/// Enable this feature if you want to support the UTM coordinate system using GeographicLib
+utm                       = 0
+
+/// @feature vrep
+/// Enable this feature if you want to support the VREP simulator
+vrep                      = 0
 
 /// @feature warnings
 /// This feature enables compilation warnings to debug GAMS core libraries

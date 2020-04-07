@@ -44,7 +44,6 @@ dependencies {
     //we do not use version numbers for gams and madara as it's assumed to be latest here.
     implementation files('libs/gams.jar')
     implementation files('libs/madara.jar')
-    implementation 'org.capnproto:runtime:0.1.3'
 
     //adb shell am instrument -w -r   -e debug false -e class 'ai.madara.tests.basic.ContainerTest' ai.madara.testcoverage.test/android.support.test.runner.AndroidJUnitRunner
     androidTestImplementation files('libs/madara-tests.jar')

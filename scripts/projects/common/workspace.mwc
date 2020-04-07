@@ -1,13 +1,13 @@
 
 workspace {
   specific(make) {
-    cmdline += -value_template ccflags+=-std=c++11
+    cmdline += -value_template ccflags+=-std=c++14
     cmdline += -value_template compile_flags+=-Wextra
     cmdline += -value_template compile_flags+=-pedantic
   }
 
   specific(gnuace) {
-    cmdline += -value_template "compile_flags+=-std=c++11 -g -Og"
+    cmdline += -value_template "compile_flags+=-std=c++14 -g -Og"
     cmdline += -value_template compile_flags+=-Wextra
     cmdline += -value_template compile_flags+=-pedantic
   }

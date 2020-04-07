@@ -1,5 +1,7 @@
 #define TEST_ROS2GAMS
 
+#ifdef _USE_CAPNP_
+
 #include <string>
 #include <iostream>
 #include <sys/types.h>
@@ -23,9 +25,12 @@
 #include "sensor_msgs/RegionOfInterest.h"
 #include "sensor_msgs/CompressedImage.h"
 
+#endif
 
 const double TEST_epsilon = 0.0001;
 int gams_fails = 0;
+
+#ifdef _USE_CAPNP_
 
 double round_nearest(double in)
 {
@@ -64,7 +69,7 @@ void test_pose()
 	std::cout << std::endl << "test geometry_msgs::Pose" << std::endl;
 
 	knowledge::KnowledgeBase knowledge;
-	gams::utility::ros::RosParser parser (&knowledge, "", "", capnp_types,
+	gams::utility::ros::RosParser parser (&knowledge, "", "",
 		plugin_types);
 
 	geometry_msgs::Pose p;
@@ -525,15 +530,22 @@ void test_any_compressed_image()
 	std::cout << "Format: " << format << std::endl;
 }
 
+#endif // _USE_CAPNP_
+
+
 int main (int, char **)
 {
 	std::cout << "Testing ros2gams" << std::endl;
+
+#ifdef _USE_CAPNP_
+
 	//test_pose();
 	//test_tf_tree();
 	test_any_point();
 	test_any_bool();
 	test_any_odom();
 	test_any_compressed_image();
+#endif // _USE_CAPNP_
 
   if (gams_fails > 0)
   {

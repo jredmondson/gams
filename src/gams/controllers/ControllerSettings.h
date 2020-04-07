@@ -86,6 +86,11 @@ enum SchedulingStrategies
   SCHEDULE_FAIR_RANDOM = 2
 };
 
+enum SimulationEngine
+{
+  SCRIMMAGE_ENGINE = 1
+};
+
 /**
  * Settings used for initializing GAMS controllers
  **/
@@ -99,14 +104,14 @@ public:
 
   /**
    * the default agent prefix(e.g., "agent.bob" or "agent.0"). This is a prefix
-   * of what the self_ agent prefix will be in the knowledge base. For instance,
+   * of what the self_ agent prefix will be in the knowledge base. E.g.,
    * agent.0.location, agent.0.algorithm, etc.
    **/
   std::string agent_prefix = "agent.0";
 
   /**
    * the knowledge checkpointing file system prefix(e.g., "./checkpoint" will
-   * save checkpoints to currently directory in files that start with checkpoint
+   * save checkpoints to current directory in files that start with checkpoint
    **/
   std::string checkpoint_prefix = "checkpoint";
 
@@ -140,6 +145,10 @@ public:
 
   /// include a shared memory transport when managing multiple controllers
   bool shared_memory_transport = true;
+  
+  /// Decide on which simulation engine to run. Used if the simulator can be
+  /// controlled via direct code. Defaults to -1 e.g not set.
+  int simulation_engine = 0;
 };
 
 } }

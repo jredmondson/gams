@@ -71,6 +71,10 @@
 #include "madara/knowledge/containers/String.h"
 #include "madara/knowledge/containers/Vector.h"
 
+#ifdef _GAMS_SCRIMMAGE_
+#include <scrimmage/simcontrol/SimControl.h>
+#endif
+
 #ifdef _GAMS_JAVA_
 #include <jni.h>
 #endif
@@ -138,6 +142,11 @@ namespace gams
        **/
       void add_transports(
         const madara::transport::QoSTransportSettings & source_settings);
+
+      /**
+       * Clears all controller knowledge bases
+       **/
+      void clear_knowledge(void);
 
       /**
        * Evaluates a karl logic across all controllers and knowledge bases
@@ -262,6 +271,14 @@ namespace gams
         const madara::knowledge::KnowledgeRecord::Integer & processes = -1);
       
       /**
+       * Calls init_vars for each controller. Useful after clearing
+       * knowledge to repopulate the self identifying variables
+       * @param   init_non_self_vars if true, populate agent vars for swarm,
+       *                             which is very memory expensive with 400+ 
+       **/
+      void refresh_vars(bool init_non_self_vars = false);
+      
+      /**
        * Initializes containers and knowledge base in a platform
        * This is usually the first thing a developer should do with
        * a user-defined platform.
@@ -316,9 +333,11 @@ namespace gams
 
       /**
        * Resizes the number of controllers and knowledge bases
-       * @param   num_controllers  the number of controllers to manage
+       * @param   num_controllers    the number of controllers to manage
+       * @param   init_non_self_vars if true, populate agent vars for swarm,
+       *                             which is very memory expensive with 400+ 
        **/
-      void resize(size_t num_controllers);
+      void resize(size_t num_controllers, bool init_non_self_vars = false);
 
       /**
        * Runs a single iteration of the MAPE loop
@@ -395,6 +414,10 @@ namespace gams
 
       /// Settings for controller management and qos
       ControllerSettings settings_;
+      
+      /// used explicitly by the scrimmage platform. Will be moved
+      int sim_step_ = 0;
+      
     };
   }
 }
