@@ -536,7 +536,7 @@ if [ -z $DMPL_ROOT ] ; then
 fi
 
 if [ -z $GAMS_ROOT ] ; then
-  export GAMS_ROOT=$INSTALL_DIR
+  export GAMS_ROOT=$INSTALL_DIR/gams
 fi
 
 if [ -z $MPC_ROOT ] ; then
