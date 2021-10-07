@@ -1750,15 +1750,8 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   # build GAMS
   if [ -z $GAMS_ROOT ] ; then
-    # Update Mar 6 2020: If the current directory is named gams, then it will not reinstall a new GAMS as it currently does. That caused problems when developing from any other repo than https://github.com/jredmondson/gams
-    CUR_DUR_NAME=${PWD##*/}
-    if [ ! "gams" -eq $CUR_DUR_NAME ]; then
-        export GAMS_ROOT=$INSTALL_DIR/gams
-        echo "SETTING GAMS_ROOT to $GAMS_ROOT"
-    else 
-        export GAMS_ROOT=$INSTALL_DIR
-        echo "SETTING GAMS_ROOT to $GAMS_ROOT"
-    fi
+    export GAMS_ROOT=$INSTALL_DIR/gams
+    echo "SETTING GAMS_ROOT to $GAMS_ROOT"
   fi
   
   if [ ! -d $GAMS_ROOT ] ; then
