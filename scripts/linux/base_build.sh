@@ -1340,23 +1340,25 @@ fi
 # this is common to Mac and Linux, so it needs to be outside of the above
 if [ $PREREQS -eq 1 ]; then 
 
-  if [ -d $SCRIMMAGE_GIT_ROOT ]; then
-      cd $INSTALL_DIR
-      rm -rf scrimmage
+  if [ $SCRIMMAGE -eq 1 ]; then
+    if [ -d $SCRIMMAGE_GIT_ROOT ]; then
+        cd $INSTALL_DIR
+        rm -rf scrimmage
+    fi
+  
+    echo "Installing SCRIMMAGE Dependencies"
+    cd $INSTALL_DIR
+    git clone https://github.com/gtri/scrimmage
+    SCRIMMAGE_REPO_RESULT=$?
+    
+    cd scrimmage
+    sudo ./setup/install-binaries.sh -e 0 -p 3
+    sudo add-apt-repository -y ppa:kevin-demarco/scrimmage
+    sudo apt-get update
+    sudo apt-get install scrimmage-dependencies
+    source /opt/scrimmage/*/setup.sh
+    echo "SCRIMMAGE Dependencies Installed"
   fi
-  
-  echo "Installing SCRIMMAGE Dependencies"
-  cd $INSTALL_DIR
-  git clone https://github.com/gtri/scrimmage
-  SCRIMMAGE_REPO_RESULT=$?
-  
-  cd scrimmage
-  sudo ./setup/install-binaries.sh -e 0 -p 3
-  sudo add-apt-repository -y ppa:kevin-demarco/scrimmage
-  sudo apt-get update
-  sudo apt-get install scrimmage-dependencies
-  source /opt/scrimmage/*/setup.sh
-  echo "SCRIMMAGE Dependencies Installed"
 
   if [ $OSC -eq 1 ]; then
     if [ ! -d $OSC_ROOT ]; then 
