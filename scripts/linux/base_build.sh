@@ -142,6 +142,11 @@ VREP_CONFIG=0
 WARNINGS=0
 ZMQ=0
 
+if [ -z $PYTHON_VERSION ] ; then
+  echo "PYTHON_VERSION unset, so setting it to default of 2.7"
+  export PYTHON_VERSION="2.7"
+fi
+
 CAPNP_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
 GAMS_AS_A_PREREQ=0
@@ -395,7 +400,7 @@ do
     echo "  odroid          target ODROID computing platform"
     echo "  opencv          build opencv"
     echo "  osc             build with open stage control support"
-    echo "  python          build with Python 2.7 support"
+    echo "  python          build with Python $PYTHON_VERSION support"
     echo "  prereqs         use apt-get to install prereqs. This usually only"
     echo "                  has to be used on the first usage of a feature"
     echo "  ros             build ROS platform classes"
@@ -774,10 +779,11 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
 
   if [ $ROS -eq 1 ]; then
     ROS_FIRST_SETUP=0
-    if [ ! -d "/opt/ros/kinetic" ] ; then
+    if [ ! -d "/opt/ros/melodic" ] ; then
       ROS_FIRST_SETUP=1
       sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-      sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+      sudo apt install curl # if you haven't already installed curl
+      curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     fi
   fi
 
@@ -806,9 +812,9 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   if [ $PYTHON -eq 1 ]; then
-    sudo apt-get install -y -f python2.7 python-pip python-tk
+    sudo apt-get install -y -f python$PYTHON_VERSION python-pip python-tk python$PYTHON_VERSION-dev
     sudo pip install matplotlib
-    sudo pip install pycapnp
+    #sudo pip install pycapnp
     sudo pip install pyyaml
     sudo pip install yamlloader
   fi
@@ -871,12 +877,12 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi #android condition ends
 
   if [ $ROS -eq 1 ]; then
-    sudo apt-get install -y ros-kinetic-desktop-full python-rosinstall ros-kinetic-ros-type-introspection ros-kinetic-move-base-msgs ros-kinetic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev ros-kinetic-pcl-conversions ros-kinetic-pcl-ros libpcl-dev
+    sudo apt-get install -y ros-melodic-desktop-full python-rosinstall ros-melodic-ros-type-introspection ros-melodic-move-base-msgs ros-melodic-navigation libactionlib-dev libactionlib-msgs-dev libmove-base-msgs-dev ros-melodic-pcl-conversions ros-melodic-pcl-ros libpcl-dev
 
     if [ $ROS_FIRST_SETUP -eq 1 ]; then
       sudo rosdep init
       rosdep update
-      echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+      echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
       source ~/.bashrc
     fi
   fi
@@ -1624,6 +1630,33 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
 
   else
     echo "GENERATING MADARA PROJECT"
+
+    if [ $PYTHON -eq 1 ]; then
+      if [ -z $PYTHON_LIBDIR ] ; then
+        echo "Because PYTHON_LIBDIR is not set, we will attempt to find libpython$PYTHON_VERSION.so"
+
+        if [ -f "/usr/lib/x86_64-linux-gnu/libpython$PYTHON_VERSION.so" ]; then
+
+          export PYTHON_LIBDIR="/usr/lib/x86_64-linux-gnu"
+          export PYTHON_LIBNAME="python${PYTHON_VERSION}"
+          echo "Found it at $PYTHON_LIBDIR"
+        else
+          echo "python$PYTHON_VERSION.so was not found. Checking an m version (libpython${PYTHON_VERSION}m.so"
+
+          if [ -f "/usr/lib/x86_64-linux-gnu/libpython${PYTHON_VERSION}m.so" ]; then
+
+            export PYTHON_LIBDIR="/usr/lib/x86_64-linux-gnu"
+            export PYTHON_LIBNAME="python${PYTHON_VERSION}m"
+            echo "Found it at $PYTHON_LIBDIR with name python${PYTHON_VERSION}m.so"
+          else
+            echo "ERROR: libpython$PYTHON_VERSION.so was not found. THIS BUILD IS LIKELY TO FAIL"
+            echo "Blame the python distribution managers who removed support for /usr/lib/python${PYTHON_VERSION}"
+          fi
+
+        fi
+      fi
+    fi
+
     echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc"
     perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,lz4=$LZ4,android=$ANDROID,python=$PYTHON,java=$JAVA,tests=$TESTS,tutorials=$TUTORIALS,docs=$DOCS,ssl=$SSL,zmq=$ZMQ,simtime=$SIMTIME,nothreadlocal=$NOTHREADLOCAL,clang=$CLANG,debug=$DEBUG,warnings=$WARNINGS,capnp=$CAPNP MADARA.mwc
 
@@ -1815,6 +1848,12 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     cmake --build .  --target install --config debug
     GAMS_BUILD_RESULT=$?
   else
+
+    if [ $ROS -eq 1 ]; then
+      export ROS=0
+      echo "... disabling ROS setting for GAMS build as it is unsupported in current GAMS"
+    fi
+
     echo "GENERATING GAMS PROJECT"
     echo "perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,types=$TYPES,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc"
     perl $MPC_ROOT/mwc.pl -type make -features no_karl=$NOKARL,capnp=$CAPNP,airlib=$AIRLIB,java=$JAVA,ros=$ROS,python=$PYTHON,types=$TYPES,vrep=$VREP,scrimmage=$SCRIMMAGE,tests=$TESTS,android=$ANDROID,docs=$DOCS,clang=$CLANG,simtime=$SIMTIME,debug=$DEBUG,warnings=$WARNINGS gams.mwc

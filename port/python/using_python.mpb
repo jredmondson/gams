@@ -31,12 +31,22 @@ feature (python) {
 
   expand(PYTHON_VERSION) {
     $PYTHON_VERSION
-    2.7
+    3.6
   }
 
   expand(BOOST_PYTHON_VERSION) {
     $BOOST_PYTHON_VERSION
     ""
+  }
+
+  expand(PYTHON_LIBDIR) {
+    $PYTHON_LIBDIR
+    $(PYTHON_ROOT)/lib/python$(PYTHON_VERSION)
+  }
+
+  expand(PYTHON_LIBNAME) {
+    $PYTHON_LIBNAME
+    python$(PYTHON_VERSION)
   }
 
 
@@ -52,8 +62,8 @@ feature (python) {
 
   macros += _MADARA_PYTHON_CALLBACKS_
 
-  libpaths += $(PYTHON_ROOT)/lib/python$(PYTHON_VERSION)
-  lit_libs += python$(PYTHON_VERSION)
+  libpaths += $(PYTHON_LIBDIR)
+  lit_libs += $(PYTHON_LIBNAME)
 
   specific(prop:windows) {
 
@@ -66,7 +76,7 @@ feature (python) {
     // end if windows build
   } else {
     includes += $(PYTHON_ROOT)/include/python$(PYTHON_VERSION)
-    libpaths += $(PYTHON_ROOT)/lib/python$(PYTHON_VERSION)
+    
     lit_libs += $(BOOST_STATIC_LIB_PREFIX)boost_python$(BOOST_PYTHON_VERSION)$(BOOST_CFG)
   }
 }

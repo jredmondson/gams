@@ -75,7 +75,7 @@ do
   elif [ "$1" = "--ros" ] ;
   then
     echo "Marking ros dependencies"
-    DEPENDS="$DEPENDS, ros-kinetic-desktop-full (>= 1.3.2-0), python-rosinstall (>= 0.7.8-1), ros-kinetic-ros-type-introspection (>= 1.1.1-0), ros-kinetic-move-base-msgs (>= 1.13.0-0), ros-kinetic-navigation (>= 1.14.4-0), libactionlib-dev (>= 1.11.4-2), libactionlib-msgs-dev (>= 1.12.3-5), libmove-base-msgs-dev (>= 1.13.0-1)"
+    DEPENDS="$DEPENDS, ros-melodic-desktop-full (>= 1.3.2-0), python-rosinstall (>= 0.7.8-1), ros-melodic-ros-type-introspection (>= 1.1.1-0), ros-melodic-move-base-msgs (>= 1.13.0-0), ros-melodic-navigation (>= 1.14.4-0), libactionlib-dev (>= 1.11.4-2), libactionlib-msgs-dev (>= 1.12.3-5), libmove-base-msgs-dev (>= 1.13.0-1)"
     DEPENDS_ROS=1
     shift
   else
