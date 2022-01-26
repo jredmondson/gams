@@ -396,6 +396,7 @@ do
     echo "  nokarl          when building MADARA, remove all karl evaluation"
     echo "                  This is useful to remove RTTI dependencies"
     echo "  nomadarapull    when building MADARA, don't do a git pull"
+    echo "  nothreadlocal   do not compile with thread local support for printing"
     echo "  nopull          when building MADARA or GAMS, don't do a git pull"
     echo "  odroid          target ODROID computing platform"
     echo "  opencv          build opencv"
