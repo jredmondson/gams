@@ -424,14 +424,6 @@ sensor.coverage.origin=[40.443077,-79.940570, 0.0];
  * The host information where VREP and UnrealGAMS are running
  **/
 .vrep_host = '127.0.0.1';
-.osc.server.endpoint ='127.0.0.1:5555';
-
-/**
- * Some parameters you can change for UnrealGAMS (can safely comment
- * these out as they are also the defaults in the OscPlatform
- **/
-.osc.local.endpoint='127.0.0.1:' + (.id + 8000);
-.osc.loiter_timeout=5.0;
 
 /**
  * Setup initial pose for Unreal in meters along x,y,z
@@ -4413,11 +4405,6 @@ filters::${filter}::filter (
   if (not -f "$path/using_clang.mpb")
   {
     copy "$script_dir/common/using_clang.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_osc.mpb")
-  {
-    copy "$script_dir/common/using_osc.mpb", "$path/";
   }
 
   if (not -f "$path/using_madara.mpb")

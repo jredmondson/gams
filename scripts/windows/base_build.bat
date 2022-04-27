@@ -19,8 +19,10 @@ SET TESTS=0
 SET TUTORIALS=0
 SET OPENCV=0
 SET DOCS=0
-SET VS_VERSION="vs2017"
-SET CMAKE_GEN=Visual Studio 15 2017
+::SET VS_VERSION="vs2017"
+::SET CMAKE_GEN=Visual Studio 15 2017
+SET VS_VERSION="vs2022"
+SET CMAKE_GEN=Visual Studio 17 2022
 SET PREREQS=0
 SET SETENV=0
 SET SETPATH=0
@@ -116,6 +118,9 @@ FOR %%x in (%*) do (
    ) ELSE IF "%%x" == "vs2019" (
      echo Build will use Visual Studio 2019
      SET VS_VERSION=vs2019
+   ) ELSE IF "%%x" == "vs2022" (
+     echo Build will use Visual Studio 2022
+     SET VS_VERSION=vs2022
    ) ELSE IF "%%x" == "setenv" (
      echo Build will set environment variables for you
      SET SETENV=1
@@ -496,13 +501,13 @@ IF %MADARA% EQU 1 (
     git clone https://github.com/jredmondson/madara "%MADARA_ROOT%"
 	SET MADARA_REPO_RESULT=%ERRORLEVEL%
 	cd "%MADARA_ROOT%"
-	git checkout windows_fixes
+	git checkout master
 	
   ) ELSE (
   
     echo MADARA exists. Pulling latest version
     cd "%MADARA_ROOT%"
-	git checkout windows_fixes
+	git checkout master
     echo git pull
     git pull
 	SET MADARA_REPO_RESULT=%ERRORLEVEL%
@@ -541,12 +546,12 @@ IF %GAMS% EQU 1 (
     git clone https://github.com/jredmondson/gams %GAMS_ROOT%
 	SET GAMS_REPO_RESULT=%ERRORLEVEL%
 	cd %GAMS_ROOT%
-	git checkout windows_fixes
+	git checkout master
 	
   ) ELSE (
     echo GAMS exists. Pulling latest version
     cd %GAMS_ROOT%
-	git checkout windows_fixes
+	git checkout master
     echo git pull
     git pull
 	SET GAMS_REPO_RESULT=%ERRORLEVEL%
