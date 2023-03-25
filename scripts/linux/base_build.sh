@@ -105,7 +105,7 @@ GAMS=0
 GAMSPULL=1
 JAVA=0
 LZ4=0
-MAC=${MAC:-0}
+MAC=0
 MADARA=0
 MADARAPULL=1
 MPC=0
@@ -128,7 +128,6 @@ CLEAN=1
 CLEAN_ENV=0
 MADARAPULL=1
 GAMSPULL=1
-MAC=${MAC:-0}
 BUILD_ERRORS=0
 STRIP=0
 TESTS=0
@@ -146,6 +145,8 @@ if [ -z $PYTHON_VERSION ] ; then
   echo "PYTHON_VERSION unset, so setting it to default of 2.7"
   export PYTHON_VERSION="2.7"
 fi
+
+echo "MAC=$MAC"
 
 CAPNP_AS_A_PREREQ=0
 EIGEN_AS_A_PREREQ=0
@@ -789,7 +790,7 @@ if [ $PREREQS -eq 1 ] && [ $MAC -eq 0 ]; then
   fi
 
   sudo apt-get update
-  sudo apt-get install -y -f build-essential subversion git-core perl doxygen graphviz libboost-all-dev
+  sudo apt-get install -y -f build-essential git-core perl doxygen graphviz libboost-all-dev
   sudo apt-get install -y -f autoconf automake libtool
 
   if [ $CLANG -eq 1 ]; then
@@ -1974,7 +1975,7 @@ if [ $CAPNP_JAVA -eq 1 ]; then
 	cd $CAPNP_PREFIX/c++
 	make -j4
 	cd $CAPNP_JAVA_DIR
-	sed -i -e 's/c++11/c++14/g' $CAPNP_JAVA_DIR/Makefile
+	sed -i -e 's/c++11/c++17/g' $CAPNP_JAVA_DIR/Makefile
 	sed -i '/CAPNP_CXX_FLAGS=\$/d' $CAPNP_JAVA_DIR/Makefile
 	make -j4
 
@@ -2296,6 +2297,7 @@ fi
 if [ $CMAKE -eq 1 ]; then
   
   if [ $MAC -eq 0 ]; then
+    echo "Configuring non-mac cmake..."
 
     if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
       sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/install/lib"':'"\$GAMS_ROOT/install/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
@@ -2305,6 +2307,7 @@ if [ $CMAKE -eq 1 ]; then
 
   else
 
+    echo "Configuring mac cmake..."
     if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
       sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/install/lib"':'"\$GAMS_ROOT/install/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
     else
