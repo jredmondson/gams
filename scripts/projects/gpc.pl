@@ -4086,10 +4086,10 @@ filters::${filter}::filter (
             $algorithms[$i] . ".h\"";
           $algorithm_creation .= "\n
   // add ${algorithms[$i]} factory
-  aliases.clear ();
-  aliases.push_back (\"${algorithms[$i]}\");\n
-  controller.add_algorithm_factory (aliases,
-    new algorithms::${algorithms[$i]}Factory ());";
+  aliases.clear();
+  aliases.push_back(\"${algorithms[$i]}\");\n
+  controller.add_algorithm_factory(aliases,
+    new algorithms::${algorithms[$i]}Factory());";
         } 
        
         if ($verbose)
@@ -4121,10 +4121,10 @@ filters::${filter}::filter (
           # insert extra space in between platform creations
           $platform_creation .= "\n
   // add ${platforms[$i]} factory
-  aliases.clear ();
-  aliases.push_back (\"${platforms[$i]}\");\n
-  controller.add_platform_factory (aliases,
-    new platforms::${platforms[$i]}Factory ());";
+  aliases.clear();
+  aliases.push_back(\"${platforms[$i]}\");\n
+  controller.add_platform_factory(aliases,
+    new platforms::${platforms[$i]}Factory());";
         } 
         
         # change the includes         
@@ -4148,7 +4148,7 @@ filters::${filter}::filter (
           $thread_includes .= "\n#include \"threads/" .
             $threads[$i] . ".h\"";            
           $thread_creation .= "
-  threader.run (${thread_hz}, \"${threads[$i]}\", new threads::${threads[$i]} ());";
+  threader.run(${thread_hz}, \"${threads[$i]}\", new threads::${threads[$i]}());";
         }
         
         # change the includes         
@@ -4172,8 +4172,8 @@ filters::${filter}::filter (
           $transport_includes .= "\n#include \"transports/" .
             $transports[$i] . ".h\"";            
           $transport_creation .= "
-  kb.attach_transport (new transports::${transports[$i]} (
-    kb.get_id (), settings, kb));";
+  kb.attach_transport(new transports::${transports[$i]} (
+    kb.get_id(), settings, kb));";
         }
         
         # change the includes         
@@ -4256,7 +4256,7 @@ filters::${filter}::filter (
             $receive_filter_includes .= "\n#include \"filters/${filter}.h\"";
           }
           $receive_filter_creation .= "
-  settings.add_receive_filter (new filters::${filter} ());";
+  settings.add_receive_filter(new filters::${filter}());";
         }
         
         if ($receive_filter_includes)
@@ -4298,7 +4298,7 @@ filters::${filter}::filter (
             $send_filter_includes .= "\n#include \"filters/${filter}.h\"";
           }
           $send_filter_creation .= "
-  settings.add_send_filter (new filters::${filter} ());";
+  settings.add_send_filter(new filters::${filter}());";
         }
         
         if ($send_filter_includes)
