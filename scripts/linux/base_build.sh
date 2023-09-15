@@ -2294,6 +2294,8 @@ if [ $ANDROID -eq 1 ]; then
 
 fi
 
+ECHO "EXPORTING ENVIRONMENT: CMAKE=$CMAKE, MAC=$MAC"
+
 if [ $CMAKE -eq 1 ]; then
   
   if [ $MAC -eq 0 ]; then
@@ -2323,12 +2325,14 @@ if [ $CMAKE -eq 1 ]; then
 else # not CMAKE
   if [ $MAC -eq 0 ]; then
 
+    echo "Configuring non-mac non-cmake..."
     if grep -q LD_LIBRARY_PATH $HOME/.gams/env.sh ; then
       sed -i 's@LD_LIBRARY_PATH=.*@LD_LIBRARY_PATH='"\$LD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib"'@' $HOME/.gams/env.sh
     else
       echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$MADARA_ROOT/lib:\$GAMS_ROOT/lib:\$VREP_ROOT:\$CAPNP_ROOT/c++/.libs:\$SCRIMMAGE_GIT_ROOT/build/plugin_libs:\$SCRIMMAGE_GIT_ROOT/build/lib" >> $HOME/.gams/env.sh
     fi
   else
+    echo "Configuring mac non-cmake..."
     if grep -q DYLD_LIBRARY_PATH $HOME/.gams/env.sh ; then
       sed -i 's@DYLD_LIBRARY_PATH=.*@DYLD_LIBRARY_PATH='"\$DYLD_LIBRARY_PATH"':'"\$MADARA_ROOT/lib"':'"\$GAMS_ROOT/lib"':'"\$VREP_ROOT"':'"\$CAPNP_ROOT/c++/.libs"'@' $HOME/.gams/env.sh
     else
