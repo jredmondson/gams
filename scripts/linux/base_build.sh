@@ -1627,8 +1627,9 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     echo "... build release libs"
     cmake --build .  --config release
     echo "... installing to $MADARA_ROOT/install"
-    cmake --build .  --target install --config release
-    cmake --build .  --target install --config debug
+    sudo cmake --build .  --target install --config release
+    sudo cmake --build .  --target install --config debug
+    sudo ldconfig
     MADARA_BUILD_RESULT=$?
 
   else
@@ -1847,8 +1848,9 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     echo "... build release libs"
     cmake --build .  --config release
     echo "... installing to $GAMS_ROOT/install"
-    cmake --build .  --target install --config release
-    cmake --build .  --target install --config debug
+    sudo cmake --build .  --target install --config release
+    sudo cmake --build .  --target install --config debug
+    sudo ldconfig
     GAMS_BUILD_RESULT=$?
   else
 
