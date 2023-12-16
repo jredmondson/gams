@@ -89,6 +89,12 @@ namespace gams
         const std::string& name = "");
 
       /**
+       * Copy constructor
+       * @param  rhs   values to copy
+       **/
+      Region(const Region& rhs);
+
+      /**
        * Destructor
        **/
       virtual ~Region();

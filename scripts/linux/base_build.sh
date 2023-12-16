@@ -1206,30 +1206,8 @@ fi
 
 if [ $GAMS -eq 1 ] || [ $EIGEN_AS_A_PREREQ -eq 1 ]; then
 
-  cd $INSTALL_DIR
+  sudo apt install libeigen3-dev
 
-  echo "ENTERING $EIGEN_ROOT"
-  if [ -d $EIGEN_ROOT ]; then
-    (
-      cd $EIGEN_ROOT
-      if git branch | grep "* master"; then
-        echo "EIGEN IN $EIGEN_ROOT IS MASTER BRANCH"
-        echo "Deleting and redownloading stable release..."
-        cd $HOME
-        rm -rf $EIGEN_ROOT
-      fi
-    )
-  fi
-  if [ ! -d $EIGEN_ROOT ] ; then
-    echo "git clone https://gitlab.com/libeigen/eigen.git $EIGEN_ROOT"
-    git clone https://gitlab.com/libeigen/eigen.git $EIGEN_ROOT
-    EIGEN_REPO_RESULT=$?
-  else
-    echo "UPDATING Eigen"
-    cd $EIGEN_ROOT
-    git pull
-    EIGEN_REPO_RESULT=$?
-  fi
 else
   echo "NOT CHECKING EIGEN"
 fi
@@ -2144,14 +2122,6 @@ if [ $AIRLIB -eq 1 ] && [ $FORCE_AIRSIM -eq 1 ]; then
 fi
 
 if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
-  echo "  EIGEN"
-  if [ $EIGEN_REPO_RESULT -eq 0 ]; then
-    echo -e "    REPO=\e[92mPASS\e[39m"
-  else
-    echo -e "    REPO=\e[91mFAIL\e[39m"
-    (( BUILD_ERRORS++ ))
-  fi
-
   echo "  GAMS"
   if [ $GAMSPULL -eq 1 ]; then
     if [ $GAMS_REPO_RESULT -eq 0 ]; then
@@ -2193,12 +2163,6 @@ if grep -q "export MPC_ROOT" $HOME/.gams/env.sh ; then
   sed -i 's@MPC_ROOT=.*@MPC_ROOT='"$MPC_ROOT"'@' $HOME/.gams/env.sh
 else
   echo "export MPC_ROOT=$MPC_ROOT" >> $HOME/.gams/env.sh
-fi
-
-if grep -q "export EIGEN_ROOT" $HOME/.gams/env.sh ; then
-  sed -i 's@EIGEN_ROOT=.*@EIGEN_ROOT='"$EIGEN_ROOT"'@' $HOME/.gams/env.sh
-else
-  echo "export EIGEN_ROOT=$EIGEN_ROOT" >> $HOME/.gams/env.sh
 fi
 
 if grep -q "export CAPNP_ROOT" $HOME/.gams/env.sh ; then
