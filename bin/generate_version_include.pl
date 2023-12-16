@@ -9,10 +9,17 @@ eval '(exit $?0)' && eval 'exec perl -w -S $0 ${1+"$@"}'
 # version number for inclusion with C++.
 ###################################################
 
-my $txt_fname = $ENV{'GAMS_ROOT'} . "/VERSION.txt";
-my $h_fname = $ENV{'GAMS_ROOT'} . "/src/gams/utility/Version.h";
+use File::Basename;
+
+my $path = dirname(__FILE__);
+$path .= "/..";
+
+my $txt_fname = "$path/VERSION.txt";
+my $h_fname = "$path/src/gams/utility/Version.h";
 my $txt_mdate = (stat $txt_fname)[9];
 my $h_mdate = (stat $h_fname)[9];
+
+print "$ENV{'GAMS_ROOT'}\n"; 
 
 if ($txt_mdate < $h_mdate) {
   exit 0;
@@ -21,7 +28,7 @@ if ($txt_mdate < $h_mdate) {
 print "Generating: reading from $txt_fname\n";
 
 open VERSION_FILE, "<", $txt_fname  or
-    die "Unable to open ../VERSION.txt for reading.";
+    die "Unable to open $txt_fname for reading.";
   $version = <VERSION_FILE>;
 close VERSION_FILE;
 

@@ -17,6 +17,14 @@ include(gams_macros)
 # Define the GAMS project and version
 project(GAMS VERSION "${GAMS_VERSION}")
 
+# set(GAMS_ROOT ${PROJECT_SOURCE_DIR})
+
+find_package(madara ${MIN_MADARA_VERSION} REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+find_package(Eigen3 REQUIRED)
+
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
+
 # Provide a lowercase version of project
 string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
@@ -66,7 +74,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # disable certain warnings that will occur in VS
 if(MSVC)
 
-  set(GAMS_INC_INSTALL_DIR "include/gams")
+  set(GAMS_INC_INSTALL_DIR "include")
   set(GAMS_RUNTIME_INSTALL_DIR   "bin")
   set(GAMS_LIBRARY_INSTALL_DIR   "bin")
   set(GAMS_ARCHIVE_INSTALL_DIR   "lib")
@@ -87,7 +95,7 @@ if(MSVC)
 elseif(UNIX)
   include(GNUInstallDirs)
 
-  set(GAMS_INC_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/madara")
+  set(GAMS_INC_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}/gams")
   set(GAMS_RUNTIME_INSTALL_DIR "${CMAKE_INSTALL_BINDIR}")
   set(GAMS_LIBRARY_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
   set(GAMS_ARCHIVE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}")
@@ -106,7 +114,7 @@ include(cmake/configuration.cmake)
 
 # Build the main library
 add_subdirectory(src)
-add_subdirectory(src/gams/programs)
+#add_subdirectory(src/gams/programs)
 
 # Build tests
 if(gams_TESTS)
@@ -120,7 +128,7 @@ endif()
 
 set(PKG_NAME ${PROJECT_NAME_UPPER})
 set(PKG_LIBRARIES gams)
-set(PKG_DEPENDS madara Boost::boost)
+set(PKG_DEPENDS madara Boost::boost Boost::system)
 
 # install readme and license
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt" "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.txt" "${CMAKE_CURRENT_SOURCE_DIR}/README.md" DESTINATION ${GAMS_ADDITIONAL_FILES_INSTALL_DIR})
