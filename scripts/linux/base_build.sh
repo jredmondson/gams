@@ -208,8 +208,8 @@ fi
 if [ -z $CORES ] ; then
   echo "CORES unset, so setting it to default of 1"
   echo "  If you have more than one CPU core, try export CORES=<num cores>"
-  echo "  CORES=1 (the default) will be much slower than CORES=<num cores>"
-  export CORES=1
+  export CORES=$(nproc)
+  echo "  CORES=$CORES (the default) has been set to nproc"
 fi
 
 # if $@ is empty, the user wants to repeat last build with noclean
@@ -373,7 +373,8 @@ do
     echo "  clang-8         build using clang++-8.0 and libc++"
     echo "  clang-9         build using clang++-9.0 and libc++"
     echo "  clean           run 'make clean' before builds (default)"
-    echo "  cleanenv       Unsets all related environment variables before building."
+    echo "  cleanenv        Unsets all related environment variables before building."
+    echo "  cmake           builds with cmake and installs into /usr/local."
     echo "  cuda            build relevant libs with CUDA support"
     echo "  debug           create a debug build, with minimal optimizations"
     echo "  dmpl            build DART DMPL verifying compiler"
@@ -1618,8 +1619,8 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     
     cd build
     
-    echo "cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install .."
-    cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install ..
+    echo "cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS  -D'CMAKE_INSTALL_PREFIX=/usr/local' -DCMAKE_INSTALL_PREFIX=../install .."
+    cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -D'CMAKE_INSTALL_PREFIX=/usr/local' -DCMAKE_INSTALL_PREFIX=../install ..
     echo "... build debug libs"
     cmake --build .  --config debug -j$(nproc)
     
@@ -1832,14 +1833,14 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
 
   if [ $CMAKE -eq 1 ] ; then
     
-    echo "GENERATING MADARA PROJECT"
+    echo "GENERATING GAMS PROJECT"
     
     mkdir build
     mkdir install
     
     cd build
     
-    cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install ..
+    cmake -DCMAKE_INSTALL_PREFIX="..\install"  -D'CMAKE_INSTALL_PREFIX=/usr/local' -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install ..
     echo "... build debug libs"
     cmake --build .  --config debug -j$(nproc)
     
