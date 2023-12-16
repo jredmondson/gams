@@ -1621,7 +1621,7 @@ if [ $MADARA -eq 1 ] || [ $MADARA_AS_A_PREREQ -eq 1 ]; then
     echo "cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install .."
     cmake -Dmadara_TESTS=$TESTS -Dmadara_TUTORIALS=$TUTORIALS -DCMAKE_INSTALL_PREFIX=../install ..
     echo "... build debug libs"
-    cmake --build .  --config debug
+    cmake --build .  --config debug -j$(nproc)
     
     echo "... build release libs"
     cmake --build .  --config release
@@ -1841,7 +1841,7 @@ if [ $GAMS -eq 1 ] || [ $GAMS_AS_A_PREREQ -eq 1 ]; then
     
     cmake -DCMAKE_INSTALL_PREFIX="..\install" -Dgams_TESTS=$TESTS -DCMAKE_PREFIX_PATH=$MADARA_ROOT/install ..
     echo "... build debug libs"
-    cmake --build .  --config debug
+    cmake --build .  --config debug -j$(nproc)
     
     echo "... build release libs"
     cmake --build .  --config release
