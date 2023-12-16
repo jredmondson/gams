@@ -82,14 +82,14 @@ if(MSVC)
   set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     ON)
-  find_package(Boost 1.60.0 REQUIRED)
+  #find_package(Boost 1.60.0 REQUIRED)
 else()
   set(Boost_USE_STATIC_LIBS        OFF)  # only find static libs
   set(Boost_USE_DEBUG_LIBS         OFF) # ignore debug libs and
   set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
   set(Boost_USE_MULTITHREADED      ON)
   set(Boost_USE_STATIC_RUNTIME     OFF)
-  find_package(Boost 1.60.0 REQUIRED COMPONENTS system)
+  #find_package(Boost 1.60.0 REQUIRED COMPONENTS system)
 endif()
 
 # try to match up any GAMS features requested
@@ -100,7 +100,7 @@ set(madara_THREADLOCAL        ${gams_THREADLOCAL})
 set(madara_THREADLOCAL        ${gams_THREADLOCAL})
 
 # We need this directory, and users of our library will need it too
-find_package(madara 3.3.0 REQUIRED)
+#find_package(madara 3.3.0 REQUIRED)
 
 add_custom_command(
   OUTPUT ${header_path}/Version.h
@@ -122,8 +122,8 @@ if(madara_FOUND)
 
   add_dependencies(gams gams_lib_version)
 	
-  target_include_directories(gams PUBLIC "$ENV{EIGEN_ROOT}")
-  target_include_directories(gams PUBLIC "$ENV{OSC_ROOT}")
+  # target_include_directories(gams PUBLIC "$ENV{EIGEN_ROOT}")
+  # target_include_directories(gams PUBLIC "$ENV{OSC_ROOT}")
   
   set_target_properties(gams PROPERTIES 
     DEBUG_POSTFIX d)
