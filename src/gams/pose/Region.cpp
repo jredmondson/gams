@@ -82,6 +82,17 @@ gams::pose::Region::Region(
   }
 }
 
+gams::pose::Region::Region(const Region& rhs) :
+  Containerize(rhs.name_), vertices(rhs.vertices), 
+  min_lat_(rhs.min_lat_), max_lat_(rhs.max_lat_), 
+  min_lon_(rhs.min_lon_), max_lon_(rhs.max_lon_), 
+  min_alt_(rhs.min_alt_), max_alt_(rhs.max_alt_), 
+  type_(rhs.type_)
+{
+  // note that if calculate_bounding_box ever does more than min/max vars
+  // then we need to update either the BMI or call calculate_bounding_box
+}
+
 gams::pose::Region::~Region()
 {
 }
