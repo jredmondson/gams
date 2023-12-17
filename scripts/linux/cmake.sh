@@ -11,6 +11,7 @@ cd $PROJECT_PATH
 mkdir build
 mkdir install
 cd build
+
 cmake -D'CMAKE_INSTALL_PREFIX=/usr/local' -DCMAKE_PREFIX_PATH=$PROJECT_PATH/install ..
 cmake --build . --config debug -j$(nproc)
 cmake --build . --config release
