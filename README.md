@@ -1,4 +1,4 @@
-![Build Status](https://github.com/jredmondson/gams/actions/workflows/gams-tests.yaml/badge.svg?event=push) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest) [![Javadocs](https://www.javadoc.io/badge/ai.gams/gams.svg)](https://www.javadoc.io/doc/ai.gams/gams)
+![Build Status](https://github.com/jredmondson/gams/actions/workflows/test-gams.yaml/badge.svg?event=push) [![Documentation Status](https://readthedocs.org/projects/gams/badge/?version=latest)](https://gams.readthedocs.io/en/latest/?badge=latest) [![Javadocs](https://www.javadoc.io/badge/ai.gams/gams.svg)](https://www.javadoc.io/doc/ai.gams/gams)
 
 # About GAMS
 
