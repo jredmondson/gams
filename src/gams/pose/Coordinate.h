@@ -571,6 +571,7 @@ public:
   /**
    * Set i'th value in this Coordinate. No range checking!
    *
+   * @param i the index of the coordinate
    * @param v the value to set to
    * @return the new value
    **/

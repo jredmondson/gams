@@ -17,6 +17,17 @@ macro(gams_test _NAME _FILE)
 
 endmacro()
 
+macro(gams_repo_test _NAME _FILE)
+  add_executable(${_NAME} ${_FILE})
+  target_link_libraries(${_NAME} PRIVATE gams)
+
+  add_test(NAME ${_NAME}
+         COMMAND ${_NAME})
+
+  install(TARGETS ${_NAME} EXPORT gamsTargets
+  RUNTIME DESTINATION ${GAMS_RUNTIME_INSTALL_DIR})
+endmacro()
+
 macro(print_all_variables)
     message(STATUS "print_all_variables------------------------------------------{")
     get_cmake_property(_variableNames VARIABLES)

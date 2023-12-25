@@ -17,3 +17,4 @@ cmake --build . --config debug -j$(nproc)
 cmake --build . --config release
 sudo cmake --build . --target install --config release
 sudo cmake --build . --target install --config debug
+sudo ldconfig

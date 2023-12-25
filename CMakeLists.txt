@@ -118,6 +118,8 @@ add_subdirectory(src)
 
 # Build tests
 if(gams_TESTS)
+  set(GAMS_ROOT "${PROJECT_SOURCE_DIR}")
+  enable_testing()
   add_subdirectory(tests)
 endif()
 

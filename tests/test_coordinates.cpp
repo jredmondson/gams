@@ -26,7 +26,7 @@ namespace exceptions = gams::exceptions;
     message << std::endl; \
     LOG(message.str()); \
     gams_fails++; \
-  } catch (exception_type e) { \
+  } catch (exception_type & e) { \
     std::stringstream message; \
     message << "SUCCESS : "; \
     message << #expr; \
@@ -359,7 +359,7 @@ int main(int, char *[])
         LOG(d1pos);
 
       }
-    } catch (exceptions::ReferenceFrameException e) {
+    } catch (exceptions::ReferenceFrameException& e) {
       std::cout << "Exception: FAIL " << e.what() << std::endl;
       TEST_EQ(0, 1);
     }
@@ -388,7 +388,7 @@ int main(int, char *[])
         LOG(d2pos);
           LOG(d1pos);
       }
-    } catch (exceptions::ReferenceFrameException e) {
+    } catch (exceptions::ReferenceFrameException& e) {
       std::cout << "Exception: FAIL " << e.what() << std::endl;
       TEST_EQ(0, 1);
     }
@@ -417,7 +417,7 @@ int main(int, char *[])
         LOG(d2pos);
         LOG(d1pos);
       }
-    } catch (exceptions::ReferenceFrameException e) {
+    } catch (exceptions::ReferenceFrameException& e) {
       std::cout << "Exception: FAIL " << e.what() << std::endl;
       TEST_EQ(0, 1);
     }
@@ -443,7 +443,7 @@ int main(int, char *[])
 
         Position cpos = frames[0].origin();
       }
-    } catch (exceptions::ReferenceFrameException e) {
+    } catch (exceptions::ReferenceFrameException& e) {
       std::cout << "Exception: FAIL " << e.what() << std::endl;
       TEST_EQ(0, 1);
     }
@@ -530,7 +530,7 @@ int main(int, char *[])
           TEST (transformed.z(), 1.75);
         }
       }
-    } catch (exceptions::ReferenceFrameException e) {
+    } catch (exceptions::ReferenceFrameException& e) {
       std::cout << "Exception: FAIL " << e.what() << std::endl;
       TEST_EQ(0, 1);
     }
