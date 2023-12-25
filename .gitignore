@@ -19,6 +19,7 @@ lib*
 *.vcxproj.filters
 .vscode
 capnproto/
+docs/gams
 *.capnp.cpp
 
 gams.VC.db
@@ -69,6 +70,7 @@ target/
 blacklist
 whitelist
 *.bag
+*.bak
 src/gams/types/*.c++
 src/gams/types/*.h
 !src/gams/types/Datatypes.h
@@ -87,6 +89,8 @@ port/python/tools/data_reader_interface.pyc
 port/python/tools/plotting.pyc
 scripts/simulation/vrep/spell/config.yaml
 scripts/simulation/unreal/spell/config.yaml
+
+docs/VERSION.txt
 
 .vs/
 Release/

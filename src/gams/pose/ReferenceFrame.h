@@ -1350,7 +1350,9 @@ namespace simple_rotate {
    * @param x   the x coordinate to orient (in-place)
    * @param y   the y coordinate to orient (in-place)
    * @param z   the z coordinate to orient (in-place)
-   * @param rot the angular to apply, axis-angle notation
+   * @param rx  the angular x to apply, axis-angle notation
+   * @param ry  the angular y to apply, axis-angle notation
+   * @param rz  the angular z to apply, axis-angle notation
    * @param reverse if true, apply angular in opposite direction
    **/
   void orient_linear_vec(
@@ -1361,6 +1363,11 @@ namespace simple_rotate {
   /**
    * Transform AngularVector in-place into its origin frame from this frame
    *
+   * @param origin the origin frame
+   * @param self the current reference frame
+   * @param orx  the x component of the origin axis-angle representation
+   * @param ory  the y component of the origin axis-angle representation
+   * @param orz  the z component of the origin axis-angle representation
    * @param rx  the x component of the axis-angle representation
    * @param ry  the y component of the axis-angle representation
    * @param rz  the z component of the axis-angle representation
@@ -1374,6 +1381,11 @@ namespace simple_rotate {
   /**
    * Transform AngularVector in-place from its origin frame
    *
+   * @param origin the origin frame
+   * @param self the current reference frame
+   * @param orx  the x component of the origin axis-angle representation
+   * @param ory  the y component of the origin axis-angle representation
+   * @param orz  the z component of the origin axis-angle representation
    * @param rx  the x component of the axis-angle representation
    * @param ry  the y component of the axis-angle representation
    * @param rz  the z component of the axis-angle representation
@@ -1388,9 +1400,14 @@ namespace simple_rotate {
    * Transform pose in-place into its origin frame from this frame.
    * Simply applies linear and angular transforms independantly
    *
-   * @param x the x axis for the coordinate to translate
-   * @param y the y axis for the coordinate to translate
-   * @param z the z axis for the coordinate to translate
+   * @param origin the origin frame
+   * @param self the current reference frame
+   * @param ox the x axis for the coordinate to translate
+   * @param oy the y axis for the coordinate to translate
+   * @param oz the z axis for the coordinate to translate
+   * @param orx  the x component of the origin axis-angle representation
+   * @param ory  the y component of the origin axis-angle representation
+   * @param orz  the z component of the origin axis-angle representation
    * @param rx  the x component of the axis-angle representation
    * @param ry  the y component of the axis-angle representation
    * @param rz  the z component of the axis-angle representation
@@ -1408,9 +1425,17 @@ namespace simple_rotate {
    * Transform pose in-place from its origin frame
    * Simply applies linear and angular transforms independantly
    *
+   * @param origin the origin frame
+   * @param self the current reference frame
    * @param x the x axis for the coordinate to translate
    * @param y the y axis for the coordinate to translate
    * @param z the z axis for the coordinate to translate
+   * @param ox the x axis for the coordinate to translate
+   * @param oy the y axis for the coordinate to translate
+   * @param oz the z axis for the coordinate to translate
+   * @param orx  the x component of the origin axis-angle representation
+   * @param ory  the y component of the origin axis-angle representation
+   * @param orz  the z component of the origin axis-angle representation
    * @param rx  the x component of the axis-angle representation
    * @param ry  the y component of the axis-angle representation
    * @param rz  the z component of the axis-angle representation
@@ -1427,6 +1452,7 @@ namespace simple_rotate {
   /**
    * Calculates smallest angle between two AngularVectors
    *
+   * @param self the current reference frame
    * @param rx1  the starting angular on x axis
    * @param ry1  the starting angular on y axis
    * @param rz1  the starting angular on z axis
@@ -1441,14 +1467,32 @@ namespace simple_rotate {
                   double rx2, double ry2, double rz2);
 }
 
+/**
+ * Returns a default normalized positional
+ **/
 inline void default_normalize_linear(
             const ReferenceFrameType *,
             double &, double &, double &) {}
 
+/**
+ * Returns a default normalized angular
+ **/
 inline void default_normalize_angular(
             const ReferenceFrameType *,
             double &, double &, double &) {}
 
+  /**
+   * Returns a default normalized pose
+   *
+   * @param self the current reference frame
+   * @param x    the x pose coordinate
+   * @param y    the y pose coordinate
+   * @param z    the z pose coordinate
+   * @param rx   the ending angular on x axis
+   * @param ry   the ending angular on y axis
+   * @param rz   the ending angular on z axis
+   * @return the difference in radians
+   **/
 inline void default_normalize_pose(
                 const ReferenceFrameType *self,
                 double &x, double &y, double &z,
