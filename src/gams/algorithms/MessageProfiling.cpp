@@ -83,7 +83,7 @@ gams::algorithms::MessageProfilingFactory::create(
       send_size = args[0];
 
     //if (send_size.is_integer_type())
-      result = new MessageProfiling(send_size, knowledge, platform, sensors, self);
+    result = new MessageProfiling(send_size, knowledge, platform, sensors, self);
   }
 
   return result;
