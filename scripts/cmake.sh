@@ -2,7 +2,7 @@
 
 SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-PROJECT_PATH=$SCRIPT_PATH/../..
+PROJECT_PATH=$SCRIPT_PATH/..
 
 C_COMPILER='gcc'
 CPP_COMPILER='g++'
