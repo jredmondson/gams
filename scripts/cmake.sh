@@ -50,6 +50,7 @@ do
     echo "  clean           run 'make clean' before builds (default)"
     echo "  docs            generate API documentation"
     echo "  gcc             use gcc/g++"
+    echo "  mac             build for MacOS (needs to be native/host OS)"
     echo "  tests           build test executables"
     echo "  ssl             build with SSL support"
     echo ""
@@ -113,10 +114,11 @@ mkdir build
 mkdir install
 cd build
 
+echo "Building with $PROCESSES threads..."
 echo cmake -DCMAKE_CXX_COMPILER=${CPP_COMPILER} -DCMAKE_C_COMPILER=${C_COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -Dgams_TESTS=${TESTS} -D'CMAKE_INSTALL_PREFIX=/usr/local' -DCMAKE_PREFIX_PATH=$PROJECT_PATH/install ..
 cmake -D'CMAKE_INSTALL_PREFIX=/usr/local' -Dmadara_TESTS=$TESTS -Dmadara_SSL=$SSL -DCMAKE_PREFIX_PATH=$PROJECT_PATH/install -DCMAKE_CXX_COMPILER=$CPP_COMPILER -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 cmake --build . --config debug -j $PROCESSES
-cmake --build . --config release
+cmake --build . --config release -j $PROCESSES
 sudo cmake --build . --target install --config release
 sudo cmake --build . --target install --config debug
 

@@ -52,7 +52,7 @@ jobs:
         run: git clone https://github.com/jredmondson/madara.git
 
       - name: Install MADARA
-        run: madara/scripts/linux/cmake.sh
+        run: madara/scripts/cmake.sh ${{ matrix.c_compiler }}
 
     
       - name: Set reusable strings
@@ -118,7 +118,7 @@ jobs:
         run: git clone https://github.com/jredmondson/madara.git
 
       - name: Install MADARA
-        run: madara/scripts/linux/cmake.sh mac clang
+        run: madara/scripts/cmake.sh mac
 
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
