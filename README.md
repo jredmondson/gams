@@ -2,9 +2,9 @@
 
 # About GAMS
 
-The Group Autonomy for Mobile Systems (GAMS) project at Carnegie Mellon University
+The Group Autonomy for Mobile Systems (GAMS) project at Koshee
 is intended to provide a distributed operating environment for control of one or
-more unmanned autonomous systems (UAS). The repository is composed of C++, Java,
+more unmanned autonomous systems (UAS). GAMS originated as an open source project at Carnegie Mellon University in 2013 under the direction of Dr. James Edmondson. The repository is composed of C++, Java,
 MADARA, and some LUA bindings that enable a single person to control and understand
 information from a swarm of agents, robots, or UAS. GAMS provides developers with all
 tools necessary to take simulations of multi-agent systems to reality by building
