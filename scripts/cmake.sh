@@ -102,7 +102,7 @@ if [ $PREREQS -eq 1 ]; then
     madara/scripts/linux/cmake.sh mac
   else
     echo "  Installing Linux prerequisites..."
-    sudo apt-get install -y build-essential libboost-all-dev git libssl-dev clang
+    sudo apt-get install -y build-essential libboost-all-dev git libssl-dev clang libeigen3-dev
 
     madara/scripts/linux/cmake.sh $C_COMPILER
   fi
