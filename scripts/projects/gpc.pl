@@ -97,7 +97,18 @@ my @platform_threads = ();
 my @threads = ();
 my @transports = ();
 my @filters = ();
-my $gams_root = $ENV{"GAMS_ROOT"};
+my $gams_root;
+
+if(defined $ENV{'GAMS_ROOT'}) {
+  $gams_root=$ENV{'GAMS_ROOT'};
+} else {
+  if (-e "${script_dir}/../../CMakeLists.txt") { 
+    $gams_root="${script_dir}/../..";    
+  } else {
+    $gams_root=".";
+  }
+}
+
 my $algs_templates = "$gams_root/scripts/simulation/templates/algorithms";
 
 $algs_templates =~ s/\\/\//g;
@@ -2368,32 +2379,6 @@ containers::${new_container}::modify (void)
       close project_file;
     }
   
-    if (not -f "$path/using_boost.mpb")
-    {
-      my $gamsroot = $ENV{GAMS_ROOT};
-      
-      if ($verbose)
-      {
-        print ("  Copying base projects from $gamsroot to $path...\n");
-      }
-      
-      copy "$script_dir/common/using_vrep.mpb", "$path/";
-      copy "$script_dir/common/using_boost.mpb", "$path/";
-    }
-  
-    if (not -f "$path/using_capnp.mpb" or not -f "$path/capnp_files.mpb")
-    {
-      my $gamsroot = $ENV{GAMS_ROOT};
-      
-      if ($verbose)
-      {
-        print ("  Copying capnp base projects from $gamsroot to $path...\n");
-      }
-      
-      copy "$script_dir/common/capnp_files.mpb", "$path/";
-      copy "$script_dir/common/using_capnp.mpb", "$path/";
-    }
-  
     foreach my $new_alg (@new_algorithm)
     {
       if ($new_alg and not -f "$algs_path/$new_alg.h")
@@ -4333,28 +4318,16 @@ filters::${filter}::filter (
   
   
   # copy appropriate script to the workspace
-  if (not -f "$path/action.sh" or not -f "$path/action.bat")
+  if (not -f "$path/build.sh" or not -f "$path/build.bat")
   {
-    copy "$script_dir/windows/action.bat", "$path/";
-    copy "$script_dir/linux/action.sh", "$path/";
-    chmod 0755, "$path/action.sh";
+    copy "$script_dir/windows/build.bat", "$path/";
+    copy "$script_dir/linux/build.sh", "$path/";
+    chmod 0755, "$path/build.sh";
   }
   
-  # copy documentation autogeneration files
-  if (not -f "$path/docs/Documentation.mpc")
-  {
-    copy "$script_dir/common/docs/Documentation.mpc", "$path/docs/";
-  }
-
   if (not -f "$path/docs/Doxyfile.dxy")
   {
     copy "$script_dir/common/docs/Doxyfile.dxy", "$path/docs/";
-  }
-
-  if (not -f "$path/docs/get_version.pl")
-  {
-    copy "$script_dir/common/docs/get_version.pl", "$path/docs/";
-    chmod 0755, "$path/docs/get_version.pl";
   }
 
   if (not -f "$path/docs/MainPage.md")
@@ -4368,79 +4341,10 @@ filters::${filter}::filter (
     copy "$script_dir/common/src/Namespaces.h", "$path/src";
   }
   
-  # copy main directory autogeneration files
-  if (not -f "$path/doxygen_help_gen.mpb")
+  if (not -f "$path/CMakeLists.txt")
   {
-    copy "$script_dir/common/doxygen_help_gen.mpb", "$path/";
+    copy "$script_dir/common/CMakeLists.txt", "$path/";
   }
-
-  if (not -f "$path/debug_build.mpb")
-  {
-    copy "$script_dir/common/debug_build.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_boost.mpb")
-  {
-    copy "$script_dir/common/using_madara.mpb", "$path/";
-    copy "$script_dir/common/using_boost.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_vrep.mpb")
-  {
-    copy "$script_dir/common/using_vrep.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_capnp.mpb")
-  {
-    # the directory needs the new using_madara and using_capnp
-    copy "$script_dir/common/using_capnp.mpb", "$path/";
-    copy "$script_dir/common/using_madara.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_gams.mpb")
-  {
-    copy "$script_dir/common/using_gams.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_clang.mpb")
-  {
-    copy "$script_dir/common/using_clang.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_madara.mpb")
-  {
-    copy "$script_dir/common/using_madara.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_nothreadlocal.mpb")
-  {
-    copy "$script_dir/common/using_nothreadlocal.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_simtime.mpb")
-  {
-    copy "$script_dir/common/using_simtime.mpb", "$path/";
-  }
-
-  if (not -f "$path/using_warnings.mpb")
-  {
-    copy "$script_dir/common/using_warnings.mpb", "$path/";
-  }
-
-  if (not -f "$path/no_warnings.mpb")
-  {
-    copy "$script_dir/common/no_warnings.mpb", "$path/";
-  }
-
-  if (not -f "$path/project.mpc")
-  {
-    copy "$script_dir/common/project.mpc", "$path/";
-  }
-  if (not -f "$path/workspace.mwc")
-  {
-    copy "$script_dir/common/workspace.mwc", "$path/";
-  }
-
 
   if (not -f "$path/VERSION.txt")
   {
