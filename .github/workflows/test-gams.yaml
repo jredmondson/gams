@@ -43,7 +43,7 @@ jobs:
 
     name: ${{ matrix.job-name }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Boost, SSL, and Eigen3
         run: sudo apt-get install -y libboost-all-dev git libeigen3-dev
 
@@ -108,11 +108,9 @@ jobs:
 
     name: ${{ matrix.job-name }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install Boost, SSL, and Eigen3
-        run: brew install boost autoconf automake libtool git openssl eigen
-      - name: Force Link OpenSSL
-        run: brew link --force openssl
+        run: brew install boost automake eigen
     
       - name: Download MADARA
         run: git clone https://github.com/jredmondson/madara.git
