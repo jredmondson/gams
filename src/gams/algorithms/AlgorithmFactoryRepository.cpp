@@ -268,11 +268,6 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings(
 
     add(aliases, new LandFactory());
 
-    // the snake area coverage algorithm
-    aliases.resize(2);
-    aliases[0] = "snake";
-    aliases[1] = "sac";
-
     // the wait
     aliases.resize(1);
     aliases[0] = "wait";
@@ -335,6 +330,11 @@ void algorithms::AlgorithmFactoryRepository::initialize_default_mappings(
     aliases[1] = "pwrac";
 
     add(aliases, new area_coverage::PriorityWeightedRandomAreaCoverageFactory());
+
+    // the snake area coverage algorithm
+    aliases.resize(2);
+    aliases[0] = "snake";
+    aliases[1] = "sac";
 
     add(aliases, new area_coverage::SnakeAreaCoverageFactory());
 
