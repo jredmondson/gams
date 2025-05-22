@@ -246,7 +246,7 @@ namespace gams
        * @param   epsilon     approximation value
        * @return the status of the move operation, @see PlatformReturnValues
        **/
-      int move(const pose::Position & target, double epsilon) {
+      virtual int move(const pose::Position &target, double epsilon) {
         return move(target, pose::Epsilon(epsilon));
       }
 
